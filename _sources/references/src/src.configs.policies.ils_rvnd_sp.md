@@ -209,9 +209,9 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````{py:attribute} seed
 :canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.seed
-:type: int
+:type: typing.Optional[int]
 :value: >
-   42
+   None
 
 ```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.seed
 ```

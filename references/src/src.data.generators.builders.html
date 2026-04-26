@@ -508,6 +508,20 @@ document.write(`
 <p>Builders for Vehicle Routing Problem (VRP) instances.</p>
 <p>This module provides builder classes to construct VRP instances from raw data,
 handling coordinate normalization, waste scaling, and feature extraction.</p>
+<p>Attributes:
+VRPInstanceBuilder: Builder pattern for creating VRP instances.</p>
+<p>Example:
+builder = VRPInstanceBuilder()
+builder.set_problem_size(10)
+builder.set_waste_type(“plastic”)
+builder.set_distribution(“gamma1”)
+builder.set_area(“Rio Maior”)
+builder.set_focus_graph(“graph.pkl”, 20)
+builder.set_method(“random”)
+builder.set_num_days(1)
+builder.set_problem_name(“vrpp”)
+builder.set_noise(0.0, 0.0)
+builder.build()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,7 +542,23 @@ handling coordinate normalization, waste scaling, and feature extraction.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.generators.builders.</span></span><span class="sig-name descname"><span class="pre">VRPInstanceBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_cap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder" title="Link to this definition">#</a></dt>
 <dd><p>Builder pattern for creating Vehicle Routing Problem (VRP) instances.</p>
 <p>This class provides a fluent interface to configure and generate VRP datasets
-with various parameters such as problem size, distribution, area, and waste type.</p>
+with various parameters such as problem size, distribution, area, and waste type.
+Attributes:
+dataset_size (int): Number of instances to generate.
+problem_size (int): Number of nodes (graph size).
+waste_type (Optional[str]): Type of waste.
+distribution (str): Data distribution.
+area (str): Geographical area.
+focus_graph (Optional[str]): Path to focus graph file.
+focus_size (int): Size of focus graph.
+method (Optional[str]): Method for vertex generation/selection.
+num_days (int): Number of simulation days.
+problem_name (Optional[str]): Name of the problem.
+noise_mean (float): Mean for noise injection.
+noise_variance (float): Variance for noise injection.
+device (torch.device): Device for random number generation.
+np_rng (np.random.Generator): Random number generator.
+generator (torch.Generator): PyTorch generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the VRPInstanceBuilder.</p>
 <p>Args:
@@ -543,66 +573,112 @@ device (str): Device for random number generation.</p>
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_seed">
 <span class="sig-name descname"><span class="pre">set_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_seed" title="Link to this definition">#</a></dt>
 <dd><p>Sets the random seed for reproducibility.</p>
+<p>Args:
+seed: Description of seed.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_dataset_size">
 <span class="sig-name descname"><span class="pre">set_dataset_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_dataset_size" title="Link to this definition">#</a></dt>
 <dd><p>Sets the number of instances to generate.</p>
+<p>Args:
+size: Description of size.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_problem_size">
 <span class="sig-name descname"><span class="pre">set_problem_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_problem_size" title="Link to this definition">#</a></dt>
 <dd><p>Sets the number of nodes (graph size) for the problem.</p>
+<p>Args:
+size: Description of size.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_waste_type">
 <span class="sig-name descname"><span class="pre">set_waste_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_waste_type" title="Link to this definition">#</a></dt>
 <dd><p>Sets the type of waste (e.g., ‘plastic’, ‘paper’).</p>
+<p>Args:
+waste_type: Description of waste_type.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_distribution">
 <span class="sig-name descname"><span class="pre">set_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_distribution" title="Link to this definition">#</a></dt>
 <dd><p>Sets the data distribution for generating waste levels.</p>
+<p>Args:
+distribution: Description of distribution.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_area">
 <span class="sig-name descname"><span class="pre">set_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_area" title="Link to this definition">#</a></dt>
 <dd><p>Sets the geographical area for the problem instance.</p>
+<p>Args:
+area: Description of area.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_focus_graph">
 <span class="sig-name descname"><span class="pre">set_focus_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">focus_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focus_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_focus_graph" title="Link to this definition">#</a></dt>
 <dd><p>Sets parameters for focusing on a specific subgraph.</p>
+<p>Args:
+focus_graph: Description of focus_graph.
+focus_size: Description of focus_size.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_method">
 <span class="sig-name descname"><span class="pre">set_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_method" title="Link to this definition">#</a></dt>
 <dd><p>Sets the method used for vertex generation/selection.</p>
+<p>Args:
+method: Description of method.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_num_days">
 <span class="sig-name descname"><span class="pre">set_num_days</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_num_days" title="Link to this definition">#</a></dt>
 <dd><p>Sets the number of simulation days.</p>
+<p>Args:
+num_days: Description of num_days.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_problem_name">
 <span class="sig-name descname"><span class="pre">set_problem_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_problem_name" title="Link to this definition">#</a></dt>
 <dd><p>Sets the name of the problem (e.g., ‘vrpp’, ‘wcvrp’).</p>
+<p>Args:
+problem_name: Description of problem_name.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_noise">
 <span class="sig-name descname"><span class="pre">set_noise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_noise" title="Link to this definition">#</a></dt>
 <dd><p>Sets the mean and variance for noise injection.</p>
+<p>Args:
+mean: Description of mean.
+variance: Description of variance.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -630,6 +706,8 @@ TensorDict: A TensorDict with keys matching environment expectations.</p>
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder._prepare_coordinates">
 <span class="sig-name descname"><span class="pre">_prepare_coordinates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder._prepare_coordinates" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper to prepare depot and location coordinates.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </dd></dl>

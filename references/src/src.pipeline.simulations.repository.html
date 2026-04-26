@@ -499,6 +499,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.repository">
 <span id="src-pipeline-simulations-repository"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.repository" title="src.pipeline.simulations.repository"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.repository</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.repository" title="Link to this heading">#</a></h1>
 <p>Repository Pattern for Simulation data access.</p>
+<p>Attributes:
+_REPOSITORY: Singleton repository instance.</p>
+<p>Example:
+None</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -565,6 +569,8 @@ document.write(`
 <dd><p>Replace the singleton repository instance.</p>
 <p>Call this before simulation initialization to switch between
 filesystem-based and npz-based data loading.</p>
+<p>Args:
+repo: The repository instance to set.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -590,24 +596,50 @@ path does not exist or has an unsupported extension.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.load_indices">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.repository.</span></span><span class="sig-name descname"><span class="pre">load_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.repository.load_indices" title="Link to this definition">#</a></dt>
 <dd><p>Convenience wrapper to load indices from the singleton repository.</p>
+<p>Args:
+filename: Path to the index file.
+n_samples: Number of samples.
+n_nodes: Number of nodes.
+data_size: Size of the dataset.
+lock: Optional file lock.</p>
+<p>Returns:
+List of bin indices for each sample.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.load_depot">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.repository.</span></span><span class="sig-name descname"><span class="pre">load_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rio</span> <span class="pre">Maior'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.repository.load_depot" title="Link to this definition">#</a></dt>
 <dd><p>Convenience wrapper to load depot coords from the singleton repository.</p>
+<p>Args:
+data_dir: Path to the data directory.
+area: Name of the geographic area.</p>
+<p>Returns:
+Pandas DataFrame with depot coordinates.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.load_simulator_data">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.repository.</span></span><span class="sig-name descname"><span class="pre">load_simulator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Rio</span> <span class="pre">Maior'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.repository.load_simulator_data" title="Link to this definition">#</a></dt>
 <dd><p>Convenience wrapper to load simulator data from the singleton repository.</p>
+<p>Args:
+data_dir: Path to the data directory.
+number_of_bins: Number of bins.
+area: Name of the geographic area.
+waste_type: Type of waste.
+lock: Optional file lock.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.load_area_and_waste_type_params">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.repository.</span></span><span class="sig-name descname"><span class="pre">load_area_and_waste_type_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.repository.load_area_and_waste_type_params" title="Link to this definition">#</a></dt>
 <dd><p>Convenience wrapper to load area params.</p>
+<p>Args:
+area: Geographic area name.
+waste_type: Type of waste.</p>
+<p>Returns:
+Dictionary containing area parameters.</p>
 </dd></dl>
 
 <dl class="py data">

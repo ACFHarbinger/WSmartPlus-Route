@@ -501,6 +501,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params">
 <span id="src-policies-route-construction-meta-heuristics-evolution-strategy-mu-plus-lambda-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params" title="Link to this heading">#</a></h1>
+<p>Parameters for the (μ+λ) Evolution Strategy.</p>
+<p>Attributes:
+MuPlusLambdaESParams: Parameter dataclass for (μ+λ)-ES.</p>
+<p>Example:
+&gt;&gt;&gt; params = MuPlusLambdaESParams(mu=10, lambda_=5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,28 +530,15 @@ it generates λ offspring through recombination and mutation.
 The selection operator then selects the absolute best μ individuals from the
 combined pool of μ parents and λ offspring to form the next generation.</p>
 <p>Attributes:
-mu (int): The number of parent individuals maintained in the population (<span class="math notranslate nohighlight">\(\mu\)</span>).
-This acts as an archive of the best-found solutions, guaranteeing
-strong elitism and monotonic improvement.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>lambda_ (int): The number of offspring generated per generation ($\lambda$).
-    This defines the exploration capacity per cycle.
-
-n_removal (int): The mutation strength parameter. Defines the number
-    of nodes removed during the destroy-repair mutation phase.
-
-max_iterations (int): The generational loop limit. Serves as a
-    primary termination criterion for the search process.
-
-local_search_iterations (int): The intensity of the local optimization
-    applied to each offspring.
-
-time_limit (float): Wall-clock duration in seconds. The algorithm
-    will terminate early if the process time exceeds this threshold.
-seed (Optional[int]): Random seed for reproducibility.
-vrpp (bool): Whether the problem is VRP with Profits.
-profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
-</pre></div>
-</div>
+mu: The number of parent individuals maintained in the population (μ).
+lambda_: The number of offspring generated per generation (λ).
+n_removal: The mutation strength parameter.
+max_iterations: The generational loop limit.
+local_search_iterations: Intensity of local optimization.
+time_limit: Wall-clock duration in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether the problem is VRP with Profits.
+profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams.mu">
 <span class="sig-name descname"><span class="pre">mu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams.mu" title="Link to this definition">#</a></dt>
@@ -605,6 +597,10 @@ profit_aware_operators (bool): Whether to use profit-aware insertion/removal.
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source (dict or Hydra config).</p>
+<p>Returns:
+MuPlusLambdaESParams instance.</p>
 </dd></dl>
 
 </dd></dl>

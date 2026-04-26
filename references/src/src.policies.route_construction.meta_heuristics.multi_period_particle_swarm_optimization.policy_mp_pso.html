@@ -495,6 +495,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso">
 <span id="src-policies-route-construction-meta-heuristics-multi-period-particle-swarm-optimization-policy-mp-pso"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso" title="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso" title="Link to this heading">#</a></h1>
+<p>Multi-Period Particle Swarm Optimization (MP-PSO) policy.</p>
+<p>Attributes:
+MultiPeriodPSOPolicy: Policy class for the MP-PSO approach.</p>
+<p>Example:
+&gt;&gt;&gt; policy = MultiPeriodPSOPolicy(config)
+&gt;&gt;&gt; sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,9 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy" title="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeriodPSOPolicy</span></code></a></p></td>
-<td><p>Multi-Period Particle Swarm Optimization (PSO) for Discrete Routing.
-A particle is a sequence of routes over D days.
-Velocities are swap sequences.</p></td>
+<td><p>Multi-Period Particle Swarm Optimization (PSO) for Discrete Routing.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,30 +520,53 @@ Velocities are swap sequences.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.</span></span><span class="sig-name descname"><span class="pre">MultiPeriodPSOPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Multi-Period Particle Swarm Optimization (PSO) for Discrete Routing.
-A particle is a sequence of routes over D days.
+<p>Multi-Period Particle Swarm Optimization (PSO) for Discrete Routing.</p>
+<p>A particle is a sequence of routes over D days.
 Velocities are swap sequences.</p>
+<p>Attributes:
+params: MPPSO specific parameters.
+swarm_size: Number of particles in the swarm.
+iters: Number of iterations.
+seed: Random seed.
+rng: Random number generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Multi-Period PSO policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary or Hydra config.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the multi-period plan and return total profit.</p>
+<p>Args:
+plan: The multi-period routing plan.
+problem: The problem context.</p>
+<p>Returns:
+float: Total net profit across all periods.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._subtract_plans">
 <span class="sig-name descname"><span class="pre">_subtract_plans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._subtract_plans" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Subtract two plans to find the swap sequence.</p>
+<p>Args:
+p1: Target multi-period plan.
+p2: Current multi-period plan.</p>
+<p>Returns:
+List[tuple]: List of (day, i, j) swaps needed to make p2 look like p1.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._add_velocity">
 <span class="sig-name descname"><span class="pre">_add_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._add_velocity" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply a swap sequence velocity to a plan.</p>
+<p>Args:
+plan: The current multi-period plan.
+vel: The velocity as a swap sequence.</p>
+<p>Returns:
+List[List[List[int]]]: The updated multi-period plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso.MultiPeriodPSOPolicy._run_multi_period_solver">

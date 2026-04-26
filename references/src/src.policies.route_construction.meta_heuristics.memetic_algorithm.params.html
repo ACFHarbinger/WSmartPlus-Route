@@ -504,10 +504,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm.params">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm.params" title="src.policies.route_construction.meta_heuristics.memetic_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Memetic Algorithm (MA) solver.</p>
-<p>This module defines the parameters used by the MASolver, mapped to the framework
-proposed in the seminal work:
-Moscato, P., Cotta, C., &amp; Mendes, A. (2004). “Memetic Algorithms”.
-Reference: bibliography/Memetic_Algorithms.pdf</p>
+<p>Attributes:
+MAParams: Parameter dataclass for the Memetic Algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; params = MAParams(pop_size=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,35 +527,18 @@ Reference: bibliography/Memetic_Algorithms.pdf</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.params.</span></span><span class="sig-name descname"><span class="pre">MAParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams" title="Link to this definition">#</a></dt>
 <dd><p>Hyper-parameters for the Memetic Algorithm (MA) solver.</p>
-<p>The paper defines a Memetic Algorithm as the synergistic combination of
-population-level evolutionary search (Genetic Algorithm) and individual-level
-intensive refinement (Local Search / Individual Search).</p>
-<p>Paper Concept Mapping:</p>
-<ul class="simple">
-<li><p>pop_size: The constant size of the population denoted by |pop| in Fig. 3.1.</p></li>
-<li><p>max_generations: The number of times the Generational Step is executed.</p></li>
-<li><p>recombination: Controlled by crossover_rate within the reproduction pipeline (Fig. 3.2).</p></li>
-<li><p>mutation: Controlled by mutation_rate and n_removal (p. 4).</p></li>
-<li><p>local_improver: Intensive hill-climbing defined in Fig. 3.3.</p></li>
-<li><p>replacement: Implements ‘Plus’ strategy for global elitism (p. 3).</p></li>
-</ul>
 <p>Attributes:
-pop_size: The number of active individuals in each generation (|pop|).
-Determines the breadth of the global search.
-max_generations: The maximum number of generational iterations to perform.
-crossover_rate: The probability [0.0, 1.0] that two parents will
-exchange information to create an offspring (Recombination).
-mutation_rate: The probability [0.0, 1.0] that a child will undergo
-a random structural perturbation (Mutation).
-local_search_rate: The probability [0.0, 1.0] that the Local-Improver (Fig. 3.3)
-will be applied to a newly generated offspring.
-In many MAs, this is set to 1.0 for intensive search.
-tournament_size: The number of candidates selected for each fitness-based
-competitive selection (Tournament Selection).
-Higher values increase selection pressure.
-n_removal: The number of nodes removed and re-inserted during the
-mutation operator. Represents the ‘shake’ magnitude.
-time_limit: Maximum wall-clock duration in seconds allowed for the search.</p>
+pop_size: The number of active individuals in each generation.
+max_generations: The maximum number of generational iterations.
+crossover_rate: Probability parents exchange information.
+mutation_rate: Probability of structural perturbation.
+local_search_rate: Probability intensive local search is applied.
+tournament_size: Candidates selected for competitive selection.
+n_removal: Nodes removed/re-inserted during mutation.
+time_limit: Maximum duration allowed for the search.
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams.pop_size" title="Link to this definition">#</a></dt>
@@ -626,6 +609,10 @@ time_limit: Maximum wall-clock duration in seconds allowed for the search.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source.</p>
+<p>Returns:
+Instantiated MAParams.</p>
 </dd></dl>
 
 </dd></dl>

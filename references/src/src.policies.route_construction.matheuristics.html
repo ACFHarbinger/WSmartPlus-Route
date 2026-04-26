@@ -490,6 +490,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics">
 <span id="src-policies-route-construction-matheuristics"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics" title="src.policies.route_construction.matheuristics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics" title="Link to this heading">#</a></h1>
+<p>Matheuristics for route construction.</p>
+<p>Attributes:
+policy_aks: Adaptive Kernel Search policy module.
+policy_cf_rs: Cluster-First Route-Second policy module.
+policy_cgh: Column Generation Heuristic policy module.
+policy_ks: Kernel Search policy module.
+policy_lrh: Lagrangian Relaxation Heuristic policy module.
+policy_lns_mip: Large Neighborhood Search MIP policy module.
+policy_lkh3: Lin-Kernighan-Helsgaun 3 policy module.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics import policy_aks
+&gt;&gt;&gt; policy = policy_aks.AdaptiveKernelSearchPolicy()</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

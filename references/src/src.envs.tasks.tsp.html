@@ -496,6 +496,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.tsp">
 <span id="src-envs-tasks-tsp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.tsp" title="src.envs.tasks.tsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.tsp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.tsp" title="Link to this heading">#</a></h1>
 <p>TSP problem definition for offline evaluation.</p>
+<p>Attributes:
+TSP: Traveling Salesman Problem (TSP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.tsp import TSP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+…     “depot”: torch.tensor([0.0]),
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = TSP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +534,8 @@ return to start).  No depot — the tour is a Hamiltonian cycle over all
 nodes.</p>
 <p>Cost computation supports both Euclidean (<code class="docutils literal notranslate"><span class="pre">locs</span></code> key) and
 pre-computed distance matrix inputs.</p>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.tsp.TSP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.tsp.TSP.NAME" title="Link to this definition">#</a></dt>
@@ -545,12 +560,22 @@ Tuple of <code class="docutils literal notranslate"><span class="pre">(tour_leng
 <dt class="sig sig-object py" id="src.envs.tasks.tsp.TSP._cost_from_locs">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_cost_from_locs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tasks.tsp.TSP._cost_from_locs" title="Link to this definition">#</a></dt>
 <dd><p>Compute Euclidean tour length including the closing edge.</p>
+<p>Args:
+pi: Description of pi.
+locs: Description of locs.</p>
+<p>Returns:
+Updated TensorDict or tensor containing the result.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.tsp.TSP._cost_from_matrix">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_cost_from_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tasks.tsp.TSP._cost_from_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Compute tour length from a (possibly asymmetric) cost matrix.</p>
+<p>Args:
+pi: Description of pi.
+mat: Description of mat.</p>
+<p>Returns:
+Updated TensorDict or tensor containing the result.</p>
 </dd></dl>
 
 </dd></dl>

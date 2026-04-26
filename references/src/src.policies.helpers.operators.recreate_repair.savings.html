@@ -500,6 +500,11 @@ Mole, R. H., &amp; Jameson, S. R. (1976). “A sequential algorithm for the
 routing of delivery vehicles”. OR, 27(2), 237-248.</p>
 <p>Score metric: S = (d(0,u) + d(u,0)) - (d(i,u) + d(u,j) - d(i,j))
 Constraint: savings S must be maximized.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.recreate_repair.savings import savings_insertion
+&gt;&gt;&gt; new_routes = savings_insertion(routes, removed, dist, wastes, cap)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -528,7 +533,8 @@ removed_nodes: List of unassigned node indices.
 dist_matrix: Distance matrix.
 wastes: Dictionary mapping node ID to waste volume.
 capacity: Maximum vehicle capacity.
-mandatory_nodes: Nodes that must be routed regardless of profit.</p>
+mandatory_nodes: Nodes that must be routed regardless of profit.
+expand_pool: If True, consider all unvisited nodes.</p>
 <p>Returns:
 List[List[int]]: Updated routes.</p>
 <p>Note:
@@ -554,7 +560,8 @@ capacity: Maximum vehicle capacity.
 R: Revenue multiplier (currency/kg).
 C: Cost multiplier (currency/km).
 mandatory_nodes: Nodes that MUST be served regardless of profit.
-depot: The index representing the depot (default 0).</p>
+depot: The index representing the depot (default 0).
+expand_pool: If True, consider all unvisited nodes.</p>
 <p>Returns:
 List[List[int]]: Solution with nodes re-inserted into routes.</p>
 </dd></dl>

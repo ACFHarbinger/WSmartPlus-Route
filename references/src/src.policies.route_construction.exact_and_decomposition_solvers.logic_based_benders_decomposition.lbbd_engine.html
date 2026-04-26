@@ -492,6 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-logic-based-benders-decomposition-lbbd-engine"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine" title="Link to this heading">#</a></h1>
+<p>LBBD engine coordinating master and subproblems.</p>
+<p>Attributes:
+LBBDEngine: Coordination engine for Logic-Based Benders Decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; engine = LBBDEngine(config, dist_matrix, tree)
+&gt;&gt;&gt; plan, profit, stats = engine.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,12 +517,32 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine.LBBDEngine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine.</span></span><span class="sig-name descname"><span class="pre">LBBDEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.lbbd.LBBDConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine.LBBDEngine" title="Link to this definition">#</a></dt>
 <dd><p>Coordination engine for Logic-Based Benders Decomposition.</p>
+<p>Attributes:
+config (LBBDConfig): Configuration parameters.
+distance_matrix (np.ndarray): Full N×N distance matrix.
+tree (ScenarioTree): Scenario tree for stochasticity.
+capacity (float): Vehicle capacity.
+num_nodes (int): Total number of nodes (including depot).
+num_customers (int): Total number of customers.
+master (LBBDMasterProblem): Master problem container.
+subproblem (RoutingSubproblem): Routing subproblem solver.
+stats (Dict[str, Any]): Execution statistics.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the LBBD engine.</p>
+<p>Args:
+config (LBBDConfig): Configuration parameters.
+distance_matrix (np.ndarray): Distance matrix.
+tree (ScenarioTree): Scenario tree for stochasticity.
+capacity (float): Vehicle capacity.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine.LBBDEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.lbbd_engine.LBBDEngine.solve" title="Link to this definition">#</a></dt>
-<dd><p>Runs the LBBD algorithm.
-Returns (full_plan, total_expected_profit, stats).</p>
+<dd><p>Runs the LBBD algorithm.</p>
+<p>Returns:
+Tuple[List[List[List[int]]], float, Dict[str, Any]]: A tuple containing:
+- full_plan: Collection plan (nested list by day and vehicle).
+- total_expected_profit: Total expected profit from the solution.
+- stats: Execution statistics and iterations.</p>
 </dd></dl>
 
 </dd></dl>

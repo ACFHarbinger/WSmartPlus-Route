@@ -507,6 +507,11 @@ document.write(`
 <p>Hyperparameters for the Augmented Hybrid Volleyball Premier League (AHVPL) algorithm.</p>
 <p>Extends the base HVPL framework with Hybrid Genetic Search (HGS) integration
 for diversity-driven population management and genetic crossover operators.</p>
+<p>Attributes:
+AHVPLParams: Parameters for the Augmented Hybrid Volleyball Premier League metaheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
+&gt;&gt;&gt; params = AHVPLParams(n_teams=12, max_iterations=100)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +533,19 @@ for diversity-driven population management and genetic crossover operators.</p>
 <dd><p>Parameters for the Augmented Hybrid Volleyball Premier League metaheuristic.</p>
 <p>Combines VPL population dynamics, ACO initialization, ALNS local search,
 and HGS diversity management / crossover.</p>
+<p>Attributes:
+n_teams: Number of teams in the league.
+max_iterations: Maximum number of league seasons.
+sub_rate: Probability of player substitution.
+elite_alns_iterations: ALNS iterations for coached teams.
+not_coached_alns_iterations: ALNS iterations for non-coached teams.
+time_limit: Total wall-clock time limit.
+vrpp: Whether to solve as a VRP with Profits.
+seed: Random seed for reproducibility.
+profit_aware_operators: Whether to use operators biased towards profit.
+hgs_params: Parameters for Hybrid Genetic Search components.
+aco_params: Parameters for Ant Colony Optimization components.
+alns_params: Parameters for Adaptive Large Neighborhood Search components.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.n_teams">
 <span class="sig-name descname"><span class="pre">n_teams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.n_teams" title="Link to this definition">#</a></dt>
@@ -604,6 +622,8 @@ and HGS diversity management / crossover.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Sync flags across sub-parameters.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

@@ -502,6 +502,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.base">
 <span id="src-envs-tasks-base"></span><h1><a class="reference internal" href="#module-src.envs.tasks.base" title="src.envs.tasks.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.base</span></code></a><a class="headerlink" href="#module-src.envs.tasks.base" title="Link to this heading">#</a></h1>
 <p>Base problem definition and legacy constants.</p>
+<p>Attributes:
+BaseProblem: Class definition of BaseProblem.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +525,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.tasks.base.</span></span><span class="sig-name descname"><span class="pre">BaseProblem</span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem" title="Link to this definition">#</a></dt>
 <dd><p>Legacy base class for routing problems.</p>
+<p>Attributes:
+NAME: Name of the problem</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.NAME" title="Link to this definition">#</a></dt>
@@ -531,55 +537,110 @@ document.write(`
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.validate_tours">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate_tours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.validate_tours" title="Link to this definition">#</a></dt>
 <dd><p>Validates tours (no duplicates except depot).</p>
+<p>Args:
+pi: Tensor of tours to validate, shape (batch, sequence_length)</p>
+<p>Returns:
+bool: True if tours are valid, False otherwise</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.get_tour_length">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tour_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.get_tour_length" title="Link to this definition">#</a></dt>
 <dd><p>Calculates tour length.</p>
+<p>Args:
+dataset (Dict[str, Any]): Dataset containing node locations and optionally edges.
+Expected keys: ‘locs’ (Tensor[batch, num_nodes, 2]) or ‘edges’ (Tensor[batch, num_nodes, num_nodes]).
+‘depot’ (Tensor[batch, 2]) is also supported.
+pi (torch.Tensor): Tensor of tours to validate, shape (batch, sequence_length).
+Tours should include depot at start/end if applicable.
+dist_matrix (Optional[torch.Tensor]): Optional precomputed distance matrix,
+shape (batch, num_nodes, num_nodes) or (num_nodes, num_nodes).</p>
+<p>Returns:
+torch.Tensor: Tensor of tour lengths, shape (batch,)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.beam_search">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beam_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.beam_search" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beam_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.ITraversable</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.beam_search" title="Link to this definition">#</a></dt>
 <dd><p>Beam search bridge.</p>
+<p>Args:
+input (Union[ITraversable, TensorDict]): Input data, can be ITraversable or TensorDict.
+beam_size (int): Number of beams for beam search.
+cost_weights (Union[torch.Tensor, List[float], float, Dict[str, float]]): Weights for cost calculation.
+model (Optional[nn.Module]): Model to use for beam search.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+TensorDict: TensorDict containing the best tours found by beam search.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.make_state">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.make_state" title="Link to this definition">#</a></dt>
 <dd><p>Bridge to RL4CO environments.
-Initializes a TensorDict from the input and returns a state wrapper.</p>
+Initializes a TensorDict from the input and returns a state wrapper.
+Args:
+input_data (Any): Input data.
+edges (Any): Edges data.
+cost_weights (Any): Weights for cost calculation.
+dist_matrix (Any): Distance matrix.
+kwargs (Any): Additional keyword arguments.</p>
+<p>Returns:
+Any: State wrapper.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem._get_batch_info">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_batch_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem._get_batch_info" title="Link to this definition">#</a></dt>
 <dd><p>Extract batch size and device from input data.</p>
+<p>Args:
+input_data: Input data.</p>
+<p>Returns:
+tuple[int, torch.device]: Batch size and device.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem._prepare_td_from_traversable">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_prepare_td_from_traversable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem._prepare_td_from_traversable" title="Link to this definition">#</a></dt>
 <dd><p>Create a TensorDict from an ITraversable object.</p>
+<p>Args:
+input_data: Input data.
+bs: Batch size.
+device: Device.</p>
+<p>Returns:
+TensorDict: TensorDict containing the batched input data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem._map_key">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_map_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem._map_key" title="Link to this definition">#</a></dt>
 <dd><p>Map legacy keys to environment keys.</p>
+<p>Args:
+k (str): Key to map.</p>
+<p>Returns:
+str: Mapped key.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem._batch_tensor">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_batch_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem._batch_tensor" title="Link to this definition">#</a></dt>
 <dd><p>Ensure tensor has correct batch dimension.</p>
+<p>Args:
+v (torch.Tensor): Tensor to batch.
+bs (int): Batch size.</p>
+<p>Returns:
+torch.Tensor: Tensor with correct batch dimension.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem._ensure_required_keys">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_ensure_required_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem._ensure_required_keys" title="Link to this definition">#</a></dt>
 <dd><p>Ensure all required keys are present in the TensorDict.</p>
+<p>Args:
+td (TensorDict): TensorDict to check.
+env_name (str): Environment name.
+edges (Any): Edges data.
+dist_matrix (Any): Distance matrix.
+kwargs (Any): Additional keyword arguments.</p>
 </dd></dl>
 
 </dd></dl>

@@ -501,6 +501,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.models.optim">
 <span id="src-configs-models-optim"></span><h1><a class="reference internal" href="#module-src.configs.models.optim" title="src.configs.models.optim"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.optim</span></code></a><a class="headerlink" href="#module-src.configs.models.optim" title="Link to this heading">#</a></h1>
 <p>Optim Config module.</p>
+<p>Attributes:
+OptimConfig: Optimizer configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.models import OptimConfig
+&gt;&gt;&gt; config = OptimConfig()
+&gt;&gt;&gt; print(config)
+OptimConfig(optimizer=’adam’, lr=0.0001, weight_decay=0.0, lr_scheduler=None, lr_scheduler_kwargs={}, lr_critic=0.0001, lr_decay=1.0, lr_min_value=0.0, lr_min_decay=1e-08)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -489,6 +489,13 @@ document.write(`
 <li><p><strong>RL</strong>: Reinforcement learning and imitation learning subpackages.</p></li>
 <li><p><strong>Simulator</strong>: The underlying physics engine and environment management.</p></li>
 </ul>
+<p>Attributes:
+features: Sub-package for train, eval, and test entry points.
+rl: Sub-package for RL algorithms, baselines, and HPO.
+simulations: Sub-package for the simulation engine and state machine.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.eval import run_evaluate_model
+&gt;&gt;&gt; from logic.src.pipeline.simulations.simulator import Simulator</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

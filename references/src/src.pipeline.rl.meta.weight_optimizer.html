@@ -500,6 +500,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.meta.weight_optimizer">
 <span id="src-pipeline-rl-meta-weight-optimizer"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.meta.weight_optimizer" title="src.pipeline.rl.meta.weight_optimizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.meta.weight_optimizer</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.meta.weight_optimizer" title="Link to this heading">#</a></h1>
 <p>Neural Network-Based Meta-Learning for Reward Weight Optimization.</p>
+<p>Attributes:
+RewardWeightOptimizer: Meta-learner for reward weight optimization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.meta.weight_optimizer import RewardWeightOptimizer
+&gt;&gt;&gt; optimizer = RewardWeightOptimizer(initial_weights={“weight1”: 0.5, “weight2”: 0.5})
+&gt;&gt;&gt; optimizer.propose_weights()
+{‘weight1’: 0.5, ‘weight2’: 0.5}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,54 +529,106 @@ based on historical performance data. Uses an RNN to propose updates.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy</span></code></p>
 <p>Manager for the meta-learning process of optimizing reward weights
 based on historical performance data. Uses an RNN to propose updates.</p>
+<p>Attributes:
+device: Device to run the meta-learning on.
+weight_names: Names of the weights.
+num_weights: Number of weights.
+history_length: Length of the history to use for training.
+meta_batch_size: Batch size for training.
+current_weights: Current weights.
+min_weights: Minimum values for the weights.
+max_weights: Maximum values for the weights.
+num_perf_metrics: Number of performance metrics.
+meta_model: PyTorch model for meta-learning.
+optimizer: Optimizer for the meta-model.
+weight_history: History of weights.
+performance_history: History of performance metrics.
+reward_history: History of rewards.
+meta_step: Step count for meta-learning.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize AdaptiveWeightOptimizer.</p>
+<p>Args:
+model_class: PyTorch model class for meta-learning.
+initial_weights: Initial weights.
+history_length: Length of the history to use for training.
+hidden_size: Hidden layer size for the meta-model.
+lr: Learning rate for the meta-model.
+device: Device to run the meta-learning on.
+meta_batch_size: Batch size for training.
+min_weights: Minimum values for the weights.
+max_weights: Maximum values for the weights.
+meta_optimizer: Optimizer for the meta-model.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.propose_weights">
-<span class="sig-name descname"><span class="pre">propose_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.propose_weights" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">propose_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.propose_weights" title="Link to this definition">#</a></dt>
 <dd><p>Propose weights based on context.</p>
+<p>Args:
+context: Context information for weight proposal.</p>
+<p>Returns:
+dict[str, float]: Proposed weights for the next epoch.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.feedback">
-<span class="sig-name descname"><span class="pre">feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.feedback" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.feedback" title="Link to this definition">#</a></dt>
 <dd><p>Provide feedback to weight optimizer.</p>
+<p>Args:
+reward: Reward for the last epoch.
+metrics: Metrics for the last epoch.
+day: Day of the last epoch.
+step: Step of the last epoch.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_histories">
 <span class="sig-name descname"><span class="pre">update_histories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">performance_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_histories" title="Link to this definition">#</a></dt>
 <dd><p>Update performance histories.</p>
+<p>Args:
+performance_metrics: Description of performance_metrics.
+reward: Description of reward.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch">
-<span class="sig-name descname"><span class="pre">prepare_meta_learning_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prepare_meta_learning_batch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch" title="Link to this definition">#</a></dt>
 <dd><p>Prepare batch for meta learning.</p>
+<p>Returns:
+Tuple[Optional[torch.Tensor], Union[int, torch.Tensor]]: Batch of features and targets.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.meta_learning_step">
-<span class="sig-name descname"><span class="pre">meta_learning_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.meta_learning_step" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">meta_learning_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.meta_learning_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute meta learning step.</p>
+<p>Returns:
+float: Loss for the meta learning step.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.recommend_weights">
-<span class="sig-name descname"><span class="pre">recommend_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.recommend_weights" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">recommend_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.recommend_weights" title="Link to this definition">#</a></dt>
 <dd><p>Recommend weights based on learning.</p>
+<p>Returns:
+torch.Tensor: Recommended weights.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_weights_internal">
-<span class="sig-name descname"><span class="pre">update_weights_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_weights_internal" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_weights_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_weights_internal" title="Link to this definition">#</a></dt>
 <dd><p>Update weights internally.</p>
+<p>Args:
+force_update: Whether to force the update.</p>
+<p>Returns:
+bool: True if the weights were updated, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.get_current_weights">
-<span class="sig-name descname"><span class="pre">get_current_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.get_current_weights" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_current_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.get_current_weights" title="Link to this definition">#</a></dt>
 <dd><p>Get current weights.</p>
+<p>Returns:
+dict[str, float]: Current weights.</p>
 </dd></dl>
 
 </dd></dl>

@@ -522,6 +522,11 @@ dynamic cut separation.</p></li>
 algorithm for the symmetric generalized traveling salesman problem.”
 Operations Research, 45(3), 378-394.</p></li>
 </ul>
+<p>Attributes:
+VRPPModel: Main model class for the Vehicle Routing Problem with Profits.</p>
+<p>Example:
+&gt;&gt;&gt; dist = np.array([[0, 10], [10, 0]])
+&gt;&gt;&gt; model = VRPPModel(n_nodes=2, cost_matrix=dist, wastes={1: 50.0}, capacity=100.0)</p>
 </section>
 <p>VRPP Model Formulation for Branch-and-Price-and-Cut (BPC).</p>
 <p>Implements the polyhedral structure and physical constraints for the Vehicle
@@ -573,6 +578,18 @@ which is mathematically equivalent to maximizing (Revenue - Cost).</p>
 - Form (2.2): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2yi
 - Form (2.3): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1)
 6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉</p>
+<p>Attributes:
+n_nodes (int): Total number of nodes (including depot at index 0).
+cost_matrix (np.ndarray): Symmetric n_nodes x n_nodes distance/cost matrix.
+wastes (Dict[int, float]): Dictionary mapping node index -&gt; waste/demand.
+capacity (float): Vehicle capacity constraint (Q).
+num_vehicles (int): Fleet size (K).
+R (float): Revenue coefficient (R).
+C (float): Cost coefficient (C).
+mandatory_nodes (Set[int]): Set of node indices that must be visited.
+node_coords (Union[np.ndarray, Dict[int, Tuple[float, float]]]): Coordinates.</p>
+<p>Example:
+&gt;&gt;&gt; model = VRPPModel(10, dist, w, 100.0)</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the VRPP model.</p>
 <p>Args:
@@ -589,18 +606,31 @@ node_coords: Node coordinates for spatial branching.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_edge_cost">
 <span class="sig-name descname"><span class="pre">get_edge_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_edge_cost" title="Link to this definition">#</a></dt>
 <dd><p>Get the travel cost of edge (i, j).</p>
+<p>Args:
+i: Start node ID.
+j: End node ID.</p>
+<p>Returns:
+Computed distance-based cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_node_profit">
 <span class="sig-name descname"><span class="pre">get_node_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_node_profit" title="Link to this definition">#</a></dt>
 <dd><p>Get the profit from visiting node i.</p>
+<p>Args:
+i: Node ID.</p>
+<p>Returns:
+Calculated revenue (waste * R).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_node_demand">
 <span class="sig-name descname"><span class="pre">get_node_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.get_node_demand" title="Link to this definition">#</a></dt>
 <dd><p>Get the demand/waste at node i.</p>
+<p>Args:
+i: Node ID.</p>
+<p>Returns:
+Waste amount (kg).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -608,6 +638,10 @@ node_coords: Node coordinates for spatial branching.</p>
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.delta" title="Link to this definition">#</a></dt>
 <dd><p>Return edges with exactly one endpoint in node_set (cut edges).</p>
 <p>δ(S) := {(i, j) ∈ E : i ∈ S, j ∉ S or i ∉ S, j ∈ S}</p>
+<p>Args:
+node_set: Set of node IDs defining the cut.</p>
+<p>Returns:
+List of edge tuples (u, v) crossing the cut.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -615,12 +649,20 @@ node_coords: Node coordinates for spatial branching.</p>
 <span class="sig-name descname"><span class="pre">edges_in_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.edges_in_set" title="Link to this definition">#</a></dt>
 <dd><p>Return edges with both endpoints in node_set.</p>
 <p>E(S) := {(i, j) ∈ E : i ∈ S, j ∈ S}</p>
+<p>Args:
+node_set: Set of node IDs.</p>
+<p>Returns:
+List of edge tuples (u, v) internal to the set.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.total_demand">
 <span class="sig-name descname"><span class="pre">total_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.total_demand" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total demand of nodes in node_set.</p>
+<p>Args:
+node_set: Set of node IDs.</p>
+<p>Returns:
+Sum of wastes for customer nodes in the set.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -638,12 +680,20 @@ Tuple of (is_valid, error_message).</p>
 <span class="sig-name descname"><span class="pre">compute_tour_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit" title="Link to this definition">#</a></dt>
 <dd><p>Compute the total profit of a tour.</p>
 <p>Profit = (Waste Collected × R) - (Distance Traveled × C)</p>
+<p>Args:
+tour: Sequence of node IDs.</p>
+<p>Returns:
+Calculated net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost">
 <span class="sig-name descname"><span class="pre">compute_tour_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute the total travel distance/cost of a tour.</p>
+<p>Args:
+tour: Sequence of node IDs.</p>
+<p>Returns:
+Total distance-based travel cost.</p>
 </dd></dl>
 
 </dd></dl>

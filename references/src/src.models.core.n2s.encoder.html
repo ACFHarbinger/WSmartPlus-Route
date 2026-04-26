@@ -499,6 +499,9 @@ Transformer with neighborhood masking. It attends only to the K-nearest
 neighbors of each node to maintain efficiency and focus on local moves.</p>
 <p>Attributes:
 N2SEncoder: Neural encoder for neighborhood-constrained attention.</p>
+<p>Example:
+&gt;&gt;&gt; encoder = N2SEncoder(embed_dim=128, k_neighbors=20)
+&gt;&gt;&gt; h = encoder(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -532,10 +535,10 @@ init_proj (nn.Linear): Initial spatial coordinate projector.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the N2S encoder.</p>
 <p>Args:
-embed_dim: dimensionality of latent features.
-num_heads: count of attention heads.
-k_neighbors: size of the local attention window.
-**kwargs: Unused parameters.</p>
+embed_dim: Dimensionality of the node embeddings.
+num_heads: Number of attention heads.
+k_neighbors: Number of nearest neighbors to attend to.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.encoder.N2SEncoder._get_neighborhood_mask">
 <span class="sig-name descname"><span class="pre">_get_neighborhood_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder._get_neighborhood_mask" title="Link to this definition">#</a></dt>
@@ -551,8 +554,8 @@ torch.Tensor: Boolean mask where True indicates an excluded neighbor [B, N, N].<
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Encodes node features using neighborhood-constrained attention.</p>
 <p>Args:
-td: state container with instance data.
-**kwargs: Unused.</p>
+td: TensorDict containing “depot” and “locs” keys.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Refined node embeddings [B, N, embed_dim].</p>
 </dd></dl>

@@ -93,7 +93,7 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 
 ````
 
-````{py:method} _should_log(trainer) -> bool
+````{py:method} _should_log(trainer: pytorch_lightning.Trainer) -> bool
 :canonical: src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor._should_log
 :staticmethod:
 

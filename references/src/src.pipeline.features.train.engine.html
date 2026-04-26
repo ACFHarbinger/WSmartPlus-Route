@@ -496,6 +496,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.train.engine">
 <span id="src-pipeline-features-train-engine"></span><h1><a class="reference internal" href="#module-src.pipeline.features.train.engine" title="src.pipeline.features.train.engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.train.engine</span></code></a><a class="headerlink" href="#module-src.pipeline.features.train.engine" title="Link to this heading">#</a></h1>
 <p>Training engine for WSmart-Route.</p>
+<p>Attributes:
+run_training: Run single model training.
+_run_training_via_zenml: Run training through the ZenML pipeline.
+_build_experiment_name: Derive a human-readable experiment name from the Hydra config.
+_build_callbacks: Instantiate training callbacks from Hydra config.
+_log_training_params: Log training configuration parameters.
+_track_val_dataset: Track the validation dataset if available.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.train.engine import run_training
+&gt;&gt;&gt; run_training(cfg)
+200000.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -544,6 +555,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine._build_experiment_name">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_experiment_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_experiment_name" title="Link to this definition">#</a></dt>
 <dd><p>Derive a human-readable experiment name from the Hydra config.</p>
+<p>Args:
+cfg: Root configuration object.</p>
+<p>Returns:
+Human-readable experiment name string.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -553,6 +568,10 @@ document.write(`
 <p>Handles <code class="docutils literal notranslate"><span class="pre">ITraversable</span></code> configs (direct <code class="docutils literal notranslate"><span class="pre">_target_</span></code> dicts and nested
 name-to-config dicts), links <code class="docutils literal notranslate"><span class="pre">CleanProgressBar</span></code> ↔ <code class="docutils literal notranslate"><span class="pre">TerminalChartCallback</span></code>
 when both are present, and always includes a :class:<code class="docutils literal notranslate"><span class="pre">SpeedMonitor</span></code>.</p>
+<p>Args:
+cfg: Root configuration object.</p>
+<p>Returns:
+List of instantiated callback objects.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -573,6 +592,9 @@ Validation reward from the best epoch.</p>
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine._log_training_params">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_log_training_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.Run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._log_training_params" title="Link to this definition">#</a></dt>
 <dd><p>Flatten and log relevant config sections as run parameters.</p>
+<p>Args:
+run: WSTracker run object.
+cfg: Root configuration object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -582,6 +604,8 @@ Validation reward from the best epoch.</p>
 <p>Called when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and no external
 sinks were injected (i.e. the call originates from the CLI, not from
 inside a ZenML step).</p>
+<p>Args:
+cfg: Root configuration object.</p>
 <p>Returns:
 Best validation reward returned by the ZenML pipeline.</p>
 </dd></dl>

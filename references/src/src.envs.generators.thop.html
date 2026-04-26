@@ -503,6 +503,30 @@ linearly with the current knapsack weight, creating a dynamic coupling between
 item selection and tour cost.</p>
 <p>Reference: Chagas &amp; Wagner (2020), “Ants can Orienteer a Thief in their
 Robbery” – Oper. Res. Lett. 48(6), 708–714.</p>
+<p>Attributes:
+ThOPGenerator: ThOPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import ThOPGenerator
+&gt;&gt;&gt; generator = ThOPGenerator(num_loc=20)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict({
+‘locs’: TensorDict(
+# … thief locations (shape: [*B, 20, 2]) …
+),
+‘item_weights’: TensorDict(
+# … item weights (shape: [*B, 60]) …
+),
+‘item_profits’: TensorDict(
+# … item profits (shape: [*B, 60]) …
+),
+‘capacity’: TensorDict(
+# … knapsack capacity (shape: [*B]) …
+),
+‘max_time’: TensorDict(
+# … time budget (shape: [*B]) …
+)
+})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -559,6 +583,21 @@ items <code class="docutils literal notranslate"><span class="pre">K..2K-1</span
 <code class="docutils literal notranslate"><span class="pre">max_time</span></code>     : <code class="docutils literal notranslate"><span class="pre">[*B]</span></code>                 time budget T
 <code class="docutils literal notranslate"><span class="pre">v_max</span></code>        : <code class="docutils literal notranslate"><span class="pre">[*B]</span></code>                 maximum travel speed
 <code class="docutils literal notranslate"><span class="pre">v_min</span></code>        : <code class="docutils literal notranslate"><span class="pre">[*B]</span></code>                 minimum travel speed (at W = capacity)</p>
+<p>Attributes:
+num_loc: Number of customer locations.
+num_items_per_city: Number of items per city.
+min_loc: Lower bound for node coordinates.
+max_loc: Upper bound for node coordinates.
+loc_distribution: Spatial distribution strategy.
+min_weight: Minimum item weight.
+max_weight: Maximum item weight.
+min_profit: Minimum item profit.
+max_profit: Maximum item profit.
+capacity: Knapsack weight capacity.
+max_time: Time budget.
+v_max: Maximum travel speed.
+v_min: Minimum travel speed.
+depot_type: Depot placement strategy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise ThOPGenerator.</p>
 <p>Args:
@@ -585,17 +624,33 @@ depot_type: Depot placement strategy
 device: Target torch device.
 rng: Optional numpy random generator.
 generator: Optional torch random generator.
-**kwargs: Forwarded to Generator base class.</p>
+kwargs: Forwarded to Generator base class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.thop.ThOPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.thop.ThOPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate a batch of ThOP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — city coordinates (depot at 0)
+item_weights: [*B, num_items]  — item weights
+item_profits: [*B, num_items]  — item profits
+item_city: [*B, num_items]     — city index for each item
+capacity: [*B]               — knapsack capacity
+max_time: [*B]               — time budget
+v_max: [*B]                   — maximum travel speed
+v_min: [*B]                   — minimum travel speed</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.thop.ThOPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.thop.ThOPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate the depot location according to <code class="docutils literal notranslate"><span class="pre">depot_type</span></code>.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with depot location (shape: [*B, 2]).</p>
 </dd></dl>
 
 </dd></dl>

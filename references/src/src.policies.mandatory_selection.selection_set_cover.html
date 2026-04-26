@@ -498,6 +498,8 @@ select a minimum number of “hub” bins such that every bin exceeding the
 critical threshold is within a specified service radius of at least one hub.
 This is implemented using a greedy heuristic which provides a ln(n)
 approximation ratio.</p>
+<p>Attributes:
+SetCoverSelection(IMandatorySelectionStrategy): Greedy heuristic for the Set Cover problem.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_set_cover import SetCoverSelection
 &gt;&gt;&gt; strategy = SetCoverSelection()

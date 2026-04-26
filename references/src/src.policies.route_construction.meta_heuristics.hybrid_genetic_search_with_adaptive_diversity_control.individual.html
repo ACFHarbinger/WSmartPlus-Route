@@ -503,6 +503,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-diversity-control-individual"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual" title="Link to this heading">#</a></h1>
 <p>Individual Representation for the HGS-ADC MPVRP solver.</p>
+<p>Attributes:
+Individual: Solution representation for HGS-ADC.</p>
+<p>Example:
+&gt;&gt;&gt; from .individual import Individual</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,7 +528,7 @@ document.write(`
 <dd><p>Representation of an individual in the HGS-ADC population.</p>
 <p>The search space for patterns is fully open (unconstrained).
 Any node <code class="docutils literal notranslate"><span class="pre">i</span></code> can have any <span class="math notranslate nohighlight">\(p_i\)</span> from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">2^T</span> <span class="pre">-</span> <span class="pre">1</span></code>.</p>
-<p>Fields:
+<p>Attributes:
 patterns: np.ndarray of length N. p_i is an integer describing visit days via bits.
 (e.g., bit 0 corresponds to day 0).
 giant_tours: List of T np.ndarray permutations containing only active nodes for day t.
@@ -537,6 +541,8 @@ dc: Diversity contribution.
 biased_fitness: Biased fitness BF.
 is_feasible: True if capacity_violations == 0.
 routes: The decoded fleet routes for T days. [Day][Vehicle][Nodes].</p>
+<p>Example:
+&gt;&gt;&gt; ind = Individual(patterns=np.zeros(10), giant_tours=[np.array([1, 2])])</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.patterns">
 <span class="sig-name descname"><span class="pre">patterns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.patterns" title="Link to this definition">#</a></dt>
@@ -595,12 +601,23 @@ routes: The decoded fleet routes for T days. [Day][Vehicle][Nodes].</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.is_active">
 <span class="sig-name descname"><span class="pre">is_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.is_active" title="Link to this definition">#</a></dt>
 <dd><p>Check if node is active on a specific day [0, T-1] based on its bit.</p>
+<p>Args:
+node: Node index.
+day_t: Day index.</p>
+<p>Returns:
+bool: True if node is active on day_t.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.set_active">
 <span class="sig-name descname"><span class="pre">set_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual.set_active" title="Link to this definition">#</a></dt>
 <dd><p>Set the active status of a node on a specific day.</p>
+<p>Args:
+node: Node index.
+day_t: Day index.
+active: Whether node should be active.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

@@ -501,6 +501,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.master_problem.pool">
 <span id="src-policies-helpers-solvers-and-matheuristics-master-problem-pool"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.pool" title="src.policies.helpers.solvers_and_matheuristics.master_problem.pool"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.pool</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.pool" title="Link to this heading">#</a></h1>
 <p>Global Cut Pool for Branch-and-Price-and-Cut.</p>
+<p>Attributes:
+CutInfo: Metadata describing a generated valid inequality.
+GlobalCutPool: Centralized repository for globally valid inequalities.</p>
+<p>Example:
+&gt;&gt;&gt; pool = GlobalCutPool()
+&gt;&gt;&gt; pool.add_cut(“rcc”, (frozenset({1, 2}), 2.0))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +529,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.pool.</span></span><span class="sig-name descname"><span class="pre">CutInfo</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo" title="Link to this definition">#</a></dt>
 <dd><p>Metadata describing a generated valid inequality.</p>
+<p>Attributes:
+type (str): Type of cut (e.g., ‘rcc’, ‘sec’, ‘sri’, ‘lci’).
+data (Any): Cut-specific data (node-set, RHS, lifting coeffs, etc.).
+active (bool): Whether the cut is active.
+violation (float): The violation amount of the cut.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.type" title="Link to this definition">#</a></dt>
@@ -569,33 +580,41 @@ internal nodes), the RHS of purely node-set-based cuts could change,
 invalidating the global mathematical integrity of this archive.
 </pre></div>
 </div>
+<p>Attributes:
+rcc_cuts: Dictionary mapping node sets to their RHS values.
+sri_cuts: Set of node sets with SRI cuts.
+active_sri_vectors: Active SRI coefficient vectors.
+sec_cuts: Set of node sets with SEC Form 2.1 cuts.
+edge_clique_cuts: Set of edges with Edge Clique cuts.
+lci_cuts: Dictionary mapping node sets to LCI cut data.
+lci_arcs: Arcs associated with LCI cuts.</p>
 <p class="rubric">Initialization</p>
-<p>Initialise empty global cut registries.</p>
+<p>Initializes empty global cut registries.</p>
+<p>Sets up dictionaries and sets for RCC, SRI, SEC, Edge Clique, and LCI cuts.</p>
+<p>Args:
+None</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.add_cut">
 <span class="sig-name descname"><span class="pre">add_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.add_cut" title="Link to this definition">#</a></dt>
 <dd><p>Archive a globally valid cut in the pool.</p>
-<p>Global Validity Contract:
-Only archive cuts here that are valid at EVERY node in the B&amp;B tree
-(e.g., RCC, SRI, SEC 2.1). Node-local cuts (branching-dependent SECs,
-lifted cover cuts dependent on local bounds) MUST NOT be added to
-this pool or they will lead to incorrect pruning and loss of optimality.</p>
+<p>Only archives cuts that are valid at EVERY node in the B&amp;B tree.
+Node-local cuts must not be added here.</p>
 <p>Args:
-cut_type: The type of cut (“rcc”, “sri”, “sec_2.1”, “edge_clique”, “lci”).
-data: Cut-specific data.
-For “rcc”: (FrozenSet[int], rhs: float)
-For “lci”: (FrozenSet[int], rhs: float, route_coefficients: Dict[int, float],
-node_alphas: Dict[int, float])  — 4-tuple (node_alphas optional)
-For others: FrozenSet[int] or Tuple[int, int].</p>
+cut_type: Type of cut (“rcc”, “sri”, “sec_2.1”, “edge_clique”, “lci”).
+data: Cut-specific data (node-sets, coefficients, etc.).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.apply_to_master">
 <span class="sig-name descname"><span class="pre">apply_to_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.html#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport" title="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.apply_to_master" title="Link to this definition">#</a></dt>
-<dd><p>Inject all pooled global cuts into a fresh Master Problem instance.
-Typically called when entering a new B&amp;B node to tighten the root relaxation.</p>
+<dd><p>Inject all pooled global cuts into a fresh Master Problem instance.</p>
+<p>Typically called when entering a new B&amp;B node to tighten the root relaxation.</p>
 <p>Args:
-master: The VRPPMasterProblem instance to receive the cuts.</p>
+master: MasterProblem instance to receive the cuts.</p>
 <p>Returns:
 Number of cuts successfully applied.</p>
 </dd></dl>

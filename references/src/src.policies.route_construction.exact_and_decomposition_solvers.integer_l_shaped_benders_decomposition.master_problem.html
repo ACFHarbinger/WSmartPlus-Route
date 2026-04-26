@@ -535,6 +535,13 @@ the Symmetric Generalized Traveling Salesman Problem&quot;. Operations Research,
 45(2), 326-349.
 </pre></div>
 </div>
+<p>Attributes:
+MasterProblem (class): Gurobi master problem for Benders decomposition.
+InventoryMasterProblem (class): Extended master problem for inventory-routing.</p>
+<p>Example:
+&gt;&gt;&gt; master = MasterProblem(model, params)
+&gt;&gt;&gt; master.build()
+&gt;&gt;&gt; routes, y_hat, theta_hat, obj = master.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -571,8 +578,8 @@ stats: Dict of accumulated solver statistics (cuts, nodes, time).</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the master problem container.</p>
 <p>Args:
-model: VRPPModel instance providing graph topology, costs, and profits.
-params: ILSBDParams controlling all solver parameters.</p>
+model (VRPPModel): VRPPModel instance providing graph topology, costs, and profits.
+params (ILSBDParams): ILSBDParams controlling all solver parameters.</p>
 <p>Raises:
 ImportError: If gurobipy is not installed or not licensed.</p>
 <dl class="py method">
@@ -606,12 +613,12 @@ RuntimeError: If <code class="docutils literal notranslate"><span class="pre">bu
 feasibility.  Returns the best integer solution found within the current
 <code class="docutils literal notranslate"><span class="pre">params.time_limit</span></code> (which the calling engine updates between iterations).</p>
 <p>Returns:
-Tuple of (routes, y_hat, theta_hat, obj_MP):
-routes: List of customer-only route lists (depot index excluded).
+Tuple[List[List[int]], Dict[int, float], float, float]: A tuple containing:
+- routes: List of customer-only route lists (depot index excluded).
 Empty list if no feasible solution was found.
-y_hat:  Dict {node_idx: 0.0 or 1.0} visit decisions.
-theta_hat: Value of the surrogate variable θ in the optimal solution.
-obj_MP:    Master problem objective value (travel_cost − revenue + θ).</p>
+- y_hat: Dictionary {node_idx: 0.0 or 1.0} visit decisions.
+- theta_hat: Value of the surrogate variable θ in the optimal solution.
+- obj_MP: Master problem objective value (travel_cost − revenue + θ).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -666,13 +673,12 @@ the corresponding inventory balance and coupling constraints.</p>
 <p>The additional variables are indexed <code class="docutils literal notranslate"><span class="pre">(node_id,</span> <span class="pre">day)</span></code>, where
 <code class="docutils literal notranslate"><span class="pre">day</span> <span class="pre">∈</span> <span class="pre">{0,</span> <span class="pre">…,</span> <span class="pre">T-1}</span></code>.</p>
 <p>Attributes:
-T: Planning horizon (number of days).
-demand_matrix: Array of shape <code class="docutils literal notranslate"><span class="pre">(T,</span> <span class="pre">N)</span></code> with expected demand increments
-per day per node (mean scenario).
-bin_capacities: Array of shape <code class="docutils literal notranslate"><span class="pre">(N,)</span></code> with capacity (100.0 for %).
-initial_inventory: Array of shape <code class="docutils literal notranslate"><span class="pre">(N,)</span></code> with initial fill levels.
-stockout_penalty: Penalty per unit of overflow slack.
-big_m: Big-M constant for collection coupling constraints.</p>
+horizon (int): Planning horizon (number of days).
+demand_matrix (np.ndarray): Array of shape (T, N) with expected demand increments.
+bin_capacities (np.ndarray): Array of shape (N,) with capacity.
+initial_inventory (np.ndarray): Array of shape (N,) with initial fill levels.
+stockout_penalty (float): Penalty per unit of overflow slack.
+big_m (float): Big-M constant for collection coupling constraints.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the inventory-extended master problem.</p>
 <p>Args:
@@ -703,7 +709,7 @@ ImportError: If gurobipy is unavailable.</p>
 <span class="sig-name descname"><span class="pre">get_inventory_plan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_inventory_plan" title="Link to this definition">#</a></dt>
 <dd><p>Extract the optimal inventory plan after solve().</p>
 <p>Returns:
-Dict mapping <code class="docutils literal notranslate"><span class="pre">(node_id,</span> <span class="pre">day)</span></code> to inventory level :math:<code class="docutils literal notranslate"><span class="pre">I_{it}</span></code>.</p>
+Dict[Tuple[int, int], float]: Mapping of (node_id, day) to inventory level.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -711,7 +717,7 @@ Dict mapping <code class="docutils literal notranslate"><span class="pre">(node_
 <span class="sig-name descname"><span class="pre">get_collection_plan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_collection_plan" title="Link to this definition">#</a></dt>
 <dd><p>Extract the optimal collection plan after solve().</p>
 <p>Returns:
-Dict mapping <code class="docutils literal notranslate"><span class="pre">(node_id,</span> <span class="pre">day)</span></code> to collected quantity :math:<code class="docutils literal notranslate"><span class="pre">q_{it}</span></code>.</p>
+Dict[Tuple[int, int], float]: Mapping of (node_id, day) to collected quantity.</p>
 </dd></dl>
 
 </dd></dl>

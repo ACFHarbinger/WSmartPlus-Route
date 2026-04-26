@@ -497,9 +497,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.a2c">
 <span id="src-pipeline-rl-core-a2c"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.a2c" title="src.pipeline.rl.core.a2c"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.a2c</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.a2c" title="Link to this heading">#</a></h1>
 <p>Advantage Actor-Critic (A2C) implementation.</p>
-<p>A2C uses a critic network to estimate value function and reduces
-variance in policy gradient estimation.</p>
-<p>Reference: RL4CO (https://github.com/ai4co/rl4co)</p>
+<p>This module provides the A2C class, which uses a critic network to estimate
+state values and reduce variance in policy gradient estimation.</p>
+<p>Attributes:
+A2C: Advantage Actor-Critic (A2C) algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; # from logic.src.pipeline.rl.core import A2C
+&gt;&gt;&gt; # agent = A2C(env, policy)
+&gt;&gt;&gt; # trainer.fit(agent)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,18 +539,16 @@ variance in policy gradient estimation.</p>
 <p>Uses a learned critic to estimate state values for variance reduction
 in policy gradient estimation. Supports separate optimizer configurations
 for actor and critic.</p>
-<p>Args:
-env: RL environment.
-policy: Actor policy network.
-critic: Critic network for value estimation.
-actor_optimizer: Optimizer for actor (‘adam’, ‘adamw’).
-actor_lr: Learning rate for actor.
-critic_optimizer: Optimizer for critic.
-critic_lr: Learning rate for critic.
-entropy_coef: Coefficient for entropy bonus.
-value_loss_coef: Coefficient for value loss.
-normalize_advantage: Whether to normalize advantages.
-**kwargs: Additional arguments for base class.</p>
+<p>Attributes:
+policy_cast: The policy cast to ConstructivePolicy for type safety.
+critic: The critic network for value estimation.
+actor_optimizer_name: The optimizer identifier for the actor.
+actor_lr: The learning rate for the actor.
+critic_optimizer_name: The optimizer identifier for the critic.
+critic_lr: The learning rate for the critic.
+entropy_coef: The coefficient for the entropy regularization bonus.
+value_loss_coef: The weight for the MSE value loss.
+normalize_advantage: Whether to perform batch-norm on advantages.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize A2C algorithm.</p>
 <p>Args:
@@ -559,30 +562,37 @@ critic_lr: Learning rate for critic.
 entropy_coef: Entropy regularization coefficient.
 value_loss_coef: Critic loss coefficient.
 normalize_advantage: Whether to normalize advantages.
-**kwargs: Additional args passed to RL4COLitModule.</p>
+kwargs: Additional args passed to RL4COLitModule.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.a2c.A2C.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.env.IEnv</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.a2c.A2C.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Calculate A2C loss.</p>
 <p>Args:
-td: TensorDict with environment state.
-out: Policy output dictionary.
-batch_idx: Current batch index.
-env: Environment (optional).</p>
+td: TensorDict containing the current environment state.
+out: Dictionary containing policy outputs (reward, log_likelihood).
+batch_idx: Index of the current batch.
+env: Optional environment instance.</p>
 <p>Returns:
-Combined actor + critic loss.</p>
+Weighted combination of policy gradient, value, and entropy losses.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.a2c.A2C.configure_optimizers">
 <span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.a2c.A2C.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Configure separate optimizers for actor and critic.</p>
+<p>Returns:
+List containing the actor and critic optimizers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.a2c.A2C.training_step">
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.a2c.A2C.training_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute a single training step with both optimizers.</p>
+<p>Args:
+batch: Data batch containing environment states.
+batch_idx: Sequential index of the batch.</p>
+<p>Returns:
+Computed loss for the current step.</p>
 </dd></dl>
 
 </dd></dl>

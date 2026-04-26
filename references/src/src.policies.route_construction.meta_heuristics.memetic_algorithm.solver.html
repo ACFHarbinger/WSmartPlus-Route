@@ -502,16 +502,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm.solver">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm.solver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm.solver" title="Link to this heading">#</a></h1>
 <p>Memetic Algorithm (MA) for VRPP.</p>
-<p>The solver follows the three key processes of the “Complete Memetic Algorithm”
-framework as defined in the paper:</p>
-<ul class="simple">
-<li><p>Fig. 3.1: The generational step (Select → Generate → Update)</p></li>
-<li><p>Fig. 3.2: Generational operator pipeline (Recombine → Mutate → Local-Improve)</p></li>
-<li><p>Fig. 3.3: Iterative local improver (Hill-climbing until local optimum)</p></li>
-</ul>
-<p>Reference:
-Moscato, P., Cotta, C., &amp; Mendes, A. (2004). “Memetic Algorithms”.
-Bibliography: bibliography/Memetic_Algorithms.pdf</p>
+<p>Combines population-based stochastic search with intensive individual refinement.</p>
+<p>Attributes:
+MASolver: Main solver class for the Memetic Algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MASolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; best_routes, best_profit = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,7 +515,7 @@ Bibliography: bibliography/Memetic_Algorithms.pdf</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MASolver</span></code></a></p></td>
-<td><p>Memetic Algorithm solver for the Vehicle Routing Problem with Profits (VRPP).</p></td>
+<td><p>Memetic Algorithm solver for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -530,31 +526,31 @@ Bibliography: bibliography/Memetic_Algorithms.pdf</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.</span></span><span class="sig-name descname"><span class="pre">MASolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.html#src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.params.MAParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver" title="Link to this definition">#</a></dt>
-<dd><p>Memetic Algorithm solver for the Vehicle Routing Problem with Profits (VRPP).</p>
-<p>This solver coordinates a population of solutions by combining population-based
-stochastic search (reproduction and mutation) with intensive individual refinement
-(local search). This synergy is the hallmark of Memetic Algorithms (MAs).</p>
-<p>The implementation strictly adheres to the algorithmic structure proposed by
-Moscato et al. (2004), mapping code components to the pseudocode figures
-defined in the reference paper.</p>
-<p>Key Computational Steps:</p>
-<ol class="arabic simple">
-<li><p>Initialization: Constructing a diversified initial population.</p></li>
-<li><p>Competition-Selection: Identifying high-fitness individuals to serve as “breeders”.</p></li>
-<li><p>Reproduction Pipeline: Creating offspring through recombination and mutation.</p></li>
-<li><p>Local Improvement: Applying intensive search to reach local optima.</p></li>
-<li><p>Replacement-Update: Maintaining population size via elitist selection.</p></li>
-</ol>
+<dd><p>Memetic Algorithm solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of node indices.
+random: Random number generator.
+start_time: Process start time.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Memetic Algorithm solver.</p>
 <p>Args:
-dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), where index 0 is the depot.
-wastes: Dictionary mapping node indices to their respective waste levels (profits).
-capacity: The maximum capacity constraint for the vehicle.
-R: Revenue multiplier per unit of waste collected (<span class="math notranslate nohighlight">\(/unit).
-    C: Cost multiplier per unit of distance traveled tracked (\)</span>/km).
-params: Configuration objects containing hyper-parameters (population size, rates, etc.).
-mandatory_nodes: Indices of nodes that MUST be visited in every feasible solution.</p>
+dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1).
+wastes: Dictionary mapping node indices to waste levels.
+capacity: Maximum capacity constraint for the vehicle.
+R: Revenue multiplier per unit of waste collected.
+C: Cost multiplier per unit of distance traveled.
+params: Configuration objects containing hyper-parameters.
+mandatory_nodes: Indices of nodes that MUST be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver.solve" title="Link to this definition">#</a></dt>
@@ -579,108 +575,91 @@ Tuple[List[List[int]], float]:
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._select_from_population">
 <span class="sig-name descname"><span class="pre">_select_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._select_from_population" title="Link to this definition">#</a></dt>
-<dd><p>Implements Select-From-Population(pop) using Tournament Selection.</p>
-<p>Paper Reference (p. 3):
-“Tournament-based methods (individuals are selected on the basis of a
-direct competition within small sub-groups of individuals).”</p>
-<p>We select multiple individuals (breeders) to match the population size,
-ensuring a consistent pool for the next generation.</p>
+<dd><p>Tournament selection to identify breeders.</p>
+<p>Args:
+population: Current generation.</p>
 <p>Returns:
-List[List[List[int]]]: A list of selected individuals (breeders).</p>
+Selected breeders.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._generate_new_population">
 <span class="sig-name descname"><span class="pre">_generate_new_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">breeders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._generate_new_population" title="Link to this definition">#</a></dt>
-<dd><p>Implements FIG 3.2: “Generating the new population”.</p>
-<p>Creates child individuals by passing breeders through a pipeline of
-reproductive operators. This phase implements both the ‘Genetic’
-exploration and the ‘Memetic’ local exploitation.</p>
-<p>Operator Pipeline:</p>
-<ol class="arabic simple">
-<li><p>Recombination (Crossover): Combines parents to explore the landscape.</p></li>
-<li><p>Mutation: Injects diversity to prevent premature convergence.</p></li>
-<li><p>Local-Improver: Intensifies the search on child solutions.</p></li>
-</ol>
+<dd><p>Generating the new population via recombination and mutation.</p>
+<p>Args:
+breeders: Selected parents.</p>
 <p>Returns:
-List[List[List[int]]]: The newly created population of offspring.</p>
+The newly created offspring population.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._update_population">
 <span class="sig-name descname"><span class="pre">_update_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._update_population" title="Link to this definition">#</a></dt>
-<dd><p>Implements Update-Population(pop, newpop) via Elitist Replacement.</p>
-<p>Paper Reference (p. 3):
-“Taking the best… individuals both from pop and newpop (the plus replacement strategy).”</p>
-<p>By sorting the union of current and new populations and keeping the top individuals,
-we guarantee that the best solution ever found is preserved (True Elitism).</p>
+<dd><p>Update-Population(pop, newpop) via Elitist Replacement.</p>
+<p>Args:
+old_pop: Current generation.
+new_pop: Offspring population.</p>
 <p>Returns:
-List[List[List[int]]]: The updated population of size self.params.pop_size.</p>
+The merged, elite-selected population.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._local_improver">
 <span class="sig-name descname"><span class="pre">_local_improver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._local_improver" title="Link to this definition">#</a></dt>
-<dd><p>Implements FIG 3.3: “Pseudocode of a Local-Improver”.</p>
-<p>This method performs Intensive Local Search by exploring the neighborhoods
-of the current solution. It is the defining feature that differentiates
-MAs from standard GAs.</p>
-<p class="rubric" id="algorithm-hill-climbing">Algorithm: Hill-Climbing</p>
-<p>Repeat:
-Explore neighborhood (Adjacent vertices)
-If (Better solution found):
-Update current solution
-Until (No more improvements possible) -&gt; Local Optimum.</p>
-<p>Move Operator: 2-Opt (Swapping edge order to untangle route crossings).</p>
+<dd><p>Intensive Local Search (2-Opt) refinement.</p>
+<p>Args:
+solution: Candidate routing solution.</p>
 <p>Returns:
-List[List[int]]: The locally optimized routing solution.</p>
+Locally optimized routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._recombination">
 <span class="sig-name descname"><span class="pre">_recombination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._recombination" title="Link to this definition">#</a></dt>
-<dd><p>Recombination (Crossover) Operator.</p>
-<p>Paper Definition (p. 4):
-“Encapsulates the mutual cooperation among several individuals… exchange of information.”</p>
-<p>This operator performs Single-Point Crossover on a flattened representation
-of the routing to discover new high-quality node sequences.</p>
+<dd><p>Recombination (Crossover) operator.</p>
+<p>Args:
+parent1: First parent solution.
+parent2: Second parent solution.</p>
 <p>Returns:
-List[List[int]]: The new child solution.</p>
+A new child solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._mutation">
 <span class="sig-name descname"><span class="pre">_mutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._mutation" title="Link to this definition">#</a></dt>
-<dd><p>Mutation (Exploration) Operator.</p>
-<p>Paper Definition (p. 4):
-“Keep the pot boiling… injecting new material in the population.”</p>
-<p>Implements Shuffle-Relocate: Removes a subset of nodes and re-inserts
-them to explore different topological regions of the fitness landscape.</p>
+<dd><p>Mutation (Exploration) operator.</p>
+<p>Args:
+solution: Candidate routing solution.</p>
 <p>Returns:
-List[List[int]]: The mutated routing solution.</p>
+The mutated routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._initialize_population">
 <span class="sig-name descname"><span class="pre">_initialize_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._initialize_population" title="Link to this definition">#</a></dt>
-<dd><p>Constructs diverse initial solutions for the starting population.</p>
-<p>Uses randomized node orderings and the greedy_insertion heuristic to
-ensure the starting population covers multiple regions of the search space.</p>
+<dd><p>Constructs diverse initial solutions.</p>
+<p>Returns:
+Initial feasible population.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._evaluate" title="Link to this definition">#</a></dt>
-<dd><p>Guiding Function (Fg) per Paper terminology (p. 5).</p>
-<p>Measures the quality (Fitness) of a solution as Net Profit:
-Fitness = (Gross Revenue) - (Distance-Based Travel Cost)</p>
+<dd><p>Fitness evaluation (Net Profit).</p>
+<p>Args:
+solution: Candidate routing solution.</p>
+<p>Returns:
+Total profit value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.MASolver._cost" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the total travel distance (km) of a complete routing solution.</p>
-<p>Calculates distance from depot (0) -&gt; node1 -&gt; … -&gt; nodeN -&gt; depot (0).</p>
+<dd><p>Calculates total travel distance.</p>
+<p>Args:
+routes: Candidate routing solution.</p>
+<p>Returns:
+Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

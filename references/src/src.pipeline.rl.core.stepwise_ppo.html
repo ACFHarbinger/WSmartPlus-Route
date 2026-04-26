@@ -499,6 +499,17 @@ document.write(`
 <p>Stepwise PPO implementation.</p>
 <p>This algorithm decomposes the solution construction/improvement into
 individual steps and provides reward signals for each transition.</p>
+<p>Attributes:
+StepwisePPO: Stepwise PPO algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import StepwisePPO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; stepwise_ppo = StepwisePPO(env, agent)
+&gt;&gt;&gt; stepwise_ppo
+StepwisePPO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, ppo_epochs=10, eps_clip=0.2, mini_batch_size=0.25, gamma=0.99, gae_lambda=0.95)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,29 +533,47 @@ individual steps and provides reward signals for each transition.</p>
 <p>Decomposes the sequence generation into individual MDP steps.
 Each node selection or local search move is treated as a transition
 with its own reward (e.g., incremental distance reduction).</p>
+<p>Attributes:
+ppo_epochs: Number of PPO epochs.
+eps_clip: Clipping parameter for PPO.
+value_loss_weight: Weight for the value function loss.
+entropy_weight: Weight for the entropy bonus.
+max_grad_norm: Maximum gradient norm for clipping.
+mini_batch_size: Size of mini-batches for PPO updates.
+gamma: Discount factor.
+gae_lambda: Factor for generalized advantage estimation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize StepwisePPO.</p>
 <p>Args:
-critic: Critic network for value estimation at each step.
-ppo_epochs: Number of optimization epochs per rollout.
-eps_clip: PPO clipping parameter.
-value_loss_weight: Weight for value function loss.
-entropy_weight: Weight for entropy bonus.
-max_grad_norm: Gradient clipping norm.
-mini_batch_size: Batch size for PPO updates.
+critic: Critic network.
+ppo_epochs: Number of PPO epochs.
+eps_clip: Clipping parameter for PPO.
+value_loss_weight: Weight for the value function loss.
+entropy_weight: Weight for the entropy bonus.
+max_grad_norm: Maximum gradient norm for clipping.
+mini_batch_size: Size of mini-batches for PPO updates.
 gamma: Discount factor.
-gae_lambda: GAE lambda parameter.
-**kwargs: Arguments for RL4COLitModule.</p>
+gae_lambda: Factor for generalized advantage estimation.
+kwargs: Additional arguments to pass to the parent class (RL4COLitModule).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.stepwise_ppo.StepwisePPO.training_step">
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.stepwise_ppo.StepwisePPO.training_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute one StepwisePPO training step.</p>
+<p>Args:
+batch: Input tensor dictionary containing state information.
+batch_idx: Index of the current batch.</p>
+<p>Returns:
+The computed loss for logging.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.stepwise_ppo.StepwisePPO._process_experiences">
 <span class="sig-name descname"><span class="pre">_process_experiences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.stepwise_ppo.StepwisePPO._process_experiences" title="Link to this definition">#</a></dt>
 <dd><p>Compute GAE advantages and returns.</p>
+<p>Args:
+experiences: List of experiences.</p>
+<p>Returns:
+TensorDict containing experiences with GAE advantages and returns.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -490,6 +490,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.validation">
 <span id="src-pipeline-features-test-validation"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.validation" title="src.pipeline.features.test.validation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.validation</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.validation" title="Link to this heading">#</a></h1>
 <p>Validation logic for simulation testing pipeline.</p>
+<p>Attributes:
+validate_sim_config: Validates and sanitizes simulation configuration values in-place.</p>
+<p>Example:
+&gt;&gt;&gt; validate_sim_config(cfg)
+Traceback (most recent call last):
+…  # doctest: +ELLIPSIS
+AssertionError: Must run the simulation for 1 or more days</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

@@ -492,7 +492,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.hpo.hpo_handler">
 <span id="src-policies-helpers-hpo-hpo-handler"></span><h1><a class="reference internal" href="#module-src.policies.helpers.hpo.hpo_handler" title="src.policies.helpers.hpo.hpo_handler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.hpo.hpo_handler</span></code></a><a class="headerlink" href="#module-src.policies.helpers.hpo.hpo_handler" title="Link to this heading">#</a></h1>
-<p>Core handler for simulation policy hyperparameter optimization using Hydra and Optuna.</p>
+<p>Core handler for simulation policy hyperparameter optimization (HPO).</p>
+<p>This module implements the Optuna objective function for simulation policies,
+including parameter sampling, simulation execution, and metric calculation.
+It supports multi-process parallel optimization and integrates with the
+MLflow tracking system.</p>
+<p>Attributes:
+logger: Logger instance for HPO operations.</p>
+<p>Functions:
+objective: The objective function passed to Optuna for trial evaluation.
+run_hpo_sim: Orchestrates the parallel HPO process.</p>
+<p>Example:
+&gt;&gt;&gt; # from logic.src.policies.helpers.hpo import run_hpo_sim
+&gt;&gt;&gt; # best_metric = run_hpo_sim(cfg)
+&gt;&gt;&gt; # print(f”Best metric: {best_metric}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -535,12 +548,12 @@ document.write(`
 <p>Samples hyperparameters from the search space, applies them to a copy of the config,
 runs simulations, and returns the metric to maximize.</p>
 <p>Args:
-trial: The Optuna trial object.
-base_cfg: The base configuration to copy and mutate.
-data_size: Number of available bins for the selected area.
-lock: Multiprocessing lock for repository access.</p>
+trial (optuna.Trial): The Optuna trial object for parameter sampling.
+base_cfg (Config): The base configuration to copy and mutate for this trial.
+data_size (int): Number of available bins for the selected area.
+lock (Any): Multiprocessing lock to prevent race conditions during repository access.</p>
 <p>Returns:
-The performance metric value (higher = better).</p>
+float: The performance metric value achieved in this trial (higher is better).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -548,9 +561,9 @@ The performance metric value (higher = better).</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.hpo.hpo_handler.</span></span><span class="sig-name descname"><span class="pre">run_hpo_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.hpo.hpo_handler.run_hpo_sim" title="Link to this definition">#</a></dt>
 <dd><p>Run Hyperparameter Optimization for simulation policies.</p>
 <p>Args:
-cfg: Root application configuration.</p>
+cfg (Config): Root application configuration containing HPO settings.</p>
 <p>Returns:
-Best metric value found across all trials.</p>
+float: Best metric value found across all completed optimization trials.</p>
 </dd></dl>
 
 </section>

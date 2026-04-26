@@ -511,6 +511,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.td_learning">
 <span id="src-policies-helpers-reinforcement-learning-agents-td-learning"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.td_learning" title="src.policies.helpers.reinforcement_learning.agents.td_learning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.td_learning</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.td_learning" title="Link to this heading">#</a></h1>
+<p>TD Learning Module.</p>
+<p>Implements Temporal Difference (TD) learning algorithms for tabular reinforcement
+learning, including Q-Learning, SARSA, and Expected SARSA.</p>
+<p>Attributes:
+TDAgent: Base class for tabular TD agents.
+QLearningAgent: Off-policy Q-learning implementation.
+SarsaAgent: On-policy SARSA implementation.
+ExpectedSarsaAgent: Variance-reduced Expected SARSA.</p>
+<p>Example:
+&gt;&gt;&gt; agent = QLearningAgent(n_states=10, n_actions=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -600,24 +610,32 @@ The selected action index.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.decay_epsilon">
 <span class="sig-name descname"><span class="pre">decay_epsilon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.decay_epsilon" title="Link to this definition">#</a></dt>
 <dd><p>Apply multiplicative decay to the exploration rate.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.save" title="Link to this definition">#</a></dt>
 <dd><p>Save the agent’s state to a file using pickle.</p>
+<p>Args:
+path: Absolute file system path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.load" title="Link to this definition">#</a></dt>
 <dd><p>Load the agent’s state from a file.</p>
+<p>Args:
+path: Absolute file system path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.reset" title="Link to this definition">#</a></dt>
 <dd><p>Reset the Q-table and exploration rate.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -632,6 +650,8 @@ action: Action taken in ‘state’.
 reward: Scalar reward observed after taking ‘action’.
 next_state: Resulting state after taking ‘action’.
 done: Boolean flag indicating if the episode has terminated.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>
@@ -644,6 +664,8 @@ done: Boolean flag indicating if the episode has terminated.</p>
 <p>Directly learns the optimal (target) action-value function, independent
 of the policy followed by the agent.</p>
 <p>Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * max(Q(s’,a’)) - Q(s,a)]</p>
+<p>Attributes:
+Inherits from TDAgent.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the TD Agent.</p>
 <p>Args:
@@ -666,6 +688,8 @@ action: Action taken.
 reward: Observed reward.
 next_state: Resulting state.
 done: Termination flag.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>
@@ -678,8 +702,13 @@ done: Termination flag.</p>
 <p>Learns the action-value function of the local execution policy.
 Name derived from the transition sequence: (S, A, R, S’, A’).</p>
 <p>Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * Q(s’,a’) - Q(s,a)]</p>
+<p>Attributes:
+next_action (Optional[int]): Action selected for the next state.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SARSA agent with next-action buffer.</p>
+<p>Args:
+args: Positional arguments for TDAgent.
+kwargs: Keyword arguments for TDAgent.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.td_learning.SarsaAgent.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.td_learning.SarsaAgent.update" title="Link to this definition">#</a></dt>
@@ -691,6 +720,8 @@ reward: Observed reward.
 next_state: Resulting state.
 done: Termination flag.
 next_action: The action selected to be taken in ‘next_state’.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>
@@ -703,6 +734,8 @@ next_action: The action selected to be taken in ‘next_state’.</p>
 <p>Reduces variance by considering the expected value of the next state
 over all possible actions under the current policy, rather than a single sample.</p>
 <p>Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * E[Q(s’,a’)] - Q(s,a)]</p>
+<p>Attributes:
+Inherits from TDAgent.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the TD Agent.</p>
 <p>Args:
@@ -725,6 +758,8 @@ action: Action taken.
 reward: Observed reward.
 next_state: Resulting state.
 done: Termination flag.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

@@ -493,6 +493,13 @@ document.write(`
 <span id="src-pipeline-features-train-model-factory-imitation"></span><h1><a class="reference internal" href="#module-src.pipeline.features.train.model_factory.imitation" title="src.pipeline.features.train.model_factory.imitation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.train.model_factory.imitation</span></code></a><a class="headerlink" href="#module-src.pipeline.features.train.model_factory.imitation" title="Link to this heading">#</a></h1>
 <p>Imitation learning model factory.</p>
 <p>Creates imitation learning modules from configuration.</p>
+<p>Attributes:
+_create_imitation: Create imitation learning module
+_create_adaptive_imitation: Create adaptive imitation learning module
+_create_critic_helper: Create critic network from actor policy</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.train.model_factory.imitation import _create_imitation
+&gt;&gt;&gt; _create_imitation(cfg, policy, env, kw)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

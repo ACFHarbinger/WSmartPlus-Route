@@ -472,7 +472,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perturbation">Perturbation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exact-gain-functions">Exact gain functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -542,22 +541,16 @@ the sequential 5-opt moves central to Helsgaun (2000), Section 4.3.</p>
 <li><p>:class:<code class="docutils literal notranslate"><span class="pre">TourAdapter</span></code> from <code class="docutils literal notranslate"><span class="pre">._tour_adapter</span></code> to wrap tours for operator calls.</p></li>
 <li><p>:func:<code class="docutils literal notranslate"><span class="pre">double_bridge</span></code> from the shared perturbation operator package.</p></li>
 </ul>
-</section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.helpers.operators.heuristics._tour_construction import (
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.search_heuristics._tour_construction import (
 …     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
 … )
-tour = _initialize_tour(dist, initial_tour=None)
-gain = _2opt_gain(t1, t2, t3, t4, dist)
-if gain &gt; 1e-6:
+&gt;&gt;&gt; tour = _initialize_tour(dist, initial_tour=None)
+&gt;&gt;&gt; gain = _2opt_gain(t1, t2, t3, t4, dist)
+&gt;&gt;&gt; if gain &gt; 1e-6:
 …     tour = _double_bridge_kick(tour, dist, rng)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </section>
 <p>LKH-3 Tour Construction and Gain-Computation Module.</p>
 <p>Provides tour initialisation, elite-tour merging, and the double-bridge
@@ -649,6 +642,14 @@ A closed tour over all n nodes.</p>
 <dd><p>Exact gain for a 2-opt move that removes (t1,t2) and (t3,t4).</p>
 <p>Gain = c(t1,t2) + c(t3,t4) − c(t1,t3) − c(t2,t4).</p>
 <p>A positive gain means the 2-opt move strictly reduces tour length.</p>
+<p>Args:
+t1 (int): First node of first edge.
+t2 (int): Second node of first edge.
+t3 (int): First node of second edge.
+t4 (int): Second node of second edge.
+d (np.ndarray): Distance matrix.</p>
+<p>Returns:
+float: Calculated gain.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -660,6 +661,16 @@ contribution is d(t1,t2) + d(t3,t4) + d(t5,t6).</p>
 <p>Returns a list of seven gain values corresponding to cases 0–6 of
 <code class="docutils literal notranslate"><span class="pre">move_kopt_intra</span></code> (k=3).</p>
 <p>Gain &gt; 0 means an improving move for that case.</p>
+<p>Args:
+t1 (int): First node of first edge.
+t2 (int): Second node of first edge.
+t3 (int): First node of second edge.
+t4 (int): Second node of second edge.
+t5 (int): First node of third edge.
+t6 (int): Second node of third edge.
+d (np.ndarray): Distance matrix.</p>
+<p>Returns:
+List[float]: Gains for cases 0-6.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -668,6 +679,18 @@ contribution is d(t1,t2) + d(t3,t4) + d(t5,t6).</p>
 <dd><p>Exact gains for three common 4-opt reconnection cases.</p>
 <p>Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8).</p>
 <p>Returns a list of three gain values (indices 0–2).</p>
+<p>Args:
+t1 (int): First node of first edge.
+t2 (int): Second node of first edge.
+t3 (int): First node of second edge.
+t4 (int): Second node of second edge.
+t5 (int): First node of third edge.
+t6 (int): Second node of third edge.
+t7 (int): First node of fourth edge.
+t8 (int): Second node of fourth edge.
+d (np.ndarray): Distance matrix.</p>
+<p>Returns:
+List[float]: Gains for cases 0-2.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -676,6 +699,20 @@ contribution is d(t1,t2) + d(t3,t4) + d(t5,t6).</p>
 <dd><p>Exact gains for five common 5-opt reconnection cases.</p>
 <p>Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8), (t9,t10).</p>
 <p>Returns a list of five gain values (indices 0–4).</p>
+<p>Args:
+t1 (int): First node of first edge.
+t2 (int): Second node of first edge.
+t3 (int): First node of second edge.
+t4 (int): Second node of second edge.
+t5 (int): First node of third edge.
+t6 (int): Second node of third edge.
+t7 (int): First node of fourth edge.
+t8 (int): Second node of fourth edge.
+t9 (int): First node of fifth edge.
+t10 (int): Second node of fifth edge.
+d (np.ndarray): Distance matrix.</p>
+<p>Returns:
+List[float]: Gains for cases 0-4.</p>
 </dd></dl>
 
 </section>
@@ -731,7 +768,6 @@ contribution is d(t1,t2) + d(t3,t4) + d(t5,t6).</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perturbation">Perturbation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exact-gain-functions">Exact gain functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

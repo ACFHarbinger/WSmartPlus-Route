@@ -491,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search">
 <span id="src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search" title="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search" title="Link to this heading">#</a></h1>
 <p>Auxiliary modules for the Adaptive Large Neighborhood Search (ALNS) policy.</p>
+<p>Attributes:
+ALNSParams: Dataclass for ALNS configuration.
+run_alns: Main dispatcher for ALNS.
+run_alns_ortools: OR-Tools based ALNS implementation.
+run_alns_package: Package-based ALNS implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search import ALNSParams
+&gt;&gt;&gt; params = ALNSParams()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -501,7 +509,9 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#key-implementation-features">Key Implementation Features:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features">Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+Key Implementation Features:</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#performance-optimizations">Performance Optimizations:</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#usage-for-ablation-studies">Usage for Ablation Studies:</a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#references">References:</a></li>

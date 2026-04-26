@@ -501,13 +501,14 @@ Barnhart et al. (1998) “Branch-and-Price: Column Generation for Solving Huge I
 <li><p>Ryan-Foster branching for binary decisions</p></li>
 <li><p>Gurobi for solving restricted master problems</p></li>
 </ul>
-<p>Key Components:</p>
-<ul class="simple">
-<li><p>VRPPMasterProblem: Set partitioning formulation with route columns</p></li>
-<li><p>PricingSubproblem: Resource-constrained shortest path for route generation</p></li>
-<li><p>BranchAndPriceSolver: Main solver with column generation and branching</p></li>
-<li><p>PolicyBP: Policy adapter for WSmart+ Route framework</p></li>
-</ul>
+<p>Attributes:
+BranchAndPriceSolver (class): Main optimization search for column generation.
+BranchAndPricePolicy (class): Adapter for the BP solver.
+PricingSubproblem (class): Resource-constrained shortest path subproblem.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price import BranchAndPricePolicy
+&gt;&gt;&gt; policy = BranchAndPricePolicy(config)
+&gt;&gt;&gt; routes, obj = policy.execute(context)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

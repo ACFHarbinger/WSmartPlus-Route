@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-integer-l-shaped-benders-decomposition-subproblem"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem" title="Link to this heading">#</a></h1>
 <p>Analytical recourse subproblem evaluator for the Integer L-Shaped Method.</p>
+<p>Attributes:
+RecourseEvaluator (class): Analytical evaluator for the Stage 2 recourse function.</p>
+<p>Example:
+&gt;&gt;&gt; evaluator = RecourseEvaluator()
+&gt;&gt;&gt; Q_bar, e, d = evaluator.evaluate(y_hat, scenarios, 100.0, 10.0, 70.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,8 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator" title="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecourseEvaluator</span></code></a></p></td>
-<td><p>Analytical evaluator for the Stage 2 recourse function Q̄(ŷ).
-Optimized for multi-period simulation over T days.</p></td>
+<td><p>Analytical evaluator for the Stage 2 recourse function Q̄(ŷ).</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,20 +516,25 @@ Optimized for multi-period simulation over T days.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.</span></span><span class="sig-name descname"><span class="pre">RecourseEvaluator</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator" title="Link to this definition">#</a></dt>
-<dd><p>Analytical evaluator for the Stage 2 recourse function Q̄(ŷ).
-Optimized for multi-period simulation over T days.</p>
+<dd><p>Analytical evaluator for the Stage 2 recourse function Q̄(ŷ).</p>
+<p>Optimized for multi-period simulation over T days.</p>
+<p>Attributes:
+_None: This class has no public attributes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_hat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenarios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow_penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undervisit_penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.RecourseEvaluator.evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Compute Q̄(ŷ) and Benders optimality cut coefficients over T days.</p>
 <p>Args:
-y_hat: Current master problem visit decisions {node_idx: value}.
-scenarios: List of scenario paths. Each path is a list of [node_fill_array] for T days.
-overflow_penalty: Cost per %-fill unit of overflow.
-undervisit_penalty: Cost of wasted trip Day 0.
-collection_threshold: Trigger level.</p>
+y_hat (Dict[int, float]): Current master problem visit decisions {node_idx: value}.
+scenarios (List[List[np.ndarray]]): List of scenario paths. Each path is a list of [node_fill_array] for T days.
+overflow_penalty (float): Cost per %-fill unit of overflow.
+undervisit_penalty (float): Cost of wasted trip Day 0.
+collection_threshold (float): Trigger level.</p>
 <p>Returns:
-Tuple of (Q_bar, e, d).</p>
+Tuple[float, float, Dict[int, float]]: A tuple containing:
+- Q_bar: Expected recourse cost.
+- e: Constant term for the Benders cut.
+- d: Coefficients for the Benders cut.</p>
 </dd></dl>
 
 </dd></dl>

@@ -498,6 +498,12 @@ document.write(`
 <span id="src-policies-route-construction-hyper-heuristics-guided-indicators-hyper-heuristic-solution"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution" title="Link to this heading">#</a></h1>
 <p>Solution representation for GIHH.</p>
 <p>This module defines the Solution class used by the GIHH algorithm.</p>
+<p>Attributes:
+Solution: Solution for the Vehicle Routing Problem with Profits.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution import Solution
+&gt;&gt;&gt; solution = Solution(routes=[[1, 2], [3, 4]], dist_matrix=np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]]), wastes={1: 10, 2: 20, 3: 30, 4: 40}, capacity=100, revenue=1, cost_unit=1)
+&gt;&gt;&gt; print(solution.profit)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,18 +546,24 @@ cost_unit: Cost per distance unit.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate the solution and update profit, cost, and revenue.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.copy" title="Link to this definition">#</a></dt>
 <dd><p>Create a deep copy of the solution.</p>
+<p>Returns:
+Solution: Deep copy of the solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.is_feasible">
 <span class="sig-name descname"><span class="pre">is_feasible</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.is_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Check if solution respects capacity constraints.</p>
+<p>Returns:
+bool: True if solution is feasible, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -559,6 +571,10 @@ cost_unit: Cost per distance unit.</p>
 <span class="sig-name descname"><span class="pre">is_identical_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.is_identical_to" title="Link to this definition">#</a></dt>
 <dd><p>Check if this solution is structurally identical to another.
 Two solutions are identical if they have the exact same routes.</p>
+<p>Args:
+other: Other solution to compare with.</p>
+<p>Returns:
+bool: True if solutions are identical, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -566,6 +582,10 @@ Two solutions are identical if they have the exact same routes.</p>
 <span class="sig-name descname"><span class="pre">dominates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution.dominates" title="Link to this definition">#</a></dt>
 <dd><p>Check if this solution Pareto-dominates the other solution.
 Objectives: Maximize revenue_total, Minimize cost.</p>
+<p>Args:
+other: Other solution to compare with.</p>
+<p>Returns:
+bool: True if this solution dominates the other, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>

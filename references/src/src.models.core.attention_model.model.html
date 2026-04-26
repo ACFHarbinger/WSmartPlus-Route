@@ -552,35 +552,35 @@ tanh_clipping (float): Logit clipping value for stable training.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the multi-head Attention Model.</p>
 <p>Args:
-embed_dim: Latent representation size.
-hidden_dim: Expansion size for feed-forward layers.
-problem: Reference to the problem environment/definition.
-component_factory: Factory to instantiate encoder/decoder subnets.
-n_encode_layers: Depth of the graph encoder.
-n_encode_sublayers: Optional sub-depth override for encoder.
-n_decode_layers: Depth of the sequential decoder.
-dropout_rate: Probability for dropout layers.
-aggregation: Local node aggregation strategy.
-aggregation_graph: Global context pooling strategy.
-tanh_clipping: Clipping range for attention logits.
-mask_inner: Enable masking in intermediate attention blocks.
-mask_logits: Enable masking of invalid nodes in final selection.
-mask_graph: Whether to mask the entire graph structure.
-norm_config: Normalization settings.
-activation_config: Non-linear activation settings.
-n_heads: Parallel attention head count.
-checkpoint_encoder: Enable memory-efficient gradient checkpointing.
-shrink_size: Compressed size for specific decoder variants.
-pomo_size: Count of augmentation starts for POMO.
-temporal_horizon: Look-ahead steps for time-varying problems.
-spatial_bias: Inject spatial position relative distance into attention.
-spatial_bias_scale: Magnitude of the spatial bias injection.
-entropy_weight: Regularization coefficient for action entropy.
-predictor_layers: Number of MLP layers for value/action prediction.
-connection_type: Type of skip connection (‘residual’, ‘dense’).
-hyper_expansion: Internal expansion factor for FFN.
-decoder_type: Decoder architectural variant (‘attention’, ‘pointer’).
-**kwargs: Catch-all for experimental and future parameters.</p>
+embed_dim: Dimensionality of node and graph embeddings.
+hidden_dim: Hidden dimension for feed-forward sublayers.
+problem: Domain problem instance definition.
+component_factory: Factory for building encoder/decoder subnets.
+n_encode_layers: Number of Transformer encoder layers.
+n_encode_sublayers: Optional sub-depth override for encoder blocks.
+n_decode_layers: Number of Transformer decoder layers.
+dropout_rate: Dropout probability.
+aggregation: GNN node pooling type for local features.
+aggregation_graph: Global graph pooling strategy (“avg”, “sum”, “max”).
+tanh_clipping: Logit clipping value for stable training.
+mask_inner: Enable masking inside transformer blocks.
+mask_logits: Enable node visit masking in final softmax.
+mask_graph: Global graph structure masking flag.
+norm_config: Layer normalization configuration.
+activation_config: Activation function configuration.
+n_heads: Number of attention heads.
+checkpoint_encoder: Whether to use gradient checkpointing on encoding.
+shrink_size: Compression factor for efficient decoders.
+pomo_size: Parallel start size for POMO.
+temporal_horizon: Look-ahead depth for dynamic problems.
+spatial_bias: Enable relative distance injection.
+spatial_bias_scale: Multiplier for spatial bias.
+entropy_weight: Weight for entropy exploration bonus.
+predictor_layers: MLP depth for final logit prediction.
+connection_type: Skip connection architecture style.
+hyper_expansion: Expansion factor for hidden MLPs.
+decoder_type: Architectural style of the decoder (“attention”, etc.).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.attention_model.model.AttentionModel._init_parameters">
 <span class="sig-name descname"><span class="pre">_init_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pomo_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_encoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.attention_model.model.AttentionModel._init_parameters" title="Link to this definition">#</a></dt>
@@ -667,14 +667,14 @@ Tuple[torch.Tensor, Optional[torch.Tensor]]:
 <p>Performs: (1) Initial embedding, (2) Graph encoding via Attention Encoder,
 (3) Global context aggregation, and (4) Sequential construction via Decoder.</p>
 <p>Args:
-input: TensorDict or dictionary containing the problem instance.
-env: The environment managing state transitions.
-strategy: Decoding strategy (e.g., ‘greedy’, ‘sampling’, ‘beam’).
-return_pi: Whether to return the full action distribution / log-likelihood.
-pad: API compatibility flag for sequence padding.
-mask: Optional node-level validity mask.
-expert_pi: Target actions for supervised training / imitation.
-**kwargs: Additional parameters for internal calls.</p>
+input: Map of instance feature tensors.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “sampling”).
+return_pi: Whether to include actions in the output map.
+pad: Whether to pad sequences to a fixed length.
+mask: Optional tensor of invalid nodes.
+expert_pi: Optional ground-truth actions for imitation learning.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Construction results containing:
 - cost (torch.Tensor): Path lengths of the routes.

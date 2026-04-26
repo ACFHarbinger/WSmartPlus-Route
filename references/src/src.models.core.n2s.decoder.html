@@ -501,6 +501,9 @@ neighborhood moves based on the learned node embeddings and spatial
 constraints.</p>
 <p>Attributes:
 N2SDecoder: Pairwise action decoder for iterative neighborhood search.</p>
+<p>Example:
+&gt;&gt;&gt; decoder = N2SDecoder(embed_dim=128)
+&gt;&gt;&gt; log_p, actions = decoder(td, h, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,9 +536,9 @@ generator (torch.Generator): Local random search generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the N2S decoder.</p>
 <p>Args:
-embed_dim: width of the latent features.
-seed: RNG seed for reproducible sampling.
-**kwargs: Extra parameters like ‘device’.</p>
+embed_dim: Dimensionality of the node features.
+seed: Random seed for action sampling.
+kwargs: Additional keyword arguments.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.device" title="Link to this definition">#</a></dt>
@@ -565,10 +568,10 @@ state: Serialized dictionary of attributes.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Predicts an improvement move (node pair i, j).</p>
 <p>Args:
-td: problem state container.
-embeddings: encoded node features [B, N, D].
-env: targeted environment logic.
-**kwargs: Execution flags including ‘strategy’ (‘greedy’ or ‘sample’).</p>
+td: TensorDict containing problem state.
+embeddings: Encoded node features [B, N, D].
+env: Environment managing the problem physics.
+kwargs: Additional keyword arguments including decoding strategy.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p: log-likelihood of the selected move [B].

@@ -491,8 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-dual-population"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population" title="Link to this heading">#</a></h1>
 <p>Memetic Algorithm with Dual Population (MA-DP) for VRPP.</p>
-<p>Rigorous implementation based on VPL but with OR terminology.
-Maintains dual population structure (active + reserve).</p>
+<p>Maintains dual population structure (active + reserve) to balance
+intensification and diversification.</p>
+<p>Attributes:
+MemeticAlgorithmDualPopulationParams: Configuration parameters for MA-DP.
+MemeticAlgorithmDualPopulationPolicy: Policy adapter for MA-DP.
+MemeticAlgorithmDualPopulationSolver: Core solver logic for MA-DP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population import MemeticAlgorithmDualPopulationPolicy</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

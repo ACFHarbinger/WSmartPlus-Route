@@ -497,7 +497,7 @@ improvement framework.</p>
 DACTPolicy: Collaborative Transformer policy for routing improvement.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.models.core.dact.policy import DACTPolicy
-&gt;&gt;&gt; policy = DACTPolicy(env_name=”tsp_kopt”)</p>
+&gt;&gt;&gt; policy = DACTPolicy(env_name=”tsp_kopt”, embed_dim=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,11 +527,11 @@ decoder (DACTDecoder): Attention-based operator selector.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the DACT policy.</p>
 <p>Args:
-embed_dim: Width of the shared feature space.
-num_layers: depth of the Transformer blocks.
-num_heads: count of attention heads.
-env_name: Identifier for the targeted optimization problem.
-**kwargs: Extra parameters passed to sub-modules.</p>
+embed_dim: Dimensionality of latent embeddings.
+num_layers: Number of transformer layers in the encoder.
+num_heads: Number of attention heads.
+env_name: Name of the environment identifier.
+kwargs: Additional keyword arguments.</p>
 </dd></dl>
 
 </section>

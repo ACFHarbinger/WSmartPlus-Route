@@ -505,6 +505,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.envs.graph">
 <span id="src-configs-envs-graph"></span><h1><a class="reference internal" href="#module-src.configs.envs.graph" title="src.configs.envs.graph"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs.graph</span></code></a><a class="headerlink" href="#module-src.configs.envs.graph" title="Link to this heading">#</a></h1>
 <p>Graph/instance configuration module.</p>
+<p>Attributes:
+GraphConfig: Graph configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.envs import GraphConfig
+&gt;&gt;&gt; config = GraphConfig()
+&gt;&gt;&gt; print(config)
+GraphConfig(num_loc=50, num_nodes=50, num_customers=20, customer_types={‘A’: 0.25, ‘B’: 0.5, ‘C’: 0.25}, area=’alpine’, demand_distribution=’normal’, demand_normal_mean=10, demand_normal_std=1, min_demand=1, max_demand=25, capacity_distribution=’normal’, capacity_normal_mean=300, capacity_normal_std=50, min_capacity=200, max_capacity=400, instance_generator=’random’, edge_probability=0.3, shuffle_seed=42)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -498,6 +498,9 @@ designed to encode the spatial and topological state of a combinatorial problem
 for iterative optimization.</p>
 <p>Attributes:
 NeuOptEncoder: Transformer encoder for global problem state representation.</p>
+<p>Example:
+&gt;&gt;&gt; encoder = NeuOptEncoder(embed_dim=128)
+&gt;&gt;&gt; h = encoder(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,17 +531,17 @@ layers (nn.ModuleList): list of self-attention and feed-forward blocks.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NeuOpt encoder.</p>
 <p>Args:
-embed_dim: dimensionality of the feature space.
-num_heads: count of parallel attention heads.
-num_layers: number of stacked Transformer blocks.
-**kwargs: Unused parameters.</p>
+embed_dim: Dimensionality of the node embeddings.
+num_heads: Number of attention heads.
+num_layers: Number of Transformer blocks.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.encoder.NeuOptEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.neuopt.encoder.NeuOptEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Encodes the problem instance into high-dimensional node features.</p>
 <p>Args:
-td: state container with environment data (‘locs’, ‘depot’).
-**kwargs: Unused.</p>
+td: TensorDict containing “depot” and “locs” keys.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Encoded node embeddings [B, N, embed_dim].</p>
 </dd></dl>

@@ -517,7 +517,19 @@ that can be called as standalone moves in a hyper-heuristic context.
 Each operator attempts to improve a solution and returns the modified routes.</p>
 <p>Attributes:
 HYPER_OPERATORS (list): List of operator functions.
-OPERATOR_NAMES (list): List of operator names.</p>
+OPERATOR_NAMES (list): List of operator names.
+HyperOperatorContext: Context object that provides the interface expected by move operators.
+apply_2opt_intra: Wrapper for 2-opt intra-route move.
+apply_3opt_intra: Wrapper for 3-opt intra-route move.
+apply_2opt_star: Wrapper for 2-opt* inter-route move.
+apply_swap: Wrapper for swap move between two nodes.
+apply_swap_star: Wrapper for SWAP* inter-route move.
+apply_relocate: Wrapper for relocate move.
+apply_kick: Wrapper for kick operator.
+apply_perturb: Wrapper for perturbation operator.
+apply_random_removal: Wrapper for random removal operator.
+apply_shaw_removal: Wrapper for shaw removal operator.
+apply_string_removal: Wrapper for string removal operator.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators import apply_2opt
 &gt;&gt;&gt; improved = apply_2opt(context)</p>
@@ -597,6 +609,21 @@ Wraps routes and provides helper methods for move evaluation.</p></td>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">HyperOperatorContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="Link to this definition">#</a></dt>
 <dd><p>Context object that provides the interface expected by move operators.
 Wraps routes and provides helper methods for move evaluation.</p>
+<p>Attributes:
+routes: Current routes.
+d: Distance matrix.
+waste: Node wastes.
+Q: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+mandatory_nodes: Set of mandatory node indices.
+profit_aware_operators: Whether to use profit-aware heuristics.
+vrpp: Whether to consider all unvisited nodes in insertion.
+route_loads: Cached loads for each route.
+node_map: Mapping of node to its route and position.
+neighbors: Pre-computed neighbors for each node.
+rng: Random number generator.
+top_insertions: Cache for O(1) SWAP* insertion cost evaluation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HyperOperatorContext.</p>
 <p>Args:
@@ -612,24 +639,39 @@ profit_aware_operators: Whether to use profit-aware heuristics.
 vrpp: Whether to consider all unvisited nodes in insertion.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._build_structures">
-<span class="sig-name descname"><span class="pre">_build_structures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._build_structures" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_build_structures</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._build_structures" title="Link to this definition">#</a></dt>
 <dd><p>Build node map, route loads, and neighbor lists.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._calc_load_fresh">
 <span class="sig-name descname"><span class="pre">_calc_load_fresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._calc_load_fresh" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate load of a route.</p>
+<p>Args:
+r (List[int]): Route.</p>
+<p>Returns:
+float: Load of the route.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._get_load_cached">
 <span class="sig-name descname"><span class="pre">_get_load_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._get_load_cached" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get cached load of a route.</p>
+<p>Args:
+ri (int): Route index.</p>
+<p>Returns:
+float: Cached load of the route.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._update_map">
 <span class="sig-name descname"><span class="pre">_update_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">affected_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._update_map" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update node map and route loads.</p>
+<p>Args:
+affected_indices (set): Set of affected route indices.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext._compute_top_insertions">
@@ -647,66 +689,121 @@ route_idx: If provided, update cache only for this route. If None, initialize fo
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_2opt_intra">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_2opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_2opt_intra" title="Link to this definition">#</a></dt>
 <dd><p>Apply 2-opt intra-route move to a random route segment.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_3opt_intra">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_3opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_3opt_intra" title="Link to this definition">#</a></dt>
 <dd><p>Apply 3-opt intra-route move to a random route segment.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_2opt_star">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_2opt_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_2opt_star" title="Link to this definition">#</a></dt>
 <dd><p>Apply 2-opt* inter-route move.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_swap">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_swap" title="Link to this definition">#</a></dt>
 <dd><p>Apply swap move between two nodes.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_swap_star">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_swap_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_swap_star" title="Link to this definition">#</a></dt>
 <dd><p>Apply SWAP* inter-route move.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_relocate">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_relocate" title="Link to this definition">#</a></dt>
 <dd><p>Apply relocate move.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+max_attempts (int): Maximum number of attempts. Defaults to 50.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_perturb">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_perturb" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for perturbation operator.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+k (int): Number of nodes to perturb. Defaults to 3.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_kick">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_kick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">destroy_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_kick" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for kick operator.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+destroy_ratio (float): Ratio of nodes to remove. Defaults to 0.2.</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_shaw_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_shaw_removal" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for shaw removal followed by greedy insertion.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_string_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_string_removal" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for string removal followed by greedy insertion.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.</span></span><span class="sig-name descname"><span class="pre">apply_random_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext" title="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.HyperOperatorContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.apply_random_removal" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for random removal followed by greedy insertion.</p>
+<p>Args:
+ctx (HyperOperatorContext): Context containing problem data and structures.
+n (Optional[int]): Number of nodes to remove. Defaults to max(1, len(ctx.node_map) // 5).</p>
+<p>Returns:
+bool: True if an improving move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py data">

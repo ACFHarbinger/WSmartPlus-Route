@@ -506,10 +506,15 @@ document.write(`
 Gendreau, M., Hertz, A., &amp; Laporte, G. (1992).
 “New Insertion and Postoptimization Procedures for the Traveling Salesman Problem”
 Operations Research, 40(6), 1086-1094.</p>
-<p>Exports:
-GENIUSSolver: The main solver class.
+<p>Attributes:
 GENIUSParams: Configuration parameters dataclass.
-GENIUSPolicy: Policy adapter for the routing framework.</p>
+GENIUSPolicy: Policy adapter for the routing framework.
+GENIUSSolver: The main solver class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.genius import GENIUSSolver, GENIUSParams
+&gt;&gt;&gt; params = GENIUSParams(neighborhood_size=5)
+&gt;&gt;&gt; solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

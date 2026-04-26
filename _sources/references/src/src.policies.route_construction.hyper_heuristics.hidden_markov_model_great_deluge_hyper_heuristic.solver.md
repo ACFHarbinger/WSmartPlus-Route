@@ -143,7 +143,7 @@
 
 ````
 
-````{py:method} _check_state_scaling()
+````{py:method} _check_state_scaling() -> None
 :canonical: src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._check_state_scaling
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._check_state_scaling
@@ -151,7 +151,7 @@
 
 ````
 
-````{py:method} _split_state()
+````{py:method} _split_state() -> None
 :canonical: src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._split_state
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver.HMMGDHHSolver._split_state

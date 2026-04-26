@@ -493,6 +493,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_algorithms.neural_agent.batch">
 <span id="src-policies-route-construction-learning-algorithms-neural-agent-batch"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_algorithms.neural_agent.batch" title="src.policies.route_construction.learning_algorithms.neural_agent.batch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.batch</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_algorithms.neural_agent.batch" title="Link to this heading">#</a></h1>
 <p>Batch simulation logic for Neural Agent.</p>
+<p>Attributes:
+BatchMixin: Mixin for batch simulation logic in NeuralAgent.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_algorithms import NeuralAgent
+&gt;&gt;&gt; agent = NeuralAgent(model)
+&gt;&gt;&gt; routes, metrics = agent.run_day(env)
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,6 +520,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.batch.BatchMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.batch.</span></span><span class="sig-name descname"><span class="pre">BatchMixin</span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.batch.BatchMixin" title="Link to this definition">#</a></dt>
 <dd><p>Mixin for batch simulation logic in NeuralAgent.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.batch.BatchMixin.compute_batch_sim">
 <span class="sig-name descname"><span class="pre">compute_batch_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrl_manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.batch.BatchMixin.compute_batch_sim" title="Link to this definition">#</a></dt>

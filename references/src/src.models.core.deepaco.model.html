@@ -533,26 +533,26 @@ _baseline_val (Optional[Any]): Rolling state for exponential baseline.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the DeepACO model.</p>
 <p>Args:
-embed_dim: Embedding vector size.
-num_encoder_layers: Number of transformer encoder blocks.
-num_heads: Attention head count.
-n_ants: Population size (number of ants) per iteration.
+embed_dim: Dimensionality of the node features.
+num_encoder_layers: Number of Transformer encoder layers.
+num_heads: Number of attention heads.
+n_ants: Number of parallel ants in the colony.
 n_iterations: Number of ACO pheromone update cycles.
-alpha: relative weight of pheromone in edge selection.
-beta: relative weight of learned heuristic in edge selection.
+alpha: Pheromone importance exponent.
+beta: Heuristic visibility importance exponent.
 rho: Pheromone evaporation rate.
-use_local_search: Whether to apply 2-opt refinement to ant paths.
-baseline: Baseline calculation method.
-env_name: Targeted problem environment name.
-**kwargs: Extra arguments for policy instantiation.</p>
+use_local_search: Whether to apply refinement after construction.
+baseline: RL baseline type (“rollout”, “exponential”, “none”).
+env_name: Name of the environment identifier.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.deepaco.model.DeepACO.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.deepaco.model.DeepACO.forward" title="Link to this definition">#</a></dt>
 <dd><p>Calculates construction output and computes REINFORCE loss.</p>
 <p>Args:
-td: Problem state container.
-env: Environment managing dynamics and rewards.
-**kwargs: Additional parameters for construction.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing the problem physics.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Policy outputs including rewards, actions, and <code class="docutils literal notranslate"><span class="pre">loss</span></code>.</p>
 </dd></dl>
@@ -562,8 +562,8 @@ Dict[str, Any]: Policy outputs including rewards, actions, and <code class="docu
 <span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.deepaco.model.DeepACO.set_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Configures constructive decoding strategy.</p>
 <p>Args:
-strategy: Mode identifier (e.g., ‘ac_search’, ‘sampling’).
-**kwargs: Extra parameters for the specific strategy.</p>
+strategy: Identifier for the decoding strategy (e.g., “greedy”).
+kwargs: Additional parameters for the decoding strategy.</p>
 </dd></dl>
 
 <dl class="py method">

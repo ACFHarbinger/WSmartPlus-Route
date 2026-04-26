@@ -499,6 +499,20 @@ intensification within the mathematical programming search space.</p>
 Hansen, P., Mladenović, N., &amp; Urošević, D. (2006).
 “Variable neighborhood search and local branching”.
 Computers &amp; Operations Research.</p>
+<p>Attributes:
+LocalBranchingVNSPolicy (LocalBranchingVNSPolicy): Implementation of the LB-VNS matheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search import LocalBranchingVNSPolicy
+&gt;&gt;&gt; policy = LocalBranchingVNSPolicy()
+&gt;&gt;&gt; solution = policy.solve(
+…     dist_matrix=dist_matrix,
+…     wastes=wastes,
+…     capacity=capacity,
+…     R=revenue,
+…     C=cost_unit,
+…     mandatory_nodes=mandatory_nodes,
+… )
+&gt;&gt;&gt; print(solution[“tour”])</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

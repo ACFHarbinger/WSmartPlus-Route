@@ -500,6 +500,11 @@ document.write(`
 Moghdani, R., &amp; Salimifard, K. (2018). “Volleyball Premier League
 Algorithm.” Applied Soft Computing, 64, 161-185.
 DOI: https://doi.org/10.1016/j.asoc.2017.11.043</p>
+<p>Attributes:
+VPLPolicy: The VPL policy class.</p>
+<p>Example:
+&gt;&gt;&gt; policy = VPLPolicy()
+&gt;&gt;&gt; routes, profit, cost = policy._run_solver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, values, mandatory_nodes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +527,8 @@ DOI: https://doi.org/10.1016/j.asoc.2017.11.043</p>
 <p>VPL policy class.</p>
 <p>Visits pre-selected ‘mandatory’ bins using the population-based VPL metaheuristic
 with dual population structure (active and passive teams).</p>
+<p>Attributes:
+config (Optional[Union[VPLConfig, Dict[str, Any]]]): VPL configuration.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize VPL policy with optional config.</p>
 <p>Args:
@@ -529,12 +536,17 @@ config: VPLConfig dataclass, raw dict from YAML, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl.VPLPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl.VPLPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+Optional[Type[VPLConfig]]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl.VPLPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl.VPLPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return config key for VPL.</p>
+<p>Returns:
+str: The config key.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -566,7 +578,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 VPL parameters (n_teams, substitution_rate, coaching_weights).
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

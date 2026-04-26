@@ -503,6 +503,24 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor.transforms">
 <span id="src-data-processor-transforms"></span><h1><a class="reference internal" href="#module-src.data.processor.transforms" title="src.data.processor.transforms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor.transforms</span></code></a><a class="headerlink" href="#module-src.data.processor.transforms" title="Link to this heading">#</a></h1>
 <p>Data augmentation transforms for RL4CO.</p>
+<p>Attributes:
+batchify: Repeats the TensorDict along a new dimension.
+dihedral_8_augmentation: Augmentation (x8) for grid-based data (x, y) using Dihedral group D4.
+dihedral_8_augmentation_wrapper: Wrapper for dihedral_8_augmentation.
+symmetric_transform: Symmetric rotation and reflection transform.
+symmetric_augmentation: Augment xy data by <code class="docutils literal notranslate"><span class="pre">num_augment</span></code> times via symmetric transform.
+min_max_normalize: Normalize tensor to [0, 1] range using min-max scaling.
+get_augment_function: Get augmentation function by name or return callable directly.
+StateAugmentation: Augment state by N times via symmetric rotation/reflection transform.</p>
+<p>Example:
+batchify(td, num_samples)
+dihedral_8_augmentation(xy)
+dihedral_8_augmentation_wrapper(xy, reduce=True)
+symmetric_transform(x, y, phi, offset=0.5)
+symmetric_augmentation(xy, num_augment=8, first_augment=False)
+min_max_normalize(x)
+get_augment_function(“dihedral8”)
+state_augmentation = StateAugmentation(num_augment=8, augment_fn=”symmetric”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -570,6 +588,11 @@ xy: [batch, graph, 2] tensor of x and y coordinates</p></td>
 <dt class="sig sig-object py" id="src.data.processor.transforms.batchify">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.transforms.</span></span><span class="sig-name descname"><span class="pre">batchify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.data.processor.transforms.batchify" title="Link to this definition">#</a></dt>
 <dd><p>Repeats the TensorDict along a new dimension.</p>
+<p>Args:
+td: TensorDict to repeat.
+num_samples: Number of times to repeat.</p>
+<p>Returns:
+Repeated TensorDict.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -578,24 +601,48 @@ xy: [batch, graph, 2] tensor of x and y coordinates</p></td>
 <dd><p>Augmentation (x8) for grid-based data (x, y) using Dihedral group D4.
 Args:
 xy: [batch, graph, 2] tensor of x and y coordinates</p>
+<p>Returns:
+[batch*8, graph, 2] tensor of augmented x and y coordinates</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.transforms.dihedral_8_augmentation_wrapper">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.transforms.</span></span><span class="sig-name descname"><span class="pre">dihedral_8_augmentation_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.data.processor.transforms.dihedral_8_augmentation_wrapper" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper for dihedral_8_augmentation.</p>
+<p>Args:
+xy: [batch, graph, 2] tensor of x and y coordinates
+reduce: Whether to reduce the batch size by a factor of 8.
+args: Additional arguments.
+kw: Additional keyword arguments.</p>
+<p>Returns:
+[batch*8, graph, 2] tensor of augmented x and y coordinates</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.transforms.symmetric_transform">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.transforms.</span></span><span class="sig-name descname"><span class="pre">symmetric_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.transforms.symmetric_transform" title="Link to this definition">#</a></dt>
 <dd><p>Symmetric rotation and reflection transform.</p>
+<p>Args:
+x: x coordinates.
+y: y coordinates.
+phi: Rotation angles.
+offset: Offset for transformation.</p>
+<p>Returns:
+Augmented coordinates.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.transforms.symmetric_augmentation">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.transforms.</span></span><span class="sig-name descname"><span class="pre">symmetric_augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_augment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_augment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.transforms.symmetric_augmentation" title="Link to this definition">#</a></dt>
 <dd><p>Augment xy data by <code class="docutils literal notranslate"><span class="pre">num_augment</span></code> times via symmetric transform.</p>
+<p>Args:
+xy: [batch, graph, 2] tensor of x and y coordinates
+num_augment: Number of augmented copies to generate.
+first_augment: If True, first augmentation is the identity.
+generator: Random number generator.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+[batch*num_augment, graph, 2] tensor of augmented x and y coordinates</p>
 </dd></dl>
 
 <dl class="py function">
@@ -624,6 +671,12 @@ ValueError: If augment_fn string is not recognized.</p>
 <dt class="sig sig-object py" id="src.data.processor.transforms.StateAugmentation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.processor.transforms.</span></span><span class="sig-name descname"><span class="pre">StateAugmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_augment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'symmetric'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_aug_identity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.transforms.StateAugmentation" title="Link to this definition">#</a></dt>
 <dd><p>Augment state by N times via symmetric rotation/reflection transform.</p>
+<p>Attributes:
+num_augment: Number of augmented copies to generate.
+augment_fn: Augmentation function (‘symmetric’, ‘dihedral8’, or callable).
+first_aug_identity: If True, first augmentation is the identity.
+normalize: Whether to apply min-max normalization after augmentation.
+feats: List of feature names to augment (default: [‘locs’]).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize StateAugmentation transform.</p>
 <p>Args:

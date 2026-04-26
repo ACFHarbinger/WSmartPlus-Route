@@ -471,8 +471,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LKRouteImprover"><code class="docutils literal notranslate"><span class="pre">LKRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LKRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanRouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -494,10 +494,10 @@ document.write(`
 <span id="src-policies-route-improvement-lk"></span><h1><a class="reference internal" href="#module-src.policies.route_improvement.lk" title="src.policies.route_improvement.lk"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement.lk</span></code></a><a class="headerlink" href="#module-src.policies.route_improvement.lk" title="Link to this heading">#</a></h1>
 <p>Lin-Kernighan (LK) Route Improver.</p>
 <p>Attributes:
-LKRouteImprover: Main class for Lin-Kernighan improvement.</p>
+LinKernighanRouteImprover: Main class for Lin-Kernighan improvement.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.route_improvement.lk import LKRouteImprover
-&gt;&gt;&gt; improver = LKRouteImprover(config=cfg)
+&gt;&gt;&gt; from logic.src.policies.route_improvement.lk import LinKernighanRouteImprover
+&gt;&gt;&gt; improver = LinKernighanRouteImprover(config=cfg)
 &gt;&gt;&gt; refined_tour, metrics = improver.process(tour, max_iterations=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -505,7 +505,7 @@ LKRouteImprover: Main class for Lin-Kernighan improvement.</p>
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lk.LKRouteImprover" title="src.policies.route_improvement.lk.LKRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LKRouteImprover</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover" title="src.policies.route_improvement.lk.LinKernighanRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinKernighanRouteImprover</span></code></a></p></td>
 <td><p>Lin-Kernighan route improver.</p></td>
 </tr>
 </tbody>
@@ -515,8 +515,8 @@ LKRouteImprover: Main class for Lin-Kernighan improvement.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lk.LKRouteImprover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lk.</span></span><span class="sig-name descname"><span class="pre">LKRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lk.LKRouteImprover" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lk.LinKernighanRouteImprover">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.lk.</span></span><span class="sig-name descname"><span class="pre">LinKernighanRouteImprover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.interfaces.IRouteImprovement</span></code></p>
 <p>Lin-Kernighan route improver.</p>
 <p>Iterative improvement heuristic for the TSP. Highly effective for medium-sized
@@ -525,7 +525,7 @@ independently.</p>
 <p>Attributes:
 config (Dict[str, Any]): Internal configuration state.</p>
 <p>Example:
-&gt;&gt;&gt; improver = LKRouteImprover(config=cfg)
+&gt;&gt;&gt; improver = LinKernighanRouteImprover(config=cfg)
 &gt;&gt;&gt; refined_tour, metrics = improver.process(tour, max_iterations=50)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
@@ -533,8 +533,8 @@ config (Dict[str, Any]): Internal configuration state.</p>
 kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
 passed, its value is used as the config dict directly.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_improvement.lk.LKRouteImprover.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lk.LKRouteImprover.process" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.route_improvement.lk.LinKernighanRouteImprover.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.ImprovementMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover.process" title="Link to this definition">#</a></dt>
 <dd><p>Apply Lin-Kernighan refinement to a tour using sub-matrix extraction.</p>
 <p>For VRPP instances where only a subset of nodes are visited, this
 method creates a dense sub-problem by extracting only the relevant
@@ -609,8 +609,8 @@ original node IDs and a metrics dict.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LKRouteImprover"><code class="docutils literal notranslate"><span class="pre">LKRouteImprover</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LKRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LKRouteImprover.process()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover"><code class="docutils literal notranslate"><span class="pre">LinKernighanRouteImprover</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.lk.LinKernighanRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">LinKernighanRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
 </ul>

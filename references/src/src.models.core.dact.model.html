@@ -534,20 +534,20 @@ policy (DACTPolicy): The neural improvement operator.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the DACT model.</p>
 <p>Args:
-env: Targeted RL4CO environment.
-policy: Optional pre-defined policy instance.
-policy_kwargs: Config parameters for automatic policy creation.
-baseline: RL baseline strategy.
-**kwargs: Extra parameters.</p>
+env: Environment managing problem physics and rewards.
+policy: Optional pre-instantiated DACT policy.
+policy_kwargs: Hyper-parameters for policy setup.
+baseline: RL baseline type (default: “rollout”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dact.model.DACT.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.model.DACT.forward" title="Link to this definition">#</a></dt>
 <dd><p>Performs iterative improvement steps.</p>
 <p>Args:
-td: Environment state container.
-env: Optional environment override.
-phase: Execution phase (‘train’, ‘val’, ‘test’).
-**kwargs: Additional parameters for the policy.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+phase: Current execution phase (“train”, “val”, “test”).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: map containing ‘reward’, ‘log_likelihood’, etc.</p>
 </dd></dl>

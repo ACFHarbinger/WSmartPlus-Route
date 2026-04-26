@@ -497,6 +497,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-individual"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual" title="Link to this heading">#</a></h1>
+<p>HGS Individual Module.</p>
+<p>This module defines the Individual class used in the Hybrid Genetic Search (HGS)
+algorithm. It represents a single solution in the population, storing genotype
+(giant tour) and phenotype (routes), along with cost and fitness metrics.</p>
+<p>Attributes:
+Individual: Class representing a single solution in the population.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+&gt;&gt;&gt; ind = Individual(giant_tour=[1, 5, 2])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,6 +542,22 @@ genotype and phenotype. To maintain genetic consistency for crossover:</p>
 </div>
 <p>This approach (Option A: Implicit Dummy Route) treats unvisited nodes as being
 in a conceptual “dummy route” at the end of the giant tour.</p>
+<p>Attributes:
+giant_tour (List[int]): Ordered list of all customer nodes (genotype).
+fitness (float): Biased fitness score (to be minimized).
+profit_score (float): Net profit of the solution.
+cost (float): Total routing cost.
+revenue (float): Total revenue collected.
+is_feasible (bool): True if solution satisfies all constraints.
+capacity_violation (float): Total capacity excess.
+penalized_cost (float): Cost including penalty for violations.
+dist_to_parents (float): Average diversity distance to parents.
+rank_profit (int): Rank based on profit.
+rank_diversity (int): Rank based on diversity.
+is_coached (bool): True if individual has been improved by local search.
+expand_pool (bool): True if repair operators consider all unvisited nodes.</p>
+<p>Example:
+&gt;&gt;&gt; ind = Individual(giant_tour=[1, 2, 3])</p>
 <p class="rubric">Initialization</p>
 <p>Initialize an individual with a giant tour.</p>
 <p>Args:
@@ -540,10 +565,14 @@ giant_tour: A list representing the visit order of all clients (genotype).
 For VRPP, this includes both visited and potentially unvisited nodes.
 expand_pool: If True (VRPP mode), repair operators consider all unvisited nodes.
 If False (CVRP mode), repair operators only consider removed nodes.</p>
+<p>Returns:
+None.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual.routes">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual.routes" title="Link to this definition">#</a></dt>
 <dd><p>Actual vehicle routes after Split algorithm (phenotype).</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -551,6 +580,8 @@ If False (CVRP mode), repair operators only consider removed nodes.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalized_profit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual.penalized_profit" title="Link to this definition">#</a></dt>
 <dd><p>Revenue minus penalized cost. Used for quality ranking in HGS.
 (Fix 10: Named property for penalised profit expression)</p>
+<p>Returns:
+float: The penalized profit value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -581,12 +612,20 @@ List of node IDs in giant_tour but not in routes, in giant_tour order.</p>
 <li><p>If expected_nodes is provided, giant_tour contains exactly those nodes.
 (Fix 21: Add a genotype integrity check utility)</p></li>
 </ol>
+<p>Args:
+expected_nodes: Optional set of expected node IDs.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual.__lt__">
 <span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual.__lt__" title="Link to this definition">#</a></dt>
 <dd><p>Comparison based on biased fitness (used for sorting).</p>
+<p>Args:
+other: Other individual to compare with.</p>
+<p>Returns:
+bool: True if this individual’s fitness is less than other’s.</p>
 </dd></dl>
 
 </dd></dl>

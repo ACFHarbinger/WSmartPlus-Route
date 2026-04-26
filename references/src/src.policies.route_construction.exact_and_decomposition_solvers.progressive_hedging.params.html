@@ -502,6 +502,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-progressive-hedging-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params" title="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params" title="Link to this heading">#</a></h1>
 <p>Parameter dataclasses for Progressive Hedging (PH) solver.</p>
+<p>Attributes:
+PHParams: Dataclass for PH solver configuration.</p>
+<p>Example:
+&gt;&gt;&gt; params = PHParams(rho=0.5, max_iterations=100)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +525,15 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.</span></span><span class="sig-name descname"><span class="pre">PHParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams" title="Link to this definition">#</a></dt>
 <dd><p>Standardized parameters for the PH solver.</p>
+<p>Attributes:
+rho (float): Penalty parameter for consensus deviation.
+max_iterations (int): Maximum PH iterations.
+convergence_tol (float): Primal residual threshold for convergence.
+sub_solver (str): Solver to use for scenario subproblems.
+num_scenarios (int): Number of scenarios for evaluation.
+time_limit (float): Overall time limit in seconds.
+verbose (bool): Enable verbose logging.
+seed (Optional[int]): Random seed for scenario generation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams.rho">
 <span class="sig-name descname"><span class="pre">rho</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams.rho" title="Link to this definition">#</a></dt>
@@ -574,15 +587,17 @@ document.write(`
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams" title="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create a PHParams instance from a raw configuration dictionary.</p>
 <p>Args:
-config: Dictionary containing parameter overrides.</p>
+config (Dict[str, Any]): Dictionary containing parameter overrides.</p>
 <p>Returns:
-A PHParams instance with values mapped from the config.</p>
+PHParams: A PHParams instance with values mapped from the config.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.PHParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert parameters to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary of parameter values.</p>
 </dd></dl>
 
 </dd></dl>

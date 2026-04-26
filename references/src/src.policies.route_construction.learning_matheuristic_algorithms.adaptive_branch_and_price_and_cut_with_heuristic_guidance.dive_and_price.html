@@ -494,7 +494,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-dive-and-price"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.dive_and_price" title="Link to this heading">#</a></h1>
-<p>Dive-and-Price Primal Heuristic.</p>
+<p>Dive-and-Price Primal Heuristic</p>
+<p>Attributes:
+DiveAndPricePrimalHeuristic: A class that implements the primal heuristic for the Benders decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; from dive_and_price import DiveAndPricePrimalHeuristic
+&gt;&gt;&gt; heuristic = DiveAndPricePrimalHeuristic()
+&gt;&gt;&gt; heuristic.execute()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -543,7 +549,7 @@ a large cost M to its objective coefficient.  This soft penalty makes the
 column unattractive without removing it from the feasible region.
 The penalised column is then excluded from further consideration in the
 current diving pass.</p>
-<p class="rubric" id="id4">Attributes</p>
+<p class="rubric" id="id4">Attributes:</p>
 <p>penalty_M : float
 Big-M soft penalty applied to infeasibility-inducing columns.
 Should be large relative to the expected route profit to effectively

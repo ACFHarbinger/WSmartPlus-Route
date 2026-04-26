@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions.logging">
 <span id="src-pipeline-simulations-actions-logging"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions.logging" title="src.pipeline.simulations.actions.logging"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.logging</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions.logging" title="Link to this heading">#</a></h1>
 <p>Action for simulation logging.</p>
+<p>Attributes:
+LogAction: Command to record daily simulation results.</p>
+<p>Example:
+&gt;&gt;&gt; # action = LogAction()
+&gt;&gt;&gt; # action.execute(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,10 +518,14 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.logging.</span></span><span class="sig-name descname"><span class="pre">LogAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.logging.LogAction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.simulations.actions.base.SimulationAction</span></code></p>
 <p>Records daily simulation metrics and outputs results.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.logging.LogAction.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.logging.LogAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Log daily results and update GUI.</p>
+<p>Args:
+context: Shared dictionary containing simulation state.</p>
 </dd></dl>
 
 </dd></dl>

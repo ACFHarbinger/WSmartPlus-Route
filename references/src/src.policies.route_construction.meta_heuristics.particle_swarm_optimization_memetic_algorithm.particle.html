@@ -471,7 +471,10 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle._rov_rule()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -490,6 +493,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-memetic-algorithm-particle"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle" title="Link to this heading">#</a></h1>
 <p>Particle class for the Particle Swarm Optimization Memetic Algorithm (PSOMA).</p>
+<p>Attributes:
+PSOMAParticle: Single-particle class mapping continuous space to VRPP routes.</p>
+<p>Example:
+&gt;&gt;&gt; # Example instantiation assumes params and split_solver are defined
+&gt;&gt;&gt; # clients = [1, 2, 3, 4]
+&gt;&gt;&gt; # particle = PSOMAParticle(clients, params, split_solver)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -497,7 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSOMAParticle</span></code></a></p></td>
-<td><p>A single PSO particle representing a routing solution.</p></td>
+<td><p>Continuous particle mapping to VRPP via ROV and Split.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,14 +516,37 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.</span></span><span class="sig-name descname"><span class="pre">PSOMAParticle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle" title="Link to this definition">#</a></dt>
-<dd><p>A single PSO particle representing a routing solution.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.</span></span><span class="sig-name descname"><span class="pre">PSOMAParticle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle" title="Link to this definition">#</a></dt>
+<dd><p>Continuous particle mapping to VRPP via ROV and Split.</p>
 <p>Attributes:
-routes: Current route set.
-profit: Objective value of current position.
-pbest_routes: Personal best route set.
-pbest_profit: Objective value of personal best.</p>
+n_clients (int): Number of clients.
+clients (np.ndarray): Array of client IDs.
+X (np.ndarray): Continuous position vector.
+V (np.ndarray): Continuous velocity vector.
+giant_tour (np.ndarray): Discrete permutation obtained via ROV.
+routes (List[List[int]]): Decoded phenotype routes.
+profit (float): Objective value.
+pbest_X (np.ndarray): Personal best continuous position.
+pbest_giant_tour (np.ndarray): Personal best discrete permutation.
+pbest_profit (float): Personal best objective value.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes a continuous PSOMA particle.</p>
+<p>Args:
+clients: List of node indices (excluding depot).
+params: PSOMA hyperparameters (bounds, velocities).
+split_solver: Initialized LinearSplit decoder instance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule">
+<span class="sig-name descname"><span class="pre">_rov_rule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule" title="Link to this definition">#</a></dt>
+<dd><p>Ranked-Order-Value mapping. Maps the continuous vector to a permutation.</p>
+<p>Args:
+X (np.ndarray): Continuous position vector.</p>
+<p>Returns:
+Tuple[np.ndarray, np.ndarray]: A tuple containing:
+- np.ndarray: Discrete permutation of client IDs.
+- np.ndarray: Mapping indices.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -569,7 +601,10 @@ pbest_profit: Objective value of personal best.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule"><code class="docutils literal notranslate"><span class="pre">PSOMAParticle._rov_rule()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

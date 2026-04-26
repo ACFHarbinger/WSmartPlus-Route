@@ -484,6 +484,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis">
 <span id="src-pipeline-simulations-wsmart-bin-analysis"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis" title="src.pipeline.simulations.wsmart_bin_analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis" title="Link to this heading">#</a></h1>
 <p>WSmart Bin Analysis module for analyzing and predicting bin fill levels.</p>
+<p>Attributes:
+GridBase: Class for representing a grid of bins.
+Simulation: Class for running simulations on the grid.
+OldGridBase: Class for representing a grid of bins (old implementation).</p>
+<p>Example:
+&gt;&gt;&gt; from wsmart_bin_analysis import GridBase, Simulation
+&gt;&gt;&gt; grid = GridBase(num_rows=10, num_cols=10, bin_capacity=10)
+&gt;&gt;&gt; sim = Simulation(grid)
+&gt;&gt;&gt; sim.run_simulation()</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

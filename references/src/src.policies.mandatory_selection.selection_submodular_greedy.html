@@ -502,6 +502,12 @@ decreases.</p>
 f(S) = sum_{i in Bins} max(0, revenue_i - alpha * min_{j in S union {0}} dist(i, j))</p>
 <p>We use the Lazy Greedy algorithm (Minoux, 1978) with a max-priority queue
 to efficiently select bins while respecting a cardinality budget.</p>
+<p>Attributes:
+SubmodularGreedySelection(IMandatorySelectionStrategy): Selection strategy based on Submodular Facility Location Coverage.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_submodular_greedy import SubmodularGreedySelection
+&gt;&gt;&gt; strategy = SubmodularGreedySelection()
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -518,16 +518,26 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.network.base.iterative_distance_strategy.</span></span><span class="sig-name descname"><span class="pre">IterativeDistanceStrategy</span></span><a class="headerlink" href="#src.data.network.base.iterative_distance_strategy.IterativeDistanceStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.network.base.distance_strategy.html#src.data.network.base.distance_strategy.DistanceStrategy" title="src.data.network.base.distance_strategy.DistanceStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.network.base.distance_strategy.DistanceStrategy</span></code></a></p>
 <p>Base class for strategies that compute distances pairwise iteratively.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.base.iterative_distance_strategy.IterativeDistanceStrategy.calculate_pair">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.data.network.base.iterative_distance_strategy.IterativeDistanceStrategy.calculate_pair" title="Link to this definition">#</a></dt>
-<dd><p>Computes distance between a single pair of coordinates.</p>
+<dd><p>Computes distance between a single pair of coordinates.
+Args:
+coords_i: Coordinates of the first point (lat, lng).
+coords_j: Coordinates of the second point (lat, lng).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.base.iterative_distance_strategy.IterativeDistanceStrategy.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.network.base.iterative_distance_strategy.IterativeDistanceStrategy.calculate" title="Link to this definition">#</a></dt>
-<dd><p>Iterates through all pairs to compute a full distance matrix.</p>
+<dd><p>Iterates through all pairs to compute a full distance matrix.
+Args:
+coords: DataFrame with coordinates (must contain ‘Lat’, ‘Lng’ columns).
+kwargs: Additional arguments for the distance strategy.</p>
+<p>Returns:
+Distance matrix as a NumPy array.</p>
 </dd></dl>
 
 </dd></dl>

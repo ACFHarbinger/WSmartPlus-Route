@@ -483,6 +483,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents">
 <span id="src-policies-helpers-reinforcement-learning-agents"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents" title="src.policies.helpers.reinforcement_learning.agents"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents" title="Link to this heading">#</a></h1>
+<p>Agents Module.</p>
+<p>This module contains various RL agent implementations, such as bandit agents,
+which can be used within routing policies to adaptively select operators or
+parameters.</p>
+<p>Attributes:
+bandits: Sub-package containing Multi-Armed Bandit (MAB) implementations.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits import EpsilonGreedyAgent
+&gt;&gt;&gt; agent = EpsilonGreedyAgent(…)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

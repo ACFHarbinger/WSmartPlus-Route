@@ -497,11 +497,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.states.running">
 <span id="src-pipeline-simulations-states-running"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.states.running" title="src.pipeline.simulations.states.running"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.running</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.states.running" title="Link to this heading">#</a></h1>
-<p>running.py module.</p>
+<p>Simulation Running State.</p>
+<p>This module provides the RunningState class, which orchestrates the main
+day-by-day simulation loop and manages checkpoints.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+RunningState: State responsible for the simulation execution loop.</p>
 <p>Example:
-&gt;&gt;&gt; import running</p>
+&gt;&gt;&gt; # from logic.src.pipeline.simulations.states.running import RunningState
+&gt;&gt;&gt; # state = RunningState()
+&gt;&gt;&gt; # state.handle(ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,37 +526,65 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.running.</span></span><span class="sig-name descname"><span class="pre">RunningState</span></span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.simulations.states.base.base.SimState</span></code></p>
 <p>State handles the day-by-day simulation loop.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.pipeline.simulations.states.base.SimulationContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState.handle" title="Link to this definition">#</a></dt>
 <dd><p>Handle the day-by-day simulation loop.</p>
+<p>Args:
+ctx: The simulation context object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState._run_simulation_days">
 <span class="sig-name descname"><span class="pre">_run_simulation_days</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realtime_log_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState._run_simulation_days" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Args:
+ctx: The simulation context object.
+iterator: Range of days to simulate.
+hook: Checkpoint hook for state persistence.
+realtime_log_path: Path for saving daily logs.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState._get_current_policy_config">
 <span class="sig-name descname"><span class="pre">_get_current_policy_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState._get_current_policy_config" title="Link to this definition">#</a></dt>
 <dd><p>Standardizes policy config resolution from structured context.</p>
+<p>Args:
+ctx: The simulation context object.</p>
+<p>Returns:
+Dictionary containing resolved configuration for the current day.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState._create_day_context">
 <span class="sig-name descname"><span class="pre">_create_day_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_policy_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realtime_log_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState._create_day_context" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Args:
+ctx: The simulation context object.
+day: Current simulation day.
+current_policy_config: Resolved configuration for the policy.
+realtime_log_path: Path for saving daily logs.</p>
+<p>Returns:
+A new SimulationDayContext object for the day.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState._update_ctx_from_day_context">
 <span class="sig-name descname"><span class="pre">_update_ctx_from_day_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState._update_ctx_from_day_context" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Args:
+ctx: The simulation context object.
+day_context: The SimulationDayContext object after day execution.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState._update_metrics">
 <span class="sig-name descname"><span class="pre">_update_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState._update_metrics" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Args:
+ctx: The simulation context object.
+day: Current simulation day.
+output_dict: Output dictionary from the policy.
+dlog: Daily log dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 

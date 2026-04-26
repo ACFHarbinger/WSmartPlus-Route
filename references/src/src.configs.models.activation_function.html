@@ -499,9 +499,12 @@ document.write(`
 <span id="src-configs-models-activation-function"></span><h1><a class="reference internal" href="#module-src.configs.models.activation_function" title="src.configs.models.activation_function"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.activation_function</span></code></a><a class="headerlink" href="#module-src.configs.models.activation_function" title="Link to this heading">#</a></h1>
 <p>activation_function.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+ActivationConfig: Configuration for activation functions.</p>
 <p>Example:
-&gt;&gt;&gt; import activation_function</p>
+&gt;&gt;&gt; from logic.src.configs.models.activation_function import ActivationConfig
+&gt;&gt;&gt; config = ActivationConfig()
+&gt;&gt;&gt; print(config)
+ActivationConfig(name=’gelu’, param=1.0, threshold=6.0, replacement_value=6.0, n_params=3, range=[0.125, 0.3333333333333333])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +524,13 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.configs.models.activation_function.ActivationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.models.activation_function.</span></span><span class="sig-name descname"><span class="pre">ActivationConfig</span></span><a class="headerlink" href="#src.configs.models.activation_function.ActivationConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for activation functions.</p>
+<p>Attributes:
+name (str): Name of the activation function.
+param (float): Parameter of the activation function.
+threshold (float): Threshold of the activation function.
+replacement_value (float): Replacement value of the activation function.
+n_params (int): Number of parameters of the activation function.
+range (List[float]): Range of the activation function.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.models.activation_function.ActivationConfig.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.models.activation_function.ActivationConfig.name" title="Link to this definition">#</a></dt>

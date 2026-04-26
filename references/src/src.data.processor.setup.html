@@ -491,6 +491,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor.setup">
 <span id="src-data-processor-setup"></span><h1><a class="reference internal" href="#module-src.data.processor.setup" title="src.data.processor.setup"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor.setup</span></code></a><a class="headerlink" href="#module-src.data.processor.setup" title="Link to this heading">#</a></h1>
 <p>Simulation setup functions for base data and distance computation.</p>
+<p>Attributes:
+setup_basedata: Load depot, bin statistics and coordinates for a given area.
+setup_dist_path_tup: Compute distance matrix, edge structure and shortest paths.</p>
+<p>Example:
+data, bins_coordinates, depot = setup_basedata(n_bins, data_dir, area, waste_type)
+(dist_matrix_edges, paths, dm_tensor, distC), adj_matrix = setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, edge_thresh, edge_method, focus_idx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

@@ -493,6 +493,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.generators.tsp">
 <span id="src-envs-generators-tsp"></span><h1><a class="reference internal" href="#module-src.envs.generators.tsp" title="src.envs.generators.tsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.tsp</span></code></a><a class="headerlink" href="#module-src.envs.generators.tsp" title="Link to this heading">#</a></h1>
 <p>Traveling Salesman Problem (TSP) instance generator.</p>
+<p>Attributes:
+TSPGenerator: TSPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import TSPGenerator
+&gt;&gt;&gt; generator = TSPGenerator(num_loc=20)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict(
+{
+‘locs’: TensorDict(
+# … customer locations (shape: [*B, 20, 2]) …
+),
+‘depot’: TensorDict(
+# … depot location (shape: [*B, 2]) …
+)
+}
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -510,26 +527,27 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.envs.generators.tsp.TSPGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.generators.tsp.</span></span><span class="sig-name descname"><span class="pre">TSPGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.generators.tsp.TSPGenerator" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.generators.tsp.</span></span><span class="sig-name descname"><span class="pre">TSPGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.generators.tsp.TSPGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.envs.generators.base.html#src.envs.generators.base.Generator" title="src.envs.generators.base.Generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.generators.base.Generator</span></code></a></p>
 <p>Generator for Traveling Salesman Problem (TSP) instances.</p>
 <p>Simple generator for TSP benchmarking with just locations.</p>
+<p>Attributes:
+num_loc: Number of customer locations.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the generator.</p>
+<p>Initialize TSPGenerator.</p>
 <p>Args:
-num_loc: Number of locations (excluding depot).
-min_loc: Minimum coordinate value.
-max_loc: Maximum coordinate value.
-loc_distribution: Distribution for location generation.
-Can be “uniform”, “normal”, “clustered”, or a callable.
-device: Device to place tensors on.
-rng: Random number generator for numpy operations.
-generator: Random number generator for torch operations.
-**kwargs: Additional keyword arguments.</p>
+num_loc: Number of customer locations.
+kwargs: Forwarded to Generator base class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.tsp.TSPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.tsp.TSPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate TSP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — customer locations
+depot: [*B, 2]              — depot location</p>
 </dd></dl>
 
 </dd></dl>

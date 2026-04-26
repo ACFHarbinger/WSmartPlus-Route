@@ -497,6 +497,17 @@ document.write(`
 Kim, M., Park, J., &amp; Park, J. (2022).
 Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
 Advances in Neural Information Processing Systems, 35, 1936-1949.</p>
+<p>Attributes:
+SymNCO: SymNCO algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import SymNCO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; symnco = SymNCO(env, agent)
+&gt;&gt;&gt; symnco
+SymNCO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, num_starts=10, num_augment=8, augmentation=’dihedral’, alpha=0.2, beta=1.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,16 +540,25 @@ Kim, M., Park, J., Kim, J., &amp; Park, J. (2022).
 Sym-NCO: Leveraging Symmetricity for Neural Combinatorial Optimization.
 NeurIPS 2022. arXiv:2205.13209
 https://arxiv.org/abs/2205.13209</p>
+<p>Attributes:
+alpha: Weight for the invariance loss.
+beta: Weight for the solution symmetricity loss.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SymNCO module.</p>
 <p>Args:
-alpha: Weight for invariance loss.
-beta: Weight for solution symmetricity loss.
-**kwargs: Arguments passed to POMO.</p>
+alpha: Weight for the invariance loss (default: 0.2).
+beta: Weight for the solution symmetricity loss (default: 1.0).
+kwargs: Additional arguments to pass to the parent class (POMO).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.symnco.SymNCO.shared_step">
 <span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.symnco.SymNCO.shared_step" title="Link to this definition">#</a></dt>
 <dd><p>SymNCO shared step with symmetricity losses.</p>
+<p>Args:
+batch: Input tensor dictionary containing state information.
+batch_idx: Index of the current batch.
+phase: Phase of the training (train, val, or test).</p>
+<p>Returns:
+Dictionary containing training losses and metrics.</p>
 </dd></dl>
 
 </dd></dl>

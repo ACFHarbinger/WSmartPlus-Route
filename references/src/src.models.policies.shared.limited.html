@@ -492,6 +492,11 @@ document.write(`
 <p>Limited split algorithm.</p>
 <p>This module provides a constrained split algorithm that limits the number of
 vehicles (routes) used when partitioning a giant tour.</p>
+<p>Attributes:
+vectorized_split_limited: Constrained split algorithm for VRP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.shared.limited import vectorized_split_limited
+&gt;&gt;&gt; routes, costs = vectorized_split_limited(B, N, device, max_vehicles, capacity, cum_load, cum_dist_pad, d_0_i, d_i_0, giant_tours)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

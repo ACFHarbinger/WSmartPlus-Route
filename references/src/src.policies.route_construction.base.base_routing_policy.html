@@ -509,7 +509,12 @@ document.write(`
 <p>Base Routing Policy Module.</p>
 <p>Provides a template base class for routing policies, extracting common
 functionality like parameter loading, subset matrix creation, and tour mapping.</p>
-<p>This eliminates code duplication across policy_*.py files.</p>
+<p>Attributes:
+BaseRoutingPolicy: Base class for all routing policies.
+_flatten_raw_config: Helper to flatten nested config structures.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+&gt;&gt;&gt; # subclass and implement _run_solver</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -543,6 +548,10 @@ functionality like parameter loading, subset matrix creation, and tour mapping.<
 <p>Handles patterns like:
 {“custom”: [{“time_limit”: 60}, {“start_temp”: 100}]}
 {“ortools”: [{“time_limit”: 60}]}</p>
+<p>Args:
+source: Source configuration (list, dict, or OmegaConf object).</p>
+<p>Returns:
+Flattened dictionary of configuration parameters.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -581,14 +590,17 @@ typed dataclass automatically.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy.config">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy.config" title="Link to this definition">#</a></dt>
 <dd><p>Return the policy configuration dataclass.</p>
+<p>Returns:
+The configuration dataclass instance (e.g., HGSConfig).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._config_class" title="Link to this definition">#</a></dt>
 <dd><p>Return the dataclass type for this policy’s config.</p>
-<p>Override in subclasses to enable automatic config parsing.
-Returns None by default (no typed config).</p>
+<p>Override in subclasses to enable automatic config parsing.</p>
+<p>Returns:
+Dataclass type (e.g., ALNSConfig) or None if no typed config is used.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -609,6 +621,8 @@ Tuple of (Typed config dataclass, seed) or (None, None).</p>
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return the config key for this policy (e.g., ‘alns’, ‘bcp’, ‘hgs’).</p>
 <p>Override in subclasses.</p>
+<p>Returns:
+String key used to look up this policy’s section in the global config.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -619,7 +633,7 @@ Tuple of (Typed config dataclass, seed) or (None, None).</p>
 config: Configuration (dataclass or dict).
 config_cls: The expected dataclass class.</p>
 <p>Returns:
-The parsed dataclass instance.</p>
+The parsed dataclass instance or the original object if parsing is not applicable.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -629,7 +643,7 @@ The parsed dataclass instance.</p>
 <p>Args:
 mandatory: List of bin IDs to visit.</p>
 <p>Returns:
-Empty tour tuple if no targets, else None (continue processing).</p>
+Optional tuple containing (empty_tour, 0.0) if no targets, else None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -643,7 +657,7 @@ area: Geographic area name.
 waste_type: Waste type string.
 config: Policy configuration dict (from context).</p>
 <p>Returns:
-Tuple of (capacity, revenue, cost_unit, merged_values_dict)</p>
+Tuple of (capacity, revenue_scaled, cost_unit, merged_values_dict).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -656,11 +670,11 @@ distance_matrix: Full distance matrix (list or ndarray).
 bins: Bins object with <code class="docutils literal notranslate"><span class="pre">.c</span></code> attribute (0-indexed fill levels).
 use_all_bins: If True, include all bins in the problem (VRPP mode).</p>
 <p>Returns:
-Tuple of (sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes)
-- sub_dist_matrix: Distance matrix for subset.
-- sub_wastes: {local_idx: fill} for local nodes 1..M.
-- subset_indices: Mapping from local to global indices.
-- mandatory_nodes: List of local indices that MUST be visited.</p>
+Tuple containing:
+- sub_dist_matrix (np.ndarray): Distance matrix for subset.
+- sub_wastes (Dict[int, float]): {local_idx: fill} for local nodes.
+- subset_indices (List[int]): Local to global index mapping.
+- mandatory_nodes (List[int]): Local indices that MUST be visited.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -682,7 +696,7 @@ Flat tour list with depot (0) separating routes.</p>
 distance_matrix: Full distance matrix.
 tour: Tour as list of node indices.</p>
 <p>Returns:
-Total distance cost.</p>
+Total distance cost of the tour.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -697,9 +711,9 @@ revenue: Revenue per unit.
 cost_unit: Cost per distance unit.
 values: Merged config values.
 mandatory_nodes: Local indices of nodes that MUST be visited.
-**kwargs: Additional solver-specific arguments.</p>
+kwargs: Additional solver-specific arguments.</p>
 <p>Returns:
-Tuple of (routes, profit, solver_cost)</p>
+Tuple of (routes, profit, solver_cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -712,6 +726,8 @@ Only logs once per adapter instance to avoid per-day duplication.</p>
 <p>Args:
 values: Merged solver configuration dict from <code class="docutils literal notranslate"><span class="pre">_load_area_params</span></code>.
 context: Simulation day context kwargs.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -725,9 +741,20 @@ context: Simulation day context kwargs.</p>
 <li><p>Returns (tour, cost, profit, search_context, multi_day_context).</p></li>
 </ol>
 <p>Args:
-**kwargs: Simulation context.</p>
+kwargs: Simulation context containing:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    - mandatory (List[int]): Global 1-based IDs to visit.
+    - bins: Bins state object.
+    - distance_matrix: Full NxN matrix.
+    - area (str): Geographic area name.
+    - waste_type (str): Waste type (e.g., &quot;plastic&quot;).
+    - config (dict): Policy configuration overrides.
+    - search_context (SearchContext): Incoming metrics ledger.
+    - multi_day_context (MultiDayContext): Incoming multi-day state.
+    - coords (DataFrame): Optional node coordinates for pruning.
+</pre></div>
+</div>
 <p>Returns:
-Tuple of (tour, cost, profit, search_context, multi_day_context)</p>
+A 5-tuple of (tour, cost, profit, search_context, multi_day_context).</p>
 </dd></dl>
 
 </dd></dl>

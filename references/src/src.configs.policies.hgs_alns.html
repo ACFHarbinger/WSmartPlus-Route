@@ -498,6 +498,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.hgs_alns">
 <span id="src-configs-policies-hgs-alns"></span><h1><a class="reference internal" href="#module-src.configs.policies.hgs_alns" title="src.configs.policies.hgs_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.hgs_alns</span></code></a><a class="headerlink" href="#module-src.configs.policies.hgs_alns" title="Link to this heading">#</a></h1>
 <p>HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for Hydra.</p>
+<p>Attributes:
+HGSALNSConfig: Configuration for the HGS-ALNS policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.hgs_alns import HGSALNSConfig
+&gt;&gt;&gt; config = HGSALNSConfig()
+&gt;&gt;&gt; config.hgs.n_removal
+10</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,7 +525,9 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.hgs_alns.</span></span><span class="sig-name descname"><span class="pre">HGSALNSConfig</span></span><a class="headerlink" href="#src.configs.policies.hgs_alns.HGSALNSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Hybrid Genetic Search with Adaptive Large Neighborhood Search Education (HGS-ALNS) policy.</p>
 <p>Uses ALNS for education phase and HGS for routing phase, combining the strengths
-of both metaheuristics.</p>
+of both metaheuristics.
+Attributes:
+None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hgs_alns.HGSALNSConfig.vrpp">
 <span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.hgs_alns.HGSALNSConfig.vrpp" title="Link to this definition">#</a></dt>

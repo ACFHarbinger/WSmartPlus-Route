@@ -498,6 +498,22 @@ document.write(`
 <p>CVRP problem generator.</p>
 <p>Generates Capacitated Vehicle Routing Problem instances following the
 benchmark conventions of Kool et al. (2019).</p>
+<p>Attributes:
+CAPACITIES: dict[int, float]: Vehicle capacity table from Kool et al. (2019), Hottung et al. (2022), Kim et al. (2023)
+CVRPGenerator: Generator for the Capacitated Vehicle Routing Problem (CVRP).
+Produces instances with:
+- locs             : [*B, num_loc, 2]  — customer coordinates
+- depot            : [*B, 2]           — depot coordinate
+- demand           : [*B, num_loc]     — normalised demand in (0, 1]
+- vehicle_capacity : [*B]              — vehicle capacity (normalised to 1.0)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Example:
+    &gt;&gt;&gt; from src.envs.generators import get_generator
+    &gt;&gt;&gt; generator = get_generator(&quot;cvrp&quot;, num_loc=20)
+    &gt;&gt;&gt; problem = generator.generate()
+    &gt;&gt;&gt; problem
+    &lt;ProblemInstance: ...&gt;
+</pre></div>
+</div>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -542,6 +558,12 @@ benchmark conventions of Kool et al. (2019).</p>
 <li><p>demand           : [*B, num_loc]     — normalised demand in (0, 1]</p></li>
 <li><p>vehicle_capacity : [*B]              — vehicle capacity (normalised to 1.0)</p></li>
 </ul>
+<p>Attributes:
+min_demand: Minimum demand (integer, before normalisation).
+max_demand: Maximum demand (integer, before normalisation).
+vehicle_capacity: Normalised vehicle capacity.
+capacity: Raw capacity used for normalisation.
+depot_type: Depot placement (“center”, “corner”, “random”).</p>
 <p class="rubric">Initialization</p>
 <p>Initialise CVRPGenerator.</p>
 <p>Args:
@@ -558,17 +580,29 @@ depot_type: Depot placement (“center”, “corner”, “random”).
 device: Target device.
 rng: Optional numpy RNG.
 generator: Optional torch RNG.
-**kwargs: Forwarded to Generator base.</p>
+kwargs: Forwarded to Generator base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.cvrp.CVRPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.cvrp.CVRPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate a batch of CVRP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]  — customer coordinates
+depot: [*B, 2]           — depot coordinate
+demand: [*B, num_loc]     — normalised demand in (0, 1]
+vehicle_capacity: [*B]              — vehicle capacity (normalised to 1.0)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.cvrp.CVRPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.cvrp.CVRPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate depot location.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Depot location.</p>
 </dd></dl>
 
 </dd></dl>

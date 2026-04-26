@@ -505,6 +505,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-scenario-tree-extensive-form-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params" title="Link to this heading">#</a></h1>
 <p>Parameter dataclasses for Scenario-Tree Extensive Form (ST-EF) solver.</p>
+<p>Attributes:
+STEFParams: Standardized parameters for the ST-EF solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = STEFParams(num_days=5, num_realizations=2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +528,18 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.</span></span><span class="sig-name descname"><span class="pre">STEFParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams" title="Link to this definition">#</a></dt>
 <dd><p>Standardized parameters for the ST-EF solver.</p>
+<p>Attributes:
+num_days (int): Depth of the scenario tree.
+num_realizations (int): Branching factor at each node.
+mean_increment (float): Average waste increment per day.
+time_limit (float): Solver time limit in seconds.
+mip_gap (float): Gurobi optimality gap.
+waste_weight (float): Objective weight for collected waste.
+cost_weight (float): Objective weight for travel cost.
+overflow_penalty (float): Penalty per unit of overflow.
+discount_factor (float): Future profit discount factor.
+use_mtz (bool): Use MTZ subtour elimination constraints.
+seed (Optional[int]): Random seed for tree generation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams.num_days">
 <span class="sig-name descname"><span class="pre">num_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams.num_days" title="Link to this definition">#</a></dt>
@@ -604,6 +620,8 @@ A STEFParams instance with values mapped from the config.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert parameters to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary of parameter values.</p>
 </dd></dl>
 
 </dd></dl>

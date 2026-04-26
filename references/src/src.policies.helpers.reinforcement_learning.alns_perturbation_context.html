@@ -494,6 +494,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.alns_perturbation_context">
 <span id="src-policies-helpers-reinforcement-learning-alns-perturbation-context"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.alns_perturbation_context" title="src.policies.helpers.reinforcement_learning.alns_perturbation_context"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.alns_perturbation_context</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.alns_perturbation_context" title="Link to this heading">#</a></h1>
+<p>ALNS Perturbation Context Module.</p>
+<p>This module defines the context object used by perturbation and destruction
+heuristics in the ALNS (Adaptive Large Neighborhood Search) framework.</p>
+<p>Attributes:
+ALNSPerturbationContext: Context object containing routes, distances, and wastes.</p>
+<p>Example:
+&gt;&gt;&gt; context = ALNSPerturbationContext(routes, dist_matrix, wastes, capacity)
+&gt;&gt;&gt; route_load = context._get_load_cached(0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,6 +524,13 @@ document.write(`
 <p>This class serves as a state-carrier for the various perturbation
 and destruction heuristics, providing a unified interface for
 route data, waste demands, and distance matrices.</p>
+<p>Attributes:
+routes: List of current solution routes.
+dist_matrix: Problem distance matrix.
+d: Alias for dist_matrix.
+waste: Dictionary of node waste demands.
+Q: Vehicle capacity.
+node_map: Mapping from node ID to (route_index, position).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the perturbation context.</p>
 <p>Args:

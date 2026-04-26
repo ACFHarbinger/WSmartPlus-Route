@@ -498,6 +498,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.shh">
 <span id="src-configs-policies-shh"></span><h1><a class="reference internal" href="#module-src.configs.policies.shh" title="src.configs.policies.shh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.shh</span></code></a><a class="headerlink" href="#module-src.configs.policies.shh" title="Link to this heading">#</a></h1>
 <p>Configuration for the Selection Hyper-Heuristic (SHH).</p>
+<p>Attributes:
+SHHConfig: Configuration for the Selection Hyper-Heuristic (SHH) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.shh import SHHConfig
+&gt;&gt;&gt; config = SHHConfig()
+&gt;&gt;&gt; config.iters
+200
+&gt;&gt;&gt; config.history_len
+10
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

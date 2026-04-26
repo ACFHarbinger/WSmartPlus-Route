@@ -506,6 +506,13 @@ document.write(`
 <span id="src-configs-policies-de"></span><h1><a class="reference internal" href="#module-src.configs.policies.de" title="src.configs.policies.de"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.de</span></code></a><a class="headerlink" href="#module-src.configs.policies.de" title="Link to this heading">#</a></h1>
 <p>Differential Evolution (DE/rand/1/bin) configuration.</p>
 <p><strong>TRUE DE</strong> replacing the Artificial Bee Colony (ABC) algorithm.</p>
+<p>Attributes:
+DEConfig: Attributes for DE configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.de import DEConfig
+&gt;&gt;&gt; config = DEConfig()
+&gt;&gt;&gt; config.pop_size
+50</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -553,6 +560,8 @@ optimization.&quot; Technical Report TR06.
 [Note: ABC is DE with fitness-proportionate selection]
 </pre></div>
 </div>
+<p>Attributes:
+None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.de.DEConfig.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.de.DEConfig.pop_size" title="Link to this definition">#</a></dt>

@@ -491,16 +491,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.tabu_search">
 <span id="src-policies-route-construction-meta-heuristics-tabu-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.tabu_search" title="src.policies.route_construction.meta_heuristics.tabu_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.tabu_search" title="Link to this heading">#</a></h1>
 <p>Tabu Search (TS) module.</p>
-<p>Implements classical Tabu Search metaheuristic with:</p>
-<ul class="simple">
-<li><p>Short-term memory (recency-based tabu list)</p></li>
-<li><p>Long-term memory (frequency-based memory)</p></li>
-<li><p>Aspiration criteria</p></li>
-<li><p>Intensification and diversification strategies</p></li>
-<li><p>Elite solution pool</p></li>
-<li><p>Path relinking</p></li>
-</ul>
-<p>Based on Fred Glover’s “Tabu Search Fundamentals and Uses” (1995).</p>
+<p>Attributes:
+TSParams: Parameter dataclass for the Tabu Search.
+TSPolicy: Policy class for Tabu Search.
+TSSolver: Main solver class for Tabu Search.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.tabu_search import TSPolicy
+&gt;&gt;&gt; policy = TSPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

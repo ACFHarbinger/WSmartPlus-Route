@@ -499,6 +499,15 @@ document.write(`
 <p>Exponential Monte Carlo with Counter (EMC-Q) Acceptance Criterion.</p>
 <p>Stochastic acceptance logic that boosts the acceptance probability after a
 threshold number of consecutive rejections to prevent stagnation.</p>
+<p>Attributes:
+EMCQAcceptance: The EMCQAcceptance criterion.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.exponential_monte_carlo_counter import EMCQAcceptance
+&gt;&gt;&gt; # Initialize for minimization with baseline p=0.1 and boosted p=0.5
+&gt;&gt;&gt; criterion = EMCQAcceptance(p=0.1, p_boost=0.5, q_threshold=100)
+&gt;&gt;&gt; criterion.setup(initial_objective=100.0)
+&gt;&gt;&gt; accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=102.0)
+False, {‘accepted’: False, ‘delta’: 2.0, ‘rejection_counter’: 0, ‘q_threshold’: 100, ‘p_active’: 0.1, ‘maximization’: False}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -565,7 +574,7 @@ int: The threshold value.</p>
 <p>Args:
 current_obj (ObjectiveValue): Objective of the current solution.
 candidate_obj (ObjectiveValue): Objective of the candidate solution.
-**kwargs (Any): Additional context.</p>
+kwargs (Any): Additional context.</p>
 <p>Returns:
 Tuple[bool, AcceptanceMetrics]: A tuple containing:
 - accepted (bool): True if candidate is accepted.
@@ -577,10 +586,10 @@ Tuple[bool, AcceptanceMetrics]: A tuple containing:
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.exponential_monte_carlo_counter.EMCQAcceptance.step" title="Link to this definition">#</a></dt>
 <dd><p>Update the rejection counter.</p>
 <p>Args:
-current_obj (ObjectiveValue): Previous solution’s objective.
-candidate_obj (ObjectiveValue): Candidate solution’s objective.
-accepted (bool): Whether the candidate was accepted.
-**kwargs (Any): Additional context.</p>
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+accepted (bool): Whether the move was accepted.
+kwargs (Any): Additional context.</p>
 </dd></dl>
 
 <dl class="py method">

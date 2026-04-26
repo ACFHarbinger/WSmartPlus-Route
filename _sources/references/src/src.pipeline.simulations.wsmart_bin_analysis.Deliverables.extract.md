@@ -42,7 +42,7 @@
 ```
 ````
 
-````{py:function} import_separate_file(src_fill: list[str], src_collect: list[str], sep_f: str = ',', sep_c: str = ',', path: str = '', print_firt_line=True) -> tuple[pandas.DataFrame, pandas.DataFrame]
+````{py:function} import_separate_file(src_fill: list[str], src_collect: list[str], sep_f: str = ',', sep_c: str = ',', path: str = '', print_first_line=True) -> tuple[pandas.DataFrame, pandas.DataFrame]
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_separate_file
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_separate_file

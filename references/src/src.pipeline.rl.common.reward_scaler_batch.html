@@ -517,6 +517,8 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.reward_scaler_batch.</span></span><span class="sig-name descname"><span class="pre">BatchRewardScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.reward_scaler_batch.BatchRewardScaler" title="Link to this definition">#</a></dt>
 <dd><p>Per-batch reward scaler (no running statistics).</p>
 <p>Normalizes each batch independently.</p>
+<p>Attributes:
+eps: Numerical stability constant.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize BatchRewardScaler.</p>
 <p>Args:
@@ -525,6 +527,10 @@ eps: Numerical stability constant.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.reward_scaler_batch.BatchRewardScaler.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.reward_scaler_batch.BatchRewardScaler.__call__" title="Link to this definition">#</a></dt>
 <dd><p>Normalize scores within batch using population statistics.</p>
+<p>Args:
+scores: The rewards scores to normalize.</p>
+<p>Returns:
+The normalized reward scores.</p>
 </dd></dl>
 
 </dd></dl>

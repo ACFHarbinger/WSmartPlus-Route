@@ -492,6 +492,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions">
 <span id="src-data-distributions"></span><h1><a class="reference internal" href="#module-src.data.distributions" title="src.data.distributions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a><a class="headerlink" href="#module-src.data.distributions" title="Link to this heading">#</a></h1>
 <p>Facade for sampling distributions.</p>
+<p>Attributes:
+BaseDistribution: Base class for sampling distributions.
+Cluster: Cluster distribution.
+Mixed: Mixed distribution.
+GaussianMixture: Gaussian mixture distribution.
+Gamma: Gamma distribution.
+Empirical: Empirical distribution.
+MixDistribution: Mix distribution.
+MixMultiDistributions: Multi-mix distribution.
+Distance: Distance distribution.
+BernoulliGammaMixture: Bernoulli-gamma mixture distribution.
+Beta: Beta distribution.
+Constant: Constant distribution.
+CompoundPoissonGamma: Compound Poisson-gamma distribution.
+Uniform: Uniform distribution.
+DISTRIBUTION_REGISTRY: Registry of sampling distributions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.distributions import BernoulliGammaMixture
+&gt;&gt;&gt; distribution = BernoulliGammaMixture()
+&gt;&gt;&gt; print(distribution.sample())</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

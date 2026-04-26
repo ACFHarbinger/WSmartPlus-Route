@@ -495,6 +495,12 @@ document.write(`
 represents a feasible route. The master problem selects routes to maximize
 total collected profit across a finite fleet.</p>
 <p>Theoretical Basis: Barnhart et al. (1998).</p>
+<p>Attributes:
+VRPPMasterProblem: Gurobi-based master problem solver.
+GlobalCutPool: Centralized archival and re-injection of cut inequalities.</p>
+<p>Example:
+&gt;&gt;&gt; master = VRPPMasterProblem(n_nodes=10, num_vehicles=3, capacity=100.0)
+&gt;&gt;&gt; master.solve()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

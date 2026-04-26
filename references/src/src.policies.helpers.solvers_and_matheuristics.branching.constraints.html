@@ -513,6 +513,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.branching.constraints">
 <span id="src-policies-helpers-solvers-and-matheuristics-branching-constraints"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.branching.constraints" title="src.policies.helpers.solvers_and_matheuristics.branching.constraints"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.branching.constraints</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.branching.constraints" title="Link to this heading">#</a></h1>
 <p>Branching constraints for VRPP Branch-and-Price.</p>
+<p>This module defines various branching constraints used to partition the
+search space in the Branch-and-Price-and-Cut algorithm.</p>
+<p>Attributes:
+EdgeBranchingConstraint: Arc-based branching constraint.
+RyanFosterBranchingConstraint: Node-pair based branching constraint.
+FleetSizeBranchingConstraint: Global vehicle count constraint.
+NodeVisitationBranchingConstraint: Node visitation status constraint.</p>
+<p>Example:
+&gt;&gt;&gt; constraint = EdgeBranchingConstraint(u=1, v=2, must_use=True)
+&gt;&gt;&gt; is_valid = constraint.is_route_feasible(my_route)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -589,13 +599,19 @@ True when the constraint is not violated.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.EdgeBranchingConstraint._edge_in_route">
 <span class="sig-name descname"><span class="pre">_edge_in_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.EdgeBranchingConstraint._edge_in_route" title="Link to this definition">#</a></dt>
-<dd><p>Check whether arc (u, v) appears consecutively in the full path.</p>
+<dd><p>Checks whether arc (u, v) appears consecutively in the full path.</p>
+<p>Args:
+nodes (List[int]): Internal customer nodes of the route.</p>
+<p>Returns:
+bool: True if the arc exists in the sequence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.EdgeBranchingConstraint.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.EdgeBranchingConstraint.__repr__" title="Link to this definition">#</a></dt>
 <dd><p>Return a developer-friendly string representation.</p>
+<p>Returns:
+str: String representation of the constraint.</p>
 </dd></dl>
 
 </dd></dl>
@@ -635,6 +651,8 @@ True when the constraint is not violated.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.RyanFosterBranchingConstraint.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.RyanFosterBranchingConstraint.__repr__" title="Link to this definition">#</a></dt>
 <dd><p>Return a developer-friendly string representation.</p>
+<p>Returns:
+str: String representation of the constraint.</p>
 </dd></dl>
 
 </dd></dl>
@@ -643,17 +661,31 @@ True when the constraint is not violated.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.branching.constraints.</span></span><span class="sig-name descname"><span class="pre">FleetSizeBranchingConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint" title="Link to this definition">#</a></dt>
 <dd><p>Constraint on the total number of vehicles used (sum of route lambdas).</p>
+<p>Attributes:
+limit: Fleet size limit K.
+is_upper: True for &lt;= limit (floor), False for &gt;= limit (ceil).</p>
 <p class="rubric">Initialization</p>
+<p>Initializes a fleet size branching constraint.</p>
+<p>Args:
+limit (int): Fleet size limit K.
+is_upper (bool): True for ≤ limit (floor), False for ≥ limit (ceil).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.is_route_feasible">
 <span class="sig-name descname"><span class="pre">is_route_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.is_route_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Route-level feasibility is 1.0 (global constraint).</p>
+<p>Args:
+route: A Route object to validate.</p>
+<p>Returns:
+True always.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns string representation of the constraint.</p>
+<p>Returns:
+str: String representation of the constraint.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -661,19 +693,34 @@ True when the constraint is not violated.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.branching.constraints.</span></span><span class="sig-name descname"><span class="pre">NodeVisitationBranchingConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint" title="Link to this definition">#</a></dt>
 <dd><p>Constraint on the visitation frequency of a specific optional node.</p>
+<p>Attributes:
+node: Index of the optional customer node.
+forced: True to force visitation (v_i = 1), False to forbid it (v_i = 0).</p>
 <p class="rubric">Initialization</p>
+<p>Initializes a node visitation branching constraint.</p>
+<p>Args:
+node (int): Index of the optional customer node.
+forced (bool): True to force visitation (v_i = 1), False to forbid it (v_i = 0).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.is_route_feasible">
 <span class="sig-name descname"><span class="pre">is_route_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.is_route_feasible" title="Link to this definition">#</a></dt>
-<dd><p>In the ‘forced’ branch (v_i = 1), we don’t filter existing routes
+<dd><p>Verify route feasibility against visitation constraint.</p>
+<p>In the ‘forced’ branch (v_i = 1), we don’t filter existing routes
 that don’t visit i; the master model will enforce the visitation sum.
 In the ‘forbidden’ branch (v_i = 0), we filter out any route visiting i.</p>
+<p>Args:
+route: A Route object to validate.</p>
+<p>Returns:
+True if the route is feasible.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns string representation of the constraint.</p>
+<p>Returns:
+str: String representation of the constraint.</p>
+</dd></dl>
 
 </dd></dl>
 

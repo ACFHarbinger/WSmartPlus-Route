@@ -496,6 +496,15 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-variable-neighborhood-search-policy-vns"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns" title="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns" title="Link to this heading">#</a></h1>
 <p>VNS (Variable Neighborhood Search) Policy Adapter.</p>
 <p>Adapts the VNS solver to the agnostic BaseRoutingPolicy interface.</p>
+<p>Attributes:
+VNSConfig (Type): Configuration schema for the VNS solver.
+BaseRoutingPolicy (Type): Abstract base for routing policies.
+RouteConstructorRegistry (Type): Global registry for constructors.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.policies.vns import VNSConfig
+&gt;&gt;&gt; config = VNSConfig(k_max=5)
+&gt;&gt;&gt; policy = VNSPolicy(config)
+&gt;&gt;&gt; routes = policy.solve(problem)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,22 +529,29 @@ document.write(`
 neighborhoods (N_1 … N_{k_max}) with a local search descent between
 each shaking step.  An improvement resets k to 1; exhausting all
 k_max structures completes one outer iteration.</p>
+<p>Attributes:
+solver (VNSSolver): Internal solver instance.
+params (VNSParams): Algorithm parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize the VNS Policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Optional[Union[VNSConfig, Dict[str, Any]]]): Configuration for the solver.
+If None, default parameters will be used.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.VNSPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.VNSPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the configuration class for VNS.</p>
+<p>Returns:
+Optional[Type]: The VNSConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.VNSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.VNSPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the configuration key for the VNS policy.</p>
+<p>Returns:
+str: The registry key ‘vns’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.VNSPolicy._run_solver">
@@ -566,7 +582,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 VNS parameters (k_max, max_iterations, local_search_iterations).
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs (Any): Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

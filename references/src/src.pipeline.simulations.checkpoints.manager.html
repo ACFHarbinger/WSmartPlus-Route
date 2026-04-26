@@ -491,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.checkpoints.manager">
 <span id="src-pipeline-simulations-checkpoints-manager"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.checkpoints.manager" title="src.pipeline.simulations.checkpoints.manager"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.checkpoints.manager</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.checkpoints.manager" title="Link to this heading">#</a></h1>
 <p>Context manager for automatic checkpoint lifecycle management.</p>
+<p>This module provides the checkpoint_manager context manager, which ensures
+checkpoints are saved periodically and cleaned up or finalized on exit.</p>
+<p>Attributes:
+CheckpointError: Custom exception for checkpoint-related failures.
+checkpoint_manager: Context manager for simulation state persistence.</p>
+<p>Example:
+&gt;&gt;&gt; # with checkpoint_manager(cp, 5, get_state) as hook:
+&gt;&gt;&gt; #     for day in range(31): hook.on_day(day)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,7 +506,12 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.checkpoints.manager.checkpoint_manager" title="src.pipeline.simulations.checkpoints.manager.checkpoint_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checkpoint_manager</span></code></a></p></td>
-<td><p>Context manager for automatic checkpoint lifecycle management.</p></td>
+<td><p>Context manager for automatic checkpoint lifecycle management.
+Args:
+checkpoint: SimulationCheckpoint instance.
+checkpoint_interval: Days between incremental checkpoints.
+state_getter: Callable that returns the current simulation state.
+success_callback: Optional function to call on successful completion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,16 +524,25 @@ document.write(`
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.checkpoints.manager.</span></span><span class="sig-name descname"><span class="pre">CheckpointError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.manager.CheckpointError" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Special exception to carry error results through the context manager</p>
+<p>Attributes:
+error_result: Dictionary containing error details and partial results.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
-error_result (dict): Description of error_result.</p>
+error_result: Partial simulation results and error trace.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.checkpoints.manager.checkpoint_manager">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.checkpoints.manager.</span></span><span class="sig-name descname"><span class="pre">checkpoint_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_getter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.manager.checkpoint_manager" title="Link to this definition">#</a></dt>
-<dd><p>Context manager for automatic checkpoint lifecycle management.</p>
+<dd><p>Context manager for automatic checkpoint lifecycle management.
+Args:
+checkpoint: SimulationCheckpoint instance.
+checkpoint_interval: Days between incremental checkpoints.
+state_getter: Callable that returns the current simulation state.
+success_callback: Optional function to call on successful completion.</p>
+<p>Yields:
+CheckpointHook: The hook object used to trigger daily checkpoints.</p>
 </dd></dl>
 
 </section>

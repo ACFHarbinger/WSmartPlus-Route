@@ -498,6 +498,12 @@ document.write(`
 <p>CVRP Policy module.</p>
 <p>Implements a multi-vehicle routing policy (CVRP) that visits a specific set of bins.
 Agnostic to how the targets were selected.</p>
+<p>Attributes:
+CVRPPolicy: Capacitated Vehicle Routing Problem (CVRP) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem import CVRPPolicy
+&gt;&gt;&gt; policy = CVRPPolicy()
+&gt;&gt;&gt; policy.execute(mandatory=[1, 2, 3], bins=bins_object, distance_matrix=distance_matrix)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,6 +525,8 @@ Agnostic to how the targets were selected.</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Capacitated Vehicle Routing Policy (CVRP).</p>
 <p>Visits provided ‘mandatory’ bins using multiple vehicles.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize CVRP policy with optional config.</p>
 <p>Args:
@@ -526,12 +534,17 @@ config: CVRPConfig dataclass, raw dict from YAML, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the config class for CVRP.</p>
+<p>Returns:
+Optional[Type]: CVRPConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return config key for CVRP.</p>
+<p>Returns:
+str: CVRP config key.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -539,6 +552,20 @@ config: CVRPConfig dataclass, raw dict from YAML, or None.</p>
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Run CVRP solver.</p>
 <p>Note: CVRP uses global indices directly, not the subset mapping.</p>
+<p>Args:
+sub_dist_matrix: Distance matrix of the subset.
+sub_wastes: Waste demands for each node in the subset.
+capacity: Vehicle capacity.
+revenue: Revenue per unit of waste.
+cost_unit: Cost per unit of distance.
+values: Dictionary of configuration values.
+mandatory_nodes: List of global indices of bins to be collected.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: A tuple containing:
+- tour: A list of lists of global indices representing the routes.
+- cost: The total travel cost.
+- profit: The total calculated net profit.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -551,7 +578,7 @@ to vehicle capacity constraints and mandatory collection requirements.
 It supports multiple engines, including OR-Tools and custom geometric
 heuristics (Clarke-Wright savings).</p>
 <p>Args:
-**kwargs: Context dictionary containing:
+kwargs: Context dictionary containing:
 - mandatory (List[int]): Global indices of bins to be collected.
 - bins (Bins): Container for bin stock and distribution data.
 - distance_matrix (np.ndarray): Global symmetric distance matrix.

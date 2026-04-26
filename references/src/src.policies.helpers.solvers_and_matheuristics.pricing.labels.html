@@ -503,6 +503,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.pricing.labels">
 <span id="src-policies-helpers-solvers-and-matheuristics-pricing-labels"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.pricing.labels" title="src.policies.helpers.solvers_and_matheuristics.pricing.labels"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.pricing.labels</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.pricing.labels" title="Link to this heading">#</a></h1>
 <p>Dynamic programming labels for RCSPP.</p>
+<p>Attributes:
+Label: Dynamic programming state for the RCSPP solver.</p>
+<p>Example:
+&gt;&gt;&gt; label = Label(reduced_cost=10.0, node=1, load=5.0)
+&gt;&gt;&gt; is_feasible = label.is_feasible(capacity=100.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +530,17 @@ document.write(`
 <p>Represents a partial path from the depot to the current node with
 accumulated resources.  Labels are ordered by reduced cost for efficient
 dominance checking (higher is better for the maximisation objective).</p>
+<p>Attributes:
+reduced_cost (float): Accumulated reduced cost.
+node (int): Current node index.
+load (float): Accumulated load (waste collected).
+visited (Set[int]): Nodes visited in the partial path.
+ng_memory (Set[int]): Memory state for ng-route relaxation.
+rf_unmatched (FrozenSet[int]): Unmatched Ryan-Foster nodes.
+parent (Optional[Label]): Pointer to the previous label in the path.
+sri_state (Tuple[int, …]): State for Subset-Row Inequalities.</p>
+<p>Example:
+&gt;&gt;&gt; l = Label(10.0, 1, 5.0)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reduced_cost">
 <span class="sig-name descname"><span class="pre">reduced_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reduced_cost" title="Link to this definition">#</a></dt>
@@ -586,18 +602,31 @@ dominance checking (higher is better for the maximisation objective).</p>
 <li><p>Subset-row inequality state compatibility</p></li>
 <li><p>Ryan-Foster conflict set compatibility</p></li>
 </ol>
+<p>Args:
+other: Label to compare against.
+use_ng: Whether to use ng-route memory for dominance.
+epsilon: Numerical tolerance for comparisons.
+sri_dual_values: Dual values for active SRIs.</p>
+<p>Returns:
+True if this label dominates the other.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible">
 <span class="sig-name descname"><span class="pre">is_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Check if the label satisfies resource constraints.</p>
+<p>Args:
+capacity: Maximum vehicle capacity.</p>
+<p>Returns:
+True if feasible, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reconstruct_path">
 <span class="sig-name descname"><span class="pre">reconstruct_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reconstruct_path" title="Link to this definition">#</a></dt>
 <dd><p>Backtrack from the current label to the start node to recover the full route.</p>
+<p>Returns:
+List of node indices in the full path.</p>
 </dd></dl>
 
 </dd></dl>

@@ -503,6 +503,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.league_championship_algorithm.params">
 <span id="src-policies-route-construction-meta-heuristics-league-championship-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.league_championship_algorithm.params" title="src.policies.route_construction.meta_heuristics.league_championship_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.league_championship_algorithm.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the League Championship Algorithm (LCA) solver.</p>
+<p>Attributes:
+LCAParams: Parameters for the LCA solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = LCAParams(n_teams=10, max_iterations=100, seed=42)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -536,7 +540,10 @@ tolerance_pct: Infeasibility tolerance as a fraction of best profit
 crossover_prob: Probability of OX crossover vs. perturbation after loss.
 n_removal: Nodes removed per perturbation step.
 local_search_iterations: Number of local search iterations.
-time_limit: Wall-clock time limit in seconds.</p>
+time_limit: Wall-clock time limit in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether to solve as a VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams.n_teams">
 <span class="sig-name descname"><span class="pre">n_teams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams.n_teams" title="Link to this definition">#</a></dt>
@@ -601,6 +608,10 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams" title="src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.LCAParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source (dataclass or object).</p>
+<p>Returns:
+LCAParams: Initialized runtime parameters.</p>
 </dd></dl>
 
 </dd></dl>

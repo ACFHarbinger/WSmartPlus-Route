@@ -39,7 +39,7 @@
 
 ### API
 
-````{py:function} _extract_valid_segment(chosen_route, chosen_n, bins_cannot_removed, rng)
+````{py:function} _extract_valid_segment(chosen_route: list[int], chosen_n: int, bins_cannot_removed: list[int], rng: random.Random) -> list[int]
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.consecutive._extract_valid_segment

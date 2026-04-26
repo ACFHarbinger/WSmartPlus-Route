@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides the implementation of the AutoregressivePolicy, which
 integrates an autoregressive encoder and decoder into a unified constructive
 policy architecture.</p>
+<p>Attributes:
+AutoregressivePolicy: Base class for autoregressive policies.</p>
+<p>Example:
+&gt;&gt;&gt; policy = AutoregressivePolicy()
+&gt;&gt;&gt; reward, log_p, actions = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,23 +530,23 @@ decoder: Step-by-step action decoder.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the AutoregressivePolicy.</p>
 <p>Args:
-encoder: Instance of an AR encoder.
-decoder: Instance of an AR decoder.
-env_name: Name of the target environment.
-embed_dim: Dimension of latent feature vectors.
-seed: Random seed for initialization.
-device: Operating device for tensor computation.
-**kwargs: Additional parameters for base policy.</p>
+encoder: Optional problem state encoder.
+decoder: Optional step-by-step action decoder.
+env_name: Name of the RL4CO environment.
+embed_dim: Internal dimensionality for the latent embeddings.
+seed: Random seed for reproducibility.
+device: Computing device for the neural network.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.autoregressive.policy.AutoregressivePolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.autoregressive.policy.AutoregressivePolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Full forward pass: problem encoding followed by solution decoding.</p>
 <p>Args:
-td: TensorDict containing the problem instance metadata.
-env: Environment object for state transitions and reward calculation.
-strategy: Decoding strategy (e.g., ‘sampling’, ‘greedy’).
-num_starts: Number of parallel solution completions.
-**kwargs: Additional control arguments for encoder/decoder.</p>
+td: TensorDict containing the current problem/environment state.
+env: Environment object for reward calculation and masking.
+strategy: Decoding strategy (“sampling”, “greedy”, etc.).
+num_starts: Number of initial solutions to generate.
+kwargs: Additional keyword arguments for the encoder/decoder.</p>
 <p>Returns:
 Dict[str, Any]: Policy outputs including:
 - reward (torch.Tensor): Calculated reward for the full tours.

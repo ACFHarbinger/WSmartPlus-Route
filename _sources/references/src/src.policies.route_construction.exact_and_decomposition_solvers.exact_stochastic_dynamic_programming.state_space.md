@@ -35,14 +35,6 @@
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.__init__
 ```
 
-````{py:method} get_all_states() -> typing.List[typing.Tuple[int, ...]]
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states
-```
-
-````
-
 ````{py:method} _build_bin_transitions(mean_increment: float)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager._build_bin_transitions
 

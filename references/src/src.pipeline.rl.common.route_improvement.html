@@ -497,6 +497,16 @@ document.write(`
 <span id="src-pipeline-rl-common-route-improvement"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.route_improvement" title="src.pipeline.rl.common.route_improvement"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.route_improvement</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.route_improvement" title="Link to this heading">#</a></h1>
 <p>Route improvement utilities.
 Includes route decoding, efficiency calculation, and lightweight optimization.</p>
+<p>Attributes:
+EfficiencyOptimizer: Optimizes routes as a route improvement step.
+decode_routes: Converts action sequences to clean route lists on CPU.
+calculate_efficiency: Computes kg/km efficiency metric.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.route_improvement import EfficiencyOptimizer, decode_routes, calculate_efficiency
+&gt;&gt;&gt; optimizer = EfficiencyOptimizer(problem)
+&gt;&gt;&gt; routes = optimizer.optimize(actions, num_nodes)
+&gt;&gt;&gt; efficiency = calculate_efficiency(routes, dist_matrix, waste, capacity)
+&gt;&gt;&gt; print(efficiency)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,7 +529,12 @@ Includes route decoding, efficiency calculation, and lightweight optimization.</
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.rl.common.route_improvement.calculate_efficiency" title="src.pipeline.rl.common.route_improvement.calculate_efficiency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_efficiency</span></code></a></p></td>
 <td><p>Compute kg/km efficiency metric.
-Efficiency = Total Waste Collected / Total Distance Traveled.</p></td>
+Efficiency = Total Waste Collected / Total Distance Traveled.
+Args:
+routes: List of routes.
+dist_matrix: Distance matrix.
+waste: Waste at each node.
+capacity: Vehicle capacity.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,15 +546,22 @@ Efficiency = Total Waste Collected / Total Distance Traveled.</p></td>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.route_improvement.EfficiencyOptimizer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.route_improvement.</span></span><span class="sig-name descname"><span class="pre">EfficiencyOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.route_improvement.EfficiencyOptimizer" title="Link to this definition">#</a></dt>
 <dd><p>Optimizes routes as a route improvement step.</p>
+<p>Attributes:
+problem: Problem description.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize EfficiencyOptimizer.</p>
 <p>Args:
-problem: Description for problem.
-**kwargs: Description for **kwargs.</p>
+problem: Problem description.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.route_improvement.EfficiencyOptimizer.optimize">
 <span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.route_improvement.EfficiencyOptimizer.optimize" title="Link to this definition">#</a></dt>
 <dd><p>Refine routes using local search or heuristics.</p>
+<p>Args:
+routes: List of routes to optimize.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Optimized routes.</p>
 </dd></dl>
 
 </dd></dl>
@@ -548,13 +570,25 @@ problem: Description for problem.
 <dt class="sig sig-object py" id="src.pipeline.rl.common.route_improvement.decode_routes">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.route_improvement.</span></span><span class="sig-name descname"><span class="pre">decode_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.route_improvement.decode_routes" title="Link to this definition">#</a></dt>
 <dd><p>Convert action sequences to clean route lists on CPU.</p>
+<p>Args:
+actions: Tensor of action sequences.
+num_nodes: Number of nodes in each route.</p>
+<p>Returns:
+List of decoded routes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.route_improvement.calculate_efficiency">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.route_improvement.</span></span><span class="sig-name descname"><span class="pre">calculate_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.route_improvement.calculate_efficiency" title="Link to this definition">#</a></dt>
 <dd><p>Compute kg/km efficiency metric.
-Efficiency = Total Waste Collected / Total Distance Traveled.</p>
+Efficiency = Total Waste Collected / Total Distance Traveled.
+Args:
+routes: List of routes.
+dist_matrix: Distance matrix.
+waste: Waste at each node.
+capacity: Vehicle capacity.</p>
+<p>Returns:
+Efficiency metric.</p>
 </dd></dl>
 
 </section>

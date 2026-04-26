@@ -497,6 +497,11 @@ document.write(`
 <p>ALNS with Inter-Period Operators (ALNS-IPO) Policy Adapter.</p>
 <p>Adapts the ALNS-IPO solver (<code class="docutils literal notranslate"><span class="pre">ALNSSolverIPO</span></code>) to the <code class="docutils literal notranslate"><span class="pre">BaseMultiPeriodRoutingPolicy</span></code>
 interface, enabling it to be invoked via <code class="docutils literal notranslate"><span class="pre">test_sim</span></code> with the key <code class="docutils literal notranslate"><span class="pre">&quot;alns_ipo&quot;</span></code>.</p>
+<p>Attributes:
+ALNSInterPeriodOperatorsPolicy: Policy class for ALNS-IPO.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators import ALNSInterPeriodOperatorsPolicy
+&gt;&gt;&gt; policy = ALNSInterPeriodOperatorsPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,21 +526,33 @@ interface, enabling it to be invoked via <code class="docutils literal notransla
 PatternRemoval, and ForwardLookingInsertion operators to reshape the
 visit schedule across the entire planning horizon.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;alns_ipo&quot;</span></code></p>
+<p>Attributes:
+config: Configuration for the policy.</p>
+<p>Example:
+&gt;&gt;&gt; policy = ALNSInterPeriodOperatorsPolicy()</p>
 <p>References:
 Coelho, L. C., Cordeau, J.-F., &amp; Laporte, G. (2012).
 “The inventory-routing problem with transshipment.”
 Computers &amp; Operations Research, 39(11), 2537–2548.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the ALNS-IPO policy adapter.</p>
+<p>Args:
+config: Configuration for the policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.ALNSIPOConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for ALNS-IPO.</p>
+<p>Returns:
+The ALNSIPOConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the config key for ALNS-IPO.</p>
+<p>Returns:
+The string “alns_ipo”.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._run_multi_period_solver">

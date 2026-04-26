@@ -496,7 +496,7 @@ document.write(`
 <p>This module provides the local search implementation specifically for
 Hybrid Genetic Search (HGS). It applies operators to HGS ‘Individual’ objects.</p>
 <p>Attributes:
-None</p>
+HGSLocalSearch: HGS-specific local search implementation.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.local_search.local_search_hgs import HGSLocalSearch
 &gt;&gt;&gt; ls = HGSLocalSearch(dist_matrix, waste, capacity, R, C, params)
@@ -521,6 +521,8 @@ None</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.local_search.local_search_hgs.</span></span><span class="sig-name descname"><span class="pre">HGSLocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.policies.helpers.local_search.local_search_base.html#src.policies.helpers.local_search.local_search_base.LocalSearch" title="src.policies.helpers.local_search.local_search_base.LocalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.helpers.local_search.local_search_base.LocalSearch</span></code></a></p>
 <p>Local Search module for HGS.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HGS Local Search.</p>
 <p>Args:
@@ -534,6 +536,10 @@ params: HGS parameters.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch.optimize">
 <span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch.optimize" title="Link to this definition">#</a></dt>
 <dd><p>Iteratively improve an individual using local search operators.</p>
+<p>Args:
+solution: The individual to optimize.</p>
+<p>Returns:
+The optimized individual.</p>
 </dd></dl>
 
 </dd></dl>

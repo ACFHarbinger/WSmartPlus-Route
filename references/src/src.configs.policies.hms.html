@@ -507,6 +507,13 @@ document.write(`
 <span id="src-configs-policies-hms"></span><h1><a class="reference internal" href="#module-src.configs.policies.hms" title="src.configs.policies.hms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.hms</span></code></a><a class="headerlink" href="#module-src.configs.policies.hms" title="Link to this heading">#</a></h1>
 <p>Memetic Island Model GA configuration.</p>
 <p>Replaces HVPL with rigorous GA terminology.</p>
+<p>Attributes:
+HybridMemeticSearchConfig: Configuration for the HMS (Hybrid Memetic Search) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.hms import HybridMemeticSearchConfig
+&gt;&gt;&gt; config = HybridMemeticSearchConfig()
+&gt;&gt;&gt; config.time_limit
+300.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,6 +534,21 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.hms.</span></span><span class="sig-name descname"><span class="pre">HybridMemeticSearchConfig</span></span><a class="headerlink" href="#src.configs.policies.hms.HybridMemeticSearchConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Hybrid Memetic Search (HMS) policy.</p>
 <p>Functionally equivalent to HVPL.</p>
+<p>Attributes:
+n_removal (int): Number of routes to remove.
+population_size (int): Population size for GA.
+max_generations (int): Maximum number of generations.
+substitution_rate (float): Rate of substitution operator.
+crossover_rate (float): Rate of crossover operator.
+mutation_rate (float): Rate of mutation operator.
+elitism_count (int): Number of elite individuals.
+aco_init_iterations (int): Number of ACO initialization iterations.
+time_limit (float): Time limit in seconds.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+seed (Optional[int]): Seed for the random number generator.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hms.HybridMemeticSearchConfig.n_removal">
 <span class="sig-name descname"><span class="pre">n_removal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.hms.HybridMemeticSearchConfig.n_removal" title="Link to this definition">#</a></dt>

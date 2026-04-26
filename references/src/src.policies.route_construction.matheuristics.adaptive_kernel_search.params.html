@@ -505,6 +505,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.adaptive_kernel_search.params">
 <span id="src-policies-route-construction-matheuristics-adaptive-kernel-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.adaptive_kernel_search.params" title="src.policies.route_construction.matheuristics.adaptive_kernel_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.adaptive_kernel_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Adaptive Kernel Search (AKS) matheuristic.</p>
+<p>Attributes:
+AKSParams: Dataclass holding AKS solver hyperparameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.params import AKSParams
+&gt;&gt;&gt; params = AKSParams(initial_kernel_size=50, bucket_size=20, time_limit=300.0)
+&gt;&gt;&gt; d = params.to_dict()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -604,12 +610,18 @@ seed: Random seed.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams" title="src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create AKSParams from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object or dict with AKS parameter attributes.</p>
+<p>Returns:
+AKSParams: Populated parameter dataclass.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.params.AKSParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert AKSParams to a dictionary for backend compatibility.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of parameter names to their values.</p>
 </dd></dl>
 
 </dd></dl>

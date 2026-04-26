@@ -538,6 +538,22 @@ document.write(`
 - current_dual_bound() -&gt; float
 - suggest_step(current_lambdas, aggregate_subgrad) -&gt; np.ndarray
 - serious_step(lambdas) / null_step() -&gt; informational callbacks</p>
+<p>Attributes:
+DualBoundTracker: Interface for dual-bound tracking.
+EMADualBoundTracker: EMA-based dual-bound tracker.
+BundleEntry: Entry in the proximal bundle.
+ProximalBundleDualBoundTracker: Proximal bundle dual-bound tracker.
+build_dual_bound_tracker: Builder function for dual-bound trackers.</p>
+<p>Example:
+&gt;&gt;&gt; tracker = EMADualBoundTracker(DualBoundParams(), LagrangianParams(), 1, 1)
+&gt;&gt;&gt; tracker.submit(0, np.array([1]), np.array([1]), 1, 1)
+True
+&gt;&gt;&gt; tracker.current_dual_bound()
+1.0
+&gt;&gt;&gt; tracker.suggest_step(np.array([1]), np.array([1]))
+(array([0.9999]), 0.01)
+&gt;&gt;&gt; tracker.serious_step(np.array([1]))
+&gt;&gt;&gt; tracker.null_step()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -545,13 +561,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DualBoundTracker</span></code></a></p></td>
-<td><p>Abstract interface.</p></td>
+<td><p>Abstract interface for dual-bound tracking.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EMADualBoundTracker</span></code></a></p></td>
 <td><p>Best-so-far Lagrangian value plus gated per-period EMA of subgradients.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BundleEntry</span></code></a></p></td>
-<td></td>
+<td><p>Bundle entry for the proximal bundle method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProximalBundleDualBoundTracker</span></code></a></p></td>
 <td><p>Proximal bundle method for the dual.</p></td>
@@ -565,7 +581,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.build_dual_bound_tracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.build_dual_bound_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_dual_bound_tracker</span></code></a></p></td>
-<td></td>
+<td><p>Factory function to build the requested DualBoundTracker strategy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -577,34 +593,47 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.</span></span><span class="sig-name descname"><span class="pre">DualBoundTracker</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract interface.</p>
+<p>Abstract interface for dual-bound tracking.</p>
+<p>Implementations of this interface are responsible for:</p>
+<ul class="simple">
+<li><p>Tracking the best-so-far Lagrangian lower bound.</p></li>
+<li><p>Aggregating per-period subgradients (e.g., via EMA or bundle method).</p></li>
+<li><p>Suggesting adaptive step sizes for multiplier updates.</p></li>
+</ul>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.submit">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian_value_contrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour_quality_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.submit" title="Link to this definition">#</a></dt>
 <dd><p>Submit a per-period subgradient.</p>
-<p class="rubric" id="parameters">Parameters</p>
-<p>period : int
-lambdas : (N, T) multipliers AT WHICH the subgradient was evaluated.
-subgrad : (N,) subgradient for this period (== x^K - x^R column t).
-lagrangian_value_contrib : float
-The period’s contribution to the Lagrangian objective at <code class="docutils literal notranslate"><span class="pre">lambdas</span></code>.
-tour_quality_ratio : float in [1, inf)
-RS tour cost / period incumbent cost.  1.0 = new incumbent.
+<p>Args:
+period (int): Period index.
+lambdas (np.ndarray): Multipliers at which the subgradient was evaluated.
+subgrad (np.ndarray): Subgradient for this period (== x^K - x^R column t).
+lagrangian_value_contrib (float): The period’s contribution to the Lagrangian objective at <code class="docutils literal notranslate"><span class="pre">lambdas</span></code>.
+tour_quality_ratio (float): RS tour cost / period incumbent cost.  1.0 = new incumbent.
 Used to gate EMA updates.</p>
-<p class="rubric" id="returns">Returns</p>
-<p>accepted : bool
-True if the submission changed the tracker state.</p>
+<p>Returns:
+bool: True if the submission changed the tracker state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.current_dual_bound">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_dual_bound</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.current_dual_bound" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current best Lagrangian lower bound.</p>
+<p>Returns:
+float: Best dual bound found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.suggest_step">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">suggest_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate_subgrad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker.suggest_step" title="Link to this definition">#</a></dt>
 <dd><p>Return (new_lambdas, effective_stepsize).</p>
+<p>Args:
+current_lambdas (np.ndarray): Current multipliers.
+aggregate_subgrad (np.ndarray): Aggregate subgradient.</p>
+<p>Returns:
+Tuple[np.ndarray, float]: New lambda vector and step size.</p>
 </dd></dl>
 
 </dd></dl>
@@ -617,16 +646,44 @@ True if the submission changed the tracker state.</p>
 <p>The EMA is ONLY updated for period t when the associated RS tour quality
 ratio is &lt;= <code class="docutils literal notranslate"><span class="pre">ema_quality_threshold</span></code>.  This implements the refinement
 agreed during planning.</p>
+<p>Attributes:
+params: Dual bound parameters
+lag_params: Lagrangian parameters
+n_bins: Number of bins
+horizon: Horizon
+_ema: Per-period EMA of the subgradient
+_has_observation: Whether the EMA has been observed for each period
+_best_lagrangian: Running best Lagrangian value
+_period_contribs: Lagrangian value contributions from each period
+_lock: Lock for thread safety</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the EMA dual bound tracker.</p>
+<p>Args:
+dual_params (DualBoundParams): Parameters for the tracker.
+lag_params (LagrangianParams): Lagrangian-specific parameters.
+n_bins (int): Number of customer bins.
+horizon (int): Planning horizon.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.submit">
 <span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian_value_contrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour_quality_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.submit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Submits a per-period subgradient for EMA aggregation.</p>
+<p>Args:
+period (int): Period index.
+lambdas (np.ndarray): Multipliers at which subgradient was evaluated.
+subgrad (np.ndarray): Per-period subgradient.
+lagrangian_value_contrib (float): Period’s contribution to Lagrangian objective.
+tour_quality_ratio (float): Ratio of RS tour cost to period incumbent.</p>
+<p>Returns:
+bool: True if the submission was accepted (gated by quality ratio).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.current_dual_bound">
 <span class="sig-name descname"><span class="pre">current_dual_bound</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.current_dual_bound" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current best Lagrangian lower bound.</p>
+<p>Returns:
+float: Best dual bound found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.suggest_step">
@@ -635,25 +692,45 @@ agreed during planning.</p>
 <p>UB is supplied by the coordinator (best primal).  Here we take it to
 be max(|L_k|, 1) * 2 as a neutral placeholder; the coordinator will
 usually override by calling :meth:<code class="docutils literal notranslate"><span class="pre">polyak_step</span></code> directly.</p>
+<p>Args:
+current_lambdas (np.ndarray): Current multipliers.
+aggregate_subgrad (np.ndarray): Aggregate subgradient.</p>
+<p>Returns:
+Tuple[np.ndarray, float]: New lambda vector and step size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.polyak_step">
 <span class="sig-name descname"><span class="pre">polyak_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate_subgrad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.polyak_step" title="Link to this definition">#</a></dt>
 <dd><p>Explicit Polyak step using a caller-supplied UB (best primal).</p>
+<p>Args:
+current_lambdas (np.ndarray): Current multipliers.
+aggregate_subgrad (np.ndarray): Aggregate subgradient.
+upper_bound (float): Upper bound (best primal).
+mu (Optional[float]): Polyak step parameter (default: lag_params.polyak_mu_default).</p>
+<p>Returns:
+Tuple[np.ndarray, float]: New lambda vector and step size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.ema_snapshot">
 <span class="sig-name descname"><span class="pre">ema_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.ema_snapshot" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a snapshot of the current EMA subgradients.</p>
+<p>Returns:
+np.ndarray: Copy of the internal EMA array.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.</span></span><span class="sig-name descname"><span class="pre">BundleEntry</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>Bundle entry for the proximal bundle method.</p>
+<p>Attributes:
+lambdas: Lagrangian multipliers at the time of evaluation.
+subgrad: Subgradient of the Lagrangian at <code class="docutils literal notranslate"><span class="pre">lambdas</span></code>.
+value: Lagrangian dual value at <code class="docutils literal notranslate"><span class="pre">lambdas</span></code>.</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry.lambdas">
 <span class="sig-name descname"><span class="pre">lambdas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.BundleEntry.lambdas" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -693,28 +770,62 @@ s.t. v &gt;= value_k + &lt;subgrad_k, lambda - lambda_k&gt;  for all k in bundle
 </div>
 <p>We solve this with <code class="docutils literal notranslate"><span class="pre">gurobipy</span></code> if available (the codebase already depends
 on Gurobi), falling back to a dense numpy KKT solve if not.</p>
+<p>Attributes:
+params: Dual bound parameters
+lag_params: Lagrangian parameters
+n_bins: Number of bins
+horizon: Horizon
+dim: Dimension of the Lagrangian multipliers
+_bundle: Bundle of Lagrangian subgradients and values
+_lambda_center: Center of the proximal term
+_best_value: Best Lagrangian dual value found so far
+_proximal_weight: Weight for the proximal term
+_lock: Lock for thread safety</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the proximal bundle tracker.</p>
+<p>Args:
+dual_params (DualBoundParams): Parameters for the tracker.
+lag_params (LagrangianParams): Lagrangian-specific parameters.
+n_bins (int): Number of customer bins.
+horizon (int): Planning horizon.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.submit">
 <span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian_value_contrib</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour_quality_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.submit" title="Link to this definition">#</a></dt>
-<dd><p>Append a bundle entry.  Unlike the EMA tracker, the bundle is
-strictly-valid cutting-plane evidence, so we do NOT gate on tour
-quality – every RS return is a legitimate subgradient, just at a
-higher lambda evaluation.  However we still scale the <em>contribution</em>
-attribution so a bad RS doesn’t pretend to be a new best.</p>
+<dd><p>Append a bundle entry.</p>
+<p>Unlike the EMA tracker, the bundle is strictly-valid cutting-plane
+evidence, so we do NOT gate on tour quality – every RS return is a
+legitimate subgradient, just at a higher lambda evaluation.  However we
+still scale the <em>contribution</em> attribution so a bad RS doesn’t pretend to
+be a new best.</p>
+<p>Args:
+period (int): Period index.
+lambdas (np.ndarray): Lambda values.
+subgrad (np.ndarray): Subgradient.
+lagrangian_value_contrib (float): Lagrangian value contribution.
+tour_quality_ratio (float): Tour quality ratio.</p>
+<p>Returns:
+bool: Always True, as every RS return is accepted as valid evidence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.commit_outer_iteration">
 <span class="sig-name descname"><span class="pre">commit_outer_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_lagrangian_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.commit_outer_iteration" title="Link to this definition">#</a></dt>
-<dd><p>Called once per outer iteration after all periods have submitted.
-Decides whether this is a serious step or a null step.</p>
+<dd><p>Called once per outer iteration after all periods have submitted.</p>
+<p>Decides whether this is a serious step or a null step.</p>
+<p>Args:
+lambdas (np.ndarray): Multipliers at which the iteration was completed.
+full_lagrangian_value (float): Total Lagrangian value across all periods.</p>
+<p>Returns:
+bool: True if a serious step was taken, False if a null step.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.current_dual_bound">
 <span class="sig-name descname"><span class="pre">current_dual_bound</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.current_dual_bound" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current best Lagrangian lower bound.</p>
+<p>Returns:
+float: Best dual bound found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker.suggest_step">
@@ -722,12 +833,19 @@ Decides whether this is a serious step or a null step.</p>
 <dd><p>Solve the proximal bundle QP and return the new lambda.</p>
 <p>If the bundle is empty or the QP subsolve fails, fall back to a
 Polyak-like step on the aggregate subgradient.</p>
+<p>Args:
+current_lambdas (np.ndarray): Current multipliers.
+aggregate_subgrad (np.ndarray): Aggregate subgradient.</p>
+<p>Returns:
+Tuple[np.ndarray, float]: New lambda vector and step norm.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker._solve_bundle_qp">
 <span class="sig-name descname"><span class="pre">_solve_bundle_qp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.ProximalBundleDualBoundTracker._solve_bundle_qp" title="Link to this definition">#</a></dt>
 <dd><p>Solve the proximal bundle QP via Gurobi.</p>
+<p>Returns:
+Tuple[np.ndarray, float]: New lambda vector and step norm.</p>
 </dd></dl>
 
 </dd></dl>
@@ -735,7 +853,15 @@ Polyak-like step on the aggregate subgradient.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.build_dual_bound_tracker">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.</span></span><span class="sig-name descname"><span class="pre">build_dual_bound_tracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dual_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.DualBoundParams" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.DualBoundParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.DualBoundParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.build_dual_bound_tracker" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Factory function to build the requested DualBoundTracker strategy.</p>
+<p>Args:
+dual_params (DualBoundParams): Parameters specifying the strategy.
+lag_params (LagrangianParams): Lagrangian parameters.
+n_bins (int): Number of customer bins.
+horizon (int): Planning horizon.</p>
+<p>Returns:
+DualBoundTracker: The instantiated tracker.</p>
+</dd></dl>
 
 </section>
 </section>

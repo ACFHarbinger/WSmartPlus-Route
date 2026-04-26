@@ -502,6 +502,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.policies.hgs_alns">
 <span id="src-configs-rl-policies-hgs-alns"></span><h1><a class="reference internal" href="#module-src.configs.rl.policies.hgs_alns" title="src.configs.rl.policies.hgs_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.hgs_alns</span></code></a><a class="headerlink" href="#module-src.configs.rl.policies.hgs_alns" title="Link to this heading">#</a></h1>
 <p>HGS-ALNS (Hybrid Genetic Search with ALNS Education) configuration for expert policy training.</p>
+<p>Attributes:
+HGSALNSConfig: Configuration for HGS-ALNS algorithm.</p>
+<p>Example:
+hgs_alns_config = HGSALNSConfig(
+time_limit=60.0,
+mu=50,
+nb_elite=10,
+mutation_rate=0.2,
+alns_education_iterations=50,
+n_generations=100,
+max_vehicles=0,
+engine=”custom”,
+mandatory_selection=[],
+route_improvement=[],
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

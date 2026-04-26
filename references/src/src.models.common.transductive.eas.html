@@ -531,12 +531,11 @@ for optimization via name matching.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the EAS transductive model.</p>
 <p>Args:
-model: The base neural strategy to refine.
-optimizer_kwargs: Setup parameters for the refinement optimizer.
-n_search_steps: Iteration count for test-time adaptation.
-search_param_names: Identifier tokens for parameters to adapt.
-Defaults to [“init_embedding”, “init_proj”].
-**kwargs: Configuration properties for the underlying TransductiveModel.</p>
+model: The base policy model to be adapted.
+optimizer_kwargs: Optimizer settings (e.g., learning rate).
+n_search_steps: Number of test-time optimization iterations.
+search_param_names: List of module name substrings to optimize.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.eas.EAS._get_search_params">
 <span class="sig-name descname"><span class="pre">_get_search_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.transductive.eas.EAS._get_search_params" title="Link to this definition">#</a></dt>

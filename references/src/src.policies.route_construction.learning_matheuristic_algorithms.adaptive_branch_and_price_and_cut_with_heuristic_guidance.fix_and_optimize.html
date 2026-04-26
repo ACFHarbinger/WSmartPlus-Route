@@ -496,7 +496,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-fix-and-optimize"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.fix_and_optimize" title="Link to this heading">#</a></h1>
-<p>Fix-and-Optimize Corridor Method.</p>
+<p>Fix-and-Optimize Corridor Method</p>
+<p>Attributes:
+FixAndOptimizeRefiner: A class that solves the Benders decomposition sub-problem for a single day.</p>
+<p>Example:
+&gt;&gt;&gt; from fix_and_optimize import FixAndOptimizeRefiner
+&gt;&gt;&gt; refiner = FixAndOptimizeRefiner()
+&gt;&gt;&gt; refiner.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -552,7 +558,7 @@ recently used cluster are rejected.  The list stores the last
 routes that exclusively service bins within the unfixed cluster.  These
 routes are passed as warm-start columns to the BPC RMP, reducing the
 initial column-generation overhead for the corridor sub-problem.</p>
-<p class="rubric" id="id5">Attributes</p>
+<p class="rubric" id="id5">Attributes:</p>
 <p>tabu_list : List[Set[int]]
 Recently used cluster sets, bounded to the last <code class="docutils literal notranslate"><span class="pre">tabu_length</span></code> entries.
 tabu_length : int

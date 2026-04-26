@@ -514,7 +514,7 @@ None</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.recreate_repair.deep.deep_insertion" title="src.policies.helpers.operators.recreate_repair.deep.deep_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deep_insertion</span></code></a></p></td>
-<td><p>Deep insertion: cost-delta minus capacity-utility scoring.</p></td>
+<td><p>Insert removed nodes using cost-delta minus capacity-utility scoring.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.recreate_repair.deep.deep_profit_insertion" title="src.policies.helpers.operators.recreate_repair.deep.deep_profit_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deep_profit_insertion</span></code></a></p></td>
 <td><p>Deep profit-driven insertion: profit plus capacity-utility scoring.</p></td>
@@ -528,18 +528,24 @@ None</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.recreate_repair.deep.deep_insertion">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.recreate_repair.deep.</span></span><span class="sig-name descname"><span class="pre">deep_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.recreate_repair.deep.deep_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Deep insertion: cost-delta minus capacity-utility scoring.</p>
+<dd><p>Insert removed nodes using cost-delta minus capacity-utility scoring.</p>
+<p>Each position is scored as <code class="docutils literal notranslate"><span class="pre">cost_delta</span> <span class="pre">-</span> <span class="pre">alpha</span> <span class="pre">*</span> <span class="pre">residual_capacity_utility</span></code>
+where <code class="docutils literal notranslate"><span class="pre">residual_capacity_utility</span> <span class="pre">=</span> <span class="pre">(capacity</span> <span class="pre">-</span> <span class="pre">load</span> <span class="pre">-</span> <span class="pre">node_demand)</span> <span class="pre">/</span> <span class="pre">capacity</span></code>.
+Nodes are processed in order (mandatory first) and inserted at the position
+with the lowest composite score.</p>
 <p>Args:
-routes: Partial routes.
-removed_nodes: List of unassigned node indices.
-dist_matrix: Distance matrix.
-wastes: Waste/demand look-up per node.
-capacity: Vehicle capacity.
-alpha: Weight for residual capacity penalty (&gt;= 0).
-mandatory_nodes: List of nodes that must be inserted.
-expand_pool: If True, evaluates all unvisited nodes.</p>
+routes: Partial routes; list of customer node sequences (depot excluded).
+removed_nodes: Customer node indices to be re-inserted.
+dist_matrix: Square distance matrix where index 0 is the depot.
+wastes: Mapping from node index to waste demand volume.
+capacity: Maximum load per vehicle route.
+alpha: Non-negative weight applied to the residual capacity utility term.
+At alpha=0 this degrades to standard greedy cheapest insertion.
+mandatory_nodes: Node indices that must be inserted regardless of cost.
+expand_pool: If True, the candidate set is expanded to include all
+unvisited nodes in the problem, not just <code class="docutils literal notranslate"><span class="pre">removed_nodes</span></code>.</p>
 <p>Returns:
-Updated routes with nodes inserted.</p>
+List[List[int]]: Updated routes with all insertable nodes placed.</p>
 <p>Note:
 Deep Insertion (Archetti et al. 2014 adaptation):
 1. Select node <em>v</em> by greedy order (prioritizing mandatory).
@@ -561,7 +567,8 @@ capacity: Vehicle capacity.
 R: Revenue multiplier.
 C: Cost multiplier.
 alpha: Weight for residual capacity bonus (&gt;= 0).
-mandatory_nodes: List of mandatory node indices.</p>
+mandatory_nodes: List of mandatory node indices.
+expand_pool: Whether to consider all unvisited nodes or just <code class="docutils literal notranslate"><span class="pre">removed_nodes</span></code>.</p>
 <p>Returns:
 List[List[int]]: Updated routes.</p>
 </dd></dl>

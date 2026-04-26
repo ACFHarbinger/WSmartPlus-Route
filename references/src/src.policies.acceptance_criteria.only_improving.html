@@ -497,6 +497,13 @@ document.write(`
 <span id="src-policies-acceptance-criteria-only-improving"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.only_improving" title="src.policies.acceptance_criteria.only_improving"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.only_improving</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.only_improving" title="Link to this heading">#</a></h1>
 <p>Only Improving (OI) Criterion.</p>
 <p>Strictly elitist acceptance strategy that only allows improvements.</p>
+<p>Attributes:
+OnlyImproving: The OI criterion.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.only_improving import OnlyImproving
+&gt;&gt;&gt; criterion = OnlyImproving()
+&gt;&gt;&gt; accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+True, {‘accepted’: True, ‘delta’: -2.0}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,7 +542,7 @@ initial_objective (ObjectiveValue): The initial solution’s objective.</p>
 <p>Args:
 current_obj (ObjectiveValue): Objective of the current solution.
 candidate_obj (ObjectiveValue): Objective of the candidate solution.
-**kwargs (Any): Additional context (not used).</p>
+kwargs (Any): Additional context.</p>
 <p>Returns:
 Tuple[bool, AcceptanceMetrics]: A tuple containing:
 - accepted (bool): True if candidate_obj &gt; current_obj.
@@ -547,10 +554,10 @@ Tuple[bool, AcceptanceMetrics]: A tuple containing:
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.only_improving.OnlyImproving.step" title="Link to this definition">#</a></dt>
 <dd><p>No-op update step.</p>
 <p>Args:
-current_obj (ObjectiveValue): Objective of the previous solution.
+current_obj (ObjectiveValue): Objective of the current solution.
 candidate_obj (ObjectiveValue): Objective of the candidate solution.
-accepted (bool): Whether the candidate was accepted.
-**kwargs (Any): Additional context (not used).</p>
+accepted (bool): Whether the move was accepted.
+kwargs (Any): Additional context.</p>
 </dd></dl>
 
 <dl class="py method">

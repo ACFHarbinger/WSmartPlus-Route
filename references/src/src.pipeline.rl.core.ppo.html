@@ -503,6 +503,17 @@ document.write(`
 Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017).
 Proximal policy optimization algorithms.
 arXiv preprint arXiv:1707.06347.</p>
+<p>Attributes:
+PPO: Proximal Policy Optimization (PPO) algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import PPO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; ppo = PPO(env, agent)
+&gt;&gt;&gt; ppo
+PPO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,22 +541,38 @@ of optimization per batch of rollouts.</p>
 Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017).
 Proximal Policy Optimization Algorithms. arXiv:1707.06347
 https://arxiv.org/abs/1707.06347</p>
+<p>Attributes:
+policy: Policy network.
+critic: Critic network.
+ppo_epochs: Number of optimization epochs per batch.
+eps_clip: Clipping parameter for PPO.
+value_loss_weight: Weight for value loss.
+entropy_weight: Weight for entropy bonus.
+max_grad_norm: Maximum gradient norm for clipping.
+mini_batch_size: Size of mini-batches for optimization.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize PPO module.</p>
 <p>Args:
-critic: Critic network for value estimation.
-ppo_epochs: Number of PPO optimization epochs per batch.
-eps_clip: Clipping parameter for PPO surrogate objective.
-value_loss_weight: Weight for value function loss.
-entropy_weight: Weight for entropy bonus.
-max_grad_norm: Maximum gradient norm for clipping.
-mini_batch_size: Mini-batch size (int or fraction of batch).
-**kwargs: Arguments passed to RL4COLitModule.</p>
+critic: The critic network used for baseline estimation.
+ppo_epochs: The number of optimization epochs to run per batch of rollouts.
+eps_clip: The clipping parameter for the PPO loss (default: 0.2).
+value_loss_weight: The weight for the critic loss (default: 0.5).
+entropy_weight: The weight for the entropy bonus (default: 0.0).
+max_grad_norm: The maximum gradient norm for clipping (default: 0.5).
+mini_batch_size: The size of mini-batches for optimization. Can be an integer or a float (fraction of batch size, default: 0.25).
+kwargs: Additional arguments to pass to the parent class (RL4COLitModule).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo.PPO.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Dummy implementation to satisfy abstract requirement.
-PPO uses manual optimization in training_step.</p>
+PPO uses manual optimization in training_step.
+Args:
+td: TensorDict containing state information.
+out: Dictionary containing policy output.
+batch_idx: Index of the current batch.
+env: Optional environment instance.</p>
+<p>Returns:
+A zero tensor (actual loss is calculated in training_step).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -563,24 +590,44 @@ Loss tensor from last optimization step.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo.PPO.calculate_advantages">
 <span class="sig-name descname"><span class="pre">calculate_advantages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.calculate_advantages" title="Link to this definition">#</a></dt>
 <dd><p>Estimate advantages (R - V).</p>
+<p>Args:
+rewards: Tensor of rewards.
+values: Tensor of predicted values.</p>
+<p>Returns:
+Tensor of normalized advantages.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo.PPO.calculate_ratio">
 <span class="sig-name descname"><span class="pre">calculate_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_log_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_log_p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.calculate_ratio" title="Link to this definition">#</a></dt>
 <dd><p>Calculate importance ratio.</p>
+<p>Args:
+new_log_p: Log probabilities under the current policy.
+old_log_p: Log probabilities under the behavioral policy.</p>
+<p>Returns:
+Importance sampling ratios.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo.PPO.calculate_actor_loss">
 <span class="sig-name descname"><span class="pre">calculate_actor_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advantage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.calculate_actor_loss" title="Link to this definition">#</a></dt>
 <dd><p>Clipped surrogate objective.</p>
+<p>Args:
+ratio: Importance sampling ratios.
+advantage: Estimated advantages.</p>
+<p>Returns:
+The negative of the clipped surrogate objective.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.ppo.PPO.calculate_critic_loss">
 <span class="sig-name descname"><span class="pre">calculate_critic_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.calculate_critic_loss" title="Link to this definition">#</a></dt>
 <dd><p>MSE loss for value function.</p>
+<p>Args:
+values: Values predicted by the critic.
+rewards: Target rewards.</p>
+<p>Returns:
+MSE loss tensor.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -588,7 +635,7 @@ Loss tensor from last optimization step.</p>
 <span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.ppo.PPO.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Configure optimizer for policy and critic parameters.</p>
 <p>Returns:
-Adam optimizer with combined policy and critic parameters.</p>
+PyTorch optimizer configured for actor and critic parameters.</p>
 </dd></dl>
 
 </dd></dl>

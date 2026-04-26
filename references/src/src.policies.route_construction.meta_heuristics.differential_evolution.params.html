@@ -507,6 +507,11 @@ document.write(`
 <p>This module defines the structural constraints and hyper-parameters for MDE,
 hybridizing the rigorous global search of Storn &amp; Price (1997) with
 Lamarckian/Baldwinian local exploitation for efficient VRPP optimization.</p>
+<p>Attributes:
+DEParams: Configuration parameters for Memetic Differential Evolution.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
+&gt;&gt;&gt; params = DEParams(pop_size=50, max_iterations=200)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -569,6 +574,12 @@ evolution_strategy (str): Strategy for incorporating local search improvements.
 
 time_limit (float): Wall-clock time limit in seconds. Algorithm terminates
     early if process time exceeds this threshold.
+
+seed (Optional[int]): Random seed for reproducibility.
+
+vrpp (bool): Whether to solve as a VRP with Profits.
+
+profit_aware_operators (bool): Whether to use operators biased towards profit.
 </pre></div>
 </div>
 <p>Mathematical Foundation (Core Differential Evolution):
@@ -664,6 +675,10 @@ Journal of Global Optimization, 11(4), 341-359.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.params.DEParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.differential_evolution.params.DEParams" title="src.policies.route_construction.meta_heuristics.differential_evolution.params.DEParams"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.params.DEParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.params.DEParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Hydra configuration or dictionary.</p>
+<p>Returns:
+An instance of DEParams.</p>
 </dd></dl>
 
 </dd></dl>

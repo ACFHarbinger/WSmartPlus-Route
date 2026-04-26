@@ -516,6 +516,11 @@ dynamically selecting crossover operators based on population context.</p>
    - Simple ε-greedy with context-aware rewards
 </pre></div>
 </div>
+<p>Attributes:
+ContextFeatureExtractor: Class for extracting context features from population state.</p>
+<p>Example:
+&gt;&gt;&gt; extractor = ContextFeatureExtractor()
+&gt;&gt;&gt; features = extractor.extract_features(p1, p2, population, iteration=100)</p>
 <p>Reference:
 Li et al., “A Contextual-Bandit Approach to Personalized News Article Recommendation”, WWW 2010.
 Agrawal &amp; Goyal, “Thompson Sampling for Contextual Bandits with Linear Payoffs”, ICML 2013.</p>
@@ -538,8 +543,14 @@ Agrawal &amp; Goyal, “Thompson Sampling for Contextual Bandits with Linear Pay
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.features.context.</span></span><span class="sig-name descname"><span class="pre">ContextFeatureExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diversity_history_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improvement_history_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor" title="Link to this definition">#</a></dt>
 <dd><p>Extracts context features from parent individuals and population state.</p>
+<p>Attributes:
+diversity_history: History of population diversity measures.
+improvement_history: History of improvement scores.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize feature extractor.</p>
+<p>Args:
+diversity_history_size: Size of diversity history buffer.
+improvement_history_size: Size of improvement history buffer.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor.extract_features">
 <span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor.extract_features" title="Link to this definition">#</a></dt>
@@ -558,18 +569,29 @@ Feature vector (normalized to [0, 1]).</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor._calculate_population_diversity">
 <span class="sig-name descname"><span class="pre">_calculate_population_diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor._calculate_population_diversity" title="Link to this definition">#</a></dt>
 <dd><p>Calculate average genetic diversity in population.</p>
+<p>Args:
+population: List of individuals in the current population.</p>
+<p>Returns:
+Average genetic diversity score.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor._individual_diversity">
 <span class="sig-name descname"><span class="pre">_individual_diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor._individual_diversity" title="Link to this definition">#</a></dt>
 <dd><p>Calculate average distance of individual to population.</p>
+<p>Args:
+ind: The individual to measure diversity for.
+population: List of individuals to compare against.</p>
+<p>Returns:
+Average genetic distance to the rest of the population.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor.update_improvement">
 <span class="sig-name descname"><span class="pre">update_improvement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">improvement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor.update_improvement" title="Link to this definition">#</a></dt>
 <dd><p>Update improvement history.</p>
+<p>Args:
+improvement: Improvement score to record.</p>
 </dd></dl>
 
 </dd></dl>

@@ -509,6 +509,14 @@ Refactored to rigorously align with Chen et al. (2018):</p>
 - Chen, B., Qu, R., Bai, R., &amp; Laesanklang, W. (2018). “A hyper-heuristic with
 two guidance indicators for bi-objective mixed-shift vehicle routing problem
 with time windows.” European Journal of Operational Research, 269(2), 661-675.</p>
+<p>Attributes:
+GIHHSolver: GIHH solver implementation using a Pareto Archive.</p>
+<p>Example:
+&gt;&gt;&gt; solver = GIHHSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; solutions = solver.solve()
+&gt;&gt;&gt; best_solution = max(solutions, key=lambda s: s.profit)
+&gt;&gt;&gt; print(best_solution.profit)
+231.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,23 +547,59 @@ inclination toward improving Revenue (the first objective).</p></li>
 </ul>
 <p>For integration with WSmart-Route, it ultimately exports the archive solution
 that maximizes the scalar <code class="docutils literal notranslate"><span class="pre">profit</span></code>.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Dictionary of waste for each node.
+capacity (float): Capacity of the vehicle.
+R (float): Revenue per unit distance.
+C (float): Cost per unit distance.
+params (GIHHParams): Parameters for the GIHH solver.
+mandatory_nodes (Optional[List[int]]): List of mandatory nodes.
+rng (random.Random): Random number generator.
+score_a (ScoreAIndicator): ScoreA indicator.
+score_b (ScoreBIndicator): ScoreB indicator.
+operators (List[str]): List of operators.
+weights (Dict[str, float]): Weights of the operators.
+applied_times (Dict[str, int]): Number of times each operator has been applied.
+global_best_profit_sol (Optional[Solution]): Best solution found so far.
+ARCH (List[Solution]): List of non-dominated solutions.
+segment_start_sc (Optional[Solution]): Starting solution of the current segment.
+segment_accepted_sols (List[Solution]): Accepted solutions in the current segment.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize GIHHSolver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Dictionary of waste for each node.
+capacity (float): Capacity of the vehicle.
+R (float): Revenue per unit distance.
+C (float): Cost per unit distance.
+params (GIHHParams): Parameters for the GIHH solver.
+mandatory_nodes (Optional[List[int]]): List of mandatory nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Runs the GIHH metaheuristic using Pareto evaluation.</p>
+<p>Returns:
+List[Solution]: List of non-dominated solutions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator">
 <span class="sig-name descname"><span class="pre">_select_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._select_operator" title="Link to this definition">#</a></dt>
 <dd><p>Proportional Roulette Wheel Selection with a minimum probability guarantee.</p>
+<p>Returns:
+str: Selected operator name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_selected_operator">
 <span class="sig-name descname"><span class="pre">_apply_selected_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._apply_selected_operator" title="Link to this definition">#</a></dt>
 <dd><p>Apply the specific paper LLHs using WSmart-Route operator parity.</p>
+<p>Args:
+current (Solution): Current solution.
+operator (str): Name of the operator.</p>
+<p>Returns:
+Solution: Solution after applying the operator.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -563,6 +607,10 @@ that maximizes the scalar <code class="docutils literal notranslate"><span class
 <span class="sig-name descname"><span class="pre">_update_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.Solution</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._update_archive" title="Link to this definition">#</a></dt>
 <dd><p>Updates the Pareto Archive.
 Returns True if candidate is non-dominated by any solution in ARCH.</p>
+<p>Args:
+candidate (Solution): Solution to be added to the archive.</p>
+<p>Returns:
+bool: True if candidate is non-dominated by any solution in ARCH.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -572,12 +620,20 @@ Returns True if candidate is non-dominated by any solution in ARCH.</p>
 <p>OBJECTIVE ALIGNMENT:
 A positive DEVIATION implies the search in this segment heavily
 favored Revenue improvements over Cost improvements.</p>
+<p>Args:
+None</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.GIHHSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculates total distance (km).</p>
+<p>Args:
+routes (List[List[int]]): List of routes.</p>
+<p>Returns:
+float: Total distance.</p>
 </dd></dl>
 
 </dd></dl>

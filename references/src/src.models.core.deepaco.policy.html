@@ -533,28 +533,28 @@ decoder (ACODecoder): ACO implementation for path construction and refinement.</
 <p class="rubric">Initialization</p>
 <p>Initializes the DeepACOPolicy.</p>
 <p>Args:
-encoder: Pre-instantiated GNN encoder. Defaults to DeepACOEncoder.
-decoder: Pre-instantiated ACO decoder. Defaults to ACODecoder.
-embed_dim: Internal feature dimensionality.
-num_encoder_layers: depth of the GNN.
-num_heads: Attention heads for the GNN layers.
-n_ants: Ant population size.
-n_iterations: ACO search cycles.
-alpha: relative importance of pheromones.
-beta: relative importance of learned heuristic edges.
-rho: pheromone decay rate.
-use_local_search: Whether to enable k-opt refinement.
-env_name: Optional target environment name.
-**kwargs: Extra parameters for base initialization.</p>
+encoder: Optional custom non-autoregressive encoder.
+decoder: Optional custom ACO decoder.
+embed_dim: Dimensionality of node features.
+num_encoder_layers: Number of Transformer/GNN layers.
+num_heads: Number of attention heads.
+n_ants: Number of ants per problem instance.
+n_iterations: Number of ACO pheromone update cycles.
+alpha: Pheromone importance exponent.
+beta: Heuristic visibility importance exponent.
+rho: Pheromone evaporation rate.
+use_local_search: Whether to apply refinement after construction.
+env_name: Name of the environment identifier.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.deepaco.policy.DeepACOPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.deepaco.policy.DeepACOPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes heatmap prediction followed by ACO solution search.</p>
 <p>Args:
-td: Environment state container.
-env: Environment managing rewards and 2-opt dynamics.
-num_starts: Parallel ACO ensemble size.
-**kwargs: Additional parameters for encoder/decoder.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+num_starts: Number of parallel construction starts.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Output dictionary containing:
 - reward (torch.Tensor): best reward found by ants.

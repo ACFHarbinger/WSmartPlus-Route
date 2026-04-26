@@ -499,6 +499,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-save-load"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load" title="Link to this heading">#</a></h1>
 <p>Data persistence utilities for saving and loading container information and rate series.</p>
+<p>Attributes:
+save_container_structured: Wrapper to save container information.
+load_container_structured: Wrapper to load container information.
+save_id_containers: Wrapper to save a list of container IDs.
+load_id_containers: Wrapper to load a list of container IDs.
+save_rate_series: Wrapper to save a container’s rate series.
+load_info: Wrapper to load container information.
+load_rate_series: Wrapper to load a container’s rate series.
+load_rate_global_wrapper: Wrapper to load a container’s rate series.
+verify_names: Helper function to verify names.
+container_names: List of container names.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load import *
+&gt;&gt;&gt; save_container_structured(1, container_object)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -551,15 +565,17 @@ by a save_container function</p></td>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">save_container_structured</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.save_container_structured" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper to save container information. Names are generated automatically unless
 specified in the names parameter for which those names are used</p>
-<p class="rubric" id="id7">Parameters</p>
-<p>container:Container.Container
+<p>Args:
+id:int
+container id to be saved
+container:Container.Container
 container object to be saved
 ver:str, optional
 Aditional distinctive name to add for different
 versions of container information is set to “” by default
 path:str, optional
 path wehre the files are to be saved. Is set to “” by defualt.
-name: str, optional
+names: list[str], optional
 Names to use instead of the names generator.
 All should come already with the .csv atached in the ends</p>
 </dd></dl>
@@ -569,20 +585,20 @@ All should come already with the .csv atached in the ends</p>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">load_container_structured</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container</span></a></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_container_structured" title="Link to this definition">#</a></dt>
 <dd><p>Load Container structured information froma a csv file that has been created
 by a save_container function</p>
-<p class="rubric" id="id8">Parameters</p>
-<p>id:int
+<p>Args:
+id:int
 container id to be load
 ver:str
 Aditional distinctive name for name generator to added.
 Is set to “” by default
 path:str
 path wehre the files are to be saved. Is set to “” by defualt.
-name: str
+names: list[str]
 Names to use instead of the names generator.
 All should come already with the .csv atached in the end</p>
-<p class="rubric" id="id9">Returns</p>
-<p>res: tuple[int, container]
-returns a tuple with int and continaer object</p>
+<p>Returns:
+container:Container
+The loaded container object with the information from the csv files.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -611,8 +627,10 @@ list[int]: List of loaded container IDs.</p>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">save_rate_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.save_rate_series" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper to save a Container’s rate Time Series. Aditional distinctive name to in automatic naming is set to
 rate_type + rate</p>
-<p class="rubric" id="id10">Parameters</p>
-<p>container:Container
+<p>Args:
+id:int
+Container id to be load
+container:Container
 Container object o save
 rate_type:str,
 Can be ‘mean’ or ‘crude’ to extract the mean monotic aproximation or the crude rate
@@ -622,7 +640,7 @@ frequency string indicator. For daily values set to ‘1D’. For another freque
 https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
 path:str
 path wehre the files are to be saved. Is set to “” by defualt.
-name: str
+names: str
 Names to use instead of the names generator.
 All should come already with the .csv atached in the end</p>
 </dd></dl>
@@ -632,8 +650,8 @@ All should come already with the .csv atached in the end</p>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">load_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_info" title="Link to this definition">#</a></dt>
 <dd><p>Load just the Container info fies fro, a csv file that has been created
 by a save_container function</p>
-<p class="rubric" id="id11">Parameters</p>
-<p>id:int
+<p>Args:
+id:int
 container id to be load
 ver:str
 Aditional distinctive name for name generator to added.
@@ -643,9 +661,8 @@ path wehre the files are to be saved. Is set to “” by defualt.
 name: str
 Names to use instead of the names generator.
 All should come already with the .csv atached in the end</p>
-<p class="rubric" id="id12">Returns</p>
-<p>res: tuple[int, container]
-returns a tuple with int and continaer object</p>
+<p>Returns:
+pd.DataFrame: DataFrame containing the container information.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -653,8 +670,8 @@ returns a tuple with int and continaer object</p>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">load_rate_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.load_rate_series" title="Link to this definition">#</a></dt>
 <dd><p>Load Container structured information froma a csv file that has been created
 by a save_container function</p>
-<p class="rubric" id="id13">Parameters</p>
-<p>id:int
+<p>Args:
+id:int
 container id to be load
 rate_type:str,
 Can be ‘mean’ or ‘crude’ to extract the mean monotic aproximation or the crude rate
@@ -664,6 +681,8 @@ path wehre the files are to be saved. Is set to “” by defualt.
 name: str
 Names to use instead of the names generator.
 All should come already with the .csv atached in the end</p>
+<p>Returns:
+dict[str, Union[int, pd.DataFrame]]: Dictionary containing the container ID and the rate DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -680,18 +699,31 @@ pd.DataFrame: A single DataFrame with container IDs as columns and dates as inde
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.verify_names">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">verify_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.verify_names" title="Link to this definition">#</a></dt>
 <dd><p>Helper function to check containers load/save inputs</p>
+<p>Args:
+id:int
+Container id
+ver:str
+Aditional distinctive name to add for different
+path:str
+path wehre the files are to be saved. Is set to “” by defualt.
+names: list[str]
+Names to use instead of the names generator. All should come already with the .csv atached in the end</p>
+<p>Returns:
+tuple[list[str], str]: Tuple containing the list of filenames and the path.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.container_names">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.</span></span><span class="sig-name descname"><span class="pre">container_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load.container_names" title="Link to this definition">#</a></dt>
 <dd><p>Helper function to automaically generate containers names</p>
-<p class="rubric" id="id14">Parameters</p>
-<p>id:int
+<p>Args:
+id:int
 Container id
 ver:str
 Aditional distinctive name to add for different
 versions of container information is set to “” by default</p>
+<p>Returns:
+list[str]: List of container filenames.</p>
 </dd></dl>
 
 </section>

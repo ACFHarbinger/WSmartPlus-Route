@@ -493,6 +493,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.base.optimization">
 <span id="src-pipeline-rl-common-base-optimization"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.base.optimization" title="src.pipeline.rl.common.base.optimization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.base.optimization</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.base.optimization" title="Link to this heading">#</a></h1>
 <p>Optimization logic for RL4COLitModule.</p>
+<p>Attributes:
+OptimizationMixin: Mixin for optimizer and scheduler configuration.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,6 +516,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.optimization.OptimizationMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.optimization.</span></span><span class="sig-name descname"><span class="pre">OptimizationMixin</span></span><a class="headerlink" href="#src.pipeline.rl.common.base.optimization.OptimizationMixin" title="Link to this definition">#</a></dt>
 <dd><p>Mixin for optimizer and scheduler configuration.</p>
+<p>Attributes:
+policy: Policy for optimization.
+optimizer_name: Name of the optimizer.
+optimizer_kwargs: Keyword arguments for the optimizer.
+lr_scheduler_name: Name of the learning rate scheduler.
+lr_scheduler_kwargs: Keyword arguments for the scheduler.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -520,6 +530,8 @@ None.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.optimization.OptimizationMixin.configure_optimizers">
 <span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.optimization.OptimizationMixin.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Configure optimizer and optional scheduler.</p>
+<p>Returns:
+Optimizer or dict with optimizer and scheduler.</p>
 </dd></dl>
 
 </dd></dl>

@@ -495,6 +495,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.thompson">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-thompson"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.thompson" title="src.policies.helpers.reinforcement_learning.agents.bandits.thompson"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.thompson</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.thompson" title="Link to this heading">#</a></h1>
+<p>Thompson Sampling Bandit Module.</p>
+<p>This module implements the Thompson Sampling bandit algorithm, which uses Beta
+distribution priors for each arm’s success probability.</p>
+<p>Attributes:
+ThompsonSamplingBandit: Bandit agent using Thompson Sampling.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.thompson import ThompsonSamplingBandit
+&gt;&gt;&gt; agent = ThompsonSamplingBandit(n_arms=3)
+&gt;&gt;&gt; action = agent.select_action(state=None, rng=agent.rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +527,9 @@ document.write(`
 <p>Uses Beta distribution priors for each arm’s success probability.
 Selects actions by sampling from the posterior and playing the arm
 with the highest sampled success rate.</p>
+<p>Attributes:
+alphas: Success counts for each arm (Beta distribution alpha parameter).
+betas: Failure counts for each arm (Beta distribution beta parameter).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Thompson Sampling agent.</p>
 <p>Args:

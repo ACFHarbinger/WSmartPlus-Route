@@ -503,6 +503,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.pytorch.training_display">
 <span id="src-pipeline-callbacks-pytorch-training-display"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.pytorch.training_display" title="src.pipeline.callbacks.pytorch.training_display"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.pytorch.training_display</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.pytorch.training_display" title="Link to this heading">#</a></h1>
 <p>Unified training display callback using Rich and Plotext.</p>
+<p>Attributes:
+TrainingDisplayCallback: Callback to display training progress.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.pytorch.training_display import TrainingDisplayCallback
+&gt;&gt;&gt; trainer = L.Trainer(callbacks=[TrainingDisplayCallback()])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,6 +535,20 @@ document.write(`
 <li><p>Progress bars for Epochs and Steps</p></li>
 <li><p>Status header</p></li>
 </ol>
+<p>Attributes:
+history: Dictionary to store metric histories.
+steps: Dictionary to store step histories.
+colors: List of colors for the chart lines.
+console: Rich Console instance.
+layout: Rich Layout instance.
+live: Rich Live instance for real-time updates.
+progress: Rich Progress instance.
+epoch_task_id: Task ID for the epoch progress bar.
+step_task_id: Task ID for the step progress bar.
+val_task_id: Task ID for the validation progress bar.
+current_metrics: Dictionary to store current metrics.
+trainer: PyTorch Lightning Trainer instance.
+start_time: Start time of the training.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the training display dashboard.</p>
 <p>Args:
@@ -542,12 +561,18 @@ theme: Plotext theme for the chart.</p>
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_start">
 <span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_start" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the display when training starts.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_end">
 <span class="sig-name descname"><span class="pre">on_train_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_end" title="Link to this definition">#</a></dt>
 <dd><p>Stop the display when training ends.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -566,42 +591,63 @@ theme: Plotext theme for the chart.</p>
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._render_layout">
 <span class="sig-name descname"><span class="pre">_render_layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.layout.Layout</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._render_layout" title="Link to this definition">#</a></dt>
 <dd><p>Render the current state of the layout.</p>
+<p>Returns:
+The rendered layout.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_chart">
 <span class="sig-name descname"><span class="pre">_generate_chart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.panel.Panel</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_chart" title="Link to this definition">#</a></dt>
 <dd><p>Generate the plotext chart.</p>
+<p>Returns:
+The generated chart panel.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_metrics_table">
 <span class="sig-name descname"><span class="pre">_generate_metrics_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.panel.Panel</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback._generate_metrics_table" title="Link to this definition">#</a></dt>
 <dd><p>Generate a table of current metrics.</p>
+<p>Returns:
+The generated metrics table.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_epoch_start">
 <span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Update epoch task.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_epoch_end">
 <span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_epoch_end" title="Link to this definition">#</a></dt>
 <dd><p>Update epoch task and live display.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_batch_end">
 <span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_train_batch_end" title="Link to this definition">#</a></dt>
 <dd><p>Update step task and metrics.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.
+outputs: The outputs from the training step.
+batch: The batch of data.
+batch_idx: The index of the batch.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_validation_epoch_end">
 <span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback.on_validation_epoch_end" title="Link to this definition">#</a></dt>
 <dd><p>Update metrics display with latest validation scores.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 </dd></dl>

@@ -507,6 +507,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.lbbd">
 <span id="src-configs-policies-lbbd"></span><h1><a class="reference internal" href="#module-src.configs.policies.lbbd" title="src.configs.policies.lbbd"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.lbbd</span></code></a><a class="headerlink" href="#module-src.configs.policies.lbbd" title="Link to this heading">#</a></h1>
+<p>Configuration for the Logic-Based Benders Decomposition (LBBD) policy.</p>
+<p>Attributes:
+LBBDConfig: Configuration for the Logic-Based Benders Decomposition (LBBD) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.lbbd import LBBDConfig
+&gt;&gt;&gt; config = LBBDConfig()
+&gt;&gt;&gt; config.time_limit
+300.0
+&gt;&gt;&gt; config.k
+10</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,6 +536,26 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.lbbd.LBBDConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.lbbd.</span></span><span class="sig-name descname"><span class="pre">LBBDConfig</span></span><a class="headerlink" href="#src.configs.policies.lbbd.LBBDConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Logic-Based Benders Decomposition (LBBD) policy.</p>
+<p>Attributes:
+num_days (int): Number of days for multi-day horizon.
+stochastic_master (bool): Whether to model multiple scenarios explicitly in the Master Problem.
+mean_increment (float): Mean fractional increment per day (0.0 to 1.0).
+num_scenarios (int): Number of scenarios for SAA in Subproblem routing cost estimation (if used).
+max_iterations (int): Maximum number of iterations.
+benders_gap (float): Benders gap tolerance.
+time_limit (float): Time limit in seconds.
+subproblem_timeout (float): Time limit for subproblem.
+mip_gap (float): MIP gap tolerance.
+waste_weight (float): Weight for waste.
+cost_weight (float): Weight for cost.
+overflow_penalty (float): Penalty for overflow.
+use_nogood_cuts (bool): Whether to use Nogood cuts for feasibility.
+use_optimality_cuts (bool): Whether to use logic-based optimality cuts for travel cost.
+seed (Optional[int]): Seed for random number generator.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+route_improvement (Optional[List[Any]]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.lbbd.LBBDConfig.num_days">
 <span class="sig-name descname"><span class="pre">num_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.lbbd.LBBDConfig.num_days" title="Link to this definition">#</a></dt>
@@ -619,7 +649,8 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="src.configs.policies.lbbd.LBBDConfig.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.configs.policies.lbbd.LBBDConfig.__post_init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Validate configuration parameters.</p>
+</dd></dl>
 
 </dd></dl>
 

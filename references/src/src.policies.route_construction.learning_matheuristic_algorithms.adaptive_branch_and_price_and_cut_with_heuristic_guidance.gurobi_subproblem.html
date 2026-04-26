@@ -502,6 +502,12 @@ document.write(`
 pair given fixed master assignment decisions z̄. Returns the LP optimal
 profit and dual multipliers on the assignment constraints for Benders cut
 generation.</p>
+<p>Attributes:
+GurobiVRPSubproblem: A class that solves the LP relaxation of a single-vehicle VRPP for Benders cut generation.</p>
+<p>Example:
+&gt;&gt;&gt; from gurobi_vrp_subproblem import GurobiVRPSubproblem
+&gt;&gt;&gt; solver = GurobiVRPSubproblem()
+&gt;&gt;&gt; profit, duals, route = solver.solve(z_bar_day, prizes, dist_matrix, loads)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -581,7 +587,7 @@ bin i available to the router.  These form the Benders cut coefficients:</p>
 <p>Arc and visit variables are created only for the eligible subset
 <code class="docutils literal notranslate"><span class="pre">{i</span> <span class="pre">:</span> <span class="pre">z̄[i]</span> <span class="pre">&gt;</span> <span class="pre">0}</span></code>, reducing the LP size significantly when few bins
 are assigned on a given day.</p>
-<p class="rubric" id="id5">Attributes</p>
+<p class="rubric" id="id5">Attributes:</p>
 <p>n_bins       : Total number of bins (matches master formulation).
 capacity     : Vehicle capacity Q used in the capacity constraint.
 cost_per_unit: Routing cost coefficient c (cost per unit of distance).
@@ -629,6 +635,19 @@ ordering.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.GurobiVRPSubproblem._solve_lp">
 <span class="sig-name descname"><span class="pre">_solve_lp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_bar_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eligible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_subproblem.GurobiVRPSubproblem._solve_lp" title="Link to this definition">#</a></dt>
 <dd><p>LP relaxation solve with direct dual extraction.</p>
+<p>Args:
+z_bar_day: Integer lower bound on bin selections.
+prizes: Bin prizes.
+dist_matrix: Travel cost matrix.
+loads: Bin loads.
+eligible: List of eligible bin indices.</p>
+<p>Returns:
+profit: Subproblem optimal value Q(z̄, ξ).
+duals: <code class="docutils literal notranslate"><span class="pre">{bin_id:</span> <span class="pre">μ_i}</span></code> dual values on assignment constraints.
+Positive μ_i means making bin i available increases profit.
+route: Approximate feasible route <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">n_1,</span> <span class="pre">…,</span> <span class="pre">n_k,</span> <span class="pre">0]</span></code>
+reconstructed from the LP/MIP solution via nearest-neighbour
+ordering.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -639,6 +658,17 @@ integer solution and re-solve as an LP to recover valid dual variables
 on the assignment constraints.</p>
 <p>This gives tighter Benders cuts than the LP relaxation at the cost of
 an additional LP solve per subproblem call.</p>
+<p>Args:
+z_bar_day: Integer lower bound on bin selections.
+prizes: Bin prizes.
+dist_matrix: Travel cost matrix.
+loads: Bin loads.
+eligible: List of eligible bin indices.</p>
+<p>Returns:
+profit: Subproblem optimal value Q(z̄, ξ).
+duals: {bin_id: μ_i} dual values on assignment constraints.
+route: Approximate feasible route [0, n_1, …, n_k, 0] reconstructed
+from the LP/MIP solution via nearest-neighbour ordering.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -520,6 +520,10 @@ document.write(`
 <p>Parameters for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR).</p>
 <p>This module defines the configuration parameters for the HGS-RR algorithm,
 extending standard HGS with adaptive destroy/repair operator management.</p>
+<p>Attributes:
+HGSRRParams: Configuration parameters for the HGS-RR algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; params = HGSRRParams(time_limit=60.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,37 +544,31 @@ extending standard HGS with adaptive destroy/repair operator management.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.</span></span><span class="sig-name descname"><span class="pre">HGSRRParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for HGS-RR algorithm.</p>
 <p>Attributes:
-restart_timer (float): Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
-time_limit (float): Maximum execution time in seconds.
-mu (int): Minimum population size (for each subpopulation).
-nb_elite (int): Number of elite individuals preserved.
-mutation_rate (float): Probability of applying ruin-recreate mutation.
-n_offspring (int): Generation size (individuals created per iteration).
-n_iterations_no_improvement (int): Max iterations without improvement.
-survivor_threshold (float): Population size multiplier for survivor selection.
-max_vehicles (int): Maximum number of vehicles (0 = unlimited).
-crossover_rate (float): Probability of crossover operation.
-nb_granular (int): Granular search parameter for local search.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Ruin-and-Recreate specific parameters
-min_removal_pct (float): Minimum percentage of nodes to remove (0.0-1.0).
-max_removal_pct (float): Maximum percentage of nodes to remove (0.0-1.0).
-noise_factor (float): Noise factor for randomized best insertion.
-reaction_factor (float): Rate of operator weight updates.
-decay_parameter (float): Decay rate for operator scores.
-
-# Operator selection weights (initial)
-destroy_operators (List[str]): List of destroy operator names.
-repair_operators (List[str]): List of repair operator names.
-operator_decay_rate (float): Exponential decay rate for operator weights.
-
-# Scoring parameters for adaptive selection
-score_sigma_1 (float): Score for new global best solution.
-score_sigma_2 (float): Score for solution improving current.
-score_sigma_3 (float): Score for solution accepted but not improving.
-
-seed (Optional[int]): Random seed for reproducibility.
-</pre></div>
-</div>
+restart_timer: Maximum wall-clock seconds before algorithm restart (0 = unlimited).
+time_limit: Maximum execution time in seconds.
+population_size: Minimum population size (for each subpopulation).
+elite_size: Number of elite individuals preserved.
+mutation_rate: Probability of applying ruin-recreate mutation.
+n_iterations_no_improvement: Max iterations without improvement.
+no_improvement_threshold: Threshold for diversity/stopping.
+survivor_threshold: Population size multiplier for survivor selection.
+max_vehicles: Maximum number of vehicles (0 = unlimited).
+crossover_rate: Probability of crossover operation.
+neighbor_list_size: Granular search parameter for local search.
+min_removal_pct: Minimum percentage of nodes to remove (0.0-1.0).
+max_removal_pct: Maximum percentage of nodes to remove (0.0-1.0).
+noise_factor: Noise factor for randomized best insertion.
+reaction_factor: Rate of operator weight updates.
+decay_parameter: Decay rate for operator scores.
+destroy_operators: List of destroy operator names.
+repair_operators: List of repair operator names.
+operator_decay_rate: Exponential decay rate for operator weights.
+score_sigma_1: Score for new global best solution.
+score_sigma_2: Score for solution improving current.
+score_sigma_3: Score for solution accepted but not improving.
+seed: Random seed for reproducibility.
+vrpp: Whether to use VRP with Profits mode.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams.restart_timer">
 <span class="sig-name descname"><span class="pre">restart_timer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams.restart_timer" title="Link to this definition">#</a></dt>
@@ -725,6 +723,10 @@ seed (Optional[int]): Random seed for reproducibility.
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object (Hydra config or dataclass).</p>
+<p>Returns:
+HGSRRParams: Initialized parameters.</p>
 </dd></dl>
 
 </dd></dl>

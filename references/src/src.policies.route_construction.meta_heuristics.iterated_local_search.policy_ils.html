@@ -495,6 +495,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils">
 <span id="src-policies-route-construction-meta-heuristics-iterated-local-search-policy-ils"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils" title="src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils" title="Link to this heading">#</a></h1>
 <p>ILS (Iterated Local Search) Policy Adapter.</p>
+<p>Attributes:
+ILSPolicy: Policy class for Iterated Local Search.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.policies.ils import ILSConfig
+&gt;&gt;&gt; config = ILSConfig(n_restarts=50)
+&gt;&gt;&gt; policy = ILSPolicy(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,61 +521,46 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.</span></span><span class="sig-name descname"><span class="pre">ILSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.ils.ILSConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Iterated Local Search policy class.</p>
+<p>Attributes:
+config: Configuration for the policy.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the ILS policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the config class.</p>
+<p>Returns:
+The ILSConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the config key.</p>
+<p>Returns:
+The key ‘ils’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.ILSPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Execute the Iterated Local Search (ILS) metaheuristic solver logic.</p>
-<p>ILS is a simple yet powerful metaheuristic that iteratively applies a
-local search to a perturbed solution. It operates in a loop:</p>
-<ul class="simple">
-<li><p>Perturbation: The current solution is modified (e.g., via ruin-and-recreate
-or random moves) to escape the current local optimum.</p></li>
-<li><p>Local Search: The perturbed solution is refined using local search
-operators until a new local optimum is found.</p></li>
-<li><p>Acceptance: The new local optimum is accepted or rejected based on
-the objective function.
-In this implementation, multiple restarts and inner iterations are
-governed by the configuration parameters.</p></li>
-</ul>
+<p>ILS iteratively applies a local search to a perturbed solution.</p>
 <p>Args:
-sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-sub-problem nodes.
-sub_wastes (Dict[int, float]): Mapping of local node indices to their
-current bin inventory levels.
-capacity (float): Maximum vehicle collection capacity.
-revenue (float): Revenue obtained per kilogram of waste collected.
-cost_unit (float): Monetary cost incurred per kilometer traveled.
-values (Dict[str, Any]): Merged configuration dictionary containing
-ILS parameters (n_restarts, perturbation_strength, inner_iterations).
-mandatory_nodes (List[int]): Local indices of bins that MUST be
-collected in this period.
-**kwargs: Additional context, including:
-- search_context (Optional[SearchContext]): Context for tracking
-recursive solver statistics.
-- multi_day_context (Optional[MultiDayContext]): Context for
-inter-day state propagation.</p>
+sub_dist_matrix: Symmetric distance matrix.
+sub_wastes: Mapping of local node indices to waste levels.
+capacity: Maximum vehicle collection capacity.
+revenue: Revenue per kilogram of waste.
+cost_unit: Monetary cost per kilometer.
+values: Merged configuration dictionary.
+mandatory_nodes: Local indices of bins that MUST be collected.
+kwargs: Additional context.</p>
 <p>Returns:
-Tuple[List[List[int]], float, float]: A 3-tuple containing:
-- routes: Optimized collection routes (list-of-lists, local indices).
-- profit: Total calculated net profit (Total Revenue - Total Cost).
-- cost: Total travel cost calculated by the solver.</p>
+Tuple of (routes, profit, cost).</p>
 </dd></dl>
 
 </dd></dl>

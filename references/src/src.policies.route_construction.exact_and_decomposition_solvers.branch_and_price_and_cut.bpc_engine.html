@@ -526,10 +526,10 @@ heuristics and the Set Partitioning (SP) master formulation.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_master_constraints</span></code></a></p></td>
-<td><p>Reset vehicle limits and node senses to their base problem state.</p></td>
+<td><p>Resets vehicle limits and node senses to their base problem state.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_route_level_branching_filters</span></code></a></p></td>
-<td><p>Apply route-level feasibility filters based on branching constraints.</p></td>
+<td><p>Applies route-level feasibility filters based on branching constraints.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_branching_to_master" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_branching_to_master"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_branching_to_master</span></code></a></p></td>
 <td><p>Filter the Master Problem column pool by disabling routes that violate
@@ -551,7 +551,7 @@ branching constraints at the current B&amp;B node.</p></td>
 <td><p>Check if LP solution is integer and strictly elementary.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_perform_strong_branching</span></code></a></p></td>
-<td><p>Fix 11: Restricted LP Heuristic for Divergence Branching.</p></td>
+<td><p>Evaluates branching candidates by solving child LP relaxations (lookahead).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._compute_lr_bound_at_node" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._compute_lr_bound_at_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_lr_bound_at_node</span></code></a></p></td>
 <td><p>Compute a fast Lagrangian upper bound at a BPC B&amp;B node.</p></td>
@@ -566,7 +566,7 @@ branching constraints at the current B&amp;B node.</p></td>
 <td><p>Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_reduced_cost_edge_fixing</span></code></a></p></td>
-<td></td>
+<td><p>Applies reduced-cost variable fixing for edges.</p></td>
 </tr>
 </tbody>
 </table>
@@ -605,6 +605,8 @@ branching constraints at the current B&amp;B node.</p></td>
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">BPCPruningException</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.BPCPruningException" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception raised when a node is pruned by a bound (e.g., Lagrangian).</p>
+<p>Attributes:
+message (str): Explanation of the pruning reason.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
@@ -612,13 +614,18 @@ branching constraints at the current B&amp;B node.</p></td>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_reset_master_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints" title="Link to this definition">#</a></dt>
-<dd><p>Reset vehicle limits and node senses to their base problem state.</p>
+<dd><p>Resets vehicle limits and node senses to their base problem state.</p>
+<p>Args:
+master (VRPPMasterProblem): The master problem instance to reset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_route_level_branching_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters" title="Link to this definition">#</a></dt>
-<dd><p>Apply route-level feasibility filters based on branching constraints.</p>
+<dd><p>Applies route-level feasibility filters based on branching constraints.</p>
+<p>Args:
+master (VRPPMasterProblem): The master problem instance.
+bc (AnyBranchingConstraint): The branching constraint to apply.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -680,6 +687,15 @@ forbidding or enforcing pairs of nodes in the generated routes.</p>
 Big-M artificial variables. The Farkas ray identifies the direction of
 infeasibility, guiding the DP pricer to find columns that restore the
 mandatory coverage basis.</p>
+<p>Args:
+master (VRPPMasterProblem): The master problem instance.
+pricing_solver (RCSPPSolver): The RCSPP solver for pricing.
+branching_constraints (List[AnyBranchingConstraint]): Active branching constraints.
+farkas_duals (Any): Dual values from the Farkas ray.
+max_routes (int): Maximum number of routes to return.
+timeout (Optional[float]): Time limit for the pricing step.</p>
+<p>Returns:
+Tuple[int, bool]: (Number of routes added, whether pricing was exhausted).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -689,11 +705,14 @@ mandatory coverage basis.</p>
 <p>This is a modular wrapper that delegates to the specific cutting plane
 engine (RCC, fleet_cover, etc.) configured by the user.</p>
 <p>Args:
-master: Master problem instance
-cut_engine: Cutting plane separation engine
-max_cuts: Maximum number of cuts to add</p>
+master (VRPPMasterProblem): Master problem instance.
+cut_engine (CuttingPlaneEngine): Cutting plane separation engine.
+max_cuts (int): Maximum number of cuts to add.
+iteration (int): Current B&amp;B node iteration index.
+node_depth (int): Current B&amp;B tree depth.
+cut_orthogonality_threshold (float): Minimum cosine distance between cut vectors.</p>
 <p>Returns:
-Number of cuts added</p>
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -703,14 +722,15 @@ Number of cuts added</p>
 <p>Utilizes the current dual signal—optionally stabilized via Exponential
 Dual Smoothing (Wentges 1997)—to identify routes with positive reduced cost.</p>
 <p>Args:
-master: Master problem instance
-pricing_solver: RCSPP solver for pricing
-branching_constraints: Optional Ryan-Foster or Node Visitation constraints
-max_routes: Max routes to return
-optimality_gap: Basic gap
-rc_tolerance: Minimum reduced cost to prevent epsilon deadlock</p>
+master (VRPPMasterProblem): Master problem instance.
+pricing_solver (RCSPPSolver): RCSPP solver for pricing.
+branching_constraints (Optional[List[AnyBranchingConstraint]]): Active branching constraints.
+max_routes (int): Maximum number of routes to return.
+optimality_gap (float): Target optimality gap.
+rc_tolerance (float): Minimum reduced cost to accept a column.
+timeout (Optional[float]): Time limit for the pricing step.</p>
 <p>Returns:
-tuple (added, exhausted): Number of columns added and whether pricing was exhausted.</p>
+Tuple[int, bool]: (Number of columns added, whether pricing was exhausted).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -723,7 +743,7 @@ intermediate nodes are outside the neighborhood of the cycle origin.</p>
 <p>Args:
 nodes: Sequence of node IDs.</p>
 <p>Returns:
-List of node tuples forming cycles.</p>
+List[Tuple[int, …]]: List of node tuples forming cycles.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -735,18 +755,24 @@ routes: List of all routes in the Master Problem.
 route_values: Dictionary of route indices to their LP values (λ_k).
 tol: Numerical tolerance for integrality.</p>
 <p>Returns:
-True if all fractional values are 0 or 1 AND every selected route
+bool: True if all fractional values are 0 or 1 AND every selected route
 (λ_k &gt; 0.5) is strictly elementary (no cycles).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_perform_strong_branching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strong_branching_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching" title="Link to this definition">#</a></dt>
-<dd><p>Fix 11: Restricted LP Heuristic for Divergence Branching.</p>
-<p>Evaluates the top candidates by solving child LP relaxations (lookahead)
-to select the branch that maximizes the estimated lower bound improvement.
+<dd><p>Evaluates branching candidates by solving child LP relaxations (lookahead).</p>
+<p>Selects the branch that maximizes the estimated lower bound improvement.
 Note: This is a restricted lookahead that does NOT solve full column
 generation subproblems at children, only the sifted master problem.</p>
+<p>Args:
+master (VRPPMasterProblem): The master problem instance.
+candidates (List[Tuple]): List of branching candidates.
+current_node (Optional[BranchNode]): Current B&amp;B node.
+strong_branching_size (int): Number of candidates to evaluate.</p>
+<p>Returns:
+Optional[Tuple]: The best candidate selected by lookahead evaluation.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -805,6 +831,30 @@ subproblem is not called: the LP is re-solved using only the columns
 already in the pool (sifted from the global pool at the root).  This
 replicates the “CG at root only” experiment from Table 2 of Barnhart,
 Hane, and Vance (2000), which trades bound quality for solve speed.</p>
+<p>Args:
+master (VRPPMasterProblem): Master problem instance.
+pricing_solver (RCSPPSolver): RCSPP pricing solver.
+cut_engine (CuttingPlaneEngine): Cutting plane separation engine.
+branching_constraints (Optional[List[AnyBranchingConstraint]]): Active constraints.
+max_cg_iterations (int): Maximum number of iterations per node.
+max_cuts (int): Maximum number of cuts per iteration.
+time_limit (Optional[float]): Time budget in seconds.
+start_time (float): Start timestamp of the overall solve.
+max_routes_per_pricing (int): Maximum number of columns to return.
+vehicle_limit (Optional[int]): Fleet size limit.
+optimality_gap (float): Target optimality gap.
+early_termination_gap (float): Heuristic stopping threshold.
+parent_basis (Optional[Any]): Gurobi basis from parent node.
+incumbent_value (float): Best known integer solution value.
+node_depth (int): Current B&amp;B tree depth.
+rc_tolerance (float): Minimum reduced cost for column acceptance.
+cut_orthogonality_threshold (float): Minimum cut independence.
+exact_mode (bool): If True, disables dual smoothing.
+cg_at_root_only (bool): If True, skips pricing at descendant nodes.
+branching_strategy (str): Active branching rule name.</p>
+<p>Returns:
+Tuple[float, Dict[int, float], Optional[Any], bool]:
+(Objective value, Route values λ_k, LP basis, Timed out flag).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -836,31 +886,40 @@ configurable algorithmic strategies:</p>
 </li>
 </ul>
 <p>Args:
-dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1)
-wastes: Waste volumes for each node
-capacity: Vehicle capacity
-R: Revenue per kg
-C: Cost per km
-values: Configuration dictionary with keys:
-- max_cg_iterations: Max CG iterations per node (default 50)
-- max_cuts_per_iteration: Max cuts to add per iteration (default 5)
-- max_bb_nodes: Max B&amp;B nodes to explore (default 1000)
-- time_limit: Time limit in seconds (optional)
-- search_strategy: “best_first” or “depth_first” (default “depth_first”)
-- cutting_planes: “rcc” (default “rcc”)
-- branching_strategy: “ryan_foster”, “edge”, or “divergence” (default “divergence”)
-mandatory_indices: Set of node indices that must be visited
-env: Gurobi environment (ignored, kept for compatibility)
-node_coords: Optional node coordinates for visualization
-recorder: Optional state recorder for tracking</p>
+dist_matrix (np.ndarray): Distance matrix (n_nodes+1 x n_nodes+1).
+wastes (Dict[int, float]): Waste volumes for each node.
+capacity (float): Vehicle capacity.
+R (float): Revenue per kg.
+C (float): Cost per km.
+params (Optional[Union[BPCParams, Dict[str, Any]]]): Configuration parameters.
+mandatory_indices (Optional[Set[int]]): Set of node indices that must be visited.
+vehicle_limit (Optional[int]): Fleet size limit.
+env (Optional[Any]): Gurobi environment (ignored, kept for compatibility).
+node_coords (Optional[np.ndarray]): Optional node coordinates for visualization.
+recorder (Optional[PolicyStateRecorder]): Optional state recorder for tracking.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
-Tuple of (best_routes, best_cost)</p>
+Tuple[List[List[int]], float]: (Best routes found, best objective value).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+&gt;&gt;&gt; dist_matrix = np.array([[0, 10], [10, 0]])
+&gt;&gt;&gt; wastes = {1: 5.0}
+&gt;&gt;&gt; routes, cost = run_bpc(dist_matrix, wastes, capacity=10, R=1, C=1)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_reduced_cost_edge_fixing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies reduced-cost variable fixing for edges.</p>
+<p>Fixes edge variables to zero if their reduced cost exceeds the optimality gap.</p>
+<p>Args:
+master: Master problem instance.
+pricing_solver: RCSPP pricing solver.
+z_ub: Current upper bound (best known solution value).
+z_lb: Current lower bound (LP relaxation value).</p>
+<p>Returns:
+Number of edges fixed to zero.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -936,6 +995,14 @@ Implementation: <code class="docutils literal notranslate"><span class="pre">_co
 - Dual smoothing (Wentges 1997) for faster CG convergence.
 - GlobalCutPool: centralised cut registry ensuring parent cuts are
 re-injected at all descendant B&amp;B nodes.</p>
+<p>Attributes:
+logger (logging.Logger): Module-level logger.
+_FARKAS_TOL (float): Numerical tolerance for Farkas pricing.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+&gt;&gt;&gt; dist_matrix = np.array([[0, 10], [10, 0]])
+&gt;&gt;&gt; wastes = {1: 5.0}
+&gt;&gt;&gt; routes, cost = run_bpc(dist_matrix, wastes, capacity=10, R=1, C=1)</p>
 <section id="references">
 <h2>References:<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">

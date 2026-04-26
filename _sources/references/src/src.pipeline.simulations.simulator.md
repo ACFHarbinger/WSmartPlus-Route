@@ -9,6 +9,22 @@
 
 ## Module Contents
 
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`SimpleCounter <src.pipeline.simulations.simulator.SimpleCounter>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.simulator.SimpleCounter
+    :summary:
+    ```
+* - {py:obj}`ProgressUpdater <src.pipeline.simulations.simulator.ProgressUpdater>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.simulator.ProgressUpdater
+    :summary:
+    ```
+````
+
 ### Functions
 
 ````{list-table}
@@ -119,6 +135,58 @@
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.single_simulation
 ```
 ````
+
+`````{py:class} SimpleCounter(val=0)
+:canonical: src.pipeline.simulations.simulator.SimpleCounter
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.SimpleCounter
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.SimpleCounter.__init__
+```
+
+````{py:method} update(n=1)
+:canonical: src.pipeline.simulations.simulator.SimpleCounter.update
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.SimpleCounter.update
+```
+
+````
+
+`````
+
+`````{py:class} ProgressUpdater(display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter)
+:canonical: src.pipeline.simulations.simulator.ProgressUpdater
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.ProgressUpdater
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.ProgressUpdater.__init__
+```
+
+````{py:method} set_values(display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter) -> None
+:canonical: src.pipeline.simulations.simulator.ProgressUpdater.set_values
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.ProgressUpdater.set_values
+```
+
+````
+
+````{py:method} update(n=1) -> None
+:canonical: src.pipeline.simulations.simulator.ProgressUpdater.update
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator.ProgressUpdater.update
+```
+
+````
+
+`````
 
 ````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.simulations.simulator.sequential_simulations

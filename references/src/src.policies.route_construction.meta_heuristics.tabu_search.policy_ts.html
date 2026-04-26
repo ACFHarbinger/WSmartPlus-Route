@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction.meta_heuristics.tabu_search.policy_ts';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.html" />
+    <link rel="next" title="src.policies.route_construction.meta_heuristics.simulated_annealing" href="src.policies.route_construction.meta_heuristics.simulated_annealing.html" />
     <link rel="prev" title="src.policies.route_construction.meta_heuristics.tabu_search.solver" href="src.policies.route_construction.meta_heuristics.tabu_search.solver.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -495,6 +495,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.tabu_search.policy_ts">
 <span id="src-policies-route-construction-meta-heuristics-tabu-search-policy-ts"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.tabu_search.policy_ts" title="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.policy_ts</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.tabu_search.policy_ts" title="Link to this heading">#</a></h1>
 <p>TS (Tabu Search) Policy Adapter.</p>
+<p>Attributes:
+TSPolicy: Policy class for Tabu Search.</p>
+<p>Example:
+&gt;&gt;&gt; policy = TSPolicy(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy" title="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TSPolicy</span></code></a></p></td>
-<td><p>Tabu Search (TS) Policy - Advanced Local Search with Deterministic Memory.</p></td>
+<td><p>Tabu Search (TS) Policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,77 +518,46 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.</span></span><span class="sig-name descname"><span class="pre">TSPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.ts.TSConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
-<p>Tabu Search (TS) Policy - Advanced Local Search with Deterministic Memory.</p>
-<p>Tabu Search enhances local search by using a short-term memory (the “Tabu List”)
-to prevent the algorithm from returning to recently visited solutions.</p>
-<p>Key Mechanisms:</p>
-<ol class="arabic simple">
-<li><p><strong>Tabu List</strong>: Stores forbidden moves (e.g., recently moved nodes) to
-enforce a diversifying search trajectory and cycle avoidance.</p></li>
-<li><p><strong>Aspiration Criterion</strong>: Allows a tabu move if it results in a new
-best-found solution, overriding the tabu status to ensure optimality.</p></li>
-<li><p><strong>Intensification &amp; Diversification</strong>: Periodically restarts or adjusts
-parameters to focus on high-quality regions or explore untouched areas
-of the search space.</p></li>
-</ol>
-<p>By systematically managing its search history, Tabu Search can navigate
-complex routing topologies with high efficiency and precision.</p>
-<p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;ts&quot;</span></code></p>
+<p>Tabu Search (TS) Policy.</p>
+<p>Attributes:
+config: Configuration for the policy.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Tabu Search policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration source.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the configuration class for TS.</p>
+<p>Returns:
+TSConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the configuration key for the TS policy.</p>
+<p>Returns:
+The registry key ‘ts’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.TSPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Execute the Tabu Search (TS) metaheuristic solver logic.</p>
-<p>TS is a local search-based metaheuristic that uses a flexible memory system
-to prevent the search from returning to recently visited solutions (tabu
-list). This implementation features:</p>
-<ul class="simple">
-<li><p>Short-term Memory: Prevents cycling using a tabu tenure.</p></li>
-<li><p>Long-term Memory: Frequency-based diversification to explore new
-regions and intensification to refine the best known neighborhoods.</p></li>
-<li><p>Aspiration Criteria: Allows tabu moves if they result in a new global
-best solution.</p></li>
-<li><p>Candidate Lists: Restricts the move evaluations to high-potential
-subsets to improve computational efficiency.</p></li>
-</ul>
 <p>Args:
-sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-sub-problem nodes.
-sub_wastes (Dict[int, float]): Mapping of local node indices to their
-current bin inventory levels.
-capacity (float): Maximum vehicle collection capacity.
-revenue (float): Revenue obtained per kilogram of waste collected.
-cost_unit (float): Monetary cost incurred per kilometer traveled.
-values (Dict[str, Any]): Merged configuration dictionary containing
-TS parameters (tabu_tenure, max_iterations, elite_size).
-mandatory_nodes (List[int]): Local indices of bins that MUST be
-collected in this period.
-**kwargs: Additional context, including:
-- search_context (Optional[SearchContext]): Context for tracking
-recursive solver statistics.
-- multi_day_context (Optional[MultiDayContext]): Context for
-inter-day state propagation.</p>
+sub_dist_matrix: Symmetric distance matrix.
+sub_wastes: Mapping of local node indices to waste levels.
+capacity: Maximum vehicle collection capacity.
+revenue: Revenue per kilogram of waste.
+cost_unit: Monetary cost per kilometer.
+values: Merged configuration dictionary.
+mandatory_nodes: Local indices of bins that MUST be collected.
+kwargs: Additional context.</p>
 <p>Returns:
-Tuple[List[List[int]], float, float]: A 3-tuple containing:
-- routes: Optimized collection routes (list-of-lists, local indices).
-- profit: Total calculated net profit (Total Revenue - Total Cost).
-- cost: Total travel cost calculated by the solver.</p>
+Tuple of (routes, profit, cost).</p>
 </dd></dl>
 
 </dd></dl>
@@ -614,11 +587,11 @@ Tuple[List[List[int]], float, float]: A 3-tuple containing:
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.html"
+       href="src.policies.route_construction.meta_heuristics.simulated_annealing.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

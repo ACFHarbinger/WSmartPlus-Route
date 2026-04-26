@@ -499,6 +499,26 @@ document.write(`
 1 … m   → pick item k (1-indexed)</p>
 <p>The evaluation simulates the speed-degraded travel and returns the total
 profit together with feasibility metrics (time used, weight used).</p>
+<p>Attributes:
+ThOP: Thief Orienteering Problem (ThOP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.thop import ThOP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+…     “item_weights”: torch.tensor([[0.0, 1.0]]),
+…     “item_profits”: torch.tensor([[0.0, 10.0]]),
+…     “item_city”: torch.tensor([[0.0, 1.0]]),
+…     “capacity”: torch.tensor([1.0]),
+…     “max_time”: torch.tensor([10.0]),
+…     “v_max”: torch.tensor([1.0]),
+…     “v_min”: torch.tensor([0.1]),
+…     “depot”: torch.tensor([0.0]),
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = ThOP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([-2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,6 +551,8 @@ linearly with the current carried weight:</p>
 <li><p>total travel time ≤ T_max (time budget), and</p></li>
 <li><p>total carried weight ≤ W (knapsack capacity).</p></li>
 </ul>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.thop.ThOP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.thop.ThOP.NAME" title="Link to this definition">#</a></dt>

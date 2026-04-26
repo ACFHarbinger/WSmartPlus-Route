@@ -495,6 +495,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.meta.weight_strategy">
 <span id="src-pipeline-rl-meta-weight-strategy"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.meta.weight_strategy" title="src.pipeline.rl.meta.weight_strategy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.meta.weight_strategy</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.meta.weight_strategy" title="Link to this heading">#</a></h1>
 <p>Abstract Strategy Pattern for Weight Adjustment.</p>
+<p>Attributes:
+WeightAdjustmentStrategy: Interface for strategies that propose and update cost weights for the RL env.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,16 +519,25 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.meta.weight_strategy.</span></span><span class="sig-name descname"><span class="pre">WeightAdjustmentStrategy</span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Interface for strategies that propose and update cost weights for the reinforcement learning environment.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy.propose_weights">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">propose_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy.propose_weights" title="Link to this definition">#</a></dt>
-<dd><p>Returns the weights for the next simulation day or step.</p>
+<dd><p>Returns the weights for the next simulation day or step.
+Args:
+context: Environment context.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy.feedback">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy.feedback" title="Link to this definition">#</a></dt>
 <dd><p>Receives feedback from the environment to update internal state.</p>
+<p>Args:
+reward: Reward from the environment.
+metrics: Metrics from the environment.
+day: Day of the simulation.
+step: Step of the simulation.</p>
 </dd></dl>
 
 <dl class="py method">

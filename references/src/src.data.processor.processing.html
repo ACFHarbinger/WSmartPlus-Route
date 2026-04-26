@@ -494,6 +494,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor.processing">
 <span id="src-data-processor-processing"></span><h1><a class="reference internal" href="#module-src.data.processor.processing" title="src.data.processor.processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor.processing</span></code></a><a class="headerlink" href="#module-src.data.processor.processing" title="Link to this heading">#</a></h1>
 <p>Data transformation functions for coordinates and model inputs.</p>
+<p>Attributes:
+_mapper: Instance of SimulationDataMapper for processing.
+process_data: Process raw bin data and coordinates for simulation use.
+process_coordinates: Normalize and format coordinates using the specified method.
+process_model_data: Prepare data for neural model inputs.</p>
+<p>Example:
+from logic.src.data.processor import process_data, process_coordinates, process_model_data
+processed_data, processed_coordinates = process_data(data, bins_coordinates, depot)
+depot, locations = process_coordinates(processed_coordinates, method)
+model_data, edges_and_dm, profit_vars = process_model_data(depot, loc, method)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

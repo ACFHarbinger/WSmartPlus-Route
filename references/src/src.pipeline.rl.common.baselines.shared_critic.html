@@ -496,9 +496,14 @@ document.write(`
 <span id="src-pipeline-rl-common-baselines-shared-critic"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.shared_critic" title="src.pipeline.rl.common.baselines.shared_critic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.shared_critic</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.shared_critic" title="Link to this heading">#</a></h1>
 <p>shared_critic.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+SharedBaseline: Shared baseline using a critic that shares the encoder with the actor.</p>
 <p>Example:
-&gt;&gt;&gt; import shared_critic</p>
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.baselines import SharedBaseline
+&gt;&gt;&gt; baseline = SharedBaseline()
+&gt;&gt;&gt; td = TensorDict({“obs”: torch.randn(2, 10, 20)}, batch_size=[2])
+&gt;&gt;&gt; reward = torch.tensor([1.0, 2.0])
+&gt;&gt;&gt; baseline.eval(td, reward)
+tensor([1.0, 2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,12 +527,13 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <p>Creates a critic network from the actor’s encoder via weight sharing
 (deepcopy). This enables the critic to leverage the same learned
 representations while having its own value head.</p>
+<p>Attributes:
+critic: The shared critic network.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SharedBaseline.</p>
 <p>Args:
-critic: Pre-built critic module. If None, must call setup() with a policy
-that has a <code class="docutils literal notranslate"><span class="pre">create_critic_from_actor</span></code> compatible encoder.
-**kwargs: Additional arguments.</p>
+critic: Optional pre-built critic module. If None, will be created from policy in setup().
+kwargs: Additional keyword arguments (unused).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.shared_critic.SharedBaseline.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.shared_critic.SharedBaseline.setup" title="Link to this definition">#</a></dt>
@@ -552,6 +558,8 @@ torch.Tensor: Critic value predictions.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.shared_critic.SharedBaseline.get_learnable_parameters">
 <span class="sig-name descname"><span class="pre">get_learnable_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.shared_critic.SharedBaseline.get_learnable_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Get learnable parameters for the shared critic.</p>
+<p>Returns:
+List of learnable parameters.</p>
 </dd></dl>
 
 </dd></dl>

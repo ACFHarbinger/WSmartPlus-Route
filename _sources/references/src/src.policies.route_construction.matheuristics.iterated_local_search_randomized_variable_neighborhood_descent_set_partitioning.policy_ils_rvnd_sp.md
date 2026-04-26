@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

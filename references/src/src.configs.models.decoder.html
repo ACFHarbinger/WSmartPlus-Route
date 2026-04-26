@@ -506,6 +506,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.models.decoder">
 <span id="src-configs-models-decoder"></span><h1><a class="reference internal" href="#module-src.configs.models.decoder" title="src.configs.models.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.decoder</span></code></a><a class="headerlink" href="#module-src.configs.models.decoder" title="Link to this heading">#</a></h1>
 <p>Decoder Config module.</p>
+<p>Attributes:
+DecoderConfig: Decoder architecture and decoding configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.models.decoder import DecoderConfig
+&gt;&gt;&gt; config = DecoderConfig()
+&gt;&gt;&gt; print(config)
+DecoderConfig(type=’attention’, embed_dim=128, hidden_dim=512, n_layers=3, n_heads=8, normalization=NormalizationConfig(name=’layer’, eps=1e-05, learn_scale=False, learn_shift=True), activation=ActivationConfig(name=’gelu’, param=1.0, threshold=6.0, replacement_value=6.0, n_params=3, range=[0.125, 0.3333333333333333]), decoding=DecodingConfig(type=’greedy’, min_tokens=1), dropout=0.1, mask_logits=True, connection_type=’residual’, n_predictor_layers=None, tanh_clipping=10.0, hyper_expansion=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +532,21 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.models.decoder.DecoderConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.models.decoder.</span></span><span class="sig-name descname"><span class="pre">DecoderConfig</span></span><a class="headerlink" href="#src.configs.models.decoder.DecoderConfig" title="Link to this definition">#</a></dt>
 <dd><p>Decoder architecture and decoding configuration.</p>
+<p>Attributes:
+type (str): Decoding method.
+embed_dim (int): Dimension of the embedding vectors.
+hidden_dim (int): Dimension of the hidden layers.
+n_layers (int): Number of layers.
+n_heads (int): Number of attention heads.
+normalization (NormalizationConfig): Normalization configuration.
+activation (ActivationConfig): Activation function configuration.
+decoding (DecodingConfig): Decoding configuration.
+dropout (float): Dropout rate.
+mask_logits (bool): Whether to mask logits.
+connection_type (str): Type of connection.
+n_predictor_layers (Optional[int]): Number of predictor layers.
+tanh_clipping (float): Tanh clipping value.
+hyper_expansion (int): Hyper expansion value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.models.decoder.DecoderConfig.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.models.decoder.DecoderConfig.type" title="Link to this definition">#</a></dt>

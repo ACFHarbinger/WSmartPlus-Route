@@ -515,11 +515,12 @@ Each outer iteration consists of two phases:</p>
 <li><p>Local search descent: apply repeated LLH improvement from the shaken
 solution until no further improvement within the budget.</p></li>
 </ol>
-<p>If the local search result improves the incumbent, the algorithm resets to
-the first (mildest) neighborhood k=1.  Otherwise it advances to k+1.  Once
-all k_max shaking structures are exhausted without improvement one outer
-iteration is complete.  The process repeats for max_iterations outer loops
-or until the time_limit is reached.</p>
+<p>Attributes:
+VNSSolver (Type): Core solver class for the Variable Neighborhood Search.
+VNSParams (Type): Parameter dataclass for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = VNSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>Reference:
 Mladenović, N., &amp; Hansen, P. “Variable Neighborhood Search”, 1997.</p>
 <section id="module-contents">
@@ -541,7 +542,24 @@ Mladenović, N., &amp; Hansen, P. “Variable Neighborhood Search”, 1997.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.</span></span><span class="sig-name descname"><span class="pre">VNSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params.html#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params.VNSParams" title="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params.VNSParams"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params.VNSParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver" title="Link to this definition">#</a></dt>
 <dd><p>Variable Neighborhood Search solver for VRPP.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (VNSParams): Algorithm-specific parameters.
+mandatory_nodes (List[int]): Nodes that must be visited.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Variable Neighborhood Search solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (VNSParams): Algorithm-specific parameters.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver.solve" title="Link to this definition">#</a></dt>
@@ -554,30 +572,55 @@ Tuple of (routes, profit, cost).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n1">
 <span class="sig-name descname"><span class="pre">_shake_n1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n1" title="Link to this definition">#</a></dt>
 <dd><p>N_1: Remove 1 node randomly, greedy reinsert.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n2">
 <span class="sig-name descname"><span class="pre">_shake_n2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n2" title="Link to this definition">#</a></dt>
 <dd><p>N_2: Remove 2 nodes randomly, greedy reinsert.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n3">
 <span class="sig-name descname"><span class="pre">_shake_n3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n3" title="Link to this definition">#</a></dt>
 <dd><p>N_3: Worst removal of 2 nodes, regret-2 reinsert.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n4">
 <span class="sig-name descname"><span class="pre">_shake_n4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n4" title="Link to this definition">#</a></dt>
 <dd><p>N_4: Cluster removal of 3 nodes, greedy reinsert.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n5">
 <span class="sig-name descname"><span class="pre">_shake_n5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._shake_n5" title="Link to this definition">#</a></dt>
 <dd><p>N_5: Remove 3 nodes randomly, regret-2 reinsert.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -594,42 +637,87 @@ start: Wall-clock start time of the outer solve() call.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh0">
 <span class="sig-name descname"><span class="pre">_llh0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh0" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Local neighborhood search.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh1">
 <span class="sig-name descname"><span class="pre">_llh1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh1" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Local neighborhood search.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh2">
 <span class="sig-name descname"><span class="pre">_llh2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh2" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Local neighborhood search.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh3">
 <span class="sig-name descname"><span class="pre">_llh3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh3" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Local neighborhood search.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh4">
 <span class="sig-name descname"><span class="pre">_llh4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._llh4" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Local neighborhood search.</p>
+<p>Args:
+routes: List of routes.
+n: Number of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._build_initial_solution" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build an initial solution.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+List[List[int]]: List of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the total profit of the routes.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+float: Total profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.VNSSolver._cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the total cost of the routes.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+float: Total cost.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -514,6 +514,17 @@ aligned directly with the Ozcan et al. (2010) paper specification.</p>
 - qualityLB        = quality_lb = 0
 - Reward           = +1 (additive, RL1)
 - Penalty          = −1 (RL1), ÷2 (RL2), √ (RL3)</p>
+<p>Attributes:
+RLGDHHConfig: Configuration for the RL-GD-HH policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.rl_gd_hh import RLGDHHConfig
+&gt;&gt;&gt; config = RLGDHHConfig()
+&gt;&gt;&gt; config.max_iterations
+5000
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.vrpp
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,6 +546,21 @@ aligned directly with the Ozcan et al. (2010) paper specification.</p>
 <dd><p>Configuration for the RL-GD-HH policy.</p>
 <p>The values defined here reproduce the best-performing configuration
 from Ozcan et al. (2010) unless otherwise noted.</p>
+<p>Attributes:
+max_iterations: Maximum number of iterations.
+time_limit: Time limit for the algorithm in seconds.
+seed: Random seed.
+reward_improvement: Reward for improving the solution.
+penalty_worsening: Penalty for worsening the solution.
+punishment_type: Type of punishment.
+utility_upper_bound: Upper bound for utility.
+min_utility: Minimum utility.
+initial_utility: Initial utility.
+quality_lb: Lower bound for quality.
+vrpp: Whether to use VRPP.
+mandatory_selection: List of mandatory nodes.
+route_improvement: List of route improvements.
+acceptance_criterion: Acceptance criterion configuration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.rl_gd_hh.RLGDHHConfig.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.rl_gd_hh.RLGDHHConfig.max_iterations" title="Link to this definition">#</a></dt>

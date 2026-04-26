@@ -499,6 +499,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.policies.alns">
 <span id="src-configs-rl-policies-alns"></span><h1><a class="reference internal" href="#module-src.configs.rl.policies.alns" title="src.configs.rl.policies.alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.alns</span></code></a><a class="headerlink" href="#module-src.configs.rl.policies.alns" title="Link to this heading">#</a></h1>
 <p>ALNS (Adaptive Large Neighborhood Search) configuration for expert policy training.</p>
+<p>Attributes:
+ALNSConfig: Configuration for ALNS algorithm.</p>
+<p>Example:
+alns_config = ALNSConfig(
+time_limit=60.0,
+max_iterations=5000,
+start_temp=100.0,
+cooling_rate=0.995,
+reaction_factor=0.1,
+min_removal=1,
+max_removal_pct=0.3,
+engine=”custom”,
+mandatory_selection=[],
+route_improvement=[],
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

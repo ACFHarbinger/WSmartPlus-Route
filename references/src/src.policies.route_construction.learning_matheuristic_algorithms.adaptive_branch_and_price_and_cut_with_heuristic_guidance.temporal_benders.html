@@ -501,6 +501,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-temporal-benders"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders" title="Link to this heading">#</a></h1>
 <p>Temporal Decomposition via Benders Cuts.</p>
+<p>Attributes:
+_GUROBI_AVAILABLE: Whether Gurobi is available.
+logger: Logger for the Temporal Benders algorithm.
+TemporalBendersCoordinator: The Temporal Benders algorithm implementation.</p>
+<p>Examples:
+&gt;&gt;&gt; from .temporal_benders import TemporalBendersCoordinator
+&gt;&gt;&gt; temporal_benders = TemporalBendersCoordinator()
+&gt;&gt;&gt; temporal_benders.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -580,7 +588,7 @@ ml_branching : MLBranchingStrategy or None
 scenario_branching : ScenarioConsistentBranching or None
 dive_heuristic : DiveAndPricePrimalHeuristic or None
 fix_optimizer : FixAndOptimizeRefiner or None</p>
-<p class="rubric" id="id5">Attributes</p>
+<p class="rubric" id="id5">Attributes:</p>
 <p>tree, prize_engine, capacity, revenue, cost_unit
 Problem parameters.
 max_iterations, convergence_tol, cut_pool_max
@@ -618,17 +626,26 @@ elimination).  If False, solve as MIP + LP dual recovery.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut">
 <span class="sig-name descname"><span class="pre">_add_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator._add_cut" title="Link to this definition">#</a></dt>
 <dd><p>Add a cut to the internal pool (FIFO eviction at capacity).</p>
+<p>Args:
+cut: The cut to add to the pool.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.temporal_benders.TemporalBendersCoordinator.solve" title="Link to this definition">#</a></dt>
 <dd><p>Solve the multi-period stochastic VRPP via Temporal Benders Decomposition.</p>
-<p>Required kwargs:
-dist_matrix (np.ndarray): Distance matrix, shape (n_bins+1, n_bins+1),
-depot at index 0.  If not provided, raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
-<p>Optional kwargs:
-Any remaining key-value pairs are forwarded to subproblem solvers.</p>
+<p>Args:
+kwargs: Forwarded to per-scenario subproblem solvers.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Required kwargs:
+    dist_matrix (np.ndarray): Distance matrix, shape (n_bins+1, n_bins+1),
+        depot at index 0.  If not provided, raises ``ValueError``.
+
+Optional kwargs:
+    Any remaining key-value pairs are forwarded to subproblem solvers.
+</pre></div>
+</div>
 <p>Returns:
 raw_plan: <code class="docutils literal notranslate"><span class="pre">[day][route_index][node_index]</span></code> covering all horizon days.
 total_expected_profit: Σ_d Σ_ξ p_ξ · Q_d(z*, ξ) over the best solution.</p>
@@ -644,7 +661,7 @@ RuntimeError: If Gurobi is not installed (gurobipy import failed).</p>
 <p>Args:
 dist_matrix: (n_bins+1 × n_bins+1) distance matrix.
 n_bins: Number of customer bins.
-**kwargs: Forwarded to per-scenario subproblem solvers.</p>
+kwargs: Forwarded to per-scenario subproblem solvers.</p>
 <p>Returns:
 best_plan, best_profit (see <code class="docutils literal notranslate"><span class="pre">solve()</span></code>).</p>
 </dd></dl>

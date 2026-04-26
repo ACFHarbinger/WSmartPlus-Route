@@ -501,6 +501,14 @@ document.write(`
 <code class="docutils literal notranslate"><span class="pre">HRLIRPModule</span></code>. When no checkpoint is available, the policy falls back
 to a threshold-based Manager + greedy Worker.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;hna&quot;</span></code></p>
+<p>Attributes:
+HierarchicalNeuralAgentPolicy: Hierarchical Neural Agent Policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_algorithms import HierarchicalNeuralAgentPolicy
+&gt;&gt;&gt; policy = HierarchicalNeuralAgentPolicy()
+&gt;&gt;&gt; routes, metrics = policy.run_day(env)
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,28 +546,51 @@ it falls back to a greedy threshold heuristic (nodes with fill % above
 <p>The policy utilizes the “BaseMultiPeriodRoutingPolicy” template to
 propagate multi-day plans and scenario transitions through the simulator.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;hna&quot;</span></code></p>
+<p>Attributes:
+config: Configuration for the HNA policy.
+params: Parameters for the HNA policy.
+_module: HRLIRPModule instance.
+_module_loaded: Flag indicating whether the HRLIRPModule has been loaded.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the HRL-IRP simulator policy.</p>
+<p>Args:
+config: Configuration for the HNA policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.HNAPolicyConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+Type[HNAPolicyConfig]: The configuration class for this policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration key for this policy.</p>
+<p>Returns:
+str: The configuration key for this policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._load_module">
 <span class="sig-name descname"><span class="pre">_load_module</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._load_module" title="Link to this definition">#</a></dt>
-<dd><p>Lazily load the HRLIRPModule from checkpoint.</p>
+<dd><p>Load the HRLIRPModule from checkpoint.</p>
+<p>The module is loaded lazily, only when needed.</p>
+<p>Returns:
+None</p>
+<p>Raises:
+Exception: If the module cannot be loaded.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._select_mandatory_nodes">
 <span class="sig-name descname"><span class="pre">_select_mandatory_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._select_mandatory_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Select mandatory nodes for the current day.</p>
+<p>Args:
+wastes: Dictionary of wastes.
+locs: Locations of the wastes.</p>
+<p>Returns:
+List[int]: List of mandatory nodes.</p>
 </dd></dl>
 
 <dl class="py method">

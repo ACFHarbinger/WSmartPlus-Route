@@ -490,6 +490,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic">
 <span id="src-policies-route-construction-hyper-heuristics-genetic-programming-multi-period-hyper-heuristic"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic" title="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic" title="Link to this heading">#</a></h1>
+<p>GP-MP-HH (Genetic Programming Multi-Period Hyper-Heuristic) policy module.</p>
+<p>Reference:
+Bhandari, R., &amp; Keedwell, E. (2021). “A genetic programming multi-period
+selection hyper-heuristic for the vehicle routing problem with time windows.”
+In Proceedings of the 2021 Annual Conference on Genetic and Evolutionary
+Computation (pp. 355-363).</p>
+<p>This module implements the GP-MP-HH policy, which is a multi-period selection
+selection hyper-heuristic that uses genetic programming to evolve a sequence
+of low-level heuristics that are applied sequentially to an initial solution.</p>
+<p>Attributes:
+GPMPHHPolicy: Implements the GP-MP-HH policy.
+GP_MP_HH_Params: Parameters for the GP-MP-HH policy.</p>
+<p>Example:
+&gt;&gt;&gt; solver = GPMPHHPolicy(config)
+&gt;&gt;&gt; solution = solver.solve()
+&gt;&gt;&gt; print(solution)
+SolutionContext(…)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -517,7 +534,7 @@ document.write(`
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘GPMPHHPolicy’]</p>
+<dd><p>[‘GPMPHHPolicy’, ‘GP_MP_HH_Params’]</p>
 </dd></dl>
 
 </section>

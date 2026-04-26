@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} fit_39mean(train: pandas.DataFrame, test: pandas.DataFrame)
+````{py:method} fit_39mean(train: pandas.DataFrame, test: pandas.DataFrame) -> None
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean
@@ -99,7 +99,7 @@
 
 ````
 
-````{py:method} save_cache(train_data: pandas.DataFrame, test_data: pandas.DataFrame)
+````{py:method} save_cache(train_data: pandas.DataFrame, test_data: pandas.DataFrame) -> None
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.save_cache
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.save_cache
@@ -107,7 +107,7 @@
 
 ````
 
-````{py:method} load_cache()
+````{py:method} load_cache() -> None
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache
@@ -115,7 +115,7 @@
 
 ````
 
-````{py:method} deleate_cache()
+````{py:method} deleate_cache() -> None
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache

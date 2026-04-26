@@ -530,6 +530,14 @@ for the vehicle routing problem with simultaneous pickup and delivery.&quot;
 Computers &amp; Operations Research, 36(6), 1693-1702.
 </pre></div>
 </div>
+<p>Attributes:
+DistancePSOSolver: PSO solver class with velocity momentum for VRPP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.solver import DistancePSOSolver
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params import DistancePSOParams
+&gt;&gt;&gt; params = DistancePSOParams()
+&gt;&gt;&gt; solver = DistancePSOSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -556,6 +564,14 @@ Each particle maintains:</p>
 <li><p>Velocity v(t): tendency to change solution (represented as node sets)</p></li>
 <li><p>Personal best pbest: best solution this particle has found</p></li>
 </ul>
+<p>Attributes:
+dist_matrix: Distance matrix including depot at index 0.
+wastes: Node-to-waste-quantity mapping.
+capacity: Vehicle capacity constraint.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance.
+params: PSO hyperparameter configuration.
+mandatory_nodes: Nodes that must be visited.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the PSO solver with velocity momentum.</p>
 <p>Args:

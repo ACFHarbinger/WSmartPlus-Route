@@ -498,6 +498,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.phh">
 <span id="src-configs-policies-phh"></span><h1><a class="reference internal" href="#module-src.configs.policies.phh" title="src.configs.policies.phh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.phh</span></code></a><a class="headerlink" href="#module-src.configs.policies.phh" title="Link to this heading">#</a></h1>
 <p>Configuration for the Population Hyper-Heuristic (PHH).</p>
+<p>Attributes:
+PHHConfig: Configuration for the Population Hyper-Heuristic (PHH) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.phh import PHHConfig
+&gt;&gt;&gt; config = PHHConfig()
+&gt;&gt;&gt; config.pop_size
+10
+&gt;&gt;&gt; config.gens
+20
+&gt;&gt;&gt; config.seed
+42
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

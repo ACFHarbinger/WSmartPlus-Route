@@ -503,6 +503,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.soccer_league_competition.params">
 <span id="src-policies-route-construction-meta-heuristics-soccer-league-competition-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.soccer_league_competition.params" title="src.policies.route_construction.meta_heuristics.soccer_league_competition.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.soccer_league_competition.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Soccer League Competition (SLC) solver.</p>
+<p>Attributes:
+SLCParams: Configuration object for the SLC algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; params = SLCParams()
+&gt;&gt;&gt; params = SLCParams.from_config(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -598,6 +603,10 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams" title="src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+SLCParams: Parameters for the SLC algorithm.</p>
 </dd></dl>
 
 </dd></dl>

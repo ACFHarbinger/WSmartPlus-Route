@@ -499,6 +499,25 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.rfo">
 <span id="src-configs-policies-rfo"></span><h1><a class="reference internal" href="#module-src.configs.policies.rfo" title="src.configs.policies.rfo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.rfo</span></code></a><a class="headerlink" href="#module-src.configs.policies.rfo" title="Link to this heading">#</a></h1>
 <p>Configuration for the Relax-and-Fix-and-Optimize (RFO) matheuristic.</p>
+<p>Attributes:
+RFOConfig: Configuration for the Relax-and-Fix-and-Optimize (RFO) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.rfo import RFOConfig
+&gt;&gt;&gt; config = RFOConfig()
+&gt;&gt;&gt; config.window_size
+3
+&gt;&gt;&gt; config.step_size
+2
+&gt;&gt;&gt; config.mip_time
+60.0
+&gt;&gt;&gt; config.mip_gap
+0.01
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

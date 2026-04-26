@@ -497,6 +497,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-policy-pso"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso" title="Link to this heading">#</a></h1>
+<p>Particle Swarm Optimization (PSO) policy.</p>
+<p>Attributes:
+PSOPolicyAdapter: Policy class for Particle Swarm Optimization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.policies import PSOConfig
+&gt;&gt;&gt; config = PSOConfig(pop_size=50)
+&gt;&gt;&gt; policy = PSOPolicyAdapter(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,7 +511,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSOPolicyAdapter</span></code></a></p></td>
-<td><p>Policy adapter for Particle Swarm Optimization with velocity momentum.</p></td>
+<td><p>Policy adapter for Particle Swarm Optimization.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,72 +523,73 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.</span></span><span class="sig-name descname"><span class="pre">PSOPolicyAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.PSOConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Policy adapter for Particle Swarm Optimization with velocity momentum.</p>
-<p><strong>TRUE PSO IMPLEMENTATION</strong> (Kennedy &amp; Eberhart 1995).
-Replaces the Sine Cosine Algorithm (SCA) which is mathematically
-equivalent to PSO without velocity momentum and with expensive
-trigonometric operations.</p>
-<p>Mathematical Superiority over SCA:
-PSO: v’ = w<em>v + c₁</em>r₁*(pbest - x) + c₂<em>r₂</em>(gbest - x)
-SCA: x’ = x + r₁·sin(r₂)·|r₃·gbest - x|</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Where SCA&#39;s sin(r₂) is just a random weight in [-1,1] with
-expensive transcendental computation and no periodicity exploitation.
-</pre></div>
-</div>
+<p>Policy adapter for Particle Swarm Optimization.</p>
+<p>Attributes:
+config: Configuration for the policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize PSO policy adapter.</p>
 <p>Args:
-config: Configuration parameters matching PSOParams fields.</p>
+config: Configuration source.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Hydra-compliant configuration schema.</p>
+<p>Returns:
+PSOConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Identifier for this policy.</p>
+<p>Returns:
+The key ‘pso’.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_multi_period_solver" title="Link to this definition">#</a></dt>
 <dd><p>Execute the Particle Swarm Optimization (PSO) solver logic.</p>
-<p>PSO is a computational method that optimizes a problem by iteratively
-trying to improve a candidate solution with regard to a given measure
-of quality. It solves a problem by having a population of candidate
-solutions, here dubbed particles, and moving these particles around in
-the search-space according to simple mathematical formulae over the
-particle’s position and velocity. Each particle’s movement is
-influenced by its local best known position (“pbest”) but is also
-guided toward the best known positions in the search-space (“gbest”),
-which are updated as better positions are found by other particles.</p>
 <p>Args:
-problem: The current ProblemContext containing the state, inventory,
-and distance matrices.
-multi_day_ctx: Optional context for inter-day state propagation.</p>
+problem: Current ProblemContext.
+multi_day_ctx: Optional inter-day state propagation.</p>
 <p>Returns:
-Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
-- today_solution: Standardized solution context for Day 0.
-- full_plan: Collection plan (nested list by day and vehicle).
-- stats: Execution statistics and PSO solver metadata.</p>
+Tuple of (SolutionContext, full_plan, stats).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Legacy fallback.</p>
+<p>Args:
+sub_dist_matrix: Dist matrix.
+sub_wastes: Waste dict.
+capacity: Capacity.
+revenue: Revenue.
+cost_unit: Cost.
+values: Config dict.
+mandatory_nodes: Mandatory nodes.
+kwargs: Extra args.</p>
+<p>Returns:
+Empty results.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_name" title="Link to this definition">#</a></dt>
 <dd><p>Return policy name.</p>
+<p>Returns:
+Full name string.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_acronym">
 <span class="sig-name descname"><span class="pre">get_acronym</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.PSOPolicyAdapter.get_acronym" title="Link to this definition">#</a></dt>
 <dd><p>Return policy acronym.</p>
+<p>Returns:
+Short acronym string.</p>
 </dd></dl>
 
 </dd></dl>

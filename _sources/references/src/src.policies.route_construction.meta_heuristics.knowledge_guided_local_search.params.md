@@ -128,7 +128,7 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.KGLSConfig) -> src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams
+````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams
 :canonical: src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.from_config
 :classmethod:
 

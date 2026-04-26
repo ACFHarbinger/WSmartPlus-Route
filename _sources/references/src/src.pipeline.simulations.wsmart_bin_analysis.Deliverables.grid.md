@@ -127,7 +127,7 @@
 
 ````
 
-````{py:method} values_by_date_range(start: pandas.Timestamp = None, end: pandas.Timestamp = None) -> pandas.DataFrame
+````{py:method} values_by_date_range(start: typing.Optional[pandas.Timestamp] = None, end: typing.Optional[pandas.Timestamp] = None) -> pandas.DataFrame
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.values_by_date_range
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.values_by_date_range

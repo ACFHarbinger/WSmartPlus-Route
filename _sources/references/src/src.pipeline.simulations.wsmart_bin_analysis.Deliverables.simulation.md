@@ -45,7 +45,7 @@ Bases: {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.G
 
 ````
 
-````{py:method} reset_simulation()
+````{py:method} reset_simulation() -> None
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation
 
 ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation

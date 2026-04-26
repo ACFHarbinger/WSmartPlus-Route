@@ -491,7 +491,109 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies">
 <span id="src-configs-policies"></span><h1><a class="reference internal" href="#module-src.configs.policies" title="src.configs.policies"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a><a class="headerlink" href="#module-src.configs.policies" title="Link to this heading">#</a></h1>
-<p>Policy configuration dataclasses.</p>
+<p>Policy configuration dataclasses.
+Attributes:
+ABCConfig: ABC policy configuration.
+ABPCHGConfig: ABC + PC + HG policy configuration.
+HyperHeuristicACOConfig: Hyper-heuristic ACO policy configuration.
+KSparseACOConfig: K-sparse ACO policy configuration.
+ADPRolloutConfig: ADP rollout policy configuration.
+AHVPLConfig: AHVPL policy configuration.
+AdaptiveKernelSearchConfig: Adaptive kernel search policy configuration.
+ALNSConfig: ALNS policy configuration.
+ALNSIPOConfig: ALNS-IPO policy configuration.
+AMPHHConfig: AMPHH policy configuration.
+ARCOConfig: ARCO policy configuration.
+BBConfig: BB policy configuration.
+BCConfig: BC policy configuration.
+BPConfig: BP policy configuration.
+BPCConfig: BPC policy configuration.
+CALMConfig: CALM policy configuration.
+CFRSConfig: CFRS policy configuration.
+CGHConfig: CGH policy configuration.
+CPSATConfig: CP-SAT policy configuration.
+CVRPConfig: CVRP policy configuration.
+DEConfig: DE policy configuration.
+MuCommaLambdaESConfig: Mu, lambda ES policy configuration.
+MuKappaLambdaESConfig: Mu, kappa, lambda ES policy configuration.
+MuPlusLambdaESConfig: Mu + lambda ES policy configuration.
+ExactSDPConfig: Exact SDP policy configuration.
+FAConfig: FA policy configuration.
+FILOConfig: FILO policy configuration.
+GAConfig: GA policy configuration.
+GIHHConfig: GIHH policy configuration.
+GLSConfig: GLS policy configuration.
+GPHHConfig: GPHH policy configuration.
+GP_MP_HH_Config: GP-MP-HH policy configuration.
+HGSConfig: HGS policy configuration.
+HGSADCConfig: HGS-ADC policy configuration.
+HGSALNSConfig: HGS-ALNS policy configuration.
+HGSRRConfig: HGS-RR policy configuration.
+HMMGDHHConfig: HMM-GD-HH policy configuration.
+HybridMemeticSearchConfig: Hybrid memetic search policy configuration.
+HNAPolicyConfig: HNA policy configuration.
+HSConfig: HS policy configuration.
+HULKConfig: HULK policy configuration.
+HVPLConfig: HVPL policy configuration.
+ILSConfig: ILS policy configuration.
+IntegerLShapedBendersConfig: Integer L-shaped Benders policy configuration.
+ILSRVNDSPConfig: ILS-RVND-SP policy configuration.
+JointGreedyConfig: Joint greedy policy configuration.
+JointSAConfig: Joint SA policy configuration.
+KGLSConfig: KGLS policy configuration.
+KernelSearchConfig: Kernel search policy configuration.
+LocalBranchingConfig: Local branching policy configuration.
+LocalBranchingVNSConfig: Local branching-VNS policy configuration.
+LBBDConfig: LBBD policy configuration.
+LCAConfig: LCA policy configuration.
+LKH3Config: LKH3 policy configuration.
+LRHConfig: LRH policy configuration.
+MAConfig: MA policy configuration.
+MemeticAlgorithmDualPopulationConfig: Memetic algorithm dual population policy configuration.
+MemeticAlgorithmIslandModelConfig: Memetic algorithm island model policy configuration.
+MemeticAlgorithmToleranceBasedSelectionConfig: Memetic algorithm tolerance-based selection policy configuration.
+MHHConfig: MHH policy configuration.
+MP_ACO_Config: MP-ACO policy configuration.
+MP_ILS_Config: MP-ILS policy configuration.
+MP_PSO_Config: MP-PSO policy configuration.
+MP_SA_Config: MP-SA policy configuration.
+NeuralAgentConfig: Neural agent policy configuration.
+NDSBRKGAConfig: NDSBRKGA policy configuration.
+MandatorySelectionConfig: Mandatory selection policy configuration.
+RouteImprovingConfig: Route improving policy configuration.
+PHConfig: PH policy configuration.
+PHHConfig: PHH policy configuration.
+POPMUSICConfig: POPMUSIC policy configuration.
+PSOConfig: PSO policy configuration.
+DistancePSOConfig: Distance PSO policy configuration.
+PSOMAConfig: PSOMA policy configuration.
+QDEConfig: QDE policy configuration.
+RENSConfig: RENS policy configuration.
+RFOConfig: RFO policy configuration.
+RLAHVPLConfig: RLAH VPL policy configuration.
+RLALNSConfig: RL-ALNS policy configuration.
+RLGDHHConfig: RL-GD-HH policy configuration.
+RLHVPLConfig: RL-HVPL policy configuration.
+RTSConfig: RTS policy configuration.
+SAConfig: SA policy configuration.
+SANSConfig: SANS policy configuration.
+SCAConfig: SCA policy configuration.
+SHHConfig: SHH policy configuration.
+SISRConfig: SISR policy configuration.
+SLCConfig: SLC policy configuration.
+SRCConfig: SRC policy configuration.
+SSHHConfig: SSHH policy configuration.
+ScenarioTreeExtensiveFormConfig: Scenario tree extensive form policy configuration.
+SWCTCFConfig: SWCTCF policy configuration.
+TSConfig: TS policy configuration.
+TSPConfig: TSP policy configuration.
+VNSConfig: VNS policy configuration.
+VPLConfig: VPL policy configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.policies import ARCOConfig
+&gt;&gt;&gt; config = ARCOConfig()
+&gt;&gt;&gt; print(config)
+ARCOConfig(name=’arco’, solve_timeout=0.0, solution_timeout=0.0, solve_time_limit=600.0, solution_time_limit=1800.0, workers=1, solve_workers=None, verbose=0, logging_level=’INFO’, debug=False, random_seed=None, cache_dir=’data/models’, dataset_dir=’data/datasets’, policy_config=None, model=None, model_config=&lt;ModelConfig(name=’am’, encoder=&lt;EncoderConfig(type=’gat’, embed_dim=128, hidden_dim=512, n_layers=3, n_heads=8, n_sublayers=None, normalization=&lt;NormalizationConfig(embed_dim=128, use_layer_norm=True)&gt;, activation=&lt;ActivationConfig(type=’gelu’)&gt;, dropout=0.1, mask_inner=True, mask_graph=False, spatial_bias=False, connection_type=’residual’, aggregation_graph=’avg’, aggregation_node=’sum’, spatial_bias_scale=1.0, hyper_expansion=4)&gt;, decoder=&lt;DecoderConfig(type=’attention’, embed_dim=128, hidden_dim=512, n_layers=3, n_heads=8, normalization=&lt;NormalizationConfig(embed_dim=128, use_layer_norm=True)&gt;, activation=&lt;ActivationConfig(type=’gelu’)&gt;, decoding=&lt;DecodingConfig(strategy=’greedy’, beam_width=1, temperature=1.0, top_k=None, top_p=None, tanh_clipping=0.0, mask_logits=True, multistart=False, num_starts=1, select_best=False)&gt;, dropout=0.1, mask_logits=True, connection_type=’residual’, n_predictor_layers=None, tanh_clipping=10.0, hyper_expansion=4)&gt;, reward=&lt;ObjectiveConfig(type=’vrpp’)&gt;, temporal_horizon=0, policy_config=None, load_path=None)&gt;, training_config=None, dataset_config=None, rollout_config=None, evaluation_config=None, problem_config=None)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

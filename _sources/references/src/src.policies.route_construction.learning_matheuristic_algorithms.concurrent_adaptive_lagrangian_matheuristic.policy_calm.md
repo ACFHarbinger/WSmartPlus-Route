@@ -229,15 +229,24 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._get_config_key
 
+```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._get_config_key
+```
+
 ````
 
 ````{py:method} _run_multi_period_solver(problem: logic.src.interfaces.context.problem_context.ProblemContext, multi_day_ctx: typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]) -> typing.Tuple[logic.src.interfaces.context.solution_context.SolutionContext, typing.List[typing.List[typing.List[int]]], typing.Dict[str, typing.Any]]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._run_multi_period_solver
+
+```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._run_multi_period_solver
+```
 
 ````
 

@@ -502,6 +502,12 @@ document.write(`
 <p>TSPkopt Environment implementation.</p>
 <p>Improvement-based Traveling Salesman Problem (TSP) supporting iterative
 local search moves (e.g. 2-opt).</p>
+<p>Attributes:
+TSPkoptEnv: Class definition of TSP Environment for improvement-based methods.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import TSPGenerator
+&gt;&gt;&gt; generator = TSPGenerator(num_nodes=10, generator_params={“num_nodes”: 10})
+&gt;&gt;&gt; env = TSPkoptEnv(generator)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,8 +530,17 @@ local search moves (e.g. 2-opt).</p>
 <p>TSP Environment for improvement-based methods (k-opt).</p>
 <p>State contains a ‘solution’ field (tour) which is modified by actions.
 Actions are typically pairs of indices to swap or reverse sections.</p>
+<p>Attributes:
+generator: TSPGenerator object
+generator_params: Dictionary of generator parameters
+device: Device to run the environment on</p>
 <p class="rubric">Initialization</p>
 <p>Initialize TSPkoptEnv.</p>
+<p>Args:
+generator: TSPGenerator object
+generator_params: Dictionary of generator parameters
+device: Device to run the environment on
+kwargs: Additional keyword arguments</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv.name" title="Link to this definition">#</a></dt>
@@ -536,6 +551,10 @@ Actions are typically pairs of indices to swap or reverse sections.</p>
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._step" title="Link to this definition">#</a></dt>
 <dd><p>Execute step via OpsMixin implementation.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+TensorDict containing the next state.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -543,12 +562,21 @@ Actions are typically pairs of indices to swap or reverse sections.</p>
 <span class="sig-name descname"><span class="pre">_get_action_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._get_action_mask" title="Link to this definition">#</a></dt>
 <dd><p>For improvement moves, all nodes are typically valid targets.
 Return a mask that allows all nodes.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+torch.Tensor: Action mask.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution">
 <span class="sig-name descname"><span class="pre">_get_initial_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Generate random initial tour starting at depot.</p>
+<p>Args:
+td: TensorDict containing the state.
+generator: PyTorch random generator.</p>
+<p>Returns:
+torch.Tensor: Initial tour.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -556,25 +584,42 @@ Return a mask that allows all nodes.</p>
 <span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._step_instance" title="Link to this definition">#</a></dt>
 <dd><p>Apply k-opt move to the solution.
 Action: (idx1, idx2) - edges to swap for 2-opt.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+TensorDict containing the next state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._get_reward">
 <span class="sig-name descname"><span class="pre">_get_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._get_reward" title="Link to this definition">#</a></dt>
 <dd><p>Return negative tour length of current solution.</p>
+<p>Args:
+td: TensorDict containing the state.
+actions: Optional torch.Tensor containing the actions.</p>
+<p>Returns:
+torch.Tensor: Negative tour length.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._get_initial_reward">
 <span class="sig-name descname"><span class="pre">_get_initial_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._get_initial_reward" title="Link to this definition">#</a></dt>
 <dd><p>Compute reward for initial solution.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+torch.Tensor: Initial reward.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._check_done">
 <span class="sig-name descname"><span class="pre">_check_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._check_done" title="Link to this definition">#</a></dt>
-<dd><p>Usually improvement continues for fixed steps or until converge.
-Here we define a max_steps entry in td if present.</p>
+<dd><p>Usually improvement continues for fixed steps or until converge.</p>
+<p>Here we define a max_steps entry in td if present.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+torch.Tensor: Done mask.</p>
 </dd></dl>
 
 </dd></dl>

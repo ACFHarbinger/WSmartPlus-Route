@@ -522,6 +522,13 @@ the discounted sum :math:<code class="docutils literal notranslate"><span class=
 <p>Bello, I., Pham, H., Le, Q. V., Norouzi, M., &amp; Bengio, S. (2016).
 “Neural combinatorial optimization with reinforcement learning.”
 ICLR 2017 Workshop.</p>
+<p>Attributes:
+HRLIRPModule: A multi-period IRP Lightning module extending HRLModule.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.meta import HRLIRPModule
+&gt;&gt;&gt; hrl_irp_module = HRLIRPModule()
+&gt;&gt;&gt; hrl_irp_module
+&lt;logic.src.pipeline.rl.meta.hrl_irp.HRLIRPModule object at 0x…&gt;</p>
 </section>
 <p>HRL-IRP Lightning Training Module for Multi-Period Inventory Routing.</p>
 <p>Extends the existing <code class="docutils literal notranslate"><span class="pre">HRLModule</span></code> to handle a T-day horizon with an
@@ -571,7 +578,7 @@ alpha_overflow: Weight on overflow term in reward.
 overflow_penalty: Per-unit overflow penalty.
 ppo_epochs: PPO inner epochs.
 entropy_coef: Entropy bonus coefficient.
-**kwargs: Forwarded to <code class="docutils literal notranslate"><span class="pre">HRLModule.__init__</span></code>.</p>
+kwargs: Forwarded to <code class="docutils literal notranslate"><span class="pre">HRLModule.__init__</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.hrl_irp.HRLIRPModule._compute_day_reward">
 <span class="sig-name descname"><span class="pre">_compute_day_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routing_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.hrl_irp.HRLIRPModule._compute_day_reward" title="Link to this definition">#</a></dt>

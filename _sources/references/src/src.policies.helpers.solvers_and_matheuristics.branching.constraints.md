@@ -142,6 +142,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.__repr__
 
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.constraints.FleetSizeBranchingConstraint.__repr__
+```
+
 ````
 
 `````
@@ -168,6 +171,9 @@
 
 ````{py:method} __repr__() -> str
 :canonical: src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.__repr__
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.constraints.NodeVisitationBranchingConstraint.__repr__
+```
 
 ````
 

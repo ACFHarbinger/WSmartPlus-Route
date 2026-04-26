@@ -500,6 +500,14 @@ engine, adding subtour cuts dynamically during the search.</p>
 Dantzig, G., Fulkerson, R., &amp; Johnson, S. (1954).
 “Solution of a large-scale traveling-salesman problem”.
 Journal of Operations Research, 2(4), 393-410.</p>
+<p>Attributes:
+_dfj_callback (function): Subtour elimination callback for Gurobi.
+_setup_bb_model (function): Factory for Gurobi model initialization.
+_extract_routes_from_adj (function): Route reconstruction helper.
+run_bb_dfj (function): Main entry point for DFJ solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import run_bb_dfj
+&gt;&gt;&gt; routes, obj = run_bb_dfj(dist_matrix, wastes, capacity, R, C)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -528,18 +536,36 @@ Journal of Operations Research, 2(4), 393-410.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._dfj_callback">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj.</span></span><span class="sig-name descname"><span class="pre">_dfj_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._dfj_callback" title="Link to this definition">#</a></dt>
 <dd><p>DFJ subtour elimination callback for Gurobi’s built-in B&amp;B.</p>
+<p>Args:
+model (gp.Model): The Gurobi model being optimized.
+where (int): Callback location code.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._setup_bb_model">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj.</span></span><span class="sig-name descname"><span class="pre">_setup_bb_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Model</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._setup_bb_model" title="Link to this definition">#</a></dt>
 <dd><p>Set up the Gurobi model for VRPP.</p>
+<p>Args:
+dist_matrix: Symmetric distance matrix (n x n).
+wastes: Mapping of customer IDs to fill levels/profits.
+mandatory_indices: Set of mandatory customer nodes.
+time_limit: Time limit for the optimizer. Defaults to 60.0.
+mip_gap: Relative optimality gap. Defaults to 0.01.
+seed: Random seed. Defaults to 42.
+env: Optional Gurobi environment.</p>
+<p>Returns:
+Tuple containing (model, edge_vars, visit_vars).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._extract_routes_from_adj">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj.</span></span><span class="sig-name descname"><span class="pre">_extract_routes_from_adj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj._extract_routes_from_adj" title="Link to this definition">#</a></dt>
 <dd><p>Extract routes starting from the depot using an adjacency list.</p>
+<p>Args:
+adj: Adjacency list mapping node to next node(s).
+num_nodes: Total number of nodes in the graph.</p>
+<p>Returns:
+List of routes, where each route is a list of node IDs.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -555,11 +581,11 @@ wastes: Mapping of customer IDs to fill levels/profits.
 capacity: Vehicle payload capacity.
 R: Revenue coefficient per unit collected.
 C: Cost coefficient per unit distance.
-values: Configuration dictionary (time_limit, mip_gap, etc.).
+params: Standardized BB parameters.
 mandatory_indices: Set of mandatory customer nodes.
 env: Optional Gurobi environment for resource management.
-seed: Optional random seed.
-recorder: Optional telemetry recorder.</p>
+recorder: Optional telemetry recorder.
+kwargs: Additional arguments.</p>
 <p>Returns:
 Tuple of (routes, objective_value).</p>
 </dd></dl>

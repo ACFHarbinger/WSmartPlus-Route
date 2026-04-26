@@ -59,6 +59,9 @@ Bases: {py:obj}`logic.src.envs.routing.vrpp.VRPPEnv`
 ````{py:method} _reset(tensordict: typing.Optional[tensordict.TensorDict] = None, **kwargs) -> tensordict.TensorDict
 :canonical: src.envs.routing.cvrpp.CVRPPEnv._reset
 
+```{autodoc2-docstring} src.envs.routing.cvrpp.CVRPPEnv._reset
+```
+
 ````
 
 ````{py:method} _step_instance(tensordict: tensordict.TensorDict) -> tensordict.TensorDict
@@ -71,6 +74,9 @@ Bases: {py:obj}`logic.src.envs.routing.vrpp.VRPPEnv`
 
 ````{py:method} _step(tensordict: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.routing.cvrpp.CVRPPEnv._step
+
+```{autodoc2-docstring} src.envs.routing.cvrpp.CVRPPEnv._step
+```
 
 ````
 

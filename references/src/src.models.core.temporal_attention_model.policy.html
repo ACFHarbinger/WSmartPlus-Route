@@ -536,13 +536,13 @@ temporal_horizon (int): Input history window size.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the TemporalAMPolicy.</p>
 <p>Args:
-env_name: Targeted environment identifier.
-embed_dim: Latent vector size.
-hidden_dim: Hidden size for predictor and combiner.
-temporal_horizon: Number of time-steps for history input.
-predictor_layers: Depth of the RNN predictor.
-predictor_type: Recurrent cell variant (‘gru’, ‘lstm’).
-**kwargs: Extra parameters for base policy and subnets.</p>
+env_name: Name of the environment identifier.
+embed_dim: Dimensionality of latent embeddings.
+hidden_dim: Dimensionality of hidden layers.
+temporal_horizon: Window size for historical fill prediction.
+predictor_layers: Number of layers in the recurrent predictor.
+predictor_type: Recurrent unit type (“gru”, “lstm”).
+kwargs: Additional keyword arguments for AttentionModelPolicy.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor">
 <span class="sig-name descname"><span class="pre">fill_predictor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.subnets.other.lstm_fill_predictor.LongShortTermMemoryFillPredictor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor" title="Link to this definition">#</a></dt>
@@ -566,12 +566,12 @@ predictor_type: Recurrent cell variant (‘gru’, ‘lstm’).
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Performs constructive decoding with proactive state estimation.</p>
 <p>Args:
-td: problem state container (expects ‘fill_history’).
-env: environment logic provider.
-strategy: constructive search strategy.
-num_starts: start count for multi-solution search.
-actions: target tour indices for force-decoding.
-**kwargs: additional arguments.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “sampling”).
+num_starts: Number of parallel construction starts.
+actions: Optional pre-defined actions for teacher forcing.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: result dictionary with rewards and constructed actions.</p>
 <p>Raises:

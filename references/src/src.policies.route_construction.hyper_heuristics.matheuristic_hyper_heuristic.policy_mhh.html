@@ -493,6 +493,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh">
 <span id="src-policies-route-construction-hyper-heuristics-matheuristic-hyper-heuristic-policy-mhh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh" title="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh" title="Link to this heading">#</a></h1>
+<p>Matheuristic Hyper-Heuristic (MHH) policy implementation.</p>
+<p>Reference:
+Hussain, A., Huda, M. S., Rownaghi, F. F., &amp; Naji, S. (2025).
+Meta-Heuristic Performance Evaluation on Inventory Routing Problem With
+Profit Maximization. IEEE Access, 13, 99458-99473.
+DOI: 10.1109/ACCESS.2025.3465866</p>
+<p>Attributes:
+MHHPolicy: Adapter for the MHH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import MHHPolicy
+&gt;&gt;&gt; policy = MHHPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,17 +541,27 @@ ensuring high-quality local convergence.</p></li>
 exact exploitation based on the available computational budget.</p></li>
 </ol>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;mhh&quot;</span></code></p>
+<p>Attributes:
+config: Configuration parameters.
+llhs: Pool of Low-Level Heuristics.
+params: Parameters for the MHH solver.
+iters: Number of iterations.
+seed: Random seed.
+rng: Random number generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize MHHPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh.MHHPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh.MHHPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the total profit of a plan.</p>
+<p>Args:
+plan: Collection plan.
+problem: Problem context.</p>
+<p>Returns:
+float: Total profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh.MHHPolicy._run_multi_period_solver">

@@ -505,6 +505,13 @@ document.write(`
 <span id="src-policies-route-construction-hyper-heuristics-hyper-heuristic-us-lk-solution"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution" title="Link to this heading">#</a></h1>
 <p>Solution representation for HULK hyper-heuristic.</p>
 <p>Provides efficient solution evaluation and manipulation for VRP problems.</p>
+<p>Attributes:
+Solution: Class for solution representation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk import Solution
+&gt;&gt;&gt; solution = Solution([[1, 2], [3, 4]], np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]]), {1: 10, 2: 20, 3: 30, 4: 40}, 100, 2, 3)
+&gt;&gt;&gt; print(solution)
+Solution(routes=2, nodes=4, profit=60.00, cost=60.00, revenue=200.00)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +532,18 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.</span></span><span class="sig-name descname"><span class="pre">Solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="Link to this definition">#</a></dt>
 <dd><p>Solution wrapper for HULK hyper-heuristic.</p>
 <p>Maintains routes and efficiently computes cost/profit metrics.</p>
+<p>Attributes:
+routes: List of routes (each route is a list of node indices).
+dist_matrix: Distance matrix.
+wastes: Node waste dictionary.
+capacity: Vehicle capacity.
+R: Revenue per unit waste.
+C: Cost per unit distance.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>_cost: Cached cost.
+_revenue: Cached revenue.
+_profit: Cached profit.
+</pre></div>
+</div>
 <p class="rubric">Initialization</p>
 <p>Initialize solution.</p>
 <p>Args:
@@ -544,54 +563,74 @@ C: Cost per unit distance.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Returns:
+float: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.calculate_revenue">
 <span class="sig-name descname"><span class="pre">calculate_revenue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.calculate_revenue" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total revenue from collected waste.</p>
+<p>Returns:
+float: Total revenue.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.cost">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.cost" title="Link to this definition">#</a></dt>
 <dd><p>Get solution cost.</p>
+<p>Returns:
+float: Solution cost.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.revenue">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revenue</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.revenue" title="Link to this definition">#</a></dt>
 <dd><p>Get solution revenue.</p>
+<p>Returns:
+float: Solution revenue.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.profit">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">profit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.profit" title="Link to this definition">#</a></dt>
 <dd><p>Get solution profit.</p>
+<p>Returns:
+float: Solution profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.is_feasible">
 <span class="sig-name descname"><span class="pre">is_feasible</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.is_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Check if solution respects capacity constraints.</p>
+<p>Returns:
+bool: True if solution is feasible, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.get_route_load">
 <span class="sig-name descname"><span class="pre">get_route_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.get_route_load" title="Link to this definition">#</a></dt>
 <dd><p>Get load for specific route.</p>
+<p>Args:
+route_idx: Route index.</p>
+<p>Returns:
+float: Route load.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.get_total_nodes">
 <span class="sig-name descname"><span class="pre">get_total_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.get_total_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Get total number of nodes in solution.</p>
+<p>Returns:
+int: Total number of nodes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.copy" title="Link to this definition">#</a></dt>
 <dd><p>Create a deep copy of the solution.</p>
+<p>Returns:
+Solution: Deep copy of the solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -606,6 +645,8 @@ new_routes: New route configuration.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution.__repr__" title="Link to this definition">#</a></dt>
 <dd><p>String representation.</p>
+<p>Returns:
+str: String representation.</p>
 </dd></dl>
 
 </dd></dl>

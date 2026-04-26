@@ -503,6 +503,27 @@ document.write(`
 <p>Epoch-level utilities for RL training.
 Includes expanded dataset handling, validation metric computation,
 and time-based training (train_time) logic.</p>
+<p>Attributes:
+prepare_epoch (function): Prepare dataset for a new epoch by handling baseline wrapping and temporal metadata injection.
+regenerate_dataset (function): Regenerate training dataset using environment generator.
+compute_validation_metrics (function): Compute rich validation metrics beyond simple reward.
+_add_reward_metric (function): Add mean reward to metrics.
+_add_costs_metrics (function): Add detailed cost breakdown from environment if available.
+_add_efficiency_metric (function): Compute efficiency ratio (kg/km) from waste and distance.
+_add_overflow_metrics (function): Add constraint violation counts (overflows) from environment if available.
+_build_visited_mask (function): Build a boolean mask of visited nodes from accumulated epoch actions.
+_get_next_day_waste (function): Determine the next day’s waste from pre-generated data or on-the-fly generation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.epoch import prepare_epoch, regenerate_dataset, compute_validation_metrics
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Prepare dataset for a new epoch
+&gt;&gt;&gt; dataset = prepare_epoch(model, env, baseline, dataset, epoch)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Regenerate training dataset
+&gt;&gt;&gt; new_dataset = regenerate_dataset(env, size)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Compute validation metrics
+&gt;&gt;&gt; metrics = compute_validation_metrics(out, batch, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -568,54 +589,107 @@ Handles baseline wrapping and temporal metadata injection.</p></td>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">prepare_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.utils.data.Dataset</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch.prepare_epoch" title="Link to this definition">#</a></dt>
 <dd><p>Prepare dataset for a new epoch.
 Handles baseline wrapping and temporal metadata injection.</p>
+<p>Args:
+model: The PyTorch Lightning module instance.
+env: The environment instance.
+baseline: The baseline instance.
+dataset: The dataset instance.
+epoch: The current epoch number.
+phase: The current phase (train, val, test).</p>
+<p>Returns:
+The prepared dataset for the current epoch.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch.regenerate_dataset">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">regenerate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.Dataset</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch.regenerate_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Regenerate training dataset using environment generator.</p>
+<p>Args:
+env: The environment instance.
+size: The number of samples to generate.</p>
+<p>Returns:
+The regenerated dataset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch.compute_validation_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">compute_validation_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch.compute_validation_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Compute rich validation metrics beyond simple reward.</p>
+<p>Args:
+out: The output from the model.
+batch: The input batch.
+env: The environment instance.</p>
+<p>Returns:
+Dictionary of computed validation metrics.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._add_reward_metric">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_add_reward_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._add_reward_metric" title="Link to this definition">#</a></dt>
 <dd><p>Add mean reward to metrics.</p>
+<p>Args:
+metrics: The metrics dictionary to update.
+out: The output from the model.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._add_costs_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_add_costs_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._add_costs_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Add detailed cost breakdown from environment if available.</p>
+<p>Args:
+metrics: The metrics dictionary to update.
+out: The output from the model.
+batch: The input batch.
+env: The environment instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._add_efficiency_metric">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_add_efficiency_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._add_efficiency_metric" title="Link to this definition">#</a></dt>
 <dd><p>Compute efficiency ratio (kg/km) from waste and distance.</p>
+<p>Args:
+metrics: The metrics dictionary to update.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._add_overflow_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_add_overflow_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._add_overflow_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Add constraint violation counts (overflows) if available.</p>
+<p>Args:
+metrics: The metrics dictionary to update.
+out: The output from the model.
+batch: The input batch.
+env: The environment instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._build_visited_mask">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_build_visited_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._build_visited_mask" title="Link to this definition">#</a></dt>
 <dd><p>Build a boolean mask of visited nodes from accumulated epoch actions.</p>
+<p>Args:
+epoch_actions: List of action tensors from the epoch.
+batch_size: The batch size.
+num_nodes: The number of nodes.
+device: The device to build the mask on.</p>
+<p>Returns:
+A boolean mask indicating which nodes were visited.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.epoch._get_next_day_waste">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.epoch.</span></span><span class="sig-name descname"><span class="pre">_get_next_day_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'waste'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.epoch._get_next_day_waste" title="Link to this definition">#</a></dt>
 <dd><p>Determine the next day’s waste from pre-generated data or on-the-fly generation.</p>
+<p>Args:
+td: The input TensorDict containing pre-generated sequences.
+current_fill: The current fill levels of the trucks.
+day: The current day.
+env: The environment instance.
+batch_size: The batch size.
+device: The device.
+key: Key for the waste data (default: “waste”).
+generator: Random number generator for on-the-fly generation.</p>
+<p>Returns:
+The waste levels for the next day.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -504,6 +504,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.jsa">
 <span id="src-configs-policies-jsa"></span><h1><a class="reference internal" href="#module-src.configs.policies.jsa" title="src.configs.policies.jsa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.jsa</span></code></a><a class="headerlink" href="#module-src.configs.policies.jsa" title="Link to this heading">#</a></h1>
 <p>Joint Simulated Annealing Configuration for Hydra.</p>
+<p>Attributes:
+JointSAConfig: Configuration for the Joint Simulated Annealing policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.jsa import JointSAConfig
+&gt;&gt;&gt; config = JointSAConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +530,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.jsa.JointSAConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.jsa.</span></span><span class="sig-name descname"><span class="pre">JointSAConfig</span></span><a class="headerlink" href="#src.configs.policies.jsa.JointSAConfig" title="Link to this definition">#</a></dt>
 <dd><p>Hydra configuration for the Joint Simulated Annealing policy.</p>
+<p>Attributes:
+start_temp (float): Initial temperature.
+cooling_rate (float): Rate of temperature cooling.
+max_steps (int): Maximum number of iterations.
+restart_limit (int): Maximum number of restarts.
+prob_bit_flip (float): Probability of bit flip operation.
+prob_route_swap (float): Probability of route swap operation.
+overflow_penalty (float): Penalty for overflow.
+seed (Optional[int]): Random seed for reproducibility.
+time_limit (float): Time limit in seconds.
+vrpp (bool): Whether the problem is a VRRP.
+mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+route_improvement (Optional[List[Any]]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.jsa.JointSAConfig.start_temp">
 <span class="sig-name descname"><span class="pre">start_temp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.jsa.JointSAConfig.start_temp" title="Link to this definition">#</a></dt>

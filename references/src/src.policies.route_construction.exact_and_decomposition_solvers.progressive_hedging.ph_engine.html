@@ -515,6 +515,11 @@ c. Update duals: <span class="math notranslate nohighlight">\(w_{\omega}^{k+1} =
 The constant <span class="math notranslate nohighlight">\(\bar{y}_i^2\)</span> is ignored in the subproblem optimization.</p>
 <p>The augmented cost for node <span class="math notranslate nohighlight">\(i\)</span> in scenario <span class="math notranslate nohighlight">\(\omega\)</span> is:
 <span class="math notranslate nohighlight">\(\Delta Cost_{i, \omega} = w_{i, \omega} + \frac{\rho}{2}(1 - 2\bar{y}_i)\)</span></p>
+<p>Attributes:
+ProgressiveHedgingEngine: Core iterative engine for PH decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; engine = ProgressiveHedgingEngine(config)
+&gt;&gt;&gt; plan, profit, stats = engine.solve(dist, tree, cap, rev, cost, mand)</p>
 </section>
 <p>Progressive Hedging (PH) engine for stochastic VRPP.</p>
 <p>Progressive Hedging (Rockafellar and Wets, 1991) is a horizontal
@@ -560,29 +565,44 @@ from the consensus (mean) solution.</p>
 <dd><p>Core iterative engine for Progressive Hedging decomposition.</p>
 <p>Manages scenario subproblems, performs consensus aggregation, and updates
 dual multipliers based on non-anticipativity residuals.</p>
+<p>Attributes:
+config (PHConfig): Progressive Hedging configuration.
+sub_solver_name (str): Name of the subproblem solver.
+y_consensus (Dict[int, Dict[int, float]]): Consensus solution map.
+w_duals_mp (List[Dict[int, Dict[int, float]]]): Dual multipliers map.
+history (List[Dict[str, float]]): Iteration convergence history.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the PH engine.</p>
 <p>Args:
-config: Progressive Hedging configuration.</p>
+config (PHConfig): Progressive Hedging configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.ensure_route_list">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_route_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.ensure_route_list" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Ensures that routes are represented as a list of lists (tours).</p>
+<p>Args:
+routes (Union[List[int], List[List[int]]]): Input routes (flat or nested).</p>
+<p>Returns:
+List[List[int]]: Nested list of tours.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the Multi-Period Progressive Hedging iterative algorithm.</p>
 <p>Args:
-sub_dist_matrix: Localised N×N distance matrix.
-scenario_tree: A ScenarioTree object (providing S paths/branches).
-capacity: Vehicle capacity.
-revenue: Revenue per unit of waste.
-cost_unit: Travel cost per distance unit.
-mandatory_nodes: Nodes that must be visited on Day 0.
-**kwargs: Additional parameters for sub-solvers.</p>
+sub_dist_matrix (np.ndarray): Localised N×N distance matrix.
+scenario_tree (Any): A ScenarioTree object (providing S paths/branches).
+capacity (float): Vehicle capacity.
+revenue (float): Revenue per unit of waste.
+cost_unit (float): Travel cost per distance unit.
+mandatory_nodes (List[int]): Nodes that must be visited on Day 0.
+current_wastes (Optional[Dict[int, float]]): Current waste levels.
+kwargs (Any): Additional parameters for sub-solvers.</p>
 <p>Returns:
-Tuple of (full_plan[day][route][node], expected_profit, stats).</p>
+Tuple[List[List[List[int]]], float, Dict[str, Any]]: A tuple containing:
+- full_plan: Collection plan [day][route][node].
+- expected_profit: Expected profit from the solution.
+- stats: Execution statistics and convergence history.</p>
 </dd></dl>
 
 </dd></dl>

@@ -469,6 +469,8 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gated-ema-updates">Gated EMA updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -518,6 +520,27 @@ routes.
 </pre></div>
 </div>
 </section>
+<section id="attributes">
+<h2>Attributes:<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>PeriodIncumbent: Best-known tour and cost for a single period.
+InsertionCostOracle: Shared, thread-safe insertion-cost table.
+</pre></div>
+</div>
+</section>
+<section id="example">
+<h2>Example:<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; oracle = InsertionCostOracle(n_bins=10, horizon=3)
+&gt;&gt;&gt; oracle.update_from_routing(
+...     period=0,
+...     tour=[0, 1, 2, 0],
+...     tour_cost=100.0,
+...     selection=[1, 2],
+...     insertion_costs_for_unselected={3: 10.0, 4: 20.0},
+... )
+&#39;accepted_improving&#39;
+</pre></div>
+</div>
+</section>
 <p>Insertion-cost oracle: shared valuation layer between the knapsack (selection)
 and routing subproblems.</p>
 <p>For each bin i and period t, maintains:</p>
@@ -548,6 +571,13 @@ so it is only used as an LP coefficient correction, not as a cut.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.</span></span><span class="sig-name descname"><span class="pre">PeriodIncumbent</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent" title="Link to this definition">#</a></dt>
 <dd><p>Best-known tour and cost for a single period.</p>
+<p class="rubric" id="id3">Attributes:</p>
+<p>tour: List[int]
+Tour for the period (depot-first-last).  List of bin indices.
+cost: float
+Total travel cost for this tour.
+selection: frozenset
+Set of bin indices in the tour.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent.tour">
 <span class="sig-name descname"><span class="pre">tour</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent.tour" title="Link to this definition">#</a></dt>
@@ -572,7 +602,7 @@ so it is only used as an LP coefficient correction, not as a cut.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.</span></span><span class="sig-name descname"><span class="pre">InsertionCostOracle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle" title="Link to this definition">#</a></dt>
 <dd><p>Shared, thread-safe insertion-cost table.</p>
-<p class="rubric" id="id1">Parameters</p>
+<p class="rubric" id="id4">Attributes:</p>
 <p>n_bins : int
 Number of optional bins (indices 1..N; index 0 is the depot).
 horizon : int
@@ -584,26 +614,49 @@ quality_threshold : float
 A new observation is fully accepted if RS tour cost &lt;= incumbent * 1.0,
 partially accepted (at alpha/4) if RS tour cost &lt;= incumbent * threshold,
 rejected otherwise.  E.g. 1.05 = accept within 5% of incumbent.
-default_delta : float
-Initial Delta value before any observations.  Use a large-but-finite
-number so the knapsack sees some cost penalty at startup.</p>
+delta : np.ndarray
+Delta values for each bin and period.
+incumbents : List[PeriodIncumbent]
+Incumbent solutions for each period.
+_has_observation : np.ndarray
+Whether the Delta value for each bin and period has been observed.
+_lock : Lock
+Lock for thread safety.</p>
 <p class="rubric">Initialization</p>
+<p>Init docstring.</p>
+<p>Args:
+n_bins (int): Number of optional bins (indices 1..N; index 0 is the depot).
+horizon (int): Number of periods.
+alpha (float): EMA smoothing factor in (0, 1].  Higher = more reactive.
+Applied to improving updates.
+quality_threshold (float): A new observation is fully accepted if RS tour cost &lt;= incumbent * 1.0,
+partially accepted (at alpha/4) if RS tour cost &lt;= incumbent * threshold,
+rejected otherwise.  E.g. 1.05 = accept within 5% of incumbent.
+default_delta (float): Initial Delta value before any observations.  Use a large-but-finite
+number so the knapsack sees some cost penalty at startup.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.snapshot">
 <span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.snapshot" title="Link to this definition">#</a></dt>
 <dd><p>Return a copy of the current Delta table (N, T).</p>
+<p>Returns:
+np.ndarray: Copy of the Delta table.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.get_incumbent">
 <span class="sig-name descname"><span class="pre">get_incumbent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.PeriodIncumbent</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.get_incumbent" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the incumbent solution for a given period.</p>
+<p>Args:
+period (int): Period to get the incumbent for.</p>
+<p>Returns:
+PeriodIncumbent: Incumbent solution for the given period.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.update_from_routing">
 <span class="sig-name descname"><span class="pre">update_from_routing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insertion_costs_for_unselected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.update_from_routing" title="Link to this definition">#</a></dt>
 <dd><p>Ingest a routing subproblem result.</p>
-<p class="rubric" id="id2">Parameters</p>
+<p class="rubric" id="args">Args:</p>
 <p>period : int
 tour : list of bin indices (depot at start/end; the tour for period t)
 tour_cost : float
@@ -613,7 +666,7 @@ The RS worker computes these cheaply after finishing the tour
 (one O(|tour|) scan per candidate bin).  We only need them for
 bins NOT in the current selection, since bins in the selection
 have “insertion cost” = 0 tautologically.</p>
-<p class="rubric" id="returns">Returns</p>
+<p class="rubric" id="returns">Returns:</p>
 <p>outcome : {“accepted_improving”, “accepted_partial”, “rejected”}
 For logging / diagnostics.</p>
 </dd></dl>
@@ -626,12 +679,24 @@ For logging / diagnostics.</p>
 </pre></div>
 </div>
 <p>O(|tour|).  Returns 0.0 if tour is empty or has only the depot.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+tour (List[int]): Tour.
+bin_id (int): Bin index.</p>
+<p>Returns:
+float: Cheapest insertion cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.batch_insertion_costs">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">batch_insertion_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.oracle.InsertionCostOracle.batch_insertion_costs" title="Link to this definition">#</a></dt>
 <dd><p>Vectorised batch variant of <code class="docutils literal notranslate"><span class="pre">cheapest_insertion_cost</span></code> over candidates.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+tour (List[int]): Tour.
+candidates (List[int]): Candidate bin indices.</p>
+<p>Returns:
+Dict[int, float]: Dictionary mapping bin indices to their cheapest insertion costs.</p>
 </dd></dl>
 
 </dd></dl>
@@ -686,6 +751,8 @@ For logging / diagnostics.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gated-ema-updates">Gated EMA updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

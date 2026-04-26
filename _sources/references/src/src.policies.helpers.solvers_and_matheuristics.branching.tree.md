@@ -57,6 +57,14 @@
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.__init__
 ```
 
+````{py:method} _get_coords_from_model(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel) -> typing.Optional[numpy.ndarray]
+:canonical: src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model
+```
+
+````
+
 ````{py:method} add_node(node: logic.src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node
 

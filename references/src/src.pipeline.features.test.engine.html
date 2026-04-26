@@ -496,7 +496,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.engine">
 <span id="src-pipeline-features-test-engine"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.engine" title="src.pipeline.features.test.engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.engine</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.engine" title="Link to this heading">#</a></h1>
-<p>Simulation Test Runner.</p>
+<p>Run WSR Simulator Tests.</p>
+<p>Attributes:
+run_wsr_simulator_test: Main entry point for the WSmart+ Route simulator test engine.
+_validate_sim_config: Validate and normalize <code class="docutils literal notranslate"><span class="pre">cfg.sim</span></code> fields in place.
+_resolve_data_size: Resolve the available data size for the given area and requested size.
+_expand_data_distribution: Expand the data distribution field.
+_check_data_availability: Verify that the dataset files exist.
+_resolve_dataset: Infer the dataset filename based on the area and other parameters.
+_ensure_directories: Ensure that all required directories exist, creating them if necessary.
+_log_sim_params: Log simulation parameters to WSTracker.
+_log_policy_metrics: Create and log the expanded policy metrics dictionary.
+_extract_policy_name: Extract the base policy name from an expanded configuration.
+_create_variant_metrics: Create a structured metrics dictionary for a specific policy variant.
+_run_sim_via_zenml: Rerun simulation via ZenML.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test import run_wsr_simulator_test
+&gt;&gt;&gt; run_wsr_simulator_test(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -570,18 +586,26 @@ to attach to the WSTracker run. When <code class="docutils literal notranslate">
 <dt class="sig sig-object py" id="src.pipeline.features.test.engine._validate_sim_config">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.engine.</span></span><span class="sig-name descname"><span class="pre">_validate_sim_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.engine._validate_sim_config" title="Link to this definition">#</a></dt>
 <dd><p>Validate and normalize <code class="docutils literal notranslate"><span class="pre">cfg.sim</span></code> fields in place.</p>
+<p>Args:
+cfg: Config.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.engine._resolve_data_size">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.engine.</span></span><span class="sig-name descname"><span class="pre">_resolve_data_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.features.test.engine._resolve_data_size" title="Link to this definition">#</a></dt>
 <dd><p>Resolve the available data size for the given area and requested size.</p>
+<p>Args:
+cfg: Config.</p>
+<p>Returns:
+Available data size.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.engine._ensure_directories">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.engine.</span></span><span class="sig-name descname"><span class="pre">_ensure_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.engine._ensure_directories" title="Link to this definition">#</a></dt>
 <dd><p>Ensure all required output and checkpoint directories exist.</p>
+<p>Args:
+cfg: Config.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -601,6 +625,8 @@ cfg: Root Hydra config object.</p>
 <dd><p>Dispatch simulation testing to the ZenML simulation pipeline.</p>
 <p>Called when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and no external
 sinks were injected (i.e. the call originates from the CLI).</p>
+<p>Args:
+cfg: Config.</p>
 </dd></dl>
 
 </section>

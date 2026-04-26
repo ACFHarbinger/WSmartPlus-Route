@@ -33,39 +33,6 @@
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState
 ```
 
-````{py:attribute} n_bins
-:canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins
-:type: int
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins
-```
-
-````
-
-````{py:attribute} horizon
-:canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon
-:type: int
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon
-```
-
-````
-
-````{py:attribute} lambdas
-:canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas
-:type: numpy.ndarray
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas
-```
-
-````
-
 ````{py:attribute} x_K
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_K
 :type: numpy.ndarray

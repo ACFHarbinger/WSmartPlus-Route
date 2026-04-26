@@ -496,50 +496,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver" title="Link to this heading">#</a></h1>
 <p>Particle Swarm Optimization (PSO) for VRPP.</p>
-<p><strong>TRUE PSO IMPLEMENTATION</strong> with inertia-weighted velocity updates.
-This rigorously replaces the Sine Cosine Algorithm (SCA), which is
-mathematically equivalent to PSO without velocity momentum.</p>
-<p>Mathematical Deconstruction of SCA:
-SCA Update: X’ = X + r₁·sin(r₂)·|r₃·P - X|
-≡ PSO Social Term: X’ = X + w·(G_best - X) where w = r₁·sin(r₂)·r₃</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Problems with SCA:
-1. sin(r₂) where r₂~U(0,2π) is just a random weight in [-1,1]
-2. No periodicity exploitation (r₂ resampled every iteration)
-3. cos/sin switch is redundant (phase-shifted same distribution)
-4. Expensive transcendental calls with no benefit
-
-PSO Advantages:
-1. Velocity maintains momentum from previous iterations
-2. Personal best enables individual particle learning
-3. Simpler, faster arithmetic operations
-4. 30+ years of theoretical foundation
-</pre></div>
-</div>
-<p>Core PSO Algorithm (Kennedy &amp; Eberhart 1995):
-1. Initialize swarm with random positions and velocities
-2. For each iteration:
-a. For each particle i:
-- Update velocity: v(t+1) = w<em>v(t) + c₁</em>r₁*(pbest - x) + c₂<em>r₂</em>(gbest - x)
-- Update position: x(t+1) = x(t) + v(t+1)
-- Evaluate fitness f(x(t+1))
-- Update personal best if f(x(t+1)) &gt; f(pbest_i)
-b. Update global best from all personal bests
-c. Decrease inertia weight w linearly</p>
-<p>Encoding:
-- Continuous position vectors in [-1, 1]^n
-- Sigmoid binarization: select nodes where sigmoid(x_i) &gt; 0.5
-- Largest Rank Value (LRV) ordering: sort by x_i descending</p>
-<p>Complexity:
-- Time: O(T × N × n) where T = iterations, N = pop_size, n = nodes
-- Space: O(N × n) for swarm + velocities + personal bests</p>
-<p>References:
-Kennedy, J., &amp; Eberhart, R. (1995). “Particle swarm optimization.”
-Proceedings of ICNN’95 - International Conference on Neural Networks.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Mirjalili, S. (2016). &quot;SCA: A Sine Cosine Algorithm for solving
-optimization problems.&quot; Knowledge-Based Systems.
-[Note: SCA is PSO without velocity - this implementation supersedes it]
-</pre></div>
-</div>
+<p>Attributes:
+PSOSolver: Main solver class for Particle Swarm Optimization.</p>
+<p>Example:
+&gt;&gt;&gt; solver = PSOSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; best_routes, best_profit, best_cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -559,27 +520,35 @@ optimization problems.&quot; Knowledge-Based Systems.
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.</span></span><span class="sig-name descname"><span class="pre">PSOSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.html#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver" title="Link to this definition">#</a></dt>
 <dd><p>Particle Swarm Optimization solver with velocity momentum for VRPP.</p>
-<p><strong>Replaces SCA</strong> - Proper PSO with all components intact.</p>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Node wastes.
+capacity: Vehicle capacity.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+params: PSO configuration parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+random: Random number generator.
+np_rng: NumPy random generator.
+velocities: Swarm velocities.
+personal_bests: Particle personal best positions.
+personal_best_fitness: Particle personal best fitness.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the PSO solver with velocity momentum.</p>
+<p>Initialize the PSO solver.</p>
 <p>Args:
-dist_matrix: Distance matrix [n+1 × n+1] including depot at index 0.
-wastes: Dictionary mapping node IDs to waste quantities.
+dist_matrix: Symmetric distance matrix.
+wastes: Node waste quantities.
 capacity: Vehicle capacity constraint.
-R: Revenue per unit waste collected.
-C: Cost per unit distance traveled.
+R: Revenue per unit waste.
+C: Cost per unit distance.
 params: PSO configuration parameters.
 mandatory_nodes: Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Execute Particle Swarm Optimization with velocity momentum.</p>
-<p>Implements standard PSO algorithm (Kennedy &amp; Eberhart 1995):</p>
-<ol class="arabic simple">
-<li><p>Initialize swarm with random positions and velocities</p></li>
-<li><p>Iteratively update velocities and positions</p></li>
-<li><p>Track personal and global bests</p></li>
-</ol>
+<dd><p>Execute Particle Swarm Optimization.</p>
 <p>Returns:
 Tuple of (best_routes, best_profit, best_cost).</p>
 </dd></dl>
@@ -587,18 +556,9 @@ Tuple of (best_routes, best_profit, best_cost).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver._decode">
 <span class="sig-name descname"><span class="pre">_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver._decode" title="Link to this definition">#</a></dt>
-<dd><p>Decode a continuous position vector to a discrete routing solution.</p>
-<p>Uses sigmoid binarization + Largest Rank Value (LRV) ordering.
-Same decoding as SCA for fair comparison.</p>
-<p>Steps:</p>
-<ol class="arabic simple">
-<li><p>Apply sigmoid binarization: b_j = 1 if sigmoid(x_j) &gt; 0.5</p></li>
-<li><p>Among selected nodes (b_j=1), order by LRV (sort by x_j descending)</p></li>
-<li><p>Insert mandatory nodes that were not selected</p></li>
-<li><p>Build routes via greedy_insertion</p></li>
-</ol>
+<dd><p>Decode a position vector to a discrete routing solution.</p>
 <p>Args:
-x: Continuous position vector of length n_nodes.</p>
+x: Continuous position vector.</p>
 <p>Returns:
 Routing solution as list of routes.</p>
 </dd></dl>
@@ -607,9 +567,6 @@ Routing solution as list of routes.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.PSOSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate routing solution fitness (net profit).</p>
-<p>Fitness = Revenue - Cost × C
-Revenue = Σ(waste_collected × R)
-Cost = Total distance traveled</p>
 <p>Args:
 routes: Routing solution.</p>
 <p>Returns:

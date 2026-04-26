@@ -491,6 +491,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-smart-waste-collection-two-commodity-flow"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow" title="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow" title="Link to this heading">#</a></h1>
 <p>SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Adapter Package.</p>
+<p>Attributes:
+run_swc_tcf_optimizer: High-level dispatcher for TCF solvers.
+SWCTCFPolicy: Simulator policy adapter for TCF.
+_run_gurobi_optimizer: Native Gurobi TCF implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow import SWCTCFPolicy
+&gt;&gt;&gt; policy = SWCTCFPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

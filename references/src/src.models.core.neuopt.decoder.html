@@ -501,6 +501,9 @@ local search moves by evaluating node-to-node transition probabilities
 conditioned on the global problem context.</p>
 <p>Attributes:
 NeuOptDecoder: Pairwise action decoder for guided local search moves.</p>
+<p>Example:
+&gt;&gt;&gt; decoder = NeuOptDecoder(embed_dim=128)
+&gt;&gt;&gt; log_p, actions = decoder(td, embeddings, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,9 +536,9 @@ generator (torch.Generator): Local random search generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NeuOpt decoder.</p>
 <p>Args:
-embed_dim: width of the embedded node features.
-seed: random seed for sampling-based move selection.
-**kwargs: Extra parameters including ‘device’.</p>
+embed_dim: Feature dimension of the input embeddings.
+seed: Random seed for move sampling.
+kwargs: Additional keyword arguments.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.device" title="Link to this definition">#</a></dt>
@@ -565,10 +568,10 @@ state: Serialized dictionary of solver attributes.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Predicts a promising neighborhood move (idx1, idx2).</p>
 <p>Args:
-td: problem state container with current solution.
-embeddings: encoded node features [B, N, D].
-env: active environment dynamics.
-**kwargs: execution flags including ‘strategy’.</p>
+td: TensorDict containing the problem and current solution state.
+embeddings: Node embeddings from the encoder.
+env: The environment defining the move validity and reward.
+kwargs: Additional keyword arguments including “strategy”.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p: log-likelihood of the selected move [B].

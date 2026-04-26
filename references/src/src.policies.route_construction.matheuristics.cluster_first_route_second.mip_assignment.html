@@ -503,6 +503,13 @@ Fisher, M. L., &amp; Jaikumar, R. (1981). “A generalized assignment heuristic
 for vehicle routing”. Networks, 11(2), 109-124.
 Sultana, T., Akhand, M. A. H., &amp; Rahman, M. M. H. (2017). “A Variant Fisher
 and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
+<p>Attributes:
+assign_exact_mip: Exact GAP-based cluster assignment using Gurobi.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment import assign_exact_mip
+&gt;&gt;&gt; dm = np.zeros((4, 4))
+&gt;&gt;&gt; clusters = assign_exact_mip([1, 2], [1, 2, 3], {1: 0.3, 2: 0.4, 3: 0.2}, 1.0, 5.0, 1.0, dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -510,7 +517,7 @@ and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment._add_variables_and_objective" title="src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment._add_variables_and_objective"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_variables_and_objective</span></code></a></p></td>
-<td><p>Helper to add variables and setting objective for the MIP model.</p></td>
+<td><p>Helper to add variables and set objective for the MIP model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment.assign_exact_mip" title="src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment.assign_exact_mip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_exact_mip</span></code></a></p></td>
 <td><p>Assign nodes to seeds by solving the Generalized Assignment Problem (GAP)
@@ -525,7 +532,18 @@ as an exact Mixed-Integer Program using Gurobi.</p></td>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment._add_variables_and_objective">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment.</span></span><span class="sig-name descname"><span class="pre">_add_variables_and_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment._add_variables_and_objective" title="Link to this definition">#</a></dt>
-<dd><p>Helper to add variables and setting objective for the MIP model.</p>
+<dd><p>Helper to add variables and set objective for the MIP model.</p>
+<p>Args:
+model: Gurobi model to add variables to.
+mandatory: Node indices that must be assigned.
+seeds: Cluster seed node indices.
+costs: Insertion cost keyed by (node, seed_index) tuple.
+wastes: Waste amounts keyed by node index.
+R: Revenue per unit of waste.
+C: Cost per unit of distance.
+objective: Either “minimize_cost” or “maximize_profit”.</p>
+<p>Returns:
+Dict[Tuple[int, int], gp.Var]: Binary assignment variables keyed by (node, seed_index).</p>
 </dd></dl>
 
 <dl class="py function">

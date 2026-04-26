@@ -498,6 +498,9 @@ deep GNN and then applies a non-autoregressive decoder (e.g., greedy or beam
 search) to extract solution sequences.</p>
 <p>Attributes:
 NARGNNPolicy: Heatmap-based construction policy.</p>
+<p>Example:
+&gt;&gt;&gt; policy = NARGNNPolicy(env_name=”tsp”, embed_dim=64)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,33 +532,33 @@ decoder (NonAutoregressiveDecoder): Builder that converts heatmaps to routes.</p
 <p class="rubric">Initialization</p>
 <p>Initializes the NARGNNPolicy.</p>
 <p>Args:
-encoder: instance of the GNN heatmap predictor.
-decoder: instance of the NAR sequence builder.
-embed_dim: size of latent node/edge features.
-env_name: task identifier.
-init_embedding: projection module for raw nodes.
-edge_embedding: projection module for raw edges.
-graph_network: core GNN message-passing module.
-heatmap_generator: final MLP that predicts edge scores.
-num_layers_heatmap_generator: depth of the output MLP.
-num_layers_graph_encoder: depth of the GNN stack.
-act_fn: activation function for GNN layers.
-agg_fn: neighbor pooling strategy (‘mean’, ‘sum’).
-linear_bias: toggle bias in linear projections.
-train_strategy: selection mode during learning.
-val_strategy: selection mode during validation.
-test_strategy: selection mode during testing.
-**constructive_policy_kw: extra params for the base NAR policy.</p>
+encoder: Optional heatmap-prediction GNN encoder.
+decoder: Optional non-autoregressive builder.
+embed_dim: Dimensionality of latent embeddings.
+env_name: Name of the environment identifier.
+init_embedding: Optional node-feature projection module.
+edge_embedding: Optional edge-feature projection module.
+graph_network: Optional underlying GNN architecture.
+heatmap_generator: Optional edge-scoring MLP.
+num_layers_heatmap_generator: Layers in the edge generator.
+num_layers_graph_encoder: Layers in the graph encoder.
+act_fn: Activation function name.
+agg_fn: Aggregation function name for graph message passing.
+linear_bias: Whether to use bias in linear transformations.
+train_strategy: Selection strategy for training.
+val_strategy: Selection strategy for validation.
+test_strategy: Selection strategy for testing.
+constructive_policy_kw: Keyword arguments for constructive policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.nargnn.policy.NARGNNPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.nargnn.policy.NARGNNPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Calculates heatmaps and extracts solution sequences.</p>
 <p>Args:
-td: problem state container.
-env: problem dynamics.
-num_starts: parallel starts for multi-path sampling.
-phase: Current mode (‘train’, ‘val’, ‘test’).
-**kwargs: extra params for decoding and strategy selection.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+num_starts: Number of parallel construction starts.
+phase: Current execution phase (“train”, “val”, “test”).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Result map including:
 - actions: node sequences [B, num_starts, SeqLen].

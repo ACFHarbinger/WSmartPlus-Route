@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca.LCAPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca.LCAPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca.LCAPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca.LCAPolicy._get_config_key
+```
 
 ````
 

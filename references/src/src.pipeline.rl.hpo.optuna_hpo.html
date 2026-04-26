@@ -495,6 +495,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.hpo.optuna_hpo">
 <span id="src-pipeline-rl-hpo-optuna-hpo"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.hpo.optuna_hpo" title="src.pipeline.rl.hpo.optuna_hpo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.hpo.optuna_hpo</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.hpo.optuna_hpo" title="Link to this heading">#</a></h1>
 <p>Optuna HPO Integration.</p>
+<p>Attributes:
+OptunaHPO: Optuna HPO class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import OptunaHPO
+&gt;&gt;&gt; optuna_hpo = OptunaHPO(cfg, objective_fn)
+&gt;&gt;&gt; optuna_hpo
+&lt;logic.src.pipeline.rl.hpo.optuna_hpo.OptunaHPO object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +530,13 @@ Supports TPE, Random, Grid, and Hyperband pruning.</p>
 <li><p>int   (with optional step and log scale)</p></li>
 <li><p>categorical (list of choices)</p></li>
 </ul>
+<p>Attributes:
+search_space: Search space.
+embed_dim: Embedding dimension.
+device: Device.
+encoders: Encoding layers.
+param_names: Parameter names.
+choice_to_idx_maps: Choice to index maps.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize OptunaHPO.</p>
 <p>Args:

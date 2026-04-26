@@ -504,6 +504,35 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.vns">
 <span id="src-configs-policies-vns"></span><h1><a class="reference internal" href="#module-src.configs.policies.vns" title="src.configs.policies.vns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.vns</span></code></a><a class="headerlink" href="#module-src.configs.policies.vns" title="Link to this heading">#</a></h1>
 <p>VNS (Variable Neighborhood Search) configuration for Hydra.</p>
+<p>Attributes:
+VNSConfig: Configuration for the Variable Neighborhood Search (VNS) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.vns import VNSConfig
+&gt;&gt;&gt; config = VNSConfig()
+&gt;&gt;&gt; config.k_max
+5
+&gt;&gt;&gt; config.max_iterations
+200
+&gt;&gt;&gt; config.local_search_iterations
+500
+&gt;&gt;&gt; config.n_removal
+2
+&gt;&gt;&gt; config.n_llh
+5
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.seed
+None
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.profit_aware_operators
+False
+&gt;&gt;&gt; config.mandatory_selection
+[]
+&gt;&gt;&gt; config.route_improvement
+[]
+&gt;&gt;&gt; config.acceptance_criterion.method
+‘oi’</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +552,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.vns.VNSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.vns.</span></span><span class="sig-name descname"><span class="pre">VNSConfig</span></span><a class="headerlink" href="#src.configs.policies.vns.VNSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Variable Neighborhood Search policy.</p>
+<p>Attributes:
+k_max: Maximum neighborhood index (number of different neighborhood structures to explore).
+max_iterations: Maximum number of iterations to run the search.
+local_search_iterations: Number of iterations to run local search at each neighborhood level.
+n_removal: Number of routes/sequences to remove in each iteration (for destroying and rebuilding).
+n_llh: Number of local search operators to apply in each iteration.
+time_limit: Maximum time in seconds to run the search.
+seed: Random seed for reproducibility.
+vrpp: Whether the problem is a Vehicle Routing Problem with Profits.
+profit_aware_operators: Whether to use profit-aware considerations in neighborhood operators.
+mandatory_selection: List of mandatory node selection strategies to apply.
+route_improvement: List of route improvement strategies to apply.
+acceptance_criterion: Configuration for the acceptance criterion (e.g., simulated annealing).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.vns.VNSConfig.k_max">
 <span class="sig-name descname"><span class="pre">k_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.vns.VNSConfig.k_max" title="Link to this definition">#</a></dt>

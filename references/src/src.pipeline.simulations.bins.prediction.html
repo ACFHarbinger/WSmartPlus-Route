@@ -513,6 +513,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.bins.prediction">
 <span id="src-pipeline-simulations-bins-prediction"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.bins.prediction" title="src.pipeline.simulations.bins.prediction"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.bins.prediction</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.bins.prediction" title="Link to this heading">#</a></h1>
 <p>Statistical prediction and scenario generation for waste bins.</p>
+<p>This module provides tools for predicting future bin fill levels and
+generating scenario trees for stochastic optimization.</p>
+<p>Attributes:
+ScenarioTreeNode: Node in a scenario tree.
+ScenarioTree: Tree structure of nodes.
+ScenarioGenerator: Factory for creating scenario trees.</p>
+<p>Example:
+&gt;&gt;&gt; # generator = ScenarioGenerator(method=”stochastic”, horizon=7)
+&gt;&gt;&gt; # tree = generator.generate(current_wastes, bin_stats)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -552,6 +561,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioTreeNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.bins.prediction.</span></span><span class="sig-name descname"><span class="pre">ScenarioTreeNode</span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode" title="Link to this definition">#</a></dt>
 <dd><p>A node in the scenario tree representing a state at a specific day.</p>
+<p>Attributes:
+day: Current day index in the horizon.
+wastes: Numpy array of bin fill levels.
+probability: Probability of this state occurring.
+children: List of child nodes representing future states.
+metadata: Additional diagnostic information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioTreeNode.day">
 <span class="sig-name descname"><span class="pre">day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode.day" title="Link to this definition">#</a></dt>
@@ -588,6 +603,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioTree">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.bins.prediction.</span></span><span class="sig-name descname"><span class="pre">ScenarioTree</span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioTree" title="Link to this definition">#</a></dt>
 <dd><p>A collection of scenarios forming a tree structure.</p>
+<p>Attributes:
+root: The starting state of the tree.
+horizon: Prediction horizon in days.
+num_bins: Number of bins in each state vector.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioTree.root">
 <span class="sig-name descname"><span class="pre">root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode" title="src.pipeline.simulations.bins.prediction.ScenarioTreeNode"><span class="pre">src.pipeline.simulations.bins.prediction.ScenarioTreeNode</span></a></em><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioTree.root" title="Link to this definition">#</a></dt>
@@ -610,6 +629,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioTree.get_scenarios_at_day">
 <span class="sig-name descname"><span class="pre">get_scenarios_at_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode" title="src.pipeline.simulations.bins.prediction.ScenarioTreeNode"><span class="pre">src.pipeline.simulations.bins.prediction.ScenarioTreeNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioTree.get_scenarios_at_day" title="Link to this definition">#</a></dt>
 <dd><p>Flatten the tree at a specific depth to get a set of scenarios.</p>
+<p>Args:
+day: Depth in the tree to retrieve nodes from.</p>
+<p>Returns:
+List of ScenarioTreeNode objects at the specified depth.</p>
 </dd></dl>
 
 </dd></dl>
@@ -618,7 +641,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.bins.prediction.</span></span><span class="sig-name descname"><span class="pre">ScenarioGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stochastic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Generates scenario trees for multi-period stochastic optimization.</p>
+<p>Attributes:
+method: The generation method (e.g., “stochastic”, “perfect_oracle”).
+horizon: Simulation horizon.
+seed: Random seed for stochastic generation.
+distribution: Statistical distribution to use.
+dist_kwargs: Parameters for the distribution.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the scenario generator.</p>
+<p>Args:
+method: The generation method to use.
+horizon: Simulation horizon.
+seed: Random seed.
+distribution: Statistical distribution to use for waste levels.
+dist_kwargs: Additional arguments for the distribution.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioGenerator.generate">
 <span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truth_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.pipeline.simulations.bins.prediction.ScenarioTree" title="src.pipeline.simulations.bins.prediction.ScenarioTree"><span class="pre">src.pipeline.simulations.bins.prediction.ScenarioTree</span></a></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioGenerator.generate" title="Link to this definition">#</a></dt>
@@ -635,12 +671,18 @@ ScenarioTree: The generated scenario tree.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioGenerator._generate_oracle_path">
 <span class="sig-name descname"><span class="pre">_generate_oracle_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode" title="src.pipeline.simulations.bins.prediction.ScenarioTreeNode"><span class="pre">src.pipeline.simulations.bins.prediction.ScenarioTreeNode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">truth_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioGenerator._generate_oracle_path" title="Link to this definition">#</a></dt>
 <dd><p>Generate a single deterministic path using known future values.</p>
+<p>Args:
+root: Root node to build upon.
+truth_generator: Object providing future ground truth values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.prediction.ScenarioGenerator._generate_stochastic_tree">
 <span class="sig-name descname"><span class="pre">_generate_stochastic_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.pipeline.simulations.bins.prediction.ScenarioTreeNode" title="src.pipeline.simulations.bins.prediction.ScenarioTreeNode"><span class="pre">src.pipeline.simulations.bins.prediction.ScenarioTreeNode</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.prediction.ScenarioGenerator._generate_stochastic_tree" title="Link to this definition">#</a></dt>
 <dd><p>Generate branches based on statistical distributions.</p>
+<p>Args:
+root: Root node to build upon.
+bin_stats: Dictionary containing ‘means’ and ‘stds’ of fill rates.</p>
 </dd></dl>
 
 </dd></dl>

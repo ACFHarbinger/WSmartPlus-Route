@@ -15,110 +15,110 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`PSOMAsSolver <src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver>`
-  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver
+* - {py:obj}`PSOMASolver <src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} PSOMAsSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver
+`````{py:class} PSOMASolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver.__init__
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver.__init__
 ```
 
 ````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver.solve
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver.solve
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver.solve
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver.solve
 ```
 
 ````
 
-````{py:method} _init_swarm() -> typing.List[src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._init_swarm
+````{py:method} _init_swarm()
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._init_swarm
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._init_swarm
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._init_swarm
 ```
 
 ````
 
-````{py:method} _build_random_solution() -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._build_random_solution
+````{py:method} _set_gbest(X: numpy.ndarray, giant_tour: numpy.ndarray, mapping: numpy.ndarray, routes: typing.List[typing.List[int]], profit: float)
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._set_gbest
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._build_random_solution
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._set_gbest
 ```
 
 ````
 
-````{py:method} _global_best(swarm: typing.List[src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle]) -> typing.Tuple[typing.List[typing.List[int]], float]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._global_best
+````{py:method} _calculate_cost(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._calculate_cost
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._global_best
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._calculate_cost
 ```
 
 ````
 
-````{py:method} _update_position(current: typing.List[typing.List[int]], pbest: typing.List[typing.List[int]], gbest: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._update_position
+````{py:method} _training_phase() -> None
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._training_phase
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._update_position
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._training_phase
 ```
 
 ````
 
-````{py:method} _apply_velocity(current: typing.List[typing.List[int]], target: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._apply_velocity
+````{py:method} _non_training_phase() -> None
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._non_training_phase
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._apply_velocity
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._non_training_phase
 ```
 
 ````
 
-````{py:method} _partition_flat(flat_nodes: typing.List[int]) -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._partition_flat
+````{py:method} _sa_search(operator: typing.Callable) -> typing.Tuple[float, numpy.ndarray, numpy.ndarray, typing.List[typing.List[int]]]
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._sa_search
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._partition_flat
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._sa_search
 ```
 
 ````
 
-````{py:method} _random_relocate(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._random_relocate
+````{py:method} _update_probabilities() -> None
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._update_probabilities
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._random_relocate
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._update_probabilities
 ```
 
 ````
 
-````{py:method} _local_search(routes: typing.List[typing.List[int]]) -> typing.List[typing.List[int]]
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._local_search
+````{py:method} _swap(tour: numpy.ndarray, X: numpy.ndarray, mapping: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, float]
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._swap
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._local_search
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._swap
 ```
 
 ````
 
-````{py:method} _evaluate(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._evaluate
+````{py:method} _insert(tour: numpy.ndarray, X: numpy.ndarray, mapping: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, float]
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._insert
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._evaluate
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._insert
 ```
 
 ````
 
-````{py:method} _cost(routes: typing.List[typing.List[int]]) -> float
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._cost
+````{py:method} _inverse(tour: numpy.ndarray, X: numpy.ndarray, mapping: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, float]
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._inverse
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMAsSolver._cost
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.PSOMASolver._inverse
 ```
 
 ````

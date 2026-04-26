@@ -25,29 +25,3 @@ src.policies.route_construction.exact_and_decomposition_solvers.logic_based_bend
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut
 src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form
 ```
-
-## Package Contents
-
-### Data
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`__all__ <src.policies.route_construction.exact_and_decomposition_solvers.__all__>`
-  - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.__all__
-    :summary:
-    ```
-````
-
-### API
-
-````{py:data} __all__
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.__all__
-:value: >
-   ['policy_bb', 'policy_bc', 'policy_bp', 'policy_bpc', 'policy_cp_sat', 'policy_esdp', 'policy_ils_bd...
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.__all__
-```
-
-````

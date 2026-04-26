@@ -496,6 +496,18 @@ document.write(`
 <p>Extends :class:<code class="docutils literal notranslate"><span class="pre">BaseHPO</span></code> to optimise hyperparameters via the DEHB algorithm,
 supporting float, int, and categorical parameter types through the shared
 typed search-space specification.</p>
+<p>Attributes:
+DifferentialEvolutionHyperband: DEHB HPO algorithm.
+CS: ConfigSpace library.
+ParamSpec: Type alias for parameter specification.
+BaseHPO: Abstract base class for HPO algorithms.
+normalise_search_space: Normalise search space.
+apply_params: Apply parameters to config.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband
+&gt;&gt;&gt; dehb_hpo = DifferentialEvolutionHyperband(cfg, objective_fn)
+&gt;&gt;&gt; dehb_hpo
+&lt;logic.src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,7 +530,9 @@ typed search-space specification.</p>
 <p>HPO backend using Differential Evolution Hyperband.</p>
 <p>This wrapper builds a <code class="docutils literal notranslate"><span class="pre">ConfigSpace.ConfigurationSpace</span></code> from the typed
 search-space dict and delegates the optimisation loop to the upstream
-:class:<code class="docutils literal notranslate"><span class="pre">dehb.DEHB</span></code> solver.</p>
+:class:<code class="docutils literal notranslate"><span class="pre">dehb.DEHB</span></code> solver.
+Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DEHB wrapper.</p>
 <p>Args:
@@ -531,7 +545,7 @@ max_fidelity: Maximum fidelity.
 eta: Halving rate.
 n_workers: Number of workers.
 output_path: Path for logs and results.
-**kwargs: Extra arguments forwarded to :class:<code class="docutils literal notranslate"><span class="pre">dehb.DEHB</span></code>.</p>
+kwargs: Extra arguments forwarded to :class:<code class="docutils literal notranslate"><span class="pre">dehb.DEHB</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.dehb.DifferentialEvolutionHyperband.run" title="Link to this definition">#</a></dt>

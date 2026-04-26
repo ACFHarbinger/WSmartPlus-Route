@@ -499,6 +499,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-large-neighborhood-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params" title="Link to this heading">#</a></h1>
+<p>Parameters for the Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS).</p>
+<p>Attributes:
+HGSALNSParams: Configuration parameters for the HGS-ALNS solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = HGSALNSParams()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +526,13 @@ document.write(`
 <p>Uses ALNS for the education phase and HGS for the routing phase, combining
 the exploration power of genetic algorithms with the exploitation strength
 of adaptive large neighborhood search.</p>
+<p>Attributes:
+time_limit: Maximum execution time in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether to solve for VRP with Profits.
+profit_aware_operators: Whether to use profit-aware neighborhood moves.
+hgs_params: Parameters for the HGS component.
+alns_params: Parameters for the ALNS component.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit" title="Link to this definition">#</a></dt>
@@ -561,12 +573,20 @@ of adaptive large neighborhood search.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create HGSALNSParams from a configuration object.</p>
+<p>Args:
+config: Configuration source for parameters.</p>
+<p>Returns:
+HGSALNSParams: The initialized parameters object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert Params to a dictionary.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary representation of parameters.</p>
 </dd></dl>
 
 </dd></dl>

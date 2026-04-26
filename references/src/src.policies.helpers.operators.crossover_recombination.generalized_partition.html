@@ -498,6 +498,21 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.crossover_recombination.generalized_partition">
 <span id="src-policies-helpers-operators-crossover-recombination-generalized-partition"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.crossover_recombination.generalized_partition" title="src.policies.helpers.operators.crossover_recombination.generalized_partition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.crossover_recombination.generalized_partition" title="Link to this heading">#</a></h1>
+<p>Generalized Partition Crossover (GPX).</p>
+<p>References:
+A.E. Guessoum, T.M. Taieb, G. Laporte and J.A. Rodriguez-Aguilar, “A multi-objective
+tabu search algorithm for the Capacitated Waste Collection Vehicle Routing Problem”, 2016</p>
+<p>Attributes:
+route_profit_gpx_crossover: Route-based Profit Generalized Partition Crossover (RP-GPX).
+generalized_partition_crossover: Generalized Partition Crossover (GPX).
+_dfs_iterative: Iterative Depth First Search to avoid RecursionError (Fix 15).
+get_components: Find connected components using iterative DFS (Fix 15).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+&gt;&gt;&gt; operator = generalized_partition_crossover(
+…    Individual(giant_tour=[1, 2, 3, 4]),
+…    Individual(giant_tour=[4, 3, 2, 1]),
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -517,7 +532,7 @@ document.write(`
 <td><p>Generalized Partition Crossover (GPX): Graph-based recombination.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._get_physical_edges" title="src.policies.helpers.operators.crossover_recombination.generalized_partition._get_physical_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_physical_edges</span></code></a></p></td>
-<td></td>
+<td><p>Get physical edges from routes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._get_components_from_uncommon_edges" title="src.policies.helpers.operators.crossover_recombination.generalized_partition._get_components_from_uncommon_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_components_from_uncommon_edges</span></code></a></p></td>
 <td><p>Build adjacency from uncommon edges and find components.</p></td>
@@ -546,18 +561,31 @@ rather than the giant tour.</p></td>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._get_individual_class">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_get_individual_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._get_individual_class" title="Link to this definition">#</a></dt>
 <dd><p>Lazy import of Individual to break the circular import.</p>
+<p>Returns:
+type: Individual class.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._dfs_iterative">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_dfs_iterative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._dfs_iterative" title="Link to this definition">#</a></dt>
 <dd><p>Iterative Depth First Search to avoid RecursionError (Fix 15).</p>
+<p>Args:
+start: Starting node for DFS.
+adj: Adjacency list representing the graph.
+visited: Set of visited nodes.</p>
+<p>Returns:
+List of nodes in the connected component.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition.get_components">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">get_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition.get_components" title="Link to this definition">#</a></dt>
 <dd><p>Find connected components using iterative DFS (Fix 15).</p>
+<p>Args:
+adj: Adjacency list representing the graph.
+all_nodes: Set of all nodes in the graph.</p>
+<p>Returns:
+List of connected components.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -566,35 +594,81 @@ rather than the giant tour.</p></td>
 <dd><p>Generalized Partition Crossover (GPX): Graph-based recombination.</p>
 <p>Redirects to route_profit_gpx_crossover if routes are available,
 otherwise falls back to ordered_crossover (Fix 16).</p>
+<p>Args:
+p1: First parent individual.
+p2: Second parent individual.
+rng: Random number generator.
+mandatory_nodes: List of nodes that MUST be visited.
+wastes: Dictionary mapping node indices to their waste values.
+capacity: Maximum capacity of each vehicle.</p>
+<p>Returns:
+Child individual.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._get_physical_edges">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_get_physical_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._get_physical_edges" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get physical edges from routes.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+Set of physical edges.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._get_components_from_uncommon_edges">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_get_components_from_uncommon_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1_gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2_gt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncommon_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._get_components_from_uncommon_edges" title="Link to this definition">#</a></dt>
 <dd><p>Build adjacency from uncommon edges and find components.</p>
+<p>Args:
+p1_gt: Giant tour of the first parent.
+p2_gt: Giant tour of the second parent.
+uncommon_edges: Set of uncommon edges.</p>
+<p>Returns:
+List of connected components.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._inherit_components">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_inherit_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._inherit_components" title="Link to this definition">#</a></dt>
 <dd><p>Selectively inherit components as routes if they fit capacity.</p>
+<p>Args:
+components: List of connected components.
+p1: First parent individual.
+p2: Second parent individual.
+wastes: Dictionary mapping node indices to their waste values.
+capacity: Maximum capacity of each vehicle.
+rng: Random number generator.</p>
+<p>Returns:
+Tuple of child routes and child nodes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._greedy_pack_pool">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_greedy_pack_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._greedy_pack_pool" title="Link to this definition">#</a></dt>
 <dd><p>Greedily pack remaining nodes into routes based on profit.</p>
+<p>Args:
+pool: List of nodes to pack.
+child_routes: List of child routes.
+child_nodes: Set of child nodes.
+loads: List of loads for each route.
+dist_matrix: Distance matrix.
+wastes: Dictionary mapping node indices to their waste values.
+capacity: Maximum capacity of each vehicle.
+R: Revenue factor.
+C: Cost factor.
+mandatory_set: Set of mandatory nodes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.generalized_partition._enforce_mandatory_nodes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.generalized_partition.</span></span><span class="sig-name descname"><span class="pre">_enforce_mandatory_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.generalized_partition._enforce_mandatory_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Ensure all mandatory nodes are strictly included in some route.</p>
+<p>Args:
+child_routes: List of child routes.
+mandatory_nodes: List of mandatory nodes.
+wastes: Dictionary mapping node indices to their waste values.
+capacity: Maximum capacity of each vehicle.
+loads: List of loads for each route.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -603,6 +677,18 @@ otherwise falls back to ordered_crossover (Fix 16).</p>
 <dd><p>Route-based Profit Generalized Partition Crossover (RP-GPX).
 Adapts the classical GPX for VRPP by operating on decoded routes
 rather than the giant tour.</p>
+<p>Args:
+p1: First parent individual.
+p2: Second parent individual.
+dist_matrix: Distance matrix.
+wastes: Dictionary mapping node indices to their waste values.
+capacity: Maximum capacity of each vehicle.
+R: Revenue factor.
+C: Cost factor.
+rng: Random number generator.
+mandatory_nodes: List of nodes that MUST be visited.</p>
+<p>Returns:
+Child individual.</p>
 </dd></dl>
 
 </section>

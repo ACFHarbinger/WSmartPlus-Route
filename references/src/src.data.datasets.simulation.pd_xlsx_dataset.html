@@ -506,6 +506,15 @@ document.write(`
 - Optional: ‘Noisy Day 0’, ‘Noisy Day 1’, …, ‘Noisy Day D-1’</p>
 <p>If a single sheet is present, it is treated as a single sample regardless
 of its name.</p>
+<p>Attributes:
+PandasExcelDataset: Dataset wrapping simulation data loaded from an Excel workbook.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import PandasExcelDataset
+&gt;&gt;&gt; dataset = PandasExcelDataset(data)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,39 +538,66 @@ of its name.</p>
 <p>Each sheet represents one sample. The first row in each sheet is the
 depot and the remaining rows are bins. Coordinates are in ‘Lat’/’Lng’
 columns and daily fill values are in ‘Day X’ columns.</p>
+<p>Attributes:
+samples: List of samples.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Pandas Excel dataset.</p>
+<p>Args:
+samples: Description of samples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__len__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of samples in the dataset.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__getitem__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the sample at the given index.</p>
+<p>Args:
+index: Description of index.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.load">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset" title="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset"><span class="pre">src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset</span></a></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.load" title="Link to this definition">#</a></dt>
 <dd><p>Load a PandasExcelDataset from an .xlsx file.</p>
+<p>Args:
+path: Description of path.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._parse_sheet">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_parse_sheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._parse_sheet" title="Link to this definition">#</a></dt>
 <dd><p>Parse a single sheet into a sample dict.</p>
+<p>Args:
+df: Description of df.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.save" title="Link to this definition">#</a></dt>
 <dd><p>Save the dataset to an .xlsx file.</p>
+<p>Args:
+path: Description of path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._sample_to_dataframe">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_sample_to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._sample_to_dataframe" title="Link to this definition">#</a></dt>
 <dd><p>Convert a sample dict back into a DataFrame.</p>
+<p>Args:
+sample: Description of sample.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </dd></dl>

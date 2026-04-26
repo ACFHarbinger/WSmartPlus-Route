@@ -502,6 +502,8 @@ proxy for insertion cost).</p>
 <p>Any bin that lies on the non-dominated Pareto front is strictly obligated for
 collection. This ensures that the policy never leaves behind a bin that is either
 critically urgent or trivially cheap to collect without a justified trade-off.</p>
+<p>Attributes:
+ParetoFrontSelection(IMandatorySelectionStrategy): Combinatorial selection strategy utilizing non-dominated sorting.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_pareto import ParetoFrontSelection
 &gt;&gt;&gt; strategy = ParetoFrontSelection()

@@ -531,6 +531,13 @@ threshold of the best solution.</p>
 <p>Reference:
 Kheiri, A. “Heuristic Sequence Selection for Inventory Routing Problem”, 2014.
 Bibliography: bibliography/Sequence-based_Selection_Hyper-Heuristic.pdf</p>
+<p>Attributes:
+_SeqEntry: Represents an entry in the heuristic sequence.
+SSHHSolver: Implements the Sequence-based Selection Hyper-Heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; solver = SSHHSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()
+&gt;&gt;&gt; routes, profit, cost</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -593,7 +600,29 @@ triggers application of the entire accumulated sequence (AS=1).</p></li>
 <li><p><strong>Score updates</strong>: Δ_norm-weighted increments when the sequence improves
 the global best.</p></li>
 </ul>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Mapping from node index to waste volume.
+capacity: Vehicle capacity.
+R: Revenue parameter.
+C: Cost parameter.
+params: SSHH parameters.
+mandatory_nodes: Optional list of mandatory nodes.
+n_llh: Number of low-level heuristics.
+n_nodes: Number of nodes.
+random: Random number generator.
+TMatrix: Transition scores between LLHs.
+ASMatrix: Acceptance strategy scores.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Sequence-Based Selection Hyper-Heuristic solver.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+wastes: Mapping from node index to waste volume.
+capacity: Vehicle capacity.
+R: Revenue parameter.
+C: Cost parameter.
+params: SSHH parameters.
+mandatory_nodes: Optional list of mandatory nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver.solve" title="Link to this definition">#</a></dt>
@@ -616,6 +645,13 @@ T = threshold_infeasible                     if best not feasible
 T = threshold_feasible_base + threshold_decay * (1 - elapsed/limit)</p>
 <p>In this VRPP context all solutions are feasible (profit-collecting),
 so we always use the feasible formula.</p>
+<p>Args:
+new_profit (float): Profit of the new solution.
+candidate_profit (float): Profit of the candidate solution.
+best_profit (float): Profit of the best solution.
+elapsed (float): Elapsed time.</p>
+<p>Returns:
+bool: Whether the new solution is accepted.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -623,66 +659,115 @@ so we always use the feasible formula.</p>
 <span class="sig-name descname"><span class="pre">_roulette_wheel_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._roulette_wheel_row" title="Link to this definition">#</a></dt>
 <dd><p>Roulette-wheel selection over a row of raw scores.</p>
 <p>P(j) = scores[j] / Σ_k scores[k]   (Eq. 2 for TMatrix, Eq. 3 for ASMatrix)</p>
+<p>Args:
+scores (np.ndarray): Array of raw scores.</p>
+<p>Returns:
+int: Selected index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh0">
 <span class="sig-name descname"><span class="pre">_llh0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh0" title="Link to this definition">#</a></dt>
 <dd><p>L0: random_removal + greedy_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh1">
 <span class="sig-name descname"><span class="pre">_llh1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh1" title="Link to this definition">#</a></dt>
 <dd><p>L1: worst_removal + regret_2_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh2">
 <span class="sig-name descname"><span class="pre">_llh2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh2" title="Link to this definition">#</a></dt>
 <dd><p>L2: cluster_removal + greedy_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh3">
 <span class="sig-name descname"><span class="pre">_llh3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh3" title="Link to this definition">#</a></dt>
 <dd><p>L3: worst_removal + greedy_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh4">
 <span class="sig-name descname"><span class="pre">_llh4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh4" title="Link to this definition">#</a></dt>
 <dd><p>L4: random_removal + regret_2_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh5">
 <span class="sig-name descname"><span class="pre">_llh5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh5" title="Link to this definition">#</a></dt>
 <dd><p>L5: shaw_removal + greedy_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh6">
 <span class="sig-name descname"><span class="pre">_llh6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._llh6" title="Link to this definition">#</a></dt>
 <dd><p>L6: string_removal + regret_2_insertion.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.
+n (int): Number of nodes.</p>
+<p>Returns:
+List[List[int]]: List of routes after applying the heuristic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._build_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Algorithm 1, line 12: construct initial solution.</p>
+<p>Returns:
+List[List[int]]: Initial solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._evaluate" title="Link to this definition">#</a></dt>
-<dd><p>Net profit for a set of routes.</p>
+<dd><p>Calculate net profit for a set of routes.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.</p>
+<p>Returns:
+float: Net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.SSHHSolver._cost" title="Link to this definition">#</a></dt>
-<dd><p>Total routing distance.</p>
+<dd><p>Calculate total routing distance.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.</p>
+<p>Returns:
+float: Total routing distance.</p>
 </dd></dl>
 
 </dd></dl>

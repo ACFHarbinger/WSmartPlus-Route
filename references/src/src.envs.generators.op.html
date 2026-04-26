@@ -497,6 +497,19 @@ document.write(`
 <span id="src-envs-generators-op"></span><h1><a class="reference internal" href="#module-src.envs.generators.op" title="src.envs.generators.op"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.op</span></code></a><a class="headerlink" href="#module-src.envs.generators.op" title="Link to this heading">#</a></h1>
 <p>Orienteering Problem (OP) generator.</p>
 <p>Prize types follow Fischetti et al. (1998) and Kool et al. (2019).</p>
+<p>Attributes:
+OPGenerator: OPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import OPGenerator
+&gt;&gt;&gt; generator = OPGenerator(num_loc=20, prize_type=”dist”)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict({
+‘locs’: TensorDict(
+# … customer locations (shape: [*B, 20, 2]) …
+)
+# … other fields …
+})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,6 +554,10 @@ document.write(`
 <li><p>prize      : [*B, num_loc]     — prize at each customer</p></li>
 <li><p>max_length : [*B]              — maximum path length allowed</p></li>
 </ul>
+<p>Attributes:
+prize_type: Prize generation method (“dist”, “unif”, or “const”).
+depot_type: Depot placement strategy (“random”, “center”, or “corner”).
+max_length: Maximum allowed path length budget.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise OPGenerator.</p>
 <p>Args:
@@ -557,17 +574,29 @@ depot_type: Depot placement (“center”, “corner”, “random”).
 device: Target device.
 rng: Optional numpy RNG.
 generator: Optional torch RNG.
-**kwargs: Forwarded to Generator base.</p>
+kwargs: Forwarded to Generator base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.op.OPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.op.OPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate a batch of OP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — customer coordinates
+depot: [*B, 2]              — depot coordinate
+prize: [*B, num_loc]        — prize at each customer
+max_length: [*B]           — maximum path length allowed</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.op.OPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.op.OPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate depot location.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Depot location.</p>
 </dd></dl>
 
 </dd></dl>

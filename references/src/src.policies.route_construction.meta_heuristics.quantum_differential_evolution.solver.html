@@ -504,6 +504,14 @@ amplitudes and calling greedy_insertion.</p>
 <p>Reference:
 Li, B., &amp; Li, P. (2015). “Quantum Inspired Differential Evolution Algorithm.”
 Chen, S., Li, Z., Yang, B., &amp; Rudolph, G. (2015). “Quantum-inspired hyper-heuristics for energy-aware scheduling on heterogeneous computing systems.”</p>
+<p>Attributes:
+QDESolver: Quantum-Inspired DE solver for VRPP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
+&gt;&gt;&gt; params = QDEParams()
+&gt;&gt;&gt; solver = QDESolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,7 +531,24 @@ Chen, S., Li, Z., Yang, B., &amp; Rudolph, G. (2015). “Quantum-inspired hyper-
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.</span></span><span class="sig-name descname"><span class="pre">QDESolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params.QDEParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver" title="Link to this definition">#</a></dt>
 <dd><p>Quantum-Inspired Differential Evolution solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Distance matrix between nodes including depot at index 0.
+wastes: Node-to-waste-quantity mapping.
+capacity: Vehicle capacity constraint.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance.
+params: QDE hyperparameter configuration.
+mandatory_nodes: Nodes that must be included in the solution.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Quantum Differential Evolution solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: QDE parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver.solve" title="Link to this definition">#</a></dt>

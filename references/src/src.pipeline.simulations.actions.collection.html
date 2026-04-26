@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions.collection">
 <span id="src-pipeline-simulations-actions-collection"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions.collection" title="src.pipeline.simulations.actions.collection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.collection</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions.collection" title="Link to this heading">#</a></h1>
 <p>Action for waste collection execution.</p>
+<p>Attributes:
+CollectAction: Command to execute waste collection.</p>
+<p>Example:
+&gt;&gt;&gt; # action = CollectAction()
+&gt;&gt;&gt; # action.execute(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,10 +518,14 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.collection.</span></span><span class="sig-name descname"><span class="pre">CollectAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.CollectAction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base.SimulationAction" title="src.pipeline.simulations.actions.base.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.base.SimulationAction</span></code></a></p>
 <p>Processes waste collection from bins visited in the tour.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.collection.CollectAction.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.CollectAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Execute waste collection based on the generated tour.</p>
+<p>Args:
+context: Shared dictionary containing simulation state.</p>
 </dd></dl>
 
 </dd></dl>

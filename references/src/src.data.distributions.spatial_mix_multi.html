@@ -518,6 +518,8 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.spatial_mix_multi.</span></span><span class="sig-name descname"><span class="pre">MixMultiDistributions</span></span><a class="headerlink" href="#src.data.distributions.spatial_mix_multi.MixMultiDistributions" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Batch-wise sampling from multiple distribution variants.</p>
+<p>Attributes:
+distributions: List of distribution classes and their arguments.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -536,7 +538,12 @@ torch.Tensor: Sampled values.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_array">
 <span class="sig-name descname"><span class="pre">_sample_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.spatial_mix_multi.MixMultiDistributions._sample_array" title="Link to this definition">#</a></dt>
-<dd><p>NumPy version of the distribution-mixing sampler.</p>
+<dd><p>Sample from multiple distributions.</p>
+<p>Args:
+size (Tuple[int, …]): Tuple of size (batch_size, num_loc, 2).
+rng (Optional[np.random.Generator], optional): Random number generator.</p>
+<p>Returns:
+np.ndarray: Sampled values.</p>
 </dd></dl>
 
 </dd></dl>

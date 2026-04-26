@@ -495,6 +495,13 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-common-solution-initialization"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization" title="Link to this heading">#</a></h1>
 <p>Initialization strategies for vehicle routing solutions.
 Extracts constructive heuristics from the legacy solutions module.</p>
+<p>Attributes:
+find_initial_solution (Function): Constructs a feasible initial solution for the routing problem.
+compute_initial_solution (Function): Simplified initial solution builder for SANS policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization import find_initial_solution
+&gt;&gt;&gt; routes = find_initial_solution()
+&gt;&gt;&gt; print(routes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -505,7 +512,7 @@ Extracts constructive heuristics from the legacy solutions module.</p>
 <td><p>Group bins into zones based on longitude.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_bin_stock</span></code></a></p></td>
-<td></td>
+<td><p>Get the stock of a bin.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._find_closest_valid_bin" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._find_closest_valid_bin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_closest_valid_bin</span></code></a></p></td>
 <td><p>Find the closest bin in the zone that is available and valid.</p></td>
@@ -526,17 +533,38 @@ Extracts constructive heuristics from the legacy solutions module.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._categorize_bins_by_zone">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization.</span></span><span class="sig-name descname"><span class="pre">_categorize_bins_by_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._categorize_bins_by_zone" title="Link to this definition">#</a></dt>
 <dd><p>Group bins into zones based on longitude.</p>
+<p>Args:
+bins (List[int]): The bins to categorize.
+bins_coordinates (List): The coordinates of the bins.</p>
+<p>Returns:
+Dict[int, List[int]]: The bins categorized by zone.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization.</span></span><span class="sig-name descname"><span class="pre">_get_bin_stock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._get_bin_stock" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the stock of a bin.</p>
+<p>Args:
+data (pd.DataFrame): Bin weights and metadata.
+bin_id (int): The bin ID.
+E (float): Bin volume.
+B (float): Bin density.</p>
+<p>Returns:
+float: The stock of the bin.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._find_closest_valid_bin">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization.</span></span><span class="sig-name descname"><span class="pre">_find_closest_valid_bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_bin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_bins_in_zone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._find_closest_valid_bin" title="Link to this definition">#</a></dt>
 <dd><p>Find the closest bin in the zone that is available and valid.</p>
+<p>Args:
+current_bin (int): The current bin.
+potential_bins_in_zone (List[int]): The potential bins in the zone.
+available_bins (Set[int]): The available bins.
+current_route (List[int]): The current route.
+distance_matrix (np.ndarray): The distance matrix.</p>
+<p>Returns:
+int: The closest valid bin.</p>
 </dd></dl>
 
 <dl class="py function">

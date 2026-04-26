@@ -549,7 +549,13 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MIPKnapsackSelectionConfig.overflow_penalty_frac"><code class="docutils literal notranslate"><span class="pre">MIPKnapsackSelectionConfig.overflow_penalty_frac</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.revenue_kg</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.bin_capacity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.holding_cost_per_kg_day</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.ordering_cost_per_visit</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_horizon"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig.rollout_horizon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_base_policy"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig.rollout_base_policy</span></code></a></li>
@@ -671,6 +677,44 @@ document.write(`
 <p>Configures the strategies used to determine which bins must be collected
 during simulation or training. This module follows the modular pattern of
 nested dataclasses for each algorithm.</p>
+<p>Attributes:
+last_minute (LastMinuteSelectionConfig): Configuration for last-minute selection.
+regular (RegularSelectionConfig): Configuration for regular selection.
+service_level (ServiceLevelSelectionConfig): Configuration for service-level selection.
+revenue (RevenueSelectionConfig): Configuration for revenue-based selection.
+lookahead (LookaheadSelectionConfig): Configuration for lookahead selection.
+deadline (DeadlineSelectionConfig): Configuration for deadline-based selection.
+multi_day_prob (MultiDayProbSelectionConfig): Configuration for multi-day probability selection.
+pareto_front (ParetoFrontSelectionConfig): Configuration for Pareto front selection.
+profit_per_km (ProfitPerKmSelectionConfig): Configuration for profit per km selection.
+spatial_synergy (SpatialSynergySelectionConfig): Configuration for spatial synergy selection.
+stochastic_regret (StochasticRegretSelectionConfig): Configuration for stochastic regret selection.
+combined (CombinedSelectionConfig): Configuration for combined selection.
+mandatory_manager (MandatoryManagerSelectionConfig): Configuration for neural network-based selection.
+knapsack (KnapsackSelectionConfig): Base configuration for knapsack-based economic coupling.
+mip_knapsack (MIPKnapsackSelectionConfig): Configuration for exact 0/1 multiple-knapsack MIP selection.
+fractional_knapsack (FractionalKnapsackSelectionConfig): Configuration for greedy net-profit density selection.
+rollout (RolloutSelectionConfig): Configuration for rollout-based predictive selection.
+whittle (WhittleSelectionConfig): Configuration for Whittle index-based allocation.
+cvar (CVaRSelectionConfig): Configuration for Conditional Value at Risk selection.
+savings (SavingsSelectionConfig): Configuration for savings-based pre-selection.
+set_cover (SetCoverSelectionConfig): Configuration for set-covering based selection.
+modular_greedy (ModularGreedySelectionConfig): Configuration for modular greedy selection.
+learned (LearnedSelectionConfig): Configuration for learned selection models.
+thompson_dispatcher (ThompsonDispatcherSelectionConfig): Configuration for contextual Thompson sampling dispatcher.
+wasserstein (WassersteinSelectionConfig): Configuration for distributionally robust Wasserstein selection.
+lagrangian (LagrangianSelectionConfig): Configuration for Lagrangian relaxation based selection.
+bernoulli (BernoulliSelectionConfig): Configuration for independent Bernoulli trial selection.
+kmeans_sector (KMeansSectorSelectionConfig): Configuration for geographic sector-based selection.
+staggered_regular (StaggeredRegularSelectionConfig): Configuration for staggered regular selection.
+method: The method to be used for selection.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.other.mandatory_selection import MandatorySelectionConfig
+&gt;&gt;&gt; config = MandatorySelectionConfig(method=’last_minute’, last_minute=LastMinuteSelectionConfig(threshold=0.8))
+&gt;&gt;&gt; config.method
+‘last_minute’
+&gt;&gt;&gt; config.last_minute.threshold
+0.8</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -777,6 +821,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">LastMinuteSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for threshold-based last-minute selection.</p>
+<p>Attributes:
+threshold: Threshold for last-minute selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig.threshold">
 <span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig.threshold" title="Link to this definition">#</a></dt>
@@ -789,6 +835,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RegularSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">RegularSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RegularSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for periodic collection on scheduled days.</p>
+<p>Attributes:
+frequency: Frequency of regular selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RegularSelectionConfig.frequency">
 <span class="sig-name descname"><span class="pre">frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RegularSelectionConfig.frequency" title="Link to this definition">#</a></dt>
@@ -801,6 +849,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">ServiceLevelSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for statistical overflow prediction.</p>
+<p>Attributes:
+confidence_factor: Confidence factor for statistical overflow prediction.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.confidence_factor">
 <span class="sig-name descname"><span class="pre">confidence_factor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.confidence_factor" title="Link to this definition">#</a></dt>
@@ -813,6 +863,10 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RevenueSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">RevenueSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RevenueSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for revenue-based selection.</p>
+<p>Attributes:
+revenue_kg: Revenue per kilogram.
+bin_capacity: Capacity of the bin.
+revenue_threshold: Threshold for revenue-based selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RevenueSelectionConfig.revenue_kg">
 <span class="sig-name descname"><span class="pre">revenue_kg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RevenueSelectionConfig.revenue_kg" title="Link to this definition">#</a></dt>
@@ -837,6 +891,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">LookaheadSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for predictive collection within a horizon.</p>
+<p>Attributes:
+horizon_days: Number of days to look ahead.
+threshold: Threshold for lookahead selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days">
 <span class="sig-name descname"><span class="pre">horizon_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days" title="Link to this definition">#</a></dt>
@@ -855,6 +912,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">DeadlineSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for deterministic days-to-overflow selection.</p>
+<p>Attributes:
+horizon_days: Number of days to look ahead.
+threshold: Threshold for deadline selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig.horizon_days">
 <span class="sig-name descname"><span class="pre">horizon_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig.horizon_days" title="Link to this definition">#</a></dt>
@@ -873,6 +933,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">MultiDayProbSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for stochastic overflow risk over K days.</p>
+<p>Attributes:
+horizon_days: Number of days to look ahead.
+threshold: Threshold for multi-day probability selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig.horizon_days">
 <span class="sig-name descname"><span class="pre">horizon_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig.horizon_days" title="Link to this definition">#</a></dt>
@@ -891,6 +954,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ParetoFrontSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">ParetoFrontSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ParetoFrontSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for multi-objective (urgency x distance) optimization.</p>
+<p>Attributes:
+threshold: Threshold for Pareto front selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ParetoFrontSelectionConfig.threshold">
 <span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ParetoFrontSelectionConfig.threshold" title="Link to this definition">#</a></dt>
@@ -903,6 +968,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ProfitPerKmSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">ProfitPerKmSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ProfitPerKmSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for spatial ROI (Expected revenue / distance).</p>
+<p>Attributes:
+threshold: Threshold for profit per km selection.
+revenue_kg: Revenue per kilogram.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ProfitPerKmSelectionConfig.threshold">
 <span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ProfitPerKmSelectionConfig.threshold" title="Link to this definition">#</a></dt>
@@ -921,6 +989,10 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SpatialSynergySelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">SpatialSynergySelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SpatialSynergySelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for critical bins + opportunistic neighbors.</p>
+<p>Attributes:
+critical_threshold: Threshold for critical bins.
+synergy_threshold: Threshold for synergistic bins.
+radius: Radius for opportunistic neighbors.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SpatialSynergySelectionConfig.critical_threshold">
 <span class="sig-name descname"><span class="pre">critical_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SpatialSynergySelectionConfig.critical_threshold" title="Link to this definition">#</a></dt>
@@ -945,6 +1017,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StochasticRegretSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">StochasticRegretSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StochasticRegretSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for expected overflow volume minimization.</p>
+<p>Attributes:
+threshold: Threshold for stochastic regret selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StochasticRegretSelectionConfig.threshold">
 <span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StochasticRegretSelectionConfig.threshold" title="Link to this definition">#</a></dt>
@@ -957,6 +1031,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.CombinedSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">CombinedSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.CombinedSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for combining multiple strategies with OR/AND logic.</p>
+<p>Attributes:
+strategies: List of strategies to combine.
+logic: Logic to combine the strategies (or/and).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.CombinedSelectionConfig.strategies">
 <span class="sig-name descname"><span class="pre">strategies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.CombinedSelectionConfig.strategies" title="Link to this definition">#</a></dt>
@@ -975,6 +1052,13 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">MandatoryManagerSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for neural network-based selection (MandatoryManager).</p>
+<p>Attributes:
+hidden_dim: Dimension of the hidden layers.
+lstm_hidden: Dimension of the LSTM hidden layers.
+history_length: Length of the history.
+manager_critical_threshold: Threshold for manager selection.
+manager_weights: Path to the manager weights.
+device: Device to use for training.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig.hidden_dim">
 <span class="sig-name descname"><span class="pre">hidden_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig.hidden_dim" title="Link to this definition">#</a></dt>
@@ -1017,6 +1101,10 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">KnapsackSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Base configuration for knapsack-based economic coupling.</p>
+<p>Attributes:
+n_vehicles: Number of vehicles.
+cost_per_km: Cost per kilometer.
+use_eoq_threshold: Whether to use EOQ threshold.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig.n_vehicles">
 <span class="sig-name descname"><span class="pre">n_vehicles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig.n_vehicles" title="Link to this definition">#</a></dt>
@@ -1054,6 +1142,8 @@ nested dataclasses for each algorithm.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">MIPKnapsackSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MIPKnapsackSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig" title="src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig</span></code></a></p>
 <p>Configuration for exact 0/1 multiple-knapsack MIP selection.</p>
+<p>Attributes:
+overflow_penalty_frac: Additional penalty for overflow event.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MIPKnapsackSelectionConfig.overflow_penalty_frac">
 <span class="sig-name descname"><span class="pre">overflow_penalty_frac</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MIPKnapsackSelectionConfig.overflow_penalty_frac" title="Link to this definition">#</a></dt>
@@ -1067,12 +1157,46 @@ nested dataclasses for each algorithm.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">FractionalKnapsackSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig" title="src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig</span></code></a></p>
 <p>Configuration for greedy net-profit density selection.</p>
+<p>Attributes:
+revenue_kg: Revenue per kilogram.
+bin_capacity: Capacity of the bin.
+holding_cost_per_kg_day: Holding cost per kilogram per day.
+ordering_cost_per_visit: Ordering cost per visit.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg">
+<span class="sig-name descname"><span class="pre">revenue_kg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity">
+<span class="sig-name descname"><span class="pre">bin_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day">
+<span class="sig-name descname"><span class="pre">holding_cost_per_kg_day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day" title="Link to this definition">#</a></dt>
+<dd><p>0.01</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit">
+<span class="sig-name descname"><span class="pre">ordering_cost_per_visit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit" title="Link to this definition">#</a></dt>
+<dd><p>10.0</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RolloutSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">RolloutSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for rollout-based predictive selection.</p>
+<p>Attributes:
+rollout_horizon: Horizon for rollout.
+rollout_base_policy: Base policy for rollout.
+rollout_n_scenarios: Number of scenarios for rollout.
+rollout_discount: Discount factor for rollout.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_horizon">
 <span class="sig-name descname"><span class="pre">rollout_horizon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_horizon" title="Link to this definition">#</a></dt>
@@ -1103,6 +1227,10 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.WhittleSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">WhittleSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.WhittleSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Whittle index-based allocation.</p>
+<p>Attributes:
+whittle_discount: Discount factor for Whittle index.
+whittle_grid_size: Grid size for Whittle index.
+n_vehicles: Number of vehicles.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.WhittleSelectionConfig.whittle_discount">
 <span class="sig-name descname"><span class="pre">whittle_discount</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.WhittleSelectionConfig.whittle_discount" title="Link to this definition">#</a></dt>
@@ -1127,6 +1255,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.CVaRSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">CVaRSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.CVaRSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Conditional Value at Risk selection.</p>
+<p>Attributes:
+cvar_alpha: Confidence level for CVaR.
+threshold: Threshold for CVaR selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.CVaRSelectionConfig.cvar_alpha">
 <span class="sig-name descname"><span class="pre">cvar_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.CVaRSelectionConfig.cvar_alpha" title="Link to this definition">#</a></dt>
@@ -1145,6 +1276,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SavingsSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">SavingsSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SavingsSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for savings-based (Clarke-Wright) pre-selection.</p>
+<p>Attributes:
+savings_min_fill_ratio: Minimum fill ratio for savings selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SavingsSelectionConfig.savings_min_fill_ratio">
 <span class="sig-name descname"><span class="pre">savings_min_fill_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SavingsSelectionConfig.savings_min_fill_ratio" title="Link to this definition">#</a></dt>
@@ -1157,6 +1290,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SetCoverSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">SetCoverSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SetCoverSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for set-covering based selection.</p>
+<p>Attributes:
+service_radius: Radius for set cover.
+critical_threshold: Threshold for critical set cover.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.SetCoverSelectionConfig.service_radius">
 <span class="sig-name descname"><span class="pre">service_radius</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.SetCoverSelectionConfig.service_radius" title="Link to this definition">#</a></dt>
@@ -1175,6 +1311,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ModularGreedySelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">ModularGreedySelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ModularGreedySelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for (Super/Sub-)Modular greedy selection.</p>
+<p>Attributes:
+modular_alpha: Alpha parameter for modularity.
+modular_budget: Budget for modular selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ModularGreedySelectionConfig.modular_alpha">
 <span class="sig-name descname"><span class="pre">modular_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ModularGreedySelectionConfig.modular_alpha" title="Link to this definition">#</a></dt>
@@ -1193,6 +1332,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LearnedSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">LearnedSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LearnedSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for imitation/learned selection models.</p>
+<p>Attributes:
+learned_model_path: Path to the learned model.
+learned_threshold: Threshold for learned selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LearnedSelectionConfig.learned_model_path">
 <span class="sig-name descname"><span class="pre">learned_model_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LearnedSelectionConfig.learned_model_path" title="Link to this definition">#</a></dt>
@@ -1211,6 +1353,11 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ThompsonDispatcherSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">ThompsonDispatcherSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ThompsonDispatcherSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for contextual Thompson sampling dispatcher.</p>
+<p>Attributes:
+dispatcher_state_path: Path to the dispatcher state.
+dispatcher_candidate_strategies: List of candidate strategies.
+dispatcher_exploration: Exploration parameter for Thompson sampling.
+dispatcher_mode: Mode for combining strategies (union/intersection).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.ThompsonDispatcherSelectionConfig.dispatcher_state_path">
 <span class="sig-name descname"><span class="pre">dispatcher_state_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.ThompsonDispatcherSelectionConfig.dispatcher_state_path" title="Link to this definition">#</a></dt>
@@ -1241,6 +1388,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.WassersteinSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">WassersteinSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.WassersteinSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for distributionally robust Wasserstein selection.</p>
+<p>Attributes:
+wasserstein_radius: Radius for Wasserstein distance.
+wasserstein_p: Power parameter for Wasserstein distance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.WassersteinSelectionConfig.wasserstein_radius">
 <span class="sig-name descname"><span class="pre">wasserstein_radius</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.WassersteinSelectionConfig.wasserstein_radius" title="Link to this definition">#</a></dt>
@@ -1259,6 +1409,9 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">LagrangianSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Lagrangian relaxation based selection.</p>
+<p>Attributes:
+n_vehicles: Number of vehicles.
+cost_per_km: Cost per kilometer.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig.n_vehicles">
 <span class="sig-name descname"><span class="pre">n_vehicles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig.n_vehicles" title="Link to this definition">#</a></dt>
@@ -1277,6 +1430,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">BernoulliSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for independent Bernoulli trial selection.</p>
+<p>Attributes:
+p: Probability of selecting a bin.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p">
 <span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p" title="Link to this definition">#</a></dt>
@@ -1289,6 +1444,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">KMeansSectorSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for geographic sector-based selection.</p>
+<p>Attributes:
+n_sectors: Number of sectors for clustering.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors">
 <span class="sig-name descname"><span class="pre">n_sectors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors" title="Link to this definition">#</a></dt>
@@ -1301,6 +1458,8 @@ nested dataclasses for each algorithm.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">StaggeredRegularSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for phased-staggered periodic selection.</p>
+<p>Attributes:
+period: Period for staggered selection.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period">
 <span class="sig-name descname"><span class="pre">period</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period" title="Link to this definition">#</a></dt>
@@ -1661,7 +1820,13 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MIPKnapsackSelectionConfig.overflow_penalty_frac"><code class="docutils literal notranslate"><span class="pre">MIPKnapsackSelectionConfig.overflow_penalty_frac</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.revenue_kg</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.bin_capacity</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.holding_cost_per_kg_day</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit"><code class="docutils literal notranslate"><span class="pre">FractionalKnapsackSelectionConfig.ordering_cost_per_visit</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_horizon"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig.rollout_horizon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.RolloutSelectionConfig.rollout_base_policy"><code class="docutils literal notranslate"><span class="pre">RolloutSelectionConfig.rollout_base_policy</span></code></a></li>

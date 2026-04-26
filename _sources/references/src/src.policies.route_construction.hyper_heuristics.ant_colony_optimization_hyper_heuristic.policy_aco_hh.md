@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh.HyperACOPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh.HyperACOPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

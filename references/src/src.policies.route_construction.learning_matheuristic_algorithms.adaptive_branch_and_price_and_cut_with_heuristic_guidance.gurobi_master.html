@@ -505,6 +505,12 @@ document.write(`
 and provides an optimistic upper bound on the expected horizon profit via
 surrogate variables θ_d that are progressively tightened by Benders optimality
 cuts delivered from the routing subproblems.</p>
+<p>Attributes:
+GurobiMasterProblem: A class that solves the master MIP of the Temporal Benders Decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; from gurobi_master import GurobiMasterProblem
+&gt;&gt;&gt; master = GurobiMasterProblem()
+&gt;&gt;&gt; master.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -569,7 +575,7 @@ solves the bound is progressively tightened toward the true optimum.</p>
 monotonically decreases as cuts are added.  The algorithm stops when
 UB is within <code class="docutils literal notranslate"><span class="pre">convergence_tol</span></code> of the best primal lower bound (LB)
 computed from the subproblem objectives.</p>
-<p class="rubric" id="id3">Attributes</p>
+<p class="rubric" id="id3">Attributes:</p>
 <p>n_bins    : Total number of bins (1-indexed).
 horizon   : Number of planning days T.
 z         : gurobipy.Vars dict, z[bin_id, day].
@@ -590,10 +596,20 @@ mip_gap: Relative MIP optimality gap tolerance for Gurobi.
 time_limit: Maximum Gurobi solve time in seconds per master call.
 output_flag: Set to True to enable Gurobi console output (useful
 for debugging; suppressed by default).</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem._build">
 <span class="sig-name descname"><span class="pre">_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_visits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem._build" title="Link to this definition">#</a></dt>
 <dd><p>Construct the Gurobi model from scratch.</p>
+<p>Args:
+max_visits: Maximum times bin i may be assigned across all days.
+theta_ub: Initial upper bound on each theta[d] variable.
+mip_gap: Relative MIP optimality gap tolerance for Gurobi.
+time_limit: Maximum Gurobi solve time in seconds per master call.
+output_flag: Set to True to enable Gurobi console output.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -611,6 +627,8 @@ cut: Dictionary with keys:
 <code class="docutils literal notranslate"><span class="pre">&quot;day&quot;</span></code>          – day index d ∈ [0, T−1].
 <code class="docutils literal notranslate"><span class="pre">&quot;constant&quot;</span></code>     – scalar RHS constant.
 <code class="docutils literal notranslate"><span class="pre">&quot;coefficients&quot;</span></code> – {bin_id: linear coefficient of z[bin_id, d]}.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -622,6 +640,8 @@ entire iteration’s worth of cuts (one per day) at once, as it reduces
 Gurobi model-update overhead.</p>
 <p>Args:
 cuts: List of cut dictionaries (same format as <code class="docutils literal notranslate"><span class="pre">add_benders_cut</span></code>).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -642,18 +662,26 @@ within the time limit.</p>
 cut strictly reduces this value toward the true optimum (assuming
 valid cuts).</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">+inf</span></code> if the model has not been solved successfully.</p>
+<p>Returns:
+Objective value as a float (<code class="docutils literal notranslate"><span class="pre">float(&quot;inf&quot;)</span></code> if not solved successfully).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem.get_mip_gap">
 <span class="sig-name descname"><span class="pre">get_mip_gap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem.get_mip_gap" title="Link to this definition">#</a></dt>
 <dd><p>Return the relative MIP gap of the last solve (0.0 = optimal).</p>
+<p>Returns:
+MIP gap as a float (0.0 = optimal).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem.dispose">
 <span class="sig-name descname"><span class="pre">dispose</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.gurobi_master.GurobiMasterProblem.dispose" title="Link to this definition">#</a></dt>
 <dd><p>Free Gurobi model and associated environment resources.</p>
+<p>This releases the memory and other resources held by the Gurobi model.
+It is good practice to call this method when the master problem is no longer needed.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

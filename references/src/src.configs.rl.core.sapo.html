@@ -494,6 +494,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.core.sapo">
 <span id="src-configs-rl-core-sapo"></span><h1><a class="reference internal" href="#module-src.configs.rl.core.sapo" title="src.configs.rl.core.sapo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.sapo</span></code></a><a class="headerlink" href="#module-src.configs.rl.core.sapo" title="Link to this heading">#</a></h1>
 <p>SAPO specific configuration.</p>
+<p>Attributes:
+SAPOConfig: Configuration for SAPO algorithm.</p>
+<p>Example:
+sapo_config = SAPOConfig(
+tau_pos=0.1,
+tau_neg=1.0,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,6 +520,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.rl.core.sapo.SAPOConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.core.sapo.</span></span><span class="sig-name descname"><span class="pre">SAPOConfig</span></span><a class="headerlink" href="#src.configs.rl.core.sapo.SAPOConfig" title="Link to this definition">#</a></dt>
 <dd><p>SAPO specific configuration.</p>
+<p>Attributes:
+tau_pos: Positive learning rate.
+tau_neg: Negative learning rate.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.core.sapo.SAPOConfig.tau_pos">
 <span class="sig-name descname"><span class="pre">tau_pos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.core.sapo.SAPOConfig.tau_pos" title="Link to this definition">#</a></dt>

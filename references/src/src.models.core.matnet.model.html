@@ -532,23 +532,23 @@ _baseline_val (Optional[torch.Tensor]): Internal state for exponential baseline.
 <p class="rubric">Initialization</p>
 <p>Initializes the MatNet wrapper.</p>
 <p>Args:
-embed_dim: Internal feature dimensionality.
-hidden_dim: Hidden layer expansion size.
-num_layers: Depth of the matrix encoder.
-n_heads: Attention head count.
-tanh_clipping: Range for logit clipping.
-normalization: Type of normalization layer.
-baseline: RL baseline strategy (‘rollout’, ‘exponential’, ‘none’).
-env_name: Optional environment identifier.
-**kwargs: Extra arguments passed to MatNetPolicy.</p>
+embed_dim: Dimensionality of latent embeddings.
+hidden_dim: Dimensionality of hidden layers.
+num_layers: Number of transformer encoder layers.
+n_heads: Number of attention heads.
+tanh_clipping: Range for logit clipping (0 to disable).
+normalization: Type of layer normalization.
+baseline: RL baseline type (“rollout”, “exponential”, “no”).
+env_name: Name of the environment identifier.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.matnet.model.MatNet.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.matnet.model.MatNet.forward" title="Link to this definition">#</a></dt>
 <dd><p>Performs a forward pass and computes the REINFORCE loss.</p>
 <p>Args:
-td: Problem state container.
-env: Optional environment for reward calculation.
-**kwargs: Additional parameters for the policy execution.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Results containing rewards, actions, and calculated loss.</p>
 </dd></dl>
@@ -558,8 +558,8 @@ Dict[str, Any]: Results containing rewards, actions, and calculated loss.</p>
 <span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.matnet.model.MatNet.set_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Configures the action selection tactic in the policy.</p>
 <p>Args:
-strategy: Identifier for the mode (e.g. ‘greedy’, ‘sampling’).
-**kwargs: Additional strategy parameters (e.g. temperature).</p>
+strategy: Decoding strategy identifier (e.g., “greedy”, “sampling”).
+kwargs: Additional keyword arguments.</p>
 </dd></dl>
 
 </dd></dl>

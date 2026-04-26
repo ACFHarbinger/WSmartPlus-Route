@@ -490,6 +490,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.initialization">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-diversity-control-initialization"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.initialization" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.initialization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.initialization</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.initialization" title="Link to this heading">#</a></h1>
 <p>Initialization module for HGS-ADC Generation 0 via Multi-Period Clarke-Wright Savings.</p>
+<p>Attributes:
+generate_initial_individual: Creates an Individual using C-W savings.</p>
+<p>Example:
+&gt;&gt;&gt; ind = generate_initial_individual(N, T, base_wastes, daily_increments, dist, capacity)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,6 +519,15 @@ document.write(`
 <li><p>Construct daily routes using C-W savings.</p></li>
 <li><p>Form giant tours by concatenating the routes.</p></li>
 </ol>
+<p>Args:
+N: Number of nodes.
+T: Planning horizon in days.
+base_wastes: Initial waste quantities.
+daily_increments: Expected daily accumulation.
+dist: Distance matrix.
+capacity: Vehicle capacity.</p>
+<p>Returns:
+Individual: The newly generated individual.</p>
 </dd></dl>
 
 </section>

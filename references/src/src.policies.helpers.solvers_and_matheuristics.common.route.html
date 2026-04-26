@@ -493,6 +493,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.common.route">
 <span id="src-policies-helpers-solvers-and-matheuristics-common-route"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.common.route" title="src.policies.helpers.solvers_and_matheuristics.common.route"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.route</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.common.route" title="Link to this heading">#</a></h1>
 <p>Route data structure for Branch-and-Price-and-Cut VRPP.</p>
+<p>Attributes:
+Route: Data structure representing a vehicle route (column) in the BPC process.</p>
+<p>Example:
+&gt;&gt;&gt; route = Route(nodes=[1, 2], cost=10.0, revenue=20.0, load=5.0, node_coverage={1, 2})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,6 +516,16 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.route.Route">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.route.</span></span><span class="sig-name descname"><span class="pre">Route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.route.Route" title="Link to this definition">#</a></dt>
 <dd><p>Represents a single route (column) in the master problem.</p>
+<p>Attributes:
+nodes (List[int]): Sequence of customer nodes visited.
+cost (float): Total distance cost of the route.
+revenue (float): Total revenue from collected waste.
+load (float): Total waste collected on the route.
+profit (float): Net profit (revenue - cost).
+node_coverage (Set[int]): Set of customer node IDs covered.
+reduced_cost (Optional[float]): Reduced cost relative to duals.</p>
+<p>Example:
+&gt;&gt;&gt; r = Route([1, 2], 10.0, 15.0, 5.0, {1, 2})</p>
 <p class="rubric">Initialization</p>
 <p>Initialise a route.</p>
 <p>Args:
@@ -523,7 +537,10 @@ node_coverage: Set of customer node IDs covered by this route.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.route.Route.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.route.Route.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns string representation of the route.</p>
+<p>Returns:
+str: String representation including nodes and profit.</p>
+</dd></dl>
 
 </dd></dl>
 

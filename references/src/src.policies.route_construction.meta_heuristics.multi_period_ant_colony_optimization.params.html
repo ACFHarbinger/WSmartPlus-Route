@@ -500,6 +500,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params">
 <span id="src-policies-route-construction-meta-heuristics-multi-period-ant-colony-optimization-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params" title="src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Multi-Period Ant Colony Optimization (MP-ACO).</p>
+<p>Attributes:
+MP_ACO_Params: Configuration parameters for MP-ACO.</p>
+<p>Example:
+&gt;&gt;&gt; params = MP_ACO_Params(n_ants=20, iters=100)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -566,12 +570,20 @@ seed: Random seed.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params" title="src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create MP_ACO_Params from a configuration object or dictionary.</p>
+<p>Args:
+config: The configuration object or dictionary.</p>
+<p>Returns:
+MP_ACO_Params: The instantiated parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params.MP_ACO_Params.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert MP_ACO_Params to a dictionary for backend compatibility.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+Dict[str, Any]: A dictionary of parameter names and values.</p>
 </dd></dl>
 
 </dd></dl>

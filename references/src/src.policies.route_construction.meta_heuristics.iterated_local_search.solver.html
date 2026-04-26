@@ -502,13 +502,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.iterated_local_search.solver">
 <span id="src-policies-route-construction-meta-heuristics-iterated-local-search-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.solver" title="src.policies.route_construction.meta_heuristics.iterated_local_search.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.solver" title="Link to this heading">#</a></h1>
 <p>Iterated Local Search (ILS) for VRPP.</p>
-<p>ILS alternates between a local search descent phase and a perturbation phase.
-The descent phase applies destroy/repair LLHs until no improvement is found.
-The perturbation phase randomly disrupts the current solution to escape the
-local optimum.  If the perturbed + re-optimised solution beats the incumbent,
-it replaces the current solution (hill-climbing acceptance).</p>
-<p>Reference:
-Lourenco, H. R., Martin, O. C., &amp; Stutzle, T. “Iterated Local Search”, 2001</p>
+<p>ILS alternates between a local search descent phase and a perturbation phase.</p>
+<p>Attributes:
+ILSSolver: Main solver class for the Iterated Local Search.</p>
+<p>Example:
+&gt;&gt;&gt; solver = ILSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,7 +527,29 @@ Lourenco, H. R., Martin, O. C., &amp; Stutzle, T. “Iterated Local Search”, 2
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.solver.</span></span><span class="sig-name descname"><span class="pre">ILSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.iterated_local_search.params.html#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams" title="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver" title="Link to this definition">#</a></dt>
 <dd><p>Iterated Local Search solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of node indices.
+random: Random number generator.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the ILS solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: ILS parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver.solve" title="Link to this definition">#</a></dt>
@@ -541,52 +562,94 @@ Tuple of (routes, profit, cost).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._perturb">
 <span class="sig-name descname"><span class="pre">_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._perturb" title="Link to this definition">#</a></dt>
 <dd><p>Apply strong perturbation to escape local optimum.</p>
+<p>Args:
+routes: Current routes.</p>
+<p>Returns:
+Perturbed routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh0">
 <span class="sig-name descname"><span class="pre">_llh0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh0" title="Link to this definition">#</a></dt>
 <dd><p>Random removal + Greedy insertion.</p>
+<p>Args:
+routes: Current routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh1">
 <span class="sig-name descname"><span class="pre">_llh1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh1" title="Link to this definition">#</a></dt>
 <dd><p>Worst removal + Regret-2 insertion.</p>
+<p>Args:
+routes: Current routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh2">
 <span class="sig-name descname"><span class="pre">_llh2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh2" title="Link to this definition">#</a></dt>
 <dd><p>Cluster removal + Greedy insertion.</p>
+<p>Args:
+routes: Current routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh3">
 <span class="sig-name descname"><span class="pre">_llh3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh3" title="Link to this definition">#</a></dt>
 <dd><p>Worst removal + Greedy insertion.</p>
+<p>Args:
+routes: Current routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh4">
 <span class="sig-name descname"><span class="pre">_llh4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._llh4" title="Link to this definition">#</a></dt>
 <dd><p>Random removal + Regret-2 insertion.</p>
+<p>Args:
+routes: Current routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._build_initial_solution" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Construct initial solution.</p>
+<p>Returns:
+Set of routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Net profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.solver.ILSSolver._cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total routing distance.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Total distance.</p>
+</dd></dl>
 
 </dd></dl>
 

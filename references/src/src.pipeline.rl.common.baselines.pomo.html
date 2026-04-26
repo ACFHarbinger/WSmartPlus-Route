@@ -493,6 +493,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.baselines.pomo">
 <span id="src-pipeline-rl-common-baselines-pomo"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.pomo" title="src.pipeline.rl.common.baselines.pomo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.pomo</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.pomo" title="Link to this heading">#</a></h1>
 <p>POMO-style multi-start mean baseline.</p>
+<p>Attributes:
+POMOBaseline: POMO-style multi-start mean baseline.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.baselines import POMOBaseline
+&gt;&gt;&gt; baseline = POMOBaseline()
+&gt;&gt;&gt; baseline.eval()
+tensor(0.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,8 +520,12 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.baselines.pomo.</span></span><span class="sig-name descname"><span class="pre">POMOBaseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.pomo.POMOBaseline" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline" title="src.pipeline.rl.common.baselines.base.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.base.Baseline</span></code></a></p>
 <p>POMO baseline: mean reward across starts of the SAME instance.</p>
+<p>Attributes:
+POMOBaseline: POMO-style multi-start mean baseline.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize POMOBaseline.</p>
+<p>Args:
+kwargs: Description of kwargs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.pomo.POMOBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.pomo.POMOBaseline.eval" title="Link to this definition">#</a></dt>

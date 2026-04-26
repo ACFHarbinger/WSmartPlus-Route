@@ -505,6 +505,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ils">
 <span id="src-configs-policies-ils"></span><h1><a class="reference internal" href="#module-src.configs.policies.ils" title="src.configs.policies.ils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ils</span></code></a><a class="headerlink" href="#module-src.configs.policies.ils" title="Link to this heading">#</a></h1>
 <p>ILS (Iterated Local Search) configuration for Hydra.</p>
+<p>Attributes:
+ILSConfig: Configuration for the Iterated Local Search policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ils import ILSConfig
+&gt;&gt;&gt; config = ILSConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +531,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.ils.ILSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.ils.</span></span><span class="sig-name descname"><span class="pre">ILSConfig</span></span><a class="headerlink" href="#src.configs.policies.ils.ILSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Iterated Local Search policy.</p>
+<p>Attributes:
+engine (str): Name of the engine.
+n_restarts (int): Number of restarts.
+inner_iterations (int): Number of inner iterations.
+n_removal (int): Number of removals for perturbation.
+n_llh (int): Number of local heuristic calls per restart.
+perturbation_strength (float): Strength of perturbation (0-1).
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Random seed for reproducibility.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Use profit-aware operators.
+mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+route_improvement (Optional[List[Any]]): Route improvement strategies.
+acceptance_criterion (AcceptanceConfig): Acceptance criteria for new solutions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ils.ILSConfig.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.ils.ILSConfig.engine" title="Link to this definition">#</a></dt>

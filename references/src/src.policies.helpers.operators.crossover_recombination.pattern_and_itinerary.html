@@ -490,6 +490,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary">
 <span id="src-policies-helpers-operators-crossover-recombination-pattern-and-itinerary"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary" title="src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary" title="Link to this heading">#</a></h1>
 <p>Pattern and Itinerary Crossover (PAIX).</p>
+<p>Attributes:
+pattern_and_itinerary_crossover: Pattern and Itinerary Crossover.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+&gt;&gt;&gt; operator = pattern_and_itinerary_crossover(
+…    Individual(giant_tour=[1, 2, 3, 4]),
+…    Individual(giant_tour=[4, 3, 2, 1]),
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -514,6 +522,13 @@ document.write(`
 <li><p>Builds giant tours using Order Crossover (OX) applied to the parents’ giant tours,
 filtering nodes to respect the inherited pattern.</p></li>
 </ol>
+<p>Args:
+parent_a (Individual): First parent individual.
+parent_b (Individual): Second parent individual.
+T (int): Number of time steps (days).
+N (int): Number of nodes.</p>
+<p>Returns:
+Individual: Child individual.</p>
 </dd></dl>
 
 </section>

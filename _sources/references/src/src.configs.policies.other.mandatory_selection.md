@@ -624,7 +624,7 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
 
 `````
 
-````{py:class} FractionalKnapsackSelectionConfig
+`````{py:class} FractionalKnapsackSelectionConfig
 :canonical: src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig
 
 Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelectionConfig`
@@ -632,7 +632,51 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig
 ```
 
+````{py:attribute} revenue_kg
+:canonical: src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.revenue_kg
+```
+
 ````
+
+````{py:attribute} bin_capacity
+:canonical: src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.bin_capacity
+```
+
+````
+
+````{py:attribute} holding_cost_per_kg_day
+:canonical: src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day
+:type: float
+:value: >
+   0.01
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.holding_cost_per_kg_day
+```
+
+````
+
+````{py:attribute} ordering_cost_per_visit
+:canonical: src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.FractionalKnapsackSelectionConfig.ordering_cost_per_visit
+```
+
+````
+
+`````
 
 `````{py:class} RolloutSelectionConfig
 :canonical: src.configs.policies.other.mandatory_selection.RolloutSelectionConfig

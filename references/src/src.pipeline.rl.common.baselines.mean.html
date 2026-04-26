@@ -494,9 +494,12 @@ document.write(`
 <span id="src-pipeline-rl-common-baselines-mean"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.mean" title="src.pipeline.rl.common.baselines.mean"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.mean</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.mean" title="Link to this heading">#</a></h1>
 <p>mean.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+MeanBaseline: Mean baseline.</p>
 <p>Example:
-&gt;&gt;&gt; import mean</p>
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.baselines import MeanBaseline
+&gt;&gt;&gt; baseline = MeanBaseline()
+&gt;&gt;&gt; baseline.eval()
+tensor(0.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,8 +523,12 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <p>Uses the mean reward of the current batch as the baseline value.
 Zero computational overhead but limited variance reduction.
 Useful as a simple default or for debugging.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize MeanBaseline.</p>
+<p>Args:
+kwargs: Description of kwargs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.mean.MeanBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.mean.MeanBaseline.eval" title="Link to this definition">#</a></dt>

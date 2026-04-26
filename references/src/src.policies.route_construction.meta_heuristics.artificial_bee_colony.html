@@ -483,6 +483,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.artificial_bee_colony">
 <span id="src-policies-route-construction-meta-heuristics-artificial-bee-colony"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.artificial_bee_colony" title="src.policies.route_construction.meta_heuristics.artificial_bee_colony"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.artificial_bee_colony</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.artificial_bee_colony" title="Link to this heading">#</a></h1>
 <p>Artificial Bee Colony (ABC) algorithm for VRPP.</p>
+<p>This module implements the Artificial Bee Colony (ABC) meta-heuristic for
+solving the Vehicle Routing Problem with Profits (VRPP).</p>
+<p>Attributes:
+ABCSolver: The main solver implementation using the ABC algorithm.
+ABCPolicy: Adapter class for the ABC solver.
+ABCParams: Parameter configuration for the ABC algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.artificial_bee_colony import ABCPolicy
+&gt;&gt;&gt; policy = ABCPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

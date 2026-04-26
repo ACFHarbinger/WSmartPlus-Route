@@ -494,6 +494,9 @@ document.write(`
 Transformer encoder and pairwise decoder for iterative solution improvement.</p>
 <p>Attributes:
 NeuOptPolicy: Policy for guided iterative search in combinatorial spaces.</p>
+<p>Example:
+&gt;&gt;&gt; policy = NeuOptPolicy(embed_dim=128)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,10 +526,10 @@ decoder (NeuOptDecoder): Pairwise move selection decoder.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NeuOpt policy.</p>
 <p>Args:
-embed_dim: dimensionality of the latent representation.
-num_heads: Parallel attention head count.
-num_layers: Depth of the Transformer encoder stacks.
-**kwargs: Extra parameters passed to the improvement base.</p>
+embed_dim: Latent dimension for all internal representations.
+num_heads: Number of attention heads in the transformer layers.
+num_layers: Depth of the Transformer encoder.
+kwargs: Additional keyword arguments for the base policy.</p>
 </dd></dl>
 
 </section>

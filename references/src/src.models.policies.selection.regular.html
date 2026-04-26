@@ -495,6 +495,11 @@ document.write(`
 <p>Regular selection strategy.</p>
 <p>This module provides a periodic collection strategy that marks all bins for
 collection on scheduled days based on a fixed frequency interval.</p>
+<p>Attributes:
+RegularSelector: Periodic collection strategy policy.</p>
+<p>Example:
+&gt;&gt;&gt; selector = RegularSelector(frequency=3)
+&gt;&gt;&gt; mask = selector.select(fill_levels, current_day=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +523,8 @@ collection on scheduled days based on a fixed frequency interval.</p>
 <p>Selects all bins on scheduled collection days based on a fixed frequency.
 If it is a collection day for a specific batch, all active bins in that
 batch are marked as mandatory.</p>
+<p>Attributes:
+frequency: Default collection interval in days.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the regular selector.</p>
 <p>Args:
@@ -527,10 +534,10 @@ frequency: Collection interval in days (e.g., 3 means collect every 3rd day).</p
 <span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.regular.RegularSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select all bins if today is a scheduled collection day.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N].
-current_day: Current simulation day [B] or scalar.
-frequency: Optional override for collection frequency.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels of bins [B, N].
+current_day: The simulation day index (scalar or [B]).
+frequency: Override for the default frequency interval.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

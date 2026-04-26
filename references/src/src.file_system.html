@@ -500,6 +500,14 @@ file system, including:</p>
 <li><p>Entry deletion: Cleanup of logs, models, datasets, and cache directories.</p></li>
 </ol>
 <p>It acts as a CLI entry point for administrative and data-management tasks.</p>
+<p>Attributes:
+perform_cryptographic_operations (function): Performs cryptographic tasks.
+update_file_system_entries (function): Applies content updates or statistical
+processing to files/directories.
+delete_entries (function): Deletes entries.
+main (function): Main entry point for the CLI.</p>
+<p>Example:
+python -m logic.src.file_system delete –delete_all</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -583,6 +591,10 @@ Exception: If listing or deletion operations fail.</p>
 <dt class="sig sig-object py" id="src.file_system._collect_directories_to_delete">
 <span class="sig-prename descclassname"><span class="pre">src.file_system.</span></span><span class="sig-name descname"><span class="pre">_collect_directories_to_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.file_system._collect_directories_to_delete" title="Link to this definition">#</a></dt>
 <dd><p>Helper to gather existing directories for deletion.</p>
+<p>Args:
+opts: Description of opts.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </section>

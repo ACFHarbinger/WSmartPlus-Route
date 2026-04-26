@@ -509,18 +509,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-dual-population-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Memetic Algorithm with Dual Population (MADP).</p>
-<p>This is the rigorous parameter mapping for the Volleyball Premier League (VPL) algorithm
-with proper Operations Research terminology.</p>
-<p>TERMINOLOGY MAPPING (VPL → MADP):</p>
-<ul class="simple">
-<li><p>n_teams → population_size (number of active solutions)</p></li>
-<li><p>substitution_rate → diversity_injection_rate</p></li>
-<li><p>coaching_weight_1/2/3 → elite_learning_weights</p></li>
-<li><p>elite_size → elite_count</p></li>
-</ul>
-<p>Reference:
-Moghdani, R., &amp; Salimifard, K. (2018). “Volleyball Premier League Algorithm.”
-Applied Soft Computing, 64, 161-185. DOI: 10.1016/j.asoc.2017.11.043</p>
+<p>Attributes:
+MemeticAlgorithmDualPopulationParams: Parameters for the MADP solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = MemeticAlgorithmDualPopulationParams(population_size=30, max_iterations=200)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -561,7 +553,10 @@ Must sum to 1.0. Best performer has highest weight.
 elite_count: Number of elite solutions preserved (VPL: elite_size).
 Typically 3 for top-3 guidance.
 local_search_iterations: Local search refinement iterations per solution.
-time_limit: Wall-clock time limit in seconds (0 = no limit).</p>
+time_limit: Wall-clock time limit in seconds (0 = no limit).
+vrpp: Whether to solve as a VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.population_size">
 <span class="sig-name descname"><span class="pre">population_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.population_size" title="Link to this definition">#</a></dt>
@@ -626,42 +621,70 @@ time_limit: Wall-clock time limit in seconds (0 = no limit).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source (dataclass or object).</p>
+<p>Returns:
+MemeticAlgorithmDualPopulationParams: Initialized runtime parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Validate parameter constraints and set default elite weights.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.substitution_rate">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">substitution_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.substitution_rate" title="Link to this definition">#</a></dt>
 <dd><p>Alias for diversity_injection_rate to match VPL exactly.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+float: The diversity injection rate.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.elite_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elite_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.elite_size" title="Link to this definition">#</a></dt>
 <dd><p>Alias for elite_count to match VPL exactly.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+int: The elite count.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_1">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coaching_weight_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_1" title="Link to this definition">#</a></dt>
 <dd><p>Alias for first elite learning weight to match VPL exactly.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+float: The first coaching weight.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_2">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coaching_weight_2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_2" title="Link to this definition">#</a></dt>
 <dd><p>Alias for second elite learning weight to match VPL exactly.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+float: The second coaching weight.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_3">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coaching_weight_3</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams.coaching_weight_3" title="Link to this definition">#</a></dt>
 <dd><p>Alias for third elite learning weight to match VPL exactly.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+float: The third coaching weight.</p>
 </dd></dl>
 
 </dd></dl>

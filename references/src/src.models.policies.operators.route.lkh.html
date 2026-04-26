@@ -510,6 +510,11 @@ candidate sets and lexicographic optimization for VRP problems.</p>
 <li><p>Double bridge kicks for perturbation.</p></li>
 <li><p>Lexicographic optimization (penalty, cost).</p></li>
 </ul>
+<p>Attributes:
+vectorized_lkh: Local search across a batch of tours.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.operators.route.lkh import vectorized_lkh
+&gt;&gt;&gt; optimized_tours = vectorized_lkh(tours, dist_matrix, capacities, wastes, max_iterations, max_candidates, use_3opt, perturbation_interval, generator)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

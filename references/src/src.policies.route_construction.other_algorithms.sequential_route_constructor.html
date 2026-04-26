@@ -490,6 +490,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.other_algorithms.sequential_route_constructor">
 <span id="src-policies-route-construction-other-algorithms-sequential-route-constructor"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.other_algorithms.sequential_route_constructor" title="src.policies.route_construction.other_algorithms.sequential_route_constructor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.sequential_route_constructor</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.other_algorithms.sequential_route_constructor" title="Link to this heading">#</a></h1>
+<p>Sequential Route Constructor (SRC) package.</p>
+<p>This package implements a meta-constructor that executes a fixed chain
+of routing heuristics in sequence, threading the state between them.</p>
+<p>Attributes:
+SRCParams: Parameters for the Sequential Route Constructor.
+SequentialRouteConstructor: Sequential Route Constructor (SRC).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.sequential_route_constructor import SequentialRouteConstructor, SRCParams
+&gt;&gt;&gt; params = SRCParams()
+&gt;&gt;&gt; src = SequentialRouteConstructor(config=params)
+&gt;&gt;&gt; src.execute(mandatory=[1, 2, 3], bins=bins_object, distance_matrix=distance_matrix)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} PSOMAParticle(routes: typing.List[typing.List[int]], profit: float)
+`````{py:class} PSOMAParticle(clients: typing.List[int], params: logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, split_solver: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit)
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle
@@ -35,4 +35,12 @@
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle.__init__
 ```
 
+````{py:method} _rov_rule(X: numpy.ndarray) -> typing.Tuple[numpy.ndarray, numpy.ndarray]
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle._rov_rule
+```
+
 ````
+
+`````

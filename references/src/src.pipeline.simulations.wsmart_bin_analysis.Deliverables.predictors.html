@@ -504,6 +504,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-predictors"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors" title="Link to this heading">#</a></h1>
 <p>SARIMA-based predictor for bin fill levels using R scripts.</p>
+<p>Attributes:
+Predictor: class to make predictions using ARIMA models.</p>
+<p>Example:
+&gt;&gt;&gt; import pandas as pd
+&gt;&gt;&gt; from src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors import Predictor
+&gt;&gt;&gt; train_data = pd.read_csv(“train.csv”)
+&gt;&gt;&gt; test_data = pd.read_csv(“test.csv”)
+&gt;&gt;&gt; predictor = Predictor(train_data, test_data)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +531,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.</span></span><span class="sig-name descname"><span class="pre">Predictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor" title="Link to this definition">#</a></dt>
 <dd><p>Predictor class that interfaces with R scripts to perform ARIMA-based forecasting.</p>
+<p>Attributes:
+prediction (pd.DataFrame):
+Predicted values for the fill levels of the bins.
+pred_error (pd.DataFrame):
+Predicted errors for the fill levels of the bins.
+real_error (pd.DataFrame):
+Real errors for the fill levels of the bins.
+mean39error (pd.DataFrame):
+39-day moving average of the fill levels of the bins.
+date_range (pd.DatetimeIndex):
+Date range of the test data.
+names (list[str]):
+Names of the temporary CSV files.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the predictor and trigger ARIMA script.</p>
 <p>Upon launch, it will trigger the R scripts that will make the prediction according to the ARIMA models.
@@ -537,77 +558,125 @@ fit_name (str, optional): Name for saved model weights. Defaults to None.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_values">
 <span class="sig-name descname"><span class="pre">get_pred_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_values" title="Link to this definition">#</a></dt>
 <dd><p>Get predicted values and standard deviations for a specific date.</p>
+<p>Args:
+date (pd.Timestamp): Date for which to get the predicted values and standard deviations.</p>
+<p>Returns:
+tuple[np.ndarray, np.ndarray]: Array of predicted values and standard deviations.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_real_errors">
 <span class="sig-name descname"><span class="pre">get_real_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_real_errors" title="Link to this definition">#</a></dt>
 <dd><p>Get the real error values between predictions and actual data.</p>
+<p>Returns:
+np.ndarray: Array of real errors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_39mean_MSE">
 <span class="sig-name descname"><span class="pre">get_39mean_MSE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_39mean_MSE" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the RMSE of the 39-day moving average baseline.</p>
+<p>Returns:
+np.ndarray: Array of RMSE values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_MSE">
 <span class="sig-name descname"><span class="pre">get_MSE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_MSE" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the RMSE of the ARIMA predictions.</p>
+<p>Returns:
+np.ndarray: Array of RMSE values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_avg_dispersion">
 <span class="sig-name descname"><span class="pre">get_avg_dispersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_avg_dispersion" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the average absolute predicted error (dispersion).</p>
+<p>Returns:
+np.ndarray: Array of average absolute predicted errors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_errors">
 <span class="sig-name descname"><span class="pre">get_pred_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.get_pred_errors" title="Link to this definition">#</a></dt>
 <dd><p>Get the absolute values of the predicted errors.</p>
+<p>Returns:
+np.ndarray: Array of predicted errors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean">
-<span class="sig-name descname"><span class="pre">fit_39mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit_39mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_39mean" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the 39-day moving average as a baseline for comparison.</p>
+<p>Args:
+train (pd.DataFrame): Training data.
+test (pd.DataFrame): Testing data.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_predict">
 <span class="sig-name descname"><span class="pre">fit_predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.fit_predict" title="Link to this definition">#</a></dt>
 <dd><p>Trigger the R scripts to fit models and generate predictions.</p>
+<p>Args:
+train_data (pd.DataFrame): Training data.
+test_data (pd.DataFrame): Testing data.
+fit_name (str, optional): Name for saved model weights. Defaults to None.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.save_cache">
-<span class="sig-name descname"><span class="pre">save_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.save_cache" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.save_cache" title="Link to this definition">#</a></dt>
 <dd><p>Save training and testing data to temporary CSV files.</p>
+<p>Args:
+train_data (pd.DataFrame): Training data.
+test_data (pd.DataFrame): Testing data.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache">
-<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.load_cache" title="Link to this definition">#</a></dt>
 <dd><p>Load prediction results and errors from temporary CSV files.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache">
-<span class="sig-name descname"><span class="pre">deleate_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">deleate_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.deleate_cache" title="Link to this definition">#</a></dt>
 <dd><p>Remove temporary CSV files used for R script interface.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.plot_predictions">
 <span class="sig-name descname"><span class="pre">plot_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residuals_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-20,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(9,</span> <span class="pre">6)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors.Predictor.plot_predictions" title="Link to this definition">#</a></dt>
 <dd><p>Plots the fill level of the bins with associated collections</p>
-<p class="rubric" id="parameters">Parameters</p>
-<p>fig_size: tuple of integers
-alias for plt.figure(figsize=fig_size)
-end/start_date: string with format %d/%m/%Y.
-Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.</p>
+<p>Args:
+index (int):
+Index of the bin to plot.
+start_date (pd.Timestamp):
+Start date of the period to be analysed.
+end_date (pd.Timestamp):
+End date of the period to be analysed.
+real_data (pd.DataFrame):
+DataFrame containing the real data.
+info (pd.DataFrame):
+DataFrame containing the container information.
+residuals_header (str):
+Header for the residuals.
+ylim (tuple, optional):
+Range of the y-axis. Defaults to (-20, 60).
+fig_size (tuple, optional):
+Size of the figure. Defaults to (9, 6).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

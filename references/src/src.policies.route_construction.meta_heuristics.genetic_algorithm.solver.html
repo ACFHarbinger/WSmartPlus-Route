@@ -503,6 +503,12 @@ document.write(`
 <p>Population of route solutions evolved via tournament selection, order
 crossover (OX), and random relocate mutation.  Elitism preserves the
 best individual across generations.</p>
+<p>Attributes:
+GASolver (Type): Core solver class for the Genetic Algorithm.
+GAParams (Type): Parameter dataclass for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = GASolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>References:
 Holland, J. H. “Adaptation in Natural and Artificial Systems”, 1975.
 Prins, C. “A simple and effective evolutionary
@@ -526,7 +532,29 @@ algorithm for the vehicle routing problem”, 2004.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.</span></span><span class="sig-name descname"><span class="pre">GASolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genetic_algorithm.params.html#src.policies.route_construction.meta_heuristics.genetic_algorithm.params.GAParams" title="src.policies.route_construction.meta_heuristics.genetic_algorithm.params.GAParams"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm.params.GAParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver" title="Link to this definition">#</a></dt>
 <dd><p>Genetic Algorithm solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of node indices.
+random: Random number generator.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Genetic Algorithm solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: GA parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver.solve" title="Link to this definition">#</a></dt>
@@ -539,42 +567,71 @@ Tuple of (routes, profit, cost).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._init_population">
 <span class="sig-name descname"><span class="pre">_init_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._init_population" title="Link to this definition">#</a></dt>
 <dd><p>Initialise population with randomised greedy solutions.</p>
+<p>Returns:
+List of initial individuals (solutions).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._tournament_select">
 <span class="sig-name descname"><span class="pre">_tournament_select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitnesses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._tournament_select" title="Link to this definition">#</a></dt>
 <dd><p>Select individual via tournament selection.</p>
+<p>Args:
+population: List of solutions.
+fitnesses: List of calculated profits.</p>
+<p>Returns:
+Selected individual.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._crossover">
 <span class="sig-name descname"><span class="pre">_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._crossover" title="Link to this definition">#</a></dt>
 <dd><p>OX crossover: inject a segment from parent2 into parent1.</p>
+<p>Args:
+parent1: First parent solution.
+parent2: Second parent solution.</p>
+<p>Returns:
+New child solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._mutate">
 <span class="sig-name descname"><span class="pre">_mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._mutate" title="Link to this definition">#</a></dt>
-<dd><p>Random relocate mutation using shared ruin/recreate.</p>
+<dd><p>Random relocate mutation.</p>
+<p>Args:
+routes: Individual routes.</p>
+<p>Returns:
+Mutated routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._local_search">
 <span class="sig-name descname"><span class="pre">_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._local_search" title="Link to this definition">#</a></dt>
 <dd><p>Prins (2004) style local search (2-opt).</p>
-<p>Systematically improves the best individual to a local optimum.</p>
+<p>Args:
+routes: Individual routes.</p>
+<p>Returns:
+Improved routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate net profit of routes.</p>
+<p>Args:
+routes: Individual routes.</p>
+<p>Returns:
+Net profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.GASolver._cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate total routing distance.</p>
+<p>Args:
+routes: Individual routes.</p>
+<p>Returns:
+Total cost.</p>
+</dd></dl>
 
 </dd></dl>
 

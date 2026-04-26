@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.policy_filo.FILOPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.policy_filo.FILOPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

@@ -525,11 +525,7 @@ Hoos, H. H., &amp; Stützle, T. (2005).
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_route</span></code></a></p></td>
-<td><p>Args:
-C (np.ndarray): Distance matrix (N x N) with depot at index 0
-to_collect (array-like): Node IDs to visit (excluding depot)
-time_limit (float): Maximum time in seconds for the solver
-seed (int): Random seed for reproducibility</p></td>
+<td><p>Find route using fast_tsp or custom solver.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_route_cost</span></code></a></p></td>
 <td><p>Calculate total distance cost of a tour.</p></td>
@@ -558,11 +554,13 @@ seed (int): Random seed for reproducibility</p></td>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">find_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_collect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-C (np.ndarray): Distance matrix (N x N) with depot at index 0
-to_collect (array-like): Node IDs to visit (excluding depot)
-time_limit (float): Maximum time in seconds for the solver
-seed (int): Random seed for reproducibility</p>
+<dd><p>Find route using fast_tsp or custom solver.</p>
+<p>Args:
+C: Description of C.
+to_collect: Description of to_collect.
+time_limit: Description of time_limit.
+seed: Description of seed.
+engine: Description of engine.</p>
 <p>Returns:
 List[int]: Tour starting and ending at depot. Format: [0, node1, node2, …, 0]</p>
 </dd></dl>

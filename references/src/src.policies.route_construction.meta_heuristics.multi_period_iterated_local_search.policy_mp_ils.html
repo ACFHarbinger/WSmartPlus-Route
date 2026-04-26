@@ -495,6 +495,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils">
 <span id="src-policies-route-construction-meta-heuristics-multi-period-iterated-local-search-policy-mp-ils"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils" title="src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils" title="Link to this heading">#</a></h1>
+<p>Multi-Period Iterated Local Search (MP-ILS) policy.</p>
+<p>Attributes:
+MultiPeriodILSPolicy: Policy class for the MP-ILS approach.</p>
+<p>Example:
+&gt;&gt;&gt; policy = MultiPeriodILSPolicy(config)
+&gt;&gt;&gt; sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,27 +527,51 @@ document.write(`
 <li><p>Perturbation (destroy and recreate)</p></li>
 <li><p>Acceptance criterion</p></li>
 </ol>
+<p>Attributes:
+params: MPILS specific parameters.
+max_iter: Maximum number of iterations.
+perturb_size: Number of nodes to remove during perturbation.
+seed: Random seed.
+rng: Random number generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Multi-Period ILS policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary or Hydra config.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the multi-period plan and return total profit.</p>
+<p>Args:
+plan: The multi-period routing plan.
+problem: The problem context.</p>
+<p>Returns:
+float: Total net profit across all periods.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._local_search">
 <span class="sig-name descname"><span class="pre">_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._local_search" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply local search (2-opt) to each day of the plan.</p>
+<p>Args:
+plan: The multi-period plan to refine.
+problem: The initial problem context.</p>
+<p>Returns:
+List[List[List[int]]]: The refined multi-period plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._perturb">
 <span class="sig-name descname"><span class="pre">_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._perturb" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Perturb the current plan to escape local optima.</p>
+<p>Destroys <code class="docutils literal notranslate"><span class="pre">perturb_size</span></code> nodes and tries to re-insert them.</p>
+<p>Args:
+plan: The current multi-period plan.
+problem: The initial problem context.</p>
+<p>Returns:
+List[List[List[int]]]: The perturbed multi-period plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils.MultiPeriodILSPolicy._run_multi_period_solver">

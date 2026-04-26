@@ -491,8 +491,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-island-model"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model" title="Link to this heading">#</a></h1>
 <p>Memetic Island Model Genetic Algorithm for VRPP.</p>
-<p>Rigorous implementation based on SLC but with GA terminology.
-Uses an island model architecture with memetic local search.</p>
+<p>Uses an island model architecture with memetic local search to solve the
+Vehicle Routing Problem with Profits.</p>
+<p>Attributes:
+MemeticAlgorithmIslandModelParams: Configuration parameters for MAIM.
+MemeticAlgorithmIslandModelSolver: Core solver implementation for MAIM.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model import MemeticAlgorithmIslandModelSolver</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -503,6 +503,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.guided_local_search.params">
 <span id="src-policies-route-construction-meta-heuristics-guided-local-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.guided_local_search.params" title="src.policies.route_construction.meta_heuristics.guided_local_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.guided_local_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Guided Local Search (GLS) solver.</p>
+<p>Attributes:
+GLSParams: Parameter dataclass for the Guided Local Search.</p>
+<p>Example:
+&gt;&gt;&gt; params = GLSParams(lambda_param=0.5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,18 +526,18 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.guided_local_search.params.GLSParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search.params.</span></span><span class="sig-name descname"><span class="pre">GLSParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.guided_local_search.params.GLSParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the GLS solver.</p>
-<p>GLS augments the objective function with adaptive penalty terms on
-edge features present at local optima.  The penalty makes previously
-visited optima less attractive, forcing the search into new basins.</p>
 <p>Attributes:
 lambda_param: Scaling coefficient for the penalty term (global intensity).
 alpha_param: Tuning parameter for the static base_lambda calculation.
 penalty_cycles: Number of GLS penalty update cycles (restarts).
 n_removal: Maximum nodes removed per LNS ruin step.
 n_llh: Number of Low-Level Heuristics in the pool.
-inner_iterations: Stagnation threshold representing Expected Neighborhood Coverage before declaring a local optimum and triggering a penalty update.
-fls_coupling_prob: Probability of triggering targeted penalized removal after update.
-time_limit: Wall-clock time limit in seconds.</p>
+inner_iterations: Stagnation threshold for declaring a local optimum.
+fls_coupling_prob: Probability of triggering targeted penalized removal.
+time_limit: Wall-clock time limit in seconds.
+seed: Random seed.
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.guided_local_search.params.GLSParams.lambda_param">
 <span class="sig-name descname"><span class="pre">lambda_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.guided_local_search.params.GLSParams.lambda_param" title="Link to this definition">#</a></dt>

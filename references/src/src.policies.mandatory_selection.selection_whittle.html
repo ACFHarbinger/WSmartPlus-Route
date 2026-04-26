@@ -499,6 +499,12 @@ the “subsidy for passivity” at which the decision-maker is indifferent
 between the two actions. Bins with higher Whittle indices are prioritized.</p>
 <p>This implementation uses a discretized MDP (20 states) and Value Iteration
 to solve for the indifferent subsidy.</p>
+<p>Attributes:
+WhittleIndexSelection(IMandatorySelectionStrategy): Selection strategy based on Whittle Index priority.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_whittle import WhittleIndexSelection
+&gt;&gt;&gt; strategy = WhittleIndexSelection()
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

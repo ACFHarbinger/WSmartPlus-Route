@@ -494,6 +494,16 @@ document.write(`
 <p>Consolidated Exact Solvers for VRPP.</p>
 <p>Provides high-performance, mathematically rigorous implementations of
 Branch-and-Price-and-Cut components.</p>
+<p>Attributes:
+VRPPMasterProblem: Column generation master problem implementation.
+RCSPPSolver: Resource Constrained Shortest Path Problem solver.
+SeparationEngine: Automated cut generation and separation.
+BranchAndBoundTree: Orchestrator for the B&amp;B search.
+run_subgradient: Lagrangian subgradient optimization entry point.</p>
+<p>Example:
+&gt;&gt;&gt; master = VRPPMasterProblem(nodes, edges, capacity)
+&gt;&gt;&gt; pricing = RCSPPSolver(dist_matrix, duals)
+&gt;&gt;&gt; routes = pricing.solve()</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -518,6 +518,10 @@ and never mutate the input <em>routes</em> object.</p>
 <p><code class="docutils literal notranslate"><span class="pre">IMPROVEMENT_OPERATORS</span></code> maps string keys to their corresponding
 functions for use in ALNS / ILS operator pools.  CVRP operators are keyed
 directly; VRPP operators carry a <code class="docutils literal notranslate"><span class="pre">_PROFIT</span></code> suffix.</p>
+<p>Attributes:
+IMPROVEMENT_OPERATORS (Dict[str, Callable]): Registry mapping operator
+names to their corresponding steepest-descent functions.
+IMPROVEMENT_NAMES (List[str]): Sorted list of operator names.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.operators.improvement import (
 …     two_opt_steepest, or_opt_steepest, node_exchange_steepest

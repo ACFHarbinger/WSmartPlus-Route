@@ -502,6 +502,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-policy-abpc-hg"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg" title="Link to this heading">#</a></h1>
+<p>Module documentation.</p>
+<p>Attributes:
+ABPCHGPolicy: The Adaptive Branch-and-Price-and-Cut with Heuristic Guidance policy implementation.</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg import ABPCHGPolicy
+&gt;&gt;&gt; policy = ABPCHGPolicy()
+&gt;&gt;&gt; policy.run(problem_context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -589,7 +596,7 @@ oracle.  If absent, ALNS-only pricing is used without an exact fallback.</p>
 <p>A trained GNN branching model may be injected post-construction via:
 <code class="docutils literal notranslate"><span class="pre">policy.ml_branching_model</span> <span class="pre">=</span> <span class="pre">&lt;your</span> <span class="pre">model&gt;</span></code>
 and will be picked up on the next <code class="docutils literal notranslate"><span class="pre">_run_multi_period_solver</span></code> call.</p>
-<p class="rubric" id="id5">Attributes</p>
+<p class="rubric" id="id5">Attributes:</p>
 <p>params : ABPCHGParams
 Fully resolved configuration instance built from the supplied config.
 gamma : float
@@ -598,21 +605,24 @@ ml_branching_model : Any or None
 Optional trained GNN model injected externally; <code class="docutils literal notranslate"><span class="pre">None</span></code> causes
 <code class="docutils literal notranslate"><span class="pre">MLBranchingStrategy</span></code> to fall back to reliability branching.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize ABPCHGPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration for the policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.abpc_hg.ABPCHGConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for the policy.</p>
+<p>Returns:
+Type[ABPCHGConfig]: The configuration class for the policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration key for the policy.</p>
+<p>Returns:
+str: The configuration key for the policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_prize_engine">

@@ -496,6 +496,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.hgs_adc">
 <span id="src-configs-policies-hgs-adc"></span><h1><a class="reference internal" href="#module-src.configs.policies.hgs_adc" title="src.configs.policies.hgs_adc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.hgs_adc</span></code></a><a class="headerlink" href="#module-src.configs.policies.hgs_adc" title="Link to this heading">#</a></h1>
+<p>Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) configuration.</p>
+<p>Attributes:
+HGSADCConfig: Configuration for the HGS-ADC policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.hgs_adc import HGSADCConfig
+&gt;&gt;&gt; config = HGSADCConfig()
+&gt;&gt;&gt; config.pop_size
+25</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +511,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.hgs_adc.HGSADCConfig" title="src.configs.policies.hgs_adc.HGSADCConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HGSADCConfig</span></code></a></p></td>
-<td></td>
+<td><p>HGS-ADC configuration parameters.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,7 +522,14 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.hgs_adc.HGSADCConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.hgs_adc.</span></span><span class="sig-name descname"><span class="pre">HGSADCConfig</span></span><a class="headerlink" href="#src.configs.policies.hgs_adc.HGSADCConfig" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>HGS-ADC configuration parameters.</p>
+<p>Attributes:
+pop_size (int): Population size.
+mu (int): Number of parents selected for reproduction.
+nb_close (int): Number of nearest neighbors for local search.
+generations (int): Number of generations.
+n_vehicles (int): Number of vehicles.</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hgs_adc.HGSADCConfig.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.hgs_adc.HGSADCConfig.pop_size" title="Link to this definition">#</a></dt>
 <dd><p>25</p>

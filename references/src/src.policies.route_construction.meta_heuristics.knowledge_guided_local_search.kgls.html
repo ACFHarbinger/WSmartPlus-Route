@@ -505,6 +505,10 @@ guided by edge length and width penalties.</p>
 <p>Reference:
 Arnold, F., &amp; Sorensen, K. “Knowledge-guided
 local search for the vehicle routing problem”, 2018</p>
+<p>Attributes:
+KGLSSolver: Core KGLS solver logic.</p>
+<p>Example:
+&gt;&gt;&gt; solver = KGLSSolver(dist_matrix, locations, wastes, capacity, R, C, params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,6 +545,21 @@ local search for the vehicle routing problem”, 2018</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.</span></span><span class="sig-name descname"><span class="pre">KGLSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver" title="Link to this definition">#</a></dt>
 <dd><p>KGLS execution engine propagating geometric penalties through local search.</p>
+<p>Attributes:
+dist_matrix: NxN distance matrix.
+locations: Nx2 coordinate matrix for width baseline.
+wastes: Dictionary of node wastes (demands/profits).
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: Parameters for the algorithm.
+mandatory_nodes: List of mandatory nodes.
+random: Random instance for reproducibility.
+rng: NumPy random generator.
+n_nodes: Number of non-depot nodes.
+nodes: List of node indices.
+evaluator: Cost evaluator with penalization support.
+ls_manager: Local search manager.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the KGLS solver.</p>
 <p>Args:
@@ -552,35 +571,60 @@ R: Revenue multiplier.
 C: Cost multiplier.
 params: Parameters for the algorithm.
 mandatory_nodes: List of mandatory nodes.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost using active evaluated distances.</p>
+<p>Args:
+routes: List of collection routes.
+penalized: Whether to use penalized distances.</p>
+<p>Returns:
+float: Total calculated cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.calculate_profit">
 <span class="sig-name descname"><span class="pre">calculate_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.calculate_profit" title="Link to this definition">#</a></dt>
 <dd><p>Calculate network profit (revenue - cost).</p>
+<p>Args:
+routes: List of collection routes.
+penalized: Whether to use penalized distances.</p>
+<p>Returns:
+float: Total calculated profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.build_initial_solution">
 <span class="sig-name descname"><span class="pre">build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.build_initial_solution" title="Link to this definition">#</a></dt>
-<dd><p>Greedy constructive heuristic. Can be replaced with generalized parallel savings.</p>
+<dd><p>Construct initial solution using a greedy heuristic.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+List[List[int]]: Initial routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.apply_local_search">
 <span class="sig-name descname"><span class="pre">apply_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ls_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.local_search.local_search_aco.ACOLocalSearch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targeted_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.apply_local_search" title="Link to this definition">#</a></dt>
-<dd><p>Apply local search operators to improve the solution.
-If mapped to targeted nodes, search effort is computationally localized.</p>
+<dd><p>Apply local search operators to improve the solution.</p>
+<p>Args:
+routes: Current collection routes.
+ls_manager: Local search manager instance.
+targeted_nodes: Optional subset of nodes to focus search on.</p>
+<p>Returns:
+List[List[int]]: Optimized routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.KGLSSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Main KGLS execution loop.</p>
+<dd><p>Execute the main KGLS optimization loop.</p>
+<p>Args:
+initial_solution: Optional starting solution.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Optimized routes, profit, and cost.</p>
 </dd></dl>
 
 </dd></dl>

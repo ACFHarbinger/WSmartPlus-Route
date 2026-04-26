@@ -520,6 +520,11 @@ binary ŷ solutions (exponential in |N| but bounded in practice by time/iter).</
 Laporte, G., &amp; Louveaux, F. V. (1993). “The integer L-shaped method for
 stochastic integer programs with complete recourse”. Operations Research
 Letters, 13(3), 133-142.</p>
+<p>Attributes:
+IntegerLShapedEngine (class): Benders decomposition engine for stochastic VRPP.</p>
+<p>Example:
+&gt;&gt;&gt; engine = IntegerLShapedEngine(model, params)
+&gt;&gt;&gt; routes, y_hat, profit, stats = engine.solve(tree)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -555,25 +560,29 @@ routes, y_hat, profit, stats = engine.solve(tree)
 </pre></div>
 </div>
 <p>Attributes:
-model: VRPPModel encoding the deterministic problem structure.
-params: ILSBDParams configuring all solver hyper-parameters.
-stats: Diagnostic dict populated during <code class="docutils literal notranslate"><span class="pre">solve()</span></code>.</p>
+model (VRPPModel): VRPPModel instance providing graph topology, costs, and profits.
+params (ILSBDParams): ILSBDParams controlling all solver parameters.
+stats (Dict[str, Any]): Diagnostic dict populated during <code class="docutils literal notranslate"><span class="pre">solve()</span></code>.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the engine.</p>
 <p>Args:
-model: VRPPModel instance (network structure, costs, fill levels).
-params: ILSBDParams configuring Benders iterations, scenarios, penalties.</p>
+model (VRPPModel): VRPPModel instance (network structure, costs, fill levels).
+params (ILSBDParams): ILSBDParams configuring Benders iterations, scenarios, penalties.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_inventory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the (standard or Multi-Period) Integer L-Shaped Benders decomposition.</p>
 <p>Args:
-tree: A ScenarioTree object.
-demand_matrix: Optional mean demand increments per day per node.
-bin_capacities: Optional bin capacities per node.
-initial_inventory: Optional initial fill levels per node.</p>
+tree (ScenarioTree): A ScenarioTree object.
+demand_matrix (Optional[np.ndarray]): Optional mean demand increments per day per node.
+bin_capacities (Optional[np.ndarray]): Optional bin capacities per node.
+initial_inventory (Optional[np.ndarray]): Optional initial fill levels per node.</p>
 <p>Returns:
-Tuple of (routes, y_hat, profit, stats).</p>
+Tuple[List[List[int]], Dict[int, float], float, Dict[str, Any]]: A tuple containing:
+- routes: List of customer-only route lists (depot excluded).
+- y_hat: Dictionary mapping node indices to visit decisions.
+- profit: Calculated net profit.
+- stats: Execution statistics and solver metadata.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -584,10 +593,10 @@ Tuple of (routes, y_hat, profit, stats).</p>
 value is compatible with the deterministic-policy contract used by
 BaseRoutingPolicy (<code class="docutils literal notranslate"><span class="pre">profit</span> <span class="pre">=</span> <span class="pre">revenue</span> <span class="pre">−</span> <span class="pre">travel_cost</span></code>).</p>
 <p>Args:
-routes: Customer-only route lists from the master problem.
-y_hat:  Binary visit decisions {node_idx: 0.0/1.0}.</p>
+routes (List[List[int]]): Customer-only route lists from the master problem.
+y_hat (Dict[int, float]): Binary visit decisions {node_idx: 0.0/1.0}.</p>
 <p>Returns:
-Net profit in the problem’s monetary units.</p>
+float: Net profit in the problem’s monetary units.</p>
 </dd></dl>
 
 </dd></dl>

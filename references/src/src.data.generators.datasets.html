@@ -550,6 +550,10 @@ generation parameters.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._generate_problem_data">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_generate_problem_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distributions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.generators.datasets._generate_problem_data" title="Link to this definition">#</a></dt>
 <dd><p>Helper to generate data for a specific problem and its distributions.</p>
+<p>Args:
+problem: Description of problem.
+distributions: Description of distributions.
+data: Description of data.</p>
 <p>Returns:
 Number of files generated.</p>
 </dd></dl>
@@ -558,6 +562,12 @@ Number of files generated.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._process_instance_generation">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_process_instance_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datadir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.envs.graph.GraphConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.generators.datasets._process_instance_generation" title="Link to this definition">#</a></dt>
 <dd><p>Configure builder and save datasets for a specific configuration.</p>
+<p>Args:
+problem: Description of problem.
+dist: Description of dist.
+datadir: Description of datadir.
+data: Description of data.
+graph_cfg: Description of graph_cfg.</p>
 <p>Returns:
 Number of files generated.</p>
 </dd></dl>
@@ -566,12 +576,26 @@ Number of files generated.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._apply_noise_config">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_apply_noise_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.data.generators.builders.VRPInstanceBuilder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.generators.datasets._apply_noise_config" title="Link to this definition">#</a></dt>
 <dd><p>Apply noise parameters to the builder.</p>
+<p>Args:
+builder: Description of builder.
+problem: Description of problem.
+data: Description of data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.generators.datasets._generate_test_simulator_data">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_generate_test_simulator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.data.generators.builders.VRPInstanceBuilder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datadir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.generators.datasets._generate_test_simulator_data" title="Link to this definition">#</a></dt>
 <dd><p>Generate and save test simulator data.</p>
+<p>Args:
+builder: Description of builder.
+n_days: Description of n_days.
+datadir: Description of datadir.
+dist: Description of dist.
+size: Description of size.
+data: Description of data.
+area: Description of area.
+waste_type: Description of waste_type.
+n_samples: Description of n_samples.</p>
 <p>Returns:
 Number of files generated.</p>
 </dd></dl>
@@ -580,6 +604,14 @@ Number of files generated.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._generate_train_time_data">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_generate_train_time_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.data.generators.builders.VRPInstanceBuilder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datadir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.generators.datasets._generate_train_time_data" title="Link to this definition">#</a></dt>
 <dd><p>Generate and save train time data.</p>
+<p>Args:
+builder: Description of builder.
+problem: Description of problem.
+n_days: Description of n_days.
+datadir: Description of datadir.
+dist: Description of dist.
+size: Description of size.
+data: Description of data.</p>
 <p>Returns:
 Number of files generated.</p>
 </dd></dl>
@@ -588,6 +620,13 @@ Number of files generated.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._generate_train_data">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_generate_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.data.generators.builders.VRPInstanceBuilder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datadir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.generators.datasets._generate_train_data" title="Link to this definition">#</a></dt>
 <dd><p>Generate and save standard training data.</p>
+<p>Args:
+builder: Description of builder.
+problem: Description of problem.
+datadir: Description of datadir.
+dist: Description of dist.
+size: Description of size.
+data: Description of data.</p>
 <p>Returns:
 Number of files generated.</p>
 </dd></dl>
@@ -596,6 +635,11 @@ Number of files generated.</p>
 <dt class="sig sig-object py" id="src.data.generators.datasets._verify_and_save">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.datasets.</span></span><span class="sig-name descname"><span class="pre">_verify_and_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.data.generators.builders.VRPInstanceBuilder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.tasks.data.DataConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.generators.datasets._verify_and_save" title="Link to this definition">#</a></dt>
 <dd><p>Verify file existence and save the dataset.</p>
+<p>Args:
+builder: Description of builder.
+filename: Description of filename.
+data: Description of data.
+is_td: Description of is_td.</p>
 </dd></dl>
 
 </section>

@@ -503,6 +503,12 @@ document.write(`
 System (ACS). It processes multiple problem instances and multiple ants per
 instance in parallel using tensor operations, drastically reducing the
 computational overhead of pheromone updates and local updates.</p>
+<p>Attributes:
+VectorizedACOPolicy: High-performance parallel ACO policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
+&gt;&gt;&gt; policy = VectorizedACOPolicy(env_name=”tsp”)
+&gt;&gt;&gt; out = policy(td, env=env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,18 +544,18 @@ min_pheromone: Floor value for pheromone trails to prevent stagnation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ACO policy.</p>
 <p>Args:
-env_name: Identifier for the problem environment.
-n_ants: Number of concurrent ants per instance.
-n_iterations: Convergence loop limit.
-alpha: Importance of pheromone trails.
-beta: Importance of visibility (inverse distance).
-decay: Rate of trail evaporation.
-elitism: Count of best ants for trail reinforcement.
-q0: Parameter controlling exploration/exploitation tradeoff.
-min_pheromone: Lower bound on trail intensity.
-seed: RNG constant.
-device: Target device.
-**kwargs: Additional hyperparameters.</p>
+env_name: Name of the environment (e.g., “tsp”).
+n_ants: Number of parallel ants to use per batch instance.
+n_iterations: Number of ACO iterations/generations.
+alpha: Pheromone importance exponent.
+beta: Heuristic importance exponent.
+decay: Pheromone evaporation rate (rho).
+elitism: Number of top ants to use for global pheromone update.
+q0: Probability of choosing the best move (exploitation) in ACS.
+min_pheromone: Minimum pheromone level (tau_min).
+seed: Random seed for reproducibility.
+device: Computing device (“cpu”, “cuda”).
+kwargs: Additional arguments for AutoregressivePolicy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__" title="Link to this definition">#</a></dt>
@@ -583,13 +589,17 @@ torch.Tensor: Heuristic visibility information (eta) of shape [B, N, N].</p>
 <p>Constructs solutions for all ants, updates pheromones based on iteration
 quality, and tracks the global best solution across the batch.</p>
 <p>Args:
-td: Problem instance data.
-env: Target environment for constraints.
-strategy: Selection strategy (not used for meta-heuristics).
-num_starts: Number of independent starts (ACO handles this via ants).
-**kwargs: Runtime parameters.</p>
+td: TensorDict containing the problem instance data (e.g., node locations).
+env: Optional environment for step transitions and masking.
+strategy: Decoding strategy (e.g., “sampling”, “greedy”).
+num_starts: Number of starting nodes/tours to evaluate.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
-Dict[str, Any]: Best actions, rewards, and associated costs.</p>
+Dict[str, Any]: Dictionary containing:
+- actions: The best tour found for each instance.
+- reward: Negative tour cost.
+- cost: Absolute tour length.
+- log_likelihood: Dummy probabilities (ACO is not gradient-based).</p>
 </dd></dl>
 
 <dl class="py method">

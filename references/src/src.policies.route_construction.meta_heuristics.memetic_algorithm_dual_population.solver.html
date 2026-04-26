@@ -499,30 +499,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-dual-population-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver" title="Link to this heading">#</a></h1>
 <p>Memetic Algorithm with Dual Population (MA-DP) for VRPP.</p>
-<p>EXACT COPY of Volleyball Premier League (VPL) with rigorous nomenclature.</p>
-<p>TERMINOLOGY MAPPING (VPL → MA-DP):</p>
-<ul class="simple">
-<li><p>“Active Teams” → Active Population (competing solutions)</p></li>
-<li><p>“Passive Teams” → Reserve Population (diversity pool)</p></li>
-<li><p>“Substitution” → Diversity Injection Operator</p></li>
-<li><p>“Coaching from Top 3” → Elite-Guided Solution Construction</p></li>
-<li><p>“Seasons” → Generations/Iterations</p></li>
-<li><p>“Team Formation” → Solution Construction</p></li>
-</ul>
-<p>Algorithm Structure (Moghdani &amp; Salimifard, 2018):
-1. Initialize dual population (N active + N reserve solutions)
-2. For each iteration:
-a. Competition Phase: Rank active solutions by fitness
-b. Diversity Injection: Combine active solutions with reserve pool
-c. Elite-Guided Construction: Weaker solutions learn from top-k performers
-d. Local Search: Refine all solutions
-e. Update best solution</p>
-<p>Reference:
-Moghdani, R., &amp; Salimifard, K. (2018). “Volleyball Premier League Algorithm.”
-Applied Soft Computing, 64, 161-185. DOI: 10.1016/j.asoc.2017.11.043</p>
-<p>IMPORTANT: This implementation EXACTLY matches the VPL algorithm with only
-terminology changed from sports metaphors to OR terminology.
-Uses identical RNG attribute name (self.random) and algorithm flow.</p>
+<p>Attributes:
+MemeticAlgorithmDualPopulationSolver: Core solver implementation for MA-DP.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MemeticAlgorithmDualPopulationSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,8 +511,7 @@ Uses identical RNG attribute name (self.random) and algorithm flow.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemeticAlgorithmDualPopulationSolver</span></code></a></p></td>
-<td><p>Memetic Algorithm with Dual Population for VRPP.
-EXACT COPY of VPL with rigorous nomenclature.</p></td>
+<td><p>Memetic Algorithm with Dual Population for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -542,8 +522,20 @@ EXACT COPY of VPL with rigorous nomenclature.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmDualPopulationSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.html#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.MemeticAlgorithmDualPopulationParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver" title="Link to this definition">#</a></dt>
-<dd><p>Memetic Algorithm with Dual Population for VRPP.
-EXACT COPY of VPL with rigorous nomenclature.</p>
+<dd><p>Memetic Algorithm with Dual Population for VRPP.</p>
+<p>Adaptation of VPL with rigorous nomenclature.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of node indices to waste/profit values.
+capacity: Vehicle capacity constraint.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+params: MA-DP algorithm parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+random: Random number generator.
+ls: Local search optimizer.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize MA-DP solver.</p>
 <p>Args:
@@ -554,15 +546,17 @@ R: Revenue per unit of waste collected.
 C: Cost per unit of distance traveled.
 params: MA-DP algorithm parameters.
 mandatory_nodes: List of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.MemeticAlgorithmDualPopulationSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the MA-DP algorithm.</p>
 <p>Returns:
-Tuple of (routes, profit, cost):
-- routes: List of vehicle routes (each route is list of node indices)
-- profit: Net profit of the solution
-- cost: Total routing cost (distance)</p>
+Tuple[List[List[int]], float, float]: A 3-tuple containing:
+- routes: List of vehicle routes.
+- profit: Net profit of the solution.
+- cost: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -574,7 +568,7 @@ with randomized node orderings.</p>
 <p>Args:
 pop_size: Number of solutions to generate.</p>
 <p>Returns:
-List of routing solutions (each solution is a list of routes).</p>
+List[List[List[int]]]: List of routing solutions.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -588,7 +582,7 @@ This mimics substituting exhausted players with fresh reserves.</p>
 active_teams: List of active team solutions.
 passive_teams: List of passive team solutions (reserve pool).</p>
 <p>Returns:
-Modified active teams with injected diversity.</p>
+List[List[List[int]]]: Modified active teams with injected diversity.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -598,13 +592,10 @@ Modified active teams with injected diversity.</p>
 <p>Teams ranked below the top 3 learn from the best performers. Each
 weaker team creates a new formation by combining characteristics
 from the top 3 teams using weighted learning.</p>
-<p>Mathematical formulation:
-Team_i^(t+1) = w1 * Team_1 + w2 * Team_2 + w3 * Team_3
-where w1 + w2 + w3 = 1.0</p>
 <p>Args:
 active_teams: List of active teams sorted by fitness (best first).</p>
 <p>Returns:
-Modified active teams after coaching.</p>
+List[List[List[int]]]: Modified active teams after coaching.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -619,7 +610,7 @@ top1: Best team’s routing solution.
 top2: Second-best team’s routing solution.
 top3: Third-best team’s routing solution.</p>
 <p>Returns:
-New routing solution learned from elite teams.</p>
+List[List[int]]: New routing solution learned from elite teams.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -629,7 +620,7 @@ New routing solution learned from elite teams.</p>
 <p>Args:
 routes: List of vehicle routes.</p>
 <p>Returns:
-Net profit (revenue - cost).</p>
+float: Net profit (revenue - cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -639,7 +630,7 @@ Net profit (revenue - cost).</p>
 <p>Args:
 routes: List of vehicle routes.</p>
 <p>Returns:
-Total distance traveled.</p>
+float: Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

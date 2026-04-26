@@ -498,6 +498,12 @@ document.write(`
 <p>This module provides the <code class="docutils literal notranslate"><span class="pre">CriticNetwork</span></code> class, which serves as the base
 Value function for Actor-Critic algorithms. It aggregates node-level latent
 representations into a single scalar value prediction.</p>
+<p>Attributes:
+CriticNetwork: Value function for Actor-Critic algorithms.
+create_critic_from_actor: Creates a critic network from an actor network.</p>
+<p>Example:
+&gt;&gt;&gt; critic = CriticNetwork(env_name=”tsp”, embed_dim=128)
+&gt;&gt;&gt; value = critic(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,16 +545,16 @@ value_head: MLP layers mapping embeddings to values.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the CriticNetwork.</p>
 <p>Args:
-env_name: Name of the environment (defines the embedding layer).
-embed_dim: Latent representation dimensionality.
-hidden_dim: Dimensionality of the value head MLP.
-n_layers: Number of encoder layers if not provided.
+env_name: Name of the environment identifier.
+embed_dim: Dimensionality of latent embeddings.
+hidden_dim: Dimensionality of hidden layers.
+n_layers: Number of graph encoder layers.
 n_heads: Number of attention heads.
-normalization: Type of normalization layer.
-dropout_rate: Dropout probability.
-aggregation: Aggregation strategy for node features.
-encoder: Optional pre-defined encoder to reuse.
-**kwargs: Additional parameters for the encoder.</p>
+normalization: Type of layer normalization.
+dropout_rate: Dropout probability for regularization.
+aggregation: Global pooling mode (“avg”, “sum”, “max”).
+encoder: Optional pre-initialized encoder module.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.critic_network.policy.CriticNetwork.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.policy.CriticNetwork.forward" title="Link to this definition">#</a></dt>
@@ -568,9 +574,9 @@ torch.Tensor: State value prediction of shape [batch, 1].</p>
 <p>Useful for Actor-Critic methods where the encoder features are shared
 between the policy and the value network.</p>
 <p>Args:
-policy: The actor policy containing the encoder.
-backbone_name: Attribute name of the encoder within the policy.
-**critic_kwargs: Overrides for the CriticNetwork configuration.</p>
+policy: The actor policy containing the backbone to clone.
+backbone_name: Attribute name of the backbone within the policy.
+critic_kwargs: Additional arguments for CriticNetwork initialization.</p>
 <p>Returns:
 CriticNetwork: An initialized critic with an independent copy of the
 actor’s backbone.</p>

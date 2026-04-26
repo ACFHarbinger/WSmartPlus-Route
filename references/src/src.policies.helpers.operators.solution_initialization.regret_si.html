@@ -491,6 +491,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.solution_initialization.regret_si">
 <span id="src-policies-helpers-operators-solution-initialization-regret-si"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.solution_initialization.regret_si" title="src.policies.helpers.operators.solution_initialization.regret_si"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.solution_initialization.regret_si</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.solution_initialization.regret_si" title="Link to this heading">#</a></h1>
 <p>Regret-based insertion heuristic for VRPP initialization.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.solution_initialization.regret_si import build_regret_routes
+&gt;&gt;&gt; routes = build_regret_routes(dist_matrix, wastes, capacity, R, C)</p>
 <p>Reference:
 Potvin, J.-Y., &amp; Rousseau, J.-M. (1993). A parallel route building algorithm
 for the vehicle routing and time window problem.
@@ -518,7 +523,18 @@ European Journal of Operational Research, 66(3), 331-340.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.solution_initialization.regret_si.</span></span><span class="sig-name descname"><span class="pre">_best_insertion_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.solution_initialization.regret_si._best_insertion_cost" title="Link to this definition">#</a></dt>
 <dd><p>Return (best_delta_cost, route_idx, position) for inserting <code class="docutils literal notranslate"><span class="pre">node</span></code>.</p>
 <p>delta_cost = insertion distance increase minus marginal revenue.
-Lower is better (more profitable insertion).
+Lower is better (more profitable insertion).</p>
+<p>Args:
+node (int): Node ID to insert.
+routes (List[List[int]]): Current routes.
+loads (List[float]): Current route loads.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Node wastes.
+capacity (float): Vehicle capacity.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
+<p>Returns:
+Tuple[float, int, int]: (best_delta_cost, route_idx, position).
 Returns (inf, -1, -1) if no feasible insertion exists.</p>
 </dd></dl>
 
@@ -530,16 +546,16 @@ Returns (inf, -1, -1) if no feasible insertion exists.</p>
 its k-th best and best feasible insertion positions (its “regret”).
 Insert the node with the highest regret first.</p>
 <p>Args:
-dist_matrix:     (N+1)×(N+1) distance matrix.
-wastes:          {node_id → fill level}.
-capacity:        Vehicle capacity Q.
-R:               Revenue per unit waste.
-C:               Cost per unit distance.
-mandatory_nodes: Nodes that must be visited.
-regret_k:        Number of alternatives to compare (k=2 is standard).
-rng:             Random generator (used for tie-breaking).</p>
+dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+wastes (Dict[int, float]): {node_id → fill level}.
+capacity (float): Vehicle capacity Q.
+R (float): Revenue per unit waste.
+C (float): Cost per unit distance.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+regret_k (int): Number of alternatives to compare (k=2 is standard).
+rng (Optional[random.Random]): Random generator (used for tie-breaking).</p>
 <p>Returns:
-List of routes (depot excluded).</p>
+List[List[int]]: List of routes (depot excluded).</p>
 </dd></dl>
 
 </section>

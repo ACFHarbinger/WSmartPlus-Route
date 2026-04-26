@@ -496,6 +496,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-alns-pricer"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.alns_pricer" title="Link to this heading">#</a></h1>
 <p>ALNS Metaheuristic Pricing.</p>
+<p>Attributes:
+ALNSMultiPeriodPricer: A class that implements the ALNS heuristic pricing for the Benders decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; from alns_pricer import ALNSMultiPeriodPricer
+&gt;&gt;&gt; pricer = ALNSMultiPeriodPricer()
+&gt;&gt;&gt; pricer.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -543,7 +549,7 @@ accepted, preserving the reduced-cost improvement invariant.</p>
 a column with <strong>positive</strong> reduced cost rc &gt; tol is an improving column.
 This is the sign-flip of the standard LP minimisation convention
 (rc &lt; −tol).</p>
-<p class="rubric" id="id4">Attributes</p>
+<p class="rubric" id="id4">Attributes:</p>
 <p>exact_pricer : RCSPPSolver
 Exact ESPPRC solver used as fallback when ALNS fails to find
 improving columns.
@@ -655,7 +661,7 @@ rc &gt; tol is improving).  Corresponds to −1e-4 in the standard
 LP minimisation convention.
 alns_iterations: Number of destroy-and-repair cycles per seed
 route.
-**kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">self.exact_pricer.solve()</span></code> when
+kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">self.exact_pricer.solve()</span></code> when
 the fallback is triggered.</p>
 <p>Returns:
 routes : List[Route]

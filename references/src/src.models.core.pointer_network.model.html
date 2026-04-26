@@ -501,6 +501,9 @@ LSTM-based architecture that uses attention as a pointer to select nodes from
 the input sequence, allowing it to handle variable-length sequences effectively.</p>
 <p>Attributes:
 PointerNetwork: Classic sequence-to-sequence pointer architecture.</p>
+<p>Example:
+&gt;&gt;&gt; model = PointerNetwork(embed_dim=128, hidden_dim=512, problem=tsp)
+&gt;&gt;&gt; cost, ll = model(inputs)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,14 +538,14 @@ embedding (nn.Parameter): Feature projection weights.</p>
 <p>Initializes the Pointer Network.</p>
 <p>Args:
 embed_dim: Dimensionality of latent embeddings.
-hidden_dim: LSTM hidden state width.
-problem: Optimization problem definition.
-n_encode_layers: Unused (retained for API compatibility).
-tanh_clipping: Logit clipping range.
-mask_inner: Enable masking in attention glimpses.
-mask_logits: Enable masking in final output logits.
-normalization: Type of normalization.
-**kwargs: Extra parameters.</p>
+hidden_dim: Dimensionality of LSTM hidden states.
+problem: Environment managing rewards and problem constraints.
+n_encode_layers: Number of encoder layers (defaults to 1).
+tanh_clipping: Range for attention logit clipping.
+mask_inner: Whether to mask glimpses during pointer calculation.
+mask_logits: Whether to mask invalid actions in the output layer.
+normalization: Type of normalization (e.g., “batch”, “layer”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.pointer_network.model.PointerNetwork.set_strategy">
 <span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.pointer_network.model.PointerNetwork.set_strategy" title="Link to this definition">#</a></dt>

@@ -498,6 +498,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.routing.cvrpp">
 <span id="src-envs-routing-cvrpp"></span><h1><a class="reference internal" href="#module-src.envs.routing.cvrpp" title="src.envs.routing.cvrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cvrpp</span></code></a><a class="headerlink" href="#module-src.envs.routing.cvrpp" title="Link to this heading">#</a></h1>
 <p>CVRPP Environment implementation.</p>
+<p>Attributes:
+CVRPPEnv: CVRPP environment.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“cvrpp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +524,8 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.routing.cvrpp.</span></span><span class="sig-name descname"><span class="pre">CVRPPEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.generators.VRPPGenerator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.routing.cvrpp.CVRPPEnv" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.envs.routing.vrpp.VRPPEnv</span></code></p>
 <p>Capacitated VRPP: VRPP with vehicle capacity constraints.</p>
+<p>Attributes:
+name: Name of the environment.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize VRPPEnv.</p>
 <p>Args:
@@ -528,7 +536,7 @@ cost_weight: Weight for travel cost in reward.
 revenue_kg: Optional revenue per kg (overrides waste_weight).
 cost_km: Optional cost per km (overrides cost_weight).
 device: Device for torch tensors (‘cpu’ or ‘cuda’).
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.cvrpp.CVRPPEnv.name" title="Link to this definition">#</a></dt>
@@ -539,12 +547,22 @@ device: Device for torch tensors (‘cpu’ or ‘cuda’).
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv._reset_instance">
 <span class="sig-name descname"><span class="pre">_reset_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.cvrpp.CVRPPEnv._reset_instance" title="Link to this definition">#</a></dt>
 <dd><p>Initialize CVRPP state with capacity tracking.</p>
+<p>Args:
+tensordict: Input TensorDict containing graph structure and node properties.</p>
+<p>Returns:
+TensorDict: Initialized CVRPP state with capacity tracking.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv._reset">
 <span class="sig-name descname"><span class="pre">_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.cvrpp.CVRPPEnv._reset" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Reset the environment.</p>
+<p>Args:
+tensordict: Input TensorDict containing graph structure and node properties.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+TensorDict: Reset environment state.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv._step_instance">
@@ -552,15 +570,20 @@ device: Device for torch tensors (‘cpu’ or ‘cuda’).
 <dd><p>reset.</p>
 <p>Args:
 tensordict (Optional[TensorDict]): Description of tensordict.
-kwargs (Any): Description of kwargs.</p>
+kwargs (Any): Additional keyword arguments.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Any: Updated TensorDict or tensor containing the result.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.cvrpp.CVRPPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Step the environment.</p>
+<p>Args:
+tensordict: Input TensorDict containing action.</p>
+<p>Returns:
+TensorDict: Environment state after action.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.cvrpp.CVRPPEnv._get_action_mask">
@@ -568,6 +591,10 @@ Any: Description of return value.</p>
 <dd><p>Mask nodes that would exceed capacity, respecting mandatory constraints.</p>
 <p>Applies capacity constraints on top of base VRPP mask, then
 re-applies mandatory logic to determine depot validity.</p>
+<p>Args:
+tensordict: Input TensorDict containing graph structure and node properties.</p>
+<p>Returns:
+torch.Tensor: Action mask.</p>
 </dd></dl>
 
 </dd></dl>

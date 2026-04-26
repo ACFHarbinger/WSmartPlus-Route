@@ -497,6 +497,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.base.data">
 <span id="src-pipeline-rl-common-base-data"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.base.data" title="src.pipeline.rl.common.base.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.base.data</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.base.data" title="Link to this heading">#</a></h1>
 <p>Data logic for RL4COLitModule.</p>
+<p>Attributes:
+DataMixin: Mixin for data loading logic.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,6 +537,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.data.DataMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.data.</span></span><span class="sig-name descname"><span class="pre">DataMixin</span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data.DataMixin" title="Link to this definition">#</a></dt>
 <dd><p>Mixin for data loading logic.</p>
+<p>Attributes:
+env: Environment for data generation.
+policy: Policy for data generation.
+train_data_size: Size of training data.
+val_data_size: Size of validation data.
+val_dataset_path: Path to validation dataset.
+train_dataset_path: Path to training dataset.
+batch_size: Batch size.
+num_workers: Number of workers.
+persistent_workers: Whether to use persistent workers.
+pin_memory: Whether to pin memory.
+local_rank: Local rank.
+train_dataset: Training dataset.
+val_dataset: Validation dataset.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:

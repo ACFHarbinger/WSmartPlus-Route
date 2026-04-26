@@ -540,6 +540,12 @@ node inventory is not full, and vehicle has remaining capacity)</p></li>
 - stockout_penalty    * total_stockout</p>
 <p>All three components are accumulated over T periods.  The reward is dense
 (computed at every step) but only meaningful at the terminal step.</p>
+<p>Attributes:
+IRPEnv: IRP environment.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“irp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()</p>
 </section>
 <p>IRP Environment — Deterministic Multi-Period Inventory Routing Problem.</p>
 <p>The objective is to minimise the sum of routing cost and inventory holding cost
@@ -586,6 +592,14 @@ holding_cost_weight : float
 Scalar multiplier on total holding cost.
 routing_cost_weight : float
 Scalar multiplier on total routing distance.</p>
+<p>Attributes:
+NAME: Name of the environment.
+name: Name of the environment.
+node_dim: Node feature dimension (x, y coordinates only → 2).
+num_periods: Planning horizon T, copied from the generator.
+stockout_penalty: Coefficient applied to total unmet demand.
+holding_cost_weight: Scalar multiplier on total holding cost.
+routing_cost_weight: Scalar multiplier on total routing distance.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise IRPEnv.</p>
 <p>Args:
@@ -597,7 +611,9 @@ stockout_penalty: Penalty coefficient for each unit of unmet demand.
 holding_cost_weight: Multiplier on the accumulated holding cost term.
 routing_cost_weight: Multiplier on the accumulated routing distance term.
 device: Torch device string or object.
-**kwargs: Additional keyword arguments forwarded to the base class.</p>
+kwargs: Additional keyword arguments forwarded to the base class.</p>
+<p>Returns:
+None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.irp.IRPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.irp.IRPEnv.NAME" title="Link to this definition">#</a></dt>
@@ -633,12 +649,21 @@ delivered          : Tensor     [*B, N]       – delivered quantities this peri
 current_period     : LongTensor [*B]          – period index in {0, …, T}
 total_holding_cost : Tensor     [*B]          – sum of h_i I_it over completed periods
 total_stockout     : Tensor     [*B]          – sum of max(0, -I_it) over completed periods</p>
+<p>Args:
+td: Input TensorDict containing graph structure and node properties.</p>
+<p>Returns:
+TensorDict: Initialized IRP state with per-episode mutable fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.irp.IRPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.irp.IRPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Execute one step in the environment.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
+<p>Returns:
+TensorDict: Updated TensorDict with new state and reward information.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.irp.IRPEnv._step_instance">
@@ -657,6 +682,10 @@ delivery, updating delivered[] and remaining_capacity.</p></li>
 accumulate holding cost / stockout, advance current_period, and
 reset per-period buffers (delivered, remaining_capacity, visited).</p></li>
 </ol>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
+<p>Returns:
+TensorDict: Updated TensorDict with new state and reward information.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -665,6 +694,8 @@ reset per-period buffers (delivered, remaining_capacity, visited).</p></li>
 <dd><p>Episode terminates when <em>current_period</em> reaches the planning horizon T.</p>
 <p>The condition fires immediately after the vehicle returns to the depot
 at the end of the last period, incrementing current_period to num_periods.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
 <p>Returns:
 BoolTensor [*B] — True for completed episodes.</p>
 </dd></dl>
@@ -687,6 +718,8 @@ period’s route at any time.</p></li>
 </ul>
 <p>A customer node where delivery would be zero (inventory full OR vehicle
 empty) is masked out to prevent wasteful detours.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
 <p>Returns:
 BoolTensor [*B, num_nodes] — True indicates a selectable action.</p>
 </dd></dl>
@@ -704,6 +737,9 @@ period at a customer node (edge case guard; should not occur in normal
 play since the agent must return to depot to advance periods).</p>
 <p>Cost components are stored back into the TensorDict for downstream
 logging (<code class="docutils literal notranslate"><span class="pre">routing_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">holding_cost</span></code>, <code class="docutils literal notranslate"><span class="pre">stockout</span></code>).</p>
+<p>Args:
+td: Input TensorDict containing action and state information.
+actions: Action sequence (unused in this implementation).</p>
 <p>Returns:
 Tensor [*B] — scalar reward per batch instance.</p>
 </dd></dl>

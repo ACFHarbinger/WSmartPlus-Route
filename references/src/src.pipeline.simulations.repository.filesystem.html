@@ -502,6 +502,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.repository.filesystem">
 <span id="src-pipeline-simulations-repository-filesystem"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.repository.filesystem" title="src.pipeline.simulations.repository.filesystem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.repository.filesystem</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.repository.filesystem" title="Link to this heading">#</a></h1>
 <p>File-based implementation of SimulationRepository.</p>
+<p>This module provides the FileSystemRepository class, which loads simulation
+data from local CSV, Excel, and JSON files.</p>
+<p>Attributes:
+FileSystemRepository: Repository sourcing data from the local filesystem.</p>
+<p>Example:
+&gt;&gt;&gt; # repo = FileSystemRepository(data_root_dir=”.”)
+&gt;&gt;&gt; # depot = repo.get_depot(“Rio Maior”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +532,8 @@ document.write(`
 <p>Loads data from CSV, Excel, and JSON files stored in the project’s
 data/wsr_simulator directory. Supports multiple geographic areas
 and waste types with area-specific file naming conventions.</p>
+<p>Attributes:
+default_data_dir: The default path for data resolution.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the repository.</p>
 <p>Args:
@@ -534,59 +543,119 @@ data_root_dir: Root directory path for data resolution.</p>
 <span class="sig-name descname"><span class="pre">_get_data_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">override_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_data_dir" title="Link to this definition">#</a></dt>
 <dd><p>get data dir.</p>
 <p>Args:
-override_dir (Any): Description of override_dir.</p>
+override_dir: Optional path to override the default data directory.</p>
 <p>Returns:
-Any: Description of return value.</p>
+The resolved data directory path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_indices">
 <span class="sig-name descname"><span class="pre">get_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_indices" title="Link to this definition">#</a></dt>
 <dd><p>Implementation of get_indices that persists generated indices to JSON.</p>
+<p>Args:
+filename: Path to the index file within bins_selection.
+n_samples: Number of samples to generate/load.
+n_nodes: Number of nodes per sample.
+data_size: Total size of the source data.
+lock: Optional file lock.</p>
+<p>Returns:
+A list of lists containing bin indices for each sample.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_depot">
 <span class="sig-name descname"><span class="pre">get_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_depot" title="Link to this definition">#</a></dt>
 <dd><p>Implementation of get_depot that reads from Facilities.csv.</p>
+<p>Args:
+area: Name of the geographic area.
+data_dir: Optional path to the data directory.</p>
+<p>Returns:
+Pandas DataFrame containing depot coordinates and initial state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_simulator_data">
 <span class="sig-name descname"><span class="pre">get_simulator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Rio</span> <span class="pre">Maior'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository.get_simulator_data" title="Link to this definition">#</a></dt>
 <dd><p>Implementation of get_simulator_data that handles area-specific file logic.</p>
+<p>Args:
+number_of_bins: Number of bins to load.
+area: Name of the geographic area.
+waste_type: Type of waste.
+lock: Optional file lock.
+data_dir: Optional path to the data directory.</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_mixrmbac_data">
 <span class="sig-name descname"><span class="pre">_get_mixrmbac_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_mixrmbac_data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get data for mixrmbac area.</p>
+<p>Args:
+d_dir: Root data directory.
+number_of_bins: Target bin count.
+src_area: Normalized area name.</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_riomaior_data">
 <span class="sig-name descname"><span class="pre">_get_riomaior_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_riomaior_data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get data for Rio Maior area.</p>
+<p>Args:
+d_dir: Root data directory.
+number_of_bins: Target bin count.
+src_area: Normalized area name.
+wtype: Waste type filter string.</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_figueiradafoz_data">
 <span class="sig-name descname"><span class="pre">_get_figueiradafoz_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_figueiradafoz_data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get data for Figueira da Foz area.</p>
+<p>Args:
+d_dir: Root data directory.
+number_of_bins: Target bin count.
+src_area: Normalized area name.
+wtype: Waste type filter string.</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data">
 <span class="sig-name descname"><span class="pre">_get_both_areas_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._get_both_areas_data" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get data for both areas combined.</p>
+<p>Args:
+d_dir: Root data directory.
+number_of_bins: Target bin count.
+src_area: Normalized area name.</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_date">
 <span class="sig-name descname"><span class="pre">_preprocess_county_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Date'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_date" title="Link to this definition">#</a></dt>
-<dd><p>preprocess county date.</p>
+<dd><p>Preprocess county date.</p>
+<p>Args:
+data: Raw DataFrame with date column.
+date_str: Name of the column containing dates.</p>
+<p>Returns:
+DataFrame indexed by date with integer column names.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_data">
 <span class="sig-name descname"><span class="pre">_preprocess_county_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.filesystem.FileSystemRepository._preprocess_county_data" title="Link to this definition">#</a></dt>
-<dd><p>preprocess county data.</p>
+<dd><p>Preprocess county data for simulation.</p>
+<p>Args:
+data: Pivoted DataFrame with bin levels.</p>
+<p>Returns:
+DataFrame containing normalized Stock and Accum_Rate for each bin.</p>
 </dd></dl>
 
 </dd></dl>

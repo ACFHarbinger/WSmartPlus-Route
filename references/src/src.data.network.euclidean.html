@@ -492,11 +492,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.network.euclidean">
 <span id="src-data-network-euclidean"></span><h1><a class="reference internal" href="#module-src.data.network.euclidean" title="src.data.network.euclidean"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network.euclidean</span></code></a><a class="headerlink" href="#module-src.data.network.euclidean" title="Link to this heading">#</a></h1>
-<p>euclidean.py module.</p>
+<p>Euclidean Distance Strategy.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+EuclideanStrategy: Strategy for computing Euclidean distances.</p>
 <p>Example:
-&gt;&gt;&gt; import euclidean</p>
+&gt;&gt;&gt; from logic.src.data.network.euclidean import EuclideanStrategy
+&gt;&gt;&gt; strategy = EuclideanStrategy()
+&gt;&gt;&gt; strategy.calculate_pair((0, 0), (1, 1))
+21.054908551963157</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,10 +520,17 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.network.euclidean.</span></span><span class="sig-name descname"><span class="pre">EuclideanStrategy</span></span><a class="headerlink" href="#src.data.network.euclidean.EuclideanStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.network.base.IterativeDistanceStrategy</span></code></p>
 <p>Strategy for computing Euclidean distances (Planar approximation).</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.euclidean.EuclideanStrategy.calculate_pair">
 <span class="sig-name descname"><span class="pre">calculate_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.data.network.euclidean.EuclideanStrategy.calculate_pair" title="Link to this definition">#</a></dt>
 <dd><p>Computes Euclidean distance with scaling for regional accuracy.</p>
+<p>Args:
+coords_i: Coordinates of the first point.
+coords_j: Coordinates of the second point.</p>
+<p>Returns:
+Euclidean distance between the two points.</p>
 </dd></dl>
 
 </dd></dl>

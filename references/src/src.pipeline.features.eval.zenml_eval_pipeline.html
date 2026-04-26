@@ -503,6 +503,15 @@ three-step ZenML pipeline:</p>
 <p>The pipeline is invoked from
 :func:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.features.eval._run_eval_via_zenml</span></code>
 when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>Attributes:
+_ZENML_AVAILABLE: Whether ZenML is available.
+prepare_eval_config: Step to prepare evaluation config.
+run_eval_step: Step to run evaluation.
+log_eval_summary: Step to log evaluation summary.
+_eval_pipeline: The evaluation pipeline.</p>
+<p>Example:
+&gt;&gt;&gt; config = Config()
+&gt;&gt;&gt; eval_pipeline(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

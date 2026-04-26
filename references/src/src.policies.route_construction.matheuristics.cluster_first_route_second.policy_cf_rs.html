@@ -500,6 +500,11 @@ document.write(`
 to the WSmart+ Route simulator interface. This adapter facilitates the
 integration of the solver into the simulation pipeline, handling parameter
 mapping, data extraction, and result formatting.</p>
+<p>Attributes:
+ClusterFirstRouteSecondPolicy: Simulator adapter for the CF-RS matheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs import ClusterFirstRouteSecondPolicy
+&gt;&gt;&gt; policy = ClusterFirstRouteSecondPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,26 +538,40 @@ profit-to-distance ratios, followed by local search to refine the clusters.</p>
 <p>Attributes:
 config (Optional[Dict[str, Any]]): The raw Hydra configuration dictionary.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Cluster-First Route-Second policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration dataclass for CF-RS.</p>
+<p>Returns:
+Optional[Type]: The CFRSConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the unique Hydra configuration key for CF-RS.</p>
+<p>Returns:
+str: The string “cf_rs”.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.ClusterFirstRouteSecondPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd><p>Not used - CFRS requires specialized execute().</p>
+<dd><p>Not used — CF-RS uses a specialized execute() method.</p>
+<p>Args:
+sub_dist_matrix: Distance matrix for the subproblem.
+sub_wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+revenue: Revenue per unit of waste.
+cost_unit: Cost per unit of distance.
+values: Additional solver values.
+mandatory_nodes: Node indices that must be visited.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Empty tour, zero objective, zero cost.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -567,7 +586,7 @@ proximity and inventory levels.</p></li>
 visiting sequence.</p></li>
 </ol>
 <p>Args:
-**kwargs: Context for policy execution, including:
+kwargs: Context for policy execution, including:
 - distance_matrix (np.ndarray): Full distance matrix for the problem.
 - wastes (Dict[int, float]): Current bin inventory levels.
 - capacity (float): Vehicle collection capacity.

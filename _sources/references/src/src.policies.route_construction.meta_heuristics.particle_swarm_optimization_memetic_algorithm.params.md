@@ -44,7 +44,7 @@
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.omega
 :type: float
 :value: >
-   0.1
+   1.0
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.omega
 ```
@@ -55,7 +55,7 @@
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1
 :type: float
 :value: >
-   1.5
+   2.0
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1
 ```
@@ -84,35 +84,79 @@
 
 ````
 
-````{py:attribute} local_search_freq
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq
-:type: int
+````{py:attribute} x_min
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min
+:type: float
 :value: >
-   10
+   0.0
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min
 ```
 
 ````
 
-````{py:attribute} n_removal
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal
-:type: int
+````{py:attribute} x_max
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max
+:type: float
 :value: >
-   2
+   4.0
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max
 ```
 
 ````
 
-````{py:attribute} local_search_iterations
-:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations
+````{py:attribute} v_min
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min
+```
+
+````
+
+````{py:attribute} v_max
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max
+:type: float
+:value: >
+   4.0
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max
+```
+
+````
+
+````{py:attribute} L
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L
 :type: int
 :value: >
-   100
+   30
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L
+```
+
+````
+
+````{py:attribute} T0
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0
+:type: float
+:value: >
+   3.0
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0
+```
+
+````
+
+````{py:attribute} lambda_cooling
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling
 ```
 
 ````
@@ -154,9 +198,29 @@
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed
 :type: typing.Optional[int]
 :value: >
-   None
+   42
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed
+```
+
+````
+
+````{py:attribute} acceptance_criterion
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion
+:type: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams
+:canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config
 ```
 
 ````

@@ -473,9 +473,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState"><code class="docutils literal notranslate"><span class="pre">LagrangianState</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins"><code class="docutils literal notranslate"><span class="pre">LagrangianState.n_bins</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon"><code class="docutils literal notranslate"><span class="pre">LagrangianState.horizon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas"><code class="docutils literal notranslate"><span class="pre">LagrangianState.lambdas</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_K"><code class="docutils literal notranslate"><span class="pre">LagrangianState.x_K</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_R"><code class="docutils literal notranslate"><span class="pre">LagrangianState.x_R</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.gamma"><code class="docutils literal notranslate"><span class="pre">LagrangianState.gamma</span></code></a></li>
@@ -526,6 +523,16 @@ coordinator thread) does the following:</p>
 <p>This is “per-period async”: lambdas[:, t’] for t’ != t are untouched in the
 same call.  Outer-iteration synchronous updates are also supported for the
 bundle strategy, which needs a consistent multiplier vector for its QP.</p>
+<p>Attributes:
+LagrangianState: Shared, thread-safe state for the Lagrangian coordinator.
+LagrangianCoordinator: Manages the Lagrangian state and multiplier updates.</p>
+<p>Example:
+&gt;&gt;&gt; lagrangian_state = LagrangianState(n_bins=2, horizon=3)
+&gt;&gt;&gt; lagrangian_coordinator = LagrangianCoordinator(lagrangian_state, tracker, lag_params)
+&gt;&gt;&gt; lagrangian_coordinator.set_knapsack_selection(x_K)
+&gt;&gt;&gt; lagrangian_coordinator.set_routing_selection(0, x_R_column)
+&gt;&gt;&gt; lagrangian_coordinator.submit_period_result(0, lagrangian_value_contrib, tour_quality_ratio, upper_bound)
+(True, 0.5)</p>
 </section>
 <p>Lagrangian multiplier state and per-period async update logic.</p>
 <p>The coupling is x^K_{i,t} = x^R_{i,t}; we relax this with multipliers
@@ -554,24 +561,19 @@ effective prize  V - lambda.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.</span></span><span class="sig-name descname"><span class="pre">LagrangianState</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState" title="Link to this definition">#</a></dt>
 <dd><p>Shared, thread-safe state for the Lagrangian coordinator.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins">
-<span class="sig-name descname"><span class="pre">n_bins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon">
-<span class="sig-name descname"><span class="pre">horizon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas">
-<span class="sig-name descname"><span class="pre">lambdas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
+<p class="rubric" id="id2">Attributes:</p>
+<p>n_bins : int
+The number of bins.
+horizon : int
+The horizon.
+lambdas : np.ndarray
+The Lagrangian multipliers.
+x_K : np.ndarray
+The solution to the knapsack subproblem.
+x_R : np.ndarray
+The solution to the routing subproblem.
+gamma : np.ndarray
+The trust weight on insertion-cost oracle, annealed over iterations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_K">
 <span class="sig-name descname"><span class="pre">x_K</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_K" title="Link to this definition">#</a></dt>
@@ -593,12 +595,18 @@ effective prize  V - lambda.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.__post_init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initializes state tensors after dataclass initialization.</p>
+<p class="rubric" id="returns">Returns:</p>
+<p>None</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.snapshot">
 <span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.snapshot" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a copy of the current state tensors.</p>
+<p>Returns:
+Dict[str, np.ndarray]: Dictionary containing copies of state tensors.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -606,7 +614,7 @@ effective prize  V - lambda.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.</span></span><span class="sig-name descname"><span class="pre">LagrangianCoordinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.DualBoundTracker</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.LagrangianParams</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator" title="Link to this definition">#</a></dt>
 <dd><p>Multiplier state manager.</p>
-<p class="rubric" id="id1">Responsibilities</p>
+<p class="rubric" id="id3">Responsibilities</p>
 <ul class="simple">
 <li><p>Maintain lambda[i, t].</p></li>
 <li><p>Receive per-period subgradients from RS workers (push model).</p></li>
@@ -614,17 +622,45 @@ effective prize  V - lambda.</p>
 <li><p>Clip multipliers to [lambda_min, lambda_max].</p></li>
 <li><p>Anneal gamma (insertion-cost trust) on request.</p></li>
 </ul>
+<p class="rubric" id="id4">Attributes:</p>
+<p>state : LagrangianState
+Shared state for the Lagrangian coordinator.
+tracker : DualBoundTracker
+The dual bound tracking and update engine.
+params : LagrangianParams
+Hyperparameters for the matheuristic.
+_lock : Lock
+Lock for thread-safe access to the state.
+_outer_iter : int
+The current outer iteration counter.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Lagrangian coordinator.</p>
+<p>Args:
+state (LagrangianState): Shared state object.
+tracker (DualBoundTracker): The dual bound tracking and update engine.
+lag_params (LagrangianParams): Hyperparameters for the matheuristic.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.set_knapsack_selection">
 <span class="sig-name descname"><span class="pre">set_knapsack_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.set_knapsack_selection" title="Link to this definition">#</a></dt>
 <dd><p>Called after the selection subproblem solves.</p>
+<p class="rubric" id="args">Args:</p>
+<p>x_K : np.ndarray
+The solution to the knapsack subproblem.</p>
+<p class="rubric" id="id5">Returns:</p>
+<p>None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.set_routing_selection">
 <span class="sig-name descname"><span class="pre">set_routing_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_R_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.set_routing_selection" title="Link to this definition">#</a></dt>
 <dd><p>Called by an RS worker after finishing period <code class="docutils literal notranslate"><span class="pre">period</span></code>.</p>
+<p class="rubric" id="id6">Args:</p>
+<p>period : int
+The current period.
+x_R_column : np.ndarray
+The solution to the routing subproblem for the current period.</p>
+<p class="rubric" id="id7">Returns:</p>
+<p>None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -636,9 +672,20 @@ forwards it to the tracker, and (for the EMA tracker) performs an
 in-place async update of lambdas[:, t].  For the bundle tracker, the
 per-period call only accumulates the bundle; the multiplier vector is
 updated in <code class="docutils literal notranslate"><span class="pre">commit_outer_iteration</span></code>.</p>
-<p class="rubric" id="returns">Returns</p>
+<p class="rubric" id="id8">Args:</p>
+<p>period : int
+The current period.
+lagrangian_value_contrib : float
+The contribution of the current period to the Lagrangian value.
+tour_quality_ratio : float
+The ratio of the tour quality.
+upper_bound : float
+The upper bound.</p>
+<p class="rubric" id="id9">Returns:</p>
 <p>accepted : bool
-effective_step : float</p>
+Whether the current period was accepted.
+effective_step : float
+The effective step size for the current period.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -649,6 +696,11 @@ effective_step : float</p>
 a serious/null-step decision.
 For the EMA tracker: a no-op (per-period async already moved lambdas),
 but we still use this moment to anneal gamma.</p>
+<p class="rubric" id="id10">Args:</p>
+<p>full_lagrangian_value : float
+The objective value (estimated) for the current assignment.</p>
+<p class="rubric" id="id11">Returns:</p>
+<p>Dict[str, float]: Statistics for the current iteration.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -660,22 +712,40 @@ but we still use this moment to anneal gamma.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator._clamped_mu">
 <span class="sig-name descname"><span class="pre">_clamped_mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator._clamped_mu" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return a clamped (but not scaled by outer_iter) mu.</p>
+<p>This is the internal “canonicalized” mu used when calling the
+tracker (and also for gamma decay), used instead of passing
+self.params.polyak_mu_default directly into e.g. EMADualBoundTracker.polyak_step.</p>
+<p class="rubric" id="id12">Args:</p>
+<p>mu : Optional[float], optional
+If provided, use this mu; otherwise self.params.polyak_mu_default.</p>
+<p class="rubric" id="id13">Returns:</p>
+<p>float: Clamped mu.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.current_dual_bound">
 <span class="sig-name descname"><span class="pre">current_dual_bound</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.current_dual_bound" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current best dual bound from the tracker.</p>
+<p>Returns:
+float: Best dual bound found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.lambdas_snapshot">
 <span class="sig-name descname"><span class="pre">lambdas_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.lambdas_snapshot" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a thread-safe copy of the current multipliers.</p>
+<p>Returns:
+np.ndarray: Copy of the lambda matrix.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.gamma_snapshot">
 <span class="sig-name descname"><span class="pre">gamma_snapshot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianCoordinator.gamma_snapshot" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a thread-safe copy of the current gamma trust weights.</p>
+<p>Returns:
+np.ndarray: Copy of the gamma vector.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -733,9 +803,6 @@ but we still use this moment to anneal gamma.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState"><code class="docutils literal notranslate"><span class="pre">LagrangianState</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.n_bins"><code class="docutils literal notranslate"><span class="pre">LagrangianState.n_bins</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.horizon"><code class="docutils literal notranslate"><span class="pre">LagrangianState.horizon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.lambdas"><code class="docutils literal notranslate"><span class="pre">LagrangianState.lambdas</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_K"><code class="docutils literal notranslate"><span class="pre">LagrangianState.x_K</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.x_R"><code class="docutils literal notranslate"><span class="pre">LagrangianState.x_R</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lagrangian.LagrangianState.gamma"><code class="docutils literal notranslate"><span class="pre">LagrangianState.gamma</span></code></a></li>

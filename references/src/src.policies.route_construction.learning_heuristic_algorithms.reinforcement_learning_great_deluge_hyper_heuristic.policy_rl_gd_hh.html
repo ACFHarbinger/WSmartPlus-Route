@@ -501,6 +501,13 @@ engine to the agnostic BaseRoutingPolicy interface.</p>
 <p>Reference:
 Ozcan, E., Misir, M., Ochoa, G., &amp; Burke, E. K. (2010).
 “A Reinforcement Learning – Great-Deluge Hyper-heuristic for Examination Timetabling”.</p>
+<p>Attributes:
+RLGDHHPolicy: Adapter for the RL-GD-HH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHPolicy
+&gt;&gt;&gt; policy = RLGDHHPolicy()
+&gt;&gt;&gt; solution = policy.solve()
+&gt;&gt;&gt; print(solution)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +535,8 @@ and state required by the hyper-heuristic engine.</p>
 <p>RLGDHHPolicy acts as a bridge, allowing the learning-based solver
 implementation to be used within the simulator’s standardized routing
 framework.</p>
+<p>Attributes:
+config: Configuration for the RL-GD-HH solver.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the RLGDHHPolicy adapter.</p>
 <p>Args:
@@ -572,7 +581,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 RL parameters and Great Deluge settings like <code class="docutils literal notranslate"><span class="pre">flood_margin</span></code>.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

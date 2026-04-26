@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.improvement_step_decoder.ImprovementStepDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.improvement_step_decoder.ImprovementStepDecoder.forward
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.improvement_step_decoder.ImprovementStepDecoder.forward

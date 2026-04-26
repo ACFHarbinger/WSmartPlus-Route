@@ -516,6 +516,12 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-distance-based-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Distance-Based Particle Swarm Optimization.</p>
 <p>This replaces the metaphor-based “Firefly Algorithm” with standard PSO terminology.</p>
+<p>Attributes:
+DistancePSOParams: Dataclass holding all PSO hyperparameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params import DistancePSOParams
+&gt;&gt;&gt; params = DistancePSOParams(population_size=20, max_iterations=500, cognitive_coef=2.0)
+&gt;&gt;&gt; w = params.get_inertia_weight(iteration=100)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -694,36 +700,50 @@ w(t) = w_max - (w_max - w_min) × (t / T_max)</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.c1">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.c1" title="Link to this definition">#</a></dt>
 <dd><p>Alias for cognitive_coef (standard PSO notation).</p>
+<p>Returns:
+float: Cognitive acceleration coefficient.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.c2">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.c2" title="Link to this definition">#</a></dt>
 <dd><p>Alias for social_coef (standard PSO notation).</p>
+<p>Returns:
+float: Social acceleration coefficient.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.w_start">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.w_start" title="Link to this definition">#</a></dt>
 <dd><p>Alias for inertia_weight_start.</p>
+<p>Returns:
+float: Initial inertia weight.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.w_end">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.w_end" title="Link to this definition">#</a></dt>
 <dd><p>Alias for inertia_weight_end.</p>
+<p>Returns:
+float: Final inertia weight.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.pop_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.pop_size" title="Link to this definition">#</a></dt>
 <dd><p>Alias for population_size.</p>
+<p>Returns:
+int: Number of particles in the swarm.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.DistancePSOParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object with PSO parameter attributes.</p>
+<p>Returns:
+DistancePSOParams: Populated parameter dataclass.</p>
 </dd></dl>
 
 </dd></dl>

@@ -526,6 +526,32 @@ document.write(`
 </div>
 <p>The cuts produced here are ADVISORY – they are stored on the
 <code class="docutils literal notranslate"><span class="pre">SelectionResult</span></code> and applied on the next outer-iteration call (not mid-TPKS).</p>
+<p>Attributes:
+build_corrected_revenue: Builds the effective prize vector for the knapsack side.
+_wastes_from_revenue: Builds the waste dictionary for the knapsack side.
+solve_selection_period: Solves the knapsack side of the Lagrangian decomposition.
+SelectionResult: A dataclass that holds the result of the selection subproblem.</p>
+<p>Example:
+&gt;&gt;&gt; build_corrected_revenue(np.array([1, 2, 3]), np.array([0.1, 0.2, 0.3]), np.array([0.4, 0.5, 0.6]), 0.7, np.array([0.8, 0.9, 1.0]), 0)
+array([1.3, 1.6, 1.9])</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; _wastes_from_revenue(np.array([1, 2, 3]))
+{1: 1, 2: 2, 3: 3}
+
+&gt;&gt;&gt; solve_selection_period(
+...     period=0,
+...     dist_matrix=np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]]),
+...     revenue_eff=np.array([1, 2, 3]),
+...     capacity=10,
+...     routing_cost_unit=1,
+...     mandatory_nodes=[],
+...     tpks_params=TPKSParams(),
+...     hard_fix_bins=None,
+...     engine=&quot;greedy&quot;,
+...     prior_cuts=None,
+... )
+SelectionResult(period=0, selection=[1, 2, 3], tour=[0, 1, 2, 3, 0], lagrangian_objective=10.0, raw_objective=10.0, routing_cost_estimate=6.0, lifted_penalties={}, pareto_penalties={})
+</pre></div>
+</div>
 </section>
 <p>Selection subproblem (the “knapsack side” in the Lagrangian decomposition).</p>
 <p>This module does two things:</p>
@@ -591,6 +617,15 @@ Penalty = max(0, routing_cost_of_i - revenue_of_i) = bins that are
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.</span></span><span class="sig-name descname"><span class="pre">SelectionResult</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="Link to this definition">#</a></dt>
 <dd><p>One period’s selection outcome.</p>
+<p>Attributes:
+period: Period index.
+selection: Bin indices (1-based; 0 is depot).
+tour: Tour for the selected bins.
+lagrangian_objective: Lagrangian objective value.
+raw_objective: Raw objective value.
+routing_cost_estimate: Estimated routing cost.
+lifted_penalties: Penalties for the next iteration.
+pareto_penalties: Pareto penalties for the next iteration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult.period">
 <span class="sig-name descname"><span class="pre">period</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult.period" title="Link to this definition">#</a></dt>
@@ -649,6 +684,15 @@ Penalty = max(0, routing_cost_of_i - revenue_of_i) = bins that are
 </pre></div>
 </div>
 <p>Returns a 1-D array of length N.</p>
+<p>Args:
+V: (N, T) prizes.
+lambdas: (N, T) duals.
+insertion_costs: (N, T) insertion costs.
+gamma: (T,) lagrange multipliers for insertion costs.
+regret_bias: (N, T) regret-based bias.
+period: Period index.</p>
+<p>Returns:
+np.ndarray: Effective prizes for the period.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -660,25 +704,31 @@ the effective revenue.  We clip negatives to zero since TPKS’s prize
 formulation assumes non-negative values (a very negative effective prize
 means ‘don’t bother selecting’; clipping at 0 has the same effect via
 the branch &amp; bound).</p>
+<p>Args:
+revenue_eff: Effective revenue for each bin.</p>
+<p>Returns:
+Dict[int, float]: Dictionary of wastes for each bin.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.solve_selection_period">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.</span></span><span class="sig-name descname"><span class="pre">solve_selection_period</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_eff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routing_cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpks_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.matheuristics.two_phase_kernel_search.params.TPKSParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hard_fix_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'tpks'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.solve_selection_period" title="Link to this definition">#</a></dt>
 <dd><p>Solve a single-period selection subproblem.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>period : int
-dist_matrix : (N+1, N+1) distance matrix (with depot at index 0).
-revenue_eff : (N,) effective prize per bin.
-capacity : vehicle capacity constraint for the period.
-routing_cost_unit : C, distance cost coefficient.
-mandatory_nodes : bin ids (1-based) that MUST be visited this period.
-tpks_params : TPKSParams.
-hard_fix_bins : bin ids (1-based) forced to be visited via mandatory set
+<p>Args:
+period: Period index.
+dist_matrix: (N+1, N+1) distance matrix (with depot at index 0).
+revenue_eff: (N,) effective prize per bin.
+capacity: vehicle capacity constraint for the period.
+routing_cost_unit: C, distance cost coefficient.
+mandatory_nodes: bin ids (1-based) that MUST be visited this period.
+tpks_params: TPKSParams.
+hard_fix_bins: bin ids (1-based) forced to be visited via mandatory set
 augmentation.  If None, regret preprocessing is either soft-only or
 not applied for this period.
-engine : “tpks” | “tpks_warm” | “greedy”
-prior_cuts : optional {bin_id: penalty} from a previous iteration.</p>
+engine: “tpks” | “tpks_warm” | “greedy”
+prior_cuts: optional {bin_id: penalty} from a previous iteration.</p>
+<p>Returns:
+SelectionResult: Result of the selection subproblem.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -688,6 +738,15 @@ prior_cuts : optional {bin_id: penalty} from a previous iteration.</p>
 <p>Seed: depot -&gt; nearest mandatory -&gt; back to depot.
 Loop: repeatedly insert the bin whose marginal profit (R<em>waste -
 C</em>insertion_cost) is maximal, if positive, subject to capacity.</p>
+<p>Args:
+dist_matrix: Distance matrix for the routing problem.
+wastes: Dictionary of wastes for each bin.
+capacity: Capacity of the vehicle.
+R: Revenue factor.
+C: Cost factor.
+mandatory_nodes: List of mandatory nodes.</p>
+<p>Returns:
+Tuple[List[int], float, float]: Tour, objective value, and cost.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -697,6 +756,12 @@ C</em>insertion_cost) is maximal, if positive, subject to capacity.</p>
 routing-cost savings from removing i from the tour (cheapest removal).
 Penalty = max(0, routing_cost_of_i - revenue_of_i) = bins that are
 “only marginally profitable” get flagged with a small penalty.</p>
+<p>Args:
+result: Selection result from the previous iteration.
+dist_matrix: Distance matrix for the routing problem.
+revenue_eff: Effective revenue for each bin.</p>
+<p>Returns:
+Dict[int, float]: Dictionary of penalties for each bin.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -707,6 +772,12 @@ Penalty = max(0, routing_cost_of_i - revenue_of_i) = bins that are
 uses it as a pseudo-core point; bins with high marginal cost AND high
 selection frequency get the strongest penalty (since they’re persistently
 in the solution but marginally profitable).</p>
+<p>Args:
+results: List of selection results from previous iterations.
+dist_matrix: Distance matrix for the routing problem.
+revenue_eff: Effective revenue for each bin.</p>
+<p>Returns:
+Dict[int, float]: Dictionary of penalties for each bin.</p>
 </dd></dl>
 
 </section>

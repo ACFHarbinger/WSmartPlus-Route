@@ -15,32 +15,32 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`LKH2RouteImprover <src.policies.route_improvement.lkh2.LKH2RouteImprover>`
-  - ```{autodoc2-docstring} src.policies.route_improvement.lkh2.LKH2RouteImprover
+* - {py:obj}`LinKernighanHelsgaunTwoRouteImprover <src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover>`
+  - ```{autodoc2-docstring} src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} LKH2RouteImprover(**kwargs: typing.Any)
-:canonical: src.policies.route_improvement.lkh2.LKH2RouteImprover
+`````{py:class} LinKernighanHelsgaunTwoRouteImprover(**kwargs: typing.Any)
+:canonical: src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover
 
 Bases: {py:obj}`logic.src.interfaces.IRouteImprovement`
 
-```{autodoc2-docstring} src.policies.route_improvement.lkh2.LKH2RouteImprover
+```{autodoc2-docstring} src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.route_improvement.lkh2.LKH2RouteImprover.__init__
+```{autodoc2-docstring} src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.__init__
 ```
 
 ````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.ImprovementMetrics]
-:canonical: src.policies.route_improvement.lkh2.LKH2RouteImprover.process
+:canonical: src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process
 
-```{autodoc2-docstring} src.policies.route_improvement.lkh2.LKH2RouteImprover.process
+```{autodoc2-docstring} src.policies.route_improvement.lkh2.LinKernighanHelsgaunTwoRouteImprover.process
 ```
 
 ````

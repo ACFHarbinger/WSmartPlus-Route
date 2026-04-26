@@ -516,9 +516,14 @@ document.write(`
 <li><p>Integer solution recovery</p></li>
 </ul>
 <p>Based on Sections 5 and 6 of Barnhart et al. (1998).</p>
-<p>Reference:
+<p>References:
 Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W. P., &amp; Vance, P. H. (1998).
 “Branch-and-price: Column Generation for Solving Huge Integer Programs”.</p>
+<p>Attributes:
+BranchAndPriceSolver (class): The core optimization engine.</p>
+<p>Example:
+&gt;&gt;&gt; solver = BranchAndPriceSolver(n_nodes=50, cost_matrix=dist, …)
+&gt;&gt;&gt; tour, profit, stats = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -543,30 +548,25 @@ Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W. P., &amp; Van
 2. Solve LP relaxation with column generation.
 3. If LP solution is integer, terminate.
 4. Otherwise branch using the configured strategy and recurse.</p>
-<p class="rubric" id="id1">Branching strategies</p>
-<p><code class="docutils literal notranslate"><span class="pre">&quot;edge&quot;</span></code> (default)
-Branches on the most-fractional directed arc (x_{uv}).  Integrates
-natively with the DP label extension.</p>
-<p><code class="docutils literal notranslate"><span class="pre">&quot;ryan_foster&quot;</span></code>
-Selection of a node-pair (r, s) to branch on. Produces two
-child nodes where r and s MUST or MUST NOT appear in the same
-route. Note: This is theoretically a heuristic when using a
-Set Covering master problem (default).
-<strong>WARNING:</strong> Ryan-Foster branching loses its theoretical exactness
-guarantee when applied to a Set Covering master problem (&gt;= 1), as it
-can erroneously prune optimal over-covering solutions. Use ‘edge’
-branching for rigorous proofs of optimality.</p>
-<p class="rubric" id="id2">Label-Correcting Algorithm</p>
-<p>When <code class="docutils literal notranslate"><span class="pre">use_exact_pricing=True</span></code>, the DP-based <code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code> is used.
-This employs a <strong>Label-Correcting</strong> algorithm (FIFO queue) to handle
-potential negative edge costs during column generation. Two sub-modes
-are available via <code class="docutils literal notranslate"><span class="pre">use_ng_routes</span></code>:</p>
-<p><code class="docutils literal notranslate"><span class="pre">use_ng_routes=True</span></code> (default)
-Uses ng-route relaxation (Baldacci et al. 2011) — far fewer labels,
-scalable to large instances.</p>
-<p><code class="docutils literal notranslate"><span class="pre">use_ng_routes=False</span></code>
-Falls back to exact ESPPRC — every generated route is elementary,
-but the label count grows exponentially with instance size.</p>
+<p>Branching strategies:
+- “edge” (default): Branches on the most-fractional directed arc (x_{uv}).
+- “ryan_foster”: Selection of a node-pair (r, s) to branch on.</p>
+<p>Attributes:
+params (BPParams): Standardized configuration parameters.
+n_nodes (int): Number of customer nodes.
+cost_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Map from node to waste volume.
+capacity (float): Vehicle capacity.
+R (float): Revenue per kg.
+C (float): Cost per km.
+mandatory_nodes (Set[int]): Indices of nodes that must be visited.
+depot (int): Index of the depot node (always 0).
+proven_optimal (bool): Whether the final solution is proven optimal.
+num_iterations (int): Counter for pricing rounds.
+num_columns_generated (int): Total columns added to the pool.
+lp_bound (float): Best LP bound found at the root.
+ip_solution (float): Objective value of the best integer solution.
+tree (Optional[BranchAndBoundTree]): The search tree object.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the Branch-and-Price solver.</p>
 <p>Args:
@@ -577,40 +577,83 @@ capacity: Vehicle payload capacity.
 revenue_per_kg: Revenue per unit of waste collected.
 cost_per_km: Operating cost per unit of distance travelled.
 mandatory_nodes: Node indices that must be visited.
-params: Standardized BP parameters.</p>
+max_iterations: Maximum iterations for column generation loop.
+max_routes_per_iteration: Maximum columns to add per pricing call.
+optimality_gap: Relative gap for proven optimality.
+use_ryan_foster: Whether to use Ryan-Foster branching.
+branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, etc.).
+tree_search_strategy: B&amp;B search strategy (‘best_first’, ‘depth_first’).
+max_branch_nodes: Maximum nodes to explore in the B&amp;B tree.
+use_exact_pricing: Whether to use DP-based exact pricing.
+vehicle_limit: Maximum number of vehicles available.
+use_ng_routes: Whether to use ng-route relaxation.
+ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
+cleanup_frequency: Iterations between column cleanup rounds.
+cleanup_threshold: Minimum reduced cost for column retention.
+early_termination_gap: Gap at which to stop search early.
+multiple_waste_types: Whether the problem has multiple waste types.
+allow_heuristic_ryan_foster: Whether to allow Ryan-Foster branching.
+params: Standardized BP parameters (overrides individual arguments).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver.solve" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solves the VRPP using Branch-and-Price.</p>
+<p>Returns:
+A 3-tuple containing:
+- best_tour: Optimized sequence of nodes.
+- best_profit: Final objective value.
+- statistics: Dictionary of execution metrics.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_without_branching">
 <span class="sig-name descname"><span class="pre">_solve_without_branching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_without_branching" title="Link to this definition">#</a></dt>
 <dd><p>Solve with column generation followed by a direct MIP solve.</p>
+<p>Returns:
+A 3-tuple containing (tour, objective, statistics).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_with_branching">
 <span class="sig-name descname"><span class="pre">_solve_with_branching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_with_branching" title="Link to this definition">#</a></dt>
 <dd><p>Solve using the configured branching strategy in a B&amp;B tree.</p>
+<p>Returns:
+A 3-tuple containing (tour, objective, statistics).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_node">
 <span class="sig-name descname"><span class="pre">_solve_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._solve_node" title="Link to this definition">#</a></dt>
 <dd><p>Solve the LP relaxation at a single B&amp;B node via column generation.</p>
+<p>Args:
+node: The Branch-and-Bound node to evaluate.
+parent_routes: Optional pool of routes from the parent node.</p>
+<p>Returns:
+A 3-tuple containing (lp_objective, route_values, routes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._column_generation">
 <span class="sig-name descname"><span class="pre">_column_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.html#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._column_generation" title="Link to this definition">#</a></dt>
 <dd><p>Perform unconstrained column generation with heuristic fallback.</p>
+<p>Args:
+master: The Restricted Master Problem (RMP).
+pricing: Pair of (heuristic, exact) pricing solvers.</p>
+<p>Returns:
+A tuple containing (lp_objective, route_values).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints">
 <span class="sig-name descname"><span class="pre">_column_generation_with_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.html#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints" title="Link to this definition">#</a></dt>
 <dd><p>Perform constrained column generation with heuristic fallback.</p>
+<p>Args:
+master: The Restricted Master Problem (RMP).
+pricing: Pair of (heuristic, exact) pricing solvers.
+node: The current Branch-and-Price search node.
+constraints: List of branching constraints to respect in pricing.</p>
+<p>Returns:
+A 3-tuple containing (lp_objective, route_values, best_lagrangian_bound).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -619,6 +662,12 @@ params: Standardized BP parameters.</p>
 <dd><p>Dispatch a pricing call to the correct solver with the right kwargs.</p>
 <p>RCSPPSolver uses <code class="docutils literal notranslate"><span class="pre">branching_constraints</span></code>; PricingSubproblem uses
 <code class="docutils literal notranslate"><span class="pre">active_constraints</span></code>.</p>
+<p>Args:
+pricing: The pricing solver instance.
+dual_values: Map from constraints to their dual values.
+constraints: Branching constraints to enforce.</p>
+<p>Returns:
+List of generated routes as (path, reduced_cost) pairs.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -639,6 +688,10 @@ List of feasible Route objects covering all mandatory nodes.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._add_routes_to_master">
 <span class="sig-name descname"><span class="pre">_add_routes_to_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._add_routes_to_master" title="Link to this definition">#</a></dt>
 <dd><p>Add a batch of new route candidates to the master problem.</p>
+<p>Args:
+master: The Restricted Master Problem instance.
+pricing: The pricing solver used to compute route metadata.
+new_routes: List of (path, reduced_cost) pairs to add.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -646,10 +699,10 @@ List of feasible Route objects covering all mandatory nodes.</p>
 <span class="sig-name descname"><span class="pre">_routes_to_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.Route</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._routes_to_tour" title="Link to this definition">#</a></dt>
 <dd><p>Convert selected routes to a flat tour, deduplicating customer visits.</p>
 <p>Because the master problem uses Set Covering (≥ 1), the IP may select
-overlapping routes.  Each customer node is included exactly once in the
-output; subsequent routes that would revisit a node simply skip it.
-Empty routes (all nodes already visited) are omitted to avoid bare
-depot → depot arcs.</p>
+overlapping routes. Each customer node is included exactly once in the
+output; subsequent routes that would revisit a node simply skip it.</p>
+<p>Args:
+routes: List of Route objects selected in the integer solution.</p>
 <p>Returns:
 Flat tour: [depot, n1, n2, …, depot, n3, …, depot].</p>
 </dd></dl>
@@ -658,6 +711,8 @@ Flat tour: [depot, n1, n2, …, depot, n3, …, depot].</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._make_master">
 <span class="sig-name descname"><span class="pre">_make_master</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._make_master" title="Link to this definition">#</a></dt>
 <dd><p>Construct a fresh VRPPMasterProblem with the solver’s parameters.</p>
+<p>Returns:
+VRPPMasterProblem: The initialized RMP.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -665,38 +720,51 @@ Flat tour: [depot, n1, n2, …, depot, n3, …, depot].</p>
 <span class="sig-name descname"><span class="pre">_make_pricing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.html#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._make_pricing" title="Link to this definition">#</a></dt>
 <dd><p>Construct the pricing solvers for this configuration.</p>
 <p>Returns:
-Tuple of (heuristic_pricer, exact_pricer).
-heuristic_pricer: Always provided (PricingSubproblem).
-exact_pricer: RCSPPSolver if use_exact_pricing=True, else None.</p>
+A tuple containing:
+- heuristic_pricer: Always provided (PricingSubproblem).
+- exact_pricer: RCSPPSolver if use_exact_pricing=True, else None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._build_master_for_node">
 <span class="sig-name descname"><span class="pre">_build_master_for_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.Route</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._build_master_for_node" title="Link to this definition">#</a></dt>
 <dd><p>Build a master problem pre-loaded with constraint-feasible routes.</p>
+<p>Args:
+node: The search node defining feasibility constraints.
+routes: Pool of routes to filter and load.</p>
+<p>Returns:
+VRPPMasterProblem: The populated RMP.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._is_integer_solution">
 <span class="sig-name descname"><span class="pre">_is_integer_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._is_integer_solution" title="Link to this definition">#</a></dt>
 <dd><p>Return True if every LP route value is within <em>tol</em> of 0 or 1.</p>
+<p>Args:
+route_values: Mapping from route index to its continuous value.
+tol: Tolerance for integrality check.</p>
+<p>Returns:
+bool: True if solution is integer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._resolve_branching_strategy">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_resolve_branching_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branching_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ryan_foster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._resolve_branching_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Single source of truth for branching strategy resolution.</p>
-<p>Priority (highest to lowest):
-1. values[“branching_strategy”]  — runtime override
-2. branching_strategy constructor arg
-3. values[“use_ryan_foster_branching”] legacy bool
-4. use_ryan_foster constructor bool (deprecated)</p>
+<p>Args:
+branching_strategy: Explicit strategy string.
+use_ryan_foster: Legacy boolean flag.
+values: Runtime configuration dictionary.</p>
+<p>Returns:
+str: Resolved branching strategy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._get_statistics">
 <span class="sig-name descname"><span class="pre">_get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._get_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Collect and return solver statistics.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of metric names to values.</p>
 </dd></dl>
 
 </dd></dl>

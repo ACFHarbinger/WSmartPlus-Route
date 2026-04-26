@@ -508,6 +508,12 @@ document.write(`
 Müller, L. F., &amp; Bonilha, I. (2022). “Hyper-Heuristic Based on ACO
 and Local Search for Dynamic Optimization Problems.”
 Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009</p>
+<p>Attributes:
+HULKSolver: Main solver class that coordinates operator selection and solution improvement.</p>
+<p>Example:
+&gt;&gt;&gt; solver = HULKSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; best_solution, best_profit, best_cost = solver.solve()
+&gt;&gt;&gt; print(best_solution, best_profit, best_cost)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +534,21 @@ Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.</span></span><span class="sig-name descname"><span class="pre">HULKSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params.HULKParams" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params.HULKParams"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params.HULKParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver" title="Link to this definition">#</a></dt>
 <dd><p>HULK: Hyper-heuristic Using unstringing/stringing with Local search and K-opt.</p>
 <p>Main solver class that coordinates operator selection and solution improvement.</p>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Waste dictionary.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+mandatory_nodes: Must-visit nodes.
+evaluator: Optional custom evaluation function.
+rng: Random number generator.
+n_nodes: Number of nodes.
+ops: Operator collection for HULK hyper-heuristic.
+unstring_selector: Selector for unstringing operators.
+string_selector: Selector for stringing operators.
+local_search_selector: Selector for local search operators.
+temperature: Current temperature for simulated annealing.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HULK solver.</p>
 <p>Args:
@@ -559,14 +580,20 @@ Tuple of (best_routes, best_profit, best_cost).</p>
 <li><p>Reconstruction (Stringing)</p></li>
 <li><p>Improvement (Local Search / K-opt)</p></li>
 </ol>
+<p>Args:
+solution: Solution to apply the move to.</p>
 <p>Returns:
-(new_solution, unstring_op_name, string_op_name, ls_op_name)</p>
+Tuple[Solution, str, str, Optional[str]]: Tuple containing the new solution, unstring operator name, string operator name, and local search operator name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver._calculate_removal_size">
 <span class="sig-name descname"><span class="pre">_calculate_removal_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver._calculate_removal_size" title="Link to this definition">#</a></dt>
 <dd><p>Calculate number of nodes to remove.</p>
+<p>Args:
+solution: Solution to calculate removal size for.</p>
+<p>Returns:
+int: Number of nodes to remove.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -574,14 +601,19 @@ Tuple of (best_routes, best_profit, best_cost).</p>
 <span class="sig-name descname"><span class="pre">_accept_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver._accept_solution" title="Link to this definition">#</a></dt>
 <dd><p>Decide whether to accept neighbor solution.</p>
 <p>Uses simulated annealing acceptance criterion.</p>
+<p>Args:
+current: Current solution.
+neighbor: Neighbor solution.</p>
 <p>Returns:
-(accepted, delta_profit)</p>
+Tuple[bool, float]: Tuple containing accepted boolean and delta profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver.get_operator_statistics">
 <span class="sig-name descname"><span class="pre">get_operator_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.HULKSolver.get_operator_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Get performance statistics for all operators.</p>
+<p>Returns:
+Dict: Dictionary containing statistics for unstringing, stringing, and local search operators.</p>
 </dd></dl>
 
 </dd></dl>

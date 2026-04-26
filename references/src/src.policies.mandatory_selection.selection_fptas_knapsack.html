@@ -576,7 +576,13 @@ maintained for backtracking.  :math:<code class="docutils literal notranslate"><
 <code class="docutils literal notranslate"><span class="pre">_MAX_DP_VALUES</span></code> (default 100 000) by adaptively relaxing :math:<code class="docutils literal notranslate"><span class="pre">\varepsilon</span></code>
 when necessary, keeping peak memory well below 100 MB for typical VRP
 instance sizes (:math:<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">\leq</span> <span class="pre">500</span></code>).</p>
-<p>Example::</p>
+<p>Attributes:
+FPTASBiObjectiveKnapsackSelection: The FPTAS Bi-Objective Multiple-Knapsack
+Selection strategy.
+_EPS_GUARD: Epsilon guard for floating-point comparisons.
+_DIST_EPS: Distance epsilon for insertion-distance lower-bound.
+_MAX_DP_VALUES: Maximum number of DP values.</p>
+<p>Example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_fptas_bi_objective_knapsack import (
 ...     FPTASBiObjectiveKnapsackSelection,
 ... )
@@ -736,6 +742,11 @@ epsilon (float): FPTAS approximation parameter ε ∈ (0, 1).
 alpha (float): Overflow-risk weight ∈ [0, 1].
 overflow_penalty_frac (float): Occurrence penalty per overflow event.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the FPTAS knapsack selection.</p>
+<p>Args:
+epsilon: Precision parameter.
+alpha: Alpha parameter.
+overflow_penalty_frac: Fraction of overflow penalty.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins">
 <span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_fptas_knapsack.FPTASKnapsackSelection.select_bins" title="Link to this definition">#</a></dt>

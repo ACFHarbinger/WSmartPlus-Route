@@ -495,6 +495,17 @@ document.write(`
 <span id="src-pipeline-rl-core-imitation"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.imitation" title="src.pipeline.rl.core.imitation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.imitation</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.imitation" title="Link to this heading">#</a></h1>
 <p>Imitation Learning algorithm implementation.
 Trains a policy to mimic an expert solver (e.g., HGS, Local Search).</p>
+<p>Attributes:
+ImitationLearning: Imitation Learning algorithm implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import ImitationLearning
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; imitation_learning = ImitationLearning(env, agent)
+&gt;&gt;&gt; imitation_learning
+ImitationLearning(env=<COEnv>, policy=<COPolicy>, baseline=’none’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,13 +534,20 @@ and the actions taken by an expert solver (e.g., HGS, Local Search).</p>
 <li><p>Configurable Loss (NLL, Weighted NLL, KL, JS).</p></li>
 <li><p>Support for multiple expert types.</p></li>
 </ul>
+<p>Attributes:
+expert_policy: The expert policy used to generate expert actions.
+expert_name: The name of the expert policy.
+loss_fn: The loss function used to compute the loss.
+loss_fn_name: The name of the loss function.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize ImitationLearning module.</p>
 <p>Args:
-policy_config: Expert policy configuration object (HGSConfig, ALNSConfig, etc.).
-env_name: Environment name for the expert policy.
-loss_fn: Name of loss function to use (‘nll’, ‘kl’, ‘js’, etc.).
-**kwargs: Arguments passed to RL4COLitModule.</p>
+policy_config: Expert policy configuration (HGSConfig, ALNSConfig, etc.).
+env_name: Environment name for the policy.
+loss_fn: Loss function to use (‘nll’, ‘weighted_nll’, ‘kl’, ‘reverse_kl’, ‘js’).
+seed: Random seed for reproducibility.
+device: Device to run the policy on.
+kwargs: Additional arguments to pass to the parent class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy">
 <span class="sig-name descname"><span class="pre">_create_expert_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.imitation.ImitationLearning._create_expert_policy" title="Link to this definition">#</a></dt>

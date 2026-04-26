@@ -492,6 +492,11 @@ document.write(`
 <span id="src-policies-helpers-operators-generalized-insertion-and-deletion-unstringing-i"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i" title="src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i" title="Link to this heading">#</a></h1>
 <p>Type I Unstringing Operator.</p>
 <p>Removes node V_i and reconnects the route by reversing two sub-tours.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i import apply_type_i_us
+&gt;&gt;&gt; new_route = apply_type_i_us(route, i, j, k)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -519,12 +524,12 @@ Deletes arcs: (V_{i-1}, V_i), (V_i, V_{i+1}), (V_k, V_{k+1}), (V_j, V_{j+1})
 Inserts arcs: (V_{i-1}, V_k), (V_{i+1}, V_j), (V_{k+1}, V_{j+1})</p>
 <p>Reverses sub-tours (V_{i+1}…V_k) and (V_{k+1}…V_j).</p>
 <p>Args:
-route: The tour as a list of node IDs.
-i: Index of node to remove.
-j: Index of node V_j such that the arc (V_j, V_{j+1}) is broken.
-k: Index of node V_k such that the arc (V_k, V_{k+1}) is broken.</p>
+route (List[int]): The tour as a list of node IDs.
+i (int): Index of node to remove.
+j (int): Index of node V_j such that the arc (V_j, V_{j+1}) is broken.
+k (int): Index of node V_k such that the arc (V_k, V_{k+1}) is broken.</p>
 <p>Returns:
-New route with V_i removed and segments reconnected.</p>
+List[int]: New route with V_i removed and segments reconnected.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -532,13 +537,16 @@ New route with V_i removed and segments reconnected.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i.</span></span><span class="sig-name descname"><span class="pre">apply_type_i_us_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i.apply_type_i_us_profit" title="Link to this definition">#</a></dt>
 <dd><p>Apply Type I Unstringing move and return profit delta.</p>
 <p>Args:
-route: The tour as a list of node IDs.
-i, j, k: Indices as defined in apply_type_i_us.
-dist_matrix: Distance matrix.
-wastes: Waste levels.
-R, C: Revenue and cost multipliers.</p>
+route (List[int]): The tour as a list of node IDs.
+i (int): Index of node V_i to remove.
+j (int): Index of node V_j.
+k (int): Index of node V_k.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste levels.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
 <p>Returns:
-(new_route, delta_profit)</p>
+Tuple[List[int], float]: (new_route, delta_profit)</p>
 </dd></dl>
 
 </section>

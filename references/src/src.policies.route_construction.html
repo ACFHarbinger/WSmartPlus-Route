@@ -490,6 +490,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction">
 <span id="src-policies-route-construction"></span><h1><a class="reference internal" href="#module-src.policies.route_construction" title="src.policies.route_construction"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a><a class="headerlink" href="#module-src.policies.route_construction" title="Link to this heading">#</a></h1>
+<p>Route construction policies and sub-algorithms.</p>
+<p>This package contains various algorithms for constructing vehicle routes,
+ranging from classical heuristics to meta-heuristics and deep reinforcement
+learning models.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+None</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -513,6 +521,12 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.policy_ts</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing.policy_sa.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing.policy_sa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing.solver</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns</span></code></a></li>
@@ -526,7 +540,9 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#key-implementation-features">Key Implementation Features:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features">Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+Key Implementation Features:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#performance-optimizations">Performance Optimizations:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#usage-for-ablation-studies">Usage for Ablation Studies:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#references">References:</a></li>
@@ -1176,7 +1192,7 @@ document.write(`
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.route_construction.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘acceptance_criteria’, ‘exact_and_decomposition_solvers’, ‘hyper_heuristics’, ‘learning_algorithms’…</p>
+<dd><p>[‘exact_and_decomposition_solvers’, ‘hyper_heuristics’, ‘learning_algorithms’, ‘learning_heuristic_a…</p>
 </dd></dl>
 
 </section>

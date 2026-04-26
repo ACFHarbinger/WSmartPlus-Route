@@ -500,6 +500,13 @@ document.write(`
 <span id="src-pipeline-callbacks-simulation-policy-summary"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.simulation.policy_summary" title="src.pipeline.callbacks.simulation.policy_summary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.simulation.policy_summary</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.simulation.policy_summary" title="Link to this heading">#</a></h1>
 <p>Policy Summary Callback.</p>
 <p>Display a summary of the policies that will be run in the simulation.</p>
+<p>Attributes:
+PolicySummaryCallback: Callback to display a summary of the policies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs import Config
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.simulation.policy_summary import PolicySummaryCallback
+&gt;&gt;&gt; callback = PolicySummaryCallback()
+&gt;&gt;&gt; callback.display(cfg)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,6 +526,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.callbacks.simulation.policy_summary.</span></span><span class="sig-name descname"><span class="pre">PolicySummaryCallback</span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback" title="Link to this definition">#</a></dt>
 <dd><p>Callback to print a detailed summary of the policies.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback.display">
 <span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback.display" title="Link to this definition">#</a></dt>
@@ -532,36 +541,61 @@ cfg: Root Config with <code class="docutils literal notranslate"><span class="pr
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_engine">
 <span class="sig-name descname"><span class="pre">_extract_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_engine" title="Link to this definition">#</a></dt>
 <dd><p>Extract the engine name.</p>
+<p>Args:
+policy_name: Name of the policy.
+config: Configuration of the policy.</p>
+<p>Returns:
+The engine name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_selection">
 <span class="sig-name descname"><span class="pre">_extract_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_selection" title="Link to this definition">#</a></dt>
 <dd><p>Extract selection strategy details.</p>
+<p>Args:
+config: Configuration of the policy.</p>
+<p>Returns:
+The selection strategy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_selection_item">
 <span class="sig-name descname"><span class="pre">_parse_selection_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_selection_item" title="Link to this definition">#</a></dt>
 <dd><p>Parse a single selection item into name and params.</p>
+<p>Args:
+item: Description of item.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_mandatory_config_params">
 <span class="sig-name descname"><span class="pre">_parse_mandatory_config_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.MandatorySelectionConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_mandatory_config_params" title="Link to this definition">#</a></dt>
 <dd><p>Extract formatted parameters from a MandatorySelectionConfig object.</p>
+<p>Args:
+config: Configuration of the policy.</p>
+<p>Returns:
+Formatted parameters for the selection strategy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params">
 <span class="sig-name descname"><span class="pre">_parse_traversable_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.ITraversable</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params" title="Link to this definition">#</a></dt>
 <dd><p>Extract formatted parameters from an ITraversable (Config/Dict) object.</p>
+<p>Args:
+item: Configuration of the policy.</p>
+<p>Returns:
+Formatted parameters for the selection strategy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_route_improvement">
 <span class="sig-name descname"><span class="pre">_extract_route_improvement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_route_improvement" title="Link to this definition">#</a></dt>
 <dd><p>Extract route improvement steps.</p>
+<p>Args:
+config: Configuration of the policy.</p>
+<p>Returns:
+Route improvement steps.</p>
 </dd></dl>
 
 </dd></dl>

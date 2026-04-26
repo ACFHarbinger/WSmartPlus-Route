@@ -243,7 +243,7 @@
 
 ````
 
-````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> typing.Any
+````{py:method} _calculate_diversity(routes: typing.List[typing.List[int]]) -> float
 :canonical: src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity

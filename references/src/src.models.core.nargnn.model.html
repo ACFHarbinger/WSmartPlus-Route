@@ -500,6 +500,9 @@ heatmap is then used to construct solutions in a single non-autoregressive
 pass (or via sampling), with the model refined using REINFORCE.</p>
 <p>Attributes:
 NARGNN: Training wrapper for edge-based heatmap models.</p>
+<p>Example:
+&gt;&gt;&gt; model = NARGNN(env_name=”tsp”, embed_dim=64)
+&gt;&gt;&gt; out = model(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,20 +533,20 @@ _baseline_val (Optional[torch.Tensor]): State for ‘exponential’ baseline.</p
 <p class="rubric">Initialization</p>
 <p>Initializes the NARGNN wrapper.</p>
 <p>Args:
-embed_dim: Internal feature dimensionality.
-env_name: Optimization task identifier.
-num_layers_heatmap_generator: Depth of the heatmap MLP.
-num_layers_graph_encoder: Depth of the GNN message-passing stack.
-baseline: RL baseline strategy (‘rollout’, ‘exponential’).
-**kwargs: Extra parameters for NARGNNPolicy.</p>
+embed_dim: Dimensionality of latent embeddings.
+env_name: Name of the environment identifier.
+num_layers_heatmap_generator: Number of layers in the MLP heatmap generator.
+num_layers_graph_encoder: Number of edge-based GNN encoder layers.
+baseline: RL baseline type (“rollout”, “exponential”, “no”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.nargnn.model.NARGNN.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.nargnn.model.NARGNN.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes heatmap generation and computes REINFORCE loss.</p>
 <p>Args:
-td: problem state container.
-env: Optional environment for reward calculation.
-**kwargs: Additional parameters for policy execution.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Result map including reward, likelihood, and ‘loss’.</p>
 </dd></dl>
@@ -553,8 +556,8 @@ Dict[str, Any]: Result map including reward, likelihood, and ‘loss’.</p>
 <span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.nargnn.model.NARGNN.set_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Configures the action selection tactic (e.g., ‘greedy’, ‘sampling’).</p>
 <p>Args:
-strategy: Selection mode identifier.
-**kwargs: Parameters like ‘num_starts’ or ‘temperature’.</p>
+strategy: Decoding strategy identifier (e.g., “sampling”).
+kwargs: Additional keyword arguments.</p>
 </dd></dl>
 
 </dd></dl>

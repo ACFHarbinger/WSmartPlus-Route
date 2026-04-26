@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} update_weights(reward, cost_components=None)
+````{py:method} update_weights(reward: float, cost_components: typing.Optional[typing.Dict[str, float]] = None) -> typing.Dict[str, float]
 :canonical: src.pipeline.rl.meta.td_learning.CostWeightManager.update_weights
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.td_learning.CostWeightManager.update_weights
@@ -85,7 +85,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} state_dict()
+````{py:method} state_dict() -> typing.Dict[str, typing.Any]
 :canonical: src.pipeline.rl.meta.td_learning.CostWeightManager.state_dict
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.td_learning.CostWeightManager.state_dict
@@ -93,7 +93,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} load_state_dict(state_dict)
+````{py:method} load_state_dict(state_dict: typing.Dict[str, typing.Any])
 :canonical: src.pipeline.rl.meta.td_learning.CostWeightManager.load_state_dict
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.td_learning.CostWeightManager.load_state_dict

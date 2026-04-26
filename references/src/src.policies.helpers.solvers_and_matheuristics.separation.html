@@ -495,9 +495,15 @@ document.write(`
 These inequalities strengthen the Lower Bound (z_LP) by cutting off fractional
 points that cannot be represented as convex combinations of integer feasible
 routes.</p>
-<p>Reference:
-- Lysgaard, Letchford, and Eglese (2004) for RCC/SEC.
-- Jepsen et al. (2008) for Subset-Row Inequalities.</p>
+<p>Attributes:
+SeparationEngine: Core engine for identifying violated inequalities.
+Inequality: Base class for valid inequalities.
+PCSubtourEliminationCut: Subtour elimination constraint for profitable VRP.
+CapacityCut: Rounded Capacity Cut (RCC) representation.
+CombInequality: Comb inequality representation.</p>
+<p>Example:
+&gt;&gt;&gt; engine = SeparationEngine(n_nodes=50, capacity=100)
+&gt;&gt;&gt; cuts = engine.separate(x_star, y_star)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

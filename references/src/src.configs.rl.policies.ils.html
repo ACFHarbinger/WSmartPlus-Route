@@ -500,6 +500,30 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.policies.ils">
 <span id="src-configs-rl-policies-ils"></span><h1><a class="reference internal" href="#module-src.configs.rl.policies.ils" title="src.configs.rl.policies.ils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.ils</span></code></a><a class="headerlink" href="#module-src.configs.rl.policies.ils" title="Link to this heading">#</a></h1>
 <p>ILS (Iterated Local Search) configuration for expert policy training.</p>
+<p>Attributes:
+ILSConfig: Configuration for ILS algorithm.</p>
+<p>Example:
+ils_config = ILSConfig(
+n_restarts=5,
+ls_iterations=50,
+perturbation_strength=0.2,
+ls_operator=”two_opt”,
+perturbation_type=”double_bridge”,
+time_limit=30.0,
+op_probs={
+“two_opt”: 0.25,
+“swap”: 0.15,
+“relocate”: 0.15,
+“two_opt_star”: 0.2,
+“swap_star”: 0.15,
+“three_opt”: 0.1,
+},
+perturb_probs={
+“double_bridge”: 0.5,
+“shuffle”: 0.3,
+“random_swap”: 0.2,
+},
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

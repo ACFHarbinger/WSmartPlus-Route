@@ -494,7 +494,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.hpo.base">
 <span id="src-policies-helpers-hpo-base"></span><h1><a class="reference internal" href="#module-src.policies.helpers.hpo.base" title="src.policies.helpers.hpo.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.hpo.base</span></code></a><a class="headerlink" href="#module-src.policies.helpers.hpo.base" title="Link to this heading">#</a></h1>
-<p>Base classes for simulation policy HPO.</p>
+<p>Base classes for simulation policy Hyperparameter Optimization (HPO).</p>
+<p>Includes an abstract base class for defining HPO strategies and a concrete
+implementation for finding the best performing policy from the pool.</p>
+<p>Attributes:
+PolicyHPOBase: Abstract base class for HPO strategies.
+FullPolicyHPO: Concrete HPO implementation that trains and evaluates all policies.</p>
+<p>Example:
+&gt;&gt;&gt; # from logic.src.policies.helpers.hpo import FullPolicyHPO
+&gt;&gt;&gt; # hpo = FullPolicyHPO(cfg)
+&gt;&gt;&gt; # best_metric = hpo.run(n_trials=50)
+&gt;&gt;&gt; # print(f”Best metric: {best_metric}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,18 +525,22 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.hpo.base.</span></span><span class="sig-name descname"><span class="pre">PolicyHPOBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.hpo.base.PolicyHPOBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for simulation policy Hyperparameter Optimization.</p>
+<p>Attributes:
+cfg (Config): Root application configuration.
+best_params (Optional[Dict[str, Any]]): Best parameters found during HPO.
+best_value (float): Best objective value achieved.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize PolicyHPO.</p>
 <p>Args:
-cfg: Root application configuration.</p>
+cfg (Config): Root application configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.hpo.base.PolicyHPOBase.run">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.hpo.base.PolicyHPOBase.run" title="Link to this definition">#</a></dt>
 <dd><p>Run the HPO process.</p>
 <p>Args:
-n_trials: Number of optimization trials.</p>
+n_trials (int): Number of optimization trials to perform.</p>
 <p>Returns:
-The best metric value found.</p>
+float: The best metric value found across all trials.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -534,8 +548,8 @@ The best metric value found.</p>
 <span class="sig-name descname"><span class="pre">_apply_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.hpo.base.PolicyHPOBase._apply_params" title="Link to this definition">#</a></dt>
 <dd><p>Apply sampled parameters to the config.</p>
 <p>Args:
-cfg: Config object to mutate.
-params: Dictionary of sampled parameters.</p>
+cfg (Config): Config object to mutate with new parameters.
+params (Dict[str, Any]): Dictionary mapping dot-separated paths to values.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -543,11 +557,11 @@ params: Dictionary of sampled parameters.</p>
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">suggest_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">optuna.Trial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.helpers.hpo.base.PolicyHPOBase.suggest_param" title="Link to this definition">#</a></dt>
 <dd><p>Suggest a parameter based on its specification.</p>
 <p>Args:
-trial: Optuna trial object.
-name: Name of the parameter.
-spec: Specification dictionary (type, low, high, choices, etc.).</p>
+trial (optuna.Trial): Optuna trial object for parameter sampling.
+name (str): Name of the parameter to suggest.
+spec (Dict[str, Any]): Specification dictionary (type, low, high, choices, etc.).</p>
 <p>Returns:
-The suggested parameter value.</p>
+Any: The suggested parameter value of the appropriate type.</p>
 </dd></dl>
 
 </dd></dl>

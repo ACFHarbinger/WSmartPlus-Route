@@ -661,15 +661,30 @@ window_size: Sliding-window width (used when update_strategy == “sliding”).
 update_strategy: One of “additive”, “ema”, “sliding”.
 score_floor: Minimum allowed score (prevents score collapse).</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the SsHhState.</p>
+<p>Args:
+op_names: Ordered list of LLH operator names.
+alpha_ema: EMA smoothing factor.
+window_size: Size of the sliding window.
+update_strategy: Strategy to use for score updates.
+initial_score: The initial score value.
+score_floor: The minimum score boundary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.sequence_merging.sequential_selection.SsHhState.index">
 <span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.sequence_merging.sequential_selection.SsHhState.index" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the integer index corresponding to the operator name.</p>
+<p>Args:
+name: Operator name to look up.</p>
+<p>Returns:
+The integer index in the scores array.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.sequence_merging.sequential_selection.SsHhState.reset_scores">
 <span class="sig-name descname"><span class="pre">reset_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.sequence_merging.sequential_selection.SsHhState.reset_scores" title="Link to this definition">#</a></dt>
 <dd><p>Reset all scores and history to their initial state.</p>
+<p>Args:
+initial_score: The score value to reset everything to.</p>
 </dd></dl>
 
 </dd></dl>

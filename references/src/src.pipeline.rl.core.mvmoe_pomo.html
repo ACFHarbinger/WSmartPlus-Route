@@ -497,6 +497,17 @@ decoding for improved routing performance.</p>
 Zhou, J., Wu, Y., Song, Q., Ma, S., &amp; Cao, J. (2024).
 MVMoE: Multi-Task Vehicle Routing Solver with Mixture-of-Experts.
 arXiv:2405.01029.</p>
+<p>Attributes:
+MVMoE_POMO: MVMoE with POMO backbone.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import MVMoE_POMO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; mvmoe_pomo = MVMoE_POMO(env, agent)
+&gt;&gt;&gt; mvmoe_pomo
+MVMoE_POMO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +533,10 @@ decoding and shared baseline for improved routing performance.</p>
 <p>Reference:
 Zhou et al. (2024). MVMoE: Multi-Task Vehicle Routing Solver
 with Mixture-of-Experts. arXiv:2405.01029.</p>
+<p>Attributes:
+policy: Policy network.
+moe_kwargs: Keyword arguments for MoE.
+baseline: Baseline method.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize MVMoE_POMO.</p>
 <p>Args:
@@ -533,7 +548,7 @@ num_augment: Number of data augmentations (default 8 for dihedral).
 augment_fn: Augmentation function.
 first_aug_identity: Whether first augmentation is identity.
 num_starts: Number of multi-start nodes.
-**kwargs: Passed to POMO (and REINFORCE/RL4COLitModule).</p>
+kwargs: Passed to POMO (and REINFORCE/RL4COLitModule).</p>
 </dd></dl>
 
 </section>

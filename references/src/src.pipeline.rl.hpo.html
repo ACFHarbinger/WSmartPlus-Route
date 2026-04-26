@@ -491,6 +491,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.hpo">
 <span id="src-pipeline-rl-hpo"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.hpo" title="src.pipeline.rl.hpo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.hpo</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.hpo" title="Link to this heading">#</a></h1>
 <p>HPO Module Initialization.</p>
+<p>This module provides hyperparameter optimization algorithms for the RL pipeline.</p>
+<p>Attributes:
+BaseHPO: Abstract base class for HPO algorithms.
+DifferentialEvolutionHyperband: DEHB HPO algorithm.
+HypRLHPO: HypRL HPO algorithm.
+OptunaHPO: Optuna HPO algorithm.
+RayTuneHPO: Ray Tune HPO algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import OptunaHPO
+&gt;&gt;&gt; optuna_hpo = OptunaHPO()
+&gt;&gt;&gt; optuna_hpo
+OptunaHPO(n_trials=100, direction=’maximize’, study_name=None, storage=None)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

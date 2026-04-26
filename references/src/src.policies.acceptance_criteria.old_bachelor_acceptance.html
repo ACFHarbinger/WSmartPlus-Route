@@ -497,6 +497,14 @@ document.write(`
 <span id="src-policies-acceptance-criteria-old-bachelor-acceptance"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.old_bachelor_acceptance" title="src.policies.acceptance_criteria.old_bachelor_acceptance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.old_bachelor_acceptance</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.old_bachelor_acceptance" title="Link to this heading">#</a></h1>
 <p>Old Bachelor Acceptance (OBA) Criterion.</p>
 <p>Dynamic threshold strategy that adjusts standards based on acceptance success.</p>
+<p>Attributes:
+OldBachelorAcceptance: The OBA criterion.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.old_bachelor_acceptance import OldBachelorAcceptance
+&gt;&gt;&gt; criterion = OldBachelorAcceptance(contraction=0.1, dilation=0.1)
+&gt;&gt;&gt; criterion.setup(initial_objective=100.0)
+&gt;&gt;&gt; accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)
+True, {‘accepted’: True, ‘delta’: -2.0, ‘threshold’: 0.0, ‘age’: 0}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -546,7 +554,7 @@ initial_objective (ObjectiveValue): The initial solution’s objective.</p>
 <p>Args:
 current_obj (ObjectiveValue): Objective of the current solution.
 candidate_obj (ObjectiveValue): Objective of the candidate solution.
-**kwargs (Any): Additional context.</p>
+kwargs (Any): Additional context.</p>
 <p>Returns:
 Tuple[bool, AcceptanceMetrics]: A tuple containing:
 - accepted (bool): True if delta &gt;= -threshold.
@@ -558,10 +566,10 @@ Tuple[bool, AcceptanceMetrics]: A tuple containing:
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.old_bachelor_acceptance.OldBachelorAcceptance.step" title="Link to this definition">#</a></dt>
 <dd><p>Update the threshold and age based on acceptance result.</p>
 <p>Args:
-current_obj (ObjectiveValue): Previous solution’s objective.
-candidate_obj (ObjectiveValue): Candidate solution’s objective.
-accepted (bool): Whether the candidate was accepted.
-**kwargs (Any): Additional context.</p>
+current_obj (ObjectiveValue): Objective of the current solution.
+candidate_obj (ObjectiveValue): Objective of the candidate solution.
+accepted (bool): Whether the move was accepted.
+kwargs (Any): Additional context.</p>
 </dd></dl>
 
 <dl class="py method">

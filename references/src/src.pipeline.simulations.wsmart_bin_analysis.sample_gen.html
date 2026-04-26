@@ -507,6 +507,13 @@ document.write(`
 <span id="src-pipeline-simulations-wsmart-bin-analysis-sample-gen"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.sample_gen" title="src.pipeline.simulations.wsmart_bin_analysis.sample_gen"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.sample_gen</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.sample_gen" title="Link to this heading">#</a></h1>
 <p>DEPRECATED: Background management for container data sampling.
 This module is legacy code and has been replaced by GridBase in simulation.py.</p>
+<p>Attributes:
+OldGridBase: Class that manages the background behind containers.
+It receives a csv file, and pre-processes the necessary data in order to allow sampling.
+fix10pad: Function that fixes the 0.1 and 0.9 cumulative probability values.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.wsmart_bin_analysis.sample_gen import OldGridBase
+&gt;&gt;&gt; grid_base = OldGridBase(data_dir=””, area=””)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,6 +545,12 @@ This module is legacy code and has been replaced by GridBase in simulation.py.</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.sample_gen.</span></span><span class="sig-name descname"><span class="pre">OldGridBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase" title="Link to this definition">#</a></dt>
 <dd><p>Class that manages the background behind containers.</p>
 <p>It receives a csv file, and pre-processes the necessary data in order to allow sampling.</p>
+<p>Attributes:
+data_dir (str): Root directory for data files.
+src_area (str): Area name (e.g., ‘cascais’) used to identify specific CSV files.
+__data (pd.DataFrame): The dataframe with the fill rates.
+__info (pd.DataFrame): The dataframe with the container metadata.
+__freq_table (pd.DataFrame): A dataframe whose columns are the distribution of each rate.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the OldGridBase sampler.</p>
 <p>Args:
@@ -546,37 +559,45 @@ area (str): Area name (e.g., ‘cascais’) used to identify specific CSV files.
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.__data_preprocess">
 <span class="sig-name descname"><span class="pre">__data_preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.__data_preprocess" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The dataframe with dates as row indexes and rates rounded to the nearest integer</p>
+<dd><p>Args:
+data (pd.DataFrame): The dataframe with the fill rates.</p>
+<p>Returns:
+pd.DataFrame: The dataframe with dates as row indexes and rates rounded to the nearest integer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.__calc_freq_tables">
 <span class="sig-name descname"><span class="pre">__calc_freq_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.__calc_freq_tables" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: A dataframe whose columns are the distribution of each rate</p>
+<dd><p>Returns:
+pd.DataFrame: A dataframe whose columns are the distribution of each rate.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_mean_rate">
 <span class="sig-name descname"><span class="pre">get_mean_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_mean_rate" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The mean for each bin</p>
+<dd><p>Returns:
+np.ndarray: The mean of each bin.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_var_rate">
 <span class="sig-name descname"><span class="pre">get_var_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_var_rate" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The var of each bin</p>
+<dd><p>Returns:
+np.ndarray: The variance of each bin.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_std_rate">
 <span class="sig-name descname"><span class="pre">get_std_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_std_rate" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The stardard variation of each bin</p>
+<dd><p>Returns:
+np.ndarray: The standard variation of each bin.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_daterange">
 <span class="sig-name descname"><span class="pre">get_daterange</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_daterange" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The start and end of real values</p>
+<dd><p>Returns:
+tuple[pd.Timestamp, pd.Timestamp]: The start and end of real values.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -592,27 +613,36 @@ np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_values_by_date">
 <span class="sig-name descname"><span class="pre">get_values_by_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_values_by_date" title="Link to this definition">#</a></dt>
-<dd><p>&#64;param date: Datetime object (e.g., when looping through a daterange) or string in %Y-%m-%d format.
-&#64;param sample: Whether The bins NaN values should be sampled or mantained.
-&#64;return: Each container rate in required date.</p>
+<dd><p>Args:
+date (pd.Timestamp): The date to get the rates for.
+sample (bool): Whether The bins NaN values should be sampled or mantained.</p>
+<p>Returns:
+np.ndarray: Each container rate in required date.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.___values_by_date">
 <span class="sig-name descname"><span class="pre">___values_by_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.___values_by_date" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The actual rate row of each bin</p>
+<dd><p>Args:
+date (pd.Timestamp): The date to get the rates for.</p>
+<p>Returns:
+pd.Series: The actual rate row of each bin.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_info">
 <span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_info" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The info of the container with the given index</p>
+<dd><p>Args:
+i (int): The index of the container.</p>
+<p>Returns:
+dict: The info of the container with the given index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_num_bins">
 <span class="sig-name descname"><span class="pre">get_num_bins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.sample_gen.OldGridBase.get_num_bins" title="Link to this definition">#</a></dt>
-<dd><p>&#64;return: The number of bins the the grid</p>
+<dd><p>Returns:
+int: The number of bins in the grid.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -634,6 +664,10 @@ tuple[pd.DataFrame, pd.DataFrame]: (Fill rate data, Container metadata)</p>
 <dd><p>A value is verifiied by checkking if is one if 0.9999999&gt;1.</p>
 <p>1-0.9999999 &lt; 1/365*3 ~ 0.0001 Hard Coded, change for much bigger datasets; same goes for zero.
 &#64;return: A series with all its 1 values padded to 2 without changing the first 1.</p>
+<p>Args:
+s (pd.Series): The series to process.</p>
+<p>Returns:
+pd.Series: The processed series.</p>
 </dd></dl>
 
 </section>

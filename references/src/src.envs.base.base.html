@@ -501,6 +501,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.base.base">
 <span id="src-envs-base-base"></span><h1><a class="reference internal" href="#module-src.envs.base.base" title="src.envs.base.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base.base</span></code></a><a class="headerlink" href="#module-src.envs.base.base" title="Link to this heading">#</a></h1>
 <p>RL4CO Base Environment.</p>
+<p>Attributes:
+RL4COEnvBase: Base class for RL4CO environments.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,7 +539,7 @@ generator: Data generator instance for creating problem instances.
 generator_params: Parameters to pass to the generator if not provided.
 device: Device to place tensors on.
 batch_size: Batch size for the environment.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase.name" title="Link to this definition">#</a></dt>
@@ -552,42 +556,68 @@ batch_size: Batch size for the environment.
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase.dim">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase.dim" title="Link to this definition">#</a></dt>
 <dd><p>Alias for node_dim, expected by some models.</p>
+<p>Returns:
+int: Node dimension.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase.render">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase.render" title="Link to this definition">#</a></dt>
 <dd><p>Render the current state (optional).</p>
+<p>Args:
+td: TensorDict containing the state.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Any: The rendered state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase.__repr__" title="Link to this definition">#</a></dt>
 <dd><p>String representation of the environment.</p>
+<p>Returns:
+str: String representation of the environment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase._reset_instance">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_reset_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDictBase</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase._reset_instance" title="Link to this definition">#</a></dt>
 <dd><p>Reset the environment for a specific problem instance.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+TensorDictBase: The reset environment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase._step">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDictBase</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase._step" title="Link to this definition">#</a></dt>
 <dd><p>Perform a transition in the environment.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+TensorDictBase: The environment after the transition.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase._get_reward">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase._get_reward" title="Link to this definition">#</a></dt>
 <dd><p>Compute the reward for a specific action sequence.</p>
+<p>Args:
+td: TensorDict containing the state.
+actions: Optional tensor of actions.</p>
+<p>Returns:
+torch.Tensor: The reward for the given action sequence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.base.RL4COEnvBase._get_action_mask">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_action_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.base.base.RL4COEnvBase._get_action_mask" title="Link to this definition">#</a></dt>
 <dd><p>Return the valid action mask for the current state.</p>
+<p>Args:
+td: TensorDict containing the state.</p>
+<p>Returns:
+torch.Tensor: The action mask for the given state.</p>
 </dd></dl>
 
 </dd></dl>

@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} _update_superstars(teams: typing.List[typing.List[typing.Tuple[typing.List[typing.List[int]], float]]])
+````{py:method} _update_superstars(teams: typing.List[typing.List[typing.Tuple[typing.List[typing.List[int]], float]]]) -> None
 :canonical: src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._update_superstars
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._update_superstars
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} _play_match(team_a: typing.List[typing.Tuple[typing.List[typing.List[int]], float]], team_b: typing.List[typing.Tuple[typing.List[typing.List[int]], float]])
+````{py:method} _play_match(team_a: typing.List[typing.Tuple[typing.List[typing.List[int]], float]], team_b: typing.List[typing.Tuple[typing.List[typing.List[int]], float]]) -> None
 :canonical: src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._play_match
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._play_match

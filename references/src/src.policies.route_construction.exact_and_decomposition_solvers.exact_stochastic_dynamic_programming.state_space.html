@@ -472,7 +472,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.get_all_states()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager._build_bin_transitions"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager._build_bin_transitions()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_transition_probs"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.get_transition_probs()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.state_to_fraction"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.state_to_fraction()</span></code></a></li>
@@ -496,6 +495,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-exact-stochastic-dynamic-programming-state-space"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space" title="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space" title="Link to this heading">#</a></h1>
+<p>State space management for Stochastic Dynamic Programming.</p>
+<p>Provides the underlying discretization and transition probability mapping
+required for Exact Stochastic Dynamic Programming (ESDP).</p>
+<p>Attributes:
+StateSpaceManager (class): Manager for discrete state space.</p>
+<p>Example:
+&gt;&gt;&gt; manager = StateSpaceManager(num_nodes=5, discrete_levels=4, max_fill_rate=0.3)
+&gt;&gt;&gt; all_states = manager.get_all_states()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,22 +523,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.</span></span><span class="sig-name descname"><span class="pre">StateSpaceManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager" title="Link to this definition">#</a></dt>
 <dd><p>Manages the discrete state space and transition probabilities for the Exact SDP.</p>
 <p>The state is a tuple of V integers, each in {0, 1, …, L-1}.</p>
+<p>Attributes:
+num_nodes (int): Total number of nodes (including depot).
+L (int): Number of discrete fill levels per bin.
+trans_matrix (np.ndarray): Probability transition matrix for a single bin.</p>
 <p class="rubric">Initialization</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states">
-<span class="sig-name descname"><span class="pre">get_all_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states" title="Link to this definition">#</a></dt>
-<dd><p>Return a list of all possible discrete state tuples.</p>
-</dd></dl>
-
+<p>Initializes the state space manager.</p>
+<p>Args:
+num_nodes: Total number of nodes.
+discrete_levels: Number of discrete fill levels per bin.
+max_fill_rate: Maximum fill rate used for transition modeling.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager._build_bin_transitions">
 <span class="sig-name descname"><span class="pre">_build_bin_transitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager._build_bin_transitions" title="Link to this definition">#</a></dt>
-<dd><p>Builds a discrete probability transition matrix for a single bin.
-P[l][l’] = Probability of moving from level l to l’ without a visit.
+<dd><p>Builds a discrete probability transition matrix for a single bin.</p>
+<p>P[l][l’] = Probability of moving from level l to l’ without a visit.
 If a visit occurs, the bin resets to l=0 -&gt; we just use P[0][l’].</p>
 <p>We construct a simple discretized, discretized-gamma or uniformly spread distribution
 where the expected increment matches mean_increment.
 mean_increment is roughly continuous [0, 1]. In discrete units, it is expected_shift = mean_increment * (L-1).</p>
+<p>Args:
+mean_increment (float): The daily fill rate increment.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -541,18 +553,31 @@ mean_increment is roughly continuous [0, 1]. In discrete units, it is expected_s
 generate reachable non-zero-prob states and their probabilities.</p>
 <p>Note: action_set contains global node indices. Customers start at 1.
 So bin index in state tuple is (node_idx - 1).</p>
+<p>Args:
+state (Tuple[int, …]): The current discrete state.
+action_set (Union[frozenset, set]): Set of node indices to visit.</p>
+<p>Returns:
+List[Tuple[Tuple[int, …], float]]: List of (next_state, probability).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.state_to_fraction">
 <span class="sig-name descname"><span class="pre">state_to_fraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.state_to_fraction" title="Link to this definition">#</a></dt>
 <dd><p>Map discrete state tuple back to dictionary of continuous variables.</p>
+<p>Args:
+state (Tuple[int, …]): Discrete state tuple.</p>
+<p>Returns:
+Dict[int, float]: Mapping of node index to continuous fill fraction.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.fraction_to_state">
 <span class="sig-name descname"><span class="pre">fraction_to_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.fraction_to_state" title="Link to this definition">#</a></dt>
 <dd><p>Map continuous dictionary to discrete state tuple.</p>
+<p>Args:
+fractions (Dict[int, float]): Mapping of node index to continuous fill fraction.</p>
+<p>Returns:
+Tuple[int, …]: Discrete state tuple.</p>
 </dd></dl>
 
 </dd></dl>
@@ -610,7 +635,6 @@ So bin index in state tuple is (node_idx - 1).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_all_states"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.get_all_states()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager._build_bin_transitions"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager._build_bin_transitions()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.get_transition_probs"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.get_transition_probs()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.StateSpaceManager.state_to_fraction"><code class="docutils literal notranslate"><span class="pre">StateSpaceManager.state_to_fraction()</span></code></a></li>

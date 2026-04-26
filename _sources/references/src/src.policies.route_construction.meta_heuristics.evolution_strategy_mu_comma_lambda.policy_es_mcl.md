@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl.MuCommaLambdaESPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl.MuCommaLambdaESPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

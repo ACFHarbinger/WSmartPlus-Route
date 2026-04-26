@@ -499,8 +499,10 @@ all routes and applied; the loop terminates once no improving move remains.</p>
 are visited or which route they belong to. Route loads and revenue are
 therefore guaranteed to be preserved. For VRPP problems the improvement
 threshold is scaled by C so that comparisons remain in profit units.</p>
-<p>The complexity per iteration is O(Σ_r n_r²) where n_r is the route length.
+<p>The complexity per iteration is O(Sum_r n_r^2) where n_r is the route length.
 In practice the algorithm converges in far fewer iterations than max_iter.</p>
+<p>Attributes:
+None</p>
 <p>Reference:
 Lin, S. (1965). “Computer solutions of the traveling salesman problem.”
 Bell System Technical Journal, 44(10), 2245-2269.</p>

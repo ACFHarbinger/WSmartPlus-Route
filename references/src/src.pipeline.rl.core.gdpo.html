@@ -496,6 +496,17 @@ document.write(`
 <p>GDPO: Group reward-Decoupled Normalization Policy Optimization.</p>
 <p>This module implements the GDPO algorithm which normalizes reward components
 independently before aggregation to prevent reward collapse in multi-objective RL.</p>
+<p>Attributes:
+GDPO: GDPO algorithm implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import GDPO
+&gt;&gt;&gt; from logic.src.envs import GDPOEnv
+&gt;&gt;&gt; from logic.src.models import GDPOPPOAgent
+&gt;&gt;&gt; env = GDPOEnv()
+&gt;&gt;&gt; agent = GDPOPPOAgent(env)
+&gt;&gt;&gt; gdpo = GDPO(env, agent)
+&gt;&gt;&gt; gdpo
+GDPO(env=<GDPOEnv>, policy=<GDPOPPOAgent>, baseline=’rollout’, baseline_kwargs={‘val_dataset’: ‘val’, ‘update_every’: 10, ‘use_rollouts’: True}, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +529,12 @@ independently before aggregation to prevent reward collapse in multi-objective R
 <p>Group reward-Decoupled Normalization Policy Optimization (GDPO).</p>
 <p>Each objective channel is normalized independently (Z-scored) across the group/batch
 before being aggregated into the final advantage signal.</p>
+<p>Attributes:
+objective_keys: List of reward keys to normalize and aggregate.
+objective_weights: Optional weights for each objective.
+conditional_key: Optional key for conditional masking.
+renormalize_aggregated: Whether to re-normalize the aggregated advantage.
+weights_tensor: Tensor buffer for objective weights.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize GDPO module.</p>
 <p>Args:
@@ -527,7 +544,7 @@ gdpo_objective_weights: Weights matching the objective keys. If None, uses unifo
 gdpo_conditional_key: Optional key for conditional gating (e.g., “feasibility”).
 If provided, rewards are only optimized if this condition is met (value=1).
 gdpo_renormalize: Whether to re-normalize the final aggregated advantage.
-**kwargs: Standard REINFORCE arguments.</p>
+kwargs: Standard REINFORCE arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.gdpo.GDPO.weights_tensor">
 <span class="sig-name descname"><span class="pre">weights_tensor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#src.pipeline.rl.core.gdpo.GDPO.weights_tensor" title="Link to this definition">#</a></dt>
@@ -538,6 +555,13 @@ gdpo_renormalize: Whether to re-normalize the final aggregated advantage.
 <dt class="sig sig-object py" id="src.pipeline.rl.core.gdpo.GDPO.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.env.IEnv</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.gdpo.GDPO.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Compute GDPO loss using decoupled normalization.</p>
+<p>Args:
+td: TensorDict containing the batch data.
+out: Dictionary containing the output of the policy, including ‘log_likelihood’ and raw rewards.
+batch_idx: Index of the current batch.
+env: Optional environment instance.</p>
+<p>Returns:
+GDPO loss.</p>
 </dd></dl>
 
 </dd></dl>

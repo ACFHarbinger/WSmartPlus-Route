@@ -494,9 +494,12 @@ document.write(`
 <span id="src-data-network-geodesic"></span><h1><a class="reference internal" href="#module-src.data.network.geodesic" title="src.data.network.geodesic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network.geodesic</span></code></a><a class="headerlink" href="#module-src.data.network.geodesic" title="Link to this heading">#</a></h1>
 <p>geodesic.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+GeodesicStrategy: Strategy for computing geodesic distances on a sphere.</p>
 <p>Example:
-&gt;&gt;&gt; import geodesic</p>
+&gt;&gt;&gt; from logic.src.data.network.geodesic import GeodesicStrategy
+&gt;&gt;&gt; strategy = GeodesicStrategy()
+&gt;&gt;&gt; strategy.calculate_pair((0, 0), (1, 1))
+157.21777538020614</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,10 +520,17 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.network.geodesic.</span></span><span class="sig-name descname"><span class="pre">GeodesicStrategy</span></span><a class="headerlink" href="#src.data.network.geodesic.GeodesicStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.network.base.IterativeDistanceStrategy</span></code></p>
 <p>Strategy for computing geodesic distances (WGS84).</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.geodesic.GeodesicStrategy.calculate_pair">
 <span class="sig-name descname"><span class="pre">calculate_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.data.network.geodesic.GeodesicStrategy.calculate_pair" title="Link to this definition">#</a></dt>
 <dd><p>Computes geodesic distance using the WGS84 ellipsoid.</p>
+<p>Args:
+coords_i: Coordinates of the first point.
+coords_j: Coordinates of the second point.</p>
+<p>Returns:
+Geodesic distance between the two points.</p>
 </dd></dl>
 
 </dd></dl>

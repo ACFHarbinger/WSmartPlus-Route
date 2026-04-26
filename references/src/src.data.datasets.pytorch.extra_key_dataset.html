@@ -494,6 +494,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets.pytorch.extra_key_dataset">
 <span id="src-data-datasets-pytorch-extra-key-dataset"></span><h1><a class="reference internal" href="#module-src.data.datasets.pytorch.extra_key_dataset" title="src.data.datasets.pytorch.extra_key_dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.pytorch.extra_key_dataset</span></code></a><a class="headerlink" href="#module-src.data.datasets.pytorch.extra_key_dataset" title="Link to this heading">#</a></h1>
 <p>Dataset with extra key/value pairs.</p>
+<p>Attributes:
+ExtraKeyDataset: Dataset that includes an extra key/value pair (e.g., for baseline rewards).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import ExtraKeyDataset
+&gt;&gt;&gt; dataset = ExtraKeyDataset(dataset, extra)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,6 +523,9 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.datasets.pytorch.extra_key_dataset.</span></span><span class="sig-name descname"><span class="pre">ExtraKeyDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.pytorch.extra_key_dataset.ExtraKeyDataset" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>Dataset that includes an extra key/value pair (e.g., for baseline rewards).</p>
+<p>Attributes:
+dataset: The underlying dataset.
+extra: Dictionary of extra tensors to include (e.g., {‘baseline’: …}).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ExtraKeyDataset.</p>
 <p>Args:

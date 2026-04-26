@@ -502,12 +502,12 @@ document.write(`
 <p>Enhanced HGS Evolution with Contextual Multi-Armed Bandits.</p>
 <p>This module extends the standard HGS evolution operators with intelligent
 crossover operator selection using contextual bandits.</p>
-<p>Features:
-- LinUCB-based operator selection (default)
-- Thompson Sampling alternative
-- ε-Greedy baseline
-- Context-aware reward calculation
-- Adaptive operator portfolio</p>
+<p>Attributes:
+CMABEvolution: Evolution manager that selects crossover operators via CMAB.
+update_biased_fitness: Function to update biased fitness scores in population.</p>
+<p>Example:
+&gt;&gt;&gt; evolution = CMABEvolution(split_manager, bandit_algorithm=”linucb”)
+&gt;&gt;&gt; child = evolution.crossover(p1, p2, population, iteration=100)</p>
 <p>Reference:
 Vidal et al., “A hybrid genetic algorithm for multidepot and periodic VRP”, 2012.
 Li et al., “Contextual Bandits for Adaptive Operator Selection”, WWW 2010.</p>
@@ -529,8 +529,7 @@ Li et al., “Contextual Bandits for Adaptive Operator Selection”, WWW 2010.</
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.update_biased_fitness" title="src.policies.helpers.reinforcement_learning.evolution_cmab.update_biased_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_biased_fitness</span></code></a></p></td>
-<td><p>Update biased fitness based on profit rank and diversity rank.
-Uses parameterless diversity weighting (Vidal 2022).</p></td>
+<td><p>Update biased fitness based on profit rank and diversity rank.</p></td>
 </tr>
 </tbody>
 </table>
@@ -542,10 +541,23 @@ Uses parameterless diversity weighting (Vidal 2022).</p></td>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.evolution_cmab.</span></span><span class="sig-name descname"><span class="pre">CMABEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandit_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linucb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improvement_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversity_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">novelty_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution" title="Link to this definition">#</a></dt>
 <dd><p>Contextual Multi-Armed Bandit based evolutionary operators.</p>
-<p>This class orchestrates the dynamic selection of crossover operators using
-contextual reinforcement learning. It extracts environment and population
+<p>contextual reinforcement learning. It extracts environment and population
 features to form a ‘context’ vector, which is used by the bandit algorithm
 to predict which operator will be most effective.</p>
+<p>Attributes:
+split_manager: LinearSplit for evaluating individuals and splitting routes.
+rng: Random number generator for operator logic.
+np_rng: NumPy random generator for agent logic.
+feature_extractor: Context feature extractor.
+bandit: The underlying bandit agent (e.g., LinUCBAgent).
+bandit_algorithm: Name of the active bandit algorithm.
+quality_weight: Reward weight for offspring quality.
+improvement_weight: Reward weight for improvement over parents.
+diversity_weight: Reward weight for diversity contribution.
+novelty_weight: Reward weight for solution novelty.
+reward_threshold: Minimal improvement value to consider.
+default_reward: Baseline reward multiplier.
+iteration: Current global iteration count.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the CMAB evolution manager.</p>
 <p>Args:
@@ -558,7 +570,16 @@ novelty_weight: Weight for penalizing stagnant (non-novel) solutions.
 reward_threshold: Minimal improvement value to consider.
 default_reward: Baseline reward multiplier.
 rng: Random number generator instance.
-**kwargs: Additional parameters like alpha (for LinUCB) or lambda_prior.</p>
+kwargs: Additional hyperparameters for the RL agent.
+- diversity_history_size (int): Size of diversity history buffer.
+- improvement_history_size (int): Size of improvement history buffer.
+- feature_dim (int): Dimension of context features.
+- alpha (float): Exploration parameter for LinUCB.
+- lambda_prior (float): Prior lambda for Thompson Sampling.
+- noise_variance (float): Noise variance for Thompson Sampling.
+- epsilon (float): Initial epsilon for Epsilon-Greedy.
+- epsilon_decay (float): Decay rate for epsilon.
+- epsilon_min (float): Minimum epsilon value.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution.crossover">
 <span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution.crossover" title="Link to this definition">#</a></dt>
@@ -584,8 +605,8 @@ operator selection.</p>
 child (Individual): The newly created offspring.
 p1 (Individual): First parent.
 p2 (Individual): Second parent.
-population (List[Individual]): Current population for diversity measurement.</p>
-<p>Returns:
+population (List[Individual]): Current population for diversity measurement.
+Returns:
 float: A composite reward value scaled for the bandit update.</p>
 </dd></dl>
 
@@ -595,6 +616,8 @@ float: A composite reward value scaled for the bandit update.</p>
 <dd><p>Evaluate individual using LinearSplit.</p>
 <p>Args:
 ind: Individual to evaluate.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -603,12 +626,16 @@ ind: Individual to evaluate.</p>
 <dd><p>Update feature extractor with improvement info.</p>
 <p>Args:
 improvement: Population improvement rate.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution.decay_exploration">
 <span class="sig-name descname"><span class="pre">decay_exploration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution.decay_exploration" title="Link to this definition">#</a></dt>
 <dd><p>Decay exploration rate (for ε-greedy).</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -616,7 +643,7 @@ improvement: Population improvement rate.</p>
 <span class="sig-name descname"><span class="pre">get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.CMABEvolution.get_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Get CMAB statistics for visualization.</p>
 <p>Returns:
-Dictionary of statistics.</p>
+dict: Dictionary of statistics.</p>
 </dd></dl>
 
 </dd></dl>
@@ -624,9 +651,9 @@ Dictionary of statistics.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.evolution_cmab.update_biased_fitness">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.evolution_cmab.</span></span><span class="sig-name descname"><span class="pre">update_biased_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_elite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.evolution_cmab.update_biased_fitness" title="Link to this definition">#</a></dt>
-<dd><p>Update biased fitness based on profit rank and diversity rank.
-Uses parameterless diversity weighting (Vidal 2022).</p>
-<p>BF(I) = Rank_P(I) + (1 - nb_elite / pop_size) * Rank_D(I)</p>
+<dd><p>Update biased fitness based on profit rank and diversity rank.</p>
+<p>Uses parameterless diversity weighting (Vidal 2022).
+BF(I) = Rank_P(I) + (1 - nb_elite / pop_size) * Rank_D(I)</p>
 <p>Args:
 population: List of individuals to update.
 nb_elite: Number of elite individuals to protect.

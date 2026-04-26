@@ -490,6 +490,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor._logging">
 <span id="src-data-processor-logging"></span><h1><a class="reference internal" href="#module-src.data.processor._logging" title="src.data.processor._logging"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor._logging</span></code></a><a class="headerlink" href="#module-src.data.processor._logging" title="Link to this heading">#</a></h1>
 <p>Internal logging helper for processor events.</p>
+<p>Attributes:
+_log_processor_event: Logs a data processing event to the active tracking run (if any).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.processor._logging import _log_processor_event
+&gt;&gt;&gt; _log_processor_event(“test_event”, shape=(10,))
+&gt;&gt;&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -509,6 +515,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.data.processor._logging._log_processor_event">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor._logging.</span></span><span class="sig-name descname"><span class="pre">_log_processor_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mutate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor._logging._log_processor_event" title="Link to this definition">#</a></dt>
 <dd><p>Log a data processing event to the active tracking run (if any).</p>
+<p>Args:
+event_name: Description of event_name.
+variable_name: Description of variable_name.
+event_type: Description of event_type.
+shape: Description of shape.
+kwargs: Description of kwargs.</p>
 </dd></dl>
 
 </section>

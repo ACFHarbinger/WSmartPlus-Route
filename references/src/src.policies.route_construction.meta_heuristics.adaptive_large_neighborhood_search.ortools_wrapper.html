@@ -492,6 +492,11 @@ document.write(`
 <p>Wrapper for Google OR-Tools to solve the waste-collecting VRP.</p>
 <p>This module adapts the WSmart-Route problem definition into a format
 compatible with OR-Tools’ routing solver.</p>
+<p>Attributes:
+run_alns_ortools: Entry point for OR-Tools based ALNS.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper import run_alns_ortools
+&gt;&gt;&gt; routes, profit, cost = run_alns_ortools(dist, wastes, 50.0, 1.0, 1.0, {“time_limit”: 10})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -511,6 +516,15 @@ compatible with OR-Tools’ routing solver.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.run_alns_ortools">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.</span></span><span class="sig-name descname"><span class="pre">run_alns_ortools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.run_alns_ortools" title="Link to this definition">#</a></dt>
 <dd><p>Run ALNS using Google OR-Tools with Guided Local Search.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+wastes: Bin wastes.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+values: Dictionary of parameters and config.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
 </dd></dl>
 
 </section>

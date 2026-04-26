@@ -489,6 +489,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.intra_route_local_search.cross_exchange">
 <span id="src-policies-helpers-operators-intra-route-local-search-cross-exchange"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.intra_route_local_search.cross_exchange" title="src.policies.helpers.operators.intra_route_local_search.cross_exchange"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.intra_route_local_search.cross_exchange</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.intra_route_local_search.cross_exchange" title="Link to this heading">#</a></h1>
+<p>Cross-exchange operator for intra-route local search.</p>
+<p>Implements the intra-route CROSS-exchange operator that swaps two
+non-overlapping segments within a single randomly chosen route.</p>
+<p>Attributes:
+apply_intra_route_cross_exchange: Swap two non-overlapping segments
+within a randomly selected route.</p>
+<p>Example:
+&gt;&gt;&gt; import random
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.intra_route_local_search.cross_exchange import (
+…     apply_intra_route_cross_exchange,
+… )
+&gt;&gt;&gt; rng = random.Random(42)
+&gt;&gt;&gt; new_routes = apply_intra_route_cross_exchange(routes, rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,6 +525,12 @@ Segment lengths are chosen randomly between 1 and 3.</p></td>
 <dd><p>Applies the Intra-Route CROSS-exchange operator.
 Randomly selects a route, selects two non-overlapping segments, and swaps them.
 Segment lengths are chosen randomly between 1 and 3.</p>
+<p>Args:
+routes: Current routing solution (list of node sequences, depot excluded).
+rng: Random number generator used for route and index selection.</p>
+<p>Returns:
+List[List[int]]: Deep copy of routes with one intra-route segment swap applied,
+or an unchanged deep copy if no valid route is found.</p>
 </dd></dl>
 
 </section>

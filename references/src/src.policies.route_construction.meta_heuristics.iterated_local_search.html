@@ -491,9 +491,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.iterated_local_search">
 <span id="src-policies-route-construction-meta-heuristics-iterated-local-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search" title="src.policies.route_construction.meta_heuristics.iterated_local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search" title="Link to this heading">#</a></h1>
 <p>Iterated Local Search (ILS) solver for VRPP.</p>
-<p>Exports:
-ILSSolver: The main solver class.
-ILSParams: Configuration parameters dataclass.</p>
+<p>Attributes:
+ILSSolver: Main solver class for Iterated Local Search.
+ILSPolicy: Policy class for Iterated Local Search.
+ILSParams: Parameter dataclass for Iterated Local Search.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.iterated_local_search import ILSPolicy
+&gt;&gt;&gt; policy = ILSPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -522,7 +526,7 @@ ILSParams: Configuration parameters dataclass.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘ILSSolver’, ‘ILSParams’]</p>
+<dd><p>[‘ILSSolver’, ‘ILSPolicy’, ‘ILSParams’]</p>
 </dd></dl>
 
 </section>

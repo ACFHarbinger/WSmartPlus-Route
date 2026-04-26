@@ -495,6 +495,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-scenario-prize-engine"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine" title="Link to this heading">#</a></h1>
+<p>Module documentation.</p>
+<p>Attributes:
+ScenarioPrizeEngine: The Scenario Prize Engine algorithm implementation.</p>
+<p>Examples:
+&gt;&gt;&gt; from .scenario_prize_engine import ScenarioPrizeEngine
+&gt;&gt;&gt; scenario_prize_engine = ScenarioPrizeEngine()
+&gt;&gt;&gt; temporal_benders.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,13 +527,33 @@ document.write(`
 - γ * E_ξ[V_future(i, visited)]     ← value of visiting now</p>
 <p>Where V_future is approximated analytically from the scenario tree
 using the Gamma-distribution overflow predictor.</p>
+<p class="rubric" id="id1">Attributes:</p>
+<p>tree: ScenarioTree
+The scenario tree used to generate the prizes.
+gamma: float
+The discount factor for future revenues.
+tau: float
+The maximum capacity of the bins.
+overflow_penalty: float
+The penalty multiplier for overflow risk.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the ScenarioPrizeEngine.</p>
+<p>Args:
+scenario_tree: The scenario tree used to generate the prizes.
+gamma: The discount factor for future revenues.
+tau: The maximum capacity of the bins.
+overflow_penalty: The penalty multiplier for overflow.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine.compute_prizes">
 <span class="sig-name descname"><span class="pre">compute_prizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_remaining</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine.compute_prizes" title="Link to this definition">#</a></dt>
 <dd><p>Compute scenario-augmented node prizes for all bins.</p>
+<p>Args:
+current_wastes: The current waste levels of all bins.
+bin_stats: A dictionary containing the means and standard deviations of waste accumulation for each bin.
+revenue: The revenue per unit of waste.
+days_remaining: The number of days remaining in the planning horizon.</p>
 <p>Returns:
-Dict mapping bin index (1-based) to augmented prize.</p>
+A dictionary mapping bin index (1-based) to its scenario-augmented prize.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -535,6 +562,16 @@ Dict mapping bin index (1-based) to augmented prize.</p>
 <dd><p>E[future value | bin not visited today].</p>
 <p>If days_to_overflow &lt; days_remaining: overflow risk applies.
 Otherwise: expected accumulated revenue at next optimal visit.</p>
+<p>Args:
+idx: The index of the bin.
+current_fill: The current fill level of the bin.
+mean_rate: The mean rate of waste accumulation.
+variance: The variance of waste accumulation.
+days_to_overflow: The number of days until the bin overflows.
+days_remaining: The number of days remaining in the planning horizon.
+revenue: The revenue per unit of waste.</p>
+<p>Returns:
+The expected future value of not visiting the bin today.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -542,6 +579,14 @@ Otherwise: expected accumulated revenue at next optimal visit.</p>
 <span class="sig-name descname"><span class="pre">_expected_future_value_visit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_remaining</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine._expected_future_value_visit" title="Link to this definition">#</a></dt>
 <dd><p>E[future value | bin visited today — resets to ~mean_rate fill].</p>
 <p>Bin accumulates from reset; next visit at optimal frequency.</p>
+<p>Args:
+idx: The index of the bin.
+mean_rate: The mean rate of waste accumulation.
+variance: The variance of waste accumulation.
+days_remaining: The number of days remaining in the planning horizon.
+revenue: The revenue per unit of waste.</p>
+<p>Returns:
+The expected future value of visiting the bin today.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -549,6 +594,12 @@ Otherwise: expected accumulated revenue at next optimal visit.</p>
 <span class="sig-name descname"><span class="pre">scenario_weighted_prizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">days_remaining</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_prize_engine.ScenarioPrizeEngine.scenario_weighted_prizes" title="Link to this definition">#</a></dt>
 <dd><p>Aggregate prizes across all scenarios at a given day,
 weighted by scenario probability.</p>
+<p>Args:
+day: The day to aggregate prizes for.
+revenue: The revenue per unit of waste.
+days_remaining: The number of days remaining in the planning horizon.</p>
+<p>Returns:
+A dictionary mapping bin index to its scenario-weighted prize.</p>
 </dd></dl>
 
 </dd></dl>

@@ -492,6 +492,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual">
 <span id="src-policies-route-construction-meta-heuristics-evolution-strategy-mu-kappa-lambda-individual"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual" title="Link to this heading">#</a></h1>
+<p>Individual representation for the (μ,κ,λ) Evolution Strategy.</p>
+<p>Attributes:
+Individual: Data structure for ES individuals with age tracking.</p>
+<p>Example:
+&gt;&gt;&gt; ind = Individual(routes=[[1, 2, 0]])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,12 +520,10 @@ document.write(`
 the object variables (the routes) and the strategy parameters (the
 mutation_strength).</p>
 <p>Attributes:
-routes (List[List[int]]): The discrete solution representation (set of routes).
-mutation_strength (float): The self-adaptive ‘step-size’ controlling the
-intensity of the destroy-repair mutation.
-fitness (float): The objective value (net profit).
-age (int): The number of generations this individual has survived.
-Offspring are born with age 1.</p>
+routes: The discrete solution representation (set of routes).
+mutation_strength: The self-adaptive ‘step-size’.
+fitness: The objective value (net profit).
+age: The number of generations this individual has survived.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize a new Individual.</p>
 <p>Args:
@@ -528,6 +531,8 @@ routes: Initial routing sequences.
 fitness: Initial fitness value.
 age: Starting age (default 1).
 mutation_strength: Initial mutation intensity (discrete σ).</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual.copy" title="Link to this definition">#</a></dt>

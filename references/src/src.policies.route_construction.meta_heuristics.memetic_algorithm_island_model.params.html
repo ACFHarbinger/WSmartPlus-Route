@@ -503,8 +503,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-island-model-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Memetic Island Model Genetic Algorithm.</p>
-<p>This matches the “Soccer League Competition (SLC)” algorithm structure
-but uses rigorous Genetic Algorithm terminology.</p>
+<p>Attributes:
+MemeticAlgorithmIslandModelParams: Parameters for the MAIM solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = MemeticAlgorithmIslandModelParams(n_islands=5, island_size=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,22 +526,17 @@ but uses rigorous Genetic Algorithm terminology.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmIslandModelParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams" title="Link to this definition">#</a></dt>
 <dd><p>Parameters for Memetic Algorithm with Island Model (MA-IM).</p>
-<p>Matches the Soccer League Competition (SLC) logic:</p>
-<ul class="simple">
-<li><p>n_islands (n_teams): Number of sub-populations.</p></li>
-<li><p>island_size (team_size): Individuals per sub-population.</p></li>
-<li><p>max_generations (max_iterations): Evolution cycles.</p></li>
-<li><p>n_removal: Nodes removed per mutation/perturbation step.</p></li>
-<li><p>stagnation_limit: Generations without improvement before island regeneration.</p></li>
-<li><p>local_search_iterations: Number of local search iterations.</p></li>
-<li><p>time_limit: Wall-clock time limit in seconds.</p></li>
-</ul>
-<p>Reference:
-Moosavian, N., &amp; Rppdsarou, B. K. (2014).
-“Soccer league competition algorithm: A novel meta-heuristic
-algorithm for optimal design of water distribution networks.”
-Whitley, D., Rana, S., &amp; Heckendorn, R. B. (1998).
-“The island model genetic algorithm: On separability, population size and convergence.”</p>
+<p>Attributes:
+n_islands: Number of sub-populations (islands).
+island_size: Individuals per sub-population.
+max_generations: Evolution cycles.
+stagnation_limit: Generations without improvement before island regeneration.
+n_removal: Nodes removed per mutation/perturbation step.
+local_search_iterations: Number of local search iterations.
+time_limit: Wall-clock time limit in seconds.
+vrpp: Whether to solve as a VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.n_islands">
 <span class="sig-name descname"><span class="pre">n_islands</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.n_islands" title="Link to this definition">#</a></dt>
@@ -604,6 +601,10 @@ Whitley, D., Rana, S., &amp; Heckendorn, R. B. (1998).
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source (dataclass or object).</p>
+<p>Returns:
+MemeticAlgorithmIslandModelParams: Initialized runtime parameters.</p>
 </dd></dl>
 
 </dd></dl>

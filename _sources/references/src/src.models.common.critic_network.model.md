@@ -49,7 +49,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.common.critic_network.model.LegacyCriticNetwork.__init__
 ```
 
-````{py:method} _init_embed(nodes: torch.Tensor) -> torch.Tensor
+````{py:method} _init_embed(inputs: typing.Dict[str, typing.Any] | torch.Tensor) -> torch.Tensor
 :canonical: src.models.common.critic_network.model.LegacyCriticNetwork._init_embed
 
 ```{autodoc2-docstring} src.models.common.critic_network.model.LegacyCriticNetwork._init_embed

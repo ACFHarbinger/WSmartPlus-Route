@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 :canonical: src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.policy_hna.HierarchicalNeuralAgentPolicy._get_config_key
+```
 
 ````
 

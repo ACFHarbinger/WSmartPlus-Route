@@ -496,6 +496,11 @@ Search (G-LNS). This helps the search explicitly break away from local
 optima by removing features that the G-LNS mechanism has identified as
 undesirable. This operator serves as the G-LNS equivalent of Fast Local
 Search (FLS).</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.destroy_ruin.guided import penalized_removal
+&gt;&gt;&gt; routes, removed = penalized_removal(routes, n_remove=5, penalties=penalty_matrix)</p>
 <p>Reference:
 Voudouris, C., &amp; Tsang, E. “Guided Local Search and Its
 Application to the Traveling Salesman Problem”, 1999.</p>

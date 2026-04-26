@@ -491,7 +491,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization" title="Link to this heading">#</a></h1>
 <p>Particle Swarm Optimization (PSO) with velocity momentum.</p>
-<p><strong>TRUE PSO</strong> replacing the mathematically equivalent but slower SCA.</p>
+<p>Attributes:
+PSOParams: Parameter dataclass for Particle Swarm Optimization.
+PSOPolicyAdapter: Policy class for Particle Swarm Optimization.
+PSOSolver: Main solver class for Particle Swarm Optimization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization import PSOPolicyAdapter
+&gt;&gt;&gt; policy = PSOPolicyAdapter()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

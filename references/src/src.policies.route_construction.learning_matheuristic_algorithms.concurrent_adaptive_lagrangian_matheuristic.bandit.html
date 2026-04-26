@@ -521,6 +521,17 @@ arms tie at sqrt(phi^T phi / lambda) * alpha, so the tiebreaker (first
 arm) is used.  We shuffle the arm order once at init to avoid systematic
 bias.</p></li>
 </ul>
+<p>Attributes:
+BanditArm: Per-arm LinUCB state.
+LinUCBBandit: Contextual bandit with LinUCB arm selection.
+build_context: Build the context vector.
+select_arm: Select the best arm based on the UCB score.
+update: Update the bandit with the reward for the given arm and context.</p>
+<p>Examples:
+&gt;&gt;&gt; from .params import BanditParams
+&gt;&gt;&gt; bandit = LinUCBBandit(BanditParams())
+&gt;&gt;&gt; arm_idx, engine, cut_strategy, score = bandit.select_arm(np.zeros(bandit.params.feature_dim))
+&gt;&gt;&gt; bandit.update(arm_idx, np.zeros(bandit.params.feature_dim), 1.0)</p>
 </section>
 <p>LinUCB contextual bandit for algorithmic-choice selection.</p>
 <p>Action arms: the Cartesian product of <code class="docutils literal notranslate"><span class="pre">engines</span> <span class="pre">x</span> <span class="pre">cut_strategies</span></code>.  Each arm
@@ -577,6 +588,14 @@ select arm = argmax_a p_a(phi).
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.</span></span><span class="sig-name descname"><span class="pre">BanditArm</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm" title="Link to this definition">#</a></dt>
 <dd><p>Per-arm LinUCB state.</p>
+<p>Attributes:
+engine (str): Engine name.
+cut_strategy (str): Cut strategy name.
+A (np.ndarray): (d, d), inverse maintained separately
+A_inv (np.ndarray): (d, d), inverse maintained separately
+b (np.ndarray): (d,)
+n_pulls (int): Number of pulls.
+cumulative_reward (float): Cumulative reward.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.engine" title="Link to this definition">#</a></dt>
@@ -622,7 +641,10 @@ select arm = argmax_a p_a(phi).
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.theta">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">theta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.theta" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the regression coefficients (weights) for this arm.</p>
+<p>Returns:
+np.ndarray: Computed theta vector (A_inv &#64; b).</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -630,33 +652,60 @@ select arm = argmax_a p_a(phi).
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.</span></span><span class="sig-name descname"><span class="pre">LinUCBBandit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.BanditParams" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.BanditParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.BanditParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit" title="Link to this definition">#</a></dt>
 <dd><p>Contextual bandit with LinUCB arm selection.</p>
+<p>Attributes:
+_arms (List[BanditArm]): List of bandit arms.
+_arm_index (Dict[Tuple[str, str], int]): Mapping of (engine, cut_strategy) to arm index.
+params (BanditParams): Configuration for features, lambda, and exploration.
+rng (Optional[np.random.Generator]): Random generator for arm shuffling.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the LinUCB bandit coordinator.</p>
+<p>Args:
+params (BanditParams): Configuration for features, lambda, and exploration.
+rng (Optional[np.random.Generator]): Random generator for arm shuffling.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit._build_arms">
 <span class="sig-name descname"><span class="pre">_build_arms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit._build_arms" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the bandit arms.</p>
+<p>Iterates over all combinations of engines and cut strategies, creating a BanditArm for each.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.arms">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.arms" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a list of all bandit arms (read-only copy).</p>
+<p>Returns:
+List[BanditArm]: All arms managed by the bandit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.select_arm">
 <span class="sig-name descname"><span class="pre">select_arm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.select_arm" title="Link to this definition">#</a></dt>
-<dd><p>Return (arm_index, engine, cut_strategy, ucb_score).</p>
+<dd><p>Select the best arm based on the UCB score.</p>
+<p>Args:
+context (np.ndarray): Context vector.</p>
+<p>Returns:
+Tuple[int, str, str, float]: Tuple of (arm_index, engine, cut_strategy, ucb_score).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arm_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.update" title="Link to this definition">#</a></dt>
-<dd><p>Sherman-Morrison incremental update of A_inv and b.</p>
+<dd><p>Update the bandit with the reward for the given arm and context.</p>
+<p>Args:
+arm_index (int): Index of the arm to update.
+context (np.ndarray): Context vector.
+reward (float): Reward for the given arm and context.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.LinUCBBandit.summary" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generates a diagnostic summary of arm performance.</p>
+<p>Returns:
+List[Dict[str, Union[float, str]]]: List of statistics per arm.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -674,6 +723,20 @@ select arm = argmax_a p_a(phi).
 6: lambda_norm / scale                 – multiplier magnitude (clipped 0..1)
 7: bias (always 1.0)</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">feature_dim</span></code> is larger than 8 we pad with zeros; smaller, we truncate.</p>
+<p>Args:
+outer_iter (int): Current outer iteration number.
+max_outer (int): Maximum number of outer iterations.
+primal_gap_frac (float): Fractional primal gap.
+dual_progress_frac (float): Fractional dual progress.
+iters_since_improvement (int): Number of iterations since improvement.
+stagnation_patience (int): Patience for stagnation detection.
+fraction_bins_selected (float): Fraction of bins selected.
+fraction_periods_saturated (float): Fraction of periods saturated.
+lambda_norm (float): L2 norm of Lagrangian multipliers.
+lambda_norm_scale (float): Scale factor for L2 norm of Lagrangian multipliers.
+feature_dim (int): Dimension of the feature vector.</p>
+<p>Returns:
+np.ndarray: Feature vector.</p>
 </dd></dl>
 
 </section>

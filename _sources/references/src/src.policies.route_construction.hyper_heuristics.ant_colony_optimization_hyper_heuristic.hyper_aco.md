@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _evaporate_pheromones()
+````{py:method} _evaporate_pheromones() -> None
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones

@@ -508,11 +508,19 @@ Erases the entire visit-frequency pattern for a node, removing it from
 every day in the horizon.  This enables a wholesale re-scheduling of a
 node and is analogous to Coelho et al. (2012) “path removal” extended
 to the inventory routing literature.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.destroy_ruin.multi_period import (
+…     shift_visit_removal, pattern_removal
+… )
+&gt;&gt;&gt; new_horizon, removed = shift_visit_removal(horizon_routes, n_remove=3)
+&gt;&gt;&gt; new_horizon, removed = pattern_removal(horizon_routes, n_remove=2)</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Coelho, L. C., Cordeau, J.-F., &amp; Laporte, G. (2012). “The inventory-routing
-problem with transshipment.” Computers &amp; Operations Research, 39(11), 2537–2548.</p>
+problem with transshipment.” Computers &amp; Operations Research, 39(11), 2537-2548.</p>
 </section>
 <p>Inter-Period Destroy Operators for Multi-Period ALNS.</p>
 <p>Implements horizon-aware removal operators that operate on the full T-day
@@ -588,6 +596,8 @@ n_remove: Number of visits to remove.
 dist_matrix: Distance matrix.
 p: Shaw randomness parameter.
 rng: Random number generator.</p>
+<p>Returns:
+Tuple of (modified_horizon, removed_visits).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -600,6 +610,8 @@ n_remove: Total visits to remove.
 wastes: Current fill levels (used as urgency indicator).
 fill_threshold: Urgency threshold tau.
 rng: Random number generator.</p>
+<p>Returns:
+Tuple of (modified_horizon, removed_visits).</p>
 </dd></dl>
 
 <dl class="py function">

@@ -501,6 +501,11 @@ for solving the Capacitated Vehicle Routing Problem with Profits.</p>
 Simensen, M., Hasle, G., &amp; Stalhane, M. “Combining hybrid
 genetic search with ruin-and-recreate for solving the
 capacitated vehicle routing problem”, 2022</p>
+<p>Attributes:
+HGSRRSolver: Hybrid evolutionary solver with ruin-and-recreate mutation.</p>
+<p>Example:
+&gt;&gt;&gt; solver = HGSRRSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +527,20 @@ capacitated vehicle routing problem”, 2022</p>
 <dd><p>Hybrid Genetic Search with Ruin-and-Recreate for VRPP.</p>
 <p>This algorithm extends standard HGS by replacing traditional local search
 with adaptive destroy/repair operators (ruin-and-recreate).</p>
+<p>Attributes:
+d: NxN distance matrix.
+wastes: Dictionary of node wastes.
+Q: Maximum vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: HGS-RR parameters.
+mandatory_nodes: List of node indices that MUST be visited.
+random: Random number generator.
+n_nodes: Number of client nodes.
+nodes: List of client node indices.
+split_manager: Giant tour splitting evaluator.
+rr_operator: Ruin-and-recreate mutation engine.
+operator_manager: Adaptive weight manager for RR operators.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the HGS-RR solver.</p>
 <p>Args:
@@ -531,12 +550,15 @@ capacity: Maximum vehicle capacity.
 R: Revenue multiplier.
 C: Cost multiplier.
 params: HGS-RR parameters.
-mandatory_nodes: List of local node indices that MUST be visited.
-seed: Random seed for reproducibility.</p>
+mandatory_nodes: List of local node indices that MUST be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.hgs_rr.HGSRRSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.hgs_rr.HGSRRSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the HGS-RR algorithm.</p>
+<p>Args:
+None.</p>
 <p>Returns:
 Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.</p>
 </dd></dl>
@@ -545,6 +567,10 @@ Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.hgs_rr.HGSRRSolver._select_parents">
 <span class="sig-name descname"><span class="pre">_select_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.Individual</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.Individual</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.Individual</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.hgs_rr.HGSRRSolver._select_parents" title="Link to this definition">#</a></dt>
 <dd><p>Select two parents using binary tournament selection.</p>
+<p>Args:
+population: List of individuals in the population.</p>
+<p>Returns:
+Tuple[Individual, Individual]: Two selected parents.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -558,7 +584,7 @@ best_cost: Current best cost for the best profit.
 p1: First parent.
 p2: Second parent.</p>
 <p>Returns:
-Score value (sigma_1, sigma_2, sigma_3, or 0).</p>
+float: Score value (sigma_1, sigma_2, sigma_3, or 0).</p>
 </dd></dl>
 
 </dd></dl>

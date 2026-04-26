@@ -567,6 +567,13 @@ for outer_iter in range(max_outer_iterations):
 return best_primal
 </pre></div>
 </div>
+<p>Attributes:
+_RunState: Mutable state threaded through the outer loop.
+CALMPolicy: The CALM policy.</p>
+<p>Example:
+&gt;&gt;&gt; policy = CALMPolicy()
+&gt;&gt;&gt; policy._run_multi_period_solver(problem_ctx, solution_ctx)
+&lt;objective_value&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -589,6 +596,23 @@ return best_primal
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.</span></span><span class="sig-name descname"><span class="pre">_RunState</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="Link to this definition">#</a></dt>
 <dd><p>Mutable state threaded through the outer loop.</p>
+<p>Attributes:
+tables (LookaheadTables): The lookahead tables.
+scenario_tree (ScenarioTree): The scenario tree.
+lag_state (LagrangianState): The Lagrangian state.
+coordinator (LagrangianCoordinator): The Lagrangian coordinator.
+oracle (InsertionCostOracle): The insertion cost oracle.
+bandit (LinUCBBandit): The bandit.
+regret_preprocessor (RegretPreprocessor): The regret preprocessor.
+best_primal (float): The best primal.
+best_per_period_tours (Dict[int, List[int]]): The best per-period tours.
+best_per_period_selection (Dict[int, List[int]]): The best per-period selection.
+best_per_period_cost (Dict[int, float]): The best per-period cost.
+outer_iter (int): The outer iteration.
+iters_since_improvement (int): The number of iterations since improvement.
+prior_cuts (Dict[int, Dict[int, float]]): The prior cuts.
+selection_history (List[List[SelectionResult]]): The selection history.
+start_time (float): The start time.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState.tables">
 <span class="sig-name descname"><span class="pre">tables</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables</span></a></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState.tables" title="Link to this definition">#</a></dt>
@@ -692,47 +716,90 @@ return best_primal
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.</span></span><span class="sig-name descname"><span class="pre">CALMPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
 <p>Multi-period Concurrent Adaptive Lagrangian Matheuristic (CALM) policy.</p>
+<p>The CALM (Concurrent Adaptive Lagrangian Matheuristic) policy is designed for multi-period vehicle routing problems where demand is uncertain
+and revealed over time. It addresses the challenge of coordinating routing decisions across multiple time periods under uncertainty by combining
+probabilistic lookahead with adaptive Lagrangian relaxation.</p>
+<p>Attributes:
+params (CALMParams): The parameters for the CALM policy.
+horizon (int): The horizon for the multi-period problem.
+stockout_penalty (float): The penalty for stockouts.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize the CALM policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Any): The configuration for the policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class.</p>
+<p>Returns:
+Type[CALMParams]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key.</p>
+<p>Returns:
+str: The configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Run the multi-period solver.</p>
+<p>Args:
+problem (ProblemContext): The problem context.
+multi_day_ctx (Optional[MultiDayContext]): The multi-day context.</p>
+<p>Returns:
+Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: The solution context, routing results, and metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._initialise">
 <span class="sig-name descname"><span class="pre">_initialise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._initialise" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the internal state of the policy.</p>
+<p>Args:
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+_RunState: The internal state of the policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._solve_selection_layer">
 <span class="sig-name descname"><span class="pre">_solve_selection_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._solve_selection_layer" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solve the selection layer.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.
+engine (str): The engine.
+plan (RegretPlan): The regret plan.</p>
+<p>Returns:
+List[SelectionResult]: The selection results.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._solve_routing_layer">
 <span class="sig-name descname"><span class="pre">_solve_routing_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.routing.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.routing.RoutingResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.routing.RoutingResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.routing.RoutingResult</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._solve_routing_layer" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solve the routing layer.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.
+selection_results (List[SelectionResult]): The selection results.</p>
+<p>Returns:
+List[RoutingResult]: The routing results.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._generate_cuts">
 <span class="sig-name descname"><span class="pre">_generate_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._generate_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Return per-period {bin: penalty} dicts.</p>
+<p>Args:
+strategy (str): The cut generation strategy.
+selection_results (List[SelectionResult]): The selection results.
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+Dict[int, Dict[int, float]]: The per-period {bin: penalty} dicts.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -742,6 +809,11 @@ typed dataclass automatically.</p>
 <p>Primal objective = sum over periods of
 (sum_{i in S_t} V[i, t]) - C * cost(S_t)
 minus stockout penalty for any bin that overflows before being visited.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+Tuple[float, bool]: The primal value and whether it’s an improvement.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -750,17 +822,34 @@ minus stockout penalty for any bin that overflows before being visited.</p>
 <dd><p>Approximate stockout penalty: for each bin that is projected to
 exceed capacity_cap in expectation over the horizon and is NOT in any
 period’s best-known selection, add the overflow amount to the penalty.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+float: The stockout penalty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._should_stop">
 <span class="sig-name descname"><span class="pre">_should_stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._should_stop" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to stop the algorithm.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.</p>
+<p>Returns:
+bool: True if the algorithm should stop, False otherwise.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._assemble_x_K">
 <span class="sig-name descname"><span class="pre">_assemble_x_K</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selection_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.selection.SelectionResult</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._assemble_x_K" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Assemble the full selection matrix x_K.</p>
+<p>Args:
+selection_results (List[SelectionResult]): The selection results.
+n_bins (int): The number of bins.
+horizon (int): The horizon.</p>
+<p>Returns:
+np.ndarray: The selection matrix.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._compute_full_lagrangian">
@@ -771,23 +860,48 @@ L(lambda) = max_x^K  sum (V + lambda) x^K
 <p>Under the convention used in lookahead.lagrangian_corrected_prizes,
 the per-period contributions are already computed on each side; we
 just sum.</p>
+<p>Args:
+selection_results (List[SelectionResult]): The selection results.
+routing_results (List[RoutingResult]): The routing results.</p>
+<p>Returns:
+float: The full Lagrangian value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._build_context">
 <span class="sig-name descname"><span class="pre">_build_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._build_context" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the context for the neural network.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+np.ndarray: The context for the neural network.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._log_iter">
 <span class="sig-name descname"><span class="pre">_log_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrangian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._log_iter" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Log the current iteration.</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+arm_idx (int): The index of the arm.
+engine (str): The engine.
+cut_strategy (str): The cut strategy.
+primal (float): The primal value.
+lagrangian (float): The Lagrangian value.
+coord_stats (Dict[str, float]): The coordinator statistics.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._package_solution">
 <span class="sig-name descname"><span class="pre">_package_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm._RunState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._package_solution" title="Link to this definition">#</a></dt>
 <dd><p>Produce the triple expected by BaseMultiPeriodRoutingPolicy.execute:
 (today’s SolutionContext, full_plan, telemetry)</p>
+<p>Args:
+state (_RunState): The internal state of the policy.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: The solution context, full plan, and telemetry.</p>
 </dd></dl>
 
 </dd></dl>

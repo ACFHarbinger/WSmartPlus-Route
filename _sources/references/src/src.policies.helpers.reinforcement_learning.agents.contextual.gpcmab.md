@@ -80,6 +80,9 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.contextual.ba
 ````{py:method} select_action(context: numpy.ndarray, rng: numpy.random.Generator) -> int
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.select_action
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.select_action
+```
+
 ````
 
 ````{py:method} select_super_arm(context: numpy.ndarray, rng: numpy.random.Generator) -> typing.List[int]
@@ -93,10 +96,16 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.contextual.ba
 ````{py:method} update(context: numpy.ndarray, action: int, reward: float, next_context: typing.Any = None, done: bool = False) -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.update
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.update
+```
+
 ````
 
 ````{py:method} get_statistics() -> typing.Dict[str, typing.Any]
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.get_statistics
+
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.get_statistics
+```
 
 ````
 
@@ -111,15 +120,24 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.contextual.ba
 ````{py:method} save(path: str) -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.save
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.save
+```
+
 ````
 
 ````{py:method} load(path: str) -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.load
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.load
+```
+
 ````
 
 ````{py:method} reset() -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.reset
+
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.GPCMABAgent.reset
+```
 
 ````
 

@@ -494,6 +494,19 @@ document.write(`
 <p>Reference:
 Fischetti, M., &amp; Lodi, A. (2003). “Local Branching”.
 Mathematical Programming.</p>
+<p>Attributes:
+GUROBI_AVAILABLE (bool): Whether Gurobi is available.
+run_local_branching_gurobi: Function to run the Local Branching algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.local_branching import run_local_branching_gurobi
+&gt;&gt;&gt; run_local_branching_gurobi(
+…     dist_matrix=np.array([[0, 1, 2], [1, 0, 1], [2, 1, 0]]),
+…     wastes={1: 10, 2: 20},
+…     capacity=30,
+…     R=1.0,
+…     C=1.0,
+…     mandatory_nodes=[1, 2],
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -520,12 +533,39 @@ Mathematical Programming.</p>
 sum_{j in B0} x_j + sum_{j in B1} (1 - x_j) &lt;= k
 where B0 is the set of binary variables that are 0 in the incumbent,
 and B1 is the set of binary variables that are 1 in the incumbent.</p>
+<p>Args:
+model (gp.Model): The Gurobi model.
+x (Dict[Tuple[int, int], gp.Var]): Edge variables.
+y (Dict[int, gp.Var]): Node selection variables.
+incumbent_x (Dict[Tuple[int, int], float]): Incumbent edge values.
+incumbent_y (Dict[int, float]): Incumbent node values.
+k (int): Neighborhood size.</p>
+<p>Returns:
+gp.Constr: Local branching constraint.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.local_branching.lb.run_local_branching_gurobi">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.local_branching.lb.</span></span><span class="sig-name descname"><span class="pre">run_local_branching_gurobi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit_per_iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_limit_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.local_branching.lb.run_local_branching_gurobi" title="Link to this definition">#</a></dt>
 <dd><p>Solve VRPP using Local Branching (LB).</p>
+<p>Args:
+dist_matrix (np.ndarray): Symmetric distance matrix for all nodes.
+wastes (Dict[int, float]): Waste collected at each customer node.
+capacity (float): Capacity of each vehicle.
+R (float): Revenue per unit of waste.
+C (float): Cost per unit of distance.
+mandatory_nodes (List[int]): Nodes that must be visited.
+k (int): Initial neighborhood size for local branching.
+max_iterations (int): Maximum number of iterations.
+time_limit (float): Total time limit for the algorithm.
+time_limit_per_iteration (float): Time limit for each iteration.
+mip_limit_nodes (int): Node limit for the MIP solver.
+mip_gap (float): Gap tolerance for the MIP solver.
+seed (int): Random seed for reproducibility.
+env (Optional[gp.Env]): Gurobi environment.
+recorder (Optional[PolicyStateRecorder]): Recorder for logging policy state.</p>
+<p>Returns:
+Tuple[List[int], float, float]: Tuple of (best_tour, best_cost, best_revenue).</p>
 </dd></dl>
 
 </section>

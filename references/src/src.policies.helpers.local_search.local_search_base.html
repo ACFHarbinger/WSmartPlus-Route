@@ -531,7 +531,7 @@ document.write(`
 It handles common initialization, neighbor lists, and provides wrappers
 for atomic move operators.</p>
 <p>Attributes:
-None</p>
+LocalSearch: Abstract base class for local search algorithms.</p>
 <p>Example:
 &gt;&gt;&gt; # Cannot be instantiated directly
 &gt;&gt;&gt; class MyLS(LocalSearch): …</p>
@@ -542,8 +542,7 @@ None</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.local_search.local_search_base.LocalSearch" title="src.policies.helpers.local_search.local_search_base.LocalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LocalSearch</span></code></a></p></td>
-<td><p>Abstract base class for Local Search algorithms.
-Provides common infrastructure for neighbor lists and move operators.</p></td>
+<td><p>Abstract base class for Local Search algorithms.</p></td>
 </tr>
 </tbody>
 </table>
@@ -555,24 +554,50 @@ Provides common infrastructure for neighbor lists and move operators.</p></td>
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.local_search.local_search_base.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criterion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract base class for Local Search algorithms.
-Provides common infrastructure for neighbor lists and move operators.</p>
+<p>Abstract base class for Local Search algorithms.</p>
+<p>Provides common infrastructure for neighbor lists, move operators, and
+acceptance criteria management for routing optimization.</p>
+<p>Attributes:
+d (np.ndarray): Distance matrix.
+waste (Dict[int, float]): Dictionary mapping node IDs to their waste/demand.
+Q (float): Vehicle capacity.
+R (float): Revenue factor per unit of waste collected.
+C (float): Cost factor per unit of distance traveled.
+params (Any): Configuration parameters for the local search.
+penalty_capacity (float): Current penalty factor for capacity violations.
+random (random.Random): Local random number generator.
+acceptance_criterion (IAcceptanceCriterion): Strategy for move acceptance.
+neighbors (Dict[int, List[int]]): Granular neighbor list for each node.
+node_map (Dict[int, Tuple[int, int]]): Maps node IDs to (route_idx, pos).
+route_loads (List[float]): Cached total waste for each route.
+routes (List[List[int]]): Current set of routes in the solution.
+top_insertions (Dict[int, Dict[int, List[Tuple[float, int]]]]): Cache of
+best insertion positions for each node into each route.
+x_coords (Optional[np.ndarray]): X-coordinates for polar sector calculations.
+y_coords (Optional[np.ndarray]): Y-coordinates for polar sector calculations.
+route_sectors (Dict[int, Optional[Tuple[float, float]]]): Cached polar
+sectors (min_angle, max_angle) for each route.
+current_profit (float): Current objective value (total profit).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Local Search base class.</p>
 <p>Args:
-dist_matrix: The distance matrix between nodes.
-waste: A dictionary mapping node IDs to their waste amounts.
-capacity: The maximum capacity of a vehicle.
-R: A parameter, likely related to route cost or penalty.
-C: A parameter, likely related to route cost or penalty.
-params: An object containing additional parameters for the local search,
-such as time_limit.
-neighbors: Optional pre-computed neighbor map to avoid redundant sorting.
-penalty_capacity: Penalty coefficient for capacity violations (Vidal 2022).</p>
+dist_matrix (np.ndarray): N x N distance matrix.
+waste (Dict[int, float]): Dictionary of node waste demands.
+capacity (float): Vehicle load capacity.
+R (float): Reward factor for collected waste.
+C (float): Cost factor for travel distance.
+params (Any): Hyperparameters and configuration.
+neighbors (Optional[Dict[int, List[int]]]): Precomputed granular neighbors. Defaults to None.
+penalty_capacity (float): Initial capacity violation penalty weight. Defaults to 1.0.
+acceptance_criterion (Optional[IAcceptanceCriterion]): Custom acceptance strategy. Defaults to None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch.optimize">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.optimize" title="Link to this definition">#</a></dt>
 <dd><p>Optimize the given solution.</p>
+<p>Args:
+solution (Any): The initial solution to optimize.</p>
+<p>Returns:
+Any: The optimized solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -590,7 +615,12 @@ initial_profit: Optional absolute profit of the starting solution.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh">
 <span class="sig-name descname"><span class="pre">_calc_load_fresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._calc_load_fresh" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate total load of a route.</p>
+<p>Args:
+r (List[int]): The sequence of node IDs in the route.</p>
+<p>Returns:
+float: Sum of waste for all nodes in the route.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._compute_top_insertions">
@@ -606,12 +636,20 @@ route_idx: If provided, update cache only for this route. If None, initialize fo
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total distance of all routes.</p>
+<p>Args:
+routes (List[List[int]]): List of routes, where each route is a list of node IDs.</p>
+<p>Returns:
+float: Total distance traveled across all routes, including returns to depot.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._should_try_operator">
 <span class="sig-name descname"><span class="pre">_should_try_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._should_try_operator" title="Link to this definition">#</a></dt>
 <dd><p>Check if the operator should be tried based on target_neighborhood filter.</p>
+<p>Args:
+op_name (str): Name of the operator (e.g., ‘relocate’, ‘swap’).</p>
+<p>Returns:
+bool: True if the operator should be executed, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -620,24 +658,45 @@ route_idx: If provided, update cache only for this route. If None, initialize fo
 <dd><p>Return the (min_angle, max_angle) polar sector of a route in radians,
 measured from depot (node 0). Returns None for empty routes.
 Uses caching to avoid redundant calculations.</p>
+<p>Args:
+route_idx (int): Index of the route in <code class="docutils literal notranslate"><span class="pre">self.routes</span></code>.</p>
+<p>Returns:
+Optional[Tuple[float, float]]: (min_angle, max_angle) in radians,
+or None if route is empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch.accept_move">
 <span class="sig-name descname"><span class="pre">accept_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.accept_move" title="Link to this definition">#</a></dt>
 <dd><p>Consult the registered acceptance criterion to decide if a move should be applied.</p>
+<p>Args:
+current_obj (float): Objective value of the current solution.
+candidate_obj (float): Objective value of the proposed solution.
+kwargs (Any): Additional context for the acceptance decision.</p>
+<p>Returns:
+bool: True if the move should be accepted, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch.step_move">
 <span class="sig-name descname"><span class="pre">step_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch.step_move" title="Link to this definition">#</a></dt>
 <dd><p>Perform internal state updates (e.g., cooling, counting) after a move decision.</p>
+<p>Args:
+current_obj (float): Objective value before the move attempt.
+candidate_obj (float): Objective value after the move attempt.
+accepted (bool): Whether the move was actually accepted and applied.
+kwargs (Any): Additional context for the step update.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._sectors_overlap">
 <span class="sig-name descname"><span class="pre">_sectors_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._sectors_overlap" title="Link to this definition">#</a></dt>
 <dd><p>Return True if two polar sectors overlap, handling the ±π wraparound.</p>
+<p>Args:
+s1 (Optional[Tuple[float, float]]): First polar sector.
+s2 (Optional[Tuple[float, float]]): Second polar sector.</p>
+<p>Returns:
+bool: True if the sectors overlap (including circular wraparound).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -645,18 +704,41 @@ Uses caching to avoid redundant calculations.</p>
 <span class="sig-name descname"><span class="pre">_process_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._process_pair" title="Link to this definition">#</a></dt>
 <dd><p>Attempt all applicable move operators on the (u, v) pair.
 Returns True if any improving move was applied.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.</p>
+<p>Returns:
+bool: True if any move was successfully applied.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._process_inter_route">
 <span class="sig-name descname"><span class="pre">_process_inter_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._process_inter_route" title="Link to this definition">#</a></dt>
 <dd><p>Process moves between different routes.</p>
+<p>Args:
+u (int): Node from the first route.
+v (int): Node from the second route.
+r_u (int): Index of the first route.
+p_u (int): Position of node <code class="docutils literal notranslate"><span class="pre">u</span></code> in <code class="docutils literal notranslate"><span class="pre">r_u</span></code>.
+r_v (int): Index of the second route.
+p_v (int): Position of node <code class="docutils literal notranslate"><span class="pre">v</span></code> in <code class="docutils literal notranslate"><span class="pre">r_v</span></code>.</p>
+<p>Returns:
+bool: True if an improving inter-route move was applied.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._process_intra_route">
 <span class="sig-name descname"><span class="pre">_process_intra_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._process_intra_route" title="Link to this definition">#</a></dt>
 <dd><p>Process moves within the same route.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): Index of the route containing both nodes.
+p_u (int): Position of node <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+r_v (int): Position of node <code class="docutils literal notranslate"><span class="pre">v</span></code>.
+p_v (int): Alias for <code class="docutils literal notranslate"><span class="pre">p_v</span></code> (redundant but kept for API consistency).</p>
+<p>Returns:
+bool: True if an improving intra-route move was applied.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -671,102 +753,268 @@ affected_indices: Set of route indices that were modified.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._get_load_cached">
 <span class="sig-name descname"><span class="pre">_get_load_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._get_load_cached" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get cached total load of a route.</p>
+<p>Args:
+ri (int): Route index.</p>
+<p>Returns:
+float: Cached total load of the route.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_relocate">
 <span class="sig-name descname"><span class="pre">_move_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_relocate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Relocate a node to a new position.</p>
+<p>Args:
+u (int): Node ID to relocate.
+v (int): Target neighbor node ID.
+r_u (int): Current route index of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+p_u (int): Current position of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+r_v (int): Target route index.
+p_v (int): Target position (usually after <code class="docutils literal notranslate"><span class="pre">v</span></code>).</p>
+<p>Returns:
+bool: True if the relocate move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap">
 <span class="sig-name descname"><span class="pre">_move_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Swap two nodes.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): Route index of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+p_u (int): Position of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+r_v (int): Route index of <code class="docutils literal notranslate"><span class="pre">v</span></code>.
+p_v (int): Position of <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+<p>Returns:
+bool: True if the swap move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_star">
 <span class="sig-name descname"><span class="pre">_move_swap_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_star" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply SWAP* operator (best insertion swap).</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): Route index of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+p_u (int): Position of <code class="docutils literal notranslate"><span class="pre">u</span></code>.
+r_v (int): Route index of <code class="docutils literal notranslate"><span class="pre">v</span></code>.
+p_v (int): Position of <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+<p>Returns:
+bool: True if the SWAP* move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_3opt_intra">
 <span class="sig-name descname"><span class="pre">_move_3opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_3opt_intra" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply intra-route 3-opt move.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): Route index.
+p_u (int): First position.
+r_v (int): Route index (same as <code class="docutils literal notranslate"><span class="pre">r_u</span></code>).
+p_v (int): Second position.
+rng (random.Random): Random number generator for tie-breaking.</p>
+<p>Returns:
+bool: True if the 3-opt move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_2opt_star">
 <span class="sig-name descname"><span class="pre">_move_2opt_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_2opt_star" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply inter-route 2-opt* move.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the 2-opt* move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_2opt_intra">
 <span class="sig-name descname"><span class="pre">_move_2opt_intra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_2opt_intra" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply intra-route 2-opt move.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): Route index.
+p_u (int): First position.
+r_v (int): Route index (same as <code class="docutils literal notranslate"><span class="pre">r_u</span></code>).
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the intra-route 2-opt move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_or_opt">
 <span class="sig-name descname"><span class="pre">_move_or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_or_opt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Or-opt move.</p>
+<p>Args:
+r_idx (int): Route index.
+pos (int): Starting position.
+chain_len (int): Length of the chain to relocate.</p>
+<p>Returns:
+bool: True if the Or-opt move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_cross">
 <span class="sig-name descname"><span class="pre">_move_cross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_cross" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Cross move.</p>
+<p>Args:
+u (int): First node ID.
+v (int): Second node ID.
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the Cross move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_shift_2_0">
 <span class="sig-name descname"><span class="pre">_move_shift_2_0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_shift_2_0" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Shift(2,0) move (relocate two nodes).</p>
+<p>Args:
+r_u (int): Source route index.
+p_u (int): Starting position of the 2-node chain.
+r_v (int): Target route index.
+p_v (int): Target insertion position.</p>
+<p>Returns:
+bool: True if the Shift(2,0) move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_2_1">
 <span class="sig-name descname"><span class="pre">_move_swap_2_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_2_1" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Swap(2,1) move (swap 2 nodes with 1 node).</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): Starting position of the 2-node chain.
+r_v (int): Second route index.
+p_v (int): Position of the single node.</p>
+<p>Returns:
+bool: True if the Swap(2,1) move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_2_2">
 <span class="sig-name descname"><span class="pre">_move_swap_2_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_swap_2_2" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Swap(2,2) move (swap two pairs of nodes).</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): Starting position of the first 2-node chain.
+r_v (int): Second route index.
+p_v (int): Starting position of the second 2-node chain.</p>
+<p>Returns:
+bool: True if the Swap(2,2) move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_cross_exchange">
 <span class="sig-name descname"><span class="pre">_try_cross_exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_cross_exchange" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Cross-Exchange operator.</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the Cross-Exchange move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_improved_cross_exchange">
 <span class="sig-name descname"><span class="pre">_try_improved_cross_exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_improved_cross_exchange" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Improved Cross-Exchange operator.</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the Improved Cross-Exchange move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_lambda_interchange">
 <span class="sig-name descname"><span class="pre">_try_lambda_interchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_lambda_interchange" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Lambda-Interchange operator.</p>
+<p>Args:
+r_u (int): First route index.
+r_v (int): Second route index.</p>
+<p>Returns:
+bool: True if the Lambda-Interchange move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_cyclic_transfer">
 <span class="sig-name descname"><span class="pre">_try_cyclic_transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_cyclic_transfer" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply Cyclic Transfer move (3-route exchange).</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if the Cyclic Transfer move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_exchange_chains">
 <span class="sig-name descname"><span class="pre">_try_exchange_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_exchange_chains" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Try applying various Exchange Chain operators.</p>
+<p>Args:
+r_u (int): First route index.
+p_u (int): First position.
+r_v (int): Second route index.
+p_v (int): Second position.</p>
+<p>Returns:
+bool: True if any Exchange Chain move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._try_ejection_chain">
 <span class="sig-name descname"><span class="pre">_try_ejection_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._try_ejection_chain" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+r_u (int): Starting route index for the ejection chain.</p>
+<p>Returns:
+bool: True if the Ejection Chain move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_relocate_chain">
 <span class="sig-name descname"><span class="pre">_move_relocate_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_relocate_chain" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+u (int): Starting node ID for the chain.
+r_u (int): Source route index.
+p_u (int): Starting position in <code class="docutils literal notranslate"><span class="pre">r_u</span></code>.
+r_v (int): Target route index.
+p_v (int): Target position in <code class="docutils literal notranslate"><span class="pre">r_v</span></code>.</p>
+<p>Returns:
+bool: True if the Relocate Chain move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_three_permutation">
 <span class="sig-name descname"><span class="pre">_move_three_permutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_base.LocalSearch._move_three_permutation" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply 3-Permutation move.</p>
+<p>Args:
+u (int): Node ID to permute.
+r_u (int): Route index.
+p_u (int): Position of node <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+<p>Returns:
+bool: True if the 3-Permutation move was accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_base.LocalSearch._move_unrouted_insert">
@@ -776,11 +1024,11 @@ affected_indices: Set of route indices that were modified.</p>
 Uses Top-3 Insertion Cache for O(1) position lookup instead of O(N) loop.
 Uses penalized search: considers both profit gain and capacity penalties.</p>
 <p>Args:
-node: Unvisited node to potentially insert.
-route_idx: Route to insert into.
-_hint_pos: Position hint (near a neighbor), currently unused.</p>
+node (int): Unvisited node to potentially insert.
+route_idx (int): Route to insert into.
+_hint_pos (int): Position hint (unused).</p>
 <p>Returns:
-bool: True if insertion improves penalized profit, False otherwise.</p>
+bool: True if insertion improves penalized profit.</p>
 </dd></dl>
 
 </dd></dl>

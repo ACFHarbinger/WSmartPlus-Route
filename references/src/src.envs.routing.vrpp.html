@@ -502,6 +502,14 @@ document.write(`
 <p>VRPP Environment implementation.</p>
 <p>Vehicle Routing Problem with Profits: Select profitable subset
 of nodes to visit while minimizing travel cost.</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;vrpp&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Number of node features (x, y, waste, profit) = 4.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“vrpp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +532,10 @@ of nodes to visit while minimizing travel cost.</p>
 <p>Vehicle Routing Problem with Profits Environment.</p>
 <p>The agent must select which nodes to visit to maximize
 total waste collected minus travel cost.</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;vrpp&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Number of node features (x, y, waste, profit) = 4.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize VRPPEnv.</p>
 <p>Args:
@@ -534,7 +546,7 @@ cost_weight: Weight for travel cost in reward.
 revenue_kg: Optional revenue per kg (overrides waste_weight).
 cost_km: Optional cost per km (overrides cost_weight).
 device: Device for torch tensors (‘cpu’ or ‘cuda’).
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.vrpp.VRPPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.routing.vrpp.VRPPEnv.NAME" title="Link to this definition">#</a></dt>
@@ -580,7 +592,16 @@ The robust depot prepending logic handles three scenarios:
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.vrpp.VRPPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.vrpp.VRPPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Execute action and update state for VRPP.</p>
+<p>Args:
+tensordict: Current state TensorDict containing <code class="docutils literal notranslate"><span class="pre">action</span></code>, <code class="docutils literal notranslate"><span class="pre">current_node</span></code>,
+<code class="docutils literal notranslate"><span class="pre">visited</span></code>, <code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, <code class="docutils literal notranslate"><span class="pre">collected_waste</span></code>,
+<code class="docutils literal notranslate"><span class="pre">locs</span></code>, <code class="docutils literal notranslate"><span class="pre">depot</span></code>, <code class="docutils literal notranslate"><span class="pre">waste</span></code>, <code class="docutils literal notranslate"><span class="pre">revenue_kg</span></code>, and <code class="docutils literal notranslate"><span class="pre">cost_km</span></code> fields.</p>
+<p>Returns:
+TensorDict: Updated state with <code class="docutils literal notranslate"><span class="pre">current_node</span></code>, <code class="docutils literal notranslate"><span class="pre">visited</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, <code class="docutils literal notranslate"><span class="pre">collected_waste</span></code>, <code class="docutils literal notranslate"><span class="pre">reward</span></code>,
+<code class="docutils literal notranslate"><span class="pre">terminated</span></code>, and <code class="docutils literal notranslate"><span class="pre">truncated</span></code> fields.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.vrpp.VRPPEnv._step_instance">
@@ -656,7 +677,8 @@ tensordict (TensorDict): Input tensor dictionary containing:
 - current_node (LongTensor): Current position index, shape (batch, 1)
 - locs (Tensor): Location coordinates, shape (batch, num_nodes, 2)
 - depot (Tensor): Depot coordinates, shape (batch, 2)
-- visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)</p>
+- visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)
+actions (Optional[torch.Tensor]): Optional tour action sequence <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">tour_len)</span></code> (unused).</p>
 <p>Returns:
 Tensor: Reward for each batch, shape (batch,)</p>
 </dd></dl>

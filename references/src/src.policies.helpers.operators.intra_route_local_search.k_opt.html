@@ -656,7 +656,9 @@ p_u: Position of u in the route.
 r_v: Index of the route containing v (must equal r_u for intra-route).
 p_v: Position of v in the route.
 k: Number of edges to remove (≥ 2). Defaults to 2.
-rng: Random number generator, required when <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">3</span></code>.</p>
+rng: Random number generator, required when <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">3</span></code>.
+exclude_depot: If True, moves that would place the depot-adjacent
+edges in the middle of a segment are rejected.</p>
 <p>Returns:
 bool: True if an improving move was applied, False otherwise.</p>
 <p>Raises:
@@ -669,6 +671,16 @@ ValueError: If <em>k</em> &gt;= 3 and <em>rng</em> is not provided.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_opt._apply_2opt" title="Link to this definition">#</a></dt>
 <dd><p>2-opt: reverse the segment between p_u+1 and p_v (inclusive).</p>
 <p>Only applies the move if it reduces total cost.</p>
+<p>Args:
+ls: LocalSearch instance with routes and distance matrix.
+u: First break-point node.
+v: Second break-point node.
+r_u: Route index containing both u and v.
+p_u: Position of u in the route.
+p_v: Position of v in the route.
+exclude_depot: If True, skip moves where p_v is the last position.</p>
+<p>Returns:
+bool: True if the 2-opt reversal was applied; False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -677,6 +689,18 @@ ValueError: If <em>k</em> &gt;= 3 and <em>rng</em> is not provided.</p>
 <dd><p>3-opt: remove three edges and try all reconnection patterns.</p>
 <p>Randomly selects a third cut point and evaluates four reconnection
 patterns. Applies the best improving move if found.</p>
+<p>Args:
+ls: LocalSearch instance with routes and distance matrix.
+u: First break-point node.
+v: Second break-point node.
+r_u: Route index.
+p_u: Position of u in the route.
+p_v: Position of v in the route.
+rng: Random number generator used to sample the third cut point.
+n_attempts: Number of random third-cut-point attempts.
+exclude_depot: If True, skip moves where the last route position is a cut.</p>
+<p>Returns:
+bool: True if an improving 3-opt move was applied; False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -695,31 +719,68 @@ p_u: First given position.
 p_v: Second given position.
 k: Number of edges to remove (&gt;= 4).
 rng: Random number generator.
-n_attempts: Number of random cut-point sampling attempts.</p>
+n_attempts: Number of random cut-point sampling attempts.
+exclude_depot: If True, skip configurations where the tail segment
+is empty (depot-adjacent move).</p>
+<p>Returns:
+bool: True if an improving k-opt move was applied; False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.k_opt._sample_cuts">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_opt.</span></span><span class="sig-name descname"><span class="pre">_sample_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_opt._sample_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Sample k-2 additional cut points around p_u and p_v.</p>
+<p>Args:
+n: Route length (number of nodes).
+p_u: First fixed cut position.
+p_v: Second fixed cut position.
+k: Total number of cuts desired (&gt;= 2).
+rng: Random number generator.</p>
+<p>Returns:
+Optional[List[int]]: Sorted list of k cut positions, or None if there
+are not enough available positions.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.k_opt._get_segments">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_opt.</span></span><span class="sig-name descname"><span class="pre">_get_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_opt._get_segments" title="Link to this definition">#</a></dt>
 <dd><p>Slice the route into head, middle segments, and tail.</p>
+<p>Args:
+route: The full route node sequence.
+cuts: Sorted list of k cut positions (0-indexed).</p>
+<p>Returns:
+Tuple of (head, middle_segments, tail) where head is the fixed prefix,
+tail is the fixed suffix, and middle_segments is the list of permutable
+segments between consecutive cut points.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.k_opt._find_best_config">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_opt.</span></span><span class="sig-name descname"><span class="pre">_find_best_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_opt._find_best_config" title="Link to this definition">#</a></dt>
 <dd><p>Enumerate all permutations and orientations to find best gain.</p>
+<p>Args:
+ls: LocalSearch instance with distance matrix.
+head: Fixed head segment.
+middle: List of permutable middle segments.
+tail: Fixed tail segment.
+original_cost: Inter-segment edge cost of the current configuration.
+exclude_depot: Passed through to :func:<code class="docutils literal notranslate"><span class="pre">_connection_cost</span></code>.</p>
+<p>Returns:
+Tuple of (best_gain, best_config) where best_config is
+(permutation_tuple, reversal_tuple), or (0.0, None) if no improvement.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.k_opt._apply_config">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_opt._apply_config" title="Link to this definition">#</a></dt>
 <dd><p>Apply the selected configuration to the route.</p>
+<p>Args:
+route: The route list to overwrite in-place.
+head: Fixed head segment.
+middle: List of middle segments in their original order.
+tail: Fixed tail segment.
+config: Tuple of (permutation, reversals) produced by
+:func:<code class="docutils literal notranslate"><span class="pre">_find_best_config</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -732,9 +793,11 @@ not internal segment costs (which stay constant).</p>
 d: Distance matrix (2-D array-like).
 head: Head segment (fixed).
 middle: List of middle segments in their current order.
-tail: Tail segment (fixed).</p>
+tail: Tail segment (fixed).
+exclude_depot: If True, skip cost terms where a segment boundary
+involves an empty segment (depot sentinel).</p>
 <p>Returns:
-Sum of inter-segment edge costs.</p>
+float: Sum of inter-segment edge costs.</p>
 </dd></dl>
 
 </section>

@@ -161,7 +161,7 @@
 
 ````
 
-````{py:method} __post_init__()
+````{py:method} __post_init__() -> None
 :canonical: src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__

@@ -49,6 +49,9 @@ Bases: {py:obj}`logic.src.policies.helpers.reinforcement_learning.agents.base.RL
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.select_action
 :abstractmethod:
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.select_action
+```
+
 ````
 
 ````{py:method} get_weights() -> typing.Any
@@ -62,15 +65,24 @@ Bases: {py:obj}`logic.src.policies.helpers.reinforcement_learning.agents.base.RL
 ````{py:method} save(path: str) -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.save
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.save
+```
+
 ````
 
 ````{py:method} load(path: str) -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.load
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.load
+```
+
 ````
 
 ````{py:method} reset() -> None
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.reset
+
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.reset
+```
 
 ````
 

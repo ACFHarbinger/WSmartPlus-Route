@@ -513,6 +513,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params">
 <span id="src-policies-route-construction-meta-heuristics-evolution-strategy-mu-kappa-lambda-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params" title="Link to this heading">#</a></h1>
+<p>Parameters for the (μ,κ,λ) Evolution Strategy.</p>
+<p>Attributes:
+MuKappaLambdaESParams: Parameter dataclass for (μ,κ,λ)-ES.</p>
+<p>Example:
+&gt;&gt;&gt; params = MuKappaLambdaESParams(mu=15, kappa=7)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,9 +555,9 @@ bounds_max: Upper bounds for decision variables (optional).
 n_removal: Number of nodes to remove in mutation (for routing problems).
 stagnation_limit: Stagnation threshold for restart (for routing problems).
 local_search_iterations: Local search iterations (for routing problems).
-seed (Optional[int]): Random seed for reproducibility.
-vrpp (bool): Whether the problem is VRP with Profits.
-profit_aware_operators (bool): Whether to use profit-aware insertion/removal.</p>
+seed: Random seed for reproducibility.
+vrpp: Whether the problem is VRP with Profits.
+profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.mu">
 <span class="sig-name descname"><span class="pre">mu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.mu" title="Link to this definition">#</a></dt>
@@ -677,12 +682,18 @@ profit_aware_operators (bool): Whether to use profit-aware insertion/removal.</p
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Validate parameters.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams" title="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+MuKappaLambdaESParams instance.</p>
 </dd></dl>
 
 </dd></dl>

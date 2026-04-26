@@ -496,6 +496,16 @@ document.write(`
 used thoughout the project. After pre-processing the data, create container
 objects that you can be easily saved and loaded to separate csv files and compute predictions or correct
 collections as you go.</p>
+<p>Attributes:
+pre_process_data: The function that pre-processes the data.
+import_separate_file: The function that imports data from separate files.
+generate_collection_rate_file: The function that generates a collection rate file.
+generate_fill_rate_file: The function that generates a fill rate file.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract import pre_process_data
+&gt;&gt;&gt; fill, collect, info = pre_process_data(df_fill, df_collection, id_header_fill, date_header_fill,
+… date_format_fill, fill_header_fill, id_header_collect, date_header_collect, date_format_collect,
+… start_date, end_date)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -514,10 +524,8 @@ The output is the imported joined dataframes from each source file
 The pre-processing is done in the pre-processing function</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_same_file" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_same_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_same_file</span></code></a></p></td>
-<td><p class="rubric" id="import-method-for-when-the-collections-and-fill-is-in-the-same-file-files-this-will-separate-collections-and-fill-inforation-in-separate-dataframes-parameters">import method for when the collections and fill is in the same file files.
-this will separate collections and fill inforation in separate dataframes
-Parameters</p>
-</td>
+<td><p>import method for when the collections and fill is in the same file files.
+this will separate collections and fill inforation in separate dataframes</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.container_global_sorted_wrapper" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.container_global_sorted_wrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">container_global_sorted_wrapper</span></code></a></p></td>
 <td><p>Wrapper to iterate through containers dataframes and create a list of container classes and preforms initial
@@ -543,7 +551,7 @@ of the dataframe.</p>
 <p>Colection and fill will sorted dataframes which can interated through. As the ids where intersected,
 one can iterate through both grouby by their order without needing to earch for a specific id
 because they would be aligned.</p>
-<p class="rubric" id="id3">Parameters</p>
+<p class="rubric" id="id7">Args:</p>
 <p>df_fill : pd.Dataframe
 Crude fill data pandas dataframe after importing csv data.
 df_collection: pd.Dataframe
@@ -565,19 +573,36 @@ This is important because driver readings have the same timestamp has collection
 reveal the fill level before collection. Se to False for Sensor data.
 end/start_date: string with format %d/%m/%Y.
 Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.
-Set to 01/01/2020 - 01/01/2025 by default</p>
+Set to 01/01/2020 - 01/01/2025 by default
+id_header_fill: string
+Name of the column with the id data the orginal df with fill info.
+id_header_collect: string
+Name of the column with the id data the orginal df with collection info.
+start_date: string with format %d/%m/%Y.
+Start date of the period to be analysed. First day is inclusive staring at 00:01.
+Set to 01/01/2020 by default
+end_date: string with format %d/%m/%Y.
+End date of the period to be analysed. Last day is exclusive.
+Set to 01/01/2025 by default</p>
+<p class="rubric" id="id8">Returns:</p>
+<p>fill_df: pd.DataFrame
+The dataframe with fill data
+rec_df: pd.DataFrame
+The dataframe with collection data
+info: pd.DataFrame
+The dataframe with info data</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_separate_file">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.</span></span><span class="sig-name descname"><span class="pre">import_separate_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_collect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_firt_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_separate_file" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.</span></span><span class="sig-name descname"><span class="pre">import_separate_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_collect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_first_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_separate_file" title="Link to this definition">#</a></dt>
 <dd><p>import method for when the collections and fill is in separate files.
 Used to import driver and sensor data from Rio maior, and 2020/2021 data from Figeuria da Foz
 The sources must be in a .csv format
 The output is the imported joined dataframes from each source file
 The pre-processing is done in the pre-processing function</p>
 <p>Set print_first_line to False not to print helpful infomration</p>
-<p class="rubric" id="id4">Parameters</p>
+<p class="rubric" id="id9">Args:</p>
 <p>src_fill: list[strtins]
 List of name of file strings to import fill data from
 src_collect: list[strtins]
@@ -591,14 +616,19 @@ Separation character for the csv of collect data. Default is ‘,’
 print_first_line: bool
 Weather to print the first line of each dataframe to infer keys
 and formats for the next steps</p>
+<p class="rubric" id="id10">Returns:</p>
+<p>fill_df: pd.DataFrame
+The dataframe with fill data
+rec_df: pd.DataFrame
+The dataframe with collection data</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_same_file">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.</span></span><span class="sig-name descname"><span class="pre">import_same_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect_id_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_first_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract.import_same_file" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id5">import method for when the collections and fill is in the same file files.
-this will separate collections and fill inforation in separate dataframes
-Parameters</p>
+<dd><p>import method for when the collections and fill is in the same file files.
+this will separate collections and fill inforation in separate dataframes</p>
+<p class="rubric" id="id11">Args:</p>
 <p>src_fill: str
 List of name of file strings to import fill data from
 collect_id_header:str
@@ -611,6 +641,11 @@ path where the files are. The deafult is set to “”
 print_first_line: bool
 Weather to print the first line of each dataframe to infer keys
 and formats for the next steps</p>
+<p class="rubric" id="id12">Returns:</p>
+<p>fill_df: pd.DataFrame
+The dataframe with fill data
+rec_df: pd.DataFrame
+The dataframe with collection data</p>
 </dd></dl>
 
 <dl class="py function">
@@ -619,16 +654,16 @@ and formats for the next steps</p>
 <dd><p>Wrapper to iterate through containers dataframes and create a list of container classes and preforms initial
 pre-processing.
 Assumes fill and collect have the container ids that are sorted.</p>
-<p class="rubric" id="id6">Parameters</p>
-<p>fill: DataFrameGroupBy
+<p class="rubric" id="id13">Args:</p>
+<p>fill_: DataFrameGroupBy
 groupby object with fill info for each container
-collect: DataFrameGroupBy
+collect_: DataFrameGroupBy
 groupby obejct with collection info
 info: pd.Dataframe
 dataframe relative other information regarding each container
 path: str
 path string where to save container info</p>
-<p class="rubric" id="id7">Returns</p>
+<p class="rubric" id="id14">Returns:</p>
 <p>res: dict
 returns a dictionary  with keys id and container objects.
 ids: list[int]

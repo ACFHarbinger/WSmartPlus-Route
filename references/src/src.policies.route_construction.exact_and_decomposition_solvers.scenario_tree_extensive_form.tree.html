@@ -504,6 +504,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-scenario-tree-extensive-form-tree"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree" title="Link to this heading">#</a></h1>
+<p>Scenario tree construction for stochastic optimization.</p>
+<p>Defines the tree structure and construction logic for multi-stage
+stochastic programming where uncertainty is modeled as discrete scenarios.</p>
+<p>Attributes:
+ScenarioNode: A single stage in the scenario tree.
+ScenarioTree: Container and generator for the branching scenario structure.</p>
+<p>Example:
+&gt;&gt;&gt; tree = ScenarioTree(num_days=3, num_realizations=2, customers=[1, 2, 3], mean_increment=0.1)
+&gt;&gt;&gt; root = tree.get_root()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,6 +535,13 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.</span></span><span class="sig-name descname"><span class="pre">ScenarioNode</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode" title="Link to this definition">#</a></dt>
 <dd><p>A node in the scenario tree.</p>
+<p>Attributes:
+id (int): Unique node identifier.
+day (int): Time period/depth index.
+probability (float): Path probability to this node.
+realization (Dict[int, float]): Demand increments relative to parent.
+parent_id (Optional[int]): ID of the parent node.
+children_ids (List[int]): IDs of the child nodes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode.id" title="Link to this definition">#</a></dt>
@@ -568,7 +584,22 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.</span></span><span class="sig-name descname"><span class="pre">ScenarioTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_realizations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree" title="Link to this definition">#</a></dt>
 <dd><p>Constructs and manages a branching scenario tree for multi-day stochastic optimization.</p>
+<p>Attributes:
+num_days (int): Depth of the tree.
+num_realizations (int): Branching factor.
+customers (List[int]): Customer indices.
+mean_increment (float): Average increment per stage.
+seed (Optional[int]): Random seed.
+rng (np.random.Generator): Random number generator.
+nodes (Dict[int, ScenarioNode]): Map of all tree nodes by ID.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the scenario tree.</p>
+<p>Args:
+num_days (int): Depth of the tree (stages).
+num_realizations (int): Branching factor at each node.
+customers (List[int]): List of customer indices for realization mapping.
+mean_increment (float): Average demand increment per stage.
+seed (Optional[int]): Random seed for scenario generation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree._build_tree">
 <span class="sig-name descname"><span class="pre">_build_tree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree._build_tree" title="Link to this definition">#</a></dt>
@@ -579,17 +610,27 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_nodes_by_day">
 <span class="sig-name descname"><span class="pre">get_nodes_by_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_nodes_by_day" title="Link to this definition">#</a></dt>
 <dd><p>Return all nodes at a specific day.</p>
+<p>Args:
+day (int): The depth/day index to query.</p>
+<p>Returns:
+List[ScenarioNode]: All nodes at the specified depth.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_root">
 <span class="sig-name descname"><span class="pre">get_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_root" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the root node of the tree.</p>
+<p>Returns:
+ScenarioNode: The node at day 0.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_leaves">
 <span class="sig-name descname"><span class="pre">get_leaves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree.get_leaves" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns all leaf nodes in the tree.</p>
+<p>Returns:
+List[ScenarioNode]: Nodes at the maximum depth (final day).</p>
+</dd></dl>
 
 </dd></dl>
 

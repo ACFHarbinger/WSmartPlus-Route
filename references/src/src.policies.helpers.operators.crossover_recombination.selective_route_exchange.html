@@ -494,6 +494,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.crossover_recombination.selective_route_exchange">
 <span id="src-policies-helpers-operators-crossover-recombination-selective-route-exchange"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.crossover_recombination.selective_route_exchange" title="src.policies.helpers.operators.crossover_recombination.selective_route_exchange"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.crossover_recombination.selective_route_exchange" title="Link to this heading">#</a></h1>
+<p>Selective Route Exchange Crossover (SREX).</p>
+<p>Attributes:
+selective_route_exchange_crossover: Selective route exchange crossover function.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+&gt;&gt;&gt; operator = selective_route_exchange_crossover(
+…    Individual(giant_tour=[1, 2, 3, 4]),
+…    Individual(giant_tour=[4, 3, 2, 1]),
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -501,13 +510,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._get_individual_class" title="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._get_individual_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_individual_class</span></code></a></p></td>
-<td><p>Lazy import to break circular dependency with meta_heuristics.<strong>init</strong></p></td>
+<td><p>Lazy import to break circular dependency with meta_heuristics.<strong>init</strong>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes" title="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_initial_child_routes</span></code></a></p></td>
 <td><p>Select exactly one route from Parent 1 to initialize the child.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._merge_non_conflicting_p2_routes" title="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._merge_non_conflicting_p2_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_merge_non_conflicting_p2_routes</span></code></a></p></td>
-<td><p>Add routes from Parent 2 that don’t conflict with child nodes.</p></td>
+<td><p>Merge non-conflicting routes from Parent 2 into child routes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._insert_missing_nodes_greedy" title="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._insert_missing_nodes_greedy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_insert_missing_nodes_greedy</span></code></a></p></td>
 <td><p>Greedily insert missing nodes using cheapest insertion cost.</p></td>
@@ -527,31 +536,59 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._get_individual_class">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange.</span></span><span class="sig-name descname"><span class="pre">_get_individual_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._get_individual_class" title="Link to this definition">#</a></dt>
-<dd><p>Lazy import to break circular dependency with meta_heuristics.<strong>init</strong></p>
+<dd><p>Lazy import to break circular dependency with meta_heuristics.<strong>init</strong>.</p>
+<p>Returns:
+type: The Individual class.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange.</span></span><span class="sig-name descname"><span class="pre">_select_initial_child_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes" title="Link to this definition">#</a></dt>
 <dd><p>Select exactly one route from Parent 1 to initialize the child.</p>
+<p>Args:
+p1: First parent individual.
+rng: Random number generator.</p>
+<p>Returns:
+Tuple of child routes and child nodes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._merge_non_conflicting_p2_routes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange.</span></span><span class="sig-name descname"><span class="pre">_merge_non_conflicting_p2_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._merge_non_conflicting_p2_routes" title="Link to this definition">#</a></dt>
-<dd><p>Add routes from Parent 2 that don’t conflict with child nodes.</p>
+<dd><p>Merge non-conflicting routes from Parent 2 into child routes.</p>
+<p>Args:
+p2: Second parent individual.
+child_routes: Current list of child routes.
+child_nodes: Current set of node IDs in child routes.</p>
+<p>Returns:
+List of unassigned nodes from Parent 2.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._insert_missing_nodes_greedy">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange.</span></span><span class="sig-name descname"><span class="pre">_insert_missing_nodes_greedy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._insert_missing_nodes_greedy" title="Link to this definition">#</a></dt>
 <dd><p>Greedily insert missing nodes using cheapest insertion cost.</p>
+<p>Args:
+child_routes: Current list of child routes.
+child_nodes: Current set of node IDs in child routes.
+missing: List of node IDs to insert.
+dist_matrix: Distance matrix.
+wastes: Dictionary mapping node IDs to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+rng: Random number generator.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.selective_route_exchange._enforce_mandatory_nodes_srex">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.selective_route_exchange.</span></span><span class="sig-name descname"><span class="pre">_enforce_mandatory_nodes_srex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.selective_route_exchange._enforce_mandatory_nodes_srex" title="Link to this definition">#</a></dt>
 <dd><p>Strictly include all mandatory nodes in the child routes.</p>
+<p>Args:
+child_routes: Current list of child routes.
+mandatory_nodes: List of node IDs that MUST be visited.
+wastes: Dictionary mapping node IDs to waste amounts.
+capacity: Vehicle capacity.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -490,6 +490,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.solution_initialization.grasp_si">
 <span id="src-policies-helpers-operators-solution-initialization-grasp-si"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.solution_initialization.grasp_si" title="src.policies.helpers.operators.solution_initialization.grasp_si"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.solution_initialization.grasp_si</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.solution_initialization.grasp_si" title="Link to this heading">#</a></h1>
 <p>GRASP construction heuristic for VRPP initialization.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.solution_initialization.grasp_si import build_grasp_routes
+&gt;&gt;&gt; routes = build_grasp_routes(dist_matrix, wastes, capacity, R, C)</p>
 <p>Reference:
 Feo, T. A., &amp; Resende, M. G. C. (1995). Greedy randomized adaptive search
 procedures. Journal of Global Optimization, 6(2), 109-133.</p>
@@ -518,16 +523,16 @@ Candidate List (RCL): all nodes with marginal profit ≥
 profit_min + (1 - alpha) * (profit_max - profit_min).
 Select uniformly from the RCL.</p>
 <p>Args:
-dist_matrix:     (N+1)×(N+1) distance matrix.
-wastes:          {node_id → fill level}.
-capacity:        Vehicle capacity Q.
-R:               Revenue per unit waste.
-C:               Cost per unit distance.
-mandatory_nodes: Nodes that must be visited.
-alpha:           RCL greediness: 0.0 = fully greedy, 1.0 = fully random.
-rng:             Random generator.</p>
+dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+wastes (Dict[int, float]): {node_id → fill level}.
+capacity (float): Vehicle capacity Q.
+R (float): Revenue per unit waste.
+C (float): Cost per unit distance.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
+alpha (float): RCL greediness: 0.0 = fully greedy, 1.0 = fully random.
+rng (Optional[random.Random]): Random generator.</p>
 <p>Returns:
-List of routes (depot excluded).</p>
+List[List[int]]: List of routes (depot excluded).</p>
 </dd></dl>
 
 </section>

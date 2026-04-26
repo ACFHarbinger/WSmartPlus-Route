@@ -120,6 +120,7 @@
 
 ````{py:attribute} __slots__
 :canonical: src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree.ConstantNode.__slots__
+:type: typing.Tuple[str, ...]
 :value: >
    ('val',)
 
@@ -184,6 +185,7 @@
 
 ````{py:attribute} __slots__
 :canonical: src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree.TerminalNode.__slots__
+:type: typing.Tuple[str, ...]
 :value: >
    ('feature',)
 

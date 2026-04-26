@@ -499,6 +499,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.pytorch.reptile">
 <span id="src-pipeline-callbacks-pytorch-reptile"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.pytorch.reptile" title="src.pipeline.callbacks.pytorch.reptile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.pytorch.reptile</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.pytorch.reptile" title="Link to this heading">#</a></h1>
 <p>Reptile meta-learning callback.</p>
+<p>Implements the Reptile algorithm (Nichol et al. 2018) for cross-size and
+cross-distribution generalisation in combinatorial optimisation, following
+Manchanda et al. 2022 and Zhou et al. 2023.</p>
+<p>Attributes:
+ReptileCallback: Callback that performs inner-loop task training and outer-loop meta-updates.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.pytorch.reptile import ReptileCallback
+&gt;&gt;&gt; cb = ReptileCallback(num_tasks=4, alpha=0.3, alpha_decay=0.99,
+…                      min_size=20, max_size=100, data_type=”size”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,33 +546,54 @@ max_size: Maximum problem size for task sampling.
 sch_bar: Fraction of total epochs after which LR decays by 0.1.
 data_type: Task type – “size”, “distribution”, or “size_distribution”.
 print_log: Whether to print sampled task info during training.</p>
+<p>Attributes:
+num_tasks: Number of tasks per meta-batch.
+alpha: Current outer-loop learning rate.
+alpha_decay: Multiplicative decay applied to alpha each meta-epoch.
+sch_bar: Fraction of total epochs after which LR decays by 0.1.
+print_log: Whether to print sampled task info during training.
+data_type: Task type — “size”, “distribution”, or “size_distribution”.
+task_set: Full list of candidate tasks generated from the data_type.
+meta_model_state_dict: State dict snapshot taken at the start of each meta-batch.
+task_models: Collected task model state dicts within the current meta-batch.
+selected_tasks: Tasks sampled for the current meta-batch.
+task_params: Active task parameters used to configure the generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initialize ReptileCallback.</p>
 <p>Args:
-num_tasks (int): Description of num_tasks.
-alpha (float): Description of alpha.
-alpha_decay (float): Description of alpha_decay.
-min_size (int): Description of min_size.
-max_size (int): Description of max_size.
-sch_bar (float): Description of sch_bar.
-data_type (str): Description of data_type.
-print_log (bool): Description of print_log.</p>
+num_tasks: Number of tasks per meta-batch (inner-loop iterations).
+alpha: Initial weight for the outer-loop Reptile update.
+alpha_decay: Multiplicative decay applied to alpha each meta-epoch.
+min_size: Minimum problem size for task sampling.
+max_size: Maximum problem size for task sampling.
+sch_bar: Fraction of total epochs after which LR decays by 0.1.
+data_type: Task type — “size”, “distribution”, or “size_distribution”.
+print_log: Whether to print sampled task info during training.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_fit_start">
 <span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_fit_start" title="Link to this definition">#</a></dt>
 <dd><p>Sample initial task batch and configure the first task.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_train_epoch_start">
 <span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_train_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Save meta-model at start of each meta-batch, reset optimizer each epoch.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_train_epoch_end">
 <span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.reptile.ReptileCallback.on_train_epoch_end" title="Link to this definition">#</a></dt>
 <dd><p>Save task model and perform outer-loop update at end of meta-batch.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -576,6 +606,9 @@ print_log (bool): Description of print_log.</p>
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.reptile.ReptileCallback._load_task">
 <span class="sig-name descname"><span class="pre">_load_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.reptile.ReptileCallback._load_task" title="Link to this definition">#</a></dt>
 <dd><p>Load a task by updating the environment generator parameters.</p>
+<p>Args:
+pl_module: The PyTorch Lightning module instance.
+task_idx: The index of the task to load.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -594,6 +627,12 @@ print_log (bool): Description of print_log.</p>
 <li><p>distribution: (m, c) with Gaussian mixture modes/concentrations</p></li>
 <li><p>size_distribution: (n, m, c) combining both</p></li>
 </ul>
+<p>Args:
+data_type: Type of task set to generate.
+min_size: Minimum problem size.
+max_size: Maximum problem size.</p>
+<p>Returns:
+List of tasks.</p>
 </dd></dl>
 
 </dd></dl>

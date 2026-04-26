@@ -494,6 +494,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.atsp">
 <span id="src-envs-tasks-atsp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.atsp" title="src.envs.tasks.atsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.atsp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.atsp" title="Link to this heading">#</a></h1>
 <p>ATSP problem definition for offline evaluation.</p>
+<p>Attributes:
+ATSP: Class definition of ATSP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs import TSPEnv
+&gt;&gt;&gt; env = TSPEnv(num_nodes=20, generator_params={“num_nodes”: 20})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +520,8 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.envs.tasks.base.BaseProblem</span></code></p>
 <p>Asymmetric Traveling Salesman Problem (ATSP).</p>
 <p>Cost = total asymmetric tour length (including closing edge).</p>
+<p>Attributes:
+NAME: Name of the problem</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.atsp.ATSP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.atsp.ATSP.NAME" title="Link to this definition">#</a></dt>

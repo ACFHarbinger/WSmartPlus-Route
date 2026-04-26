@@ -43,7 +43,7 @@ src.policies.route_construction.matheuristics
 ````{py:data} __all__
 :canonical: src.policies.route_construction.__all__
 :value: >
-   ['acceptance_criteria', 'exact_and_decomposition_solvers', 'hyper_heuristics', 'learning_algorithms'...
+   ['exact_and_decomposition_solvers', 'hyper_heuristics', 'learning_algorithms', 'learning_heuristic_a...
 
 ```{autodoc2-docstring} src.policies.route_construction.__all__
 ```

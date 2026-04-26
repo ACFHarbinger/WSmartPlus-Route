@@ -490,8 +490,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-price-and-cut"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut" title="Link to this heading">#</a></h1>
-<p>Branch-and-Price-and-Cut package.
-Exposes the main runner function and individual engines.</p>
+<p>Branch-and-Price-and-Cut package.</p>
+<p>Exposes the main runner function and individual engines.</p>
+<p>Attributes:
+run_bpc (function): Entry point for the BPC solver engine.
+policy_bpc (module): Policy wrapper for BPC.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut import run_bpc
+&gt;&gt;&gt; result = run_bpc(problem_instance, params)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

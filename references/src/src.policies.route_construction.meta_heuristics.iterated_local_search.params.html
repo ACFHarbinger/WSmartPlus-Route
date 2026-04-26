@@ -504,6 +504,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.iterated_local_search.params">
 <span id="src-policies-route-construction-meta-heuristics-iterated-local-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.params" title="src.policies.route_construction.meta_heuristics.iterated_local_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.iterated_local_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Iterated Local Search (ILS) solver.</p>
+<p>Attributes:
+ILSParams: Parameter dataclass for the Iterated Local Search.</p>
+<p>Example:
+&gt;&gt;&gt; params = ILSParams(n_restarts=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,9 +527,6 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.params.</span></span><span class="sig-name descname"><span class="pre">ILSParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the ILS solver.</p>
-<p>ILS alternates between a local search descent phase and a perturbation
-phase that escapes local optima.  Acceptance is based on strict profit
-improvement (hill-climbing) with the perturbation providing diversification.</p>
 <p>Attributes:
 n_restarts: Number of perturbation + descent cycles.
 inner_iterations: LLH iterations per descent phase.
@@ -534,8 +535,9 @@ n_llh: Number of LLHs in the pool.
 perturbation_strength: Fraction of nodes perturbed.
 time_limit: Wall-clock time limit in seconds.
 seed: Random seed for reproducibility.
-vrpp: Whether the problem is VRPP (True) or CVRP (False).
-profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.
+acceptance_criterion: Interface for solution acceptance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.n_restarts">
 <span class="sig-name descname"><span class="pre">n_restarts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.n_restarts" title="Link to this definition">#</a></dt>
@@ -599,13 +601,19 @@ profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.__post_init__" title="Link to this definition">#</a></dt>
-<dd><p>Ensure acceptance criterion is initialized even if not passed in config.</p>
+<dd><p>Ensure acceptance criterion is initialized.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams" title="src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source.</p>
+<p>Returns:
+Instantiated ILSParams.</p>
 </dd></dl>
 
 </dd></dl>

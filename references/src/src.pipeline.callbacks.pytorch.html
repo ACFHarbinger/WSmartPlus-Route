@@ -483,6 +483,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.pytorch">
 <span id="src-pipeline-callbacks-pytorch"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.pytorch" title="src.pipeline.callbacks.pytorch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.pytorch</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.pytorch" title="Link to this heading">#</a></h1>
 <p>Lightning Callbacks for WSmart-Route.</p>
+<p>PyTorch Lightning Callback implementations for training monitoring,
+meta-learning updates, speed measurement, and model summaries.</p>
+<p>Attributes:
+ModelSummaryCallback: Prints a rich table of model architecture details at training start.
+ReptileCallback: Outer-loop Reptile meta-learning update across tasks.
+SpeedMonitor: Logs forward/backward and data-loading times per step.
+TrainingDisplayCallback: Live terminal dashboard combining chart, metrics, and progress bars.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.pytorch import ModelSummaryCallback
+&gt;&gt;&gt; cb = ModelSummaryCallback()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

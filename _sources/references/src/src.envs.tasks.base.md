@@ -58,7 +58,7 @@
 
 ````
 
-````{py:method} beam_search(input, beam_size, cost_weights, model=None, **kwargs)
+````{py:method} beam_search(input: typing.Union[logic.src.interfaces.ITraversable, tensordict.TensorDict], beam_size: int, cost_weights: typing.Union[torch.Tensor, typing.List[float], float, typing.Dict[str, float]], model: typing.Optional[torch.nn.Module] = None, **kwargs: typing.Any) -> tensordict.TensorDict
 :canonical: src.envs.tasks.base.BaseProblem.beam_search
 :classmethod:
 

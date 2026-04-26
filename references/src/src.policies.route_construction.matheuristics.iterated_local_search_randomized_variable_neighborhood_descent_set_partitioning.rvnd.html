@@ -502,6 +502,12 @@ Computers &amp; Operations Research, 40(7), 1899-1911.</p>
 When an improvement is found in any neighborhood, the search restarts with a fresh,
 reshuffled neighborhood list. The algorithm terminates only when all neighborhoods
 have been explored without finding any improvement.</p>
+<p>Attributes:
+RVND: Randomized Variable Neighborhood Descent metaheuristic class.</p>
+<p>Example:
+&gt;&gt;&gt; from random import Random
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd import RVND
+&gt;&gt;&gt; rvnd = RVND(operators=[lambda r: (r, False)], rng=Random())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -543,6 +549,10 @@ RVND randomizes the sequence and resets it completely upon finding any improveme
 </ol>
 <p>This randomization strategy prevents the algorithm from getting stuck in patterns
 and provides better exploration of the solution space.</p>
+<p>Attributes:
+operators: List of callable local search operators.
+rng: Random instance for neighborhood selection.
+num_operators: Number of neighborhoods available.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize RVND with a list of local search operators.</p>
 <p>Args:

@@ -504,6 +504,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params">
 <span id="src-policies-route-construction-hyper-heuristics-hidden-markov-model-great-deluge-hyper-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params" title="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the HMM + Great Deluge (HMM-GD) solver.</p>
+<p>Attributes:
+HMMGDHHParams: Parameters for the Hidden Markov Model + Great Deluge Hyper-Heuristic solver.</p>
+<p>Example:
+&gt;&gt;&gt; config = {“max_iterations”: 100, “flood_margin”: 0.05, “rain_speed”: 0.001, “learning_rate”: 0.1, “n_removal”: 2,
+“n_llh”: 5, “local_search_iterations”: 100, “time_limit”: 60.0, “seed”: 42, “vrpp”: True, “profit_aware_operators”: False}
+&gt;&gt;&gt; params = HMMGDHHParams.from_config(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -617,6 +623,10 @@ profit_aware_operators: Whether to use profit-aware operators.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams" title="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.HMMGDHHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+HMMGDHHParams: Instance of HMMGDHHParams.</p>
 </dd></dl>
 
 </dd></dl>

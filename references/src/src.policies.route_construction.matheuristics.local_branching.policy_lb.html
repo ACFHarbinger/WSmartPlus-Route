@@ -496,6 +496,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.local_branching.policy_lb">
 <span id="src-policies-route-construction-matheuristics-local-branching-policy-lb"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.local_branching.policy_lb" title="src.policies.route_construction.matheuristics.local_branching.policy_lb"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching.policy_lb</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.local_branching.policy_lb" title="Link to this heading">#</a></h1>
 <p>Simulator adapter for the Local Branching (LB) matheuristic.</p>
+<p>Attributes:
+LocalBranchingPolicy (LocalBranchingPolicy): Implementation of the LB matheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.local_branching import LocalBranchingPolicy
+&gt;&gt;&gt; policy = LocalBranchingPolicy()
+&gt;&gt;&gt; solution = policy.solve(
+…     dist_matrix=dist_matrix,
+…     wastes=wastes,
+…     capacity=capacity,
+…     R=revenue,
+…     C=cost_unit,
+…     mandatory_nodes=mandatory_nodes,
+… )
+&gt;&gt;&gt; print(solution[“tour”])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -565,6 +579,17 @@ str: The configuration key “lb”.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.local_branching.policy_lb.LocalBranchingPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.local_branching.policy_lb.LocalBranchingPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Not used - LB requires specialized execute().</p>
+<p>Args:
+sub_dist_matrix: Description of sub_dist_matrix.
+sub_wastes: Description of sub_wastes.
+capacity: Description of capacity.
+revenue: Description of revenue.
+cost_unit: Description of cost_unit.
+values: Description of values.
+mandatory_nodes: Description of mandatory_nodes.
+kwargs: Description of kwargs.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -578,6 +603,7 @@ these neighborhoods, allowing the solver to find improvements
 efficiently.</p>
 <p>This implementation uses Gurobi for the iterative neighborhood solves.</p>
 <p>Args:
+kwargs: Description of kwargs.
 **kwargs: Context for matheuristic execution, including:
 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
 - wastes (Dict[int, float]): Bin inventory levels.
@@ -596,7 +622,9 @@ Tuple of:
 - cost: Total travel cost calculated by the solver.
 - obj_val: Net calculated profit (Revenue - Cost).
 - Optional[SearchContext]: Updated search context.
-- Optional[MultiDayContext]: Updated multi-period context.</p>
+- Optional[MultiDayContext]: Updated multi-period context.
+Args:
+kwargs: Description of kwargs.</p>
 </dd></dl>
 
 </dd></dl>

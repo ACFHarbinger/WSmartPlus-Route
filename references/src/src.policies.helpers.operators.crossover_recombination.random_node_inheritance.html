@@ -490,6 +490,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.crossover_recombination.random_node_inheritance">
 <span id="src-policies-helpers-operators-crossover-recombination-random-node-inheritance"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.crossover_recombination.random_node_inheritance" title="src.policies.helpers.operators.crossover_recombination.random_node_inheritance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.crossover_recombination.random_node_inheritance</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.crossover_recombination.random_node_inheritance" title="Link to this heading">#</a></h1>
+<p>Random Node Inheritance Crossover (RNIX).</p>
+<p>Attributes:
+random_node_inheritance_crossover: Random node inheritance crossover function.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+&gt;&gt;&gt; operator = random_node_inheritance_crossover(
+…    Individual(giant_tour=[1, 2, 3, 4]),
+…    Individual(giant_tour=[4, 3, 2, 1]),
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,6 +521,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.helpers.operators.crossover_recombination.random_node_inheritance._get_individual_class">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.crossover_recombination.random_node_inheritance.</span></span><span class="sig-name descname"><span class="pre">_get_individual_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.crossover_recombination.random_node_inheritance._get_individual_class" title="Link to this definition">#</a></dt>
 <dd><p>Lazy import to break circular dependency with meta_heuristics.<strong>init</strong></p>
+<p>Returns:
+type: Individual class.</p>
 </dd></dl>
 
 <dl class="py function">

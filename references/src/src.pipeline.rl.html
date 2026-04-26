@@ -508,6 +508,14 @@ for training neural routing policies using reinforcement learning.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">RL_ALGORITHM_REGISTRY</span></code>: Maps algorithm names to Lightning module classes.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_rl_algorithm(name)</span></code>: Factory function for looking up algorithm classes.</p></li>
 </ul>
+<p>Attributes:
+RL_ALGORITHM_REGISTRY (dict): Maps algorithm names to Lightning module classes.
+get_rl_algorithm (function): Factory function for looking up algorithm classes.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl import get_rl_algorithm
+&gt;&gt;&gt; algorithm_class = get_rl_algorithm(“ppo”)
+&gt;&gt;&gt; algorithm = algorithm_class(env, model, loss_fn, optimizer, max_steps)
+&gt;&gt;&gt; algorithm.train()</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

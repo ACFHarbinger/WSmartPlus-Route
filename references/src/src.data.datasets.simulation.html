@@ -491,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets.simulation">
 <span id="src-data-datasets-simulation"></span><h1><a class="reference internal" href="#module-src.data.datasets.simulation" title="src.data.datasets.simulation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.simulation</span></code></a><a class="headerlink" href="#module-src.data.datasets.simulation" title="Link to this heading">#</a></h1>
 <p>Simulation dataset classes for WSmart-Route.</p>
+<p>Attributes:
+GenerativeDataset: Dataset that generates instances on-the-fly.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import GenerativeDataset
+&gt;&gt;&gt; dataset = GenerativeDataset(generator, size)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

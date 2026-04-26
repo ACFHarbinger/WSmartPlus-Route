@@ -494,6 +494,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.irp">
 <span id="src-envs-tasks-irp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.irp" title="src.envs.tasks.irp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.irp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.irp" title="Link to this heading">#</a></h1>
 <p>IRP problem definition for offline evaluation.</p>
+<p>Attributes:
+IRP: Inventory Routing Problem (IRP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.irp import IRP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+…     “demand”: torch.tensor([[0.0, 1.0]]),
+…     “holding_cost”: torch.tensor([[0.0, 1.0]]),
+…     “stockout”: torch.tensor([[0.0, 1.0]]),
+…     “routing_cost”: torch.tensor([2.0]),
+…     “depot”: torch.tensor([0.0]),
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = IRP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([4.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +534,8 @@ document.write(`
 <p>Offline cost computation for multi-period IRP solutions.
 The cost is the sum of routing distance plus holding costs minus any
 stockout penalty savings, evaluated from a completed IRPEnv episode state.</p>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.irp.IRP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.irp.IRP.NAME" title="Link to this definition">#</a></dt>

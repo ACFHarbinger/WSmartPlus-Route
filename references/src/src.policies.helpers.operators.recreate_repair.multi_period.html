@@ -495,6 +495,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.recreate_repair.multi_period">
 <span id="src-policies-helpers-operators-recreate-repair-multi-period"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.recreate_repair.multi_period" title="src.policies.helpers.operators.recreate_repair.multi_period"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.recreate_repair.multi_period</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.recreate_repair.multi_period" title="Link to this heading">#</a></h1>
 <p>Multi-Period Repair Operators for MPVRPP.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.recreate_repair.multi_period import greedy_horizon_insertion
+&gt;&gt;&gt; new_routes = greedy_horizon_insertion(horizon_routes, removed, dist, wastes, cap, R, C)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -542,6 +547,8 @@ scenario_tree: Optional ScenarioTree for lookahead.
 use_stochastic: If True, uses forward-looking inventory simulation.
 stockout_penalty: Penalty for overflow.
 look_ahead_days: Lookahead H.</p>
+<p>Returns:
+List[List[List[int]]]: Updated horizon routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -550,6 +557,20 @@ look_ahead_days: Lookahead H.</p>
 <dd><p>Regret-k insertion where regret is calculated across DIFFERENT DAYS.</p>
 <p>Prioritizes nodes whose profit difference between the best day and k-th
 best day is highest.</p>
+<p>Args:
+horizon_routes: Full T-day plan.
+removed: Removed (node, day) pairs.
+dist_matrix: Distance matrix.
+wastes: Current fill levels.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+k: Regret degree.
+scenario_tree: Optional ScenarioTree.
+use_stochastic: If True, uses stochastic evaluation.
+stockout_penalty: Overflow penalty.</p>
+<p>Returns:
+List[List[List[int]]]: Updated horizon routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -557,6 +578,18 @@ best day is highest.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.recreate_repair.multi_period.</span></span><span class="sig-name descname"><span class="pre">stochastic_aware_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizon_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stockout_penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.recreate_repair.multi_period.stochastic_aware_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Insertion guided by expected future fill levels E[w_i,t].</p>
 <p>Bias insertion toward days where the node is expected to be near capacity.</p>
+<p>Args:
+horizon_routes: Full T-day plan.
+removed: Removed (node, day) pairs.
+dist_matrix: Distance matrix.
+wastes: Current fill levels.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+scenario_tree: ScenarioTree for expectations.
+stockout_penalty: Overflow penalty.</p>
+<p>Returns:
+List[List[List[int]]]: Updated horizon routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -564,18 +597,39 @@ best day is highest.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.recreate_repair.multi_period.</span></span><span class="sig-name descname"><span class="pre">_get_scenarios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.recreate_repair.multi_period._get_scenarios" title="Link to this definition">#</a></dt>
 <dd><p>Helper to extract scenario sequences from tree starting from day t.</p>
 <p>A scenario is a path of length H (from t+1 to t+H).</p>
+<p>Args:
+tree: Scenario tree object.
+node: Node index.
+t: Start day.
+H: Horizon depth.</p>
+<p>Returns:
+List[List[float]]: List of demand sequences.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.recreate_repair.multi_period._get_scenarios_from_ef">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.recreate_repair.multi_period.</span></span><span class="sig-name descname"><span class="pre">_get_scenarios_from_ef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.recreate_repair.multi_period._get_scenarios_from_ef" title="Link to this definition">#</a></dt>
 <dd><p>Helper for ID-based tree traversal (tree.py).</p>
+<p>Args:
+tree: Scenario tree (explicit form).
+node: Node index.
+t: Start day.
+H: Horizon depth.</p>
+<p>Returns:
+List[List[float]]: List of demand sequences.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.recreate_repair.multi_period._get_scenarios_from_prediction">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.recreate_repair.multi_period.</span></span><span class="sig-name descname"><span class="pre">_get_scenarios_from_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.recreate_repair.multi_period._get_scenarios_from_prediction" title="Link to this definition">#</a></dt>
 <dd><p>Helper for root-based tree traversal (prediction.py).</p>
+<p>Args:
+tree: Scenario tree (prediction form).
+node: Node index.
+t: Start day.
+H: Horizon depth.</p>
+<p>Returns:
+List[List[float]]: List of demand sequences.</p>
 </dd></dl>
 
 </section>

@@ -501,6 +501,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.kgls">
 <span id="src-configs-policies-kgls"></span><h1><a class="reference internal" href="#module-src.configs.policies.kgls" title="src.configs.policies.kgls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.kgls</span></code></a><a class="headerlink" href="#module-src.configs.policies.kgls" title="Link to this heading">#</a></h1>
 <p>KGLS (Knowledge-Guided Local Search) configuration dataclasses.</p>
+<p>Attributes:
+KGLSConfig: Configuration for the Knowledge-Guided Local Search policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.kgls import KGLSConfig
+&gt;&gt;&gt; config = KGLSConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +528,18 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.kgls.</span></span><span class="sig-name descname"><span class="pre">KGLSConfig</span></span><a class="headerlink" href="#src.configs.policies.kgls.KGLSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.configs.policies.abc.html#src.configs.policies.abc.ABCConfig" title="src.configs.policies.abc.ABCConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.configs.policies.abc.ABCConfig</span></code></a></p>
 <p>Configuration for the Knowledge-Guided Local Search algorithm.</p>
+<p>Attributes:
+time_limit (float): Time limit in seconds.
+num_perturbations (int): Number of perturbations.
+neighborhood_size (int): Size of the neighborhood.
+local_search_iterations (int): Number of local search iterations.
+moves (List[str]): List of moves to apply.
+penalization_cycle (List[str]): Cycle of penalization criteria.
+seed (Optional[int]): Random seed for reproducibility.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (Optional[List[Any]]): Mandatory customers/requests selection.
+route_improvement (Optional[List[Any]]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.kgls.KGLSConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.kgls.KGLSConfig.time_limit" title="Link to this definition">#</a></dt>

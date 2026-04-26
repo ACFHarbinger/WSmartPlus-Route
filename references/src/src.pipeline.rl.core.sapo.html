@@ -497,6 +497,17 @@ document.write(`
 Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
 arXiv preprint arXiv:2511.20347.
 https://arxiv.org/abs/2511.20347</p>
+<p>Attributes:
+SAPO: Soft Adaptive Policy Optimization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import SAPO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; sapo = SAPO(env, agent)
+&gt;&gt;&gt; sapo
+SAPO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True, tau_pos=0.1, tau_neg=1.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,16 +537,24 @@ https://arxiv.org/abs/2511.20347</p>
 <p>Reference:
 Gao, C., Zheng, C., et al. (2025). Soft Adaptive Policy Optimization.
 arXiv:2511.20347. https://arxiv.org/abs/2511.20347</p>
+<p>Attributes:
+tau_pos: Positive advantage clipping coefficient.
+tau_neg: Negative advantage clipping coefficient.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SAPO module.</p>
 <p>Args:
-tau_pos: Temperature for positive advantages (aggressive updates).
-tau_neg: Temperature for negative advantages (conservative updates).
-**kwargs: Arguments passed to PPO.</p>
+tau_pos: Positive advantage clipping coefficient (default: 0.1).
+tau_neg: Negative advantage clipping coefficient (default: 1.0).
+kwargs: Additional arguments to pass to the parent class (PPO).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.sapo.SAPO.calculate_actor_loss">
 <span class="sig-name descname"><span class="pre">calculate_actor_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">advantage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.sapo.SAPO.calculate_actor_loss" title="Link to this definition">#</a></dt>
 <dd><p>SAPO soft-gated objective.</p>
+<p>Args:
+ratio: Importance ratios.
+advantage: Estimated advantages.</p>
+<p>Returns:
+The SAPO loss.</p>
 </dd></dl>
 
 </dd></dl>

@@ -492,6 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.search_heuristics.large_neighborhood_search">
 <span id="src-policies-helpers-operators-search-heuristics-large-neighborhood-search"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.search_heuristics.large_neighborhood_search" title="src.policies.helpers.operators.search_heuristics.large_neighborhood_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.search_heuristics.large_neighborhood_search</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.search_heuristics.large_neighborhood_search" title="Link to this heading">#</a></h1>
+<p>Large Neighborhood Search (LNS) implementation.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.search_heuristics.large_neighborhood_search import apply_lns
+&gt;&gt;&gt; new_routes = apply_lns(routes, dist_matrix, wastes, capacity, R, C, rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -540,20 +546,20 @@ document.write(`
 <p>Default q follows Chen et al. (2018): q = min(ceil(0.05 * n), 10).
 When <code class="docutils literal notranslate"><span class="pre">q</span></code> or <code class="docutils literal notranslate"><span class="pre">ruin_fraction</span></code> is provided, the default formula is overridden.</p>
 <p>Args:
-routes: Current routes.
-dist_matrix: Distance matrix.
-wastes: Node wastes.
-capacity: Vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-rng: Random number generator.
-q: Specific number of nodes to remove.
-ruin_fraction: Fraction of total nodes to remove.
-destroy_op: Name of the destroy operator.
-repair_op: Name of the repair operator.
-repair_k: Number of neighbors to consider for regret operators.
-mandatory_nodes: Nodes that MUST be in the solution.
-**kwargs: Additional parameters for specific operators (e.g., p for worst).</p>
+routes (List[List[int]]): Current routes.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (np.ndarray): Node wastes.
+capacity (float): Vehicle capacity.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.
+rng (random.Random): Random number generator.
+q (Optional[int]): Specific number of nodes to remove.
+ruin_fraction (Optional[float]): Fraction of total nodes to remove.
+destroy_op (str): Name of the destroy operator.
+repair_op (str): Name of the repair operator.
+repair_k (int): Number of neighbors to consider for regret operators.
+mandatory_nodes (Optional[List[int]]): Nodes that MUST be in the solution.
+kwargs (Any): Additional parameters for specific operators (e.g., p for worst).</p>
 <p>Returns:
 List[List[int]]: Modified routes.</p>
 </dd></dl>

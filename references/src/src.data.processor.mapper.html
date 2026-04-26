@@ -503,6 +503,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor.mapper">
 <span id="src-data-processor-mapper"></span><h1><a class="reference internal" href="#module-src.data.processor.mapper" title="src.data.processor.mapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor.mapper</span></code></a><a class="headerlink" href="#module-src.data.processor.mapper" title="Link to this heading">#</a></h1>
 <p>Data Mapper for transformation between raw data and simulation representations.</p>
+<p>Attributes:
+SimulationDataMapper: Instance of SimulationDataMapper.</p>
+<p>Example:
+from logic.src.data.processor import SimulationDataMapper
+mapper = SimulationDataMapper()
+depot_sample = pd.DataFrame([{‘ID’: 0, ‘Lat’: 40.7128, ‘Lng’: -74.0060}])
+bin_samples = pd.DataFrame([{‘ID’: 1, ‘Lat’: 40.7128, ‘Lng’: -74.0060}, {‘ID’: 2, ‘Lat’: 40.7128, ‘Lng’: -74.0060}])
+coords_sample = pd.DataFrame([{‘ID’: 0, ‘Lat’: 40.7128, ‘Lng’: -74.0060}, {‘ID’: 1, ‘Lat’: 40.7128, ‘Lng’: -74.0060}, {‘ID’: 2, ‘Lat’: 40.7128, ‘Lng’: -74.0060}])
+mapper.process_raw_data(bin_samples, coords_sample, depot_sample)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -510,7 +519,9 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.processor.mapper.SimulationDataMapper" title="src.data.processor.mapper.SimulationDataMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationDataMapper</span></code></a></p></td>
-<td><p>Data Mapper for the WSmart+ Route simulator.</p></td>
+<td><p>Data Mapper for the WSmart+ Route simulator.
+Attributes:
+None</p></td>
 </tr>
 </tbody>
 </table>
@@ -521,71 +532,151 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.processor.mapper.</span></span><span class="sig-name descname"><span class="pre">SimulationDataMapper</span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper" title="Link to this definition">#</a></dt>
-<dd><p>Data Mapper for the WSmart+ Route simulator.</p>
+<dd><p>Data Mapper for the WSmart+ Route simulator.
+Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.sort_dataframe">
 <span class="sig-name descname"><span class="pre">sort_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_tosort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.sort_dataframe" title="Link to this definition">#</a></dt>
 <dd><p>Sorts a DataFrame by a metric.</p>
+<p>Args:
+df: DataFrame to sort.
+metric_tosort: Metric to sort by.
+ascending_order: Whether to sort in ascending order.</p>
+<p>Returns:
+Sorted DataFrame.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.get_df_types">
 <span class="sig-name descname"><span class="pre">get_df_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'32'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.get_df_types" title="Link to this definition">#</a></dt>
 <dd><p>Infers and maps column data types to specific precisions.</p>
+<p>Args:
+df: DataFrame to get types from.
+prec: Precision to use for floating point and integer types.</p>
+<p>Returns:
+Dictionary of column names to data types.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.setup_df">
 <span class="sig-name descname"><span class="pre">setup_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#bin'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.setup_df" title="Link to this definition">#</a></dt>
 <dd><p>Merges depot and bin data.</p>
+<p>Args:
+depot: DataFrame containing depot data.
+df: DataFrame containing bin data.
+col_names: List of column names to include.
+index_name: Name of the index column.</p>
+<p>Returns:
+DataFrame containing merged and sorted data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.sample_df">
 <span class="sig-name descname"><span class="pre">sample_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_elems</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.sample_df" title="Link to this definition">#</a></dt>
 <dd><p>Samples a subset of bins.</p>
+<p>Args:
+df: DataFrame to sample from.
+n_elems: Number of elements to sample.
+depot: Optional depot DataFrame to add to the sample.
+output_path: Optional path to save the sample indices.</p>
+<p>Returns:
+Sampled DataFrame.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.process_indices">
 <span class="sig-name descname"><span class="pre">process_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.process_indices" title="Link to this definition">#</a></dt>
 <dd><p>Extracts subset based on indices.</p>
+<p>Args:
+df: DataFrame to extract subset from.
+indices: Indices to extract.</p>
+<p>Returns:
+Subset of DataFrame.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.process_raw_data">
 <span class="sig-name descname"><span class="pre">process_raw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.process_raw_data" title="Link to this definition">#</a></dt>
 <dd><p>Prepares coordinate and statistic data.</p>
+<p>Args:
+data: DataFrame containing bin data.
+bins_coordinates: DataFrame containing bin coordinates.
+depot: DataFrame containing depot data.
+indices: Optional indices to extract.</p>
+<p>Returns:
+Tuple of (DataFrame, DataFrame) containing processed data and coordinates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper._prepare_model_data">
 <span class="sig-name descname"><span class="pre">_prepare_model_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper._prepare_model_data" title="Link to this definition">#</a></dt>
 <dd><p>Prepare the base model data dictionary.</p>
+<p>Args:
+coordinates: Coordinates of bins.
+method: Normalization method.
+configs: Configuration dictionary.
+problem_size: Size of the problem.</p>
+<p>Returns:
+Dictionary of model data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper._prepare_edges">
 <span class="sig-name descname"><span class="pre">_prepare_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper._prepare_edges" title="Link to this definition">#</a></dt>
 <dd><p>Prepare edge indices and adjacency matrix.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+configs: Configuration dictionary.
+device: Device to use.
+edge_threshold: Threshold for edge detection.
+edge_method: Method to use for edge detection.
+adj_matrix: Adjacency matrix.</p>
+<p>Returns:
+Edge indices and adjacency matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper._load_profit_vars">
 <span class="sig-name descname"><span class="pre">_load_profit_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper._load_profit_vars" title="Link to this definition">#</a></dt>
 <dd><p>Load profit-related variables for the simulation.</p>
+<p>Args:
+area: Area of the simulation.
+waste_type: Type of waste.</p>
+<p>Returns:
+Dictionary of profit-related variables.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.process_model_input">
 <span class="sig-name descname"><span class="pre">process_model_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.process_model_input" title="Link to this definition">#</a></dt>
 <dd><p>Prepares data for neural models.</p>
+<p>Args:
+coordinates: Coordinates of bins.
+dist_matrix: Distance matrix.
+device: Device to use.
+method: Normalization method.
+configs: Configuration dictionary.
+edge_threshold: Threshold for edge detection.
+edge_method: Method to use for edge detection.
+area: Area of the simulation.
+waste_type: Type of waste.
+adj_matrix: Adjacency matrix.</p>
+<p>Returns:
+Tuple of (model data, edges and distance matrix, profit variables).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.processor.mapper.SimulationDataMapper.save_results">
 <span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.processor.mapper.SimulationDataMapper.save_results" title="Link to this definition">#</a></dt>
-<dd><p>Exports history to Excel.</p>
+<dd><p>Exports fill history to Excel.</p>
+<p>Args:
+matrix: Fill history matrix.
+results_dir: Directory to save results.
+seed: Random seed.
+data_dist: Data distribution.
+policy: Policy used.
+sample_id: Sample ID.</p>
 </dd></dl>
 
 </dd></dl>

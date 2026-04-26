@@ -505,20 +505,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-tolerance-based-selection-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Stochastic Tournament Genetic Algorithm (STGA).</p>
-<p>This is the rigorous parameter mapping for the League Championship Algorithm (LCA)
-with proper Operations Research terminology.</p>
-<p>TERMINOLOGY MAPPING (LCA → MA-TS):</p>
-<ul class="simple">
-<li><p>n_teams → population_size</p></li>
-<li><p>tolerance_pct → tolerance_pct (UNCHANGED - critical LCA feature)</p></li>
-<li><p>crossover_prob → recombination_rate</p></li>
-<li><p>n_removal → perturbation_strength</p></li>
-<li><p>max_iterations → max_iterations</p></li>
-</ul>
-<p>Reference:
-Kashan, A. H. (2013). “League Championship Algorithm (LCA): An algorithm
-for global optimization inspired by sport championships.”
-Applied Soft Computing, 13(5), 2171-2200.</p>
+<p>Attributes:
+MemeticAlgorithmToleranceBasedSelectionParams: Parameters for the MATBS solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = MemeticAlgorithmToleranceBasedSelectionParams(population_size=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,40 +528,18 @@ Applied Soft Computing, 13(5), 2171-2200.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmToleranceBasedSelectionParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams" title="Link to this definition">#</a></dt>
 <dd><p>Parameters for Memetic Algorithm with Tolerance-based Selection (MA-TS).</p>
-<p>Algorithm Structure:
-1. Initialize population of N solutions
-2. For each generation:
-a. Round-Robin Schedule: Random pairwise matching
-b. For each match (i vs j):
-- Determine winner using infeasibility tolerance
-- If |fitness_i - fitness_j| ≤ tolerance: random winner
-- Otherwise: higher fitness wins
-- Loser generates new solution (recombination or mutation)
-- Loser ALWAYS accepts new solution</p>
-<p>KEY FEATURE: Infeasibility Tolerance
-Solutions with similar fitness compete randomly, preserving diversity
-and allowing exploration of alternative feasible basins. This is the
-distinguishing characteristic of LCA vs standard tournament GA.</p>
 <p>Attributes:
-population_size: Number of candidate solutions (LCA: n_teams).
-max_iterations: Maximum number of evolution cycles (LCA: max_iterations).
+seed: Random seed for reproducibility.
+population_size: Number of candidate solutions (islands).
+max_iterations: Maximum number of evolution cycles.
 tolerance_pct: Infeasibility tolerance as fraction of average fitness.
-Solutions within this tolerance compete randomly.
-(LCA: tolerance_pct). Typical: 0.01-0.10.
-recombination_rate: Probability of crossover vs mutation (LCA: crossover_prob).
-perturbation_strength: Number of nodes to remove in mutation (LCA: n_removal).
+recombination_rate: Probability of crossover vs mutation.
+perturbation_strength: Number of nodes to remove in mutation.
+n_removal: Alternative name for perturbation strength.
 local_search_iterations: Local search refinement iterations.
+vrpp: Whether to solve as a VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.
 time_limit: Wall-clock time limit in seconds (0 = no limit).</p>
-<p>Mathematical Foundation:
-Infeasibility Tolerance Formula:
-tolerance = tolerance_pct × (|fitness_a| + |fitness_b|) / 2
-if |fitness_a - fitness_b| ≤ tolerance:
-winner = random choice (diversity preservation)
-else:
-winner = argmax(fitness_a, fitness_b)</p>
-<p>Complexity:
-- Space: O(N × n) for population storage
-- Time per generation: O(N × eval_cost) for pairwise matches</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.seed" title="Link to this definition">#</a></dt>
@@ -642,12 +610,20 @@ winner = argmax(fitness_a, fitness_b)</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source (dataclass or object).</p>
+<p>Returns:
+MemeticAlgorithmToleranceBasedSelectionParams: Initialized runtime parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Validate parameter constraints.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions.fill">
 <span id="src-pipeline-simulations-actions-fill"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions.fill" title="src.pipeline.simulations.actions.fill"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.fill</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions.fill" title="Link to this heading">#</a></h1>
 <p>Action for daily bin filling.</p>
+<p>Attributes:
+FillAction: Command to execute daily bin filling.</p>
+<p>Example:
+&gt;&gt;&gt; # action = FillAction()
+&gt;&gt;&gt; # action.execute(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,10 +520,14 @@ document.write(`
 <p>Executes daily bin filling simulation.</p>
 <p>Queries the bin management object to update fill levels based on
 either stochastic generation or empirical data from files.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.fill.FillAction.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.fill.FillAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Execute daily bin filling.</p>
+<p>Args:
+context: Shared dictionary containing simulation state.</p>
 </dd></dl>
 
 </dd></dl>

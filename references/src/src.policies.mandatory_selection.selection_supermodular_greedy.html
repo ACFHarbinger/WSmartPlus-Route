@@ -500,6 +500,12 @@ decreases the marginal routing cost of that bin.</p>
 <p>Objective:
 f(S) = sum_{i in S} revenue_i - alpha * 2 * sum_{i in S} dist(i, S \ {i})</p>
 <p>We use a greedy algorithm with a max-priority queue to select bins effectively.</p>
+<p>Attributes:
+SupermodularGreedySelection(IMandatorySelectionStrategy): Selection strategy based on Supermodular Greedy maximization (Synergy).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_supermodular_greedy import SupermodularGreedySelection
+&gt;&gt;&gt; strategy = SupermodularGreedySelection()
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

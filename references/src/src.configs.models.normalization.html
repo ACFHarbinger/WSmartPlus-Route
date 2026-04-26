@@ -500,9 +500,12 @@ document.write(`
 <span id="src-configs-models-normalization"></span><h1><a class="reference internal" href="#module-src.configs.models.normalization" title="src.configs.models.normalization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.normalization</span></code></a><a class="headerlink" href="#module-src.configs.models.normalization" title="Link to this heading">#</a></h1>
 <p>normalization.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+NormalizationConfig: Normalization layer configuration.</p>
 <p>Example:
-&gt;&gt;&gt; import normalization</p>
+&gt;&gt;&gt; from logic.src.configs.models import NormalizationConfig
+&gt;&gt;&gt; config = NormalizationConfig()
+&gt;&gt;&gt; print(config)
+NormalizationConfig(norm_type=’batch’, epsilon=1e-05, learn_affine=True, track_stats=False, momentum=0.1, n_groups=1, k_lrnorm=1.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +525,14 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.configs.models.normalization.NormalizationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.models.normalization.</span></span><span class="sig-name descname"><span class="pre">NormalizationConfig</span></span><a class="headerlink" href="#src.configs.models.normalization.NormalizationConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for normalization layers.</p>
+<p>Attributes:
+norm_type (str): Type of normalization.
+epsilon (float): Epsilon value.
+learn_affine (bool): Whether to learn affine parameters.
+track_stats (bool): Whether to track statistics.
+momentum (float): Momentum value.
+n_groups (int): Number of groups.
+k_lrnorm (float): Learning rate for normalization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.models.normalization.NormalizationConfig.norm_type">
 <span class="sig-name descname"><span class="pre">norm_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.models.normalization.NormalizationConfig.norm_type" title="Link to this definition">#</a></dt>

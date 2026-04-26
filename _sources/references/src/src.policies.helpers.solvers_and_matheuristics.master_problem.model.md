@@ -123,7 +123,7 @@ Bases: {py:obj}`logic.src.policies.helpers.solvers_and_matheuristics.master_prob
 
 ````
 
-````{py:method} _wire_route_into_active_cuts(route: logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route, var: typing.Any) -> None
+````{py:method} _wire_route_into_active_cuts(route: logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route, var: gurobipy.Var) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._wire_route_into_active_cuts
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._wire_route_into_active_cuts

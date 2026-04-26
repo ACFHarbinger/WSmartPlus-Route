@@ -503,6 +503,34 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.st_ef">
 <span id="src-configs-policies-st-ef"></span><h1><a class="reference internal" href="#module-src.configs.policies.st_ef" title="src.configs.policies.st_ef"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.st_ef</span></code></a><a class="headerlink" href="#module-src.configs.policies.st_ef" title="Link to this heading">#</a></h1>
+<p>Configuration for the Scenario-Tree Extensive Form policy.</p>
+<p>Attributes:
+ScenarioTreeExtensiveFormConfig: Configuration for the Scenario-Tree Extensive Form (ST-EF) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
+&gt;&gt;&gt; config = ScenarioTreeExtensiveFormConfig()
+&gt;&gt;&gt; config.num_days
+3
+&gt;&gt;&gt; config.num_realizations
+3
+&gt;&gt;&gt; config.mean_increment
+0.2
+&gt;&gt;&gt; config.time_limit
+300.0
+&gt;&gt;&gt; config.mip_gap
+0.05
+&gt;&gt;&gt; config.waste_weight
+1.0
+&gt;&gt;&gt; config.cost_weight
+1.0
+&gt;&gt;&gt; config.overflow_penalty
+10.0
+&gt;&gt;&gt; config.discount_factor
+0.95
+&gt;&gt;&gt; config.use_mtz
+True
+&gt;&gt;&gt; config.seed
+42</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +550,18 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.st_ef.</span></span><span class="sig-name descname"><span class="pre">ScenarioTreeExtensiveFormConfig</span></span><a class="headerlink" href="#src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Scenario-Tree Extensive Form policy.</p>
+<p>Attributes:
+num_days: Planning horizon in days.
+num_realizations: Number of discrete joint realizations per day.
+mean_increment: Mean fractional increment per day (0.0 to 1.0).
+time_limit: Maximum solve time in seconds.
+mip_gap: Target optimality gap (e.g., 0.05 for 5%).
+waste_weight: Weight for the waste component in the objective.
+cost_weight: Weight for the cost component in the objective.
+overflow_penalty: Penalty cost for overflowing capacity.
+discount_factor: Discount factor for future expected rewards.
+use_mtz: Whether to use MTZ constraints (True) or lazy SEC separation (False).
+seed: Random seed for scenario generation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig.num_days">
 <span class="sig-name descname"><span class="pre">num_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig.num_days" title="Link to this definition">#</a></dt>
@@ -591,7 +631,8 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.configs.policies.st_ef.ScenarioTreeExtensiveFormConfig.__post_init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Validate configuration parameters.</p>
+</dd></dl>
 
 </dd></dl>
 

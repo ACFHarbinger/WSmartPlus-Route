@@ -495,6 +495,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets.pytorch.fast_td_dataset">
 <span id="src-data-datasets-pytorch-fast-td-dataset"></span><h1><a class="reference internal" href="#module-src.data.datasets.pytorch.fast_td_dataset" title="src.data.datasets.pytorch.fast_td_dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.pytorch.fast_td_dataset</span></code></a><a class="headerlink" href="#module-src.data.datasets.pytorch.fast_td_dataset" title="Link to this heading">#</a></h1>
 <p>Optimized TensorDict dataset.</p>
+<p>Attributes:
+FastTdDataset: Optimized dataset for TensorDicts.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import FastTdDataset
+&gt;&gt;&gt; dataset = FastTdDataset(td)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +524,9 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.datasets.pytorch.fast_td_dataset.</span></span><span class="sig-name descname"><span class="pre">FastTdDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.tensordict.TensorDict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.datasets.pytorch.fast_td_dataset.FastTdDataset" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></p>
 <p>Optimized Dataset for TensorDicts.</p>
+<p>Attributes:
+data_len: Number of samples in the dataset.
+data: TensorDict containing the dataset.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the FastTdDataset.</p>
 <p>Args:

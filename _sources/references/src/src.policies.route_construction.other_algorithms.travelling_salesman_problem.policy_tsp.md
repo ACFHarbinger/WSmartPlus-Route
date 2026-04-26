@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp.TSPPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp.TSPPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

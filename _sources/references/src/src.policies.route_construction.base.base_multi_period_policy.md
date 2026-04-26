@@ -81,6 +81,9 @@ Bases: {py:obj}`src.policies.route_construction.base.base_routing_policy.BaseRou
 ````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute
 
+```{autodoc2-docstring} src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute
+```
+
 ````
 
 `````

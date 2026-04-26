@@ -496,6 +496,11 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-slack-induction-by-string-removal-policy-sisr"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr" title="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr" title="Link to this heading">#</a></h1>
 <p>SISR Policy Adapter.</p>
 <p>Adapts the Slack Induction by String Removal (SISR) logic to the common policy interface.</p>
+<p>Attributes:
+SISRPolicy: SISR policy class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr import SISRPolicy
+&gt;&gt;&gt; policy = SISRPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,6 +521,8 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.</span></span><span class="sig-name descname"><span class="pre">SISRPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.SISRConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Policy adapter for the SISR metaheuristic.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SISR policy with optional config.</p>
 <p>Args:
@@ -523,12 +530,22 @@ config: SISRConfig dataclass, raw dict from YAML, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return config class for SISR.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+Optional[Type]: SISRConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return config key for SISR.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+str: “sisr”.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.SISRPolicy._run_solver">
@@ -553,7 +570,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 SISR parameters (max_string_len, avg_string_len, blink_rate).
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

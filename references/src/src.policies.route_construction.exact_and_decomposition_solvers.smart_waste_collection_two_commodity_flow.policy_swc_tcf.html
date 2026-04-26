@@ -495,6 +495,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-smart-waste-collection-two-commodity-flow-policy-swc-tcf"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf" title="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf" title="Link to this heading">#</a></h1>
 <p>SWC-TCF (Smart Waste Collection - Two-Commodity Flow) Policy Wrapper.</p>
+<p>Attributes:
+SWCTCFPolicy: Simulator policy adapter for TCF.</p>
+<p>Example:
+&gt;&gt;&gt; policy = SWCTCFPolicy()
+&gt;&gt;&gt; res = policy._run_solver(dist, wastes, cap, rev, cost, values, mandatory)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,6 +535,8 @@ and capacity enforcement.</p></li>
 waste collection routing problem: Alternative operational management
 approaches”. Expert Systems with Applications.</p></li>
 </ul>
+<p>Attributes:
+config (SWCTCFConfig): Policy configuration.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SWC-TCF policy with optional config.</p>
 <p>Args:
@@ -537,12 +544,18 @@ config: SWCTCFConfig dataclass, raw dict from YAML, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+Optional[Type[SWCTCFConfig]]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration key.</p>
+<p>Returns:
+str: The config key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._run_solver">
@@ -559,7 +572,8 @@ capacity: Vehicle capacity in percentage points (relative to 100% per bin).
 revenue: Euro per percentage point of fill collected.
 cost_unit: Euro per kilometer traveled.
 values: Merged configuration dictionary from Policy and defaults.
-mandatory_nodes: Local indices of bins that MUST be collected.</p>
+mandatory_nodes: Local indices of bins that MUST be collected.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Tuple[List[List[int]], float, float]: (routes, profit, travel_cost)</p>
 </dd></dl>

@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _initialize_solve(initial_solution: typing.Optional[typing.List[typing.List[int]]])
+````{py:method} _initialize_solve(initial_solution: typing.Optional[typing.List[typing.List[int]]]) -> typing.Tuple[typing.List[typing.List[int]], typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve

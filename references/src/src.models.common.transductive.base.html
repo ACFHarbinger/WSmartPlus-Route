@@ -498,6 +498,12 @@ document.write(`
 <p>This module provides the abstract foundation for transductive methods, such as
 Active Search and EAS, which perform instance-specific weight adaptation or
 stochastic search during the inference phase to refine solution quality.</p>
+<p>Attributes:
+TransductiveModel: Base class for transductive search methods.</p>
+<p>Example:
+&gt;&gt;&gt; policy = AttentionModelPolicy(…)
+&gt;&gt;&gt; eas = TransductiveModel(policy, n_search_steps=100)
+&gt;&gt;&gt; out = eas(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,10 +536,10 @@ kwargs: Additional model configuration parameters.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the TransductiveModel.</p>
 <p>Args:
-model: The base neural policy to be adapted.
-optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., ‘lr’).
-n_search_steps: Number of search/adaptation steps to perform.
-**kwargs: Additional parameters stored in <code class="docutils literal notranslate"><span class="pre">self.kwargs</span></code>.</p>
+model: The base policy model to be adapted.
+optimizer_kwargs: Optimizer settings (e.g., learning rate).
+n_search_steps: Number of test-time optimization iterations.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.base.TransductiveModel._setup_optimizer">
 <span class="sig-name descname"><span class="pre">_setup_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.optim.Optimizer</span></span></span><a class="headerlink" href="#src.models.common.transductive.base.TransductiveModel._setup_optimizer" title="Link to this definition">#</a></dt>
@@ -562,10 +568,10 @@ Any: An iterable of torch.nn.Parameter objects.</p>
 optimization steps using sampling-based REINFORCE, and restores the
 original state before returning the best found solution.</p>
 <p>Args:
-td: TensorDict containing problem instance metadata.
-env: Environment object for transitions and reward calculation.
-strategy: Final decoding strategy to apply (after search).
-**kwargs: Additional control arguments for the policy pass.</p>
+td: TensorDict containing the problem instance(s).
+env: Environment managing problem rules and reward logic.
+strategy: Evaluation strategy (usually “greedy” or “sampling”).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Best results found during search including:
 - reward (torch.Tensor): Highest reward achieved.

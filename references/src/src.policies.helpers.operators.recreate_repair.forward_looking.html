@@ -513,6 +513,11 @@ with the new visit schedule <code class="docutils literal notranslate"><span cla
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Coelho, L. C., Cordeau, J.-F., &amp; Laporte, G. (2012). “The inventory-routing
 problem with transshipment.” Computers &amp; Operations Research, 39(11).</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.recreate_repair.forward_looking import forward_looking_insertion
+&gt;&gt;&gt; new_routes = forward_looking_insertion(horizon_routes, removed, dist, wastes, cap, R, C)</p>
 </section>
 <p>Forward-Looking Insertion Operator for Multi-Period ALNS.</p>
 <p>This repair operator re-inserts a node into the horizon chromosome by

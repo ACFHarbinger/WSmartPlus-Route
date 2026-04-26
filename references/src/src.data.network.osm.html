@@ -493,6 +493,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.network.osm">
 <span id="src-data-network-osm"></span><h1><a class="reference internal" href="#module-src.data.network.osm" title="src.data.network.osm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network.osm</span></code></a><a class="headerlink" href="#module-src.data.network.osm" title="Link to this heading">#</a></h1>
 <p>Strategy for computing distances using OpenStreetMap.</p>
+<p>Attributes:
+OSMStrategy: Strategy for computing distances using OpenStreetMap (OSMnx).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.network.osm import OSMStrategy
+&gt;&gt;&gt; strategy = OSMStrategy()
+&gt;&gt;&gt; strategy.calculate(pd.DataFrame({“Lng”: [0, 1], “Lat”: [0, 1]}))
+array([[0.        , 111.31949079],
+[111.31949079, 0.        ]])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,10 +521,17 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.network.osm.</span></span><span class="sig-name descname"><span class="pre">OSMStrategy</span></span><a class="headerlink" href="#src.data.network.osm.OSMStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.network.base.DistanceStrategy</span></code></p>
 <p>Strategy for computing distances using OpenStreetMap road network.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.osm.OSMStrategy.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.network.osm.OSMStrategy.calculate" title="Link to this definition">#</a></dt>
 <dd><p>Computes road network distances using OpenStreetMap (OSMnx).</p>
+<p>Args:
+coords: DataFrame with coordinates (must contain ‘ID’, ‘lat’, ‘lng’ columns).
+kwargs: Additional arguments for the distance strategy.</p>
+<p>Returns:
+Distance matrix as a NumPy array.</p>
 </dd></dl>
 
 </dd></dl>

@@ -494,6 +494,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.features.state">
 <span id="src-policies-helpers-reinforcement-learning-features-state"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.features.state" title="src.policies.helpers.reinforcement_learning.features.state"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.features.state</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.features.state" title="Link to this heading">#</a></h1>
+<p>State feature extraction for Reinforcement Learning in VRP policies.</p>
+<p>This module provides utilities to convert complex optimization states into
+normalized feature vectors and discrete state indices for RL agents.</p>
+<p>Attributes:
+StateFeatureExtractor: Class for extracting search state features and discretizing states.</p>
+<p>Example:
+&gt;&gt;&gt; extractor = StateFeatureExtractor()
+&gt;&gt;&gt; features = extractor.extract_features(routes, dist_matrix, wastes, …)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,7 +528,16 @@ document.write(`
 <li><p>Solution topology (route variance, capacity utilization)</p></li>
 <li><p>Stagnation metrics (iterations without improvement)</p></li>
 </ul>
+<p>Attributes:
+progress_thresholds: Thresholds for search progress bins.
+stagnation_thresholds: Thresholds for stagnation count bins.
+diversity_thresholds: Thresholds for diversity metric bins.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the state feature extractor with custom binning thresholds.</p>
+<p>Args:
+progress_thresholds (Optional[Tuple[float, float]]): Thresholds for search progress bins.
+stagnation_thresholds (Optional[Tuple[int, int]]): Thresholds for stagnation count bins.
+diversity_thresholds (Optional[Tuple[float, float]]): Thresholds for diversity metric bins.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.extract_features">
 <span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improvement_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.extract_features" title="Link to this definition">#</a></dt>
@@ -544,12 +561,24 @@ Dictionary of named features mapping to normalized [0, 1] values.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.discretize_state">
 <span class="sig-name descname"><span class="pre">discretize_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.discretize_state" title="Link to this definition">#</a></dt>
 <dd><p>Discretize continuous state into bins for tabular RL.</p>
+<p>Args:
+iteration: Current iteration number.
+max_iterations: Maximum allowed iterations.
+stagnation_count: Number of iterations since last improvement.
+diversity: Current solution diversity metric.</p>
+<p>Returns:
+Tuple of discretized indices (phase, stagnation, diversity).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.state_to_index">
 <span class="sig-name descname"><span class="pre">state_to_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_tuple</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.features.state.StateFeatureExtractor.state_to_index" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Converts a discretized state tuple into a flat scalar index.</p>
+<p>Args:
+state_tuple (Tuple[int, int, int]): Tuple of (phase, stagnation, diversity).</p>
+<p>Returns:
+int: Unique index representing the combined state.</p>
+</dd></dl>
 
 </dd></dl>
 

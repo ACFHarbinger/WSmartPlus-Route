@@ -501,9 +501,9 @@ document.write(`
 Ants construct solutions using pure roulette-wheel proportional selection
 based on pheromone levels and heuristic information.</p>
 <p>Attributes:
-None</p>
+SolutionConstructor: Constructs a single solution (route set) for an ant.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction import SolutionConstructor
 &gt;&gt;&gt; constructor = SolutionConstructor(…)
 &gt;&gt;&gt; routes = constructor.construct()</p>
 <p>Reference:
@@ -517,8 +517,7 @@ Uses MMAS_exp transition rule (no local updates, no q0 exploitation).</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SolutionConstructor</span></code></a></p></td>
-<td><p>Constructs a single solution (route set) for an ant using the
-k-sparse pheromone matrix and heuristic values.</p></td>
+<td><p>Constructs a single solution (route set) for an ant.</p></td>
 </tr>
 </tbody>
 </table>
@@ -529,23 +528,37 @@ k-sparse pheromone matrix and heuristic values.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.</span></span><span class="sig-name descname"><span class="pre">SolutionConstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pheromone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.html#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.SparsePheromoneTau</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_lists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.html#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor" title="Link to this definition">#</a></dt>
-<dd><p>Constructs a single solution (route set) for an ant using the
-k-sparse pheromone matrix and heuristic values.</p>
-<p class="rubric">Initialization</p>
-<p>Initialize Solution Constructor.</p>
-<p>Args:
-dist_matrix: Distance matrix between nodes.
-wastes: Dictionary of node wastes.
+<dd><p>Constructs a single solution (route set) for an ant.</p>
+<p>Uses the k-sparse pheromone matrix and heuristic values for selection.</p>
+<p>Attributes:
+dist_matrix: Square distance matrix.
+wastes: Node fill levels.
 capacity: Vehicle capacity.
 pheromone: Sparse pheromone matrix.
-eta: Heuristic information matrix (inverse of distances).
-candidate_lists: Precomputed candidate lists for each node.
-nodes: List of all nodes (excluding depot).
-params: ACO parameters.
-tau_0: Initial pheromone value.
+eta: Heuristic visibility matrix.
+candidate_lists: K-sparse candidate neighbor lists.
+nodes: List of customer nodes.
+params: Algorithm parameters.
+tau_0: Initial pheromone level.
 R: Revenue multiplier.
 C: Cost multiplier.
-mandatory_nodes: List of mandatory node indices.</p>
+mandatory_nodes: Nodes that must be visited.
+random: Thread-safe random number generator.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the Solution Constructor for ACO ants.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix between nodes.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+pheromone (SparsePheromoneTau): Sparse pheromone matrix.
+eta (np.ndarray): Heuristic information matrix (inverse distances).
+candidate_lists (Dict[int, List[int]]): K-nearest neighbor lists.
+nodes (List[int]): List of all nodes (excluding depot).
+params (KSACOParams): Algorithm-specific parameters.
+tau_0 (float): Initial pheromone value.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor.construct">
 <span class="sig-name descname"><span class="pre">construct</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor.construct" title="Link to this definition">#</a></dt>
@@ -561,18 +574,34 @@ List of routes, each a list of node indices.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._any_profitable_nodes">
 <span class="sig-name descname"><span class="pre">_any_profitable_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._any_profitable_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Check if any remaining node is profitable to visit from depot.</p>
+<p>Args:
+unvisited: Set of nodes not yet visited in the current construction.</p>
+<p>Returns:
+True if at least one node is profitable, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._get_feasible_nodes">
 <span class="sig-name descname"><span class="pre">_get_feasible_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._get_feasible_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Find nodes that can be added to the current route.</p>
+<p>Args:
+unvisited: Set of nodes not yet visited.
+mandatory_unvisited: Set of mandatory nodes not yet visited.
+load: Current vehicle load.
+current: Current node index.</p>
+<p>Returns:
+List of feasible node indices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited">
 <span class="sig-name descname"><span class="pre">_cleanup_unvisited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_unvisited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.SolutionConstructor._cleanup_unvisited" title="Link to this definition">#</a></dt>
 <dd><p>Remove nodes that can never fit in any route to avoid infinite loops.</p>
+<p>Args:
+unvisited: Set of nodes to potentially clean up.
+mandatory_unvisited: Set of mandatory nodes to clean up.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">

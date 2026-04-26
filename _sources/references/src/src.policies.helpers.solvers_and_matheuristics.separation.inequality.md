@@ -47,7 +47,7 @@
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__init__
 ```
 
-````{py:method} __lt__(other)
+````{py:method} __lt__(other: src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality) -> bool
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__lt__
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__lt__

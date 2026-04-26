@@ -511,6 +511,10 @@ document.write(`
 Sun, S., Ma, L., Liu, Y., &amp; Wang, L. (2023). “Volleyball premier league
 algorithm with ACO and ALNS for simultaneous pickup–delivery location
 routing problem.”</p>
+<p>Attributes:
+HVPLParams: Configuration dataclass for HVPL.</p>
+<p>Example:
+&gt;&gt;&gt; params = HVPLParams(n_teams=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -547,6 +551,9 @@ mutation_rate: Probability of mutation after crossover.
 elite_size: Number of elite teams preserved.
 aco_init_iterations: ACO iterations for population initialization.
 time_limit: Wall-clock time limit in seconds.
+seed: Random seed for reproducibility.
+vrpp: Whether to solve the VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.
 aco_params: ACO algorithm parameters.
 alns_params: ALNS algorithm parameters.</p>
 <dl class="py attribute">
@@ -631,12 +638,20 @@ alns_params: ALNS algorithm parameters.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize sub-algorithm parameters with defaults if not provided.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams" title="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create HVPLParams from a configuration object.</p>
+<p>Args:
+config: Configuration source (dataclass or dictionary).</p>
+<p>Returns:
+HVPLParams: Initialized parameter object.</p>
 </dd></dl>
 
 </dd></dl>

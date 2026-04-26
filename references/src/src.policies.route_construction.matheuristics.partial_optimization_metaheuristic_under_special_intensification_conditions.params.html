@@ -506,6 +506,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params">
 <span id="src-policies-route-construction-matheuristics-partial-optimization-metaheuristic-under-special-intensification-conditions-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the POPMUSIC matheuristic.</p>
+<p>Attributes:
+POPMUSICParams (dataclass): Configuration parameters for POPMUSIC.</p>
+<p>Example:
+&gt;&gt;&gt; params = POPMUSICParams.from_config(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -614,12 +618,18 @@ seed_strategy: Seed selection strategy (“lifo”, “fifo”, “random”).</
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create POPMUSICParams from a configuration object or dictionary.</p>
+<p>Args:
+config (Any): Configuration object.</p>
+<p>Returns:
+POPMUSICParams: Instance of POPMUSICParams.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.POPMUSICParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert POPMUSICParams to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary containing POPMUSICParams.</p>
 </dd></dl>
 
 </dd></dl>

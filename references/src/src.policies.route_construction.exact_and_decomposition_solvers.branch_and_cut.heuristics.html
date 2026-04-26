@@ -498,6 +498,13 @@ document.write(`
 to provide upper bounds for the branch-and-cut algorithm. It leverages existing
 operators from the WSmart+ Route codebase.</p>
 <p>Based on Section 4 of Fischetti et al. (1997) and classical VRP heuristics.</p>
+<p>Attributes:
+construct_initial_solution (function): Greedy initialization wrapper.
+construct_nn_solution (function): Nearest Neighbor initialization wrapper.
+farthest_insertion (function): Farthest insertion heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import construct_initial_solution
+&gt;&gt;&gt; tour, profit = construct_initial_solution(model)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -589,7 +596,7 @@ model: VRPPModel instance.
 tour: Initial tour.
 max_iterations: Maximum number of improvement iterations.</p>
 <p>Returns:
-Improved tour.</p>
+Improved tour sequence.</p>
 </dd></dl>
 
 </section>

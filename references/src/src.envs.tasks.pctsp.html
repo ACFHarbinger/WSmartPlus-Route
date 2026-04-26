@@ -494,6 +494,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.pctsp">
 <span id="src-envs-tasks-pctsp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.pctsp" title="src.envs.tasks.pctsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pctsp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.pctsp" title="Link to this heading">#</a></h1>
 <p>PCTSP problem definition for offline evaluation.</p>
+<p>Attributes:
+PCTSP: Prize-Collecting TSP (PCTSP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.pctsp import PCTSP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+…     “penalty”: torch.tensor([[0.0, 10.0]]),
+…     “real_prize”: torch.tensor([[0.0, 10.0]]),
+…     “depot”: torch.tensor([0.0]),
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = PCTSP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([-2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +530,8 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.envs.tasks.base.BaseProblem</span></code></p>
 <p>Prize-Collecting TSP (PCTSP).</p>
 <p>Objective: saved_penalties - (tour_length + remaining_penalties).</p>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.pctsp.PCTSP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.pctsp.PCTSP.NAME" title="Link to this definition">#</a></dt>

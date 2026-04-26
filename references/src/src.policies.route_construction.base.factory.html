@@ -497,7 +497,11 @@ document.write(`
 <p>Policy Adapter module - Unified interface for all routing policies.</p>
 <p>This module implements the Adapter design pattern to provide a consistent
 interface for executing diverse routing policies within the simulator.</p>
-<p>Now also includes the IRouteConstructor interface and RouteConstructorRegistry.</p>
+<p>Attributes:
+RouteConstructorFactory: Factory for creating route constructors.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
+&gt;&gt;&gt; adapter = RouteConstructorFactory.get_adapter(“hgs”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +521,8 @@ interface for executing diverse routing policies within the simulator.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.base.factory.RouteConstructorFactory">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.base.factory.</span></span><span class="sig-name descname"><span class="pre">RouteConstructorFactory</span></span><a class="headerlink" href="#src.policies.route_construction.base.factory.RouteConstructorFactory" title="Link to this definition">#</a></dt>
 <dd><p>Factory for creating route constructors.</p>
+<p>Attributes:
+_registered (bool): Internal flag indicating if policies have been registered.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.base.factory.RouteConstructorFactory._registered">
 <span class="sig-name descname"><span class="pre">_registered</span></span><a class="headerlink" href="#src.policies.route_construction.base.factory.RouteConstructorFactory._registered" title="Link to this definition">#</a></dt>
@@ -539,7 +545,7 @@ config: Raw policy config dict from YAML. If provided, the adapter’s
 typed config dataclass is built automatically.
 engine: Deprecated. Engine should be specified in config.
 threshold: Deprecated. Threshold should be specified in config.
-**kwargs: Additional keyword arguments (unused, for backward compat).</p>
+kwargs: Additional keyword arguments (unused, for backward compat).</p>
 <p>Returns:
 Instantiated policy adapter with typed config.</p>
 </dd></dl>

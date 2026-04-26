@@ -512,6 +512,19 @@ document.write(`
 <p>Particle Swarm Optimization with Velocity Momentum configuration.</p>
 <p><strong>TRUE PSO</strong> implementation with inertia-weighted velocity updates.
 Replaces the deceptive “Firefly Algorithm” which lacked velocity momentum.</p>
+<p>Attributes:
+DistancePSOConfig: Configuration for the Particle Swarm Optimization (PSO) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.psoda import DistancePSOConfig
+&gt;&gt;&gt; config = DistancePSOConfig()
+&gt;&gt;&gt; config.population_size
+20
+&gt;&gt;&gt; config.max_iterations
+500
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.vrpp
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -542,7 +555,9 @@ Replaces the deceptive “Firefly Algorithm” which lacked velocity momentum.</
 <p>References:
 Kennedy, J., &amp; Eberhart, R. (1995). “Particle swarm optimization.”
 Ai, T. J., &amp; Kachitvichyanukul, V. (2009). “A particle swarm optimization
-for the vehicle routing problem with simultaneous pickup and delivery.”</p>
+for the vehicle routing problem with simultaneous pickup and delivery.”
+Attributes:
+None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoda.DistancePSOConfig.population_size">
 <span class="sig-name descname"><span class="pre">population_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoda.DistancePSOConfig.population_size" title="Link to this definition">#</a></dt>

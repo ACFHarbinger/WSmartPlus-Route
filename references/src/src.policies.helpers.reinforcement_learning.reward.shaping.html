@@ -499,6 +499,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.reward.shaping">
 <span id="src-policies-helpers-reinforcement-learning-reward-shaping"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.reward.shaping" title="src.policies.helpers.reinforcement_learning.reward.shaping"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.reward.shaping</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.reward.shaping" title="Link to this heading">#</a></h1>
+<p>Reward shaping strategies for reinforcement learning in optimization search.</p>
+<p>This module provides mechanisms to transform objective value improvements into
+reinforcement signals, with support for adaptive reward scaling.</p>
+<p>Attributes:
+RewardShaper: Base class for converting search outcomes into reward signals.
+AdaptiveRewardShaper: Reward shaper that adapts reward values based on search progress.</p>
+<p>Example:
+&gt;&gt;&gt; shaper = RewardShaper(best_improvement_reward=10.0)
+&gt;&gt;&gt; reward = shaper.compute_reward(new_profit=100.0, prev_profit=90.0, …)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,11 +543,11 @@ stagnation_penalty (float): Scalable penalty applied when search fails to improv
 <p class="rubric">Initialization</p>
 <p>Initialize the reward shaper.</p>
 <p>Args:
-best_improvement_reward (float): Reward for new best solution.
-local_improvement_reward (float): Reward for local improves.
-accepted_reward (float): Reward for accepted operators.
-rejected_reward (float): Penalty for rejected moves.
-stagnation_penalty (float): Step-wise penalty for stagnation.</p>
+best_improvement_reward: Reward for new best solution.
+local_improvement_reward: Reward for local improves.
+accepted_reward: Reward for accepted operators.
+rejected_reward: Penalty for rejected moves.
+stagnation_penalty: Step-wise penalty for stagnation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.reward.shaping.RewardShaper.compute_reward">
 <span class="sig-name descname"><span class="pre">compute_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improvement_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.reward.shaping.RewardShaper.compute_reward" title="Link to this definition">#</a></dt>
@@ -591,23 +600,38 @@ Dict[str, float]: A dictionary containing the current reward values.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.reward.shaping.</span></span><span class="sig-name descname"><span class="pre">AdaptiveRewardShaper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptation_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.helpers.reinforcement_learning.reward.shaping.RewardShaper" title="src.policies.helpers.reinforcement_learning.reward.shaping.RewardShaper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.reward.shaping.RewardShaper</span></code></a></p>
 <p>Adapts rewards based on search progress.</p>
+<p>Attributes:
+adaptation_rate: Rate at which rewards adapt to search progress.
+base_rewards: Dictionary of initial reward values.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the reward shaper.</p>
+<p>Initialize the adaptive reward shaper.</p>
 <p>Args:
-best_improvement_reward (float): Reward for new best solution.
-local_improvement_reward (float): Reward for local improves.
-accepted_reward (float): Reward for accepted operators.
-rejected_reward (float): Penalty for rejected moves.
-stagnation_penalty (float): Step-wise penalty for stagnation.</p>
+args: Positional arguments passed to RewardShaper.
+adaptation_rate: Rate at which rewards adapt to search progress.
+kwargs: Keyword arguments passed to RewardShaper.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.adapt">
 <span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.adapt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adapt reward values based on current search progress.</p>
+<p>Boosts acceptance rewards early in the search to encourage exploration,
+and boosts improvement rewards late in the search for exploitation.</p>
+<p>Args:
+progress (float): Search completion progress in [0.0, 1.0].</p>
+<p>Returns:
+None.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.compute_reward">
 <span class="sig-name descname"><span class="pre">compute_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.compute_reward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adapts rewards and computes the shaped value.</p>
+<p>Args:
+args: Positional arguments for RewardShaper.compute_reward.
+progress: Search completion progress in [0.0, 1.0].
+kwargs: Keyword arguments for RewardShaper.compute_reward.</p>
+<p>Returns:
+float: The adapted and shaped reward value.</p>
+</dd></dl>
 
 </dd></dl>
 

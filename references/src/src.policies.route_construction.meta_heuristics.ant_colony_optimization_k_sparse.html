@@ -494,11 +494,10 @@ document.write(`
 <p>This package implements the K-Sparse ACO algorithm, which restricts the
 search space to the k-nearest neighbors for efficiency.</p>
 <p>Attributes:
-KSparseACOSolver (class): The main solver class.
-run_k_sparse_aco (function): Helper function to run the solver.</p>
+KSparseACOSolver: The main solver class.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_k_sparse import run_k_sparse_aco
-&gt;&gt;&gt; result = run_k_sparse_aco(dist_matrix, wastes, …)</p>
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse import KSparseACOSolver
+&gt;&gt;&gt; solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

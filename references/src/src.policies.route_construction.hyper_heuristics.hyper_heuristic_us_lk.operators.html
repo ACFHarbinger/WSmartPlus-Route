@@ -509,6 +509,11 @@ document.write(`
 <span id="src-policies-route-construction-hyper-heuristics-hyper-heuristic-us-lk-operators"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators" title="Link to this heading">#</a></h1>
 <p>Operator implementations for HULK hyper-heuristic.</p>
 <p>Wraps unstringing/stringing operators and local search moves.</p>
+<p>Attributes:
+HULKOperators: Operator collection for HULK hyper-heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; operators = HULKOperators(dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+&gt;&gt;&gt; operators.apply_unstring_type_i(solution, 10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +533,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.</span></span><span class="sig-name descname"><span class="pre">HULKOperators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators" title="Link to this definition">#</a></dt>
 <dd><p>Operator collection for HULK hyper-heuristic.</p>
+<p>Implements unstringing operators (Type I, II, III, IV, Shaw, String)
+for removing nodes, and stringing operators for reinserting nodes.
+Includes local search moves: 2-opt, 3-opt, swap, relocate.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste dictionary.
+capacity (float): Vehicle capacity.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.
+mandatory_nodes (List[int]): Must-visit nodes.
+expand_pool (bool): Includes globally unassigned pool for VRPP support.
+profit_aware_operators (bool): Use profit-aware versions of operators.
+rng (random.Random): Random number generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize operators.</p>
 <p>Args:
@@ -543,37 +561,80 @@ profit_aware_operators: Use profit-aware versions of operators.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_i">
 <span class="sig-name descname"><span class="pre">apply_unstring_type_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_i" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies Unstringing Type I removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_ii">
 <span class="sig-name descname"><span class="pre">apply_unstring_type_ii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_ii" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies Unstringing Type II removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_iii">
 <span class="sig-name descname"><span class="pre">apply_unstring_type_iii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_iii" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies Unstringing Type III removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_iv">
 <span class="sig-name descname"><span class="pre">apply_unstring_type_iv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_type_iv" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies Unstringing Type IV removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_shaw">
 <span class="sig-name descname"><span class="pre">apply_unstring_shaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_shaw" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies Shaw removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_string">
 <span class="sig-name descname"><span class="pre">apply_unstring_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_unstring_string" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies String removal operator.</p>
+<p>Args:
+solution (Solution): The current solution.
+n_remove (int): Number of nodes to remove.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: The partial solution and the removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring_wrapper">
 <span class="sig-name descname"><span class="pre">_apply_unstring_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unstring_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._apply_unstring_wrapper" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Wrapper for unstringing operators.</p>
+<p>Args:
+solution: Solution to apply the move to.
+n_remove: Number of nodes to remove.
+unstring_type: Type of unstringing to apply.</p>
+<p>Returns:
+Tuple[Solution, List[int]]: Tuple containing the new solution and the list of removed nodes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_string_repair">
@@ -590,29 +651,53 @@ Repaired solution.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair">
 <span class="sig-name descname"><span class="pre">_greedy_repair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._greedy_repair" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Repair the solution using greedy insertion.</p>
+<p>Args:
+solution: Solution to repair.
+removed: List of removed nodes.</p>
+<p>Returns:
+Solution: Repaired solution.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair">
 <span class="sig-name descname"><span class="pre">_regret_2_repair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Repair the solution using regret-2 insertion.</p>
+<p>Args:
+solution: Solution to repair.
+removed: List of removed nodes.</p>
+<p>Returns:
+Solution: Repaired solution.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._simple_2_opt">
 <span class="sig-name descname"><span class="pre">_simple_2_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._simple_2_opt" title="Link to this definition">#</a></dt>
 <dd><p>Simple 2-opt implementation.</p>
+<p>Args:
+route: Route to apply the move to.</p>
+<p>Returns:
+Tuple[List[int], bool]: Tuple containing the new route and a boolean indicating whether the route was improved.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._calc_route_distance">
 <span class="sig-name descname"><span class="pre">_calc_route_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._calc_route_distance" title="Link to this definition">#</a></dt>
 <dd><p>Calculate distance for a single route.</p>
+<p>Args:
+route: Route to calculate the distance for.</p>
+<p>Returns:
+float: Distance of the route.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_2_opt">
 <span class="sig-name descname"><span class="pre">apply_2_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_2_opt" title="Link to this definition">#</a></dt>
 <dd><p>Apply 2-opt local search.</p>
+<p>Args:
+solution: Solution to apply the move to.</p>
+<p>Returns:
+Solution: New solution with the move applied.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -620,18 +705,30 @@ Repaired solution.</p>
 <span class="sig-name descname"><span class="pre">apply_3_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_3_opt" title="Link to this definition">#</a></dt>
 <dd><p>Apply 3-opt (K-opt) local search.
 Follows the 3-opt reconnection logic for VRP tours.</p>
+<p>Args:
+solution: Solution to apply the move to.</p>
+<p>Returns:
+Solution: New solution with the move applied.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_swap">
 <span class="sig-name descname"><span class="pre">apply_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_swap" title="Link to this definition">#</a></dt>
 <dd><p>Apply swap move between routes.</p>
+<p>Args:
+solution: Solution to apply the move to.</p>
+<p>Returns:
+Solution: New solution with the move applied.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_relocate">
 <span class="sig-name descname"><span class="pre">apply_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.Solution</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators.apply_relocate" title="Link to this definition">#</a></dt>
 <dd><p>Apply relocate move.</p>
+<p>Args:
+solution: Solution to apply the move to.</p>
+<p>Returns:
+Solution: New solution with the move applied.</p>
 </dd></dl>
 
 </dd></dl>

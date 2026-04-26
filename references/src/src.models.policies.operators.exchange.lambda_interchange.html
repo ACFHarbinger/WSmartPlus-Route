@@ -493,6 +493,12 @@ document.write(`
 <p>This module provides a GPU-accelerated implementation of the Lambda-interchange
 operator, a generalized version of cross-exchange that systematically explores
 segment swaps of lengths ranging from 0 to λ_max.</p>
+<p>Attributes:
+vectorized_lambda_interchange: Performs exhaustive local search over all
+segment combinations (0..λ) for fleet-level improvement.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.operators.exchange.lambda_interchange import vectorized_lambda_interchange
+&gt;&gt;&gt; optimized_tours = vectorized_lambda_interchange(tours, dist_matrix, lambda_max=2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

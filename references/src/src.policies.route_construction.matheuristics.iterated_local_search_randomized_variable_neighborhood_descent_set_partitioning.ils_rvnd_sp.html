@@ -510,6 +510,14 @@ Variable Neighborhood Descent (RVND) and an exact Set Partitioning (SP) formulat
 <p>Reference:
 Subramanian et al. “A hybrid algorithm for a class of vehicle routing problems”,
 Computers &amp; Operations Research, 2013.</p>
+<p>Attributes:
+ILSRVNDSPSolver: Main solver class combining ILS, RVND, and set partitioning.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; solver = ILSRVNDSPSolver(dm, {1: 0.5}, 10.0, 5.0, 1.0, ILSRVNDSPParams())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -546,6 +554,20 @@ Computers &amp; Operations Research, 2013.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.</span></span><span class="sig-name descname"><span class="pre">ILSRVNDSPSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver" title="Link to this definition">#</a></dt>
 <dd><p>ILS-RVND-SP solver executing ILS with RVND and resolving via Set Partitioning.</p>
+<p>Attributes:
+dist_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1) including depot.
+wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+R: Revenue multiplier per unit of waste.
+C: Cost multiplier per unit of distance.
+params: Runtime parameters controlling the solver.
+mandatory_nodes: Node indices that must be included in the solution.
+rng: NumPy random generator for stochastic operations.
+random: Python Random instance for sampling.
+n_nodes: Number of customer nodes (excluding depot).
+nodes: List of all customer node indices.
+route_pool: Set of unique canonical routes discovered during search.
+ls_manager: ACO-based local search manager.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ILS-RVND-SP solver.</p>
 <p>Args:
@@ -560,12 +582,20 @@ mandatory_nodes: List of mandatory nodes.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Args:
+routes: List of routes, each a list of node indices.</p>
+<p>Returns:
+float: Total travel cost scaled by the cost multiplier C.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.calculate_profit">
 <span class="sig-name descname"><span class="pre">calculate_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.calculate_profit" title="Link to this definition">#</a></dt>
 <dd><p>Calculate network profit (revenue - cost).</p>
+<p>Args:
+routes: List of routes, each a list of node indices.</p>
+<p>Returns:
+float: Net profit (revenue minus travel cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -574,8 +604,11 @@ mandatory_nodes: List of mandatory nodes.</p>
 <dd><p>Standardize and hash routes to add to the unique pool with canonical representation.</p>
 <p>Routes [1, 2, 3] and [3, 2, 1] are geographically identical (same tour, opposite direction).
 To prevent symmetric duplicates from bloating the MIP pool, we enforce a canonical
-orientation: the route endpoint with the smaller node ID is always placed first.</p>
-<p>This reduces the MIP pool size by ~50% and significantly speeds up Gurobi solving.</p>
+orientation: the route endpoint with the smaller node ID is always placed first.
+This reduces the MIP pool size by ~50% and significantly speeds up Gurobi solving.</p>
+<p>Args:
+routes: Routes to add; each is a list of node indices.
+pool: Target pool to add to. If None, uses the solver’s route_pool.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -587,12 +620,18 @@ orientation: the route endpoint with the smaller node ID is always placed first.
 <li><p>Swap(1,1): Swap one random node from r1 with one random node from r2.</p></li>
 <li><p>Shift(1,1): Relocate one random node from r1 to a random position in r2.</p></li>
 </ul>
+<p>Args:
+routes: Current solution routes to perturb.</p>
+<p>Returns:
+List[List[int]]: New perturbed solution routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.build_initial_solution">
 <span class="sig-name descname"><span class="pre">build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.build_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Construct initial solution using standard greedy heuristic.</p>
+<p>Returns:
+List[List[int]]: Initial feasible routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -607,24 +646,50 @@ orientation: the route endpoint with the smaller node ID is always placed first.
 <li><p>Objective: maximize total profit (revenue - routing cost)</p></li>
 </ul>
 <p>This is a Set Packing formulation adapted for VRPP, not strict Set Partitioning.</p>
+<p>Args:
+pool: Route pool to solve over. If None, uses the solver’s route_pool.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Best routes, profit, and travel cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.run_ils_rvnd">
 <span class="sig-name descname"><span class="pre">run_ils_rvnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ils_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rvnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.run_ils_rvnd" title="Link to this definition">#</a></dt>
 <dd><p>Execute ILS-RVND metaheuristic iterations.</p>
+<p>Args:
+initial_routes: Starting routes for the ILS loop.
+max_iterations: Outer ILS iteration count.
+max_ils_iterations: Inner ILS iteration count per outer iteration.
+target_pool: Route pool to populate during search.
+tolerance: Relative deviation tolerance for adding routes to pool.
+start_time: Process time at search start, used for time limit checks.
+rvnd: RVND instance providing local search operators.</p>
+<p>Returns:
+Tuple[List[List[int]], float]: Best routes and best profit found.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._run_strategy_a">
 <span class="sig-name descname"><span class="pre">_run_strategy_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rvnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._run_strategy_a" title="Link to this definition">#</a></dt>
 <dd><p>Execute Strategy A for smaller instances (n &lt;= N).</p>
+<p>Args:
+initial_solution: Optional pre-built starting routes.
+start_time: Process time at search start.
+rvnd: RVND instance providing local search operators.</p>
+<p>Returns:
+Tuple[List[List[int]], float]: Best routes and best profit found.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._run_strategy_b">
 <span class="sig-name descname"><span class="pre">_run_strategy_b</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rvnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.RVND</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver._run_strategy_b" title="Link to this definition">#</a></dt>
 <dd><p>Execute Strategy B for larger instances (n &gt; N).</p>
+<p>Args:
+initial_solution: Optional pre-built starting routes.
+start_time: Process time at search start.
+rvnd: RVND instance providing local search operators.</p>
+<p>Returns:
+Tuple[List[List[int]], float]: Best routes and best profit found.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -642,6 +707,10 @@ List of callable operators, each targeting a specific neighborhood.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.ILSRVNDSPSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Main ILS-RVND-SP execution loop with dual strategy handling.</p>
+<p>Args:
+initial_solution: Optional pre-built starting routes. Built greedily if None.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Best routes, profit, and travel cost.</p>
 </dd></dl>
 
 </dd></dl>

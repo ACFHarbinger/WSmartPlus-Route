@@ -468,6 +468,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -502,6 +503,39 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-concurrent-adaptive-lagrangian-matheuristic-regret"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret" title="Link to this heading">#</a></h1>
+<section id="attributes">
+<h2>Attributes:<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>soft_bias : np.ndarray of shape (N, T)
+    Additive bias to apply to the knapsack&#39;s objective coefficients.
+    Zero for bins / periods not in the high-regret set.
+hard_fix : Dict[int, List[int]]
+    Map from bin_id -&gt; list of periods among which exactly one must be
+    chosen (sum of x_K[bin, periods] &gt;= 1).  Empty when phase == &quot;soft&quot;.
+phase : str
+    &quot;soft&quot; or &quot;hard&quot;.
+high_regret_bin_ids : Set[int]
+    Bins flagged by the regret preprocessing (used by downstream
+    diagnostics / reward shaping).
+</pre></div>
+</div>
+<p>Example:
+&gt;&gt;&gt; # Assume early_regret is computed from the lookahead module.
+&gt;&gt;&gt; N = 100
+&gt;&gt;&gt; T = 5
+&gt;&gt;&gt; regret_params = RegretParams(enabled=True, …)
+&gt;&gt;&gt; preproc = RegretPreprocessor(regret_params, n_bins=N, horizon=T)
+&gt;&gt;&gt; early_regret = np.random.uniform(0, 100, size=N)
+&gt;&gt;&gt; plan = preproc.build_plan(early_regret)
+&gt;&gt;&gt; print(plan.phase)
+“soft”
+&gt;&gt;&gt; # Hard phase after enough primal stagnation
+&gt;&gt;&gt; for _ in range(10):
+…     preproc.observe_iteration(primal_improved=False)
+&gt;&gt;&gt; plan = preproc.build_plan(early_regret)
+&gt;&gt;&gt; print(plan.phase)
+“hard”
+&gt;&gt;&gt; # plan.hard_fix might be {42: [0, 1, 2, 3, 4], …}</p>
+</section>
 <p>Adaptive regret-based preprocessing.</p>
 <p>Uses the per-bin early-regret values (rho[i, 0] + rho[i, 1]) from the
 lookahead module to identify bins that are overflow-bound – i.e., bins
@@ -545,8 +579,8 @@ that the selection-subproblem builder applies when constructing the Master.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.</span></span><span class="sig-name descname"><span class="pre">RegretPlan</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan" title="Link to this definition">#</a></dt>
 <dd><p>Concrete instructions for the selection-subproblem builder.</p>
-<p class="rubric" id="id1">Attributes</p>
-<p>soft_bias : np.ndarray of shape (N, T)
+<p>Attributes:
+soft_bias : np.ndarray of shape (N, T)
 Additive bias to apply to the knapsack’s objective coefficients.
 Zero for bins / periods not in the high-regret set.
 hard_fix : Dict[int, List[int]]
@@ -587,37 +621,68 @@ diagnostics / reward shaping).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.</span></span><span class="sig-name descname"><span class="pre">RegretPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.RegretParams" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.RegretParams"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.params.RegretParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor" title="Link to this definition">#</a></dt>
 <dd><p>Maintains escalation state across outer iterations.</p>
-<p class="rubric" id="id2">Usage</p>
+<p>Attributes:
+params : RegretParams
+Regret parameters.
+n_bins : int
+Number of bins.
+horizon : int
+Horizon.
+_phase : str
+Current phase (“soft” or “hard”).
+_iters_since_improvement : int
+Number of iterations since last improvement.</p>
+<p class="rubric" id="id1">Usage</p>
 <p>preproc = RegretPreprocessor(params, n_bins=N, horizon=T)</p>
 <p>for outer_iter in range(…):
 plan = preproc.build_plan(early_regret=tables.early_regret)
 # … run matheuristic with plan …
 preproc.observe_iteration(primal_improved=bool(obj_improved))</p>
 <p class="rubric">Initialization</p>
+<p><strong>init</strong> docstring.</p>
+<p>Args:
+params: Regret parameters.
+n_bins: Number of bins.
+horizon: Horizon.</p>
+<p>Returns:
+None</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.phase">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">phase</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.phase" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current phase.</p>
+<p>Returns:
+str: Current phase (“soft” or “hard”).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.build_plan">
 <span class="sig-name descname"><span class="pre">build_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">early_regret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPlan</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.build_plan" title="Link to this definition">#</a></dt>
 <dd><p>Produce a plan for the current outer iteration.</p>
-<p class="rubric" id="parameters">Parameters</p>
-<p>early_regret : np.ndarray of shape (N,)
+<p>Args:
+early_regret : np.ndarray of shape (N,)
 Sum of rho[i, 0] + rho[i, 1] from the lookahead tables.</p>
+<p>Returns:
+RegretPlan: Plan for the current outer iteration.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.observe_iteration">
 <span class="sig-name descname"><span class="pre">observe_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primal_improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.observe_iteration" title="Link to this definition">#</a></dt>
 <dd><p>Update escalation state at the end of an outer iteration.</p>
+<p>Args:
+primal_improved: Whether the primal objective improved in the last iteration.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.force_phase">
 <span class="sig-name descname"><span class="pre">force_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.regret.RegretPreprocessor.force_phase" title="Link to this definition">#</a></dt>
 <dd><p>Manual override, for testing / ablations.</p>
+<p>Args:
+phase: Phase to force (“soft” or “hard”).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>
@@ -671,6 +736,7 @@ Sum of rho[i, 0] + rho[i, 1] from the lookahead tables.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

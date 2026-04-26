@@ -505,7 +505,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ahvpl">
 <span id="src-configs-policies-ahvpl"></span><h1><a class="reference internal" href="#module-src.configs.policies.ahvpl" title="src.configs.policies.ahvpl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ahvpl</span></code></a><a class="headerlink" href="#module-src.configs.policies.ahvpl" title="Link to this heading">#</a></h1>
-<p>AHVPL (Augmented Hybrid Volleyball Premier League) configuration for Hydra.</p>
+<p>AHVPL (Augmented Hybrid Volleyball Premier League) configuration.</p>
+<p>Attributes:
+AHVPLConfig: Attributes for AHVPL configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ahvpl import AHVPLConfig
+&gt;&gt;&gt; config = AHVPLConfig()
+&gt;&gt;&gt; config.n_teams
+10</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,6 +534,21 @@ document.write(`
 <dd><p>Configuration for the Augmented Hybrid Volleyball Premier League policy.</p>
 <p>Extends HVPL with HGS integration parameters for diversity-driven
 crossover and bi-criteria fitness evaluation.</p>
+<p>Attributes:
+n_teams: Number of teams in the VPL league.
+max_iterations: Maximum number of iterations for the VPL algorithm.
+sub_rate: Substitution rate for the VPL algorithm.
+time_limit: Time limit for the VPL algorithm in seconds.
+alns_elite_iterations: Number of iterations for the ALNS elite group.
+alns_not_coached_iterations: Number of iterations for the ALNS not coached group.
+seed: Random seed for the VPL algorithm.
+vrpp: Whether the VPL algorithm is used for VRPP problems.
+profit_aware_operators: Whether to use profit-aware operators in the VPL algorithm.
+hgs: Configuration for HGS integration.
+aco: Configuration for ACO integration.
+alns: Configuration for ALNS integration.
+mandatory_selection: List of mandatory nodes to select.
+route_improvement: List of route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ahvpl.AHVPLConfig.n_teams">
 <span class="sig-name descname"><span class="pre">n_teams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ahvpl.AHVPLConfig.n_teams" title="Link to this definition">#</a></dt>

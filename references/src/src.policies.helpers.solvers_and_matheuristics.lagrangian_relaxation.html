@@ -468,7 +468,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
@@ -491,23 +490,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation">
 <span id="src-policies-helpers-solvers-and-matheuristics-lagrangian-relaxation"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation" title="src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation" title="Link to this heading">#</a></h1>
-<section id="public-api">
-<h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading">#</a></h2>
-<p>run_subgradient
-Polyak-step subgradient loop that minimises L(λ) = OP(λ) + λ·Q over λ ≥ 0.
-Returns (lam_star, ub_best, lb_best, history).</p>
-<p>solve_uncapacitated_op
-Exact Gurobi solver for the uncapacitated Orienteering Problem at a fixed λ.
-Returns (visited_set, op_objective, dist_cost).</p>
-<p>_nearest_neighbour_tour_cost
-Greedy nearest-neighbour tour evaluator used internally by run_subgradient
-to produce feasible lower bounds from capacity-satisfying UOP solutions.
-Exported for callers (e.g. lr_uop.py) that reconstruct tour cost directly.</p>
-</section>
 <p>Lagrangian Relaxation shared infrastructure for VRPP exact solvers.</p>
 <p>Provides the subgradient optimisation loop and the uncapacitated Orienteering
 Problem (UOP) inner solver used by both the Branch-and-Bound (LR-UOP formulation)
 and the Branch-and-Price-and-Cut pre-pruning integration.</p>
+<p>Attributes:
+run_subgradient: Polyak-step subgradient loop for minimizing dual functions.
+solve_uncapacitated_op: Exact Gurobi solver for the uncapacitated OP at a fixed λ.
+_nearest_neighbour_tour_cost: Greedy tour evaluator for lower bounds.</p>
+<p>Example:
+&gt;&gt;&gt; lam, ub, lb, hist = run_subgradient(env, initial_lam=0.5)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -587,7 +579,6 @@ and the Branch-and-Price-and-Cut pre-pruning integration.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>

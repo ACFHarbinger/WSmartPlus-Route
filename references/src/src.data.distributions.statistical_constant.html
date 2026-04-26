@@ -494,6 +494,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical_constant">
 <span id="src-data-distributions-statistical-constant"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical_constant" title="src.data.distributions.statistical_constant"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_constant</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical_constant" title="Link to this heading">#</a></h1>
 <p>Statistical sampling distributions - Constant.</p>
+<p>Attributes:
+Constant(value: Union[float, torch.Tensor] = 1.0):
+Constant value sampling.</p>
+<p>Example:
+constant = Constant()
+constant.sample(torch.Size((10, 50)))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,6 +520,8 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical_constant.</span></span><span class="sig-name descname"><span class="pre">Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical_constant.Constant" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Constant value sampling.</p>
+<p>Attributes:
+value (Union[float, torch.Tensor]): Constant value to return.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:

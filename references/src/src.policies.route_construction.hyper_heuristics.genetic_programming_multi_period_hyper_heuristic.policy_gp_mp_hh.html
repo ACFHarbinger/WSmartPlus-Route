@@ -493,6 +493,22 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh">
 <span id="src-policies-route-construction-hyper-heuristics-genetic-programming-multi-period-hyper-heuristic-policy-gp-mp-hh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh" title="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh" title="Link to this heading">#</a></h1>
+<p>GP-MP-HH (Genetic Programming Multi-Period Hyper-Heuristic) policy module.</p>
+<p>Reference:
+Bhandari, R., &amp; Keedwell, E. (2021). “A genetic programming multi-period
+selection hyper-heuristic for the vehicle routing problem with time windows.”
+In Proceedings of the 2021 Annual Conference on Genetic and Evolutionary
+Computation (pp. 355-363).</p>
+<p>This module implements the GP-MP-HH policy, which is a multi-period selection
+selection hyper-heuristic that uses genetic programming to evolve a sequence
+of low-level heuristics that are applied sequentially to an initial solution.</p>
+<p>Attributes:
+GPMPHHPolicy: Implements the GP-MP-HH policy.</p>
+<p>Example:
+&gt;&gt;&gt; solver = GPMPHHPolicy(config)
+&gt;&gt;&gt; solution = solver.solve()
+&gt;&gt;&gt; print(solution)
+SolutionContext(…)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,17 +546,28 @@ generations.</p></li>
 multi-period collection plan.</p></li>
 </ol>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;gp_mp_hh&quot;</span></code></p>
+<p>Attributes:
+params (GP_MP_HH_Params): Parameters for the GP-MP-HH policy.
+pop_size (int): Population size.
+gens (int): Number of generations.
+prog_len (int): Program length.
+seed (int): Random seed.
+rng (random.Random): Random number generator.
+llhs (List[LLHWrapper]): List of low-level heuristics.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize GPMPHHPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Any): Configuration for the solver.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh.GPMPHHPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh.GPMPHHPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the fitness of a given plan.</p>
+<p>Args:
+plan (List[List[List[int]]]): The plan to evaluate.
+problem (ProblemContext): The problem context.</p>
+<p>Returns:
+float: The fitness of the given plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.policy_gp_mp_hh.GPMPHHPolicy._run_multi_period_solver">

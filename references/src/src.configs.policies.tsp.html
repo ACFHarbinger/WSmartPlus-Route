@@ -498,6 +498,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.tsp">
 <span id="src-configs-policies-tsp"></span><h1><a class="reference internal" href="#module-src.configs.policies.tsp" title="src.configs.policies.tsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.tsp</span></code></a><a class="headerlink" href="#module-src.configs.policies.tsp" title="Link to this heading">#</a></h1>
 <p>TSP (Traveling Salesman Problem) policy configuration.</p>
+<p>Attributes:
+TSPConfig: Configuration for the Traveling Salesman Problem (TSP) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.tsp import TSPConfig
+&gt;&gt;&gt; config = TSPConfig()
+&gt;&gt;&gt; config.cache
+True
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -577,15 +577,30 @@ alpha_ema: EMA smoothing factor for online updates ∈ (0, 1).
 Higher values give more weight to recent observations.
 visit_counts: Cumulative edge visit counts for diagnostics.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the MarkovSequenceState.</p>
+<p>Args:
+op_names: Ordered list of LLH operator names.
+alpha_ema: EMA smoothing factor.
+allow_self_loops: Whether self loops are allowed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.sequence_merging.markov_chain_sequence.MarkovSequenceState._normalise">
 <span class="sig-name descname"><span class="pre">_normalise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.sequence_merging.markov_chain_sequence.MarkovSequenceState._normalise" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Normalises the transition matrix T to be row-stochastic.</p>
+<p>Args:
+None</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.sequence_merging.markov_chain_sequence.MarkovSequenceState.index">
 <span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.sequence_merging.markov_chain_sequence.MarkovSequenceState.index" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the integer index corresponding to the operator name.</p>
+<p>Args:
+name: Operator name to look up.</p>
+<p>Returns:
+The integer index in the transition matrix.</p>
+</dd></dl>
 
 </dd></dl>
 

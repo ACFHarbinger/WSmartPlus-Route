@@ -555,6 +555,13 @@ document.write(`
 <p>Simulation state encapsulation and consolidation.</p>
 <p>This module provides the SimulationDayContext dataclass and orchestrates
 the execution of a single simulation day using the Command Pattern.</p>
+<p>Attributes:
+SimulationDayContext: Represents the context of a single simulation day.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.day_context import SimulationDayContext
+&gt;&gt;&gt; context = SimulationDayContext(graph_size=51)
+&gt;&gt;&gt; context.graph_size
+51</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -582,7 +589,9 @@ the execution of a single simulation day using the Command Pattern.</p>
 <td><p>Formats raw simulation outputs into structured daily log dictionary.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.run_day" title="src.pipeline.simulations.day_context.run_day"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_day</span></code></a></p></td>
-<td><p>Orchestrates a single simulation day using the Command Pattern.</p></td>
+<td><p>Orchestrates a single simulation day using the Command Pattern.
+Args:
+context: The simulation context for the day.</p></td>
 </tr>
 </tbody>
 </table>
@@ -640,9 +649,10 @@ config: Configuration dictionary.
 cost_weight: Weight for length.
 waste_weight: Weight for waste.
 overflow_penalty: Weight for overflows.
-engine: Policy engine.
-threshold: Decision threshold.
-seed: Base seed for the simulation.</p>
+engine: The policy engine type (e.g., ‘neural’, ‘classical’).
+threshold: Decision threshold for bin selection.
+seed: Base seed for the simulation.
+policy_seed: Policy-specific seed for RNG isolation.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Mutable attributes added during run_day
 daily_log: Dictionary for daily logs.
 output_dict: Dictionary for output results.
@@ -949,6 +959,8 @@ time: Elapsed time for policy execution.
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.field_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_names</span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.field_names" title="Link to this definition">#</a></dt>
 <dd><p>Returns the names of all fields in the dataclass.</p>
+<p>Returns:
+List of field names.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -961,36 +973,56 @@ time: Elapsed time for policy execution.
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Dictionary-like access to context fields.</p>
+<p>Args:
+key: The key to access.</p>
+<p>Returns:
+The value associated with the key.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.__setitem__">
 <span class="sig-name descname"><span class="pre">__setitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.__setitem__" title="Link to this definition">#</a></dt>
 <dd><p>Allow setting context fields via dictionary syntax.</p>
+<p>Args:
+key: The name of the field to set.
+value: The value to assign to the field.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.get" title="Link to this definition">#</a></dt>
 <dd><p>Safely get a value from the context with an optional default.</p>
+<p>Args:
+key: The name of the field to retrieve.
+default: The default value to return if the field does not exist.</p>
+<p>Returns:
+The value of the specified field or the default.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.__iter__">
 <span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.__iter__" title="Link to this definition">#</a></dt>
 <dd><p>Return an iterator over field names to support Mapping interface.</p>
+<p>Returns:
+Iterator over the field names.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.__len__" title="Link to this definition">#</a></dt>
 <dd><p>Return the number of fields to support Mapping interface.</p>
+<p>Returns:
+Number of fields in the dataclass.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.__contains__">
 <span class="sig-name descname"><span class="pre">__contains__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.__contains__" title="Link to this definition">#</a></dt>
 <dd><p>Check if a field exists in the context.</p>
+<p>Args:
+key: The name of the field to check.</p>
+<p>Returns:
+True if the field exists, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>
@@ -999,18 +1031,42 @@ time: Elapsed time for policy execution.
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.set_daily_waste">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">set_daily_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.set_daily_waste" title="Link to this definition">#</a></dt>
 <dd><p>Updates neural model input with current bin waste levels.</p>
+<p>Args:
+model_data: Dictionary of model input tensors.
+waste: Array of current waste levels for all bins.
+device: Target torch device.
+fill: Array of current fill levels for all bins.</p>
+<p>Returns:
+Updated model_data dictionary moved to the target device.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.get_daily_results">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_daily_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_collected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_overflows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_lost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_daily_results" title="Link to this definition">#</a></dt>
 <dd><p>Formats raw simulation outputs into structured daily log dictionary.</p>
+<p>Args:
+total_collected: Total weight of waste collected (kg).
+ncol: Number of bins collected.
+cost: Total distance traveled (km).
+tour: List of node indices in the collection route.
+day: Current simulation day index.
+new_overflows: Number of new overflows occurred.
+sum_lost: Amount of waste lost due to overflows (kg).
+coordinates: DataFrame containing bin metadata and coordinates.
+profit: Total profit from collected waste.
+time: Execution time of the routing policy (s).</p>
+<p>Returns:
+Dictionary containing formatted daily metrics and the route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.run_day">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">run_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.pipeline.simulations.day_context.SimulationDayContext" title="src.pipeline.simulations.day_context.SimulationDayContext"><span class="pre">src.pipeline.simulations.day_context.SimulationDayContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.pipeline.simulations.day_context.SimulationDayContext" title="src.pipeline.simulations.day_context.SimulationDayContext"><span class="pre">src.pipeline.simulations.day_context.SimulationDayContext</span></a></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.run_day" title="Link to this definition">#</a></dt>
-<dd><p>Orchestrates a single simulation day using the Command Pattern.</p>
+<dd><p>Orchestrates a single simulation day using the Command Pattern.
+Args:
+context: The simulation context for the day.</p>
+<p>Returns:
+The updated context after executing all daily actions.</p>
 </dd></dl>
 
 </section>

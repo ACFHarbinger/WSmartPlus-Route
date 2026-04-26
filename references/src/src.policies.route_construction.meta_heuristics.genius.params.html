@@ -506,6 +506,10 @@ document.write(`
 Gendreau, M., Hertz, A., &amp; Laporte, G. (1992).
 “New Insertion and Postoptimization Procedures for the Traveling Salesman Problem”
 Operations Research, 40(6), 1086-1094.</p>
+<p>Attributes:
+GENIUSParams: Dataclass for configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; params = GENIUSParams(neighborhood_size=5, n_iterations=2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -553,7 +557,10 @@ cost-aware operators (False).
 time_limit: Wall-clock time limit in seconds. Set to 0 for no limit.
 random_us_sampling: Whether to use random sampling (True) or deterministic
 p-neighborhood search (False) for US operators. Default: False for
-strict adherence to Gendreau et al. (1992).</p>
+strict adherence to Gendreau et al. (1992).
+seed: Random seed for reproducibility.</p>
+<p>Example:
+&gt;&gt;&gt; params = GENIUSParams(neighborhood_size=5)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams.neighborhood_size">
 <span class="sig-name descname"><span class="pre">neighborhood_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams.neighborhood_size" title="Link to this definition">#</a></dt>
@@ -612,6 +619,10 @@ strict adherence to Gendreau et al. (1992).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams" title="src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams"><span class="pre">src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object (dict or Hydra-style object).</p>
+<p>Returns:
+GENIUSParams: Initialized parameter object.</p>
 </dd></dl>
 
 </dd></dl>

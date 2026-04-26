@@ -503,16 +503,11 @@ document.write(`
 <p>This module implements a structurally correct Evolution Strategy (ES) specifically
 adapted for discrete routing domains. It follows the metric-based design guidelines
 and the age-based selection scheme described in Emmerich et al. (2015).</p>
-<p>Key Algorithmic Components:
-- <strong>Self-Adaptive Mutation</strong>: Each individual evolves its own mutation strength
-(n_removal), serving as the discrete analog to the continuous step-size σ
-.
-- <strong>Independent Recombination Selection</strong>: Parents are sampled with replacement
-to maintain high selection pressure.
-- <strong>(μ,κ,λ) Selection Pool</strong>: The survivor pool consists of λ offspring and
-μ parents whose age has not exceeded κ generations.
-- <strong>Memetic Refinement</strong>: Post-mutation local search ensures offspring reach
-local minima within the discrete landscape.</p>
+<p>Attributes:
+MuKappaLambdaESSolver: Main solver class for (μ,κ,λ)-ES.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MuKappaLambdaESSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>References:
 [2] Emmerich, M., Shir, O. M., &amp; Wang, H. (2015). Evolution Strategies.
 In: Handbook of Natural Computing.</p>
@@ -535,9 +530,22 @@ In: Handbook of Natural Computing.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.</span></span><span class="sig-name descname"><span class="pre">MuKappaLambdaESSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver" title="Link to this definition">#</a></dt>
 <dd><p>(μ,κ,λ) Evolution Strategy solver adapted for VRP.</p>
-<p>This solver optimizes the Vehicle Routing Problem with Profits (VRPP) by
-simulating a generational evolutionary process. It employs deterministic
-truncation selection over an age-limited pool.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+rng: Random number generator.
+np_rng: NumPy random generator.
+ls: Local search optimizer.
+n_evaluations: Total number of fitness evaluations.
+best_individual: Elitist solution found during search.
+convergence_curve: History of best fitness values.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the solver and pre-instantiates local search operators.</p>
 <p>Args:
@@ -546,15 +554,17 @@ wastes: Mapping of node IDs to waste quantities.
 capacity: Vehicle capacity constraint.
 R: Revenue per unit waste.
 C: Cost per unit distance.
-params: Configuration dataclass for (μ,κ,λ) parameters.
-mandatory_nodes: Nodes that must be included in feasible solutions.</p>
+params: Configuration for (μ,κ,λ) parameters.
+mandatory_nodes: Nodes that must be included.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Executes the optimization loop according to the (μ,κ,λ)-ES scheme.</p>
 <p>This follows the high-level loop defined in Algorithm 1.</p>
 <p>Returns:
-A tuple of (best_routes, best_profit, best_cost).</p>
+Tuple of (best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -607,18 +617,30 @@ The mutated individual.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Calculates net profit and increments evaluation counter.</p>
+<p>Args:
+routes: Routing sequences to evaluate.</p>
+<p>Returns:
+Calculated net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculates total distance traveled across all routes.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Total distance traveled.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._update_best">
 <span class="sig-name descname"><span class="pre">_update_best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._update_best" title="Link to this definition">#</a></dt>
 <dd><p>Updates the global elitist solution tracker.</p>
+<p>Args:
+population: Current population to select the best from.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

@@ -470,7 +470,6 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -522,20 +521,14 @@ operator may have mutated <code class="docutils literal notranslate"><span class
 <p>TourAdapter._updated
 Boolean flag set to <code class="docutils literal notranslate"><span class="pre">True</span></code> the first time <code class="docutils literal notranslate"><span class="pre">_update_map</span></code> is called,
 allowing callers to detect whether an operator applied a move.</p>
-</section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.helpers.operators.heuristics._tour_adapter import TourAdapter
-adapter = TourAdapter(tour, distance_matrix)
-applied = move_kopt_intra(adapter, u=u, v=v, r_u=0, p_u=i, r_v=0, p_v=j, k=2)
-if applied:
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.search_heuristics._tour_adapter import TourAdapter
+&gt;&gt;&gt; adapter = TourAdapter(tour, distance_matrix)
+&gt;&gt;&gt; applied = move_kopt_intra(adapter, u=u, v=v, r_u=0, p_u=i, r_v=0, p_v=j, k=2)
+&gt;&gt;&gt; if applied:
 …     tour = adapter.to_closed_tour()</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </section>
 <p>LKH-3 Tour Adapter Module.</p>
 <p>Provides :class:<code class="docutils literal notranslate"><span class="pre">TourAdapter</span></code>, a thin shim that lets the flat <code class="docutils literal notranslate"><span class="pre">List[int]</span></code>
@@ -573,17 +566,30 @@ operator interface shared across the local-search framework.</p>
 <code class="docutils literal notranslate"><span class="pre">routes[0]</span></code>, exposes the distance matrix and a unit cost scale, and
 records whether <code class="docutils literal notranslate"><span class="pre">_update_map</span></code> was invoked so callers can detect that a
 move was applied.</p>
+<p>Attributes:
+routes (List[List[int]]): List of current routes (single route here).
+d (np.ndarray): Distance matrix.
+C (float): Cost scale factor.
+_updated (bool): Flag set to True if a move was applied.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the tour adapter.</p>
+<p>Args:
+tour: The tour list (can be open or closed).
+distance_matrix: The distance matrix indexed by node ID.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter._update_map">
-<span class="sig-name descname"><span class="pre">_update_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_set</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter._update_map" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_update_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter._update_map" title="Link to this definition">#</a></dt>
 <dd><p>Record that the route was mutated by an operator.</p>
+<p>Args:
+route_set: The mutated route set.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.to_closed_tour">
 <span class="sig-name descname"><span class="pre">to_closed_tour</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.to_closed_tour" title="Link to this definition">#</a></dt>
 <dd><p>Return the current route as a closed tour (first node repeated at end).</p>
+<p>Returns:
+List[int]: Closed tour node sequence.</p>
 </dd></dl>
 
 </dd></dl>
@@ -639,7 +645,6 @@ move was applied.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

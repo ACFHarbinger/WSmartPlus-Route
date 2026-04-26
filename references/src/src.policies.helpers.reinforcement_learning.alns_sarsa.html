@@ -521,30 +521,12 @@ document.write(`
 <span id="src-policies-helpers-reinforcement-learning-alns-sarsa"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.alns_sarsa" title="src.policies.helpers.reinforcement_learning.alns_sarsa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.alns_sarsa</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.alns_sarsa" title="Link to this heading">#</a></h1>
 <p>Enhanced Adaptive Large Neighborhood Search (ALNS) with SARSA Reinforcement Learning.</p>
 <p>This module implements an advanced ALNS solver that uses SARSA (State-Action-Reward-State-Action)
-reinforcement learning to intelligently select destroy/repair operators. It includes all available
-operators from the codebase:</p>
-<p>Destroy Operators:
-- Random removal
-- Worst removal
-- Cluster removal
-- Shaw removal (relatedness-based)
-- String removal (contiguous segments)
-- Unstringing Type I-IV (GENIUS removal)</p>
-<p>Repair Operators:
-- Greedy insertion
-- Regret-2 insertion
-- Regret-k insertion (extended)
-- Greedy blink insertion (randomized)
-- Stringing Type I-IV (GENIUS reinsertion)</p>
-<p>Perturbation Operators:
-- Route shuffling
-- Node sequence reversal
-- Random restart from strong perturbation</p>
-<p>Unstringing and Stringing Operators (US):
-- Type I: Single string removal/insertion
-- Type II: Multiple string removal/insertion
-- Type III: Propagating string removal/insertion
-- Type IV: Clustered string removal/insertion</p>
+reinforcement learning to intelligently select destroy/repair operators.</p>
+<p>Attributes:
+ALNSSARSASolver: Main solver class implementing ALNS-SARSA.</p>
+<p>Example:
+&gt;&gt;&gt; solver = ALNSSARSASolver(dist_matrix, wastes, capacity, R, C, params, rl_params)
+&gt;&gt;&gt; best_routes, profit, cost = solver.solve()</p>
 <p>Reference:
 Sutton &amp; Barto, “Reinforcement Learning: An Introduction”, 2nd Ed., 2018.
 Pisinger &amp; Ropke, “A general heuristic for vehicle routing problems”, 2007.</p>
@@ -568,144 +550,272 @@ Pisinger &amp; Ropke, “A general heuristic for vehicle routing problems”, 20
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.alns_sarsa.</span></span><span class="sig-name descname"><span class="pre">ALNSSARSASolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rl_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver" title="Link to this definition">#</a></dt>
 <dd><p>Enhanced ALNS solver with SARSA reinforcement learning for operator selection.</p>
 <p>Includes all destroy, repair, perturbation, and unstringing operators.</p>
+<p>Attributes:
+dist_matrix: Problem distance matrix.
+wastes: Dictionary of node waste demands.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+params: Configuration parameters for the solver.
+rl_params: Hyperparameters for the RL agent.
+mandatory_nodes: Nodes that must be visited.
+evaluator: Optional objective evaluation function.
+destroy_ops: List of destruction operators.
+repair_ops: List of repair operators.
+perturbation_ops: List of perturbation operators.
+agent: SARSA RL agent for operator selection.
+feature_extractor: State feature extractor for the RL agent.
+stagnation_count: Number of iterations since last improvement.
+diversity_history: History of solution diversity scores.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize enhanced ALNS-SARSA solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste quantities.
+capacity: Maximum vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance traveled.
+params: General solver configuration.
+rl_params: Hyperparameters for the RL agent.
+mandatory_nodes: Nodes that must be included in the solution.
+evaluator: Optional custom objective evaluation function.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_destroy_operators">
 <span class="sig-name descname"><span class="pre">_init_destroy_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_destroy_operators" title="Link to this definition">#</a></dt>
-<dd><p>Initialize all destroy operators.</p>
+<dd><p>Initialize all destroy operators, including standard and unstringing ones.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_repair_operators">
 <span class="sig-name descname"><span class="pre">_init_repair_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_repair_operators" title="Link to this definition">#</a></dt>
-<dd><p>Initialize all repair operators.</p>
+<dd><p>Initialize all repair operators, including standard and stringing ones.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_perturbation_operators">
 <span class="sig-name descname"><span class="pre">_init_perturbation_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._init_perturbation_operators" title="Link to this definition">#</a></dt>
-<dd><p>Initialize all perturbation operators.</p>
+<dd><p>Initialize all perturbation operators for escaping local optima.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_random">
 <span class="sig-name descname"><span class="pre">_destroy_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_random" title="Link to this definition">#</a></dt>
 <dd><p>Random removal.</p>
+<p>Args:
+routes: Current set of routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_worst">
 <span class="sig-name descname"><span class="pre">_destroy_worst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_worst" title="Link to this definition">#</a></dt>
 <dd><p>Worst removal (highest cost nodes).</p>
+<p>Args:
+routes: Current set of routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_cluster">
 <span class="sig-name descname"><span class="pre">_destroy_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_cluster" title="Link to this definition">#</a></dt>
 <dd><p>Cluster removal (spatially related nodes).</p>
+<p>Args:
+routes: Current set of routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_shaw">
 <span class="sig-name descname"><span class="pre">_destroy_shaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_shaw" title="Link to this definition">#</a></dt>
 <dd><p>Shaw removal (multi-criteria relatedness).</p>
+<p>Args:
+routes: Current set of routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_string">
 <span class="sig-name descname"><span class="pre">_destroy_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._destroy_string" title="Link to this definition">#</a></dt>
 <dd><p>String removal (contiguous segments).</p>
+<p>Args:
+routes: Current set of routes.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_greedy">
 <span class="sig-name descname"><span class="pre">_repair_greedy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_greedy" title="Link to this definition">#</a></dt>
 <dd><p>Greedy insertion.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_regret2">
 <span class="sig-name descname"><span class="pre">_repair_regret2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_regret2" title="Link to this definition">#</a></dt>
 <dd><p>Regret-2 insertion.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_regretk">
 <span class="sig-name descname"><span class="pre">_repair_regretk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_regretk" title="Link to this definition">#</a></dt>
 <dd><p>Regret-k insertion (extended from regret-2).</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.
+k: Number of alternatives to consider for regret.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_greedy_blink">
 <span class="sig-name descname"><span class="pre">_repair_greedy_blink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blink_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_greedy_blink" title="Link to this definition">#</a></dt>
 <dd><p>Greedy insertion with randomized blinks.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.
+blink_rate: Probability of skipping a potential insertion point.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_i">
 <span class="sig-name descname"><span class="pre">_repair_string_type_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_i" title="Link to this definition">#</a></dt>
 <dd><p>Type-I stringing repair.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_ii">
 <span class="sig-name descname"><span class="pre">_repair_string_type_ii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_ii" title="Link to this definition">#</a></dt>
 <dd><p>Type-II stringing repair.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_iii">
 <span class="sig-name descname"><span class="pre">_repair_string_type_iii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_iii" title="Link to this definition">#</a></dt>
 <dd><p>Type-III stringing repair.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_iv">
 <span class="sig-name descname"><span class="pre">_repair_string_type_iv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._repair_string_type_iv" title="Link to this definition">#</a></dt>
 <dd><p>Type-IV stringing repair.</p>
+<p>Args:
+routes: Current set of routes.
+removed: List of nodes to reinsert.</p>
+<p>Returns:
+Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_wrapper">
 <span class="sig-name descname"><span class="pre">_unstring_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_wrapper" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper to apply unstringing moves globally as a destroy operator.</p>
+<p>Args:
+routes: Current set of routes.
+n: Max number of nodes to remove.
+op_type: Type of unstringing operation (1-4).</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_i">
 <span class="sig-name descname"><span class="pre">_unstring_type_i</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_i" title="Link to this definition">#</a></dt>
 <dd><p>Type-I unstringing.</p>
+<p>Args:
+routes: Current set of routes.
+n: Max number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_ii">
 <span class="sig-name descname"><span class="pre">_unstring_type_ii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_ii" title="Link to this definition">#</a></dt>
 <dd><p>Type-II unstringing.</p>
+<p>Args:
+routes: Current set of routes.
+n: Max number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_iii">
 <span class="sig-name descname"><span class="pre">_unstring_type_iii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_iii" title="Link to this definition">#</a></dt>
 <dd><p>Type-III unstringing.</p>
+<p>Args:
+routes: Current set of routes.
+n: Max number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_iv">
 <span class="sig-name descname"><span class="pre">_unstring_type_iv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._unstring_type_iv" title="Link to this definition">#</a></dt>
 <dd><p>Type-IV unstringing.</p>
+<p>Args:
+routes: Current set of routes.
+n: Max number of nodes to remove.</p>
+<p>Returns:
+Tuple of (new_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._perturb_kick">
 <span class="sig-name descname"><span class="pre">_perturb_kick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._perturb_kick" title="Link to this definition">#</a></dt>
 <dd><p>Perturbation operator: removes random nodes and reinserts them greedily.</p>
+<p>Args:
+routes: Current set of routes.</p>
+<p>Returns:
+Perturbed routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._perturb_random">
 <span class="sig-name descname"><span class="pre">_perturb_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._perturb_random" title="Link to this definition">#</a></dt>
 <dd><p>Perturbation operator: performs random swaps to escape local optima.</p>
+<p>Args:
+routes: Current set of routes.</p>
+<p>Returns:
+Perturbed routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -725,24 +835,40 @@ Tuple[List[List[int]], float, float]: (best_routes, best_profit, best_cost).</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._initialize_solve">
 <span class="sig-name descname"><span class="pre">_initialize_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._initialize_solve" title="Link to this definition">#</a></dt>
 <dd><p>Initialize solution and metrics.</p>
+<p>Args:
+initial_solution: Optional starting routes.</p>
+<p>Returns:
+Tuple of (current_routes, best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calc_removal_size">
 <span class="sig-name descname"><span class="pre">_calc_removal_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calc_removal_size" title="Link to this definition">#</a></dt>
 <dd><p>Calculate number of nodes to remove based on current solution size.</p>
+<p>Args:
+routes: Current set of routes.</p>
+<p>Returns:
+Random number of nodes to remove.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity">
-<span class="sig-name descname"><span class="pre">_calculate_diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_calculate_diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver._calculate_diversity" title="Link to this definition">#</a></dt>
 <dd><p>Calculate solution diversity (simple measure based on route variation).</p>
+<p>Args:
+routes: Current set of routes.</p>
+<p>Returns:
+Diversity score in [0, 1].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.alns_sarsa.ALNSSARSASolver.calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Args:
+routes: Set of routes to evaluate.</p>
+<p>Returns:
+Total weighted routing cost.</p>
 </dd></dl>
 
 </dd></dl>

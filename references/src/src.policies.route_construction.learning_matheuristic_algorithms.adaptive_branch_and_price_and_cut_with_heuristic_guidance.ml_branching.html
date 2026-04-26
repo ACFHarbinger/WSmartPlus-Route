@@ -496,6 +496,60 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-ml-branching"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching" title="Link to this heading">#</a></h1>
 <p>ML-Guided Node Selection and Variable Fixing.</p>
+<p>Attributes:
+MLBranchingStrategy: A class that implements the ML-guided node selection and variable fixing strategy.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Role in the Pipeline
+--------------------
+Plugs into the BPC Branch-and-Bound tree as the variable-selection oracle.
+At each fractional LP relaxation, the oracle selects the variable to branch
+on.  Two modes are supported:
+
+**GNN surrogate (when** ``model`` **is set)**
+    A graph neural network trained via imitation learning on strong-
+    branching decisions encodes the B&amp;B state as a bipartite graph and
+    predicts a ranking score for each fractional variable.  Inference is
+    O(|variables|) per node, compared to O(|variables| · LP_solves) for
+    exact strong branching.
+
+**Reliability branching (fallback)**
+    Selects the variable with the highest pseudo-cost score:
+
+        Score(xᵢ) = min(Ψ↓ᵢ, Ψ↑ᵢ) + c · max(Ψ↓ᵢ, Ψ↑ᵢ)
+
+    Variables not yet evaluated (no pseudo-cost history) receive score
+    +∞ to prioritise exploration of unexplored candidates first.
+
+Pseudo-cost Update
+------------------
+After each exact evaluation (strong branching or child LP solve):
+
+    Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+
+where Δ is the observed objective degradation per unit of fractionality,
+and α is the EMA coefficient (``pseudocost_ema_alpha``).
+
+GNN Feature Representation
+--------------------------
+``compute_gnn_features`` constructs a bipartite graph representation of
+the current fractional LP state:
+
+Node features (one per fractional variable):
+    [current_fill, mean_fill_rate, variance_of_scenario_prizes,
+     expected_days_to_overflow]
+
+Edge features (one per fractional arc in the LP):
+    [λ_ij, |reduced_cost_ij|]
+
+This representation is compatible with standard B&amp;B GNN architectures
+(e.g. Gasse et al. 2019, Nair et al. 2020).
+</pre></div>
+</div>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from my_gnn_model_pkg import load_gnn_branching_model
+&gt;&gt;&gt; model = load_gnn_branching_model(“path/to/trained.pth”)
+&gt;&gt;&gt; branching_oracle = MLBranchingStrategy(model=model)
+…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -552,7 +606,7 @@ expected_days_to_overflow]</p>
 [λ_ij, |reduced_cost_ij|]</p>
 <p>This representation is compatible with standard B&amp;B GNN architectures
 (e.g. Gasse et al. 2019, Nair et al. 2020).</p>
-<p class="rubric" id="id4">Attributes</p>
+<p class="rubric" id="id4">Attributes:</p>
 <p>model : Any or None
 Trained GNN branching model.  <code class="docutils literal notranslate"><span class="pre">None</span></code> activates the reliability
 branching fallback for the entire solve.
@@ -627,7 +681,7 @@ Otherwise, reliability branching is applied.</p>
 <p>Args:
 fractional_vars: Fractional variable objects (0 &lt; λ &lt; 1) from
 the current master LP relaxation.  Each must expose <code class="docutils literal notranslate"><span class="pre">.id</span></code>.
-**kwargs: Optional keyword arguments forwarded to the GNN model’s
+kwargs: Optional keyword arguments forwarded to the GNN model’s
 inference routine (e.g. pre-computed graph features).</p>
 <p>Returns:
 The variable object from <code class="docutils literal notranslate"><span class="pre">fractional_vars</span></code> selected for

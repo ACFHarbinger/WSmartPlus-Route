@@ -512,6 +512,11 @@ hierarchical population management. The algorithm maintains active teams
 Moghdani, R., &amp; Salimifard, K. (2018). “Volleyball Premier League
 Algorithm.” Applied Soft Computing, 64, 161-185.
 DOI: https://doi.org/10.1016/j.asoc.2017.11.043</p>
+<p>Attributes:
+VPLSolver: The solver class.</p>
+<p>Example:
+&gt;&gt;&gt; solver = VPLSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,6 +539,18 @@ DOI: https://doi.org/10.1016/j.asoc.2017.11.043</p>
 <p>Implements the VPL algorithm with dual population structure (active and
 passive teams) and four core phases: team formation, competition,
 substitution, and coaching/learning.</p>
+<p>Attributes:
+dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
+wastes: Dictionary mapping node index to waste/profit value.
+capacity: Vehicle capacity constraint.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+params: VPL algorithm parameters.
+mandatory_nodes: List of nodes that must be visited.
+n_nodes: Number of nodes (excluding depot).
+nodes: List of node indices (1 to n_nodes).
+random: Random number generator instance.
+ls: ACOLocalSearch instance for local search operations.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize VPL solver.</p>
 <p>Args:

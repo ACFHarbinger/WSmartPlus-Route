@@ -491,6 +491,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks">
 <span id="src-pipeline-callbacks"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks" title="src.pipeline.callbacks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks" title="Link to this heading">#</a></h1>
 <p>Callbacks for WSmart-Route.</p>
+<p>Provides PyTorch Lightning callbacks for training monitoring and
+non-Lightning callbacks for simulation display.</p>
+<p>Attributes:
+TrainingDisplayCallback: Rich/Plotext terminal dashboard for live training metrics.
+ReptileCallback: Reptile meta-learning outer-loop update callback.
+SpeedMonitor: Per-step and per-epoch timing monitor callback.
+ModelSummaryCallback: Detailed model architecture summary at training start.
+SimulationDisplayCallback: Real-time terminal dashboard for simulation runs.
+PolicySummaryCallback: Policy configuration summary before simulation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks import TrainingDisplayCallback, SpeedMonitor
+&gt;&gt;&gt; callbacks = [TrainingDisplayCallback(metric_keys=”train/reward”), SpeedMonitor()]</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

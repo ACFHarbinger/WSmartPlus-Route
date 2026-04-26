@@ -487,6 +487,13 @@ document.write(`
 <p>This package contains the core logic for the waste collection simulation,
 including bin dynamics (physics), routing network analysis, daily execution
 pipeline (actions), and data persistence.</p>
+<p>Attributes:
+Simulator: Main orchestrator for the simulation environment.
+SimulationState: Dataclass representing the current state of a simulation run.</p>
+<p>Example:
+&gt;&gt;&gt; # from logic.src.pipeline.simulations.orchestrator import Simulator
+&gt;&gt;&gt; # sim = Simulator(cfg)
+&gt;&gt;&gt; # results = sim.run()</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

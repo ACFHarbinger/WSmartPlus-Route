@@ -493,6 +493,11 @@ document.write(`
 <p>Type II Unstringing Operator.</p>
 <p>Involves three neighbor nodes (V_j, V_k, V_l) and complex reversals.
 This is the correct Type II implementation (formerly III).</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii import apply_type_ii_us
+&gt;&gt;&gt; new_route = apply_type_ii_us(route, i, j, k, l)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -531,11 +536,13 @@ S2 = (V_{k+1}…V_j)
 S3 = (V_{j+1}…V_l)</p>
 <p>Inserts arcs: (V_{i-1}, V_k), (V_{i+1}, V_j), (V_{k+1}, V_l), (V_{j+1}, V_{l+1})</p>
 <p>Args:
-route: The tour.
-i: Index of V_i.
-j, k, l: Indices of neighbor nodes conforming to the Type II topology.</p>
+route (List[int]): The tour.
+i (int): Index of V_i.
+j (int): Index of neighbor node j.
+k (int): Index of neighbor node k.
+l (int): Index of neighbor node l.</p>
 <p>Returns:
-Modified tour.</p>
+List[int]: Modified tour.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -543,14 +550,17 @@ Modified tour.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii.</span></span><span class="sig-name descname"><span class="pre">apply_type_ii_us_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii.apply_type_ii_us_profit" title="Link to this definition">#</a></dt>
 <dd><p>Apply Type II Unstringing and return profit delta.</p>
 <p>Args:
-route: The tour.
-i: Index of V_i.
-j, k, l: Indices as defined in apply_type_ii_us.
-dist_matrix: Distance matrix.
-wastes: Waste levels.
-R, C: Revenue and cost multipliers.</p>
+route (List[int]): The tour.
+i (int): Index of V_i.
+j (int): Index of neighbor node j.
+k (int): Index of neighbor node k.
+l (int): Index of neighbor node l.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste levels.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
 <p>Returns:
-(new_route, delta_profit)</p>
+Tuple[List[int], float]: (new_route, delta_profit)</p>
 </dd></dl>
 
 </section>

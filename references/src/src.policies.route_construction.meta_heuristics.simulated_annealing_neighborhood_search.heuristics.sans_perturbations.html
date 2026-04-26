@@ -505,6 +505,27 @@ document.write(`
 <p>Implements specialized operators for the SANS policy variant, including
 destroy and repair heuristics (add/remove bins) and multi-node relocations
 (n-move, n-swap) in both random and consecutive modes.</p>
+<p>Attributes:
+remove_bins_from_route: Remove random bins from a single route.
+move_n_route_random: Move n random bins from one route to another.
+swap_n_route_random: Swap n random bins between two distinct routes.
+remove_n_bins_random: Remove n random bins from routes and add them to the removed pool.
+add_n_bins_random: Add n random bins from the removed pool back into routes.
+add_route_with_removed_bins_random: Create a new route from random bins in the removed pool.
+move_n_route_consecutive: Move a sequence of consecutive bins from one route to another.
+swap_n_route_consecutive: Swap a sequence of consecutive bins between two distinct routes.
+remove_n_bins_consecutive: Remove a sequence of consecutive bins from routes and add them to the removed pool.
+add_n_bins_consecutive: Add a sequence of consecutive bins from the removed pool back into routes.
+add_route_with_removed_bins_consecutive: Create a new route from a sequence of consecutive bins in the removed pool.</p>
+<p>Example:
+&gt;&gt;&gt; import random
+&gt;&gt;&gt; routes = [[0, 1, 2, 3, 0], [0, 4, 5, 6, 0]]
+&gt;&gt;&gt; bins_cannot_removed = {1, 4}
+&gt;&gt;&gt; rng = random.Random()
+&gt;&gt;&gt; removed_bins = set()
+&gt;&gt;&gt; new_routes = remove_bins_from_route(routes, bins_cannot_removed, rng, num_bins=1)
+&gt;&gt;&gt; new_routes
+[[0, 2, 3, 0], [0, 4, 5, 6, 0]]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -623,36 +644,86 @@ Mutated solution.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_n_bins_random">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">add_n_bins_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_to_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_n_bins_random" title="Link to this definition">#</a></dt>
 <dd><p>Add n random bins from the removed pool back into routes.</p>
+<p>Args:
+routes_list (List[List[int]]): Current routes.
+removed_bins (set): Set of removed bins to update.
+stocks (dict): Dictionary of bin stocks.
+vehicle_capacity (float): Vehicle capacity.
+id_to_index (dict): Mapping from bin IDs to their indices.
+distance_matrix: Distance matrix.
+rng (Random): Random number generator.
+n (int, optional): Number of bins to add.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_route_with_removed_bins_random">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">add_route_with_removed_bins_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_route_with_removed_bins_random" title="Link to this definition">#</a></dt>
 <dd><p>Create a new route from random bins in the removed pool.</p>
+<p>Args:
+routes_list (List[List[int]]): Current routes.
+removed_bins (set): Set of removed bins to update.
+stocks (dict): Dictionary of bin stocks.
+vehicle_capacity (float): Vehicle capacity.
+rng (Random): Random number generator.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.move_n_route_consecutive">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">move_n_route_consecutive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.move_n_route_consecutive" title="Link to this definition">#</a></dt>
 <dd><p>Move a sequence of consecutive bins from one route to another.</p>
+<p>Args:
+routes_list (List[List[int]]): Current routes.
+rng (Random): Random number generator.
+n (int, optional): Number of bins to move.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.swap_n_route_consecutive">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">swap_n_route_consecutive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.swap_n_route_consecutive" title="Link to this definition">#</a></dt>
 <dd><p>Swap consecutive segments between two routes.</p>
+<p>Args:
+routes_list (List[List[int]]): Current routes.
+rng (Random): Random number generator.
+n (int, optional): Number of bins to swap.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.remove_n_bins_consecutive">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">remove_n_bins_consecutive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_cannot_removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.remove_n_bins_consecutive" title="Link to this definition">#</a></dt>
 <dd><p>Remove a consecutive sequence of bins from a route.</p>
+<p>Args:
+routes_list: Current routes.
+removed_bins: Set of removed bins to update.
+bins_cannot_removed: Bins that must stay in routes.
+rng: Random number generator.
+n: Number of bins to remove.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_n_bins_consecutive">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">add_n_bins_consecutive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_to_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_n_bins_consecutive" title="Link to this definition">#</a></dt>
 <dd><p>Add a sequence of bins from removed set as a consecutive segment.</p>
+<p>Args:
+routes_list: Current routes.
+removed_bins: Set of removed bins to update.
+stocks: Dictionary of bin stocks.
+vehicle_capacity: Vehicle capacity.
+id_to_index: Mapping from bin IDs to their indices.
+distance_matrix: Distance matrix.
+rng: Random number generator.
+n: Number of bins to add.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -660,6 +731,14 @@ Mutated solution.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.</span></span><span class="sig-name descname"><span class="pre">add_route_with_removed_bins_consecutive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.add_route_with_removed_bins_consecutive" title="Link to this definition">#</a></dt>
 <dd><p>Alias for random version as ‘consecutive’ doesn’t strictly apply to a sequence
 created from a pool, but we maintain the interface.</p>
+<p>Args:
+routes_list: Current routes.
+removed_bins: Set of removed bins to update.
+stocks: Dictionary of bin stocks.
+vehicle_capacity: Vehicle capacity.
+rng: Random number generator.</p>
+<p>Returns:
+Mutated solution.</p>
 </dd></dl>
 
 </section>

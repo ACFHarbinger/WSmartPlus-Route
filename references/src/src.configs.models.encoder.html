@@ -509,6 +509,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.models.encoder">
 <span id="src-configs-models-encoder"></span><h1><a class="reference internal" href="#module-src.configs.models.encoder" title="src.configs.models.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.encoder</span></code></a><a class="headerlink" href="#module-src.configs.models.encoder" title="Link to this heading">#</a></h1>
 <p>Encoder Config module.</p>
+<p>Attributes:
+EncoderConfig: Encoder architecture configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.models import EncoderConfig
+&gt;&gt;&gt; config = EncoderConfig()
+&gt;&gt;&gt; print(config)
+EncoderConfig(enc_ff=256, n_heads=2, n_layers=2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +535,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.models.encoder.EncoderConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.models.encoder.</span></span><span class="sig-name descname"><span class="pre">EncoderConfig</span></span><a class="headerlink" href="#src.configs.models.encoder.EncoderConfig" title="Link to this definition">#</a></dt>
 <dd><p>Encoder architecture configuration.</p>
+<p>Attributes:
+type (str): Type of encoder.
+embed_dim (int): Dimension of the embedding vectors.
+hidden_dim (int): Dimension of the hidden layers.
+n_layers (int): Number of layers.
+n_heads (int): Number of attention heads.
+n_sublayers (Optional[int]): Number of sublayers.
+normalization (NormalizationConfig): Normalization configuration.
+activation (ActivationConfig): Activation function configuration.
+dropout (float): Dropout rate.
+mask_inner (bool): Whether to mask inner layers.
+mask_graph (bool): Whether to mask graph.
+spatial_bias (bool): Whether to use spatial bias.
+connection_type (str): Type of connection.
+aggregation_graph (str): Aggregation method for graph.
+aggregation_node (str): Aggregation method for nodes.
+spatial_bias_scale (float): Scale of spatial bias.
+hyper_expansion (int): Hyper expansion value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.models.encoder.EncoderConfig.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.models.encoder.EncoderConfig.type" title="Link to this definition">#</a></dt>

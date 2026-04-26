@@ -505,6 +505,13 @@ the history of previous evaluations and their rewards.</p>
 - Action: Next hyperparameter configuration to evaluate
 - Reward: Improvement in validation performance
 - Policy Network: LSTM-based network that processes history and generates configs</p>
+<p>Attributes:
+HypRLHPO: Hyp-RL HPO class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import HypRLHPO
+&gt;&gt;&gt; hyp_rl_hpo = HypRLHPO(cfg, objective_fn)
+&gt;&gt;&gt; hyp_rl_hpo
+&lt;logic.src.pipeline.rl.hpo.hyp_rl.HypRLHPO object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,6 +536,22 @@ the history of previous evaluations and their rewards.</p>
 configurations to evaluate next, based on the history of evaluations.</p>
 <p>The policy is trained with REINFORCE using the improvement in validation
 performance as the reward signal.</p>
+<p>Attributes:
+search_space: Search space.
+state_dim: Dimension of state embeddings.
+hidden_dim: Hidden dimension of LSTM.
+n_layers: Number of LSTM layers.
+policy_lr: Learning rate of policy.
+entropy_weight: Weight of entropy regularization.
+gamma: Discount factor.
+device: Device.
+policy: LSTM-based policy network.
+optimizer: Optimizer.
+episode_configs: List of configurations.
+episode_log_probs: List of log probabilities.
+episode_rewards: List of rewards.
+best_value: Best value.
+best_config: Best configuration.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Hyp-RL HPO.</p>
 <p>Args:

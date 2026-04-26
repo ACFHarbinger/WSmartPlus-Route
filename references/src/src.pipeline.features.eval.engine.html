@@ -500,6 +500,46 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.eval.engine">
 <span id="src-pipeline-features-eval-engine"></span><h1><a class="reference internal" href="#module-src.pipeline.features.eval.engine" title="src.pipeline.features.eval.engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.eval.engine</span></code></a><a class="headerlink" href="#module-src.pipeline.features.eval.engine" title="Link to this heading">#</a></h1>
 <p>Evaluation engine for WSmart-Route.</p>
+<p>Attributes:
+get_best: Get the best sequence and cost from a list of sequences and costs.
+_build_dataset_kwargs: Build keyword arguments for make_dataset from Config.
+_build_eval_kwargs: Build keyword arguments for evaluate_policy from Config.
+eval_dataset_mp: Worker function for multiprocessing evaluation.
+_eval_dataset: Inner evaluation loop for a single batch/process.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs import Config
+&gt;&gt;&gt; from logic.src.pipeline.features.eval.engine import get_best, _build_dataset_kwargs, _build_eval_kwargs, eval_dataset_mp, _eval_dataset
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Example for get_best
+&gt;&gt;&gt; sequences = np.array([[1, 2, 3], [1, 3, 2]])
+&gt;&gt;&gt; cost = np.array([10, 5])
+&gt;&gt;&gt; best_sequences, best_costs = get_best(sequences, cost)
+&gt;&gt;&gt; print(f”Best sequence: {best_sequences}”)
+&gt;&gt;&gt; print(f”Best cost: {best_costs}”)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Example for _build_dataset_kwargs
+&gt;&gt;&gt; cfg = Config()
+&gt;&gt;&gt; dataset_kwargs = _build_dataset_kwargs(cfg)
+&gt;&gt;&gt; print(f”Dataset kwargs: {dataset_kwargs}”)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Example for _build_eval_kwargs
+&gt;&gt;&gt; eval_kwargs = _build_eval_kwargs(cfg)
+&gt;&gt;&gt; print(f”Evaluation kwargs: {eval_kwargs}”)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Example for eval_dataset_mp (simplified - requires actual dataset and model)
+&gt;&gt;&gt; # This would typically be run in a multiprocessing context
+&gt;&gt;&gt; # dataset_path = “path/to/dataset.pkl”
+&gt;&gt;&gt; # beam_width = 5
+&gt;&gt;&gt; # softmax_temp = 1.0
+&gt;&gt;&gt; # results = eval_dataset_mp((dataset_path, beam_width, softmax_temp, cfg, 0, 1))
+&gt;&gt;&gt; # print(f”Evaluation results: {results}”)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Example for _eval_dataset (simplified - requires actual dataset, model, and device)
+&gt;&gt;&gt; # This would typically be run in a multiprocessing context
+&gt;&gt;&gt; # model = load_model(“path/to/model.pth”)
+&gt;&gt;&gt; # dataset = model.problem.make_dataset(filename=”path/to/dataset.pkl”, num_samples=100)
+&gt;&gt;&gt; # results = _eval_dataset(model, dataset, 5, 1.0, cfg, torch.device(“cuda:0”))
+&gt;&gt;&gt; # print(f”Evaluation results: {results}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -560,30 +600,58 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine.get_best">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">get_best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine.get_best" title="Link to this definition">#</a></dt>
 <dd><p>Ids contains [0, 0, 0, 1, 1, 2, …, n, n, n] if 3 solutions found for 0th instance, 2 for 1st, etc</p>
+<p>Args:
+sequences: All found solutions.
+cost: Costs of all found solutions.
+ids: IDs of the solutions (should be [0, 0, …, 1, 1, …]).
+batch_size: Expected batch size (number of instances).</p>
+<p>Returns:
+Tuple of (best_sequences, best_costs).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._build_dataset_kwargs">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_build_dataset_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._build_dataset_kwargs" title="Link to this definition">#</a></dt>
 <dd><p>Build keyword arguments for make_dataset from Config.</p>
+<p>Args:
+cfg: Configuration object containing evaluation parameters.</p>
+<p>Returns:
+Dictionary of keyword arguments for make_dataset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._build_eval_kwargs">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_build_eval_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._build_eval_kwargs" title="Link to this definition">#</a></dt>
 <dd><p>Build keyword arguments for evaluate_policy from Config.</p>
+<p>Args:
+cfg: Configuration object containing evaluation parameters.</p>
+<p>Returns:
+Dictionary of keyword arguments for evaluate_policy.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine.eval_dataset_mp">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">eval_dataset_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.configs.Config</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine.eval_dataset_mp" title="Link to this definition">#</a></dt>
 <dd><p>Worker function for multiprocessing evaluation.</p>
+<p>Args:
+args: Tuple of (dataset_path, beam_width, softmax_temp, cfg, process_id, num_processes).</p>
+<p>Returns:
+List of evaluation results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._eval_dataset">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_eval_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._eval_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Inner evaluation loop for a single batch/process.</p>
+<p>Args:
+model: Trained model to evaluate.
+dataset: Dataset to evaluate on.
+beam_width: Beam width for decoding.
+softmax_temp: Softmax temperature for decoding.
+cfg: Configuration object.
+device: Device to evaluate on.</p>
+<p>Returns:
+List of evaluation results.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -606,18 +674,44 @@ Tuple of (costs, tours, durations).</p>
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._eval_multiprocessing">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_eval_multiprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._eval_multiprocessing" title="Link to this definition">#</a></dt>
 <dd><p>Helper for multiprocessing evaluation.</p>
+<p>Args:
+dataset_path: Path to dataset.
+beam_width: Beam width for decoding.
+softmax_temp: Softmax temperature for decoding.
+cfg: Configuration object.</p>
+<p>Returns:
+List of evaluation results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._eval_singleprocess">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_eval_singleprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._eval_singleprocess" title="Link to this definition">#</a></dt>
 <dd><p>Helper for single-process evaluation.</p>
+<p>Args:
+model: Model to evaluate.
+dataset_path: Path to dataset.
+beam_width: Beam width for decoding.
+softmax_temp: Softmax temperature for decoding.
+cfg: Configuration object.
+use_cuda: Whether to use CUDA.</p>
+<p>Returns:
+List of evaluation results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.engine._get_eval_output_path">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.engine.</span></span><span class="sig-name descname"><span class="pre">_get_eval_output_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.eval.engine._get_eval_output_path" title="Link to this definition">#</a></dt>
 <dd><p>Generate evaluation result output path.</p>
+<p>Args:
+model: Model used for evaluation.
+dataset_path: Path to dataset.
+cfg: Configuration object.
+model_name: Name of the model.
+beam_width: Beam width for decoding.
+softmax_temp: Softmax temperature for decoding.
+num_costs: Number of costs to evaluate.</p>
+<p>Returns:
+Path to evaluation results file.</p>
 </dd></dl>
 
 </section>

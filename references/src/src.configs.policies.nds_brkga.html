@@ -518,6 +518,17 @@ system when <code class="docutils literal notranslate"><span class="pre">policy=
     policy.nds_brkga.time_limit=120
 </pre></div>
 </div>
+<p>Attributes:
+NDSBRKGAConfig: Configuration for the NDS-BRKGA policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.nds_brkga import NDSBRKGAConfig
+&gt;&gt;&gt; config = NDSBRKGAConfig()
+&gt;&gt;&gt; config.pop_size
+60
+&gt;&gt;&gt; config.max_generations
+200
+&gt;&gt;&gt; config.time_limit
+90.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

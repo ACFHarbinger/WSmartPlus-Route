@@ -501,6 +501,29 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.swc_tcf">
 <span id="src-configs-policies-swc-tcf"></span><h1><a class="reference internal" href="#module-src.configs.policies.swc_tcf" title="src.configs.policies.swc_tcf"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.swc_tcf</span></code></a><a class="headerlink" href="#module-src.configs.policies.swc_tcf" title="Link to this heading">#</a></h1>
 <p>SWC-TCF (Smart Waste Collection - Two-Commodity Flow) policy configuration.</p>
+<p>Attributes:
+SWCTCFConfig: Configuration for the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.swc_tcf import SWCTCFConfig
+&gt;&gt;&gt; config = SWCTCFConfig()
+&gt;&gt;&gt; config.Omega
+0.1
+&gt;&gt;&gt; config.delta
+0.0
+&gt;&gt;&gt; config.psi
+1.0
+&gt;&gt;&gt; config.time_limit
+600.0
+&gt;&gt;&gt; config.seed
+None
+&gt;&gt;&gt; config.engine
+‘gurobi’
+&gt;&gt;&gt; config.framework
+‘ortools’
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

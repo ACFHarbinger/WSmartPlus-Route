@@ -500,6 +500,19 @@ document.write(`
 <p>Generates deterministic multi-period Inventory Routing Problem instances.
 Each instance specifies node locations, per-node demands, holding costs,
 initial inventories, inventory capacities, and a vehicle capacity.</p>
+<p>Attributes:
+IRPGenerator: IRPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import IRPGenerator
+&gt;&gt;&gt; generator = IRPGenerator(num_loc=20, num_periods=5)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict({
+‘locs’: TensorDict(
+# … customer locations (shape: [*B, 20, 2]) …
+)
+# … other fields …
+})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -542,6 +555,18 @@ the sum of routing cost and inventory holding cost:</p>
 </ul>
 <p>The planning horizon T = num_periods is stored as an integer attribute and is
 shared across the batch (all instances in one batch have the same T).</p>
+<p>Attributes:
+num_periods: Planning horizon T.
+vehicle_capacity: Vehicle capacity Q (normalised).
+min_demand: Minimum per-period demand rate.
+max_demand: Maximum per-period demand rate.
+demand_distribution: Demand distribution strategy.
+min_holding_cost: Minimum unit holding cost.
+max_holding_cost: Maximum unit holding cost.
+min_init_inventory: Minimum initial inventory fraction.
+max_init_inventory: Maximum initial inventory fraction.
+node_inventory_capacity: Node inventory capacity C_i.
+depot_type: Depot placement strategy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise IRPGenerator.</p>
 <p>Args:
@@ -563,35 +588,63 @@ depot_type: Depot placement strategy (“center”, “corner”, “random”).
 device: Target device for generated tensors.
 rng: Optional numpy RNG.
 generator: Optional torch RNG.
-**kwargs: Forwarded to Generator base.</p>
+kwargs: Forwarded to Generator base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.irp.IRPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.irp.IRPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate a batch of IRP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]           — customer coordinates
+depot: [*B, 2]                    — depot coordinate
+demands: [*B, num_loc]            — per-period demand rates d_i
+holding_costs: [*B, num_loc]      — unit holding costs h_i
+initial_inventory: [*B, num_loc]  — initial inventories I_{i,0}
+inventory_capacity: [*B, num_loc] — node capacities C_i
+vehicle_capacity: [*B]           — vehicle capacity Q
+num_periods: int                  — planning horizon T</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.irp.IRPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.irp.IRPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate depot location.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Depot location.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.irp.IRPGenerator._generate_demands">
 <span class="sig-name descname"><span class="pre">_generate_demands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.irp.IRPGenerator._generate_demands" title="Link to this definition">#</a></dt>
 <dd><p>Generate per-node daily demand rates d_i (constant across periods).</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Per-node daily demand rates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.irp.IRPGenerator._generate_holding_costs">
 <span class="sig-name descname"><span class="pre">_generate_holding_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.irp.IRPGenerator._generate_holding_costs" title="Link to this definition">#</a></dt>
 <dd><p>Generate per-node unit holding costs h_i.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Holding costs for each node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.irp.IRPGenerator._generate_initial_inventory">
 <span class="sig-name descname"><span class="pre">_generate_initial_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.irp.IRPGenerator._generate_initial_inventory" title="Link to this definition">#</a></dt>
 <dd><p>Generate initial inventory I_{i,0} as a fraction of C_i.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+Initial inventory for each node.</p>
 </dd></dl>
 
 </dd></dl>

@@ -497,6 +497,10 @@ document.write(`
 <p>(μ,κ,λ) Evolution Strategy Policy Adapter with Age-Based Selection.</p>
 <p>Adapts the (μ,κ,λ)-ES with age control for vehicle routing problems.
 Individuals exceeding age κ are excluded from selection.</p>
+<p>Attributes:
+MuKappaLambdaESPolicy: Policy class for (μ,κ,λ)-ES.</p>
+<p>Example:
+&gt;&gt;&gt; policy = MuKappaLambdaESPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,19 +522,28 @@ Individuals exceeding age κ are excluded from selection.</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>(μ,κ,λ) Evolution Strategy policy with age-based selection.</p>
 <p>Age-limited parent survival prevents stagnation in long runs.</p>
+<p>Attributes:
+config: Configuration for the policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize (μ,κ,λ)-ES policy with optional config.</p>
 <p>Args:
-config: MuKappaLambdaESConfig dataclass, raw dict from YAML, or None.</p>
+config: Configuration object or dictionary.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl.MuKappaLambdaESPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl.MuKappaLambdaESPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+MuKappaLambdaESConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl.MuKappaLambdaESPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl.MuKappaLambdaESPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd><p>Return config key.</p>
+<dd><p>Return the configuration key for this policy.</p>
+<p>Returns:
+The string key “es_mkl”.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -542,35 +555,21 @@ introduces an “age” control parameter (kappa):</p>
 <ul class="simple">
 <li><p>mu: The number of parent individuals.</p></li>
 <li><p>lambda: The number of offspring generated.</p></li>
-<li><p>kappa: The maximum age (in generations) an individual can survive
-multiple selection cycles.</p></li>
-<li><p>Selection: Parents can survive across generations (like mu + lambda)
-but are strictly removed if they exceed age kappa. This prevents
-stagnation by ensuring constant population turnover while retaining
-beneficial elite individuals for a limited time.</p></li>
+<li><p>kappa: The maximum age (in generations) an individual can survive.</p></li>
+<li><p>Selection: Parents can survive across generations but are strictly
+removed if they exceed age kappa.</p></li>
 </ul>
 <p>Args:
-sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-sub-problem nodes.
-sub_wastes (Dict[int, float]): Mapping of local node indices to their
-current bin inventory levels.
-capacity (float): Maximum vehicle collection capacity.
-revenue (float): Revenue obtained per kilogram of waste collected.
-cost_unit (float): Monetary cost incurred per kilometer traveled.
-values (Dict[str, Any]): Merged configuration dictionary containing
-ES parameters (mu, kappa, lambda, sigma).
-mandatory_nodes (List[int]): Local indices of bins that MUST be
-collected in this period.
-**kwargs: Additional context, including:
-- search_context (Optional[SearchContext]): Context for tracking
-recursive solver statistics.
-- multi_day_context (Optional[MultiDayContext]): Context for
-inter-day state propagation.</p>
+sub_dist_matrix: Symmetric distance matrix.
+sub_wastes: Mapping of local node indices to waste quantities.
+capacity: Maximum vehicle collection capacity.
+revenue: Revenue obtained per kilogram of waste.
+cost_unit: Monetary cost incurred per kilometer.
+values: Merged configuration dictionary.
+mandatory_nodes: Local indices of bins that MUST be collected.
+kwargs: Additional context.</p>
 <p>Returns:
-Tuple[List[List[int]], float, float]: A 3-tuple containing:
-- routes: Optimized collection routes (list-of-lists, local indices).
-- profit: Total calculated net profit (Total Revenue - Total Cost).
-- cost: Total travel cost calculated by the solver.</p>
+Tuple of (routes, profit, cost).</p>
 </dd></dl>
 
 </dd></dl>

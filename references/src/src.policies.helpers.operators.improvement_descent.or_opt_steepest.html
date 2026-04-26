@@ -503,8 +503,10 @@ when the chain crosses a route boundary (inter-route relocation).</p>
 nodes does not change.  Revenue is therefore unchanged, making the CVRP and
 VRPP stopping conditions equivalent: improving moves reduce distance cost by
 more than an epsilon threshold (scaled by C for unit consistency).</p>
-<p>The complexity per iteration is O(m² · n²) where m is the number of routes
+<p>The complexity per iteration is O(m^2 * n^2) where m is the number of routes
 and n is the average route length.  The algorithm converges quickly in practice.</p>
+<p>Attributes:
+None</p>
 <p>Reference:
 Or, I. (1976). “Traveling Salesman-Type Combinatorial Problems and Their
 Relation to the Logistics of Regional Blood Banking.” Ph.D. thesis,

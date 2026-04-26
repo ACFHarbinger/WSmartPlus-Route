@@ -471,6 +471,16 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode"><code class="docutils literal notranslate"><span class="pre">EngineNode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.id"><code class="docutils literal notranslate"><span class="pre">EngineNode.id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.day"><code class="docutils literal notranslate"><span class="pre">EngineNode.day</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.probability"><code class="docutils literal notranslate"><span class="pre">EngineNode.probability</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.realization"><code class="docutils literal notranslate"><span class="pre">EngineNode.realization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.parent_id"><code class="docutils literal notranslate"><span class="pre">EngineNode.parent_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.children_ids"><code class="docutils literal notranslate"><span class="pre">EngineNode.children_ids</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode._sim_wastes"><code class="docutils literal notranslate"><span class="pre">EngineNode._sim_wastes</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.build_model"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine.build_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._add_inventory_constraints"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine._add_inventory_constraints()</span></code></a></li>
@@ -500,15 +510,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-scenario-tree-extensive-form-st-ef-engine"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine" title="Link to this heading">#</a></h1>
+<p>Extensive form solver engine for Scenario Tree problems.</p>
+<p>Attributes:
+ScenarioTreeExtensiveFormEngine: Engine to build and solve ST-EF MILP models.</p>
+<p>Example:
+&gt;&gt;&gt; engine = ScenarioTreeExtensiveFormEngine(tree, dist, wastes, cap)
+&gt;&gt;&gt; route, profit = engine.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine</span></code></a></p></td>
-<td><p>Engine to parse a ScenarioTree and build the corresponding deterministic
-equivalent MILP using Gurobi.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EngineNode</span></code></a></p></td>
+<td><p>Represents a node in the extensive-form optimization model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine</span></code></a></p></td>
+<td><p>Engine to parse a ScenarioTree and build the corresponding deterministic equivalent MILP using Gurobi.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,11 +535,95 @@ equivalent MILP using Gurobi.</p></td>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.</span></span><span class="sig-name descname"><span class="pre">EngineNode</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode" title="Link to this definition">#</a></dt>
+<dd><p>Represents a node in the extensive-form optimization model.</p>
+<p>Attributes:
+id: Unique identifier for the node.
+day: The day (time period) this node represents.
+probability: The probability of reaching this node.
+realization: The realization of waste increments for this node (relative to parent).
+parent_id: The ID of the parent node.
+children_ids: A list of IDs of the child nodes.
+_sim_wastes: (Internal cache) The raw waste values from the simulation tree.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.id" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.day">
+<span class="sig-name descname"><span class="pre">day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.day" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.probability">
+<span class="sig-name descname"><span class="pre">probability</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.probability" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.realization">
+<span class="sig-name descname"><span class="pre">realization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.realization" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.parent_id">
+<span class="sig-name descname"><span class="pre">parent_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.parent_id" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.children_ids">
+<span class="sig-name descname"><span class="pre">children_ids</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.children_ids" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode._sim_wastes">
+<span class="sig-name descname"><span class="pre">_sim_wastes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode._sim_wastes" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.</span></span><span class="sig-name descname"><span class="pre">ScenarioTreeExtensiveFormEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overflow_penalty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mtz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine" title="Link to this definition">#</a></dt>
-<dd><p>Engine to parse a ScenarioTree and build the corresponding deterministic
-equivalent MILP using Gurobi.</p>
+<dd><p>Engine to parse a ScenarioTree and build the corresponding deterministic equivalent MILP using Gurobi.</p>
+<p>Attributes:
+tree (ScenarioTree): The scenario tree structure.
+distance_matrix (np.ndarray): Full N×N distance matrix.
+initial_wastes (Dict[int, float]): Initial waste levels at root.
+capacity (float): Vehicle capacity.
+waste_weight (float): Objective weight for collected waste.
+cost_weight (float): Objective weight for travel cost.
+overflow_penalty (float): Penalty for bin overflow.
+time_limit (float): Gurobi time limit.
+mip_gap (float): Gurobi MIP gap.
+use_mtz (bool): Whether to use MTZ subtour elimination.
+verbose (bool): Whether to enable Gurobi output.
+num_nodes (int): Total number of nodes.
+customers (List[int]): List of customer indices.
+tree_nodes (Dict[int, Any]): Flattened map of tree nodes.
+model (gp.Model): Gurobi model instance.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the ST-EF engine.</p>
+<p>Args:
+tree: Scenario tree.
+distance_matrix: Distance matrix.
+wastes: Mapping from node index to waste volume.
+capacity: Vehicle capacity.
+waste_weight: Weight for collected waste in objective.
+cost_weight: Weight for distance cost in objective.
+overflow_penalty: Penalty for bin overflow.
+time_limit: Gurobi time limit in seconds.
+mip_gap: Gurobi MIP gap.
+use_mtz: Whether to use MTZ subtour elimination.
+verbose: Whether to enable Gurobi output.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.build_model">
 <span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.build_model" title="Link to this definition">#</a></dt>
@@ -550,29 +652,47 @@ equivalent MILP using Gurobi.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.solve" title="Link to this definition">#</a></dt>
 <dd><p>Runs optimization and returns the selected route for Day 1.</p>
+<p>Returns:
+Tuple[List[int], float]: A tuple containing:
+- route: The sequence of nodes for the Day 1 route.
+- obj_val: The optimal expected value found.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._extract_route">
 <span class="sig-name descname"><span class="pre">_extract_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._extract_route" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Extracts the sequence of nodes for a specific tree node from the solver results.</p>
+<p>Args:
+n_idx (int): The index of the tree node to extract the route from.</p>
+<p>Returns:
+List[int]: The ordered list of node IDs.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._lazy_sec_callback">
-<span class="sig-name descname"><span class="pre">_lazy_sec_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._lazy_sec_callback" title="Link to this definition">#</a></dt>
-<dd><p>Lazy subtour elimination (if MTZ is disabled)</p>
+<span class="sig-name descname"><span class="pre">_lazy_sec_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._lazy_sec_callback" title="Link to this definition">#</a></dt>
+<dd><p>Lazy subtour elimination (if MTZ is disabled).</p>
+<p>Args:
+model (gp.Model): The Gurobi model.
+where (int): The solver callback location.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._convert_simulation_tree">
 <span class="sig-name descname"><span class="pre">_convert_simulation_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._convert_simulation_tree" title="Link to this definition">#</a></dt>
 <dd><p>Convert simulation ScenarioTree (recursive) to flat solver tree.</p>
+<p>Args:
+tree (Any): The simulation scenario tree.</p>
+<p>Returns:
+Dict[int, Any]: A flat map of EngineNode objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._get_engine_root">
-<span class="sig-name descname"><span class="pre">_get_engine_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._get_engine_root" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_get_engine_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._get_engine_root" title="Link to this definition">#</a></dt>
 <dd><p>Find the root node (day 0) in the tree_nodes map.</p>
+<p>Returns:
+Any: The root node object.</p>
 </dd></dl>
 
 </dd></dl>
@@ -629,6 +749,16 @@ equivalent MILP using Gurobi.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode"><code class="docutils literal notranslate"><span class="pre">EngineNode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.id"><code class="docutils literal notranslate"><span class="pre">EngineNode.id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.day"><code class="docutils literal notranslate"><span class="pre">EngineNode.day</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.probability"><code class="docutils literal notranslate"><span class="pre">EngineNode.probability</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.realization"><code class="docutils literal notranslate"><span class="pre">EngineNode.realization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.parent_id"><code class="docutils literal notranslate"><span class="pre">EngineNode.parent_id</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode.children_ids"><code class="docutils literal notranslate"><span class="pre">EngineNode.children_ids</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.EngineNode._sim_wastes"><code class="docutils literal notranslate"><span class="pre">EngineNode._sim_wastes</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine.build_model"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine.build_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._add_inventory_constraints"><code class="docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormEngine._add_inventory_constraints()</span></code></a></li>

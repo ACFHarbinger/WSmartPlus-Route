@@ -492,6 +492,37 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-heuristics-anneal"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal" title="Link to this heading">#</a></h1>
 <p>Simulated Annealing loop for the Look-Ahead policy.</p>
+<p>Attributes:
+run_annealing_loop: Execute the simulated annealing loop to find an improved solution.
+_update_removed_bins: Internal helper to update removed bins set on move acceptance.</p>
+<p>Example:
+&gt;&gt;&gt; import random
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; import pandas as pd
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; data = pd.DataFrame({
+…     “#bin”: [0, 1, 2, 3, 4],
+…     “w”: [0, 1, 2, 3, 4],
+… })
+&gt;&gt;&gt; distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+&gt;&gt;&gt; mandatory_bins = [1]
+&gt;&gt;&gt; values = {
+…     “perc_bins_can_overflow”: 0.5,
+…     “E”: 10,
+…     “B”: 10,
+… }
+&gt;&gt;&gt; n_bins = 5
+&gt;&gt;&gt; chosen_combination = (10, 10, 0.5, 0.1, 0.1, 0.1, 0.1)
+&gt;&gt;&gt; time_limit = 10.0
+&gt;&gt;&gt; rng = random.Random(42)
+&gt;&gt;&gt; np_rng = np.random.default_rng(42)
+&gt;&gt;&gt; optimized_solution, removed_bins = run_annealing_loop(
+…     routes, data, distance_matrix, mandatory_bins, values, n_bins, chosen_combination, time_limit, rng, np_rng
+… )
+&gt;&gt;&gt; optimized_solution
+[[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; removed_bins
+[]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -534,14 +565,40 @@ Tuple of (optimized_solution, removed_bins).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal.</span></span><span class="sig-name descname"><span class="pre">_update_removed_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_rem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_con</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_con</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_con</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal.</span></span><span class="sig-name descname"><span class="pre">_update_removed_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_rem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_add</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper to update removed bins set on move acceptance.</p>
+<p>Args:
+proc: The procedure that was applied.
+removed: Set of removed bins.
+b_rem: Bin to remove.
+b_add: Bin to add.
+bs_rem_rnd: Set of bins to remove randomly.
+bs_rem_con: Set of bins to remove consecutively.
+bs_add_rnd: Set of bins to add randomly.
+bs_add_con: Set of bins to add consecutively.
+bs_rnd: Set of bins to add.
+bs_con: Set of bins to add.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._rollback_removed_bins">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal.</span></span><span class="sig-name descname"><span class="pre">_rollback_removed_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_rem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_con</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_con</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_con</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._rollback_removed_bins" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal.</span></span><span class="sig-name descname"><span class="pre">_rollback_removed_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_rem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_add</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rem_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_add_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_rnd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs_con</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._rollback_removed_bins" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper to rollback removed bins set on move rejection.</p>
+<p>Args:
+proc: The procedure that was applied.
+removed: Set of removed bins.
+b_rem: Bin to remove.
+b_add: Bin to add.
+bs_rem_rnd: Set of bins to remove randomly.
+bs_rem_con: Set of bins to remove consecutively.
+bs_add_rnd: Set of bins to add randomly.
+bs_add_con: Set of bins to add consecutively.
+bs_rnd: Set of bins to add.
+bs_con: Set of bins to add.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </section>

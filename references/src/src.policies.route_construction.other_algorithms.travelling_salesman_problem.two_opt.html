@@ -490,6 +490,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt">
 <span id="src-policies-route-construction-other-algorithms-travelling-salesman-problem-two-opt"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt" title="Link to this heading">#</a></h1>
 <p>Internal implementation of Iterative 2-opt for TSP.</p>
+<p>Attributes:
+solve_tsp_2opt: Solve TSP via iterative 2-opt.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem import solve_tsp_2opt
+&gt;&gt;&gt; dist_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+&gt;&gt;&gt; nodes = [1, 2]
+&gt;&gt;&gt; solve_tsp_2opt(dist_matrix, nodes)
+[0, 1, 2, 0]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -509,6 +517,13 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt.solve_tsp_2opt">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt.</span></span><span class="sig-name descname"><span class="pre">solve_tsp_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt.solve_tsp_2opt" title="Link to this definition">#</a></dt>
 <dd><p>Solve TSP via iterative 2-opt.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+nodes (List[int]): List of nodes to visit.
+depot (int): Depot node.
+max_iterations (int): Maximum number of iterations.</p>
+<p>Returns:
+List[int]: Tour starting and ending at depot.</p>
 </dd></dl>
 
 </section>

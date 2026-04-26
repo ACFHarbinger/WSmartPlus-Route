@@ -495,6 +495,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-logic-based-benders-decomposition-policy-lbbd"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd" title="Link to this heading">#</a></h1>
+<p>Policy adapter for Logic-Based Benders Decomposition (LBBD).</p>
+<p>Attributes:
+LBBDPolicy: Adapter for the Logic-Based Benders Decomposition (LBBD) policy.</p>
+<p>Example:
+&gt;&gt;&gt; policy = LBBDPolicy()
+&gt;&gt;&gt; sol, plan, stats = policy._run_multi_period_solver(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,8 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LBBDPolicy</span></code></a></p></td>
-<td><p>Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
-Supports multi-period stochastic decision making via ScenarioTree.</p></td>
+<td><p>Adapter for the Logic-Based Benders Decomposition (LBBD) policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,24 +520,29 @@ Supports multi-period stochastic decision making via ScenarioTree.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.</span></span><span class="sig-name descname"><span class="pre">LBBDPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
-Supports multi-period stochastic decision making via ScenarioTree.</p>
+<p>Adapter for the Logic-Based Benders Decomposition (LBBD) policy.</p>
+<p>Supports multi-period stochastic decision making via ScenarioTree.</p>
+<p>Attributes:
+config (LBBDConfig): Policy configuration.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the BaseMultiPeriodRoutingPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._config_class">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.lbbd.LBBDConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._config_class" title="Link to this definition">#</a></dt>
+<dd><p>Return the typed configuration class.</p>
+<p>Returns:
+Type[LBBDConfig]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the YAML config key.</p>
+<p>Returns:
+str: The config key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._run_multi_period_solver">
@@ -558,6 +568,17 @@ Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Satisfies the abstract base class, but LBBD uses _run_multi_period_solver.</p>
+<p>Args:
+sub_dist_matrix (np.ndarray): Local distance matrix.
+sub_wastes (Dict[int, float]): Local fill levels.
+capacity (float): Vehicle capacity.
+revenue (float): Unit revenue.
+cost_unit (float): Unit travel cost.
+values (Dict[str, Any]): Additional state values.
+mandatory_nodes (List[int]): Local mandatory node indices.
+kwargs (Any): Additional keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Empty results for LBBD.</p>
 </dd></dl>
 
 </dd></dl>

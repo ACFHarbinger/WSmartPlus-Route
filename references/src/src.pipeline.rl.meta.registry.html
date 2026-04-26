@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.meta.registry">
 <span id="src-pipeline-rl-meta-registry"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.meta.registry" title="src.pipeline.rl.meta.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.meta.registry</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.meta.registry" title="Link to this heading">#</a></h1>
 <p>Meta-Learning Strategy Registry.</p>
+<p>Attributes:
+META_STRATEGY_REGISTRY (dict[str, type[WeightAdjustmentStrategy]]): Dictionary of meta-learning strategies.
+get_meta_strategy (callable): Function to get meta-learning strategy by name.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.meta import get_meta_strategy
+&gt;&gt;&gt; strategy = get_meta_strategy(“bandit”)
+&gt;&gt;&gt; strategy
+&lt;logic.src.pipeline.rl.meta.contextual_bandits.WeightContextualBandit object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -528,6 +536,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.registry.get_meta_strategy">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.meta.registry.</span></span><span class="sig-name descname"><span class="pre">get_meta_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrategy</span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.registry.get_meta_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Get meta-learning strategy by name.</p>
+<p>Args:
+name: Name of the meta-learning strategy to retrieve.
+kwargs: Additional keyword arguments to pass to the strategy constructor.</p>
+<p>Returns:
+WeightAdjustmentStrategy: The meta-learning strategy.</p>
 </dd></dl>
 
 </section>

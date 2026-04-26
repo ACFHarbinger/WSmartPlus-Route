@@ -491,6 +491,30 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets">
 <span id="src-data-datasets"></span><h1><a class="reference internal" href="#module-src.data.datasets" title="src.data.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a><a class="headerlink" href="#module-src.data.datasets" title="Link to this heading">#</a></h1>
 <p>Dataset classes for WSmart-Route.</p>
+<p>Attributes:
+BaselineDataset: BaseLine dataset for training.
+ExtraKeyDataset: Extra Key dataset for training.
+TensorDictDatasetFastGeneration: TensorDict dataset for fast generation.
+FastTdDataset: Fast TensorDict dataset for training.
+GeneratorDataset: Generator dataset for training.
+TensorDictDataset: TensorDict dataset for training.
+GenerativeDataset: Generative dataset for simulation.
+NumpyDictDataset: NumpyDict dataset for simulation.
+NumpyPickleDataset: NumpyPickle dataset for simulation.
+PandasCsvDataset: PandasCsv dataset for simulation.
+PandasExcelDataset: PandasExcel dataset for simulation.
+SimulationDataset: Simulation dataset for simulation.
+td_kwargs: Generator dataset for training.
+tensordict_collate_fn: Generator dataset for training.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import td_kwargs, tensordict_collate_fn, BaselineDataset
+&gt;&gt;&gt; td_kwargs = td_kwargs()
+&gt;&gt;&gt; tensordict_collate_fn = tensordict_collate_fn()
+&gt;&gt;&gt; dataset = BaselineDataset(**td_kwargs)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

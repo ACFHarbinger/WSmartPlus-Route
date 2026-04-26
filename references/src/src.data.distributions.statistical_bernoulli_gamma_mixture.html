@@ -494,6 +494,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical_bernoulli_gamma_mixture">
 <span id="src-data-distributions-statistical-bernoulli-gamma-mixture"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical_bernoulli_gamma_mixture" title="src.data.distributions.statistical_bernoulli_gamma_mixture"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_bernoulli_gamma_mixture</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical_bernoulli_gamma_mixture" title="Link to this heading">#</a></h1>
 <p>Statistical sampling distributions - Bernoulli-Gamma Mixture.</p>
+<p>Attributes:
+p (Union[float, torch.Tensor]): Probability of a non-zero (Gamma-distributed) event.
+alpha (Union[float, torch.Tensor]): Gamma shape parameter.
+theta (Union[float, torch.Tensor]): Gamma scale parameter.</p>
+<p>Example:
+bgm = BernoulliGammaMixture()
+bgm.sample(torch.Size((10, 50)))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,6 +521,10 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical_bernoulli_gamma_mixture.</span></span><span class="sig-name descname"><span class="pre">BernoulliGammaMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical_bernoulli_gamma_mixture.BernoulliGammaMixture" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Bernoulli-Gamma Mixture distribution sampling.</p>
+<p>Attributes:
+p (Union[float, torch.Tensor]): Probability of a non-zero (Gamma-distributed) event.
+alpha (Union[float, torch.Tensor]): Gamma shape parameter.
+theta (Union[float, torch.Tensor]): Gamma scale parameter.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>A Bernoulli-Gamma mixture models an event that occurs with probability p,

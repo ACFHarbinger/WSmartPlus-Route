@@ -502,6 +502,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.models.decoding">
 <span id="src-configs-models-decoding"></span><h1><a class="reference internal" href="#module-src.configs.models.decoding" title="src.configs.models.decoding"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.decoding</span></code></a><a class="headerlink" href="#module-src.configs.models.decoding" title="Link to this heading">#</a></h1>
 <p>Decoding Strategy Config module.</p>
+<p>Attributes:
+DecodingConfig: Decoding strategy configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.models import DecodingConfig
+&gt;&gt;&gt; config = DecodingConfig()
+&gt;&gt;&gt; print(config)
+DecodingConfig(strategy=’greedy’, beam_width=1, temperature=1.0, top_k=None, top_p=None, tanh_clipping=0.0, mask_logits=True, multistart=False, num_starts=1, select_best=False)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +528,17 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.models.decoding.DecodingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.models.decoding.</span></span><span class="sig-name descname"><span class="pre">DecodingConfig</span></span><a class="headerlink" href="#src.configs.models.decoding.DecodingConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for decoding strategies.</p>
+<p>Attributes:
+strategy (str): Decoding method.
+beam_width (Any): Beam search width or sampling size.
+temperature (float): Temperature for sampling.
+top_k (Optional[int]): Top-k sampling.
+top_p (Optional[float]): Top-p sampling.
+tanh_clipping (float): Tanh clipping value.
+mask_logits (bool): Masking of logits.
+multistart (bool): Multistart decoding.
+num_starts (int): Number of starts for multistart decoding.
+select_best (bool): Selection of the best decoding.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.models.decoding.DecodingConfig.strategy">
 <span class="sig-name descname"><span class="pre">strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.models.decoding.DecodingConfig.strategy" title="Link to this definition">#</a></dt>

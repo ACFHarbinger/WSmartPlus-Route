@@ -524,6 +524,22 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.tasks.hpo">
 <span id="src-configs-tasks-hpo"></span><h1><a class="reference internal" href="#module-src.configs.tasks.hpo" title="src.configs.tasks.hpo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks.hpo</span></code></a><a class="headerlink" href="#module-src.configs.tasks.hpo" title="Link to this heading">#</a></h1>
 <p>HPO Config module.</p>
+<p>Attributes:
+HPOConfig: Configuration for hyperparameter optimization.</p>
+<p>Example:
+hpo_config = HPOConfig(
+method=”dehbo”,
+metric=”reward”,
+n_trials=50,
+n_epochs_per_trial=10,
+num_workers=4,
+search_space={
+“rl.entropy_weight”: {“type”: “float”, “low”: 0.0, “high”: 0.1},
+“optim.lr”: {“type”: “float”, “low”: 1e-5, “high”: 1e-3, “log”: True},
+},
+graph=GraphConfig(),
+reward=ObjectiveConfig(),
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

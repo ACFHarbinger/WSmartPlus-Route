@@ -91,7 +91,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`
 
 ````
 
-````{py:method} configure_optimizers()
+````{py:method} configure_optimizers() -> torch.optim.Optimizer
 :canonical: src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers
 
 ```{autodoc2-docstring} src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers

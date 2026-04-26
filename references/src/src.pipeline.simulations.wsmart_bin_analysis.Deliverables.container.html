@@ -493,6 +493,11 @@ document.write(`
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-container"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container" title="Link to this heading">#</a></h1>
 <p>Container management module for wsmart_bin_analysis.
 This module acts as a facade, using mixins to organize functionality.</p>
+<p>Attributes:
+Container: The class that manages the background behind a container.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import Container
+&gt;&gt;&gt; c = Container(my_df, my_rec, info)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,12 +527,23 @@ managing the fill levels and collection events.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_rec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.</span></span><span class="sig-name descname"><span class="pre">Container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_rec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.core.DataMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.analysis_utils.AnalysisMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.processing_utils.ProcessingMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.plotting_utils.VisualizationMixin</span></code></p>
 <p>Overall object to deal with container data. It supports manipulation operations over the container,
 managing the fill levels and collection events.</p>
+<p>Attributes:
+my_df: pd.DataFrame with fill-level information for a container.
+my_rec: pd.DataFrame with collection-event information for a container.
+info: pd.DataFrame with additional information for a container.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Container with data, records, and info.</p>
+<p>Args:
+my_df (pd.DataFrame):
+Dataframe with fill-level information for a container.
+my_rec (pd.DataFrame):
+Dataframe with collection-event information for a container.
+info (pd.DataFrame):
+Dataframe with additional information for a container.</p>
 </dd></dl>
 
 <dl class="py data">

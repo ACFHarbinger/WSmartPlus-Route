@@ -483,6 +483,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-memetic-algorithm"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm" title="Link to this heading">#</a></h1>
 <p>Particle Swarm Optimization Memetic Algorithm (PSOMA) for VRPP.</p>
+<p>Attributes:
+PSOMASolver: Core PSOMA solver class.
+PSOMAParams: Configuration parameters dataclass.
+PSOMAParticle: Particle representation for the swarm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm import PSOMASolver, PSOMAParams
+&gt;&gt;&gt; params = PSOMAParams(pop_size=20, max_iterations=200)
+&gt;&gt;&gt; solver = PSOMASolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

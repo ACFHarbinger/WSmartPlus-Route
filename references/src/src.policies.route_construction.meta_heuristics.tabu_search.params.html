@@ -522,7 +522,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.tabu_search.params">
 <span id="src-policies-route-construction-meta-heuristics-tabu-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.tabu_search.params" title="src.policies.route_construction.meta_heuristics.tabu_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.tabu_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Tabu Search (TS) solver.</p>
-<p>Based on Fred Glover’s “Tabu Search Fundamentals and Uses” (1995).</p>
+<p>Attributes:
+TSParams: Parameter dataclass for the Tabu Search.</p>
+<p>Example:
+&gt;&gt;&gt; params = TSParams(max_iterations=1000)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -542,50 +545,35 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.params.</span></span><span class="sig-name descname"><span class="pre">TSParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Tabu Search solver.</p>
-<p>TS uses adaptive memory (short-term and long-term) and responsive
-exploration through recency-based and frequency-based memory structures.</p>
 <p>Attributes:
-# Short-term memory (Recency-based)
-tabu_tenure: Fixed tabu tenure (number of iterations).
-dynamic_tenure: Whether to use dynamic tenure based on solution quality.
+tabu_tenure: Fixed tabu tenure.
+dynamic_tenure: Whether to use dynamic tenure.
 min_tenure: Minimum tenure for dynamic adjustment.
-max_tenure: Maximum tenure for dynamic adjustment.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Aspiration criteria
-aspiration_enabled: Enable aspiration criteria to override tabu.
-
-# Long-term memory (Frequency-based)
+max_tenure: Maximum tenure for dynamic adjustment.
+aspiration_enabled: Enable aspiration criteria.
 intensification_enabled: Enable intensification strategies.
 diversification_enabled: Enable diversification strategies.
 intensification_interval: Iterations between intensification phases.
 diversification_interval: Iterations between diversification phases.
 elite_size: Number of elite solutions to maintain.
 frequency_penalty_weight: Weight for frequency-based penalties.
-
-# Candidate list strategies
 candidate_list_enabled: Use candidate list to restrict neighborhood.
 candidate_list_size: Maximum size of candidate list.
-
-# Strategic oscillation
 oscillation_enabled: Enable strategic oscillation.
 feasibility_tolerance: Tolerance for infeasibility during oscillation.
-
-# General search parameters
 max_iterations: Maximum number of iterations.
-max_iterations_no_improve: Restart if no improvement for this many iterations.
-n_removal: Number of nodes to remove per destroy step.
-n_llh: Number of low-level heuristics in the pool.
-time_limit: Wall-clock time limit in seconds.
-seed: Random seed for reproducibility.
-vrpp: Whether the problem is VRPP (True) or CVRP (False).
-profit_aware_operators: Whether to use profit-aware insertion/removal.
-
-# Neighborhood structure
+max_iterations_no_improve: Restart threshold.
+n_removal: Number of nodes to remove.
+n_llh: Number of low-level heuristics.
+time_limit: Wall-clock time limit.
+seed: Random seed.
+vrpp: Whether the problem is VRPP.
+profit_aware_operators: Whether to use profit-aware operators.
 use_swap: Enable swap neighborhood.
 use_relocate: Enable relocate neighborhood.
 use_2opt: Enable 2-opt neighborhood.
 use_insertion: Enable insertion-based neighborhoods.
-</pre></div>
-</div>
+acceptance_criterion: Criterion for accepting moves.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.tabu_tenure">
 <span class="sig-name descname"><span class="pre">tabu_tenure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.tabu_tenure" title="Link to this definition">#</a></dt>
@@ -757,13 +745,19 @@ use_insertion: Enable insertion-based neighborhoods.
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__" title="Link to this definition">#</a></dt>
-<dd><p>Ensure acceptance criterion is initialized even if not passed in config.</p>
+<dd><p>Ensure acceptance criterion is initialized.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams" title="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Build parameters from a configuration object.</p>
+<dd><p>Build parameters from a configuration source.</p>
+<p>Args:
+config: Configuration source.</p>
+<p>Returns:
+Instantiated TSParams.</p>
 </dd></dl>
 
 </dd></dl>

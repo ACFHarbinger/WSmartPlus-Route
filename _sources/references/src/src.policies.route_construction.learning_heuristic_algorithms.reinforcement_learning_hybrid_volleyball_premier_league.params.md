@@ -117,7 +117,7 @@
 
 ````
 
-````{py:method} __post_init__()
+````{py:method} __post_init__() -> None
 :canonical: src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__

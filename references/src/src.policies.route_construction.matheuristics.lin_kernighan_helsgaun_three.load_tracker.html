@@ -469,8 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-background">Mathematical Background</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-structures">Data Structures</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -521,30 +519,17 @@ compute ΔP by:</p>
 <li><p>Computing ΔP = P_new - P_old for affected routes</p></li>
 </ol>
 <p>Complexity: O(L) where L = total length of affected routes (typically &lt;&lt; N).</p>
-</section>
-<section id="data-structures">
-<h2>Data Structures<a class="headerlink" href="#data-structures" title="Link to this heading">#</a></h2>
-<p>LoadState:
-route_assignments: Dict[int, int]  # node → route_id
-route_loads: Dict[int, float]      # route_id → total_load
-route_penalties: Dict[int, float]  # route_id → capacity_violation</p>
-</section>
-<section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>state = build_load_state(tour, waste, capacity, n_original)
-delta_p = get_exact_penalty_delta(
-…     new_tour=candidate_tour,
-…     state=state,
-…     waste=waste,
-…     capacity=capacity,
-…     n_original=n_original,
-… )</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<p>Attributes:
+LoadState: Data class tracking per-route load and penalty information.
+build_load_state: Build a LoadState from a tour array.
+get_exact_penalty_delta: Compute O(L) exact penalty delta for a k-opt move.
+update_load_state_after_move: Rebuild LoadState after an accepted move.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker import build_load_state
+&gt;&gt;&gt; tour = [0, 1, 2, 0]
+&gt;&gt;&gt; waste = np.array([0.0, 0.3, 0.4])
+&gt;&gt;&gt; state = build_load_state(tour, waste, capacity=1.0, n_original=3)</p>
 </section>
 <p>O(L) Exact Penalty Change Calculation for LKH-3 k-opt Pre-screening.</p>
 <p>This module implements efficient load tracking and penalty delta computation
@@ -604,22 +589,37 @@ route_penalties: Maps each route index to capacity violation.
 capacity: Vehicle capacity constraint.
 n_routes: Total number of routes in tour.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the load state.</p>
+<p>Args:
+route_assignments: Mapping of nodes to route indices.
+route_loads: Mapping of route indices to total loads.
+route_penalties: Mapping of route indices to capacity penalties.
+capacity: Vehicle capacity.
+n_routes: Number of routes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.get_total_penalty">
 <span class="sig-name descname"><span class="pre">get_total_penalty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.get_total_penalty" title="Link to this definition">#</a></dt>
 <dd><p>Compute total penalty across all routes.</p>
+<p>Returns:
+float: Sum of capacity violations across all routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.get_route_for_node">
 <span class="sig-name descname"><span class="pre">get_route_for_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.get_route_for_node" title="Link to this definition">#</a></dt>
 <dd><p>Get the route index containing a given node.</p>
+<p>Args:
+node: The node to look up.</p>
+<p>Returns:
+Optional[int]: Route index for the node, or None if not found.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState.copy" title="Link to this definition">#</a></dt>
 <dd><p>Create a deep copy of the load state.</p>
+<p>Returns:
+LoadState: A deep copy of this LoadState instance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -803,8 +803,6 @@ Set of route indices containing any edge endpoint.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-background">Mathematical Background</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-structures">Data Structures</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

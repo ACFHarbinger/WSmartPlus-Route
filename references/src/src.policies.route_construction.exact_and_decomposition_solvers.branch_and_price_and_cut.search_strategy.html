@@ -518,16 +518,14 @@ document.write(`
 <li><p>Best-First Search (BFS): Explores nodes with best LP bounds first</p></li>
 <li><p>Depth-First Search (DFS): Explores deepest nodes first</p></li>
 </ul>
-<p>References:
-- Barnhart, C., Hane, C. A., &amp; Vance, P. H. (1998).
-“Using Branch-and-Price-and-Cut to Solve Origin-Destination Integer
-Multicommodity Flow Problems.” Operations Research, 48(2), 318-326.
-(Uses DFS for ODIMCF to leverage LP basis warmstarts)</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- Achterberg, T., Koch, T., &amp; Martin, A. (2005).
-  &quot;Branching rules revisited.&quot; Operations Research Letters, 33(1), 42-54.
-  (Discusses various node selection strategies and their impact)
-</pre></div>
-</div>
+<p>Attributes:
+NodeSelectionStrategy (class): Abstract base class for strategies.
+BestFirstSearch (class): BFS implementation.
+DepthFirstSearch (class): DFS implementation.
+HybridSearchStrategy (class): Combined dive-and-bound implementation.</p>
+<p>Example:
+&gt;&gt;&gt; strategy = create_search_strategy(“depth_first”)
+&gt;&gt;&gt; next_node = strategy.select_node(open_nodes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -587,20 +585,24 @@ Multicommodity Flow Problems.” Operations Research, 48(2), 318-326.
 <p>Abstract base class for B&amp;B tree node selection strategies.</p>
 <p>Different strategies prioritize nodes differently, affecting both the
 search performance and the ability to leverage LP basis information.</p>
+<p>Attributes:
+None (abstract).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node" title="Link to this definition">#</a></dt>
 <dd><p>Select and remove the next node to explore from the open node list.</p>
 <p>Args:
-open_nodes: List of unexplored branch nodes</p>
+open_nodes: List of unexplored branch nodes.</p>
 <p>Returns:
-Selected node, or None if list is empty</p>
+Optional[BranchNode]: Selected node, or None if list is empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.get_name">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.get_name" title="Link to this definition">#</a></dt>
 <dd><p>Return the strategy name for logging and debugging.</p>
+<p>Returns:
+str: Name of the strategy.</p>
 </dd></dl>
 
 </dd></dl>
@@ -614,35 +616,25 @@ Selected node, or None if list is empty</p>
 for VRPP, it can be less efficient than Depth-First Search because it
 frequently jumps across different tree branches, preventing effective
 LP basis reuse.</p>
-<p>Characteristics:</p>
-<ul class="simple">
-<li><p>Time complexity: O(n) per selection (linear scan for maximum)</p></li>
-<li><p>Space complexity: O(n) where n is number of open nodes</p></li>
-<li><p>Optimality guarantee: Yes (like all complete B&amp;B strategies)</p></li>
-<li><p>Basis reuse: Poor (jumps across different tree branches)</p></li>
-</ul>
-<p>Best used for:</p>
-<ul class="simple">
-<li><p>Small VRPP instances where tree depth is limited.</p></li>
-<li><p>Situations where proving optimality with the fewest nodes is
-prioritized over computational speed per node.</p></li>
-</ul>
+<p>Attributes:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node">
 <span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node" title="Link to this definition">#</a></dt>
 <dd><p>Select node with highest LP bound (maximization problem).</p>
-<p>For maximization problems (VRPP profit maximization), we want
-to explore nodes with the highest upper bound first.</p>
 <p>Args:
-open_nodes: List of unexplored branch nodes</p>
+open_nodes: List of unexplored branch nodes.</p>
 <p>Returns:
-Node with highest LP bound, or None if list is empty</p>
+Optional[BranchNode]: Node with highest LP bound, or None if list is empty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this strategy.</p>
+<p>Returns:
+str: The strategy name ‘best_first’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -656,32 +648,9 @@ Node with highest LP bound, or None if list is empty</p>
 <li><p>Maximizes LP basis reuse by staying within the same branch.</p></li>
 <li><p>Achieves significant speedups (often 3-5x) by resolving child LPs
 from the parent’s basis using dual simplex.</p></li>
-<li><p>Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998, OR 46(3):316-329).</p></li>
 </ul>
-<p>Characteristics:</p>
-<ul class="simple">
-<li><p>Time complexity: O(n) per selection (linear scan)</p></li>
-<li><p>Space complexity: O(n) where n is number of open nodes</p></li>
-<li><p>Optimality guarantee: Yes (explores entire tree if needed)</p></li>
-<li><p>Basis reuse: Excellent (stays within same branch until fathomed)</p></li>
-</ul>
-<p>Best used for:</p>
-<ul class="simple">
-<li><p>High-performance BPC on VRPP where LP solve time dominates.</p></li>
-<li><p>Large instances where memory management of Basis information
-for Best-First search would be prohibitive.</p></li>
-</ul>
-<p class="rubric" id="id1">Implementation Note:</p>
-<p>When combined with LP warmstarts, DFS can achieve 3-5x speedup on
-large multicommodity flow instances by reusing the basis from the
-parent node (Barnhart et al., 1998, OR 46(3):316-329, Section 5).</p>
-<p>The solver should leverage Gurobi’s or CPLEX’s basis warmstart
-capabilities by:</p>
-<ol class="arabic simple">
-<li><p>Storing the basis from the parent node’s final LP solve</p></li>
-<li><p>Loading this basis before solving the child node’s LP</p></li>
-<li><p>Using dual simplex to resolve from the warmstart</p></li>
-</ol>
+<p>Attributes:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node">
 <span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node" title="Link to this definition">#</a></dt>
@@ -695,7 +664,10 @@ The last node appended, or None if the list is empty.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this strategy.</p>
+<p>Returns:
+str: The strategy name ‘depth_first’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -704,21 +676,12 @@ The last node appended, or None if the list is empty.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">HybridSearchStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bb_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.BranchAndBoundTree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.HybridSearchStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy</span></code></a></p>
 <p>Hybrid Dive-and-Best-Bound (D&amp;BB) strategy.</p>
-<p>Logic:</p>
 <ol class="arabic simple">
-<li><p>If no integer incumbent exists (best_integer_solution is None):
-Behaves like DFS (LIFO). Rapidly dives to find a feasible solution.</p></li>
-<li><p>Once an incumbent exists:
-Behaves like BestFS (Best-Bound). Systematic closure of the gap.</p></li>
+<li><p>If no integer incumbent exists: Behaves like DFS.</p></li>
+<li><p>Once an incumbent exists: Behaves like BestFS.</p></li>
 </ol>
-<p>This strategy combines the speed of DFS in finding feasible solutions with
-the mathematical efficiency of BestFS in proving optimality.</p>
-<p>NOTE ON PERFORMANCE:
-Hybrid search is less efficient than pure DFS for resolving child LPs
-because the Best-Bound phase frequently jumps between branches, forcing
-frequent Basis invalidation and re-solving from scratch. It also occupies
-more memory than DFS as Basis information must be stored for all open
-nodes to maintain any hope of warm-starting.</p>
+<p>Attributes:
+bb_tree (BranchAndBoundTree): Reference to tree state.</p>
 <p class="rubric">Initialization</p>
 <p>Store reference to tree state to monitor incumbents.</p>
 <p>Args:
@@ -730,13 +693,16 @@ bb_tree: The B&amp;B tree structure.</p>
 <p>Args:
 open_nodes: List of unexplored branch nodes.</p>
 <p>Returns:
-Selected node.</p>
+Optional[BranchNode]: Selected node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this strategy.</p>
+<p>Returns:
+str: The strategy name ‘hybrid’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -748,9 +714,9 @@ Selected node.</p>
 strategy_name: Name of the strategy (“best_first”, “depth_first”, “hybrid”)
 bb_tree: Optional reference to the tree for hybrid strategy.</p>
 <p>Returns:
-Instance of the requested strategy</p>
+NodeSelectionStrategy: Instance of the requested strategy.</p>
 <p>Raises:
-ValueError: If strategy_name is not recognized</p>
+ValueError: If strategy_name is not recognized.</p>
 </dd></dl>
 
 </section>

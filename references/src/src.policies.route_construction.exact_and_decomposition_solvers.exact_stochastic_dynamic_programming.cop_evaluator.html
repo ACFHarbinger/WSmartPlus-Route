@@ -472,7 +472,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator"><code class="docutils literal notranslate"><span class="pre">COPEvaluator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets"><code class="docutils literal notranslate"><span class="pre">COPEvaluator._precompute_all_subsets()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_route_cost"><code class="docutils literal notranslate"><span class="pre">COPEvaluator.get_route_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_feasible_actions"><code class="docutils literal notranslate"><span class="pre">COPEvaluator.get_feasible_actions()</span></code></a></li>
 </ul>
@@ -494,6 +493,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-exact-stochastic-dynamic-programming-cop-evaluator"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator" title="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator" title="Link to this heading">#</a></h1>
+<p>Evaluator for Chance-Constrained Optimization (COP) subproblems.</p>
+<p>Provides TSP cost precomputation and feasibility checking for the ESDP solver.</p>
+<p>Attributes:
+COPEvaluator (class): Evaluator for routing costs and feasibility.</p>
+<p>Example:
+&gt;&gt;&gt; evaluator = COPEvaluator(dist_matrix, num_nodes=5)
+&gt;&gt;&gt; cost = evaluator.get_route_cost(frozenset([1, 2]))
+&gt;&gt;&gt; actions = evaluator.get_feasible_actions(state=(1, 2, 0), capacity=1.0, L=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,9 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator" title="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">COPEvaluator</span></code></a></p></td>
-<td><p>Evaluates and caches optimal routing costs for all possible subsets of nodes.
-Since V &lt;= 10, exact evaluation using Held-Karp dynamic programming is O(V^2 2^V),
-which takes less than a second to cache all 2^V subsets.</p></td>
+<td><p>Evaluates and caches optimal routing costs for all possible subsets of nodes.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,28 +519,39 @@ which takes less than a second to cache all 2^V subsets.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.</span></span><span class="sig-name descname"><span class="pre">COPEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator" title="Link to this definition">#</a></dt>
-<dd><p>Evaluates and caches optimal routing costs for all possible subsets of nodes.
-Since V &lt;= 10, exact evaluation using Held-Karp dynamic programming is O(V^2 2^V),
+<dd><p>Evaluates and caches optimal routing costs for all possible subsets of nodes.</p>
+<p>Since V &lt;= 10, exact evaluation using Held-Karp dynamic programming is O(V^2 2^V),
 which takes less than a second to cache all 2^V subsets.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Distance matrix between nodes.
+num_nodes (int): Total number of nodes in the graph.
+cost_cache (Dict[FrozenSet[int], float]): Cache mapping node subsets to TSP costs.</p>
 <p class="rubric">Initialization</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets">
-<span class="sig-name descname"><span class="pre">_precompute_all_subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets" title="Link to this definition">#</a></dt>
-<dd><p>Precomputes the TSP tour cost (starting and ending at depot 0)
-for every possible subset of customer nodes {1, …, V-1}.</p>
-</dd></dl>
-
+<p>Initializes the COP evaluator.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+num_nodes: Total number of nodes in the graph.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_route_cost">
 <span class="sig-name descname"><span class="pre">get_route_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_route_cost" title="Link to this definition">#</a></dt>
 <dd><p>Return pre-computed TSP cost for the selected node subset.</p>
+<p>Args:
+subset (FrozenSet[int]): Set of node indices.</p>
+<p>Returns:
+float: Pre-computed TSP cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_feasible_actions">
 <span class="sig-name descname"><span class="pre">get_feasible_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discrete_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_feasible_actions" title="Link to this definition">#</a></dt>
-<dd><p>Return all subsets of nodes whose total current actual weight &lt;= vehicle capacity.
-Since we operate in discretized fill levels, actual_weight approx = (level / (L-1)).</p>
+<dd><p>Return all subsets of nodes whose total weight &lt;= vehicle capacity.</p>
+<p>Since we operate in discretized fill levels, actual_weight approx = (level / (L-1)).</p>
+<p>Args:
+discrete_state (Tuple[int, …]): Current discrete state tuple.
+capacity (float): Vehicle capacity.
+L (int): Number of discrete fill levels per bin.</p>
+<p>Returns:
+List[FrozenSet[int]]: List of feasible visit subsets.</p>
 </dd></dl>
 
 </dd></dl>
@@ -593,7 +609,6 @@ Since we operate in discretized fill levels, actual_weight approx = (level / (L-
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator"><code class="docutils literal notranslate"><span class="pre">COPEvaluator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets"><code class="docutils literal notranslate"><span class="pre">COPEvaluator._precompute_all_subsets()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_route_cost"><code class="docutils literal notranslate"><span class="pre">COPEvaluator.get_route_cost()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_feasible_actions"><code class="docutils literal notranslate"><span class="pre">COPEvaluator.get_feasible_actions()</span></code></a></li>
 </ul>

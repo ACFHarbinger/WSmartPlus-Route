@@ -495,9 +495,11 @@ document.write(`
 <span id="src-data-distributions-spatial-cluster"></span><h1><a class="reference internal" href="#module-src.data.distributions.spatial_cluster" title="src.data.distributions.spatial_cluster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.spatial_cluster</span></code></a><a class="headerlink" href="#module-src.data.distributions.spatial_cluster" title="Link to this heading">#</a></h1>
 <p>spatial_cluster.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+Cluster: Multiple Gaussian distributed clusters.</p>
 <p>Example:
-&gt;&gt;&gt; import spatial_cluster</p>
+&gt;&gt;&gt; from logic.src.data.distributions import Cluster
+&gt;&gt;&gt; cluster = Cluster(n_cluster=3)
+&gt;&gt;&gt; print(cluster.sample())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +520,11 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.spatial_cluster.</span></span><span class="sig-name descname"><span class="pre">Cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.spatial_cluster.Cluster" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Multiple Gaussian distributed clusters.</p>
+<p>Attributes:
+n_cluster: Number of clusters.
+lower: Lower bound for cluster centers.
+upper: Upper bound for cluster centers.
+std: Standard deviation for Gaussian distribution.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -537,6 +544,11 @@ torch.Tensor: Sampled values.</p>
 <dt class="sig sig-object py" id="src.data.distributions.spatial_cluster.Cluster._sample_array">
 <span class="sig-name descname"><span class="pre">_sample_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.spatial_cluster.Cluster._sample_array" title="Link to this definition">#</a></dt>
 <dd><p>NumPy version of clustered location sampling.</p>
+<p>Args:
+size: Description of size.
+rng: Description of rng.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </dd></dl>

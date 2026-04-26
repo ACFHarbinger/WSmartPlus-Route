@@ -35,14 +35,6 @@
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.__init__
 ```
 
-````{py:method} _precompute_all_subsets()
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator._precompute_all_subsets
-```
-
-````
-
 ````{py:method} get_route_cost(subset: typing.FrozenSet[int]) -> float
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.COPEvaluator.get_route_cost
 

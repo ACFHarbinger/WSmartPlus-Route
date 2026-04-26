@@ -493,6 +493,18 @@ document.write(`
 <p>Multi-Armed Bandit (MAB) agents.</p>
 <p>Provides classic multi-armed bandit algorithms for operator selection
 without environmental context.</p>
+<p>Attributes:
+BanditAgent: Abstract base class for MAB agents.
+EpsilonGreedyBandit: Standard ε-greedy exploration.
+UCBBandit: Upper Confidence Bound (UCB1) implementation.
+SoftmaxBandit: Boltzmann-style action selection.
+ThompsonSamplingBandit: Bayesian posterior sampling.
+DiscountedUCBBandit: UCB for non-stationary environments.
+SlidingWindowUCBBandit: Time-windowed UCB.
+EXP3Agent: Adversarial bandit algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits import UCBBandit
+&gt;&gt;&gt; agent = UCBBandit(n_arms=5)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

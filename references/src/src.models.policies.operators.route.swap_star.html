@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides a GPU-accelerated implementation of the Swap* operator,
 which performs inter-route exchanges of nodes and re-optimizes their insertion
 points in the target routes for maximum efficiency.</p>
+<p>Attributes:
+vectorized_swap_star: Inter-route node exchange with optimal re-insertion.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.operators.route.swap_star import vectorized_swap_star
+&gt;&gt;&gt; optimized_tours = vectorized_swap_star(tours, dist_matrix)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

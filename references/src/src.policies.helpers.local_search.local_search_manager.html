@@ -540,6 +540,16 @@ Heuristics:
     - Lin-Kernighan-Helsgaun (LKH) for TSP sub-problems
 </pre></div>
 </div>
+<p>Attributes:
+LocalSearchManager: Manages local search operators for ACO route improvement.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
+&gt;&gt;&gt; manager = LocalSearchManager(dist_matrix, wastes, capacity, R, C, improvement_threshold, seed)
+&gt;&gt;&gt; manager.set_routes(routes)
+&gt;&gt;&gt; manager.or_opt()
+True
+&gt;&gt;&gt; manager.get_routes()
+[[0, 1, 2], [3, 4, 5]]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -561,8 +571,28 @@ Heuristics:
 <dd><p>Manages local search operators for ACO route improvement.</p>
 <p>This class provides a unified interface to all local search operators
 from the operators module, compatible with Q-Learning operator selection.</p>
+<p>Attributes:
+d (np.ndarray): Matrix of distances between nodes.
+waste (Dict[int, float]): Dictionary of wastes for each node.
+Q (float): Capacity of the vehicle.
+R (float): Cost of travel per unit distance.
+C (float): Cost of time per unit time.
+improvement_threshold (float): Minimum improvement required to accept a move.
+seed (Optional[int]): Seed for random number generator.
+rng (np.random.Generator): Random number generator.
+random_std (random.Random): Random number generator.
+routes (List[List[int]]): List of routes.
+_load_cache (Dict[int, float]): Cache of waste loads for each route.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize local search manager.</p>
+<p>Initialize the LocalSearchManager with problem data and configuration.</p>
+<p>Args:
+dist_matrix (np.ndarray): Matrix of distances between nodes.
+wastes (Dict[int, float]): Dictionary of wastes for each node.
+capacity (float): Capacity of the vehicle.
+R (float): Cost of travel per unit distance.
+C (float): Cost of time per unit time.
+improvement_threshold (float): Minimum improvement required to accept a move.
+seed (Optional[int]): Seed for random number generator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.set_routes">
 <span class="sig-name descname"><span class="pre">set_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.set_routes" title="Link to this definition">#</a></dt>
@@ -618,6 +648,10 @@ route_indices (set): Set of indices for routes that were changed.</p>
 <span class="sig-name descname"><span class="pre">or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.or_opt" title="Link to this definition">#</a></dt>
 <dd><p>OR-opt: relocate chain of nodes using the imported operator.</p>
 <p>Tries all possible OR-opt moves and applies the first improving one.</p>
+<p>Args:
+chain_len (int, optional): Length of the chain to relocate. Defaults to 2.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -625,114 +659,190 @@ route_indices (set): Set of indices for routes that were changed.</p>
 <span class="sig-name descname"><span class="pre">cross_exchange_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_seg_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.cross_exchange_op" title="Link to this definition">#</a></dt>
 <dd><p>Cross-exchange: swap segments between routes.</p>
 <p>Systematically tries cross-exchange moves between route pairs.</p>
+<p>Args:
+max_seg_len (int, optional): Maximum length of segments to swap. Defaults to 2.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.improved_cross_exchange_op">
 <span class="sig-name descname"><span class="pre">improved_cross_exchange_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_seg_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.improved_cross_exchange_op" title="Link to this definition">#</a></dt>
 <dd><p>Improved Cross-exchange: swap segments between routes with optional internal reversal.</p>
+<p>Args:
+max_seg_len (int, optional): Maximum length of segments to swap. Defaults to 2.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.lambda_interchange_op">
 <span class="sig-name descname"><span class="pre">lambda_interchange_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.lambda_interchange_op" title="Link to this definition">#</a></dt>
 <dd><p>λ-interchange: generalized cross-exchange with segment lengths up to λ.</p>
+<p>Args:
+lambda_max (int, optional): Maximum length of segments to swap. Defaults to 2.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.ejection_chain_op">
 <span class="sig-name descname"><span class="pre">ejection_chain_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.ejection_chain_op" title="Link to this definition">#</a></dt>
 <dd><p>Ejection chain: attempt to empty routes for fleet minimization.</p>
+<p>Args:
+max_depth (int, optional): Maximum depth of the ejection chain. Defaults to 3.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.cyclic_transfer_op">
 <span class="sig-name descname"><span class="pre">cyclic_transfer_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.cyclic_transfer_op" title="Link to this definition">#</a></dt>
 <dd><p>Cyclic transfer: 3-way cyclical node exchange.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.exchange_chain_op">
 <span class="sig-name descname"><span class="pre">exchange_chain_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.exchange_chain_op" title="Link to this definition">#</a></dt>
 <dd><p>Exchange chain: evaluate block transfers composed of exchange_2_0 and exchange_2_1.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.two_opt_star">
 <span class="sig-name descname"><span class="pre">two_opt_star</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.two_opt_star" title="Link to this definition">#</a></dt>
 <dd><p>2-opt* inter-route operator using imported implementation.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.swap_star">
 <span class="sig-name descname"><span class="pre">swap_star</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.swap_star" title="Link to this definition">#</a></dt>
 <dd><p>SWAP* inter-route operator using imported implementation.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.two_opt_intra">
 <span class="sig-name descname"><span class="pre">two_opt_intra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.two_opt_intra" title="Link to this definition">#</a></dt>
 <dd><p>2-opt intra-route: reverse segments within routes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_opt_intra">
 <span class="sig-name descname"><span class="pre">three_opt_intra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_opt_intra" title="Link to this definition">#</a></dt>
 <dd><p>3-opt intra-route: reconnect three segments within routes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.four_opt_intra">
 <span class="sig-name descname"><span class="pre">four_opt_intra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.four_opt_intra" title="Link to this definition">#</a></dt>
 <dd><p>4-opt intra-route: permute four segments within routes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_permutation_op">
 <span class="sig-name descname"><span class="pre">three_permutation_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_permutation_op" title="Link to this definition">#</a></dt>
 <dd><p>3-permutation intra-route: reorder 3 consecutive nodes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_opt_star">
 <span class="sig-name descname"><span class="pre">three_opt_star</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.three_opt_star" title="Link to this definition">#</a></dt>
 <dd><p>3-opt* inter-route: exchange tails among three routes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.four_opt_star">
 <span class="sig-name descname"><span class="pre">four_opt_star</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.four_opt_star" title="Link to this definition">#</a></dt>
 <dd><p>4-opt* inter-route: exchange tails among four routes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.relocate">
 <span class="sig-name descname"><span class="pre">relocate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.relocate" title="Link to this definition">#</a></dt>
 <dd><p>Relocate: move single nodes to better positions.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.relocate_chain_op">
 <span class="sig-name descname"><span class="pre">relocate_chain_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.relocate_chain_op" title="Link to this definition">#</a></dt>
 <dd><p>Relocate chain: move a chain of consecutive nodes to another position.</p>
+<p>Args:
+max_chain_len (int, optional): Maximum length of the chain to relocate. Defaults to 3.</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.swap">
 <span class="sig-name descname"><span class="pre">swap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.swap" title="Link to this definition">#</a></dt>
 <dd><p>Swap: exchange positions of two nodes.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.lns">
 <span class="sig-name descname"><span class="pre">lns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.lns" title="Link to this definition">#</a></dt>
 <dd><p>Large Neighbourhood Search (LNS).</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_manager.LocalSearchManager.ges">
 <span class="sig-name descname"><span class="pre">ges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.ges" title="Link to this definition">#</a></dt>
 <dd><p>Guided Ejection Search (GES).</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -740,6 +850,10 @@ route_indices (set): Set of indices for routes that were changed.</p>
 <span class="sig-name descname"><span class="pre">lkh_refinement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_manager.LocalSearchManager.lkh_refinement" title="Link to this definition">#</a></dt>
 <dd><p>Apply Lin-Kernighan-Helsgaun heuristic to refine individual routes.</p>
 <p>Uses LKH to optimize each route as a TSP subproblem.</p>
+<p>Args:
+None</p>
+<p>Returns:
+bool: True if an improving move was found and applied, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>

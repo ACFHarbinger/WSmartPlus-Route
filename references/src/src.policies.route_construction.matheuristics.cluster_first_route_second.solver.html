@@ -512,6 +512,14 @@ Fisher, M. L., &amp; Jaikumar, R. (1981). “A generalized assignment heuristic
 for vehicle routing”. Networks, 11(2), 109-124.
 Sultana, T., Akhand, M. A. H., &amp; Rahman, M. M. H. (2017). “A Variant Fisher
 and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
+<p>Attributes:
+run_cf_rs: Main entry point orchestrating clustering and routing stages.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np, pandas as pd
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import run_cf_rs
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; coords = pd.DataFrame({“Lat”: [0, 1, 2], “Lng”: [0, 1, 2]})
+&gt;&gt;&gt; routes, cost, meta = run_cf_rs(coords, [1, 2], dm, {1: 0.3, 2: 0.4}, 1.0, 5.0, 1.0, 1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -632,12 +640,24 @@ Section 3.2: “each cone contains equal number of nodes”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.solver._get_depot_coords">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.solver.</span></span><span class="sig-name descname"><span class="pre">_get_depot_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.solver._get_depot_coords" title="Link to this definition">#</a></dt>
 <dd><p>Extract coordinates of the depot node (index 0).</p>
+<p>Args:
+coords: Either a DataFrame with “Lat”/”Lng” columns or a 2-D array of shape (n, 2).</p>
+<p>Returns:
+Tuple[float, float]: Latitude and longitude of the depot.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.solver._compute_node_features">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.solver.</span></span><span class="sig-name descname"><span class="pre">_compute_node_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_lng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.solver._compute_node_features" title="Link to this definition">#</a></dt>
 <dd><p>Compute angular positions and distances for all nodes relative to depot.</p>
+<p>Args:
+coords: Either a DataFrame with “Lat”/”Lng” columns or a 2-D array.
+mandatory: Node indices for which to compute features.
+depot_lat: Latitude of the depot.
+depot_lng: Longitude of the depot.
+distance_matrix: Distance matrix of shape (n_nodes, n_nodes).</p>
+<p>Returns:
+pd.DataFrame: DataFrame with columns “idx”, “angle”, “dist”, sorted by angle.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -536,9 +536,14 @@ Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
 traveling salesman heuristic. EJOR 126, 106-130.
 Helsgaun, K. (2017). An extension of the LKH-TSP solver for constrained
 traveling salesman and vehicle routing problems.</p>
+<p>Attributes:
+solve_lkh3: Main LKH-3 solver entry point for TSP/CVRP instances.
+solve_lkh3_with_alns: LKH-3 solver with integrated ALNS post-processing.</p>
 <p>Example:
-&gt;&gt;&gt; tour, cost = solve_lkh3(distance_matrix)
-&gt;&gt;&gt; tour, cost = solve_lkh3(distance_matrix, waste=demands, capacity=cap)</p>
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.lkh3 import solve_lkh3
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; routes, cost, penalty = solve_lkh3(dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -582,18 +587,22 @@ whose tour-adjacency physically changed have their don’t-look bits reset.
 For 2-opt on (t1,t2,t3,t4): only t1 and t3 are new edge endpoints.</p>
 <p>Args:
 curr_tour: Current closed tour.
-curr_pen, curr_cost: Current (penalty, cost).
+curr_pen: Current penalty.
+curr_cost: Current cost.
 candidates: α-nearest-neighbour candidate lists.
 distance_matrix: Cost matrix.
-waste, capacity: VRP parameters (None for TSP).
+waste: Waste for each node.
+capacity: Capacity of the vehicle.
 rng: Random number generator forwarded to operators.
 dont_look_bits: Boolean array; nodes with True are skipped.
 Allocated up to max(nodes_count, n_original + n_vehicles) to
 avoid IndexError on augmented graphs.
 max_k_opt: Maximum k for k-opt moves (2-5).
-n_original: Original graph size before augmentation.</p>
+n_original: Original graph size before augmentation.
+dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.</p>
 <p>Returns:
-(new_tour, new_penalty, new_cost, any_improvement, updated_bits).</p>
+Tuple[List[int], float, float, bool, Optional[np.ndarray]]: New tour,
+updated penalty, updated cost, improvement flag, and updated bits.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -644,9 +653,12 @@ entirely, enabling warm-start across LNS iterations.
 recorder: Optional recorder for visualisation / diagnostics.
 np_rng: Numpy random generator; seeded from 42 if not provided.
 rng: Random number generator forwarded to operators.
-seed: Seed for the random number generator.</p>
+seed: Seed for the random number generator.
+dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
+native_prize_collecting: Whether to use native prize collecting algorithm.
+subgradient_iterations: Number of subgradient optimization iterations.</p>
 <p>Returns:
-(best_tour, best_cost, best_penalty) where best_tour is a closed node sequence.</p>
+Tuple[List[List[int]], float, float]: Best routes, travel cost, and penalty.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -698,11 +710,13 @@ entirely, enabling warm-start across LNS iterations.
 recorder: Optional state recorder for visualization.
 np_rng: NumPy random generator.
 rng: Random generator.
-seed: Seed for the random number generator.</p>
+seed: Seed for the random number generator.
+dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
+native_prize_collecting: Whether to use native prize collecting algorithm.
+subgradient_iterations: Number of subgradient optimization iterations.</p>
 <p>Returns:
-Tuple of (routes, objective) where:
-- routes: List of routes (each is list of node IDs, no depot)
-- objective: Profit (VRPP) or negative cost (CVRP)</p>
+Tuple[List[List[int]], float, float]: Routes (each a list of node IDs
+without depot), objective value, and travel cost.</p>
 <p>Example:
 &gt;&gt;&gt; # VRPP mode
 &gt;&gt;&gt; routes, profit = solve_lkh3_with_alns(

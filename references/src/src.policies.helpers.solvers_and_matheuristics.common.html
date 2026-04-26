@@ -491,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.common">
 <span id="src-policies-helpers-solvers-and-matheuristics-common"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.common" title="src.policies.helpers.solvers_and_matheuristics.common"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.common" title="Link to this heading">#</a></h1>
 <p>Shared types and data structures for Branch-and-Price-and-Cut.</p>
+<p>This module provides common data structures like BranchNode and Route that are used
+across the various components of the exact solver.</p>
+<p>Attributes:
+BranchNode: Represents a node in the Branch-and-Bound search tree.
+Route: Represents a single vehicle route with cost and profit information.</p>
+<p>Example:
+&gt;&gt;&gt; node = BranchNode(depth=1)
+&gt;&gt;&gt; route = Route(nodes=[1, 2, 3], cost=10.0, profit=5.0)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

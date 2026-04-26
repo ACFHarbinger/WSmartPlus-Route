@@ -493,6 +493,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.abpc_hg">
 <span id="src-configs-policies-abpc-hg"></span><h1><a class="reference internal" href="#module-src.configs.policies.abpc_hg" title="src.configs.policies.abpc_hg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.abpc_hg</span></code></a><a class="headerlink" href="#module-src.configs.policies.abpc_hg" title="Link to this heading">#</a></h1>
+<p>Adaptive Branch-and-Price-and-Cut with Heuristic Guidance (ABPC-HG) configuration.</p>
+<p>Attributes:
+ABPCHGConfig: ABPC-HG policy configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.policies import ABPCHGConfig
+&gt;&gt;&gt; config = ABPCHGConfig()
+&gt;&gt;&gt; print(config)
+ABPCHGConfig(gamma=0.95, seed=None)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,6 +520,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.abpc_hg.</span></span><span class="sig-name descname"><span class="pre">ABPCHGConfig</span></span><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig" title="Link to this definition">#</a></dt>
 <dd><p>Config for Adaptive Branch-and-Price-and-Cut with Heuristic Guidance (ABPC-HG).</p>
+<p>Attributes:
+gamma (float): Gamma parameter for adaptive branching.
+seed (Optional[int]): Random seed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.abpc_hg.ABPCHGConfig.gamma">
 <span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.abpc_hg.ABPCHGConfig.gamma" title="Link to this definition">#</a></dt>

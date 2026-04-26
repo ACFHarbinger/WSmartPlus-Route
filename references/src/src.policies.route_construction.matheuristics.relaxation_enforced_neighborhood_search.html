@@ -500,9 +500,13 @@ variable fixing, and sub-MIP solve phases.
 - RENSPolicy: Simulator adapter that integrates the solver into the
 high-level routing policy workflow.
 - run_rens_gurobi: functional wrapper for quick optimization calls.</p>
+<p>Attributes:
+RENSPolicy: The RENS policy.
+run_rens_gurobi: The RENS solver wrapper.</p>
 <p>Example:
-&gt;&gt;&gt; policy = RENSPolicy(config=hydra_cfg)
-&gt;&gt;&gt; tour, distance, metadata = policy.execute(**env_state)</p>
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens import RENSPolicy
+&gt;&gt;&gt; rens_policy = RENSPolicy()
+&gt;&gt;&gt; tour, distance, metadata = rens_policy.execute(**env_state)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

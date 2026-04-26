@@ -496,6 +496,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-exact-stochastic-dynamic-programming-esdp-engine"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine" title="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine" title="Link to this heading">#</a></h1>
+<p>Exact Stochastic Dynamic Programming (ESDP) engine for VRPP.</p>
+<p>Provides the backward induction implementation to solve discrete stochastic
+routing problems optimally over a fixed time horizon.</p>
+<p>Attributes:
+ExactSDPEngine (class): Core solver engine for ESDP.</p>
+<p>Example:
+&gt;&gt;&gt; engine = ExactSDPEngine(params, dist_matrix, capacity)
+&gt;&gt;&gt; engine.solve()
+&gt;&gt;&gt; action = engine.get_optimal_action(day=1, state=(0, 1, 0))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,34 +524,69 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.</span></span><span class="sig-name descname"><span class="pre">ExactSDPEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params.html#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params.SDPParams" title="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params.SDPParams"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params.SDPParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine" title="Link to this definition">#</a></dt>
 <dd><p>Executes the backward induction for the exact SDP.</p>
+<p>Attributes:
+params (SDPParams): Configuration parameters for the solver.
+num_nodes (int): Total number of nodes in the problem.
+capacity (float): Vehicle capacity.
+state_space (StateSpaceManager): Manager for discrete state transitions.
+cop_eval (COPEvaluator): Evaluator for routing costs and feasibility.
+policy_table (Dict[int, Dict[Tuple[int, …], FrozenSet[int]]]): Day -&gt; State -&gt; Optimal Action.
+value_table (Dict[int, Dict[Tuple[int, …], float]]): Day -&gt; State -&gt; Expected Value.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the ESDP engine.</p>
+<p>Args:
+params: SDP configuration parameters.
+dist_matrix: Distance matrix between nodes.
+capacity: Vehicle capacity.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine._compute_overflow_penalty">
 <span class="sig-name descname"><span class="pre">_compute_overflow_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine._compute_overflow_penalty" title="Link to this definition">#</a></dt>
 <dd><p>Calculate overflow penalties for the current state.</p>
+<p>Args:
+state (Tuple[int, …]): Discrete state tuple.</p>
+<p>Returns:
+float: Calculated overflow penalty.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine._evaluate_action">
 <span class="sig-name descname"><span class="pre">_evaluate_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_val_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine._evaluate_action" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate the Q-value of a state-action pair.</p>
+<p>Args:
+state (Tuple[int, …]): Current discrete state.
+action (FrozenSet[int]): Set of node indices to visit.
+next_val_table (Dict[Tuple[int, …], float]): Value table for the next day.</p>
+<p>Returns:
+float: Expected long-term value (Q-value).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.compute_overflow_penalty">
 <span class="sig-name descname"><span class="pre">compute_overflow_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.compute_overflow_penalty" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the total overflow penalty for the current state.</p>
+<p>Args:
+state (Tuple[int, …]): Discrete state tuple.</p>
+<p>Returns:
+float: Total overflow penalty.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.solve" title="Link to this definition">#</a></dt>
 <dd><p>Perform exact backward induction from Day D down to Day 1.</p>
+<p>Raises:
+ValueError: If the problem parameters are inconsistent.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.get_optimal_action">
 <span class="sig-name descname"><span class="pre">get_optimal_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.ExactSDPEngine.get_optimal_action" title="Link to this definition">#</a></dt>
 <dd><p>Return the optimal subset of nodes to visit.</p>
+<p>Args:
+day (int): The current planning day.
+state (Tuple[int, …]): The current discrete state.</p>
+<p>Returns:
+FrozenSet[int]: The optimal set of node indices to visit.</p>
 </dd></dl>
 
 </dd></dl>

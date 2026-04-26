@@ -474,6 +474,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.FrontierItem"><code class="docutils literal notranslate"><span class="pre">FrontierItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree._get_coords_from_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.add_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_next_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.get_next_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.is_empty()</span></code></a></li>
@@ -503,6 +504,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.branching.tree">
 <span id="src-policies-helpers-solvers-and-matheuristics-branching-tree"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.branching.tree" title="src.policies.helpers.solvers_and_matheuristics.branching.tree"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.branching.tree</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.branching.tree" title="Link to this heading">#</a></h1>
 <p>Branch-and-Bound tree management for VRPP.</p>
+<p>This module provides the orchestrator for the Branch-and-Bound search process,
+managing node selection, pruning, and branching strategy dispatch.</p>
+<p>Attributes:
+BranchAndBoundTree: Main class for managing the B&amp;B search tree.</p>
+<p>Example:
+&gt;&gt;&gt; tree = BranchAndBoundTree(v_model, strategy=”ryan_foster”)
+&gt;&gt;&gt; tree.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -555,6 +563,17 @@ The tree utilizes the ‘best-bound’ priority for Best-First search to
 minimize the number of nodes explored before proving optimality. This
 is particularly effective for VRPP where the root LP gap is often
 small (~1-3%), allowing for early pruning.</p>
+<p>Attributes:
+max_nodes (int): Maximum number of nodes to explore.
+strategy (str): Branching strategy (‘divergence_spatial’, ‘edge’, ‘ryan_foster’).
+search_strategy (str): Tree search strategy (‘best_first’, ‘depth_first’).
+v_model (Optional[VRPPModel]): The underlying VRPP or Master problem model.
+node_coords (Optional[np.ndarray]): Spatial coordinates for divergence branching.
+nodes_explored (int): Counter for explored nodes.
+nodes_pruned (int): Counter for pruned nodes.
+best_integer_solution (Optional[float]): Objective value of the best incumbent.
+best_integer_node (Optional[BranchNode]): Node where the incumbent was found.
+open_nodes (List[FrontierItem]): Priority queue or LIFO list of open nodes.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Branch-and-Bound tree for BPC.</p>
 <p>Args:
@@ -564,9 +583,21 @@ max_nodes: Maximum number of nodes to explore.
 strategy: Branching strategy (‘divergence_spatial’, ‘edge’, ‘ryan_foster’).
 search_strategy: Search strategy (‘best_first’, ‘depth_first’).</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model">
+<span class="sig-name descname"><span class="pre">_get_coords_from_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model" title="Link to this definition">#</a></dt>
+<dd><p>Extract node coordinates from the model.</p>
+<p>Args:
+v_model: The VRPP model instance.</p>
+<p>Returns:
+Coordinates as an array or None.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node">
 <span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node" title="Link to this definition">#</a></dt>
 <dd><p>Enqueue a new open node to the frontier.</p>
+<p>Args:
+node: The BranchNode to add to the frontier.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -586,6 +617,8 @@ The selected BranchNode, or None if the open list is empty.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty">
 <span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty" title="Link to this definition">#</a></dt>
 <dd><p>Return True when no open nodes remain in the frontier.</p>
+<p>Returns:
+bool: True if the frontier is empty, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -618,8 +651,14 @@ Number of nodes pruned.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.find_strong_branching_candidates">
 <span class="sig-name descname"><span class="pre">find_strong_branching_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.find_strong_branching_candidates" title="Link to this definition">#</a></dt>
-<dd><p>Task 11 (SOTA): Identify top branching candidates for lookahead eval.
-Uses Spatial Divergence strength as the primary heuristic.</p>
+<dd><p>Identify top branching candidates for lookahead evaluation.</p>
+<p>Uses Spatial Divergence strength as the primary heuristic.</p>
+<p>Args:
+routes: Column pool.
+route_values: Fractional LP solution {route_index: λ_k}.
+max_candidates: Maximum number of candidates to return.</p>
+<p>Returns:
+List of branching candidates (divergence node, arc sets, score).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -631,20 +670,24 @@ longer need to import strategy classes directly.</p>
 <p>Args:
 node: The fractional B&amp;B node to branch from.
 routes: All routes in the master problem at this node.
-route_values: Current LP solution {route_index: λ_k}.</p>
+route_values: Current LP solution {route_index: λ_k}.
+mandatory_nodes: Set of mandatory nodes needing exact partitioning.
+strong_candidate: Optional pre-selected branching candidate.</p>
 <p>Returns:
-<code class="docutils literal notranslate"><span class="pre">(left_child,</span> <span class="pre">right_child)</span></code> if a branching decision was found,
-or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the solution is already integer (no fractional
-variable / arc found).</p>
+(left_child, right_child) if a branching decision was found,
+or None if the solution is already integer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_statistics">
 <span class="sig-name descname"><span class="pre">get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Return a snapshot of tree-search statistics.</p>
+<dd><p>Returns a snapshot of tree-search statistics.</p>
 <p>This method aggregates global search metadata, including the current
 best upper bound (from open nodes) and the best integer lower bound
 found so far.</p>
+<p>Returns:
+Dict[str, Any]: Statistics including explored nodes, pruned nodes,
+best bound, and incumbent value.</p>
 </dd></dl>
 
 </dd></dl>
@@ -704,6 +747,7 @@ found so far.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.FrontierItem"><code class="docutils literal notranslate"><span class="pre">FrontierItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree._get_coords_from_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.add_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_next_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.get_next_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.is_empty()</span></code></a></li>

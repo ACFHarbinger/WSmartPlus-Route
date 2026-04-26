@@ -137,6 +137,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name
+```
+
 ````
 
 `````
@@ -158,6 +161,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts
+```
+
 ````
 
 ````{py:method} _evaluate_and_add_sri(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, node_set: typing.Set[int], **kwargs) -> bool
@@ -178,6 +184,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name
+```
 
 ````
 
@@ -208,6 +217,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name
+```
+
 ````
 
 `````
@@ -237,6 +249,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name
+```
+
 ````
 
 `````
@@ -259,15 +274,24 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.engines
 :type: typing.List[src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine]
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.engines
+```
+
 ````
 
 ````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts
+```
+
 ````
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name
+```
 
 ````
 
@@ -298,6 +322,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.get_name
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.get_name
+```
+
 ````
 
 `````
@@ -319,10 +346,16 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.separate_and_add_cuts
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.separate_and_add_cuts
+```
+
 ````
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.get_name
+```
 
 ````
 
@@ -352,6 +385,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name
+```
 
 ````
 

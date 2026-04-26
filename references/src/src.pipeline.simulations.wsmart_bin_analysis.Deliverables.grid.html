@@ -507,6 +507,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-grid"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid" title="Link to this heading">#</a></h1>
 <p>GridBase manager for container ensembles.</p>
+<p>Attributes:
+GridBase: The class that manages the background behind a containers ensemble.
+fix10pad: Fixes the padding of a series to 10 digits.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid import GridBase
+&gt;&gt;&gt; g=GridBase(ids=[1,2,3],data_dir=”/path/to/data”,rate_type=”mean”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,6 +544,11 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.</span></span><span class="sig-name descname"><span class="pre">GridBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase" title="Link to this definition">#</a></dt>
 <dd><p>Class that manages the background behind a containers ensemble.</p>
 <p>It receives a csv file, and pre-processes the necessary data in order to allow sampling.</p>
+<p>Attributes:
+data (pd.DataFrame): The dataframe of processed rates.
+__info (Union[dict, pd.DataFrame]): Ids dictionary with info from each bin.
+__freq_table (pd.DataFrame): The cumulative frequency table for each bin.
+__data_dir (str): The root directory for data files.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the GridBase manager.</p>
 <p>Args:
@@ -550,43 +561,36 @@ same_file (bool): Whether data is stored in a single combined file. Defaults to 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.load_data">
 <span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.load_data" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Parameters
-    ----------
-    ids:list[int],
-        list of container ids to load
-    data_dir:str,
-        files directory
-    rate_type:str,
-        Can be &#39;mean&#39; or &#39;crude&#39; depending on the the file previously saved
-    info_ver:str,
-        ver suffix unused in info saving
-    names:list[str]
-        Names to use instead of the names generator.
-        All should come already with the .csv attached in the end
-    processed: bool ,True
-        set to True  by default; set if files hae been previously loaded
-    same_file: bool, False,
-        if the files are in the same file
-
-    Returns
-</pre></div>
-</div>
-<hr class="docutils" />
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    rates: pd.Dataframe
-        The dataframe of processed rates
-    info:dict: dict
-        Ids dictionary with info from each bin
-</pre></div>
-</div>
+<dd><p class="rubric" id="args">Args:</p>
+<p>ids:list[int],
+list of container ids to load
+data_dir:str,
+files directory
+rate_type:str,
+Can be ‘mean’ or ‘crude’ depending on the the file previously saved
+info_ver:str,
+ver suffix unused in info saving
+names:list[str]
+Names to use instead of the names generator.
+All should come already with the .csv attached in the end
+processed: bool ,True
+set to True  by default; set if files hae been previously loaded
+same_file: bool, False,
+if the files are in the same file</p>
+<p class="rubric" id="returns">Returns:</p>
+<p>rates: pd.Dataframe
+The dataframe of processed rates
+info:dict: dict
+Ids dictionary with info from each bin</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.__data_preprocess_same_file">
 <span class="sig-name descname"><span class="pre">__data_preprocess_same_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.__data_preprocess_same_file" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="parameters">Parameters</p>
+<dd><p class="rubric" id="id1">Args:</p>
 <p>data: pd.Dataframe,
 The dataframe with dates before preprocessing</p>
-<p class="rubric" id="returns">Returns</p>
+<p class="rubric" id="id2">Returns:</p>
 <p>data: pd.Dataframe,
 The dataframe with dates as row indexes</p>
 </dd></dl>
@@ -594,14 +598,14 @@ The dataframe with dates as row indexes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.cacl_freq_tables">
 <span class="sig-name descname"><span class="pre">cacl_freq_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.cacl_freq_tables" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id1">Returns</p>
+<dd><p class="rubric" id="id3">Returns:</p>
 <p>a dataframe whose columns are the distribution of each rate</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_mean_rate">
 <span class="sig-name descname"><span class="pre">get_mean_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_mean_rate" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id2">Returns</p>
+<dd><p class="rubric" id="id4">Returns:</p>
 <p>mean: np.ndarray
 the mean of each bin</p>
 </dd></dl>
@@ -609,20 +613,15 @@ the mean of each bin</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_var_rate">
 <span class="sig-name descname"><span class="pre">get_var_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_var_rate" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Returns
-</pre></div>
-</div>
-<hr class="docutils" />
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    var: np.ndarray
-        the varaince of each bin
-</pre></div>
-</div>
+<dd><p class="rubric" id="id5">Returns:</p>
+<p>var: np.ndarray
+the varaince of each bin</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_std_rate">
 <span class="sig-name descname"><span class="pre">get_std_rate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_std_rate" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id3">Returns</p>
+<dd><p class="rubric" id="id6">Returns:</p>
 <p>std: np.ndarray
 the stardard variation of each bin</p>
 </dd></dl>
@@ -630,7 +629,7 @@ the stardard variation of each bin</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_datarange">
 <span class="sig-name descname"><span class="pre">get_datarange</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_datarange" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id4">Returns</p>
+<dd><p class="rubric" id="id7">Returns:</p>
 <p>(start, end): pd.timestamp,
 start and end of the actual rate values</p>
 </dd></dl>
@@ -649,12 +648,12 @@ np.ndarray: Array of shape (n_samples, n_columns) containing values sampled from
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_values_by_date">
 <span class="sig-name descname"><span class="pre">get_values_by_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_values_by_date" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id5">Parameters</p>
+<dd><p class="rubric" id="id8">Args:</p>
 <p>date: timestamp, str
 Datetime obect (e.g when looping through a datarange) or string in %d-%m-%Y format.
 sample: bool,
 Weather The cointaners whose value is NaN should be filled with a sample form self.sample()</p>
-<p class="rubric" id="id6">Returns</p>
+<p class="rubric" id="id9">Returns:</p>
 <p>rate: np.ndarray
 each container rate in required date.</p>
 </dd></dl>
@@ -662,15 +661,23 @@ each container rate in required date.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.___values_by_date">
 <span class="sig-name descname"><span class="pre">___values_by_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.___values_by_date" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id7">Returns</p>
+<dd><p class="rubric" id="id10">Args:</p>
+<p>date: pd.Timestamp
+The date to get the rate for</p>
+<p class="rubric" id="id11">Returns:</p>
 <p>rate: np.darray
 The actual rate row of each bin</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.values_by_date_range">
-<span class="sig-name descname"><span class="pre">values_by_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Timestamp</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.values_by_date_range" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id8">Returns</p>
+<span class="sig-name descname"><span class="pre">values_by_date_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.Timestamp</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.values_by_date_range" title="Link to this definition">#</a></dt>
+<dd><p class="rubric" id="id12">Args:</p>
+<p>start: pd.Timestamp
+start date of the range
+end: pd.Timestamp
+end date of the range</p>
+<p class="rubric" id="id13">Returns:</p>
 <p>rate: pd.Dataframe
 The actual rate row of each bin per date</p>
 </dd></dl>
@@ -678,10 +685,10 @@ The actual rate row of each bin per date</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_info">
 <span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_info" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id9">Parameters</p>
+<dd><p class="rubric" id="id14">Args:</p>
 <p>i: int
 index of the container to fect information from</p>
-<p class="rubric" id="id10">Returns</p>
+<p class="rubric" id="id15">Returns:</p>
 <p>info: dict
 the info of the container with the given index</p>
 </dd></dl>
@@ -689,7 +696,7 @@ the info of the container with the given index</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_num_bins">
 <span class="sig-name descname"><span class="pre">get_num_bins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase.get_num_bins" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="id11">Returns</p>
+<dd><p class="rubric" id="id16">Returns:</p>
 <p>num_bins: int
 the number of bins in the grid</p>
 </dd></dl>
@@ -702,6 +709,10 @@ the number of bins in the grid</p>
 <dd><p>returns a series will all its 1 values padded to 2 without changing the first 1</p>
 <p>a value is verifiied by checkking if is one if 0.9999999&gt;1.</p>
 <p>1-0.9999999 &lt; 1/365*3 ~ 0.0001 Hard Coded, change for much bigger datasets; same goes for zero</p>
+<p>Args:
+s (pd.Series): The series to fix.</p>
+<p>Returns:
+pd.Series: The fixed series.</p>
 </dd></dl>
 
 </section>

@@ -493,6 +493,11 @@ document.write(`
 <p>Type III Stringing Operator.</p>
 <p>Inserts node V_x and reverses almost the entire sequence.
 This is the inverse of Stringing Type I, exploring other promising regions.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iii import apply_type_iii_s
+&gt;&gt;&gt; new_route = apply_type_iii_s(route, x, i, j, k, current_load)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -520,14 +525,14 @@ Deletes arcs: (V_{i-1}, V_i), (V_{j-1}, V_j), (V_{k-1}, V_k)
 Inserts arcs: (V_i, V_x), (V_x, V_j), (V_k, V_{j-1}), (V_{k-1}, V_{i-1})</p>
 <p>Reverses sub-tours (V_i…V_{j-1}) and (V_k…V_{i-1}).</p>
 <p>Args:
-route: The tour as a list of node IDs.
-x: Node ID to insert (V_x).
-i: Index of node V_i (start of first reversal).
-j: Index of node V_j (end of first reversal + 1).
-k: Index of node V_k (start of second reversal).
-current_load: Pre-calculated current weight of the route.</p>
+route (List[int]): The tour as a list of node IDs.
+x (int): Node ID to insert (V_x).
+i (int): Index of node V_i (start of first reversal).
+j (int): Index of node V_j (end of first reversal + 1).
+k (int): Index of node V_k (start of second reversal).
+current_load (float): Pre-calculated current weight of the route.</p>
 <p>Returns:
-New route with V_x inserted and segments reversed.</p>
+List[int]: New route with V_x inserted and segments reversed.</p>
 <p>Constraints:
 V_k != V_i and V_k != V_j</p>
 </dd></dl>
@@ -537,18 +542,19 @@ V_k != V_i and V_k != V_j</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iii.</span></span><span class="sig-name descname"><span class="pre">apply_type_iii_s_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_load</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iii.apply_type_iii_s_profit" title="Link to this definition">#</a></dt>
 <dd><p>Apply Type III Stringing and return profit delta.</p>
 <p>Args:
-route: The tour as a list of node IDs.
-x: Node ID to insert (V_x).
-i: Index of node V_i (start of first reversal).
-j: Index of node V_j (end of first reversal + 1).
-k: Index of node V_k (start of second reversal).
-dist_matrix: Distance matrix.
-wastes: Waste levels.
-current_load: Pre-calculated current weight of the route.
-capacity: Vehicle capacity.
-R, C: Revenue and cost multipliers.</p>
+route (List[int]): The tour as a list of node IDs.
+x (int): Node ID to insert (V_x).
+i (int): Index of node V_i.
+j (int): Index of node V_j.
+k (int): Index of node V_k.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste levels.
+current_load (float): Pre-calculated current weight of the route.
+capacity (float): Vehicle capacity.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
 <p>Returns:
-(new_route, delta_profit)</p>
+Tuple[List[int], float]: (new_route, delta_profit)</p>
 </dd></dl>
 
 </section>

@@ -498,6 +498,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params">
 <span id="src-policies-route-construction-matheuristics-lagrangian-relaxation-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params" title="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Lagrangian Relaxation Heuristic (LRH).</p>
+<p>Attributes:
+LRHParams: Dataclass holding LRH solver hyperparameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params import LRHParams
+&gt;&gt;&gt; params = LRHParams(max_iter=50, step_size=2.0)
+&gt;&gt;&gt; d = params.to_dict()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,12 +556,18 @@ seed: Random seed.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams" title="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams"><span class="pre">src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create LRHParams from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object or dict with LRH parameter attributes.</p>
+<p>Returns:
+LRHParams: Populated parameter dataclass.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params.LRHParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert LRHParams to a dictionary for backend compatibility.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of parameter names to their values.</p>
 </dd></dl>
 
 </dd></dl>

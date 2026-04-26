@@ -493,7 +493,9 @@ document.write(`
 </li>
 </ul>
 </li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#key-implementation-features">Key Implementation Features:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features">Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+Key Implementation Features:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimizations">Performance Optimizations:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-for-ablation-studies">Usage for Ablation Studies:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
@@ -515,6 +517,8 @@ document.write(`
 <p>This module implements ALNS following Ropke &amp; Pisinger (2005) methodology,
 adapted for the Vehicle Routing Problem with Profits (VRPP) as a profit
 maximization problem.</p>
+<p>Attributes:
+ALNSSolver: Core ALNS implementation.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,8 +541,52 @@ maximization problem.</p>
 <p>Follows Ropke &amp; Pisinger (2005) with segment-based weight updates,
 clean/noisy operator pairs (paper Configuration 15), and optional
 extended destroy operator registry.</p>
+<p>Attributes:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: ALNS parameters.
+mandatory_nodes: List of nodes that must be visited.
+vrpp: Whether to allow expanding insertion pool.
+profit_aware_operators: Whether to use profit-aware operators.
+extended_operators: Whether to use extended destroy set.
+random: Random number generator for selection.
+np_random: NumPy generator for worst removal.
+_viz_record: Callable for recording solver state.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+destroy_ops: List of destroy operator functions.
+destroy_names: Names of destroy operators.
+repair_ops: List of repair operator functions.
+repair_names: Names of repair operators.
+repair_noisy: Boolean flags for noisy repair operators.
+segment_size: Iterations per weight update segment.
+destroy_weights: Adaptive weights for destroy operators.
+repair_weights: Adaptive weights for repair operators.
+destroy_scores: Accumulated scores for destroy operators.
+repair_scores: Accumulated scores for repair operators.
+destroy_counts: Usage counts for destroy operators.
+repair_counts: Usage counts for repair operators.
+weight_decay: Weight decay factor (1 - reaction_factor).
+weight_learning_rate: Weight learning rate (reaction_factor).
+visited_solutions: Set of hashed solution states.
+acceptance_criterion: Logic for accepting candidate solutions.</p>
+<p>Example:
+&gt;&gt;&gt; solver = ALNSSolver(dist_matrix, wastes, 100.0, 1.5, 0.5, params)
+&gt;&gt;&gt; best_routes, best_profit, best_cost = solver.solve()</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the ALNS solver.</p>
+<p>Initializes the ALNS solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: ALNS parameters.
+mandatory_nodes: Optional list of nodes that must be visited.
+recorder: Optional recorder for solver state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._build_destroy_ops">
 <span class="sig-name descname"><span class="pre">_build_destroy_ops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._build_destroy_ops" title="Link to this definition">#</a></dt>
@@ -584,14 +632,21 @@ float: Noise value in range [-eta * max_dist, eta * max_dist]</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._hash_solution">
 <span class="sig-name descname"><span class="pre">_hash_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._hash_solution" title="Link to this definition">#</a></dt>
 <dd><p>Create a canonical hash of a solution for tracking visited states.</p>
+<p>Args:
+routes: List of routes to hash.</p>
 <p>Returns:
 Tuple representation of sorted routes for hashing.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve">
-<span class="sig-name descname"><span class="pre">_initialize_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_initialize_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._initialize_solve" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the solver state with an initial solution.</p>
+<p>Args:
+initial_solution: Optional starting solution.</p>
+<p>Returns:
+Tuple containing (current_routes, best_routes, best_profit, best_cost).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators">
@@ -600,14 +655,21 @@ Tuple representation of sorted routes for hashing.</p>
 <p>Repair operators are selected via roulette-wheel (Eq. 20). Clean and
 noisy variants are independent slots — the adaptive mechanism decides
 which is preferable rather than a fixed coin flip (paper Conf. 15).</p>
+<p>Args:
+current_routes: The current solution routes.</p>
 <p>Returns:
-(new_routes, destroy_idx, repair_idx)</p>
+Tuple containing (new_routes, destroy_idx, repair_idx).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights">
 <span class="sig-name descname"><span class="pre">_update_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update scores and usage counts for operators.</p>
+<p>Args:
+d_idx: Index of the destroy operator used.
+r_idx: Index of the repair operator used.
+score: Score to add based on solution quality.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment">
@@ -624,23 +686,39 @@ where:
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.solve" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solve the VRPP using Adaptive Large Neighborhood Search.</p>
+<p>Args:
+initial_solution: Optional starting solution. If None, uses greedy.</p>
+<p>Returns:
+Tuple of (best_routes, best_profit, best_cost).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator">
 <span class="sig-name descname"><span class="pre">select_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.select_operator" title="Link to this definition">#</a></dt>
 <dd><p>Roulette-wheel operator selection (Eq. 20).</p>
+<p>Args:
+weights: List of operator weights.</p>
+<p>Returns:
+Index of the selected operator.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost">
 <span class="sig-name descname"><span class="pre">calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.calculate_cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the total routing cost (distance) for the given routes.</p>
+<p>Args:
+routes: List of routes to evaluate.</p>
+<p>Returns:
+Total calculated routing cost.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution">
 <span class="sig-name descname"><span class="pre">build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.ALNSSolver.build_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Build an initial solution using the greedy profit-aware heuristic.</p>
+<p>Returns:
+List of routes for the initial solution.</p>
 </dd></dl>
 
 </dd></dl>
@@ -648,8 +726,10 @@ where:
 </section>
 </section>
 </section>
-<section class="tex2jax_ignore mathjax_ignore" id="key-implementation-features">
-<h1>Key Implementation Features:<a class="headerlink" href="#key-implementation-features" title="Link to this heading">#</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features">
+<h1>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+Key Implementation Features:<a class="headerlink" href="#example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features" title="Link to this heading">#</a></h1>
 <ol class="arabic simple">
 <li><p><strong>Operator Weight Updates</strong> (Section 3.4.4):</p>
 <ul class="simple">
@@ -807,7 +887,9 @@ Transportation Science, 40(4), 455-472.</p>
 </li>
 </ul>
 </li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#key-implementation-features">Key Implementation Features:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#example-from-logic-src-policies-route-construction-meta-heuristics-adaptive-large-neighborhood-search-alns-import-alnssolver-key-implementation-features">Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+Key Implementation Features:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimizations">Performance Optimizations:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-for-ablation-studies">Usage for Ablation Studies:</a></li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>

@@ -501,7 +501,13 @@ wave functions.  Exploration / exploitation balance is enforced by the
 parameter <code class="docutils literal notranslate"><span class="pre">a</span></code> which decays linearly from <code class="docutils literal notranslate"><span class="pre">a_max</span></code> to 0 over the run.  The
 final continuous vector is binarised via a sigmoid transfer function and
 decoded to a discrete routing solution via the Largest Rank Value (LRV) rule.</p>
-<p>Reference:
+<p>Attributes:
+SCASolver (Type): Core solver class for Sine Cosine Algorithm.
+SCAParams (Type): Parameter dataclass for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = SCASolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
+<p>References:
 Mirjalili, S. “SCA: A Sine Cosine Algorithm for solving
 optimization problems.”, 2016, Knowledge-Based Systems.</p>
 <section id="module-contents">
@@ -523,31 +529,60 @@ optimization problems.”, 2016, Knowledge-Based Systems.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.</span></span><span class="sig-name descname"><span class="pre">SCASolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params.html#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params.SCAParams" title="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params.SCAParams"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params.SCAParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver" title="Link to this definition">#</a></dt>
 <dd><p>Sine Cosine Algorithm solver for VRPP.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per kg traveled.
+params (SCAParams): Algorithm-specific parameters.
+mandatory_nodes (List[int]): Nodes that must be visited.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the Sine Cosine Algorithm solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per kg traveled.
+params (SCAParams): Algorithm-specific parameters.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run SCA and return the best solution found.</p>
 <p>Returns:
-Tuple of (routes, profit, cost).</p>
+Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._decode">
 <span class="sig-name descname"><span class="pre">_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._decode" title="Link to this definition">#</a></dt>
 <dd><p>Decode a continuous position vector to a discrete routing solution.</p>
+<p>Args:
+x (np.ndarray): Continuous position vector.</p>
+<p>Returns:
+List[List[int]]: Decoded routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.</p>
+<p>Returns:
+float: Net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.SCASolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes (List[List[int]]): List of routes.</p>
+<p>Returns:
+float: Total routing distance.</p>
 </dd></dl>
 
 </dd></dl>

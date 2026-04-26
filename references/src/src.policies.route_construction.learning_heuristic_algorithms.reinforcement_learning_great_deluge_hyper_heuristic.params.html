@@ -517,6 +517,12 @@ experimental settings found in Ozcan et al. (2010).</p>
 - totalTime = time_limit (600 s in the paper; lower for VRPP instances)
 - Reward magnitude = +1 (RL1 additive)
 - Penalty magnitude = -1 (RL1 subtractive), ÷2 (RL2), √ (RL3)</p>
+<p>Attributes:
+RLGDHHParams: Parameters for RL-GD-HH.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHParams
+&gt;&gt;&gt; params = RLGDHHParams()
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -647,12 +653,18 @@ profit_aware_operators: Use profit-weighted removal/insertion operators.
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.__post_init__">
 <span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Ensure acceptance criterion is initialized even if not passed in config.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams" title="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config (Any): Configuration object.</p>
+<p>Returns:
+RLGDHHParams: Parameters for RL-GD-HH.</p>
 </dd></dl>
 
 </dd></dl>

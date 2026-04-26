@@ -535,13 +535,13 @@ embed_dim (int): feature vector dimensionality.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the AttentionModelPolicy.</p>
 <p>Args:
-env_name: Name of the environment registry entry.
-embed_dim: Latent representation size.
-hidden_dim: Hidden size for FFN and attention sublayers.
-n_encode_layers: Number of transformer encoder layers.
-n_heads: Parallel attention heads.
-normalization: Type of normalization (‘batch’, ‘instance’, ‘layer’).
-**kwargs: Additional parameters for the sub-components.</p>
+env_name: Name of the environment identifier.
+embed_dim: Dimensionality of node features.
+hidden_dim: Dimensionality of hidden layers.
+n_encode_layers: Number of GAT encoder layers.
+n_heads: Number of attention heads.
+normalization: Type of normalization (“batch”, “layer”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.attention_model.policy.AttentionModelPolicy.encoder">
 <span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.encoders.gat.GraphAttentionEncoder</span></em><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy.encoder" title="Link to this definition">#</a></dt>
@@ -559,12 +559,12 @@ normalization: Type of normalization (‘batch’, ‘instance’, ‘layer’).
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes one-shot or multi-start constructive decoding.</p>
 <p>Args:
-td: TensorDict containing instance metadata and state.
-env: Environment object for reward and state updates.
-strategy: Action selection tactic (‘greedy’, ‘sampling’).
-num_starts: Number of parallel construction attempts.
-actions: Pre-defined tour to evaluate (for teacher forcing).
-**kwargs: Control arguments including ‘return_init_embeds’.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “greedy”).
+num_starts: Number of parallel construction starts.
+actions: Optional pre-selected actions.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Policy results including:
 - reward (torch.Tensor): Calculated reward for the routes.

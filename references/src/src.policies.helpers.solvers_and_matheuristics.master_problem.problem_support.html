@@ -576,7 +576,21 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support">
 <span id="src-policies-helpers-solvers-and-matheuristics-master-problem-problem-support"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support" title="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support" title="Link to this heading">#</a></h1>
-<p>Constraint addition and management mixin for VRPPMasterProblem.</p>
+<p>Master problem support mixin for Vehicle Routing Problem with Profit Maximization (VRPP).</p>
+<p>This module provides helper methods for the VRPP master problem, including:</p>
+<ul class="simple">
+<li><p>Constraint addition and management (coverage, capacity, SRI, SEC, RCC, LCI).</p></li>
+<li><p>Route pool management (adding, removing, merging routes).</p></li>
+<li><p>Phase control (Phase 1: feasibility, Phase 2: optimality).</p></li>
+<li><p>Reduced cost calculation with support for all cut types.</p></li>
+<li><p>Artificial variable detection (Phase 1 infeasibility).</p></li>
+</ul>
+<p>Attributes:
+MasterProblemSupport: Structural protocol for master problem implementations.
+VRPPMasterProblemSupportMixin: Helper methods for column pooling and sifting.</p>
+<p>Example:
+&gt;&gt;&gt; support = MasterProblemSupport()
+&gt;&gt;&gt; rc = support.calculate_reduced_cost(route, duals)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -587,8 +601,7 @@ document.write(`
 <td><p>Structural interface defining the requirements for a VRPP Master Problem.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin" title="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPMasterProblemSupportMixin</span></code></a></p></td>
-<td><p>Mixin containing methods that support the master problem.
-This helps reduce the size of the main model.py file.</p></td>
+<td><p>Mixin containing methods that support the master problem.</p></td>
 </tr>
 </tbody>
 </table>
@@ -618,6 +631,33 @@ This helps reduce the size of the main model.py file.</p></td>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.</span></span><span class="sig-name descname"><span class="pre">MasterProblemSupport</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.Protocol</span></code></p>
 <p>Structural interface defining the requirements for a VRPP Master Problem.</p>
+<p>Attributes:
+n_nodes: Number of nodes in the problem.
+mandatory_nodes: Set of mandatory nodes.
+optional_nodes: Set of optional nodes.
+cost_matrix: Matrix of travel costs between nodes.
+wastes: Dictionary of wastes for each node.
+capacity: Capacity of each vehicle.
+R: Maximum distance each vehicle can travel.
+C: Cost of using each vehicle.
+vehicle_limit: Maximum number of vehicles that can be used.
+global_cut_pool: Pool of active cuts.
+BIG_M: Large constant for big-M constraints.
+model: Gurobi model for the master problem.
+routes: List of routes.
+lambda_vars: List of lambda variables corresponding to the routes.
+dual_node_coverage: Dictionary of dual values for node coverage constraints.
+dual_vehicle_limit: Dual value for vehicle limit constraint.
+global_column_pool: Pool of candidate routes.
+phase: Phase of the algorithm (1 for feasibility, 2 for optimality).
+active_src_cuts: Dictionary of active subset-row inequality (SRC) cuts.
+active_sec_cuts: Dictionary of active subset-edge clique (SEC) cuts.
+active_sec_cuts_local: Dictionary of local SEC cuts.
+active_rcc_cuts: Dictionary of active restricted cut cover (RCC) cuts.
+active_capacity_cuts: Dictionary of active capacity cuts.
+active_lci_cuts: Dictionary of active lifted cover inequality (LCI) cuts.
+active_lci_node_alphas: Dictionary of node alphas for LCI cuts.
+active_lci_arcs: Dictionary of arcs for LCI cuts.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.n_nodes">
 <span class="sig-name descname"><span class="pre">n_nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.n_nodes" title="Link to this definition">#</a></dt>
@@ -891,160 +931,312 @@ This helps reduce the size of the main model.py file.</p></td>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.build_model">
 <span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.build_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Constructs the initial Gurobi model for the RMP.</p>
+<p>Args:
+initial_routes (Optional[List[Route]]): Optional list of starting routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_lp_relaxation">
 <span class="sig-name descname"><span class="pre">solve_lp_relaxation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_lp_relaxation" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solves the LP relaxation of the RMP and returns the duals.</p>
+<p>Returns:
+Tuple[float, Dict[int, float]]: (Objective value, dual variables dictionary).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._handle_infeasibility">
 <span class="sig-name descname"><span class="pre">_handle_infeasibility</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._handle_infeasibility" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Handles RMP infeasibility using Farkas duals or artificial variables.</p>
+<p>Returns:
+Tuple[float, Dict[int, float]]: (Infeasibility cost, Farkas duals dictionary).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._extract_duals">
 <span class="sig-name descname"><span class="pre">_extract_duals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._extract_duals" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Extracts dual values from the solved LP into internal registries.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._apply_dual_smoothing">
 <span class="sig-name descname"><span class="pre">_apply_dual_smoothing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._apply_dual_smoothing" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Applies exponential smoothing to dual values to stabilize column generation.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_ip">
 <span class="sig-name descname"><span class="pre">solve_ip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_ip" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solves the RMP as an Integer Program.</p>
+<p>Returns:
+Tuple[float, List[Route]]: (IP objective value, list of selected routes).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_route">
 <span class="sig-name descname"><span class="pre">add_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_route" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a new route (column) to the RMP.</p>
+<p>Args:
+route (Route): The route to add.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._add_column_to_model">
 <span class="sig-name descname"><span class="pre">_add_column_to_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._add_column_to_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Internal helper to add a route variable to the Gurobi model.</p>
+<p>Args:
+route: The route to add.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._wire_route_into_active_cuts">
 <span class="sig-name descname"><span class="pre">_wire_route_into_active_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._wire_route_into_active_cuts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Connects a route variable to all relevant active cut constraints.</p>
+<p>Args:
+route: The route representation.
+var: The Gurobi variable for the route.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.purge_useless_columns">
 <span class="sig-name descname"><span class="pre">purge_useless_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.purge_useless_columns" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Removes columns with high reduced costs to keep the RMP compact.</p>
+<p>Args:
+tolerance (float): Reduced cost threshold for deletion.</p>
+<p>Returns:
+int: Number of columns purged.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_reduced_cost_coefficients">
 <span class="sig-name descname"><span class="pre">get_reduced_cost_coefficients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_reduced_cost_coefficients" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates coefficients for pricing subproblems.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of dual components (nodes, cuts) to their values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_node_visitation">
 <span class="sig-name descname"><span class="pre">get_node_visitation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_node_visitation" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates node visitation probabilities (y_i) from fractional route values.</p>
+<p>Returns:
+Dict[int, float]: Mapping of node index to visitation probability.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_edge_usage">
 <span class="sig-name descname"><span class="pre">get_edge_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_elementary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.get_edge_usage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates edge usage frequencies (x_ij) from fractional route values.</p>
+<p>Args:
+only_elementary (bool): Whether to only consider elementary routes.</p>
+<p>Returns:
+Dict[Tuple[int, int], float]: Mapping of (u, v) edge to usage value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.save_basis">
 <span class="sig-name descname"><span class="pre">save_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.save_basis" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Saves the current basis status of RMP variables and constraints.</p>
+<p>Returns:
+Optional[Tuple[List[int], List[int]]]: (vbasis, cbasis) status arrays,
+or None if no model exists.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.restore_basis">
 <span class="sig-name descname"><span class="pre">restore_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vbasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbasis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.restore_basis" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Restores the RMP basis from saved status arrays.</p>
+<p>Args:
+vbasis (List[int]): Variable basis statuses.
+cbasis (List[int]): Constraint basis statuses.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.sift_global_column_pool">
 <span class="sig-name descname"><span class="pre">sift_global_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcc_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_clique_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lci_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lci_node_alphas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.sift_global_column_pool" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Scan the global pool for profitable columns under current duals and branching.</p>
+<p>Args:
+node_duals (Dict[int, float]): Base duals from coverage and vehicle limits.
+rcc_duals (Dict[FrozenSet[int], float]): Current Root-Capacity Cut duals.
+sri_duals (Dict[FrozenSet[int], float]): Current Subset-Row Inequality duals.
+edge_clique_duals (Dict[Tuple[int, int], float]): Current Edge Clique cut duals.
+lci_duals (Optional[Dict[FrozenSet[int], float]]): Current Lifted Cover Inequality duals.
+lci_node_alphas (Optional[Dict[FrozenSet[int], Dict[int, float]]]): Node lifting coefficients.
+branching_constraints (Optional[List[AnyBranchingConstraint]]): Active branching constraints.
+rc_tolerance (float): Threshold to prevent injection of insignificant columns.</p>
+<p>Returns:
+int: Number of routes re-activated and added to the RMP.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.calculate_reduced_cost">
 <span class="sig-name descname"><span class="pre">calculate_reduced_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.calculate_reduced_cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the reduced cost of a route using current dual values.</p>
+<p>Args:
+route (Route): The route to evaluate.
+dual_values (Dict[str, Any]): Dictionary of dual components.</p>
+<p>Returns:
+float: The calculated reduced cost.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.set_phase">
 <span class="sig-name descname"><span class="pre">set_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.set_phase" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).</p>
+<p>Args:
+phase (int): 1 for Feasibility, 2 for Optimality.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.deduplicate_column_pool">
 <span class="sig-name descname"><span class="pre">deduplicate_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.deduplicate_column_pool" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Prune mathematically equivalent routes from the global column pool.</p>
+<p>Args:
+tol (float): Numerical tolerance for profit comparison.</p>
+<p>Returns:
+int: Number of redundant routes removed.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.has_artificial_variables_active">
 <span class="sig-name descname"><span class="pre">has_artificial_variables_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.has_artificial_variables_active" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Check whether any artificial variable is non-zero in the current solution.</p>
+<p>Args:
+tol (float): Threshold below which a variable value is considered zero.</p>
+<p>Returns:
+bool: True if at least one artificial variable is active (indicates infeasibility).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_edge_clique_cut">
 <span class="sig-name descname"><span class="pre">add_edge_clique_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_edge_clique_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds an Edge Clique Cut to the master problem.</p>
+<p>Args:
+u (int): First node of the edge.
+v (int): Second node of the edge.
+coefficients (Optional[Dict[int, float]]): Mapping of node to its coefficient in the clique.
+rhs (float): Right-hand side of the inequality.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_subset_row_cut">
 <span class="sig-name descname"><span class="pre">add_subset_row_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_subset_row_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a Subset-Row Inequality (SRI) cut to the master problem.</p>
+<p>Args:
+node_set (Union[List[int], Set[int], FrozenSet[int]]): The set of nodes in the inequality.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_capacity_cut">
 <span class="sig-name descname"><span class="pre">add_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_skip_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_capacity_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a Root-Capacity Cut (RCC) or generalized capacity cut.</p>
+<p>Args:
+node_list (List[int]): The set of nodes involved in the cut.
+rhs (float): Right-hand side of the inequality.
+coefficients (Optional[Dict[int, float]]): Variable coefficients.
+is_global (bool): Whether the cut is globally valid across the B&amp;B tree.
+_skip_pool (bool): Whether to skip adding to the global cut pool.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_lci_cut">
 <span class="sig-name descname"><span class="pre">add_lci_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_alphas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_lci_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a Lifted Cover Inequality (LCI) cut to the master problem.</p>
+<p>Args:
+node_list (List[int]): The cover set nodes.
+rhs (float): Right-hand side.
+coefficients (Dict[int, float]): Coefficients for coverage variables.
+node_alphas (Optional[Dict[int, float]]): Lifting coefficients.
+arc (Optional[Tuple[int, int]]): Branching arc associated with the cut.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_set_packing_capacity_cut">
 <span class="sig-name descname"><span class="pre">add_set_packing_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_set_packing_capacity_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a capacity cut specifically for set packing formulations.</p>
+<p>Args:
+node_list (List[int]): Nodes in the cut set.
+rhs (float): Right-hand side.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_sec_cut">
 <span class="sig-name descname"><span class="pre">add_sec_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_cut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facet_form</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'2.1'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.add_sec_cut" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Adds a Subtour Elimination Constraint (SEC).</p>
+<p>Args:
+node_list (Union[List[int], Set[int], FrozenSet[int]]): Nodes in the subtour.
+rhs (float): Right-hand side.
+cut_name (str): Name for the constraint.
+global_cut (bool): Whether the cut is globally valid.
+node_i (int): Specific node i for facet-defining forms.
+node_j (int): Specific node j for facet-defining forms.
+facet_form (str): Type of facet-defining inequality to use.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._count_crossings">
 <span class="sig-name descname"><span class="pre">_count_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._count_crossings" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Counts how many times a route enters/exits a given node set.</p>
+<p>Args:
+route: The route to analyze.
+node_set: The set of nodes to check crossings for.</p>
+<p>Returns:
+Number of crossings (entries/exits).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.remove_local_cuts">
 <span class="sig-name descname"><span class="pre">remove_local_cuts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.remove_local_cuts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Removes local cuts from the Gurobi model (used during B&amp;B backtrack).</p>
+<p>Returns:
+int: Number of cuts removed.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.find_and_add_violated_rcc">
 <span class="sig-name descname"><span class="pre">find_and_add_violated_rcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.find_and_add_violated_rcc" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Identifies and adds violated Root-Capacity Cuts using the separation heuristic.</p>
+<p>Args:
+route_values (Dict[int, float]): Current fractional values of route variables.
+routes (List[Route]): Active routes in the RMP.
+max_cuts (int): Maximum number of cuts to add in one pass.</p>
+<p>Returns:
+int: Number of violated cuts added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._find_customer_components">
 <span class="sig-name descname"><span class="pre">_find_customer_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arc_flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport._find_customer_components" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Identifies connected components of customers in the fractional support graph.</p>
+<p>Args:
+arc_flow (Dict[Tuple[int, int], float]): Arc flows x_ij.</p>
+<p>Returns:
+List[Set[int]]: List of node sets representing connected components.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.</span></span><span class="sig-name descname"><span class="pre">VRPPMasterProblemSupportMixin</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin" title="Link to this definition">#</a></dt>
-<dd><p>Mixin containing methods that support the master problem.
-This helps reduce the size of the main model.py file.</p>
+<dd><p>Mixin containing methods that support the master problem.</p>
+<p>This helps reduce the size of the main model.py file by encapsulating
+utility methods for column management and reduced cost calculation.</p>
+<p>Attributes:
+global_column_pool: Pool of candidate routes.
+routes: List of routes in the current model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.sift_global_column_pool">
 <span class="sig-name descname"><span class="pre">sift_global_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcc_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_clique_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lci_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lci_node_alphas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.sift_global_column_pool" title="Link to this definition">#</a></dt>
@@ -1054,11 +1246,10 @@ node_duals: Base duals from coverage and vehicle limits.
 rcc_duals: Current Root-Capacity Cut duals.
 sri_duals: Current Subset-Row Inequality duals.
 edge_clique_duals: Current Edge Clique cut duals.
-lci_duals: Current Lifted Cover Inequality duals (γ per cover set S).
+lci_duals: Current Lifted Cover Inequality duals.
 lci_node_alphas: Per-node lifting coefficients for LCI pricing adjustment.
 branching_constraints: List of active B&amp;B branching constraints.
-rc_tolerance: Numerical threshold to prevent injection of mathematically
-insignificant columns (epsilon deadlock).</p>
+rc_tolerance: Threshold to prevent injection of insignificant columns.</p>
 <p>Returns:
 Number of routes re-activated and added to the RMP.</p>
 </dd></dl>
@@ -1066,8 +1257,14 @@ Number of routes re-activated and added to the RMP.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.calculate_reduced_cost">
 <span class="sig-name descname"><span class="pre">calculate_reduced_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.calculate_reduced_cost" title="Link to this definition">#</a></dt>
-<dd><p>Helper to calculate reduced cost of a route using current duals.
-Correctly accounts for node coverage, fleet limit, and all active cuts.</p>
+<dd><p>Calculates the reduced cost of a route using current dual values.</p>
+<p>Accounting for node coverage duals, vehicle limit duals, and all active cuts
+(RCC, SRI, Edge Clique, LCI).</p>
+<p>Args:
+route (Route): The route to evaluate.
+dual_values (Dict[str, Any]): Dictionary of dual components.</p>
+<p>Returns:
+float: The calculated reduced cost.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1075,33 +1272,33 @@ Correctly accounts for node coverage, fleet limit, and all active cuts.</p>
 <span class="sig-name descname"><span class="pre">set_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.set_phase" title="Link to this definition">#</a></dt>
 <dd><p>Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).</p>
 <p>Phase 1: All route objectives are set to 0.0 so the LP has no inherent
-bias.  Gurobi will find the RMP infeasible (no Big-M artificials),
-and the Farkas dual ray guides pricing toward columns that restore
-coverage of mandatory nodes.
+bias. Gurobi will find the RMP infeasible, and the Farkas dual ray
+guides pricing toward columns that restore coverage.
 Phase 2: Route objectives are restored to their profit values so the LP
-maximises total profit (standard column generation).</p>
+maximises total profit.</p>
 <p>Args:
-phase: 1 or 2.</p>
+phase: 1 (Feasibility) or 2 (Optimality).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.deduplicate_column_pool">
 <span class="sig-name descname"><span class="pre">deduplicate_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.deduplicate_column_pool" title="Link to this definition">#</a></dt>
-<dd><p>Prune mathematically equivalent routes from the global column pool.
-Uses MD5 content hashes of node sequences for O(1) deduplication.</p>
+<dd><p>Prune mathematically equivalent routes from the global column pool.</p>
+<p>Uses MD5 content hashes of node sequences for O(1) deduplication.</p>
+<p>Args:
+tol: Numerical tolerance for profit comparison.</p>
+<p>Returns:
+Number of redundant routes removed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.has_artificial_variables_active">
 <span class="sig-name descname"><span class="pre">has_artificial_variables_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.VRPPMasterProblemSupportMixin.has_artificial_variables_active" title="Link to this definition">#</a></dt>
-<dd><p>Check whether any artificial variable is non-zero in the current solution.</p>
-<p>A non-zero α_i after solving the IP indicates that node i cannot be
-covered by the current column pool under the active branching constraints,
-so the B&amp;B node should be declared infeasible and pruned.</p>
+<dd><p>Check whether any artificial variable is non-zero in current solution.</p>
 <p>Args:
 tol: Threshold below which a variable value is considered zero.</p>
 <p>Returns:
-True if at least one α_i &gt; tol, indicating infeasibility.</p>
+True if at least one artificial variable is active.</p>
 </dd></dl>
 
 </dd></dl>

@@ -507,6 +507,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.policies.aco">
 <span id="src-configs-rl-policies-aco"></span><h1><a class="reference internal" href="#module-src.configs.rl.policies.aco" title="src.configs.rl.policies.aco"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.aco</span></code></a><a class="headerlink" href="#module-src.configs.rl.policies.aco" title="Link to this heading">#</a></h1>
 <p>ACO (Ant Colony Optimization) configuration for expert policy training.</p>
+<p>Attributes:
+ACOConfig: Configuration for ACO algorithm.</p>
+<p>Example:
+aco_config = ACOConfig(
+n_ants=20,
+alpha=1.0,
+beta=2.0,
+rho=0.1,
+tau_0=1.0,
+tau_min=0.01,
+tau_max=10.0,
+max_iterations=50,
+time_limit=30.0,
+q0=0.9,
+k_sparse=15,
+sequence_length=5,
+local_search=True,
+elitist_weight=1.0,
+operators=[“swap”, “2opt_intra”, “relocate”, “swap_star”, “perturb”],
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

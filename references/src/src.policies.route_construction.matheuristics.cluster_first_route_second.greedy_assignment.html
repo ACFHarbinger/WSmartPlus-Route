@@ -499,6 +499,13 @@ nodes to the first feasible seed that respects capacity constraints.</p>
 <p>Reference:
 Sultana, T., Akhand, M. A. H., &amp; Rahman, M. M. H. (2017). “A Variant Fisher
 and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
+<p>Attributes:
+assign_greedy: Greedy node-to-cluster assignment using Fisher &amp; Jaikumar insertion cost.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment import assign_greedy
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; clusters = assign_greedy([1, 2], [1, 2], {1: 0.3, 2: 0.4}, 1.0, dm)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -531,18 +538,48 @@ and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem”.</p>
 <li><p>Assign each node to the first feasible seed (respecting capacity constraints).</p></li>
 <li><p>Handle unassigned nodes (behavior depends on strict_fleet parameter).</p></li>
 </ol>
+<p>Args:
+seeds: Cluster seed node indices.
+mandatory: Node indices that must be assigned to a cluster.
+wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity limit.
+distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+strict_fleet: If True, raise an error rather than opening a new vehicle.</p>
+<p>Returns:
+List[List[int]]: Cluster assignment, one list of node indices per seed.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment._handle_unassigned_nodes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment.</span></span><span class="sig-name descname"><span class="pre">_handle_unassigned_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unassigned</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_fleet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment._handle_unassigned_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Helper to handle nodes that weren’t assigned in the initial greedy pass.</p>
+<p>Args:
+unassigned: Node indices that were not placed during the greedy pass.
+mandatory: All mandatory node indices.
+seeds: Cluster seed node indices (may be extended in flexible mode).
+clusters: Current cluster assignments; modified in place.
+loads: Current load per cluster; modified in place.
+assigned: Set of already-assigned node indices; modified in place.
+capacity: Vehicle capacity limit.
+wastes: Waste amounts keyed by node index.
+strict_fleet: If True, raise ValueError instead of opening new vehicles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment._greedy_swap_fallback">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment.</span></span><span class="sig-name descname"><span class="pre">_greedy_swap_fallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment._greedy_swap_fallback" title="Link to this definition">#</a></dt>
 <dd><p>Attempt to swap an unassigned node with an assigned one to free up capacity.</p>
+<p>Args:
+node: The unassigned node to place.
+waste: Waste amount of the unassigned node.
+seeds: Cluster seed node indices.
+clusters: Current cluster assignments; modified in place on success.
+loads: Current load per cluster; modified in place on success.
+assigned: Set of assigned node indices; modified in place on success.
+capacity: Vehicle capacity limit.
+wastes: Waste amounts keyed by node index.</p>
+<p>Returns:
+bool: True if the swap succeeded and the node was placed, False otherwise.</p>
 </dd></dl>
 
 </section>

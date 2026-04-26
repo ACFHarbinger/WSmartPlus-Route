@@ -504,6 +504,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.solvers_and_matheuristics.master_problem.constraints">
 <span id="src-policies-helpers-solvers-and-matheuristics-master-problem-constraints"></span><h1><a class="reference internal" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.constraints" title="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.constraints</span></code></a><a class="headerlink" href="#module-src.policies.helpers.solvers_and_matheuristics.master_problem.constraints" title="Link to this heading">#</a></h1>
 <p>Constraint addition and management mixin for VRPPMasterProblem.</p>
+<p>Attributes:
+VRPPMasterProblemConstraintsMixin: Mixin for adding cutting planes to the master problem.</p>
+<p>Example:
+&gt;&gt;&gt; master.add_subset_row_cut({1, 2, 3})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,8 +515,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin" title="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPMasterProblemConstraintsMixin</span></code></a></p></td>
-<td><p>Mixin containing methods for adding cutting planes to the master problem.
-This helps reduce the size of the main model.py file.</p></td>
+<td><p>Mixin containing methods for adding cutting planes to the master problem.</p></td>
 </tr>
 </tbody>
 </table>
@@ -540,8 +543,11 @@ This helps reduce the size of the main model.py file.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.</span></span><span class="sig-name descname"><span class="pre">VRPPMasterProblemConstraintsMixin</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin" title="Link to this definition">#</a></dt>
-<dd><p>Mixin containing methods for adding cutting planes to the master problem.
-This helps reduce the size of the main model.py file.</p>
+<dd><p>Mixin containing methods for adding cutting planes to the master problem.</p>
+<p>Attributes:
+model: Reference to the Gurobi model.
+routes: List of routes in the master problem.
+lambda_vars: Decision variables for each route.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin.add_edge_clique_cut">
 <span class="sig-name descname"><span class="pre">add_edge_clique_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin.add_edge_clique_cut" title="Link to this definition">#</a></dt>
@@ -551,7 +557,8 @@ This helps reduce the size of the main model.py file.</p>
 <p>Where C is a minimal cover of routes using edge (u, v), and α_k are
 lifting coefficients for routes not in the cover.</p>
 <p>Args:
-u, v: Endpoint nodes of the edge.
+u: Start node of the edge.
+v: End node of the edge.
 coefficients: Mapping from route index to lifting coefficient α_k.
 If None, defaults to 1.0 for all routes using the edge.
 rhs: Right-hand side of the inequality (|C| - 1).</p>
@@ -585,7 +592,10 @@ vehicles required to serve S.</p>
 <p>Constraint:  Σ_{k: route_k crosses δ(S)} crossings_k(S) * λ_k  &gt;=  rhs</p>
 <p>Args:
 node_list: Nodes in set S.
-rhs: Right-hand side (2 * ⌈demand(S) / Q⌉).</p>
+rhs: Right-hand side (2 * ⌈demand(S) / Q⌉).
+coefficients: Optional mapping for route lifting.
+is_global: Whether the cut is globally valid.
+_skip_pool: Internal flag to avoid re-archiving.</p>
 <p>Returns:
 True if the cut was newly added, False if it already exists/failed.</p>
 </dd></dl>
@@ -618,6 +628,8 @@ coefficients: Route-index → route-level lifting coefficient (α_k).
 node_alphas: Node-id → per-node lifting coefficient (α_i).
 If None, defaults to 1.0 for cover nodes, 0.0 for others.
 arc: Optional source arc (i, j) for arc-saturation LCI.</p>
+<p>Returns:
+bool: True if the cut was successfully added.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -647,12 +659,19 @@ global_cut: If True, the cut is stored in the global registry.
 node_i: Index of node i for Form 2.2 and 2.3 PC-SECs.
 node_j: Index of node j for Form 2.3 PC-SECs.
 facet_form: Form indicator for PC-SECs (e.g. “2.1”, “2.3”).</p>
+<p>Returns:
+True if added successfully.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin._count_crossings">
 <span class="sig-name descname"><span class="pre">_count_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.policies.helpers.solvers_and_matheuristics.master_problem.model.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin._count_crossings" title="Link to this definition">#</a></dt>
-<dd><p>Count how many times a route crosses the boundary δ(S).</p>
+<dd><p>Counts how many times a route crosses the boundary δ(S).</p>
+<p>Args:
+route (Route): The route to check.
+node_set (FrozenSet[int]): The node set S.</p>
+<p>Returns:
+int: Number of times the route enters/leaves S.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -675,12 +694,22 @@ using a connectivity heuristic:</p>
 <li><p>For each component S, check if the routing bound is violated:
 Σ_{k} x^k(δ(S)) λ_k  &lt;  2 * ⌈ (Σ_{i∈S} waste_i) / Q ⌉</p></li>
 </ol>
+<p>Args:
+route_values: Current LP values for routes.
+routes: List of routes.
+max_cuts: Maximum number of cuts to add.</p>
+<p>Returns:
+Number of cuts successfully added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin._find_customer_components">
 <span class="sig-name descname"><span class="pre">_find_customer_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arc_flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.constraints.VRPPMasterProblemConstraintsMixin._find_customer_components" title="Link to this definition">#</a></dt>
 <dd><p>Identify connected components of customer nodes in the support graph.</p>
+<p>Args:
+arc_flow: Mapping of edges to their fractional flow values.</p>
+<p>Returns:
+List[Set[int]]: List of sets, where each set contains node IDs in a component.</p>
 </dd></dl>
 
 </dd></dl>

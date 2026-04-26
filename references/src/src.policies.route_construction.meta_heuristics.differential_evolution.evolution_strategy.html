@@ -505,25 +505,13 @@ document.write(`
 <p>Evolution strategies for Memetic Differential Evolution (MDE).</p>
 <p>This module implements the Strategy Pattern to support different approaches for
 handling local search optimization within the MDE framework.</p>
-<p>Theoretical Background:
-The original Differential Evolution (DE) algorithm (Storn &amp; Price, 1997)
-is a “parallel direct search method” that does not include local search.
-By incorporating Lamarckian or Baldwinian learning, we extend DE into a
-Memetic Algorithm (MA) specifically designed for the discrete routing domain.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Baldwinian Evolution (Baldwin, 1896):
-    Phenotypic learning - improved fitness is used for selection, but
-    genetic material (continuous vector) remains unchanged.
-
-Lamarckian Evolution (Lamarck, 1809):
-    Genotypic learning - genetic material is reverse-engineered from the
-    improved solution, allowing offspring to inherit learned improvements.
-</pre></div>
-</div>
-<p>References:
-Storn, R., &amp; Price, K. (1997). “Differential Evolution – A Simple and
-Efficient Heuristic for Global Optimization over Continuous Spaces.”
-Whitley, D., Gordon, V.S., &amp; Mathias, K. (1994). “Lamarckian Evolution, the
-Baldwin Effect and Function Optimization.”</p>
+<p>Attributes:
+EvolutionStrategy: Abstract base class for evolution strategies.
+BaldwinianStrategy: Baldwinian evolution strategy.
+LamarckianStrategy: Lamarckian evolution strategy.
+create_evolution_strategy: Factory function to create evolution strategy instances.</p>
+<p>Example:
+&gt;&gt;&gt; strategy = create_evolution_strategy(“lamarckian”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,7 +519,8 @@ Baldwin Effect and Function Optimization.”</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy" title="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvolutionStrategy</span></code></a></p></td>
-<td><p>Abstract base class for evolution strategies.</p></td>
+<td><p>Defines the interface for determining which continuous vector survives
+the selection process when local search has been applied.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.BaldwinianStrategy" title="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.BaldwinianStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaldwinianStrategy</span></code></a></p></td>
 <td><p>Baldwinian evolution strategy.</p></td>
@@ -560,9 +549,10 @@ Baldwin Effect and Function Optimization.”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.</span></span><span class="sig-name descname"><span class="pre">EvolutionStrategy</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract base class for evolution strategies.</p>
 <p>Defines the interface for determining which continuous vector survives
 the selection process when local search has been applied.</p>
+<p>Attributes:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy.get_surviving_vector">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_surviving_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimized_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.EvolutionStrategy.get_surviving_vector" title="Link to this definition">#</a></dt>
@@ -594,6 +584,8 @@ genetic material (continuous Random Key vector) remains unchanged.</p>
 - You suspect premature convergence issues
 - Local search may produce overfitted solutions
 - Genotype-phenotype mapping is expensive</p>
+<p>Attributes:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.BaldwinianStrategy.get_surviving_vector">
 <span class="sig-name descname"><span class="pre">get_surviving_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimized_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.BaldwinianStrategy.get_surviving_vector" title="Link to this definition">#</a></dt>
@@ -625,6 +617,8 @@ the improvements discovered by local search.</p>
 - Local search consistently produces improvements
 - Computational budget is limited
 - You have a robust encoder that preserves solution quality</p>
+<p>Attributes:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.LamarckianStrategy.get_surviving_vector">
 <span class="sig-name descname"><span class="pre">get_surviving_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimized_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.LamarckianStrategy.get_surviving_vector" title="Link to this definition">#</a></dt>

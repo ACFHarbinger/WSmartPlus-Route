@@ -554,6 +554,14 @@ to scheduling a sales summit. PATAT III, LNCS 2079, 176–190.</p>
 the art. Journal of the Operational Research Society, 64(12), 1695–1724.
 </pre></div>
 </div>
+<p>Attributes:
+AdaptiveRouteConstructorOrchestrator: Meta-constructor that learns optimal
+ordering of routing heuristics through online experience.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator import AdaptiveRouteConstructorOrchestrator
+&gt;&gt;&gt; params = ARCOParams()
+&gt;&gt;&gt; arco = AdaptiveRouteConstructorOrchestrator(params)
+&gt;&gt;&gt; routes = arco.build_routes(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -623,23 +631,29 @@ W[c_{k-1}, c_k] ← (1 − α) · W[c_{k-1}, c_k] + α · r_k
 where r_k is the normalised marginal reward from constructor c_k.
 The first-position weight is updated similarly:
 w_first[c_0] ← (1 − α) · w_first[c_0] + α · r_0</p>
-<p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;arco&quot;</span></code></p>
+<p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;arco&quot;</span></code>
+Attributes:
+None</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the ARCO orchestrator.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Any, optional): Configuration dictionary or Hydra config object.
+If None, default ARCOParams are used.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._get_config_key">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._initialize_constructors">
@@ -663,10 +677,13 @@ typed dataclass automatically.</p>
 <li><p>Observes marginal improvement per step and updates weights.</p></li>
 </ol>
 <p>Args:
+kwargs: Description of kwargs.
 **kwargs: Simulation context (tour, cost, profit, search_context,
 multi_day_context, mandatory, bins, distance_matrix, …).</p>
 <p>Returns:
-5-tuple: (tour, cost, profit, search_context, multi_day_context).</p>
+5-tuple: (tour, cost, profit, search_context, multi_day_context).
+Args:
+kwargs: Description of kwargs.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -746,6 +763,17 @@ List[str]: Constructor names in the optimal learned order.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Not used — execute() is overridden directly.</p>
+<p>Args:
+sub_dist_matrix: Description of sub_dist_matrix.
+sub_wastes: Description of sub_wastes.
+capacity: Description of capacity.
+revenue: Description of revenue.
+cost_unit: Description of cost_unit.
+values: Description of values.
+mandatory_nodes: Description of mandatory_nodes.
+kwargs: Description of kwargs.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </dd></dl>
@@ -757,7 +785,12 @@ List[str]: Constructor names in the optimal learned order.</p>
 <p>Non-positive values map to 0.  Large positive values approach 1.
 This keeps rewards bounded and comparable regardless of problem scale.</p>
 <p>f(x) = x / (x + scale)    for x &gt; 0
-f(x) = 0                  for x ≤ 0</p>
+f(x) = 0                  for x ≤ 0
+Args:
+raw: Description of raw.
+scale: Description of scale.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </section>

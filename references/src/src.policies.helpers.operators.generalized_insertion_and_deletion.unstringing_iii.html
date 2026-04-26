@@ -493,6 +493,11 @@ document.write(`
 <p>Type III Unstringing Operator.</p>
 <p>Removes node V_i and reconnects the route involving V_j and V_k where k &gt; j.
 This is the correct Type III implementation (formerly II).</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iii import apply_type_iii_us
+&gt;&gt;&gt; new_route = apply_type_iii_us(route, i, j, k)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -519,12 +524,12 @@ This is the correct Type III implementation (formerly II).</p>
 Reverses sub-tours (V_{i+1}…V_j) and (V_{j+1}…V_k).
 Reconnects sequence: V_{i-1} -&gt; V_k…V_{j+1} -&gt; V_j…V_{i+1} -&gt; V_{k+1}…</p>
 <p>Args:
-route: The tour as a list of node IDs.
-i: Index of node V_i to remove.
-j: Index of node V_j (neighbor of V_{i+1}).
-k: Index of node V_k (neighbor of V_{i-1}), where k &gt; j relative to i.</p>
+route (List[int]): The tour as a list of node IDs.
+i (int): Index of node V_i to remove.
+j (int): Index of node V_j (neighbor of V_{i+1}).
+k (int): Index of node V_k (neighbor of V_{i-1}), where k &gt; j relative to i.</p>
 <p>Returns:
-The modified tour.</p>
+List[int]: The modified tour.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -532,13 +537,16 @@ The modified tour.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iii.</span></span><span class="sig-name descname"><span class="pre">apply_type_iii_us_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iii.apply_type_iii_us_profit" title="Link to this definition">#</a></dt>
 <dd><p>Apply Type III Unstringing and return profit delta.</p>
 <p>Args:
-route: The tour as a list of node IDs.
-i, j, k: Indices as defined in apply_type_iii_us.
-dist_matrix: Distance matrix.
-wastes: Waste levels.
-R, C: Revenue and cost multipliers.</p>
+route (List[int]): The tour as a list of node IDs.
+i (int): Index of node V_i.
+j (int): Index of node V_j.
+k (int): Index of node V_k.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste levels.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
 <p>Returns:
-(new_route, delta_profit)</p>
+Tuple[List[int], float]: (new_route, delta_profit)</p>
 </dd></dl>
 
 </section>

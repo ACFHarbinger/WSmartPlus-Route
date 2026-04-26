@@ -491,6 +491,13 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-refinement-rebalancing"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing" title="Link to this heading">#</a></h1>
 <p>Solution rebalancing strategies for the look-ahead policy.
 Iteratively removes and re-inserts bins to optimize route density and feasibility.</p>
+<p>Attributes:
+rebalance_solution: Iteratively remove and re-insert bins to balance the solution.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.rebalancing import rebalance_solution
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; cost, profit = rebalance_solution(routes, [], 1.0, 1.0, 1.0, 1.0, data, mandatory_nodes, distance_matrix, values)
+&gt;&gt;&gt; print(f”Cost: {cost}, Profit: {profit}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

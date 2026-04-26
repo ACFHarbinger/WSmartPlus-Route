@@ -515,6 +515,13 @@ document.write(`
 <span id="src-configs-policies-es-mkl"></span><h1><a class="reference internal" href="#module-src.configs.policies.es_mkl" title="src.configs.policies.es_mkl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.es_mkl</span></code></a><a class="headerlink" href="#module-src.configs.policies.es_mkl" title="Link to this heading">#</a></h1>
 <p>(μ,κ,λ) Evolution Strategy configuration with age-based selection.</p>
 <p>Parents exceeding age κ are excluded from selection, preventing stagnation.</p>
+<p>Attributes:
+MuKappaLambdaESConfig: Configuration for (μ,κ,λ) Evolution Strategy policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.es_mkl import MuKappaLambdaESConfig
+&gt;&gt;&gt; config = MuKappaLambdaESConfig()
+&gt;&gt;&gt; config.mu
+15</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,6 +542,29 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.es_mkl.</span></span><span class="sig-name descname"><span class="pre">MuKappaLambdaESConfig</span></span><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for (μ,κ,λ) Evolution Strategy policy.</p>
 <p>Evolution strategy with age-limited parent survival for long-term optimization.</p>
+<p>Attributes:
+mu (int): Number of parents.
+kappa (int): Maximum age (generations).
+lambda_ (int): Number of offspring.
+rho (int): Recombination participants.
+tau_local (float): Local learning rate.
+tau_global (float): Global learning rate.
+initial_sigma (float): Initial mutation standard deviation.
+min_sigma (float): Minimum mutation standard deviation.
+max_sigma (float): Maximum mutation standard deviation.
+recombination_type (str): Type of recombination.
+bounds_min (Optional[float]): Minimum bound for decision variables.
+bounds_max (Optional[float]): Maximum bound for decision variables.
+n_removal (int): Number of routes to remove.
+stagnation_limit (int): Stagnation limit.
+local_search_iterations (int): Number of local search iterations.
+max_iterations (int): Maximum number of iterations.
+time_limit (float): Time limit in seconds.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+seed (Optional[int]): Seed for the random number generator.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.es_mkl.MuKappaLambdaESConfig.mu">
 <span class="sig-name descname"><span class="pre">mu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.es_mkl.MuKappaLambdaESConfig.mu" title="Link to this definition">#</a></dt>

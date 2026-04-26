@@ -495,6 +495,11 @@ document.write(`
 <p>This module provides a GPU-accelerated implementation of the 3-opt heuristic,
 evaluating multiple reconnection ways (cases 4-7) for three-edge removals
 in parallel across problem batches.</p>
+<p>Attributes:
+vectorized_three_opt: Vectorized 3-opt local search using parallel sampling for efficiency.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.operators.route.three_opt import vectorized_three_opt
+&gt;&gt;&gt; tours = vectorized_three_opt(tours, dist_matrix, max_iterations)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

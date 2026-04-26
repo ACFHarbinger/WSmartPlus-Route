@@ -502,6 +502,8 @@ under a base policy (e.g., last-minute collection).</p>
 This is an approximation and should be documented as such in research.
 Currently, the lookahead evaluates each bin in isolation rather than
 simulating the full vehicle fleet and routing across all potential nodes.</p>
+<p>Attributes:
+RolloutSelection(IMandatorySelectionStrategy): Decision strategy using one-step Monte Carlo lookahead to approximate future expected rewards.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_rollout import RolloutSelection
 &gt;&gt;&gt; strategy = RolloutSelection()

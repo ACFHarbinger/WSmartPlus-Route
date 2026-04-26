@@ -490,6 +490,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_heuristic_algorithms">
 <span id="src-policies-route-construction-learning-heuristic-algorithms"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_heuristic_algorithms" title="src.policies.route_construction.learning_heuristic_algorithms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_heuristic_algorithms" title="Link to this heading">#</a></h1>
+<p>Module documentation.</p>
+<p>Attributes:
+policy_rl_alns: Reinforcement Learning Adaptive Large Neighborhood Search policy.
+policy_rl_ahvpl: Reinforcement Learning Augmented Hybrid Volleyball Premier League policy.
+policy_rl_hvpl: Reinforcement Learning Hybrid Volleyball Premier League policy.
+policy_rl_gd_hh: Reinforcement Learning Great Deluge Hyper Heuristic policy.</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms import policy_rl_alns
+&gt;&gt;&gt; policy = policy_rl_alns()
+&gt;&gt;&gt; routes, metrics = policy.run_day(env)
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -528,6 +528,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.tasks.meta_rl">
 <span id="src-configs-tasks-meta-rl"></span><h1><a class="reference internal" href="#module-src.configs.tasks.meta_rl" title="src.configs.tasks.meta_rl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks.meta_rl</span></code></a><a class="headerlink" href="#module-src.configs.tasks.meta_rl" title="Link to this heading">#</a></h1>
 <p>Meta-RL Config module.</p>
+<p>Attributes:
+MetaRLConfig: Configuration for meta-reinforcement learning pipeline.</p>
+<p>Example:
+meta_rl_config = MetaRLConfig(
+use_meta=True,
+meta_strategy=”rnn”,
+meta_lr=1e-3,
+meta_hidden_dim=64,
+meta_history_length=10,
+hrl_threshold=0.9,
+graph=GraphConfig(),
+reward=ObjectiveConfig(),
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

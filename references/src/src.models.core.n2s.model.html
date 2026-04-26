@@ -531,21 +531,21 @@ env (Optional[RL4COEnvBase]): Environment managing problem dynamics.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the N2S model.</p>
 <p>Args:
-env: Targeted optimization environment.
-policy: Optional pre-defined policy instance.
-embed_dim: Dimension of latent feature vectors.
-num_heads: Parallel attention head count for policy subnets.
-k_neighbors: Size of the local candidate pool for moves.
-**policy_kwargs: Extra parameters passed to N2SPolicy.</p>
+env: Optional environment for state transitions.
+policy: Optional pre-instantiated N2SPolicy.
+embed_dim: Dimensionality of node features.
+num_heads: Number of attention heads.
+k_neighbors: Number of candidate neighbors to consider per node.
+policy_kwargs: Additional arguments for N2SPolicy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.model.N2S.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.model.N2S.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes the improvement pass.</p>
 <p>Args:
-td: Environment state container.
+td: TensorDict containing current solution state.
 env: Optional environment override.
-strategy: Move selection tactic (‘greedy’ or ‘sampling’).
-**kwargs: Extra parameters for policy execution.</p>
+strategy: Decoding strategy (e.g., “greedy”, “sampling”).
+kwargs: Additional keyword arguments for the policy.</p>
 <p>Returns:
 Dict[str, Any]: Improvement results containing actions and weights.</p>
 </dd></dl>

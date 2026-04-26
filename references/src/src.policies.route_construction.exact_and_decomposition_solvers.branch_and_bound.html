@@ -497,13 +497,15 @@ Problem with Profits (VRPP) and Capacitated Waste Collection VRP (CWC VRP).</p>
 <p>Implementation follows the methodology proposed by Land and Doig (1960), utilizing
 Linear Programming (LP) relaxations to provide rigorous mathematical bounds during
 tree exploration.</p>
-<p><strong>Architecture</strong>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">mtz.py</span></code>: MTZ (Miller-Tucker-Zemlin) compact formulation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dfj.py</span></code>: DFJ (Dantzig-Fulkerson-Johnson) lazy cut formulation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dispatcher.py</span></code>: Unified interface for formulation selection</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">policy_bb.py</span></code>: Policy adapter integrating with the simulation framework</p></li>
-</ul>
+<p>Attributes:
+BranchAndBoundPolicy (class): Main policy adapter for BB solvers.
+run_bb_optimizer (function): Unified dispatcher for BB formulations.
+run_bb_mtz (function): Miller-Tucker-Zemlin compact solver.
+run_bb_dfj (function): Dantzig-Fulkerson-Johnson lazy cut solver.
+run_bb_lr_uop (function): Lagrangian Relaxation with uncapacitated OP bounding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound import run_bb_optimizer
+&gt;&gt;&gt; routes, obj = run_bb_optimizer(dist_matrix, wastes, capacity, R, C)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

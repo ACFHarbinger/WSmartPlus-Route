@@ -497,6 +497,13 @@ document.write(`
 <p>HMM-GD Policy Adapter.</p>
 <p>Adapts the HMM + Great Deluge (HMM-GD) hyper-heuristic solver to the
 agnostic BaseRoutingPolicy interface.</p>
+<p>Attributes:
+HMMGDHHPolicy: Solver class that solves VRPP using HMM-GD hyper-heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic import HMMGDHHPolicy
+&gt;&gt;&gt; solver = HMMGDHHPolicy(config)
+&gt;&gt;&gt; best_solution, best_profit, best_cost = solver.solve()
+&gt;&gt;&gt; print(best_solution, best_profit, best_cost)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,22 +528,27 @@ agnostic BaseRoutingPolicy interface.</p>
 The HMM learns which Low-Level Heuristic to apply based on observed search
 states (improving / stagnating / escaping).  The Great Deluge criterion
 provides acceptance control without temperature parameters.</p>
+<p>Attributes:
+config: Configuration parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the HMM-GD-HH policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.HMMGDHHPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.HMMGDHHPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class.</p>
+<p>Returns:
+Optional[Type]: Configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.HMMGDHHPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.HMMGDHHPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key.</p>
+<p>Returns:
+str: Configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.HMMGDHHPolicy._run_solver">
@@ -561,7 +573,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 hyperparameters like <code class="docutils literal notranslate"><span class="pre">rain_speed</span></code>, <code class="docutils literal notranslate"><span class="pre">learning_rate</span></code>, etc.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

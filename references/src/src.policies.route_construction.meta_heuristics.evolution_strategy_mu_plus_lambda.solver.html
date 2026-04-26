@@ -500,15 +500,11 @@ document.write(`
 <p>This module implements a rigorous, elitist (μ+λ) Evolution Strategy.
 The search in Evolution Strategies is characterized by the alternating
 application of variation and selection operators.</p>
-<p>Algorithm:
-1. Initialize a parent population of μ solutions.
-2. For each generation:
-a. Variation: Generate λ offspring by recombining parents and
-applying mutative perturbations.
-b. Evaluation: Calculate the net profit for all λ offspring.
-c. Selection: Combine the μ parents and λ offspring into a single
-pool, sort by fitness, and select the top μ individuals to survive
-into the next generation.</p>
+<p>Attributes:
+MuPlusLambdaESSolver: Main solver class.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MuPlusLambdaESSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,51 +524,75 @@ into the next generation.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.</span></span><span class="sig-name descname"><span class="pre">MuPlusLambdaESSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.MuPlusLambdaESParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver" title="Link to this definition">#</a></dt>
 <dd><p>(μ+λ) Evolution Strategy solver for the Vehicle Routing Problem with Profits.</p>
-<p>This solver enforces strict elitism by allowing parent solutions to compete
-directly with their offspring for survival into the next generation.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of node IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+params: Configuration for (μ+λ) parameters.
+mandatory_nodes: Nodes that must be included.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+rng: Random number generator.
+ls: Local search optimizer.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the (μ+λ)-ES solver and pre-allocates the local search operator.</p>
 <p>Args:
-dist_matrix: Distance matrix of shape (n+1, n+1), where index 0 is the depot.
-wastes: Mapping of node IDs to their available waste quantities.
-capacity: Maximum capacity constraint for a single vehicle route.
-R: Revenue generated per unit of waste collected.
-C: Cost incurred per unit of distance traveled.
-params: Configuration dataclass defining <span class="math notranslate nohighlight">\(\mu\)</span>, <span class="math notranslate nohighlight">\(\lambda\)</span>, and limits.
-mandatory_nodes: List of node IDs that must be included in any feasible solution.</p>
+dist_matrix: Distance matrix of shape (n+1, n+1).
+wastes: Mapping of node IDs to waste quantities.
+capacity: Maximum capacity constraint.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+params: Configuration defining mu and lambda.
+mandatory_nodes: Nodes that must be included.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Executes the (μ+λ) Evolution Strategy optimization loop.</p>
 <p>Returns:
-A tuple containing:
-- best_routes: The routing sequence of the best solution found.
-- best_profit: The net profit (fitness) of the best solution.
-- best_cost: The total routing distance of the best solution.</p>
+Tuple of (best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._initialize_solution">
 <span class="sig-name descname"><span class="pre">_initialize_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._initialize_solution" title="Link to this definition">#</a></dt>
-<dd><p>Initializes a single solution using the greedy profit-aware heuristic.</p>
+<dd><p>Initializes a single solution using the greedy heuristic.</p>
+<p>Returns:
+A list of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._recombine_and_mutate">
 <span class="sig-name descname"><span class="pre">_recombine_and_mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._recombine_and_mutate" title="Link to this definition">#</a></dt>
-<dd><p>Applies discrete recombination and mutation to generate a single offspring.</p>
+<dd><p>Applies discrete recombination and mutation.</p>
+<p>Args:
+parent1: First parent solution.
+parent2: Second parent solution.</p>
+<p>Returns:
+A new offspring solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Evaluates the fitness (net profit) of a given solution.</p>
+<p>Args:
+routes: Routing sequences to evaluate.</p>
+<p>Returns:
+Calculated net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.MuPlusLambdaESSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculates the total routing distance for a given solution.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

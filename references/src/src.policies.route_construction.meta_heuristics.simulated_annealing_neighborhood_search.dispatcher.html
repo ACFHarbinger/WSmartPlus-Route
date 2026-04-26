@@ -497,6 +497,34 @@ It provides functions to run both the improved (‘new’) and original (‘og�
 Jorge, D., Antunes, A. P., Ramos, T. R. P., &amp; Barbosa-Povoa, A. P.
 “A hybrid metaheuristic for smart waste collection problems with
 workload concerns”, 2022.</p>
+<p>Attributes:
+execute_new: Execute the improved simulated annealing engine.
+execute_og: Execute the original LAC (look-ahead collection) engine.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.bins import Bins
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params import SANSParams
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.sans_policy import SANSPolicy
+&gt;&gt;&gt; # Create dummy data
+&gt;&gt;&gt; distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+&gt;&gt;&gt; coords = {
+…     0: (0, 0),
+…     1: (1, 1),
+…     2: (2, 2),
+…     3: (3, 3),
+…     4: (4, 4),
+… }
+&gt;&gt;&gt; bins = Bins(np.arange(5), np.ones(5), np.zeros(5))
+&gt;&gt;&gt; params = SANSParams()
+&gt;&gt;&gt; # Note: policy.execute() would be called in a real scenario
+&gt;&gt;&gt; # For demonstration, we’ll just show the function signature
+&gt;&gt;&gt; # execute_new would return: (List[int], float, float, Optional[SearchContext], Optional[MultiDayContext])
+&gt;&gt;&gt; # execute_og would return: (List[int], float, float, Optional[SearchContext], Optional[MultiDayContext])
+&gt;&gt;&gt;
+&gt;&gt;&gt; print(“execute_new function signature:”)
+&gt;&gt;&gt; print(f”  Returns: {Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]}”)
+&gt;&gt;&gt; print(”
+execute_og function signature:”)
+&gt;&gt;&gt; print(f”  Returns: {Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -522,7 +550,7 @@ workload concerns”, 2022.</p>
 <p>Args:
 policy: The SANSPolicy instance.
 params: Type-safe SANS parameters.
-**kwargs: Arguments passed to the policy’s execute method.</p>
+kwargs: Arguments passed to the policy’s execute method.</p>
 <p>Returns:
 Tuple[List[int], float, float, Any, Any]: Tour, distance, profit, and metadata.</p>
 </dd></dl>
@@ -534,7 +562,7 @@ Tuple[List[int], float, float, Any, Any]: Tour, distance, profit, and metadata.<
 <p>Args:
 policy: The SANSPolicy instance.
 params: Type-safe SANS parameters.
-**kwargs: Arguments passed to the policy’s execute method.</p>
+kwargs: Arguments passed to the policy’s execute method.</p>
 <p>Returns:
 Tuple[List[int], float, Any]: Tour, distance, and metadata.</p>
 </dd></dl>

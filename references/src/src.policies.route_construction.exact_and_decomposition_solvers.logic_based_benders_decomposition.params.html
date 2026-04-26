@@ -509,6 +509,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-logic-based-benders-decomposition-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params" title="Link to this heading">#</a></h1>
 <p>Parameter dataclasses for Logic-Based Benders Decomposition (LBBD) solver.</p>
+<p>Attributes:
+LBBDParams: Dataclass for LBBD solver configuration.</p>
+<p>Example:
+&gt;&gt;&gt; params = LBBDParams(max_iterations=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +532,22 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.</span></span><span class="sig-name descname"><span class="pre">LBBDParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams" title="Link to this definition">#</a></dt>
 <dd><p>Standardized parameters for the LBBD solver.</p>
+<p>Attributes:
+num_days (int): Planning horizon.
+stochastic_master (bool): Use stochastic master problem.
+mean_increment (float): Average waste increment per day.
+num_scenarios (int): Number of scenarios for evaluation.
+max_iterations (int): Maximum Benders iterations.
+benders_gap (float): Optimality gap for convergence.
+time_limit (float): Overall time limit in seconds.
+subproblem_timeout (float): Subproblem solver timeout.
+mip_gap (float): Gurobi MIP gap for the master problem.
+waste_weight (float): Objective weight for waste collected.
+cost_weight (float): Objective weight for travel cost.
+overflow_penalty (float): Penalty for bin overflow.
+use_nogood_cuts (bool): Enable logic-based no-good cuts.
+use_optimality_cuts (bool): Enable standard optimality cuts.
+seed (Optional[int]): Random seed for scenario generation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams.num_days">
 <span class="sig-name descname"><span class="pre">num_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams.num_days" title="Link to this definition">#</a></dt>
@@ -623,15 +643,17 @@ document.write(`
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create a LBBDParams instance from a raw configuration dictionary.</p>
 <p>Args:
-config: Dictionary containing parameter overrides.</p>
+config (Dict[str, Any]): Dictionary containing parameter overrides.</p>
 <p>Returns:
-A LBBDParams instance with values mapped from the config.</p>
+LBBDParams: A LBBDParams instance with values mapped from the config.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.params.LBBDParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert parameters to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary of parameter values.</p>
 </dd></dl>
 
 </dd></dl>

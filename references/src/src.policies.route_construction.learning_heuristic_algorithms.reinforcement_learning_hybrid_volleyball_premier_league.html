@@ -496,6 +496,19 @@ document.write(`
 - Enhanced ALNS with SARSA for improvement
 - VPL population framework for diversity</p>
 <p>This bridges HVPL (basic) and RL-AHVPL (advanced with HGS/CMAB/GLS).</p>
+<p>Attributes:
+RLHVPLParams (RLHVPLParams): RL-HVPL parameters class.
+RLHVPLSolver (RLHVPLSolver): RL-HVPL solver class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms
+…     .reinforcement_learning_hybrid_volleyball_premier_league import (
+…         RLHVPLParams, RLHVPLSolver
+…     )
+&gt;&gt;&gt; solver = RLHVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()
+&gt;&gt;&gt; print(routes)
+&gt;&gt;&gt; print(profit)
+&gt;&gt;&gt; print(cost)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -501,9 +501,11 @@ document.write(`
 <span id="src-data-distributions-spatial-gaussian-mixture"></span><h1><a class="reference internal" href="#module-src.data.distributions.spatial_gaussian_mixture" title="src.data.distributions.spatial_gaussian_mixture"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.spatial_gaussian_mixture</span></code></a><a class="headerlink" href="#module-src.data.distributions.spatial_gaussian_mixture" title="Link to this heading">#</a></h1>
 <p>spatial_gaussian_mixture.py module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+GaussianMixture: Configurable Gaussian Mixture Model.</p>
 <p>Example:
-&gt;&gt;&gt; import spatial_gaussian_mixture</p>
+&gt;&gt;&gt; from logic.src.data.distributions import GaussianMixture
+&gt;&gt;&gt; gaussian_mixture = GaussianMixture(num_modes=3)
+&gt;&gt;&gt; print(gaussian_mixture.sample())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +526,9 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.spatial_gaussian_mixture.</span></span><span class="sig-name descname"><span class="pre">GaussianMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cdist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.spatial_gaussian_mixture.GaussianMixture" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Configurable Gaussian Mixture Model.</p>
+<p>Attributes:
+num_modes: Number of modes in the Gaussian mixture.
+cdist: Scale of the Gaussian distribution.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -544,6 +549,11 @@ torch.Tensor: Sampled values.</p>
 <dt class="sig sig-object py" id="src.data.distributions.spatial_gaussian_mixture.GaussianMixture._sample_array">
 <span class="sig-name descname"><span class="pre">_sample_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.spatial_gaussian_mixture.GaussianMixture._sample_array" title="Link to this definition">#</a></dt>
 <dd><p>NumPy version of the Gaussian/Mixture spatial sampler.</p>
+<p>Args:
+size: Description of size.
+rng: Description of rng.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -572,12 +582,25 @@ Any: Description of return value.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.spatial_gaussian_mixture.GaussianMixture._generate_gaussian_mixture_array">
 <span class="sig-name descname"><span class="pre">_generate_gaussian_mixture_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.spatial_gaussian_mixture.GaussianMixture._generate_gaussian_mixture_array" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate a mixture of Gaussian distributions.</p>
+<p>Args:
+num_loc (int): Number of locations.
+rng (np.random.Generator): Random number generator.</p>
+<p>Returns:
+np.ndarray: Sampled values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.spatial_gaussian_mixture.GaussianMixture._generate_gaussian_array">
 <span class="sig-name descname"><span class="pre">_generate_gaussian_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.distributions.spatial_gaussian_mixture.GaussianMixture._generate_gaussian_array" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate a single Gaussian distribution.</p>
+<p>Args:
+batch_size (int): Batch size.
+num_loc (int): Number of locations.
+rng (np.random.Generator): Random number generator.</p>
+<p>Returns:
+np.ndarray: Sampled values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.spatial_gaussian_mixture.GaussianMixture._global_min_max_scaling">

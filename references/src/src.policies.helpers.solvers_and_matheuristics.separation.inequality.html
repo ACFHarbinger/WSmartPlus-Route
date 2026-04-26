@@ -498,6 +498,14 @@ document.write(`
 <p>VRPP Valid Inequality Definitions.</p>
 <p>Defines the mathematical structures and facet forms for cutting planes used
 to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.</p>
+<p>Attributes:
+Inequality: Base class for all valid inequalities in VRPP.
+PCSubtourEliminationCut: SEC specialized for profitable VRP.
+CapacityCut: Rounded Capacity Cut (RCC) for subset coverage.
+CombInequality: Classical comb inequality representation.</p>
+<p>Example:
+&gt;&gt;&gt; sec = PCSubtourEliminationCut(node_set={1, 2, 3}, violation=0.5)
+&gt;&gt;&gt; cap = CapacityCut(node_set={1, 2}, total_demand=150, capacity=100, violation=0.2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,11 +534,26 @@ to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.separation.inequality.</span></span><span class="sig-name descname"><span class="pre">Inequality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inequality_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree_of_violation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality" title="Link to this definition">#</a></dt>
 <dd><p>Base class for valid inequalities.</p>
+<p>Attributes:
+type (str): Identifier for the cut type (e.g., ‘SEC’, ‘COMB’).
+violation (float): How much the LP solution violates this cut.
+rhs (float): Right-hand side of inequality.
+node_set (Set[int]): Set of nodes involved in the inequality.</p>
+<p>Example:
+&gt;&gt;&gt; ineq = Inequality(“SEC”, 0.5)</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the base inequality.</p>
+<p>Args:
+inequality_type (str): Identifier for the cut type (e.g., ‘SEC’, ‘COMB’).
+degree_of_violation (float): How much the LP solution violates this cut.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__lt__">
-<span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__lt__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality" title="src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality"><span class="pre">src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality.__lt__" title="Link to this definition">#</a></dt>
 <dd><p>Sort by violation (descending).</p>
+<p>Args:
+other: Other inequality to compare.</p>
+<p>Returns:
+bool: True if this inequality has a greater violation than the other.</p>
 </dd></dl>
 
 </dd></dl>
@@ -543,8 +566,23 @@ to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.</p>
 <p>For S ⊂ N \ {0} with 2 ≤ |S| ≤ n - 2:
 ∑_{i,j ∈ S} x[i,j] ≤ |S| - 1</p>
 <p>Equivalently (in cut form):
-∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2  if S is visited (strengthened for VRPP)</p>
+∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2 if S is visited (strengthened for VRPP).</p>
+<p>Attributes:
+node_set (Set[int]): The set of nodes forming the subtour.
+facet_form (str): The specific mathematical form of the facet.
+node_i (int): First endpoint node (if applicable).
+node_j (int): Second endpoint node (if applicable).
+local_only (bool): Whether the cut is only valid in the current branch.</p>
+<p>Example:
+&gt;&gt;&gt; cut = PCSubtourEliminationCut(node_set={1, 2}, violation=0.5)</p>
 <p class="rubric">Initialization</p>
+<p>Initialize a Subtour Elimination Cut.</p>
+<p>Args:
+node_set (Set[int]): The set of nodes forming the subtour.
+violation (float): The degree of LP violation.
+facet_form (str): The specific mathematical form of the facet.
+node_i (int): First endpoint node (if applicable).
+node_j (int): Second endpoint node (if applicable).</p>
 </dd></dl>
 
 <dl class="py class">
@@ -555,7 +593,18 @@ to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.</p>
 <p>For S ⊂ N \ {0}:
 ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2 ⌈demand(S) / Q⌉</p>
 <p>This ensures that enough vehicles enter the set S to serve all demand.</p>
+<p>Attributes:
+total_demand (float): Sum of demands for the node set.
+min_vehicles (int): Minimum vehicles required (lower bound).</p>
+<p>Example:
+&gt;&gt;&gt; cut = CapacityCut(node_set={1, 2}, total_demand=150, capacity=100, violation=0.5)</p>
 <p class="rubric">Initialization</p>
+<p>Initialize a Capacity Cut.</p>
+<p>Args:
+node_set (Set[int]): The set of nodes in the component.
+total_demand (float): Sum of demands for the node set.
+capacity (float): Vehicle capacity.
+violation (float): The degree of LP violation.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -565,8 +614,19 @@ to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.</p>
 <p>Comb Inequality for TSP/VRP.</p>
 <p>For a handle H and teeth T_1, …, T_s where |T_j ∩ H| = 1 for all j:
 ∑_{e ∈ E(H)} x_e + ∑_{j=1}^{s} ∑_{e ∈ E(T_j)} x_e ≤ |H| + ∑_{j=1}^{s} |T_j| - (s+1)/2</p>
-<p>Comb inequalities are powerful cuts that strengthen the LP relaxation.</p>
+<p>Attributes:
+handle (Set[int]): The handle set of the comb.
+teeth (List[Set[int]]): The list of tooth sets.</p>
+<p>Example:
+&gt;&gt;&gt; handle = {1, 2, 3}
+&gt;&gt;&gt; teeth = [{1, 4}, {2, 5}, {3, 6}]
+&gt;&gt;&gt; comb = CombInequality(handle, teeth, violation=0.5)</p>
 <p class="rubric">Initialization</p>
+<p>Initialize a Comb Inequality.</p>
+<p>Args:
+handle (Set[int]): The handle set of the comb.
+teeth (List[Set[int]]): The list of tooth sets.
+violation (float): The degree of LP violation.</p>
 </dd></dl>
 
 </section>

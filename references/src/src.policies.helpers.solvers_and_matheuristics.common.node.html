@@ -505,6 +505,12 @@ document.write(`
 <p>State-space search tree node for Branch-and-Bound.</p>
 <p>Each node in the tree represents a subproblem where a subset of binary decision
 variables (edges and node visits) has been fixed to specific integer values.</p>
+<p>Attributes:
+Node: Simple data structure for B&amp;B nodes.
+BranchNode: Advanced node structure for Branch-and-Price-and-Cut.</p>
+<p>Example:
+&gt;&gt;&gt; node = BranchNode(depth=1, lp_bound_hint=100.0)
+&gt;&gt;&gt; constraints = node.get_all_constraints()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,16 +534,13 @@ variables (edges and node visits) has been fixed to specific integer values.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.node.Node" title="Link to this definition">#</a></dt>
 <dd><p>Represents a discrete node in the Branch-and-Bound exploration tree.</p>
 <p>Nodes are prioritized in the search queue based on their lower bound (LB)
-value, implementing a best-bound-first search strategy to minimize tree size.</p>
-<p>Attributes:
-bound (float): The LP relaxation objective value at this node.
-Serves as an upper bound on any integer solution reachable from
-this node (for maximization problems).
-fixed_x (Dict[Tuple[int, int], int]): A dictionary mapping edge tuples (i, j)
-to their fixed binary values (0 or 1).
-fixed_y (Dict[int, int]): A dictionary mapping customer IDs to their
-fixed binary visit statuses (0 or 1).
+Attributes:
+bound (float): LP relaxation value (upper bound for maximization).
+fixed_x (Dict[Tuple[int, int], int]): Mapping of edges to their fixed binary values.
+fixed_y (Dict[int, int]): Mapping of nodes to their fixed visitation values.
 depth (int): The distance of the node from the root of the search tree.</p>
+<p>Example:
+&gt;&gt;&gt; node = Node(bound=100.0, depth=0)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.node.Node.bound">
 <span class="sig-name descname"><span class="pre">bound</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.node.Node.bound" title="Link to this definition">#</a></dt>
@@ -568,17 +571,24 @@ depth (int): The distance of the node from the root of the search tree.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.node.</span></span><span class="sig-name descname"><span class="pre">BranchNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode" title="src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp_bound_hint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'none'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode" title="Link to this definition">#</a></dt>
 <dd><p>A single node in the Branch-and-Price-and-Cut search tree.</p>
-<p>Holds the branch-specific constraints and the resulting LP relaxation
-bound discovered during column generation at this node.</p>
 <p>Attributes:
-constraints: List of EdgeBranchingConstraint or
-RyanFosterBranchingConstraint objects active at this node.
-lp_bound: Objective value of the RMP linear relaxation (z_LP).
-Serves as a dual bound for all child nodes.
-lp_basis: Tuple of (vbasis, cbasis) Gurobi attributes used to warm-start
-the master problem solve from the parent’s solution.
-routes: Optional subset of columns (Route objects) maintained
-locally to accelerate RMP convergence.</p>
+constraints (List[AnyBranchingConstraint]): Constraints added at this node only.
+parent (Optional[BranchNode]): Parent node in the tree.
+depth (int): Current tree depth.
+branching_rule (str): Name of the rule used to create this node.
+lp_bound (Optional[float]): LP relaxation bound at this node.
+ip_solution (Optional[float]): Best integer solution found in this subtree.
+is_integer (bool): True if the LP solution is integer.
+is_infeasible (bool): True if the subproblem is infeasible.
+is_explored (bool): True if the node has been processed.
+is_pruned (bool): True if the node was pruned.
+route_values (Optional[Dict[int, float]]): LP solution λ_k values.
+routes (Optional[List[Route]]): Local subset of columns maintained at this node.
+lp_basis (Optional[Any]): Gurobi basis for warm-starting.
+children (List[BranchNode]): Child nodes generated by branching.</p>
+<p>Example:
+&gt;&gt;&gt; parent = BranchNode(depth=0)
+&gt;&gt;&gt; child = BranchNode(parent=parent, depth=1)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise a branch node.</p>
 <p>Args:
@@ -601,18 +611,26 @@ Flat list in root-to-leaf order.</p>
 <dd><p>Return True if <em>route</em> satisfies every inherited constraint.</p>
 <p>Args:
 route: Route to validate.</p>
+<p>Returns:
+True if feasible, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode.__lt__">
 <span class="sig-name descname"><span class="pre">__lt__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode" title="src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode"><span class="pre">src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode.__lt__" title="Link to this definition">#</a></dt>
 <dd><p>Priority for best-first search (higher bound is better for maximization).</p>
+<p>Args:
+other: Another BranchNode to compare against.</p>
+<p>Returns:
+bool: True if this node has a higher LP bound than the other.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode.__repr__" title="Link to this definition">#</a></dt>
 <dd><p>Return a developer-friendly string representation.</p>
+<p>Returns:
+str: String representation of the BranchNode.</p>
 </dd></dl>
 
 </dd></dl>

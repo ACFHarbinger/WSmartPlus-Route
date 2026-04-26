@@ -505,6 +505,13 @@ document.write(`
 <span id="src-configs-policies-ma-im"></span><h1><a class="reference internal" href="#module-src.configs.policies.ma_im" title="src.configs.policies.ma_im"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ma_im</span></code></a><a class="headerlink" href="#module-src.configs.policies.ma_im" title="Link to this heading">#</a></h1>
 <p>Pure Island Model GA configuration.</p>
 <p>Replaces SLC with rigorous GA terminology.</p>
+<p>Attributes:
+MemeticAlgorithmIslandModelConfig: Configuration for the Memetic Algorithm Island Model policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ma_im import MemeticAlgorithmIslandModelConfig
+&gt;&gt;&gt; config = MemeticAlgorithmIslandModelConfig()
+&gt;&gt;&gt; config.max_generations
+50</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +532,19 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.ma_im.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmIslandModelConfig</span></span><a class="headerlink" href="#src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Memetic Algorithm Island Model (MA-IM) policy.</p>
 <p>Functionally equivalent to SLC.</p>
+<p>Attributes:
+n_islands (int): Number of islands in the GA.
+island_size (int): Number of individuals per island.
+max_generations (int): Maximum number of generations to run.
+stagnation_limit (int): Number of generations without improvement before triggering stagnation handling.
+n_removal (int): Number of individuals to remove during replacement.
+local_search_iterations (int): Number of local search iterations per individual.
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Random seed.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory customers/requests selection strategies.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.n_islands">
 <span class="sig-name descname"><span class="pre">n_islands</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.n_islands" title="Link to this definition">#</a></dt>

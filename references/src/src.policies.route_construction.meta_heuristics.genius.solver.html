@@ -505,6 +505,12 @@ document.write(`
 Gendreau, M., Hertz, A., &amp; Laporte, G. (1992).
 “New Insertion and Postoptimization Procedures for the Traveling Salesman Problem”
 Operations Research, 40(6), 1086-1094.</p>
+<p>Attributes:
+GENIUSSolver: The main solver class for the GENIUS meta-heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; params = GENIUSParams()
+&gt;&gt;&gt; solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +531,19 @@ Operations Research, 40(6), 1086-1094.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.genius.solver.</span></span><span class="sig-name descname"><span class="pre">GENIUSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genius.params.html#src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams" title="src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams"><span class="pre">src.policies.route_construction.meta_heuristics.genius.params.GENIUSParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.genius.solver.GENIUSSolver" title="Link to this definition">#</a></dt>
 <dd><p>GENIUS meta-heuristic solver for VRPP.</p>
 <p>Combines GENI insertion with Unstringing/Stringing post-optimization.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of node indices to demands.
+capacity (float): Vehicle capacity constraint.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.
+params (GENIUSParams): GENIUS algorithm parameters.
+mandatory_nodes (List[int]): List of nodes that must be visited.
+n_nodes (int): Total number of nodes (excluding depot).
+nodes (List[int]): List of node IDs [1, …, n_nodes].
+random (random.Random): Random number generator.</p>
+<p>Example:
+&gt;&gt;&gt; solver = GENIUSSolver(dist_matrix, wastes, capacity, R, C, params)</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the GENIUS solver.</p>
 <p>Args:

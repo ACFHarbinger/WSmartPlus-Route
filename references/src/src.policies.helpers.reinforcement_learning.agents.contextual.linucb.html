@@ -495,6 +495,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.contextual.linucb">
 <span id="src-policies-helpers-reinforcement-learning-agents-contextual-linucb"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.linucb" title="src.policies.helpers.reinforcement_learning.agents.contextual.linucb"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.linucb</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.linucb" title="Link to this heading">#</a></h1>
+<p>LinUCB Bandit Module.</p>
+<p>Implements the Linear Upper Confidence Bound algorithm for contextual bandits.</p>
+<p>Attributes:
+LinUCBAgent: Agent that uses disjoint linear models for action selection.</p>
+<p>Example:
+&gt;&gt;&gt; agent = LinUCBAgent(n_arms=10, feature_dim=5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +523,12 @@ document.write(`
 <p>Linear Upper Confidence Bound (LinUCB) agent.</p>
 <p>Maintains a linear model per arm for expected rewards given context.
 Algorithm: LinUCB with Disjoint Linear Models.</p>
+<p>Attributes:
+alpha (float): Exploration parameter.
+A (List[np.ndarray]): Per-arm precision matrices (A_a = x*x.T + I).
+b (List[np.ndarray]): Per-arm weighted reward vectors (b_a = reward * x).
+A_inv (List[np.ndarray]): Cached inverses of precision matrices.
+_cache_valid (List[bool]): Flags indicating if A_inv cache is fresh.</p>
 <p>References:
 Li, L., Chu, W., Langford, J., &amp; Schapire, R. E. (2010).
 A contextual-bandit approach to personalized news article recommendation.</p>

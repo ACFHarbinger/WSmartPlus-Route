@@ -508,6 +508,23 @@ document.write(`
 <span id="src-configs-policies-pso"></span><h1><a class="reference internal" href="#module-src.configs.policies.pso" title="src.configs.policies.pso"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.pso</span></code></a><a class="headerlink" href="#module-src.configs.policies.pso" title="Link to this heading">#</a></h1>
 <p>Particle Swarm Optimization (PSO) with velocity momentum configuration.</p>
 <p><strong>TRUE PSO</strong> replacing the Sine Cosine Algorithm (SCA).</p>
+<p>Attributes:
+PSOConfig: Configuration for the PSO policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.pso import PSOConfig
+&gt;&gt;&gt; config = PSOConfig()
+&gt;&gt;&gt; config.pop_size
+30
+&gt;&gt;&gt; config.max_iterations
+500
+&gt;&gt;&gt; config.seed
+None
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -544,6 +561,8 @@ Proceedings of ICNN’95 - International Conference on Neural Networks.</p>
 IEEE International Conference on Evolutionary Computation.
 </pre></div>
 </div>
+<p>Attributes:
+None</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.pso.PSOConfig.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.pso.PSOConfig.pop_size" title="Link to this definition">#</a></dt>

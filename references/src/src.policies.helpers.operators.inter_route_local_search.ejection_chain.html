@@ -540,12 +540,31 @@ bool: True if the source route was successfully emptied.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.inter_route_local_search.ejection_chain._try_insert_with_chain">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.inter_route_local_search.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_try_insert_with_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.inter_route_local_search.ejection_chain._try_insert_with_chain" title="Link to this definition">#</a></dt>
 <dd><p>Try to insert a node, potentially triggering chain ejections.</p>
+<p>Recursively attempts to find a feasible insertion for <code class="docutils literal notranslate"><span class="pre">node</span></code>.  If no
+direct insertion is available, a node is ejected from an existing route
+and the ejected node is re-inserted recursively up to <code class="docutils literal notranslate"><span class="pre">depth</span></code> levels.</p>
+<p>Args:
+ls: LocalSearch instance with routes, distance matrix, and waste map.
+node: Node to be inserted.
+excluded_route: Route index that must not be used (the chain source).
+depth: Remaining ejection depth; stops recursion when 0.
+log: Mutable list recording (node, route_index, position) insertions
+for rollback purposes.</p>
+<p>Returns:
+bool: True if the node was successfully inserted; False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.inter_route_local_search.ejection_chain._rollback_ejections">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.inter_route_local_search.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_rollback_ejections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.inter_route_local_search.ejection_chain._rollback_ejections" title="Link to this definition">#</a></dt>
 <dd><p>Rollback ejection chain insertions.</p>
+<p>Reverses every insertion recorded in <code class="docutils literal notranslate"><span class="pre">log</span></code> (in reverse order) and
+returns the corresponding nodes to <code class="docutils literal notranslate"><span class="pre">source_route</span></code>.</p>
+<p>Args:
+ls: LocalSearch instance whose routes are mutated in-place.
+log: List of (node, route_index, position) tuples produced by
+:func:<code class="docutils literal notranslate"><span class="pre">_try_insert_with_chain</span></code>; cleared after rollback.
+source_route: Route index to which ejected nodes are returned.</p>
 </dd></dl>
 
 </section>

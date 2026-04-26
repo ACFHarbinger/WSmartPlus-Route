@@ -505,6 +505,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.ucb">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-ucb"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.ucb" title="src.policies.helpers.reinforcement_learning.agents.bandits.ucb"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.ucb</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.ucb" title="Link to this heading">#</a></h1>
+<p>UCB Bandit Module.</p>
+<p>This module implements various Upper Confidence Bound (UCB) bandit algorithms,
+including standard UCB1, Discounted UCB for non-stationary environments, and
+Sliding Window UCB for volatile environments.</p>
+<p>Attributes:
+UCBBandit: Standard UCB1 bandit agent.
+DiscountedUCBBandit: UCB variant that discounts old rewards.
+SlidingWindowUCBBandit: UCB variant using a fixed-size sliding window.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.ucb import UCBBandit
+&gt;&gt;&gt; agent = UCBBandit(n_arms=3, c=2.0)
+&gt;&gt;&gt; action = agent.select_action(state=None, rng=agent.rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,6 +546,8 @@ document.write(`
 <p>The UCB1 algorithm implements ‘optimism in the face of uncertainty’ by
 adding a confidence bonus to the estimated value of each arm. This bonus
 decreases as the arm is selected more frequently.</p>
+<p>Attributes:
+c: Exploration parameter (controls the width of the confidence interval).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the UCB1 agent.</p>
 <p>Args:
@@ -573,6 +587,11 @@ Dictionary including basic stats and UCB parameter.</p>
 <p>Useful for non-stationary environments where the optimal action may change
 over time. Uses a discount factor ‘gamma’ to slowly decay the contribution
 of past observations.</p>
+<p>Attributes:
+c: Exploration parameter.
+gamma: Discount factor (0 &lt; gamma &lt;= 1).
+discounted_counts: Discounted sum of selections for each arm.
+discounted_rewards: Discounted sum of rewards for each arm.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Discounted UCB agent.</p>
 <p>Args:
@@ -613,6 +632,10 @@ done: Termination flag.</p>
 <p>Sliding Window UCB Bandit policy.</p>
 <p>Handles volatile environments by selecting arms based only on the most
 recent ‘window_size’ observations.</p>
+<p>Attributes:
+window_size: Number of past observations to consider.
+c: Exploration parameter.
+windows: List of deques containing rewards for each arm within the window.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Sliding Window UCB agent.</p>
 <p>Args:

@@ -500,6 +500,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.checkpoints.hooks">
 <span id="src-pipeline-simulations-checkpoints-hooks"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.checkpoints.hooks" title="src.pipeline.simulations.checkpoints.hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.checkpoints.hooks</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.checkpoints.hooks" title="Link to this heading">#</a></h1>
 <p>Checkpoint hooks for simulation lifecycle.</p>
+<p>This module provides the CheckpointHook class, which orchestrates the
+timing of checkpoint saves and manages state during simulation errors.</p>
+<p>Attributes:
+CheckpointHook: Orchestrator for checkpoint timing and error handling.</p>
+<p>Example:
+&gt;&gt;&gt; # hook = CheckpointHook(checkpoint, 5, state_getter)
+&gt;&gt;&gt; # hook.after_day()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,18 +526,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.checkpoints.hooks.CheckpointHook">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.checkpoints.hooks.</span></span><span class="sig-name descname"><span class="pre">CheckpointHook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_getter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook" title="Link to this definition">#</a></dt>
 <dd><p>Orchestrates checkpoint timing and error handling during simulation.</p>
+<p>Attributes:
+checkpoint: The checkpoint object managing persistence.
+checkpoint_interval: How often to save checkpoints (in days).
+day: Current simulation day.
+tic: Timestamp of when the current day started (for performance metrics).
+state_getter: Callable to retrieve the current simulation state for saving.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
-checkpoint (Any): Description of checkpoint.
-checkpoint_interval (int): Description of checkpoint_interval.
-state_getter (Optional[Callable[[], Any]]): Description of state_getter.</p>
+checkpoint: The SimulationCheckpoint instance.
+checkpoint_interval: Frequency of checkpoints in days.
+state_getter: Function to retrieve the current simulation state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.checkpoints.hooks.CheckpointHook.get_current_day">
 <span class="sig-name descname"><span class="pre">get_current_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.get_current_day" title="Link to this definition">#</a></dt>
 <dd><p>Get current day.</p>
 <p>Returns:
-Any: Description.</p>
+The current simulation day index.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -538,7 +551,7 @@ Any: Description.</p>
 <span class="sig-name descname"><span class="pre">get_checkpoint_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.get_checkpoint_info" title="Link to this definition">#</a></dt>
 <dd><p>Get checkpoint info.</p>
 <p>Returns:
-Any: Description.</p>
+Dictionary with checkpoint instance and interval.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -546,7 +559,7 @@ Any: Description.</p>
 <span class="sig-name descname"><span class="pre">set_timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.set_timer" title="Link to this definition">#</a></dt>
 <dd><p>Set timer.</p>
 <p>Args:
-tic (float): Description of tic.</p>
+tic: Performance counter timestamp.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -554,7 +567,7 @@ tic (float): Description of tic.</p>
 <span class="sig-name descname"><span class="pre">set_state_getter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_getter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.set_state_getter" title="Link to this definition">#</a></dt>
 <dd><p>Set state getter.</p>
 <p>Args:
-state_getter (Callable[[], Any]): Description of state_getter.</p>
+state_getter: The callable to fetch simulation state.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -562,7 +575,7 @@ state_getter (Callable[[], Any]): Description of state_getter.</p>
 <span class="sig-name descname"><span class="pre">before_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.before_day" title="Link to this definition">#</a></dt>
 <dd><p>Before day.</p>
 <p>Args:
-day (int): Description of day.</p>
+day: The day index about to start.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -570,8 +583,8 @@ day (int): Description of day.</p>
 <span class="sig-name descname"><span class="pre">after_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_previous</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.after_day" title="Link to this definition">#</a></dt>
 <dd><p>After day.</p>
 <p>Args:
-tic (Optional[float]): Description of tic.
-delete_previous (bool): Description of delete_previous.</p>
+tic: Performance counter timestamp.
+delete_previous: If True, delete the last checkpoint before saving new one.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -579,9 +592,9 @@ delete_previous (bool): Description of delete_previous.</p>
 <span class="sig-name descname"><span class="pre">on_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Exception</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.on_error" title="Link to this definition">#</a></dt>
 <dd><p>On error.</p>
 <p>Args:
-error (Exception): Description of error.</p>
+error: The exception that triggered the crash.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Dictionary with crash diagnostics and partial results.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -589,8 +602,8 @@ Any: Description of return value.</p>
 <span class="sig-name descname"><span class="pre">on_completion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.hooks.CheckpointHook.on_completion" title="Link to this definition">#</a></dt>
 <dd><p>On completion.</p>
 <p>Args:
-policy (Optional[str]): Description of policy.
-sample_id (Optional[int]): Description of sample_id.</p>
+policy: Optional policy name for cleanup.
+sample_id: Optional sample ID for cleanup.</p>
 </dd></dl>
 
 </dd></dl>

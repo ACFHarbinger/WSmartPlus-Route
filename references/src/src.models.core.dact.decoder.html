@@ -538,14 +538,16 @@ scale (float): Attention score normalization factor.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the DACT decoder.</p>
 <p>Args:
-embed_dim: Width of the embedding space.
-num_heads: count of attention heads.
-seed: RNG seed for stochastic actions.
-**kwargs: Extra parameters (e.g., ‘device’).</p>
+embed_dim: Dimensionality of latent embeddings.
+num_heads: Number of attention heads.
+seed: Random seed for action sampling.
+kwargs: Additional keyword arguments.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.dact.decoder.DACTDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder.device" title="Link to this definition">#</a></dt>
 <dd><p>Determines the current hardware placement of the model.</p>
+<p>Returns:
+torch.device: Current placement of the model parameters.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -569,10 +571,10 @@ state: Serialized attribute map.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Predicts a node pair for an improvement operator.</p>
 <p>Args:
-td: Environment state.
-embeddings: Encoded node features [B, N, D].
-env: Targeted optimization environment.
-**kwargs: Execution flags like ‘strategy’ (‘greedy’ or ‘sample’).</p>
+td: TensorDict containing problem instance data.
+embeddings: Contextual node features or feature tuple.
+env: Environment managing problem physics.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p: Log-probability of the selected pair [B].

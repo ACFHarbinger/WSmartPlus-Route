@@ -494,6 +494,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh">
 <span id="src-policies-route-construction-matheuristics-column-generation-heuristic-policy-cgh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh" title="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh" title="Link to this heading">#</a></h1>
+<p>Column Generation Heuristic (CGH) policy implementation.</p>
+<p>Attributes:
+ColumnGenerationHeuristicPolicy: Multi-period CGH policy using Gurobi master problem.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh import ColumnGenerationHeuristicPolicy
+&gt;&gt;&gt; policy = ColumnGenerationHeuristicPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,10 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy" title="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnGenerationHeuristicPolicy</span></code></a></p></td>
-<td><p>Column Generation Heuristic (CGH).
-Uses a master problem (set packing/partitioning) and generates routes heuristically.
-Instead of solving the exact subproblem (ESPPRC), it uses simulated annealing/ILS
-to find negative reduced-cost columns.</p></td>
+<td><p>Column Generation Heuristic (CGH).</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,35 +519,56 @@ to find negative reduced-cost columns.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.</span></span><span class="sig-name descname"><span class="pre">ColumnGenerationHeuristicPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Column Generation Heuristic (CGH).
-Uses a master problem (set packing/partitioning) and generates routes heuristically.
+<p>Column Generation Heuristic (CGH).</p>
+<p>Uses a master problem (set packing/partitioning) and generates routes heuristically.
 Instead of solving the exact subproblem (ESPPRC), it uses simulated annealing/ILS
 to find negative reduced-cost columns.</p>
+<p>Attributes:
+params: CGH runtime parameters.
+cg_iters: Number of column generation iterations per day.
+routes_per_iter: Number of heuristic routes generated per CG iteration.
+seed: Random seed for reproducibility.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the CGH policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional Hydra configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._generate_columns_heuristically">
 <span class="sig-name descname"><span class="pre">_generate_columns_heuristically</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._generate_columns_heuristically" title="Link to this definition">#</a></dt>
-<dd><p>Produce a list of routes with high negative reduced cost heuristically.
-Reduced cost of a route = sum(duals[i]) - Profit(route).
-(We maximize Profit + duals).
-We’ll use a randomized greedy strategy where we modify the perceived revenue.</p>
+<dd><p>Produce a list of routes with high negative reduced cost heuristically.</p>
+<p>Reduced cost of a route = sum(duals[i]) - Profit(route).
+We maximize Profit + duals using a randomized greedy strategy.</p>
+<p>Args:
+problem: Problem context providing distance matrix, wastes, and capacity.
+duals: Dual variable values keyed by node index from the master LP.
+n_routes: Number of heuristic routes to generate.
+rng: Random number generator for shuffling candidate nodes.</p>
+<p>Returns:
+List[List[int]]: Generated candidate routes, each as a list of node indices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._solve_cg_for_day">
 <span class="sig-name descname"><span class="pre">_solve_cg_for_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._solve_cg_for_day" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solve one day’s routing using the column generation heuristic.</p>
+<p>Args:
+problem: Problem context for the current day.
+rng: Random number generator for heuristic column generation.</p>
+<p>Returns:
+List[int]: Route for the day as a list of node indices.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh.ColumnGenerationHeuristicPolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Run the CGH solver over the full planning horizon.</p>
+<p>Args:
+problem: Multi-day problem context.
+multi_day_ctx: Optional multi-day context for inter-day state propagation.</p>
+<p>Returns:
+Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today’s
+solution context, full plan per day, and solver metadata.</p>
+</dd></dl>
 
 </dd></dl>
 

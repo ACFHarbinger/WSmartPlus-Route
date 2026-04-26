@@ -500,6 +500,11 @@ document.write(`
 <p>Base Multi-Period Routing Policy.</p>
 <p>Provides a template for routing policies that perform T-period optimization
 over a scenario tree, rather than myopic single-day routing.</p>
+<p>Attributes:
+BaseMultiPeriodRoutingPolicy: Policy for multi-period stochastic routing.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
+&gt;&gt;&gt; # subclass and implement _run_multi_period_solver</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,25 +532,34 @@ over a scenario tree, rather than myopic single-day routing.</p>
 <li><p>Future mandatory node prediction.</p></li>
 <li><p>Overflow (stockout) penalty calculation.</p></li>
 </ul>
+<p>Attributes:
+horizon (int): Planning horizon in days (T).
+stockout_penalty (float): Penalty per unit of waste overflow (&gt;100%).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the BaseMultiPeriodRoutingPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._get_scenario_tree">
 <span class="sig-name descname"><span class="pre">_get_scenario_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></span><a class="headerlink" href="#src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._get_scenario_tree" title="Link to this definition">#</a></dt>
 <dd><p>Extract the scenario tree from the simulation context.</p>
+<p>Args:
+kwargs: Context dictionary containing ‘scenario_tree’.</p>
+<p>Returns:
+The extracted ScenarioTree instance.</p>
+<p>Raises:
+ValueError: If ‘scenario_tree’ is missing from kwargs.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._predict_mandatory_nodes_for_horizon">
 <span class="sig-name descname"><span class="pre">_predict_mandatory_nodes_for_horizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._predict_mandatory_nodes_for_horizon" title="Link to this definition">#</a></dt>
 <dd><p>Predict mandatory nodes for each day in the horizon based on the tree.</p>
+<p>Args:
+tree: Scenario tree representing stochastic waste growth.
+initial_mandatory: List of nodes mandatory for the current day (day 0).</p>
 <p>Returns:
-Dict[day, list_of_bin_ids]</p>
+Dictionary mapping day offsets (0 to T) to lists of mandatory bin IDs.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -580,12 +594,40 @@ metadata   – Solver telemetry dict.</p>
 <p>Multi-period policies override the execute() method directly (or rely on
 the BaseMultiPeriodRoutingPolicy override) to call _run_multi_period_solver,
 so this method is never invoked in the SIRP workflow.</p>
+<p>Args:
+sub_dist_matrix: Subset distance matrix.
+sub_wastes: Local wastes dict.
+capacity: Vehicle capacity.
+revenue: Revenue per unit.
+cost_unit: Cost per distance unit.
+values: Merged config values.
+mandatory_nodes: Local indices of mandatory nodes.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple of (empty_routes, 0.0 profit, 0.0 cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Executes the multi-period routing policy.</p>
+<p>This implementation extends the base execution by building a <code class="docutils literal notranslate"><span class="pre">ProblemContext</span></code>,
+invoking the multi-period solver, and updating the <code class="docutils literal notranslate"><span class="pre">MultiDayContext</span></code> with
+the full plan snapshot.</p>
+<p>Args:
+kwargs: Keyword arguments containing context parameters:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    - area (str): Geographic area name.
+    - waste_type (str): Waste type (e.g., &quot;plastic&quot;).
+    - config (dict): Policy configuration overrides.
+    - multi_day_context (MultiDayContext): Persistence across days.
+    - search_context (SearchContext): Metrics and telemetry ledger.
+    - bins: Bins state object.
+    - distance_matrix: NxN distance matrix.
+</pre></div>
+</div>
+<p>Returns:
+A tuple of (tour, cost, profit, search_context, multi_day_context).</p>
+</dd></dl>
 
 </dd></dl>
 

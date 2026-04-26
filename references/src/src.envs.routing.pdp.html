@@ -511,6 +511,15 @@ the episode; it is added implicitly in the reward computation.</p>
 where K = num_loc / 2.</p>
 <p>Reward: -(total tour length, depot → tour → depot)
 Done:   all pickup/delivery nodes visited</p>
+<p>Attributes:
+NAME: Name of the environment.
+name: Name of the environment.
+node_dim: Node feature dimension (x, y coordinates only → 2).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“pdp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()
+&gt;&gt;&gt; td = env.step(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,14 +543,17 @@ Done:   all pickup/delivery nodes visited</p>
 <p>Ordering constraint: pickup node i must be visited before its paired
 delivery node i + K.  The <code class="docutils literal notranslate"><span class="pre">to_deliver</span></code> mask tracks which delivery
 nodes have had their pickup completed and are therefore unlocked.</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;pdp&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Node feature dimension — 2 for (x, y) coordinates.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the base environment.</p>
+<p>Initialize the PDP environment.</p>
 <p>Args:
-generator: Data generator instance for creating problem instances.
-generator_params: Parameters to pass to the generator if not provided.
-device: Device to place tensors on.
-batch_size: Batch size for the environment.
-**kwargs: Additional keyword arguments.</p>
+generator: Pre-built PDPGenerator; created from generator_params if None.
+generator_params: Keyword arguments forwarded to PDPGenerator constructor.
+device: Torch device for tensor placement.
+kwargs: Additional arguments forwarded to RL4COEnvBase.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.pdp.PDPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.pdp.PDPEnv.NAME" title="Link to this definition">#</a></dt>
@@ -578,7 +590,12 @@ TensorDict: Updated tensor dictionary with initialized state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.pdp.PDPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.pdp.PDPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Execute one step in the environment.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
+<p>Returns:
+TensorDict: Updated TensorDict with new state and reward information.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.pdp.PDPEnv._step_instance">
@@ -602,13 +619,21 @@ TensorDict: Updated tensor dictionary with new state.</p>
 <dt class="sig sig-object py" id="src.envs.routing.pdp.PDPEnv._check_done">
 <span class="sig-name descname"><span class="pre">_check_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.pdp.PDPEnv._check_done" title="Link to this definition">#</a></dt>
 <dd><p>Done when no customer nodes remain available.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.</p>
+<p>Returns:
+BoolTensor [*B] — True for completed episodes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.pdp.PDPEnv._get_action_mask">
 <span class="sig-name descname"><span class="pre">_get_action_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.pdp.PDPEnv._get_action_mask" title="Link to this definition">#</a></dt>
 <dd><p>Valid actions: nodes that are both available AND to_deliver.
-Depot (index 0) is never a valid action.</p>
+Depot (index 0) is never a valid action.
+Args:
+td: Input TensorDict containing the environment state.</p>
+<p>Returns:
+Updated TensorDict or tensor containing the result.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -617,6 +642,11 @@ Depot (index 0) is never a valid action.</p>
 <dd><p>Reward = -(tour length including depot at start and end).</p>
 <p>The tour stored in <code class="docutils literal notranslate"><span class="pre">td[&quot;tour&quot;]</span></code> does not include the depot;
 the return-to-depot distance is added here.</p>
+<p>Args:
+td: Input TensorDict containing action and state information.
+actions: Action sequence (unused in this implementation).</p>
+<p>Returns:
+Tensor [*B] — scalar reward per batch instance.</p>
 </dd></dl>
 
 </dd></dl>

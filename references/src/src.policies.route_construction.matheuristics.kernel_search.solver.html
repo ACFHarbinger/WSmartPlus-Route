@@ -507,6 +507,13 @@ Angelelli, R., Dell’Amico, M., &amp; Martello, S. (2010). “A Kernel Search A
 Vehicle Routing Problem with Pickups and Deliveries”. Networks, 56(4), 297–307.
 Angelelli, R., &amp; Mansini, R. (2010). “Kernel Search: a new heuristic framework for
 portfolio selection”.</p>
+<p>Attributes:
+run_kernel_search_gurobi: Main entry point for the Kernel Search solver.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; tour, obj, cost = run_kernel_search_gurobi(dm, {1: 0.5}, 10.0, 5.0, 1.0, [])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -526,12 +533,10 @@ portfolio selection”.</p>
 <td><p>Warm-start the MIP solver with a greedy heuristic solution.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.kernel_search.solver._separate_fractional_subtours" title="src.policies.route_construction.matheuristics.kernel_search.solver._separate_fractional_subtours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_separate_fractional_subtours</span></code></a></p></td>
-<td><p>Identify and inject fractional subtour elimination cuts (User Cuts).
-Uses Max-Flow/Min-Cut to find violated directed cuts.</p></td>
+<td><p>Identify and inject fractional subtour elimination cuts (User Cuts).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.kernel_search.solver._root_node_callback" title="src.policies.route_construction.matheuristics.kernel_search.solver._root_node_callback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_root_node_callback</span></code></a></p></td>
-<td><p>Gurobi callback to harvest the root node relaxation values.
-ENHANCED: Adds fractional subtour elimination user cuts before harvesting.</p></td>
+<td><p>Gurobi callback to harvest the root node relaxation values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.kernel_search.solver._get_partitioned_vars" title="src.policies.route_construction.matheuristics.kernel_search.solver._get_partitioned_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_partitioned_vars</span></code></a></p></td>
 <td><p>Solve the root node relaxation and partition discrete variables into Kernel and Buckets.
@@ -654,15 +659,22 @@ mandatory_nodes: Nodes that must be visited.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.kernel_search.solver._separate_fractional_subtours">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.solver.</span></span><span class="sig-name descname"><span class="pre">_separate_fractional_subtours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_vars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.kernel_search.solver._separate_fractional_subtours" title="Link to this definition">#</a></dt>
-<dd><p>Identify and inject fractional subtour elimination cuts (User Cuts).
-Uses Max-Flow/Min-Cut to find violated directed cuts.</p>
+<dd><p>Identify and inject fractional subtour elimination cuts (User Cuts).</p>
+<p>Uses Max-Flow/Min-Cut to find violated directed cuts.</p>
+<p>Args:
+model: Gurobi model with attached _y_vars attribute.
+x_vars: Edge flow variable dictionary keyed by (i, j) tuples.
+num_nodes: Total number of nodes including the depot.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.kernel_search.solver._root_node_callback">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.solver.</span></span><span class="sig-name descname"><span class="pre">_root_node_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.kernel_search.solver._root_node_callback" title="Link to this definition">#</a></dt>
-<dd><p>Gurobi callback to harvest the root node relaxation values.
-ENHANCED: Adds fractional subtour elimination user cuts before harvesting.</p>
+<dd><p>Gurobi callback to harvest the root node relaxation values.</p>
+<p>Enhanced to add fractional subtour elimination user cuts before harvesting.</p>
+<p>Args:
+model: Gurobi model with _x_vars, _num_nodes, and _all_vars_list attributes.
+where: Gurobi callback code indicating the invocation point.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -674,6 +686,21 @@ Ranking is based on subtour-aware relaxation values.</p>
 formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
 maintaining separate lists for binary and general integer variables, they
 are merged here as all discrete variables in this model are binary.</p>
+<p>Args:
+model: Gurobi model to optimize.
+x: Edge decision variables keyed by (i, j) tuples.
+y: Node selection variables keyed by node index.
+initial_kernel_size: Minimum number of variables in the initial kernel.
+bucket_size: Number of variables per bucket.
+dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+mandatory_nodes: Node indices that must be included in the solution.</p>
+<p>Returns:
+Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]: Kernel variables,
+remaining variables, and bucketed remaining variables.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -681,6 +708,15 @@ are merged here as all discrete variables in this model are binary.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.solver.</span></span><span class="sig-name descname"><span class="pre">_solve_ks_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buckets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remaining_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_limit_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.kernel_search.solver._solve_ks_iterations" title="Link to this definition">#</a></dt>
 <dd><p>Perform the iterative improvement phase by solving sub-problems with DFJ cuts.</p>
 <p>Each iteration adds one bucket of variables and a budget constraint.</p>
+<p>Args:
+model: Gurobi model to optimize.
+kernel_vars: Variables in the initial kernel.
+buckets: List of variable buckets to iterate over.
+remaining_vars: All variables not in the kernel, used to fix upper bounds.
+time_limit: Total time budget in seconds.
+mip_limit_nodes: Node limit for each bucket MIP solve.</p>
+<p>Returns:
+Set[gp.Var]: Variables that took positive values in the best solution found.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -494,6 +494,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh">
 <span id="src-policies-route-construction-hyper-heuristics-adaptive-memory-programming-hyper-heuristic-policy-amphh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh" title="src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh" title="Link to this heading">#</a></h1>
+<p>Implementation of the Adaptive Memory Programming Hyper-Heuristic (AMPHH).</p>
+<p>This module implements a Hyper-Heuristic VRP solver that uses adaptive memory
+to store and reuse high-quality solution components.</p>
+<p>Attributes:
+AMPHHPolicy: AMPHHPolicy class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic import AMPHHPolicy
+&gt;&gt;&gt; solver = AMPHHPolicy()
+&gt;&gt;&gt; solution = solver.solve(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,22 +540,39 @@ to refine the reconstructed plan, promoting intensification.</p></li>
 the newly found solution, maintaining diversity and elite coverage.</p></li>
 </ol>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;amphh&quot;</span></code></p>
+<p>Attributes:
+mem_size (int): Size of the adaptive memory.
+iters (int): Number of iterations to run the solver.
+seed (int): Seed for the random number generator.
+rng (random.Random): Random number generator.
+llhs (List[Callable]): List of Low-Level Heuristics.
+memory (List[Tuple[float, List[List[List[int]]]]]): Adaptive memory.
+params (AMPHHParams): Parameters for the solver.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize the Adaptive Memory Programming Hyper-Heuristic (AMPHH) solver.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Any): Configuration for the policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh.AMPHHPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh.AMPHHPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the total profit of a multi-period plan.</p>
+<p>Args:
+plan (List[List[List[int]]]): Multi-period plan.
+problem (ProblemContext): Problem context.</p>
+<p>Returns:
+float: Total profit of the plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh.AMPHHPolicy._update_memory">
 <span class="sig-name descname"><span class="pre">_update_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prof</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh.AMPHHPolicy._update_memory" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Update the adaptive memory with a new solution.</p>
+<p>Args:
+prof (float): Profit of the solution.
+plan (List[List[List[int]]]): Multi-period plan.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.policy_amphh.AMPHHPolicy._run_multi_period_solver">

@@ -508,6 +508,13 @@ document.write(`
 <li><p>μ (mu): Parent population size.</p></li>
 <li><p>λ (lambda): Offspring population size.</p></li>
 </ul>
+<p>Attributes:
+MuCommaLambdaESConfig: Attributes for ES-MCL configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.es_mcl import MuCommaLambdaESConfig
+&gt;&gt;&gt; config = MuCommaLambdaESConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,6 +536,18 @@ document.write(`
 <dd><p>Configuration for (μ,λ) Evolution Strategy policy.</p>
 <p>The (μ,λ) scheme is a non-elitist generational strategy where the offspring
 entirely replace the parents.</p>
+<p>Attributes:
+mu (int): Number of parents.
+lambda_ (int): Number of offspring.
+n_removal (int): Number of routes to remove.
+max_iterations (int): Maximum number of iterations.
+local_search_iterations (int): Number of local search iterations.
+time_limit (float): Time limit in seconds.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+seed (Optional[int]): Seed for the random number generator.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.es_mcl.MuCommaLambdaESConfig.mu">
 <span class="sig-name descname"><span class="pre">mu</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.es_mcl.MuCommaLambdaESConfig.mu" title="Link to this definition">#</a></dt>

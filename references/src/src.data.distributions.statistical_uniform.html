@@ -494,6 +494,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical_uniform">
 <span id="src-data-distributions-statistical-uniform"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical_uniform" title="src.data.distributions.statistical_uniform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_uniform</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical_uniform" title="Link to this heading">#</a></h1>
 <p>Statistical sampling distributions - Uniform.</p>
+<p>Attributes:
+Uniform(low, high):
+Uniform distribution sampling.</p>
+<p>Example:
+dist = Uniform()
+data = dist._sample_tensor(torch.Size((10, 50)))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,6 +520,9 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical_uniform.</span></span><span class="sig-name descname"><span class="pre">Uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical_uniform.Uniform" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Discrete uniform sampling distribution.</p>
+<p>Attributes:
+low (int): Minimum value for randint.
+high (int): Maximum value for randint.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:

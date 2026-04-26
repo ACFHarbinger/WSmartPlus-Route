@@ -499,6 +499,12 @@ document.write(`
 <p>This module provides the <code class="docutils literal notranslate"><span class="pre">KernelSearchPolicy</span></code> class, which acts as a bridge between the
 WSmart+ Route simulator environment and the Gurobi-based Kernel Search solver logic.
 It handles configuration parsing, state extraction, and results formatting.</p>
+<p>Attributes:
+KernelSearchPolicy: The Kernel Search policy class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.kernel_search.policy_ks import KernelSearchPolicy
+&gt;&gt;&gt; policy = KernelSearchPolicy()
+&gt;&gt;&gt; routes, cost, obj_val, search_context, multi_day_context = policy.execute(**kwargs)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -562,7 +568,18 @@ str: The configuration key “ks”.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.kernel_search.policy_ks.KernelSearchPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.kernel_search.policy_ks.KernelSearchPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd><p>Not used - KS requires specialized execute().</p>
+<dd><p>Not used — KS uses a specialized execute() method.</p>
+<p>Args:
+sub_dist_matrix: Distance matrix for the subproblem.
+sub_wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+revenue: Revenue per unit of waste.
+cost_unit: Cost per unit of distance.
+values: Additional solver values.
+mandatory_nodes: Node indices that must be visited.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Empty tour, zero objective, zero cost.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -577,7 +594,7 @@ best feasible solution.</p>
 <p>This implementation uses Gurobi for the MIP solves and manages
 subtour elimination dynamically.</p>
 <p>Args:
-**kwargs: Context for matheuristic execution, including:
+kwargs: Context for matheuristic execution, including:
 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
 - wastes (Dict[int, float]): Map of customer IDs to current waste levels.
 - capacity (float): Maximum vehicle load.

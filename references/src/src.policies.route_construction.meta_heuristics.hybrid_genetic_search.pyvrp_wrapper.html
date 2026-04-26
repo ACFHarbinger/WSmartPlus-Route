@@ -492,6 +492,10 @@ document.write(`
 <p>Wrapper for the external <code class="docutils literal notranslate"><span class="pre">PyVRP</span></code> library.</p>
 <p>This module provides an interface to solve the routing problem using
 the high-performance PyVRP solver.</p>
+<p>Attributes:
+solve_pyvrp: Function to solve routing using PyVRP.</p>
+<p>Example:
+&gt;&gt;&gt; routes, profit, cost = solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -511,6 +515,15 @@ the high-performance PyVRP solver.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.pyvrp_wrapper.solve_pyvrp">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.pyvrp_wrapper.</span></span><span class="sig-name descname"><span class="pre">solve_pyvrp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.pyvrp_wrapper.solve_pyvrp" title="Link to this definition">#</a></dt>
 <dd><p>Solve using external PyVRP library, matching WSmart-Route style.</p>
+<p>Args:
+dist_matrix: NxN distance matrix.
+wastes: Dictionary of node wastes.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+values: Configuration parameters.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.</p>
 </dd></dl>
 
 </section>

@@ -493,6 +493,11 @@ document.write(`
 <p>This module provides an efficient, GPU-accelerated implementation of the Split
 algorithm, which partitions a giant tour into a set of feasible routes using
 shortest path logic on a directed acyclic graph (DAG).</p>
+<p>Attributes:
+vectorized_linear_split: Splits giant tours into feasible routes.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.shared.linear import vectorized_linear_split
+&gt;&gt;&gt; routes, costs = vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

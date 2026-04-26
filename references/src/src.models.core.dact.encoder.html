@@ -533,21 +533,18 @@ layers (nn.ModuleList): Collaborative Transformer stacking.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the DACT encoder.</p>
 <p>Args:
-embed_dim: Internal feature dimension.
-num_layers: count of transformation blocks.
-num_heads: count of attention heads per layer.
-pos_type: Identifier for the positional embedding scheme (e.g., ‘CPE’).
-**kwargs: Extra parameters.</p>
+embed_dim: Dimensionality of latent embeddings.
+num_layers: Number of transformer layers.
+num_heads: Number of attention heads.
+pos_type: Positional encoding method (e.g., “CPE”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Encodes spatial nodes and their current tour positions.</p>
 <p>Args:
-td: state container with:
-- ‘locs’: [B, N, 2] coordinates.
-- ‘depot’: [B, 1, 2] or [B, 2] origin.
-- ‘solution’: [B, N+1] node indices representing the tour.
-**kwargs: unused.</p>
+td: TensorDict containing ‘locs’, ‘depot’, and ‘solution’ keys.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Refined node embeddings [B, N+1, embed_dim].</p>
 </dd></dl>

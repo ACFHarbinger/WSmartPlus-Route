@@ -493,6 +493,25 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.intensification_fixing">
 <span id="src-policies-helpers-operators-intensification-fixing"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.intensification_fixing" title="src.policies.helpers.operators.intensification_fixing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.intensification_fixing</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.intensification_fixing" title="Link to this heading">#</a></h1>
 <p>Intensification operators: Held-Karp DP, Fix-and-Optimize Sub-MIP, and Set-Partitioning Polish.</p>
+<p>This package provides three exact intensification operators that apply
+Gurobi-backed optimisation or dynamic programming to improve the within-route
+sequencing or cross-route assignment of a VRP solution.</p>
+<p>Operators:
+- <code class="docutils literal notranslate"><span class="pre">dp_route_reopt</span></code> / <code class="docutils literal notranslate"><span class="pre">dp_route_reopt_profit</span></code>:
+Held-Karp DP re-sequences each route to its exact TSP optimum.
+- <code class="docutils literal notranslate"><span class="pre">fix_and_optimize</span></code> / <code class="docutils literal notranslate"><span class="pre">fix_and_optimize_profit</span></code>:
+Selects the worst routes and re-solves them as a Gurobi Sub-MIP.
+- <code class="docutils literal notranslate"><span class="pre">set_partitioning_polish</span></code> / <code class="docutils literal notranslate"><span class="pre">set_partitioning_polish_profit</span></code>:
+Picks the optimal combination of routes from a pool via Set-Partitioning MIP.</p>
+<p>Attributes:
+INTENSIFICATION_OPERATORS (Dict[str, Callable]): Registry mapping operator
+names to their corresponding intensification functions.
+INTENSIFICATION_NAMES (List[str]): Sorted list of operator names.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.intensification_fixing import (
+…     dp_route_reopt, fix_and_optimize, set_partitioning_polish
+… )
+&gt;&gt;&gt; improved = dp_route_reopt(routes, dist_matrix, wastes, capacity)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

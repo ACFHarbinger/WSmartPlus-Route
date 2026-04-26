@@ -506,11 +506,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.states.base.context">
 <span id="src-pipeline-simulations-states-base-context"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.states.base.context" title="src.pipeline.simulations.states.base.context"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.base.context</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.states.base.context" title="Link to this heading">#</a></h1>
-<p>context.py module.</p>
+<p>Simulation State Machine Context.</p>
+<p>This module provides the SimulationContext class, which manages the lifecycle
+of a single simulation run through its various states (Initializing, Running, Finishing).</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+SimulationContext: The main context object for simulation state management.</p>
 <p>Example:
-&gt;&gt;&gt; import context</p>
+&gt;&gt;&gt; from logic.src.pipeline.simulations.states.base.context import SimulationContext
+&gt;&gt;&gt; # context = SimulationContext(cfg, device, indices, sample_id, pol_id, weights, vars)
+&gt;&gt;&gt; # result = context.run()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,7 +522,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.states.base.context.SimulationContext" title="src.pipeline.simulations.states.base.context.SimulationContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationContext</span></code></a></p></td>
-<td><p>Context object for the Simulation State Machine.</p></td>
+<td><p>Context for simulation state machine.</p></td>
 </tr>
 </tbody>
 </table>
@@ -529,20 +533,37 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.base.context.</span></span><span class="sig-name descname"><span class="pre">SimulationContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.Config</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">omegaconf.DictConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext" title="Link to this definition">#</a></dt>
-<dd><p>Context object for the Simulation State Machine.</p>
-<p>Stores the simulation configuration and runtime state. All simulation
-states access configuration via <code class="docutils literal notranslate"><span class="pre">self.cfg.sim.*</span></code> (typed) instead of
-the legacy <code class="docutils literal notranslate"><span class="pre">self.args[...]</span></code> dict pattern.</p>
+<dd><p>Context for simulation state machine.</p>
+<p>Attributes:
+cfg: Root configuration object (Config or DictConfig).
+device: Torch device for computations.
+indices: Subset of bin indices for this simulation sample.
+sample_id: Unique identifier for the simulation sample/seed.
+pol_id: Index of the policy in the configuration’s policy list.
+model_weights_path: Path to pretrained neural model weights, if applicable.
+lock: Optional threading.Lock for synchronized operations.
+counter: Shared counter for progress tracking across samples.
+overall_progress: Progress bar/updater object.
+shared_metrics: Shared dictionary for real-time metric reporting.
+exec_time: Total execution time of the simulation.
+start_time: Start timestamp of the simulation run.
+end_time: End timestamp of the simulation run.
+pol_name: Extracted name of the policy.
+pol_cfg: Policy-specific configuration dictionary.
+current_state: The current SimState object.
+result: Dictionary containing the final simulation results.
+data_dir: Path to the simulator data directory.
+results_dir: Path to the simulation results assets directory.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
-cfg (Config): Typed Hydra configuration.
-device (torch.device): Description of device.
-indices (List[int]): Description of indices.
-sample_id (int): Description of sample_id.
-pol_id (int): Description of pol_id.
-model_weights_path (Optional[str]): Description of model_weights_path.
-variables_dict (Dict[str, Any]): Description of variables_dict.</p>
+cfg: Typed Hydra configuration or OmegaConf DictConfig.
+device: Target torch device.
+indices: List of bin indices for this sample.
+sample_id: Sample/seed identifier.
+pol_id: Policy index in cfg.sim.full_policies.
+model_weights_path: Path to pretrained model weights.
+variables_dict: Dictionary containing shared resources (lock, counter, etc.).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.lock">
 <span class="sig-name descname"><span class="pre">lock</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.lock" title="Link to this definition">#</a></dt>
@@ -606,6 +627,8 @@ variables_dict (Dict[str, Any]): Description of variables_dict.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.context.SimulationContext.policy">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">policy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.policy" title="Link to this definition">#</a></dt>
 <dd><p>Alias for pol_name for backward compatibility.</p>
+<p>Returns:
+The extracted policy name.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -613,8 +636,8 @@ variables_dict (Dict[str, Any]): Description of variables_dict.</p>
 <span class="sig-name descname"><span class="pre">_continue_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext._continue_init" title="Link to this definition">#</a></dt>
 <dd><p>continue init.</p>
 <p>Args:
-variables_dict (Dict[str, Any]): Description of variables_dict.
-pol_id (int): Description of pol_id.</p>
+variables_dict: Dictionary containing shared resources.
+pol_id: Policy index.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -622,7 +645,7 @@ pol_id (int): Description of pol_id.</p>
 <span class="sig-name descname"><span class="pre">transition_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.simulations.states.base.base.SimState</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.transition_to" title="Link to this definition">#</a></dt>
 <dd><p>Transition to.</p>
 <p>Args:
-state (Optional[SimState]): Description of state.</p>
+state: The SimState object to transition to.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -630,7 +653,7 @@ state (Optional[SimState]): Description of state.</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.run" title="Link to this definition">#</a></dt>
 <dd><p>Run.</p>
 <p>Returns:
-Any: Description.</p>
+The final result dictionary from the simulation.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -638,7 +661,7 @@ Any: Description.</p>
 <span class="sig-name descname"><span class="pre">get_current_state_tuple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.context.SimulationContext.get_current_state_tuple" title="Link to this definition">#</a></dt>
 <dd><p>Get current state tuple.</p>
 <p>Returns:
-Any: Description.</p>
+A tuple of core simulation state components.</p>
 </dd></dl>
 
 </dd></dl>

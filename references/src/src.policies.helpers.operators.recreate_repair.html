@@ -494,10 +494,12 @@ document.write(`
 <p>This package contains operator implementations for repairing (re-inserting nodes into)
 partial solutions. Includes greedy, regret-based, savings-based, deep, and
 branch-and-bound heuristics.</p>
+<p>Attributes:
+None</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.helpers.operators.repair import greedy_insertion
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.recreate_repair import greedy_insertion
 &gt;&gt;&gt; routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
-&gt;&gt;&gt; from logic.src.policies.helpers.operators.repair import bb_insertion
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.recreate_repair import bb_insertion
 &gt;&gt;&gt; routes = bb_insertion(routes, removed, dist_matrix, wastes, capacity)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>

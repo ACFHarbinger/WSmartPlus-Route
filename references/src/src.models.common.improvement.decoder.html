@@ -529,8 +529,8 @@ embed_dim (int): Dimensionality of the latent representation.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the ImprovementDecoder.</p>
 <p>Args:
-embed_dim: Internal dimensionality for decoding features.
-**kwargs: Additional parameters for the parent Module.</p>
+embed_dim: Dimensionality of latent embeddings.
+kwargs: Additional keyword arguments.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.common.improvement.decoder.ImprovementDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder.device" title="Link to this definition">#</a></dt>
@@ -544,10 +544,10 @@ torch.device: The computing device (‘cpu’ or ‘cuda’).</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Predicts improvement moves for the current solution.</p>
 <p>Args:
-td: TensorDict containing the problem state and current solution.
-embeddings: Encoded representations of the graph and solution.
-env: Environment object for transition logic and reward calculation.
-**kwargs: Additional parameters for move selection.</p>
+td: TensorDict containing problem state and solution context.
+embeddings: Encoded representations of nodes and tours.
+env: Environment providing valid move masks and logic.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p: Log-likelihood of the selected moves.

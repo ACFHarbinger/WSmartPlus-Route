@@ -533,7 +533,7 @@ None</p>
 <td><p>Decode a flat chromosome back to routes, preserving vehicle count.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.evolutionary_mutation.swap._get_demand" title="src.policies.helpers.operators.evolutionary_mutation.swap._get_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_demand</span></code></a></p></td>
-<td></td>
+<td><p>Return the demand for a given node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.evolutionary_mutation.swap._repair_capacity_profit" title="src.policies.helpers.operators.evolutionary_mutation.swap._repair_capacity_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_repair_capacity_profit</span></code></a></p></td>
 <td><p>Repair capacity violations post-mutation by ejecting the least profitable
@@ -586,24 +586,48 @@ List[List[int]]: Mutated solution.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.evolutionary_mutation.swap._encode">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.evolutionary_mutation.swap.</span></span><span class="sig-name descname"><span class="pre">_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.evolutionary_mutation.swap._encode" title="Link to this definition">#</a></dt>
 <dd><p>Encode routes as flat chromosome with -1 depot separators.</p>
+<p>Args:
+routes: List of routes to encode.</p>
+<p>Returns:
+Tuple of (flat chromosome list, number of vehicles).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.evolutionary_mutation.swap._decode">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.evolutionary_mutation.swap.</span></span><span class="sig-name descname"><span class="pre">_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chromosome</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.evolutionary_mutation.swap._decode" title="Link to this definition">#</a></dt>
 <dd><p>Decode a flat chromosome back to routes, preserving vehicle count.</p>
+<p>Args:
+chromosome: Flat gene sequence with -1 as depot separators.
+n_vehicles: Expected number of vehicles (unused directly; for API consistency).</p>
+<p>Returns:
+List[List[int]]: List of non-empty routes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.evolutionary_mutation.swap._get_demand">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.evolutionary_mutation.swap.</span></span><span class="sig-name descname"><span class="pre">_get_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.evolutionary_mutation.swap._get_demand" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the demand for a given node.</p>
+<p>Args:
+wastes: Node demands as a dict or numpy array.
+node: The node ID to look up.</p>
+<p>Returns:
+Demand value as a float.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.evolutionary_mutation.swap._repair_capacity_profit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.evolutionary_mutation.swap.</span></span><span class="sig-name descname"><span class="pre">_repair_capacity_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.evolutionary_mutation.swap._repair_capacity_profit" title="Link to this definition">#</a></dt>
 <dd><p>Repair capacity violations post-mutation by ejecting the least profitable
 node from any overloaded route.</p>
+<p>Args:
+routes: Solution routes to repair.
+capacity: Vehicle capacity constraint.
+wastes: Node demands (dict or 1-D array).
+revenue: Revenue per unit waste.
+cost_unit: Cost per unit distance.
+dist: Distance matrix with depot at index 0.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with no capacity violations.</p>
 </dd></dl>
 
 </section>

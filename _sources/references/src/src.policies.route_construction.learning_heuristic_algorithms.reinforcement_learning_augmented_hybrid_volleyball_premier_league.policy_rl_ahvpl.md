@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl.RLAHVPLPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl.RLAHVPLPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl.RLAHVPLPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl.RLAHVPLPolicy._get_config_key
+```
 
 ````
 

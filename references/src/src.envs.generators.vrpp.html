@@ -495,6 +495,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.generators.vrpp">
 <span id="src-envs-generators-vrpp"></span><h1><a class="reference internal" href="#module-src.envs.generators.vrpp" title="src.envs.generators.vrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.vrpp</span></code></a><a class="headerlink" href="#module-src.envs.generators.vrpp" title="Link to this heading">#</a></h1>
 <p>VRPP problem generator.</p>
+<p>Attributes:
+VRPPGenerator: VRPPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import VRPPGenerator
+&gt;&gt;&gt; generator = VRPPGenerator(num_loc=50)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict(
+{
+‘locs’: TensorDict(
+# … customer locations (shape: [*B, 50, 2]) …
+),
+‘depot’: TensorDict(
+# … depot location (shape: [*B, 2]) …
+),
+‘waste’: TensorDict(
+# … waste at each location (shape: [*B, 50]) …
+)
+}
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +544,17 @@ document.write(`
 <li><p>Vehicle capacity</p></li>
 <li><p>Maximum route length</p></li>
 </ul>
+<p>Attributes:
+num_loc: Number of customer locations.
+min_loc: Lower bound for node coordinates.
+max_loc: Upper bound for node coordinates.
+loc_distribution: Spatial distribution strategy.
+min_waste: Minimum waste value.
+max_waste: Maximum waste value.
+waste_distribution: Waste value distribution strategy.
+capacity: Vehicle capacity.
+max_length: Maximum route length.
+depot_type: Depot placement strategy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize VRPP generator.</p>
 <p>Args:
@@ -542,23 +573,41 @@ area: Area for grid generation.
 data_dir: Directory for grid data.
 indices: Indices for grid generation.
 generator: Generator for random number generation.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.vrpp.VRPPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.vrpp.VRPPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate VRPP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — customer locations
+depot: [*B, 2]              — depot location
+waste: [*B, num_loc]        — waste at each location
+capacity: [*B]               — vehicle capacity
+max_waste: [*B]             — max waste per vehicle
+max_length: [*B]            — max route length</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.vrpp.VRPPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.vrpp.VRPPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate depot location based on depot_type.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with depot location (shape: [*B, 2]).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.vrpp.VRPPGenerator._generate_waste">
 <span class="sig-name descname"><span class="pre">_generate_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.vrpp.VRPPGenerator._generate_waste" title="Link to this definition">#</a></dt>
 <dd><p>Generate waste values.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with waste values (shape: [*B, num_loc]).</p>
 </dd></dl>
 
 </dd></dl>

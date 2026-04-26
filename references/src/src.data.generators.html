@@ -493,6 +493,13 @@ document.write(`
 <p>Data generation tools for creating synthetic VRP instances.</p>
 <p>Provides builders, dataset generation scripts, and validators for
 VRPP, WCVRP, and SWCVRP problem types.</p>
+<p>Attributes:
+generate_datasets: Generate datasets based on the provided arguments.
+validate_gen_data_args: Validate the arguments for dataset generation.</p>
+<p>Example:
+from logic.src.data.generators import generate_datasets, validate_gen_data_args
+args = validate_gen_data_args(args)
+data = generate_datasets(args)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

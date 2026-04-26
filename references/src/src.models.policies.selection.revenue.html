@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides a revenue-based selection strategy that marks bins for
 collection only when the expected profit from their waste exceeds a specified
 monetary threshold.</p>
+<p>Attributes:
+RevenueSelector: Revenue-based selection policy.</p>
+<p>Example:
+&gt;&gt;&gt; selector = RevenueSelector(threshold=10.0)
+&gt;&gt;&gt; mask = selector.select(fill_levels)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,6 +524,10 @@ monetary threshold.</p>
 <p>Selects bins where the expected collection revenue exceeds a threshold.
 Revenue is calculated as the product of fill level, bin capacity, and
 revenue per kilogram.</p>
+<p>Attributes:
+revenue_kg: Profit per unit of mass.
+bin_capacity: Max mass per bin.
+threshold: Minimum profit to trigger collection.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the revenue selector.</p>
 <p>Args:
@@ -530,11 +539,11 @@ threshold: Minimum revenue threshold for selection.</p>
 <span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.revenue.RevenueSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins where expected revenue exceeds threshold.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-revenue_kg: Optional override for revenue per kg.
-bin_capacity: Optional override for bin capacity.
-threshold: Optional override for revenue threshold.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels [B, N].
+revenue_kg: Override for profit rate.
+bin_capacity: Override for bin capacity.
+threshold: Override for selection threshold.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

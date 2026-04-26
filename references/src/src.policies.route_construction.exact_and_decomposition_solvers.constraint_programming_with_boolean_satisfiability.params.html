@@ -504,6 +504,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-constraint-programming-with-boolean-satisfiability-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params" title="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params" title="Link to this heading">#</a></h1>
 <p>Parameter dataclasses for Constraint Programming (CP-SAT) solver.</p>
+<p>Attributes:
+CPSATParams (class): Standardized parameters for the CP-SAT solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = CPSATParams(num_days=5, time_limit=60.0)
+&gt;&gt;&gt; config_dict = params.to_dict()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +528,17 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.</span></span><span class="sig-name descname"><span class="pre">CPSATParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams" title="Link to this definition">#</a></dt>
 <dd><p>Standardized parameters for the CP-SAT solver.</p>
+<p>Attributes:
+num_days (int): Number of days in the planning horizon.
+time_limit (float): Maximum time in seconds for the solver.
+search_workers (int): Number of parallel search workers.
+mip_gap (float): Relative gap for optimality tolerance.
+scaling_factor (int): Multiplier for floating-to-integer conversion.
+waste_weight (float): Multiplier for waste revenue in objective.
+cost_weight (float): Multiplier for travel cost in objective.
+overflow_penalty (float): Multiplier for overflow penalties in objective.
+mean_increment (float): Average daily waste generation rate.
+seed (Optional[int]): Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams.num_days">
 <span class="sig-name descname"><span class="pre">num_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams.num_days" title="Link to this definition">#</a></dt>
@@ -597,6 +613,8 @@ A CPSATParams instance with values mapped from the config.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.CPSATParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert parameters to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary representation of the parameters.</p>
 </dd></dl>
 
 </dd></dl>

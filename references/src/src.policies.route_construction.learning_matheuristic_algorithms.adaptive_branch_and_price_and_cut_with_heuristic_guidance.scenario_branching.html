@@ -494,6 +494,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-scenario-branching"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.scenario_branching" title="Link to this heading">#</a></h1>
 <p>Scenario-Consistent Branching.</p>
+<p>Attributes:
+ScenarioConsistentBranching: The Scenario Consistent Branching algorithm implementation.</p>
+<p>Examples:
+&gt;&gt;&gt; from .scenario_branching import ScenarioConsistentBranching
+&gt;&gt;&gt; scenario_branching = ScenarioConsistentBranching()
+&gt;&gt;&gt; scenario_branching.calculate_consensus()
+&gt;&gt;&gt; scenario_branching.select_branching_variable()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -544,7 +551,7 @@ the horizon shortens:</p>
 where the stochastic structure collapses and all scenarios converge.
 The current implementation uses the pure score-maximisation variant,
 which is equivalent to setting threshold = 0.</p>
-<p class="rubric" id="id4">Attributes</p>
+<p class="rubric" id="id4">Attributes:</p>
 <p>base_threshold : float
 Reference consensus threshold used as the anchor for horizon-adaptive
 decay.  Currently serves as a documentation reference; the active

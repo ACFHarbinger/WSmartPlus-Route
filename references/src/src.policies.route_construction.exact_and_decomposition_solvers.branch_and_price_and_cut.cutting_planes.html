@@ -541,7 +541,8 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-price-and-cut-cutting-planes"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes" title="Link to this heading">#</a></h1>
 <p>Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.</p>
-<p>Provides modular separation algorithms for VRPP-specific valid inequalities:</p>
+<p>Provides modular separation algorithms for VRPP-specific valid inequalities:
+Provides modular separation algorithms for VRPP-specific valid inequalities:</p>
 <ul class="simple">
 <li><p>RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing
 requirements (Lysgaard et al. 2004). Essential for problems with fractional
@@ -570,6 +571,16 @@ Mathematical Programming, 100(2), 423-445.
 Operations Research, 56(2), 497-511.
 - Balas, E. (1975). “Facets of the knapsack polytope.”
 Mathematical Programming, 8(1), 146-164 (Cover inequalities).</p>
+<p>Attributes:
+CuttingPlaneEngine (class): Abstract base class for separation engines.
+RoundedCapacityCutEngine (class): RCC separation logic.
+SubsetRowCutEngine (class): SRI separation logic.
+EdgeCliqueCutEngine (class): Fleet cover logic.
+KnapsackCoverEngine (class): Generic knapsack cover logic.
+CompositeCuttingPlaneEngine (class): Orchestrator for multiple engines.</p>
+<p>Example:
+&gt;&gt;&gt; engine = create_cutting_plane_engine(“rcc”, v_model, sep_engine)
+&gt;&gt;&gt; cuts_added = engine.separate_and_add_cuts(master, max_cuts=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -628,41 +639,47 @@ described in Barnhart, Hane, and Vance (2000) §6.</p></td>
 <p>Abstract base class for cutting plane separation engines.</p>
 <p>Each engine implements a specific family of valid inequalities and
 provides separation algorithms to identify violated cuts.</p>
-<p>Implementations must only add globally valid inequalities. Cuts that
-are valid only at the current B&amp;B node (e.g. cuts that use branching
-constraint data as parameters) must not be registered in the global
-cut pool.</p>
+<p>Attributes:
+None (abstract).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Identify violated cuts and add them to the master problem.</p>
 <p>Args:
-master: Master problem instance
-max_cuts: Maximum number of cuts to add
-**kwargs: Engine-specific parameters</p>
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Engine-specific parameters (e.g., node_depth, thresholds).</p>
 <p>Returns:
-Number of cuts added</p>
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.get_name">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.get_name" title="Link to this definition">#</a></dt>
 <dd><p>Return the engine name for logging.</p>
+<p>Returns:
+str: Name of the engine.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.engines">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">engines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.engines" title="Link to this definition">#</a></dt>
-<dd><p>Return the list of sub-engines if this is a composite engine.
-Returns an empty list for simple engines.</p>
+<dd><p>Returns the list of sub-engines if this is a composite engine.</p>
+<p>Returns:
+List[CuttingPlaneEngine]: A list of child engines, or an empty list if not composite.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal">
 <span class="sig-name descname"><span class="pre">_is_orthogonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_vecs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal" title="Link to this definition">#</a></dt>
-<dd><p>Task 9 (SOTA): Cut Orthogonality filtering.
-Calculates maximum cosine similarity between candidate vector and active vectors.
-Rejects if similarity &gt; threshold (i.e. if cut is too parallel to existing cuts).</p>
+<dd><p>Calculates maximum cosine similarity between candidate and active vectors.</p>
+<p>Rejects if similarity &gt; threshold (i.e. if cut is too parallel to existing cuts).</p>
+<p>Args:
+candidate_vec: Coefficient vector of the new cut.
+active_vecs: List of coefficient vectors of existing cuts.
+threshold: Maximum allowed cosine similarity.</p>
+<p>Returns:
+bool: True if orthogonal enough, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>
@@ -706,11 +723,14 @@ cost of labels in the RCSPP pricing subproblem. For every edge e in the
 boundary δ(S), the dual value π_S is subtracted from the edge cost.</p>
 <p class="rubric" id="id13">References:</p>
 <p>Lysgaard et al. (2004), Section 3.2: “Capacity cuts”</p>
+<p>Attributes:
+v_model (VRPPModel): Model for edge indexing and demand tracking.
+sep_engine (SeparationEngine): Internal engine for cut separation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the RCC separation engine.</p>
 <p>Args:
-v_model: VRPP model for edge indexing and demand tracking
-sep_engine: Separation engine from branch-and-cut module</p>
+v_model: VRPP model for edge indexing and demand tracking.
+sep_engine: Separation engine from branch-and-cut module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
@@ -724,17 +744,20 @@ sep_engine: Separation engine from branch-and-cut module</p>
 <li><p>Add violated cuts to master with Set Packing relaxation</p></li>
 </ol>
 <p>Args:
-master: Master problem instance
-max_cuts: Maximum number of cuts to add
-**kwargs: Unused (for interface consistency)</p>
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
 <p>Returns:
-Number of cuts added</p>
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘rcc’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -744,8 +767,8 @@ Number of cuts added</p>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
 <p>Subset-Row Inequality (SRI) separation engine.</p>
 <p>The Subset-Row Inequalities are a class of Chvátal-Gomory rank-1
-inequalities derived from the Set Partitioning Problem (SPP) formulation.
-They are essential for tightening the LP relaxation when solving VRPs
+inequalities derived from the Set Partitioning Problem (SPP) formulation.</p>
+<p>They are essential for tightening the LP relaxation when solving VRPs
 with column generation.</p>
 <p class="rubric" id="id14">Mathematical Formulation (3-SRI):</p>
 <p>For a subset S of exactly |S| = 3 customer nodes, the 3-SRI (with p=2)
@@ -769,31 +792,55 @@ triplets forming triangles in the fractional support graph.</p>
 transition. A labeling state must track how many nodes of S it has
 visited. When the count transitions from 1 to 2, the dual value π_SRI
 is subtracted from the path profit (or added to reduced cost).</p>
+<p>Attributes:
+v_model (VRPPModel): Model for node indexing and route tracking.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Subset-Row Cut separation engine.</p>
+<p>Args:
+v_model (VRPPModel): VRPP model for node indexing and route tracking.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Identifies violated 3-Subset-Row Inequalities (SRIs) using structural heuristics.</p>
+<p>Args:
+master: Master problem instance with current fractional solution.
+max_cuts: Maximum number of SRI cuts to add in this separation round.
+kwargs: Additional parameters, such as cut_orthogonality_threshold.</p>
+<p>Returns:
+int: The number of SRI cuts successfully added to the master problem.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri">
 <span class="sig-name descname"><span class="pre">_evaluate_and_add_sri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri" title="Link to this definition">#</a></dt>
 <dd><p>Calculate SRI violation and add to master if violated.</p>
-<p>Task 9 (SOTA): Cut Similarity Filtering.
-Evaluates the violation and similarity of the proposed SRI to the
-active cut pool. Rejects if similarity &gt; threshold.</p>
+<p>Args:
+master: Master problem instance.
+node_set: Set of nodes in the candidate triplet.
+kwargs: Threshold parameters.</p>
+<p>Returns:
+bool: True if cut was added, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._is_orthogonal_content">
 <span class="sig-name descname"><span class="pre">_is_orthogonal_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_vecs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._is_orthogonal_content" title="Link to this definition">#</a></dt>
-<dd><p>Fix 4: Content-keyed orthogonality check.</p>
+<dd><p>Content-keyed orthogonality check.</p>
+<p>Args:
+candidate_dict: Coefficients of candidate cut.
+active_vecs: List of existing cut coefficient dicts.
+threshold: Orthogonality threshold.</p>
+<p>Returns:
+bool: True if orthogonal, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘sri’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -829,22 +876,35 @@ the lifting coefficient for all routes in the clique simplifies to 1.0.</p>
 <li><p>Identify “oversaturated” edges where fractional routes sum to &gt; 1.0.</p></li>
 <li><p>Register the clique constraint to prune the fractional space.</p></li>
 </ol>
+<p>Attributes:
+v_model (VRPPModel): Model for edge indexing.
+capacity (float): Physical capacity of the arc.
+epsilon (float): Violation threshold.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the LCI separation engine.</p>
+<p>Initialize the EdgeClique separation engine.</p>
 <p>Args:
 v_model: VRPP model for edge indexing.
-capacity: Physical capacity of the arc (default 1.0 for VRP).
+capacity: Physical capacity of the arc.
 epsilon: Violation threshold.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Identify violated LCIs by lifting minimal covers.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
+<p>Returns:
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘edge_clique’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -873,17 +933,33 @@ already prevents the LP from selecting more than K total routes.
 However, cover cuts provide additional polyhedral strength by
 specifically targeting the most fractional routes in the solution.</p>
 <p>Reference: Barnhart et al. (2000), Section 5.</p>
+<p>Attributes:
+v_model (VRPPModel): Model for node and fleet data.
+sep_engine (SeparationEngine): Shared separation utilities.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Knapsack Cover separation engine.</p>
+<p>Args:
+v_model (VRPPModel): VRPP model for node and fleet data.
+sep_engine (SeparationEngine): Shared separation utilities.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Identify and add violated cover inequalities for the vehicle limit.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
+<p>Returns:
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘cover’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -892,21 +968,39 @@ specifically targeting the most fractional routes in the solution.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">CompositeCuttingPlaneEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
 <p>Combines multiple separation engines to run in sequence.</p>
+<p>Attributes:
+_engines (List[CuttingPlaneEngine]): Sub-engines to run.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the composite engine with a list of sub-engines.</p>
+<p>Args:
+engines (List[CuttingPlaneEngine]): Sub-engines to run.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.engines">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">engines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.engines" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the list of sub-engines.</p>
+<p>Returns:
+List[CuttingPlaneEngine]: Sub-engines.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Runs separation algorithms for all sub-engines in sequence.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Total maximum cuts to add (split among sub-engines).
+kwargs: Forwarded to sub-engines.</p>
+<p>Returns:
+int: Total number of cuts added by all sub-engines.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘composite’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -916,13 +1010,15 @@ specifically targeting the most fractional routes in the solution.</p>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
 <p>Separates basic cover inequalities for the fleet-size knapsack.</p>
 <p>The fleet-size constraint Σλₖ ≤ K is a 0-1 knapsack where every route
-has weight 1. A cover C is any subset of routes with |C| &gt; K. The cover
-inequality Σ_{k∈C} λₖ ≤ K is valid and violated when the top K+1
-fractional routes sum to more than K.</p>
-<p>This engine is a strict uniform knapsack cover. It does not implement
-true sequence-independent lifting because for a uniform knapsack,
-all lifting coefficients theoretically collapse to 1.0.</p>
+has weight 1.</p>
+<p>Attributes:
+v_model (VRPPModel): Model for fleet limits.
+epsilon (float): Violation threshold for cut generation.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Basic Fleet Cover engine.</p>
+<p>Args:
+v_model (VRPPModel): VRPP model for fleet limits.
+epsilon (float): Violation threshold for cut generation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
@@ -930,12 +1026,21 @@ all lifting coefficients theoretically collapse to 1.0.</p>
 <p>Identifies a violated cover C (a set of routes with |C| &gt; K whose
 fractional values sum to more than K) and adds the basic cover
 inequality Σ_{k∈C} λ_k ≤ K to the master problem.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
+<p>Returns:
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘fleet_cover’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -966,16 +1071,33 @@ into the route variables λ_k for the RMP:
 <li><p>Compute lifting coefficients using prefix sums of sorted demands.</p></li>
 <li><p>Map node-alphas to route-coefficients and register the cut in the RMP.</p></li>
 </ul>
+<p>Attributes:
+v_model (VRPPModel): Model for node demands.
+epsilon (float): Violation threshold for cut generation.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the node-visit LCI engine.</p>
+<p>Args:
+v_model (VRPPModel): VRPP model for node demands.
+epsilon (float): Violation threshold for cut generation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Separate and add cuts based on node visitation frequencies.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
+<p>Returns:
+int: Number of cuts added.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘physical_lci’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1013,19 +1135,33 @@ integer solution.  A fractional LP may assign more than 1.0 total flow to an
 arc across multiple fractional routes; this constitutes arc saturation.
 The corresponding capacity knapsack is:
 Σ_{k : arc ∈ route_k} λ_k ≤ 1   (arc capacity = 1 in unit-flow VRP)</p>
+<p>Attributes:
+v_model (VRPPModel): Model for problem data.
+epsilon (float): Violation threshold for cut generation.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the saturated-arc LCI engine.</p>
+<p>Args:
+v_model (VRPPModel): VRPP model for problem data.
+epsilon (float): Violation threshold for cut generation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts">
 <span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Separate saturated-arc LCIs and add to master.</p>
+<p>Args:
+master: Master problem instance.
+max_cuts: Maximum number of cuts to add.
+kwargs: Unused (for interface consistency).</p>
 <p>Returns:
-Number of cuts added.</p>
+int: Number of cuts added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the identifier for this engine.</p>
+<p>Returns:
+str: The engine name ‘saturated_arc_lci’.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1034,13 +1170,14 @@ Number of cuts added.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">create_cutting_plane_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.SeparationEngine</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine" title="Link to this definition">#</a></dt>
 <dd><p>Factory function to create cutting plane engines.</p>
 <p>Args:
-engine_name: Name of the engine (“rcc”, “src”, “cover”, or “all”)
-v_model: VRPP model for problem data
-sep_engine: Separation engine (required for RCC/SRC)</p>
+engine_name: Name of the engine (“rcc”, “sri”, “edge_clique”, “fleet_cover”,
+“physical_lci”, “saturated_arc_lci”, “cover”, “all”, “composite”).
+v_model: VRPP model for problem data.
+sep_engine: Separation engine (required for RCC/SRC/Cover).</p>
 <p>Returns:
-Instance of the requested cutting plane engine</p>
+CuttingPlaneEngine: Instance of the requested cutting plane engine.</p>
 <p>Raises:
-ValueError: If engine_name is not recognized or required args missing</p>
+ValueError: If engine_name is not recognized or required args missing.</p>
 <p>Example:
 &gt;&gt;&gt; sep_engine = SeparationEngine(v_model)
 &gt;&gt;&gt; cut_engine = create_cutting_plane_engine(“rcc”, v_model, sep_engine)

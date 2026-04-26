@@ -500,6 +500,13 @@ document.write(`
 Guastaroba, G., Savelsbergh, M., &amp; Speranza, M. G. (2017). “Adaptive Kernel
 Search: A heuristic for solving Mixed Integer linear Programs”.
 European Journal of Operational Research.</p>
+<p>Attributes:
+run_adaptive_kernel_search_gurobi: Main entry point for the AKS solver.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.aks import run_adaptive_kernel_search_gurobi
+&gt;&gt;&gt; dist_matrix = np.zeros((3, 3))
+&gt;&gt;&gt; tour, obj, cost = run_adaptive_kernel_search_gurobi(dist_matrix, {1: 0.5}, 10.0, 5.0, 1.0, [])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -546,6 +553,21 @@ Ranking is based on the harvested root node relaxation values.</p>
 formulation is a pure 0-1 MIP. While Guastaroba et al. (2017) suggests
 maintaining separate lists for binary and general integer variables, they
 are merged here as all discrete variables in this model are binary.</p>
+<p>Args:
+model: Gurobi model to optimize.
+x: Edge decision variables keyed by (i, j) tuples.
+y: Node selection variables keyed by node index.
+initial_kernel_size: Minimum number of variables in the initial kernel.
+bucket_size: Number of variables per bucket.
+dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+mandatory_nodes: Node indices that must be included in the solution.</p>
+<p>Returns:
+Tuple[List[gp.Var], List[gp.Var], List[List[gp.Var]]]: Kernel variables,
+remaining variables, and bucketed remaining variables.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -553,6 +575,12 @@ are merged here as all discrete variables in this model are binary.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">_get_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remaining_vars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._get_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Step 3: GETFEASIBLE Routine.
 Iteratively increases the size of kernel K until a feasible solution is found.</p>
+<p>Args:
+model: Gurobi model to optimize.
+remaining_vars: Variables not yet in the active kernel.
+active_kernel: Current set of active kernel variables.</p>
+<p>Returns:
+int: Index into remaining_vars indicating how far the expansion reached.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -560,18 +588,48 @@ Iteratively increases the size of kernel K until a feasible solution is found.</
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">_assess_difficulty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_mip_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_easy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._assess_difficulty" title="Link to this definition">#</a></dt>
 <dd><p>Step 2: Difficulty Assessment.
 Classifies instance and applies HARD-mode constraints if needed.</p>
+<p>Args:
+model: Gurobi model with root node relaxation data attached.
+t_mip_k: Time taken to solve the initial kernel subproblem.
+t_easy: Threshold below which the instance is classified as EASY.
+epsilon: Tolerance for fixing variables at 1 in HARD mode.</p>
+<p>Returns:
+str: Classification string, one of “EASY”, “NORMAL”, or “HARD”.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._solve_easy_iterations">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">_solve_easy_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remaining_vars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_rem_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_easy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._solve_easy_iterations" title="Link to this definition">#</a></dt>
 <dd><p>Step 4a: EASY iteration logic.</p>
+<p>Args:
+model: Gurobi model to optimize.
+remaining_vars: Variables not in the initial kernel.
+current_rem_idx: Starting index into remaining_vars for this phase.
+active_kernel: Current set of active kernel variables.
+chunk_size: Number of variables to add per iteration.
+t_easy: Time threshold for EASY instance classification.
+x_h: Dict mapping variables to their best known solution values.
+best_obj: Best objective value found so far.</p>
+<p>Returns:
+Tuple[int, float]: Updated index into remaining_vars and best objective value.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._solve_rigorous_iterations">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">_solve_rigorous_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buckets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_buckets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_limit_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._solve_rigorous_iterations" title="Link to this definition">#</a></dt>
 <dd><p>Step 4b: NORMAL/HARD iteration logic with bucket constraints.</p>
+<p>Args:
+model: Gurobi model to optimize.
+buckets: List of variable buckets to iterate over.
+active_kernel: Current set of active kernel variables.
+x_h: Dict mapping variables to their best known solution values.
+best_obj: Best objective value found so far.
+max_buckets: Maximum number of buckets to process.
+time_limit: Total time budget in seconds.
+start_time: Model runtime at the start of this phase.
+mip_limit_nodes: Node limit for each bucket solve.</p>
+<p>Returns:
+float: Best objective value found across all bucket iterations.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -579,6 +637,18 @@ Classifies instance and applies HARD-mode constraints if needed.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">_solve_aks_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remaining_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_buckets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_limit_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_easy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks._solve_aks_iterations" title="Link to this definition">#</a></dt>
 <dd><p>Execute the core Adaptive Kernel Search iterative improvement loop.
 Complies with Guastaroba et al. (2017) methodology.</p>
+<p>Args:
+model: Gurobi model to optimize.
+kernel_vars: Variables selected for the initial kernel.
+remaining_vars: Variables not in the initial kernel.
+bucket_size: Number of variables per bucket in NORMAL/HARD mode.
+max_buckets: Maximum number of buckets to process.
+time_limit: Total time budget in seconds.
+mip_limit_nodes: Node limit for each bucket MIP solve.
+t_easy: Solve-time threshold for EASY classification.
+epsilon: Tolerance for fixing near-one variables in HARD mode.</p>
+<p>Returns:
+Set[gp.Var]: Active kernel variable set after all iterations.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -586,15 +656,25 @@ Complies with Guastaroba et al. (2017) methodology.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.</span></span><span class="sig-name descname"><span class="pre">run_adaptive_kernel_search_gurobi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_kernel_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_buckets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_limit_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_easy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.run_adaptive_kernel_search_gurobi" title="Link to this definition">#</a></dt>
 <dd><p>Solve VRPP using Adaptive Kernel Search (AKS) per Guastaroba et al. (2017).</p>
 <p>Args:
-initial_kernel_size (int): Size of the starting variable pool.
-bucket_size (int): Size for search buckets.
-max_buckets (int): Limit on improvement attempts.
-time_limit (float): Total time budget for optimization.
-mip_limit_nodes (int): Node limit for internal Gurobi solves.
-mip_gap (float): Acceptable relative optimality gap.
-t_easy (float): Threshold for ‘EASY’ instance classification (seconds).
-epsilon (float): Tolerance for fixing variables in ‘HARD’ instances.
-seed (int): Random seed.</p>
+dist_matrix: Distance matrix of shape (n_nodes, n_nodes).
+wastes: Waste amounts keyed by node index.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+mandatory_nodes: Node indices that must be visited.
+initial_kernel_size: Size of the starting variable pool.
+bucket_size: Size for search buckets.
+max_buckets: Limit on improvement attempts.
+time_limit: Total time budget for optimization.
+mip_limit_nodes: Node limit for internal Gurobi solves.
+mip_gap: Acceptable relative optimality gap.
+t_easy: Threshold for EASY instance classification in seconds.
+epsilon: Tolerance for fixing variables in HARD instances.
+seed: Random seed.
+env: Optional Gurobi environment for license management.
+recorder: Optional recorder for tracking solver state.</p>
+<p>Returns:
+Tuple[List[int], float, float]: Tour node sequence, objective value, and travel cost.</p>
 </dd></dl>
 
 </section>

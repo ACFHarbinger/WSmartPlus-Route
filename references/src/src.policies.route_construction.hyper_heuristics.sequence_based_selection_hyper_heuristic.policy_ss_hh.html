@@ -497,6 +497,12 @@ document.write(`
 <p>SS-HH Policy Adapter.</p>
 <p>Adapts the Sequence-based Selection Hyper-Heuristic (SS-HH) solver to the
 agnostic BaseRoutingPolicy interface.</p>
+<p>Attributes:
+SSHHPolicy: Adapter for the SS-HH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import SSHHPolicy
+&gt;&gt;&gt; params = SSHHPolicy()
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,22 +524,27 @@ agnostic BaseRoutingPolicy interface.</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>SS-HH policy class.</p>
 <p>Visits bins using the online-learning Sequence-based Selection Hyper-Heuristic.</p>
+<p>Attributes:
+config: Configuration parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Sequence-Based Selection Hyper-Heuristic policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.SSHHPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.SSHHPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class.</p>
+<p>Returns:
+Optional[Type]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.SSHHPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.SSHHPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key.</p>
+<p>Returns:
+str: The configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.SSHHPolicy._run_solver">
@@ -558,7 +569,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 hyperparameters like <code class="docutils literal notranslate"><span class="pre">threshold_infeasible</span></code>, <code class="docutils literal notranslate"><span class="pre">threshold_decay_rate</span></code>, etc.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

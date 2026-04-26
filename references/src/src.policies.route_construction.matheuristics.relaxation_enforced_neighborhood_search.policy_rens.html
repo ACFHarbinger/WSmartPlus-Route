@@ -506,6 +506,12 @@ LP relaxation of the routing problem.</p>
 <p>Reference:
 Berthold, T. (2009). “Rens - The relaxation enforced neighborhood search”.
 ZIB-Report 09-11.</p>
+<p>Attributes:
+RENSPolicy: The RENS policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens import RENSPolicy
+&gt;&gt;&gt; rens_policy = RENSPolicy()
+&gt;&gt;&gt; rens_policy.execute(distance_matrix=…, wastes={}, capacity=1e9, R=1.0, C=1.0, mandatory_nodes=[])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,6 +543,8 @@ to the RENSSolver engine.
 capacity) from the Hydra config into the solver’s internal dictionary.
 4. Result Translation: Converts the tour sequence and objective value
 back into the simulation-standard metadata package.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the RENS policy with a configuration dictionary.</p>
 <p>Args:
@@ -545,18 +553,33 @@ config: Hydra configuration for RENS.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._config_class" title="Link to this definition">#</a></dt>
 <dd><p>Return the configuration dataclass associated with this policy.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return the unique Hydra configuration key for RENS.</p>
+<p>Returns:
+The key.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.RENSPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Not used - RENS requires specialized execute().</p>
+<p>Args:
+sub_dist_matrix: Sub-problem distance matrix.
+sub_wastes: Sub-problem wastes.
+capacity: Capacity.
+revenue: Revenue.
+cost_unit: Cost unit.
+values: Values.
+mandatory_nodes: Mandatory nodes.
+kwargs: Additional parameters.</p>
+<p>Returns:
+Tuple of (tour, cost, profit).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -572,7 +595,7 @@ search space.</p>
 <p>This implementation uses Gurobi for both the LP relaxation and the
 restricted MIP phase.</p>
 <p>Args:
-**kwargs: Context for matheuristic execution, including:
+kwargs: Context for matheuristic execution, including:
 - distance_matrix (np.ndarray): Cost matrix between nodes.
 - wastes (Dict[int, float]): Current waste levels for each bin.
 - capacity (float): Vehicle volume limit.

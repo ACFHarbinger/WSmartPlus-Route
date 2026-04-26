@@ -526,7 +526,7 @@ None</p>
 <td><p>Or-opt: relocate a chain of length chain_len to any other position in the same route.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost" title="src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_chain_edge_cost</span></code></a></p></td>
-<td><p>Cost of edges: prev → chain[0] → … → chain[-1] → next.</p></td>
+<td><p>Cost of edges: prev -&gt; chain[0] -&gt; … -&gt; chain[-1] -&gt; next.</p></td>
 </tr>
 </tbody>
 </table>
@@ -562,7 +562,8 @@ v: Node after which u will be inserted.
 r_u: Index of the route containing u.
 p_u: Position of u in route r_u.
 r_v: Index of the route containing v (target route).
-p_v: Position of v in route r_v.</p>
+p_v: Position of v in route r_v.
+exclude_depot: If True, skips moves that involve depot-adjacent edges.</p>
 <p>Returns:
 bool: True if the relocation was applied (improving), False otherwise.</p>
 </dd></dl>
@@ -580,7 +581,8 @@ r_src: Source route index.
 pos_src: Position of the first node in the chain.
 r_dst: Destination route index.
 pos_dst: Insertion point (chain inserted after this position).
-chain_len: Number of consecutive nodes (1 or 2).</p>
+chain_len: Number of consecutive nodes (1 or 2).
+exclude_depot: If True, skips moves involving depot-adjacent edges.</p>
 <p>Returns:
 bool: True if the relocation improved the solution.</p>
 </dd></dl>
@@ -594,7 +596,8 @@ bool: True if the relocation improved the solution.</p>
 ls: LocalSearch instance.
 r_idx: Index of the route.
 pos: Start position of the chain.
-chain_len: Length of the chain (1-3).</p>
+chain_len: Length of the chain (1-3).
+exclude_depot: If True, skips moves involving depot-adjacent edges.</p>
 <p>Returns:
 bool: True if an improving move was found and applied.</p>
 </dd></dl>
@@ -602,7 +605,14 @@ bool: True if an improving move was found and applied.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.relocate.</span></span><span class="sig-name descname"><span class="pre">_chain_edge_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.relocate._chain_edge_cost" title="Link to this definition">#</a></dt>
-<dd><p>Cost of edges: prev → chain[0] → … → chain[-1] → next.</p>
+<dd><p>Cost of edges: prev -&gt; chain[0] -&gt; … -&gt; chain[-1] -&gt; next.</p>
+<p>Args:
+d: Distance matrix indexed by node IDs.
+prev_node: Node immediately before the chain.
+chain: Ordered list of chain node IDs.
+next_node: Node immediately after the chain.</p>
+<p>Returns:
+Total edge cost traversing prev_node -&gt; chain -&gt; next_node.</p>
 </dd></dl>
 
 </section>

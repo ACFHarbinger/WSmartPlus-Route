@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _update_weight(operator: str)
+````{py:method} _update_weight(operator: str) -> None
 :canonical: src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight
@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} reset_statistics()
+````{py:method} reset_statistics() -> None
 :canonical: src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.reset_statistics
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.reset_statistics

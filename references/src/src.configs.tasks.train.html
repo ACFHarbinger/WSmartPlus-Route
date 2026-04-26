@@ -528,6 +528,22 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.tasks.train">
 <span id="src-configs-tasks-train"></span><h1><a class="reference internal" href="#module-src.configs.tasks.train" title="src.configs.tasks.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks.train</span></code></a><a class="headerlink" href="#module-src.configs.tasks.train" title="Link to this heading">#</a></h1>
 <p>Train Config module.</p>
+<p>Attributes:
+TrainConfig: Configuration for model training.</p>
+<p>Example:
+train_config = TrainConfig(
+n_epochs=100,
+batch_size=256,
+train_data_size=100000,
+val_data_size=10000,
+val_dataset=”val.pkl”,
+num_workers=4,
+data_distribution=”gaussian”,
+graph=GraphConfig(),
+reward=ObjectiveConfig(),
+decoding=DecodingConfig(),
+policy=NeuralAgentConfig(),
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

@@ -554,6 +554,13 @@ bool: True if a better ordering was found and applied.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intra_route_local_search.k_permutation._subseq_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intra_route_local_search.k_permutation.</span></span><span class="sig-name descname"><span class="pre">_subseq_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intra_route_local_search.k_permutation._subseq_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute total edge cost of prev → seq[0] → … → seq[-1] → next.</p>
+<p>Args:
+d: Distance matrix (2-D array-like indexed by node id).
+prev_node: Node immediately before the sequence.
+seq: Ordered list of nodes in the sub-sequence.
+next_node: Node immediately after the sequence.</p>
+<p>Returns:
+float: Total edge cost of prev_node → seq[0] → … → seq[-1] → next_node.</p>
 </dd></dl>
 
 </section>

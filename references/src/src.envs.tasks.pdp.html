@@ -494,6 +494,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.pdp">
 <span id="src-envs-tasks-pdp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.pdp" title="src.envs.tasks.pdp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pdp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.pdp" title="Link to this heading">#</a></h1>
 <p>PDP problem definition for offline evaluation.</p>
+<p>Attributes:
+PDP: Pickup and Delivery Problem (PDP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.pdp import PDP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]]]),
+…     “demand”: torch.tensor([[0.0, 1.0, 1.0]]),
+…     “vehicle_capacity”: torch.tensor([2.0]),
+…     “depot”: torch.tensor([0.0]),
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 2, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = PDP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([2.8284])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +530,8 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.envs.tasks.base.BaseProblem</span></code></p>
 <p>Pickup and Delivery Problem (PDP).</p>
 <p>Cost = total tour length (depot implicitly added at start and end).</p>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.pdp.PDP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.pdp.PDP.NAME" title="Link to this definition">#</a></dt>

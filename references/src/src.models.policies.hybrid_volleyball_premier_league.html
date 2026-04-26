@@ -506,6 +506,12 @@ document.write(`
 that mimics the competition and coaching dynamics of a professional sports
 league. It fuses constructionist capabilities (ACO) with improvement
 heuristics (ALNS) using a parallelized population management system on the GPU.</p>
+<p>Attributes:
+VectorizedHVPL: High-performance population-based hybrid policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.hybrid_volleyball_premier_league import VectorizedHVPL
+&gt;&gt;&gt; policy = VectorizedHVPL(env_name=”wcvrp”)
+&gt;&gt;&gt; out = policy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,17 +545,17 @@ alns_iterations: Internal iterations for the coaching phase.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the HVPL policy.</p>
 <p>Args:
-env_name: Problem environment identifier.
-n_teams: Number of concurrent solutions in the pool.
-max_iterations: Maximum cycle limit.
-sub_rate: Crossover/replacement probability.
-time_limit: Total timeout in seconds.
-aco_iterations: Iterations for structural initialization.
-alns_iterations: Coaching intensity per cycles.
-device: Hardware target.
-generator: Torch RNG instance.
-rng: Python random module instance.
-**kwargs: Additional hyperparameters.</p>
+env_name: Name of the environment identifier.
+n_teams: Number of parallel teams (individuals) in the league.
+max_iterations: Number of seasons (generations) to simulate.
+sub_rate: Probability/ratio of replacing underperforming teams.
+time_limit: Maximum execution time in seconds.
+aco_iterations: Number of construction iterations for new teams.
+alns_iterations: Number of refinement iterations in the coaching phase.
+device: Computing device for tensor operations.
+generator: Torch RNG generator for sampling.
+rng: Python random instance for heuristics.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.__getstate__" title="Link to this definition">#</a></dt>
@@ -571,14 +577,14 @@ state: Serialized attribute dictionary.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward" title="Link to this definition">#</a></dt>
 <dd><p>Execute the HVPL simulation loop.</p>
 <p>Args:
-td: Problem state data.
-env: Relevant environment instance.
-strategy: Search strategy (ignored).
-num_starts: Number of restarts (not applicable).
-max_steps: Sequence length limit (ignored).
-phase: Current execution phase (‘train’, ‘val’, or ‘test’).
-return_actions: Whether to include action tensors.
-**kwargs: Runtime overrides.</p>
+td: TensorDict containing instance data (locations, demands).
+env: Optional environment for reward calculation.
+strategy: Solver strategy (e.g., “greedy”).
+num_starts: Unused in HVPL.
+max_steps: Maximum step constraint.
+phase: Current phase (“train”, “val”, “test”).
+return_actions: Whether to return full action sequences.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Optimized results dictionary including:
 - actions (torch.Tensor): Padded action sequences.

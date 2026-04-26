@@ -498,6 +498,13 @@ document.write(`
 <p>Meta-Reinforcement Learning (Meta-RL) module.</p>
 <p>This module implements bi-level optimization where a meta-learner
 adjusts environment reward weights to optimize the training progress of an inner RL agent.</p>
+<p>Attributes:
+MetaRLModule: Meta-Reinforcement Learning module.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.meta import MetaRLModule
+&gt;&gt;&gt; meta_rl_module = MetaRLModule(agent=”dummy_agent”)
+&gt;&gt;&gt; meta_rl_module
+&lt;logic.src.pipeline.rl.meta.module.MetaRLModule object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,30 +526,59 @@ adjusts environment reward weights to optimize the training progress of an inner
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.LightningModule</span></code></p>
 <p>Lightning module for Meta-Reinforcement Learning.</p>
 <p>Wraps an RL agent (inner loop) and a meta-model (outer loop).</p>
+<p>Attributes:
+agent (Any): Description of agent.
+meta_strategy (Any): Description of meta_strategy.
+initial_weights (dict[str, float]): Description of initial_weights.
+automatic_optimization (bool): Whether automatic optimization is enabled.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize MetaRLModule.</p>
+<p>Args:
+agent: The RL agent to wrap (inner loop).
+strategy (str): The meta-learning strategy to use. Options: “rnn”, “tdl”, “hypernet”.
+meta_lr (float): Learning rate for the meta-learner.
+history_length (int): Number of past steps to consider for the meta-learner.
+hidden_size (int): Size of the hidden layer in the meta-learner.
+kwargs: Additional keyword arguments for the meta-learner.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.module.MetaRLModule.training_step">
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.module.MetaRLModule.training_step" title="Link to this definition">#</a></dt>
 <dd><p>Step for Meta-RL bi-level optimization.</p>
+<p>Args:
+batch: Batch of data containing trajectories from the inner RL agent.
+batch_idx: Batch index.</p>
+<p>Returns:
+Total loss for the batch.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.module.MetaRLModule.configure_optimizers">
 <span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.module.MetaRLModule.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Configure optimizers for both loops.</p>
+<p>Returns:
+Dict[str, torch.optim.Optimizer]: Dictionary of optimizers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.module.MetaRLModule.validation_step">
 <span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.module.MetaRLModule.validation_step" title="Link to this definition">#</a></dt>
 <dd><p>Validation step for meta RL.</p>
+<p>Args:
+batch: Batch of data containing trajectories from the inner RL agent.
+batch_idx: Batch index.</p>
+<p>Returns:
+Total loss for the batch.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.module.MetaRLModule.test_step">
 <span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.module.MetaRLModule.test_step" title="Link to this definition">#</a></dt>
 <dd><p>Test step for meta RL.</p>
+<p>Args:
+batch: Batch of data containing trajectories from the inner RL agent.
+batch_idx: Batch index.</p>
+<p>Returns:
+Total loss for the batch.</p>
 </dd></dl>
 
 </dd></dl>

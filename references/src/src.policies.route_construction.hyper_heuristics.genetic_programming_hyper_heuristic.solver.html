@@ -531,6 +531,29 @@ used on the test instance.</p>
 <p>Reference:
 Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., &amp; Woodward, J. R.
 “Exploring Hyper-heuristic Methodologies with Genetic Programming”, 2009</p>
+<p>Attributes:
+TrainingEnv:
+dist_matrix: Distance matrix.
+wastes: Dictionary of wastes for each node.
+mandatory_nodes: List of mandatory nodes.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>GPHHSolver: Main solver class.
+</pre></div>
+</div>
+<p>Example:
+&gt;&gt;&gt; # Load pre-trained solver (or create a new one)
+&gt;&gt;&gt; solver = GPHHSolver.from_existing(
+…     dist_matrix=original_distances,
+…     wastes=wastes,
+…     capacity=capacity,
+…     R=R, C=C,
+…     params=params,
+…     mandatory_nodes=mandatory_nodes,
+…     existing_tree=loaded_tree_or_None,  # Optional fallback
+… )</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; # Get routes
+&gt;&gt;&gt; routes, profit, cost = solver.solve()
+</pre></div>
+</div>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -570,7 +593,31 @@ Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., &amp; Woodward, J.
 <p>Evolves a GP tree that scores candidate insertions during constructive
 solution building.  The best tree is applied to the full problem instance
 to produce the final routing solution.</p>
+<p>Attributes:
+R: Revenue parameter.
+C: Cost parameter.
+params: GPHHParams object.
+mandatory_nodes: List of mandatory nodes.
+training_environments: List of training environments.
+dist_matrix: Distance matrix.
+wastes: Mapping from node index to waste volume.
+capacity: Vehicle capacity.
+nodes: List of nodes.
+rng: Random number generator.
+training_environments: List of training environments.
+_knn: K-Nearest Neighbours map.
+n_nodes: Number of nodes.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Genetic Programming Hyper-Heuristic solver.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+wastes: Mapping from node index to waste volume.
+capacity: Vehicle capacity.
+R: Revenue parameter.
+C: Cost parameter.
+params: GPHH parameters.
+mandatory_nodes: Optional list of mandatory nodes.
+training_environments: Optional list of training environments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_knn">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_build_knn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._build_knn" title="Link to this definition">#</a></dt>
@@ -667,6 +714,12 @@ Tuple of (best_position, delta_cost).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._min_distance_to_route">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_min_distance_to_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._min_distance_to_route" title="Link to this definition">#</a></dt>
 <dd><p>Min distance from a candidate node to any node already in the route.</p>
+<p>Args:
+node: Candidate node.
+route: Current route.
+dm: Distance matrix.</p>
+<p>Returns:
+float: Minimum distance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -706,18 +759,34 @@ Average normalised fitness (float).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._tournament">
 <span class="sig-name descname"><span class="pre">_tournament</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree.GPNode</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree.GPNode</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._tournament" title="Link to this definition">#</a></dt>
 <dd><p>Tournament selection from the GP population.</p>
+<p>Args:
+pop: Population of GP trees.
+fitness: Fitness values for each tree.</p>
+<p>Returns:
+GPNode: Selected tree.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_routes">
 <span class="sig-name descname"><span class="pre">_evaluate_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._evaluate_routes" title="Link to this definition">#</a></dt>
 <dd><p>Net profit: Σ(wastes[n] × R) − distance × C.</p>
+<p>Args:
+routes: List of routes.
+wastes: Dictionary of wastes for each node.
+dm: Distance matrix.</p>
+<p>Returns:
+float: Net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.GPHHSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance across all routes.</p>
+<p>Args:
+routes: List of routes.
+dm: Distance matrix.</p>
+<p>Returns:
+float: Total routing distance.</p>
 </dd></dl>
 
 </dd></dl>

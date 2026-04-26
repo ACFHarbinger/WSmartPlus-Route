@@ -502,6 +502,16 @@ document.write(`
 <p>Adaptive operator selection for HULK hyper-heuristic.</p>
 <p>Implements credit assignment and selection mechanisms for choosing
 unstringing/stringing and local search operators adaptively.</p>
+<p>Reference:
+Müller, L. F., &amp; Bonilha, I. (2022). “Hyper-Heuristic Based on ACO
+and Local Search for Dynamic Optimization Problems.” Algorithms,
+15(1), 9. https://doi.org/10.3390/a15010009</p>
+<p>Attributes:
+AdaptiveOperatorSelector: Adaptive selection mechanism for HULK operators.</p>
+<p>Example:
+&gt;&gt;&gt; selector = AdaptiveOperatorSelector([“unstring_type_i”, “string”, “2-opt”])
+&gt;&gt;&gt; operator = selector.select_operator()
+&gt;&gt;&gt; selector.update(operator, 10.0, 0.1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +533,18 @@ unstringing/stringing and local search operators adaptively.</p>
 <dd><p>Adaptive selection mechanism for HULK operators.</p>
 <p>Uses performance tracking and epsilon-greedy selection to balance
 exploration and exploitation of operators.</p>
+<p>Attributes:
+operators: List of operator names.
+epsilon: Exploration rate (0-1).
+memory_size: Window size for performance tracking.
+learning_rate: Rate of weight updates.
+weight_decay: Decay factor for historical weights.
+rng: Random number generator.
+weights: Dictionary of operator weights.
+scores: Dictionary of operator scores.
+times: Dictionary of operator times.
+applications: Dictionary of operator applications.
+improvements: Dictionary of operator improvements.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize adaptive selector.</p>
 <p>Args:
@@ -544,6 +566,8 @@ Selected operator name.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._select_by_weight">
 <span class="sig-name descname"><span class="pre">_select_by_weight</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._select_by_weight" title="Link to this definition">#</a></dt>
 <dd><p>Select operator proportional to weights.</p>
+<p>Returns:
+str: Name of selected operator.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -567,20 +591,30 @@ is_best: Whether this led to a new best solution.</p>
 <li><p>Improved current: r2</p></li>
 <li><p>Not improved: r3</p></li>
 </ul>
+<p>Args:
+improvement: Improvement in objective (can be negative).
+is_best: Whether this led to a new best solution.</p>
 <p>Returns:
-Score value.</p>
+float: Score value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight">
-<span class="sig-name descname"><span class="pre">_update_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_update_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector._update_weight" title="Link to this definition">#</a></dt>
 <dd><p>Update operator weight based on recent performance.</p>
+<p>Args:
+operator: Name of applied operator.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.decay_epsilon">
 <span class="sig-name descname"><span class="pre">decay_epsilon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decay_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.995</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.decay_epsilon" title="Link to this definition">#</a></dt>
 <dd><p>Decay exploration rate.</p>
+<p>Args:
+decay_rate: Rate of decay (default: 0.995).
+min_epsilon: Minimum exploration rate (default: 0.05).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -593,8 +627,10 @@ Dictionary of operator statistics.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.reset_statistics">
-<span class="sig-name descname"><span class="pre">reset_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.reset_statistics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reset_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.AdaptiveOperatorSelector.reset_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Reset all operator statistics.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

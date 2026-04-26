@@ -469,7 +469,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -522,9 +522,14 @@ k-opt loop within IPT gap-filling.</p></li>
 <li><p>:func:<code class="docutils literal notranslate"><span class="pre">_double_bridge_kick</span></code> (from <code class="docutils literal notranslate"><span class="pre">_tour_construction.py</span></code>) for pure ILS
 restarts when population diversity collapses.</p></li>
 </ul>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two import solve_lkh
+&gt;&gt;&gt; tour, cost = solve_lkh(dist_matrix)</p>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<h2>References:<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Helsgaun, K. (2009). General k-opt submoves for the Lin-Kernighan-Helsgaun
 TSP heuristic. Mathematical Programming Computation, 1(2-3), 119–163.</p>
 <p>Helsgaun, K. (2012). LKH-2: A new version of LKH.  Technical Report,
@@ -613,16 +618,32 @@ exceeds <code class="docutils literal notranslate"><span class="pre">diversity_t
 <li><p>When the population is full and the new tour is accepted, the worst
 member is evicted.</p></li>
 </ul>
+<p>Attributes:
+max_size (int): Maximum population size.
+diversity_threshold (float): Minimum fractional Hamming distance.
+members (List[Tuple[List[int], float]]): (tour, cost) pairs.
+edge_sets (List[Set[Tuple[int, int]]]): Sorted-pair edge sets.
+best_tour (List[int]): Best solution found.
+best_cost (float): Best cost found.</p>
+<p>Example:
+&gt;&gt;&gt; pop = TourPopulation(max_size=10)
+&gt;&gt;&gt; pop.try_insert(tour, cost)</p>
 <p class="rubric">Initialization</p>
 <p>Args:
-max_size:            Maximum population size.
-diversity_threshold: Minimum fractional Hamming distance (0..1)
-from all existing members for a new tour to be
-accepted on diversity grounds.</p>
+max_size (int): Maximum population size.
+diversity_threshold (float): Minimum fractional Hamming distance (0..1)
+from all existing members for a new tour to be accepted on
+diversity grounds.</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation._to_edge_set">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_to_edge_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation._to_edge_set" title="Link to this definition">#</a></dt>
-<dd><p>Convert a closed tour to a frozenset of sorted (i,j) edge pairs.</p>
+<dd><p>Convert a closed tour to a set of sorted (i,j) edge pairs.</p>
+<p>Args:
+tour (List[int]): Closed tour node sequence.</p>
+<p>Returns:
+Set[Tuple[int, int]]: Set of edges, where each edge is a sorted tuple.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -631,6 +652,11 @@ accepted on diversity grounds.</p>
 <dd><p>Minimum fractional Hamming distance from <code class="docutils literal notranslate"><span class="pre">es_new</span></code> to any existing member.</p>
 <p>Hamming(T1, T2) / n ∈ [0, 1], where Hamming counts edges in the
 symmetric difference.</p>
+<p>Args:
+es_new (Set[Tuple[int, int]]): Edge set of the new tour.
+n (int): Number of nodes in the problem instance.</p>
+<p>Returns:
+float: Minimum fractional Hamming distance to current population.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -638,10 +664,10 @@ symmetric difference.</p>
 <span class="sig-name descname"><span class="pre">try_insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation.try_insert" title="Link to this definition">#</a></dt>
 <dd><p>Attempt to insert a new tour into the population.</p>
 <p>Args:
-tour: Closed node sequence.
-cost: Tour length (raw, unpenalized).</p>
+tour (List[int]): Closed node sequence.
+cost (float): Tour length (raw, unpenalized).</p>
 <p>Returns:
-True if the tour was inserted; False otherwise.</p>
+bool: True if the tour was inserted; False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -656,21 +682,26 @@ True if the tour was inserted; False otherwise.</p>
 edge-Hamming distance, encouraging structural diversity in offspring.</p></li>
 </ul>
 <p>Args:
-rng:       NumPy Generator.
-n_parents: Number of parents to sample.</p>
+rng (np.random.Generator): NumPy Generator.
+n_parents (int): Number of parents to sample.</p>
 <p>Returns:
-List of (tour, cost) pairs.</p>
+List[Tuple[List[int], float]]: List of (tour, cost) pairs.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation.size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation.size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Current number of members in the population.</p>
+<p>Returns:
+int: Population size.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation.diversity">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.TourPopulation.diversity" title="Link to this definition">#</a></dt>
 <dd><p>Mean pairwise fractional Hamming distance across population.</p>
+<p>Returns:
+float: Population diversity.</p>
 </dd></dl>
 
 </dd></dl>
@@ -698,15 +729,15 @@ neighbour re-assembly: it preserves the parental backbone structure
 throughout the refinement step, faithfully implementing the IPT algorithm
 of Helsgaun (2009, Section 3).</p>
 <p>Args:
-parent1:          First parent (closed tour, starts and ends at 0).
-parent2:          Second parent (closed tour, starts and ends at 0).
-distance_matrix:  (n x n) raw cost matrix.
-candidates:       α-candidate lists (penalized, from run_subgradient).
-stdlib_rng:       stdlib Random for perturbation.
-max_k:            k-opt depth for gap-filling local search.
-max_gap_iter:     Maximum improvement passes for each gap.</p>
+parent1 (List[int]): First parent (closed tour, starts and ends at 0).
+parent2 (List[int]): Second parent (closed tour, starts and ends at 0).
+distance_matrix (np.ndarray): (n x n) raw cost matrix.
+candidates (Dict[int, List[int]]): α-candidate lists (penalized).
+stdlib_rng (Random): Random number generator.
+max_k (int): k-opt depth for gap-filling local search.
+max_gap_iter (int): Maximum improvement passes for each gap.</p>
 <p>Returns:
-(offspring_tour, offspring_cost).</p>
+Tuple[List[int], float]: (offspring_tour, offspring_cost).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -729,25 +760,25 @@ b. Otherwise: apply double-bridge to the best tour and locally optimise.
 c. Try to insert the new tour into the population.
 d. Update the global best.</p>
 <p>Args:
-distance_matrix:               (n × n) raw symmetric cost matrix.
-initial_tour:                  Optional starting tour.
-max_iterations:                Total iteration budget (crossover + ILS).
-max_k:                         k-opt depth (2–5).
-n_candidates:                  Candidate list size per node.
-population_size:               Size of the tour population.
-diversity_threshold:           Minimum fractional Hamming distance for
+distance_matrix (np.ndarray): (n × n) raw symmetric cost matrix.
+initial_tour (Optional[List[int]]): Optional starting tour.
+max_iterations (int): Total iteration budget (crossover + ILS).
+max_k (int): k-opt depth (2–5).
+n_candidates (int): Candidate list size per node.
+population_size (int): Size of the tour population.
+diversity_threshold (float): Minimum fractional Hamming distance for
 diversity-driven population insertion.
-crossover_prob:                Probability of applying IPT crossover
-vs. pure ILS double-bridge restart.
-sg_max_iter:                   Subgradient iteration budget.
-sg_mu_init:                    Initial Polyak step multiplier.
-sg_patience:                   μ-halving patience.
-local_search_iter_per_offspring: k-opt passes per new solution.
-recorder:                      Optional telemetry recorder.
-np_rng:                        NumPy Generator.
-seed:                          Alternative seed.</p>
+crossover_prob (float): Probability of applying IPT crossover vs. pure
+ILS double-bridge restart.
+sg_max_iter (int): Subgradient iteration budget.
+sg_mu_init (float): Initial Polyak step multiplier.
+sg_patience (int): μ-halving patience.
+local_search_iter_per_offspring (int): k-opt passes per new solution.
+recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+np_rng (Optional[np.random.Generator]): NumPy Generator.
+seed (Optional[int]): Alternative seed.</p>
 <p>Returns:
-(best_tour, best_cost, hk_lower_bound).</p>
+Tuple[List[int], float, float]: (best_tour, best_cost, hk_bound).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -755,7 +786,16 @@ seed:                          Alternative seed.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.</span></span><span class="sig-name descname"><span class="pre">solve_lkh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two.solve_lkh" title="Link to this definition">#</a></dt>
 <dd><p>Thin wrapper for :func:<code class="docutils literal notranslate"><span class="pre">solve_lkh2</span></code> matching the two-return interface
 of <code class="docutils literal notranslate"><span class="pre">lin_kernighan_helsgaun.solve_lkh</span></code> and <code class="docutils literal notranslate"><span class="pre">lkh1.solve_lkh</span></code>.</p>
-<p>Returns (best_tour, best_cost) without the Held-Karp bound.</p>
+<p>Args:
+distance_matrix (np.ndarray): (n × n) symmetric cost matrix.
+initial_tour (Optional[List[int]]): Optional starting tour (closed).
+max_iterations (int): Maximum LKH-2 main loop iterations.
+max_k (int): Maximum k-opt move size (3, 4, or 5).
+recorder (Optional[PolicyStateRecorder]): Optional telemetry recorder.
+np_rng (Optional[np.random.Generator]): NumPy Generator.
+seed (Optional[int]): Alternative seed.</p>
+<p>Returns:
+Tuple[List[int], float]: (best_tour, best_cost) without the Held-Karp bound.</p>
 </dd></dl>
 
 </section>
@@ -808,7 +848,7 @@ of <code class="docutils literal notranslate"><span class="pre">lin_kernighan_he
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

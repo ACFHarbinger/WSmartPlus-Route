@@ -498,6 +498,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params">
 <span id="src-policies-route-construction-hyper-heuristics-genetic-programming-multi-period-hyper-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params" title="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Genetic Programming Multi-Period Hyper-Heuristic (GP-MP-HH).</p>
+<p>Attributes:
+GP_MP_HH_Params: Parameters for the GP-MP-HH policy.</p>
+<p>Example:
+&gt;&gt;&gt; params = GP_MP_HH_Params(pop_size=10, gens=20, prog_len=5, seed=42)
+&gt;&gt;&gt; params.to_dict()
+{‘pop_size’: 10, ‘gens’: 20, ‘prog_len’: 5, ‘seed’: 42}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,12 +556,18 @@ seed: Random seed.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params" title="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create GP_MP_HH_Params from a configuration object or dictionary.</p>
+<p>Args:
+config (Any): Configuration for the solver.</p>
+<p>Returns:
+GP_MP_HH_Params: Parameters for the GP-MP-HH policy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.params.GP_MP_HH_Params.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert GPM_PHH_Params to a dictionary for backend compatibility.</p>
+<p>Returns:
+dict: Dictionary representation of the parameters.</p>
 </dd></dl>
 
 </dd></dl>

@@ -495,6 +495,14 @@ document.write(`
 <p>ATSP problem generator.</p>
 <p>Generates asymmetric distance matrices satisfying the triangle inequality
 (TMAT class) following the approach of Kwon et al. (MatNet, 2021).</p>
+<p>Attributes:
+ATSPGenerator</p>
+<p>Example:
+&gt;&gt;&gt; from src.envs.generators import get_generator
+&gt;&gt;&gt; generator = get_generator(“atsp”, num_loc=20, tmat_class=True)
+&gt;&gt;&gt; problem = generator.generate()
+&gt;&gt;&gt; problem
+&lt;ProblemInstance: …&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +530,15 @@ document.write(`
 <ul class="simple">
 <li><p>cost_matrix : [*B, num_loc, num_loc] — asymmetric pairwise distances</p></li>
 </ul>
+<p>Attributes:
+num_loc (int): Number of locations in the problem.
+min_dist (float): Minimum distance between locations.
+max_dist (float): Maximum distance between locations.
+tmat_class (bool): Whether to enforce triangle inequality.
+device (Union[str, torch.device]): Device to use for computation.
+rng (Optional[Any]): Random number generator.
+generator (Optional[torch.Generator]): PyTorch generator for reproducibility.
+kwargs: Additional keyword arguments.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise ATSPGenerator.</p>
 <p>Args:
@@ -532,11 +549,15 @@ tmat_class: Enforce triangle inequality (True = TMAT class).
 device: Target device for generated tensors.
 rng: Optional numpy RNG (forwarded to base).
 generator: Optional torch RNG.
-**kwargs: Forwarded to Generator base.</p>
+kwargs: Forwarded to Generator base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.atsp.ATSPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.atsp.ATSPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate a batch of ATSP distance matrices.</p>
+<p>Args:
+batch_size: Batch size tuple.</p>
+<p>Returns:
+TensorDict with cost_matrix.</p>
 </dd></dl>
 
 </dd></dl>

@@ -531,20 +531,20 @@ projection_head (nn.Module): 3-layer MLP for embedding transformation.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the SymNCOPolicy.</p>
 <p>Args:
-embed_dim: Feature vector size.
-use_projection_head: Whether to instantiate the auxiliary projection head.
-**kwargs: Additional parameters for the underlying AttentionModelPolicy.</p>
+embed_dim: Dimensionality of node features and latent projections.
+use_projection_head: Whether to include the invariance projection MLP.
+kwargs: Additional keyword arguments for AttentionModelPolicy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.attention_model.symnco_policy.SymNCOPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.attention_model.symnco_policy.SymNCOPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes decoding and computes projection embeddings.</p>
 <p>Args:
-td: Problem state container.
-env: Environment managing rewards and dynamics.
-strategy: constructive decoding strategy.
-num_starts: Multi-start construction count.
-actions: Expert/target paths for comparison.
-**kwargs: Configuration flags for base policy call.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “greedy”).
+num_starts: Number of parallel construction starts.
+actions: Optional pre-selected actions.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Policy outputs extended with <code class="docutils literal notranslate"><span class="pre">proj_embeddings</span></code>.</p>
 </dd></dl>

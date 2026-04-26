@@ -494,6 +494,16 @@ document.write(`
 <p>This package provides adapter implementations for various routing
 optimization policies (HGS, ALNS, VRPP, etc.) and a factory pattern
 for dynamic route constructor instantiation.</p>
+<p>Attributes:
+BaseRoutingPolicy: Template base class for all routing policies.
+BaseMultiPeriodRoutingPolicy: Base class for multi-period (T-day) routing.
+IRouteConstructor: Interface defining the route construction contract.
+RouteConstructorFactory: Factory for instantiating registered constructors.
+RouteConstructorRegistry: Registry for dynamic constructor lookup.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.base import RouteConstructorFactory
+&gt;&gt;&gt; adapter = RouteConstructorFactory.get_adapter(“hgs”)
+&gt;&gt;&gt; tour, cost, profit, _, _ = adapter.execute(mandatory=[1, 2, 3], …)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

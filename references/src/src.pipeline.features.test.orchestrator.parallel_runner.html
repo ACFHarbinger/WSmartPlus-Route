@@ -492,6 +492,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.orchestrator.parallel_runner">
 <span id="src-pipeline-features-test-orchestrator-parallel-runner"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.orchestrator.parallel_runner" title="src.pipeline.features.test.orchestrator.parallel_runner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.orchestrator.parallel_runner</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.orchestrator.parallel_runner" title="Link to this heading">#</a></h1>
+<p>Parallel execution engine for simulations.</p>
+<p>Attributes:
+run_parallel_simulations: Executes simulations in parallel using a multiprocessing pool.
+execute_and_monitor_tasks: Executes parallel tasks and monitors their progress.
+handle_shutdown: Handles graceful shutdown on keyboard interrupt.
+cleanup_multiprocessing_pool: Safely closes and joins the multiprocessing pool.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.orchestrator.parallel_runner import run_parallel_simulations
+&gt;&gt;&gt; run_parallel_simulations(cfg, device, indices, sample_idx_ls, weights_path, lock, manager, n_cores, task_count, log_file, original_stderr, shared_metrics)
+({‘random’: [array([164.02479, 181.58765, 167.54913, …,  76.02663,  83.97055,
+56.46619])], ‘ours’: [array([156.92104, 138.96408, 165.01206, …, 110.50811, 110.56278,
+56.57213])], ‘ours2’: [array([151.85719, 136.31088, 166.38385, …, 127.60449, 127.63972,
+87.26818])]}, {‘random’: [nan], ‘ours’: [nan], ‘ours2’: [nan]}, [])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -535,24 +548,50 @@ original_stderr: Original stderr for shutdown messages.
 shared_metrics: Multiprocessing Manager.dict for real-time stats.
 tracking_uri: Directory of the WSTracker database (passed to workers).
 tracking_run_id: Parent run UUID that workers should attach to.</p>
+<p>Returns:
+Tuple containing:
+- log (Dict[str, Any]): Aggregated simulation results.
+- log_std (Optional[Dict[str, Any]]): Standard deviation of results.
+- failed_log (List[Dict[str, Any]]): List of failed simulation results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.parallel_runner.execute_and_monitor_tasks">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.parallel_runner.</span></span><span class="sig-name descname"><span class="pre">execute_and_monitor_tasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">multiprocessing.pool.Pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.parallel_runner.execute_and_monitor_tasks" title="Link to this definition">#</a></dt>
 <dd><p>Execute parallel tasks and monitor their progress.</p>
+<p>Args:
+pool: multiprocessing pool for parallel execution.
+cfg: Root configuration.
+device: Torch device.
+args: Task arguments.
+weights_path: Path to model weights.
+n_cores: Number of cores.
+counter: Task counter.
+manager: Multiprocessing Manager.
+lock: Multiprocessing lock.
+shared_metrics: Multiprocessing Manager.dict for real-time stats.</p>
+<p>Returns:
+Tuple containing:
+- log (Dict[str, Any]): Aggregated simulation results.
+- log_std (Optional[Dict[str, Any]]): Standard deviation of results.
+- failed_log (List[Dict[str, Any]]): List of failed simulation results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.parallel_runner.handle_shutdown">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.parallel_runner.</span></span><span class="sig-name descname"><span class="pre">handle_shutdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">multiprocessing.pool.Pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_stderr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.parallel_runner.handle_shutdown" title="Link to this definition">#</a></dt>
 <dd><p>Handle graceful shutdown on keyboard interrupt.</p>
+<p>Args:
+pool: Multiprocessing pool.
+original_stderr: Original stderr.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.parallel_runner.cleanup_multiprocessing_pool">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.parallel_runner.</span></span><span class="sig-name descname"><span class="pre">cleanup_multiprocessing_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">multiprocessing.pool.Pool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.parallel_runner.cleanup_multiprocessing_pool" title="Link to this definition">#</a></dt>
 <dd><p>Safely close and join the multiprocessing pool.</p>
+<p>Args:
+pool: Multiprocessing pool.</p>
 </dd></dl>
 
 </section>

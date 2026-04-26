@@ -496,10 +496,11 @@ document.write(`
 <p>This module implements a hybrid approach where Hybrid Genetic Search (HGS)
 uses Adaptive Large Neighborhood Search (ALNS) for its education phase.</p>
 <p>Attributes:
-None</p>
+HGSALNSSolver: Core solver class for the HGS-ALNS hybrid metaheuristic.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.hybrid_genetic_search_with_adaptive_large_neighborhood_search import HGSALNSSolver
-&gt;&gt;&gt; result = solver.solve()</p>
+&gt;&gt;&gt; from .hgs_alns import HGSALNSSolver
+&gt;&gt;&gt; solver = HGSALNSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +521,9 @@ None</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns.</span></span><span class="sig-name descname"><span class="pre">HGSALNSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params.HGSALNSParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns.HGSALNSSolver" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver</span></code></p>
 <p>Hybrid solver that combines HGS with ALNS as a local search optimizer.</p>
+<p>Attributes:
+hgs_alns_params: Configuration for the hybrid solver.
+alns_solver: Internal ALNS solver instance for education.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the hybrid HGS-ALNS solver.</p>
 <p>Args:
@@ -530,10 +534,14 @@ R: Revenue multiplier.
 C: Cost multiplier.
 params: HGSALNSParams containing HGS and ALNS configurations.
 mandatory_nodes: Optional list of mandatory node indices.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns.HGSALNSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns.HGSALNSSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the Hybrid Genetic Search algorithm with ALNS-based education.</p>
+<p>Args:
+None.</p>
 <p>Returns:
 Tuple[List[List[int]], float, float]: Best routes, total profit, and total cost.</p>
 </dd></dl>

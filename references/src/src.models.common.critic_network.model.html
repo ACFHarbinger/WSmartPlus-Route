@@ -499,6 +499,10 @@ document.write(`
 <p>This module provides the legacy implementation of the critic network and
 re-exports the canonical <code class="docutils literal notranslate"><span class="pre">CriticNetwork</span></code> from the policy module. It serves
 as a bridge for older problem-based pipelines.</p>
+<p>Attributes:
+LegacyCriticNetwork: The legacy critic network implementation.</p>
+<p>Example:
+&gt;&gt;&gt; critic = LegacyCriticNetwork(problem, factory, embed_dim=128, hidden_dim=256)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -559,10 +563,10 @@ dropout_rate: Dropout probability.
 temporal_horizon: Look-ahead horizon for dynamic features.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.critic_network.model.LegacyCriticNetwork._init_embed">
-<span class="sig-name descname"><span class="pre">_init_embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork._init_embed" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_init_embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork._init_embed" title="Link to this definition">#</a></dt>
 <dd><p>Initialize node embeddings from raw node features.</p>
 <p>Args:
-nodes: Raw node feature tensor.</p>
+inputs: Raw node feature tensor or input dictionary.</p>
 <p>Returns:
 torch.Tensor: Initial latent representations.</p>
 </dd></dl>
@@ -572,7 +576,7 @@ torch.Tensor: Initial latent representations.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork.forward" title="Link to this definition">#</a></dt>
 <dd><p>Estimate the state value for the given input instance.</p>
 <p>Args:
-inputs: Dictionary containing ‘nodes’ and optional ‘edges’.</p>
+inputs: Dictionary containing ‘nodes’ (or ‘loc’, ‘depot’, etc.) and optional ‘edges’.</p>
 <p>Returns:
 torch.Tensor: Scalar value prediction of shape [batch, 1].</p>
 </dd></dl>

@@ -496,6 +496,25 @@ document.write(`
 <p>Environment module for WSmart-Route.</p>
 <p>This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.</p>
+<p>Attributes:
+WCVRPGenerator: Generator for Waste Collection VRP instances.
+VRPPGenerator: Generator for VRP with Profits instances.
+Generator: Abstract base class for all instance generators.
+IRPGenerator: Generator for Inventory Routing Problem instances.
+ATSPGenerator: Generator for Asymmetric TSP instances.
+CVRPGenerator: Generator for Capacitated VRP instances.
+OPGenerator: Generator for Orienteering Problem instances.
+PCTSPGenerator: Generator for Prize-Collecting TSP instances.
+PDPGenerator: Generator for Pickup and Delivery Problem instances.
+ThOPGenerator: Generator for Thief Orienteering Problem instances.
+RL4COEnvBase: Abstract base class for all routing environments.
+ImprovementEnvBase: Base class for improvement-based routing environments.
+ENV_REGISTRY: Mapping of problem name strings to their environment classes.
+get_env: Factory function that instantiates an environment by name.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“vrpp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -558,7 +577,7 @@ combinatorial optimization problems.</p>
 <dd><p>Factory function to get environment by name.</p>
 <p>Args:
 name: Environment name (vrpp, cvrpp, wcvrp, irp, atsp, cvrp, op, etc.)
-**kwargs: Environment configuration parameters.</p>
+kwargs: Environment configuration parameters.</p>
 <p>Returns:
 Initialized environment instance.</p>
 <p>Raises:

@@ -501,6 +501,20 @@ document.write(`
 generator to the agnostic BaseRoutingPolicy interface.</p>
 <p>Generates synthetic training environments (random Euclidean distance matrices)
 to provide true spatial-topology diversity during GP tree evolution.</p>
+<p>References:
+Burke, E. K., Hyde, M. R., Kendall, G., Ochoa, G., Ozcan, E., &amp; Woodward, J. R.
+“Exploring Hyper-heuristic Methodologies with Genetic Programming”, 2009</p>
+<p>Attributes:
+GPHHPolicy: Main policy class.</p>
+<p>Example:
+&gt;&gt;&gt; policy = GPHHPolicy()
+&gt;&gt;&gt; routes, profit, cost = policy.solve(
+…     dist_matrix=dist_matrix,
+…     wastes=wastes,
+…     capacity=capacity,
+…     R=R, C=C,
+…     mandatory_nodes=mandatory_nodes,
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -557,22 +571,27 @@ List of (dist_matrix, wastes, mandatory_nodes) triples.</p>
 solution building, generating a learned construction heuristic.
 Provides synthetic training environments with diverse spatial topologies
 to promote generalizable GP trees.</p>
+<p>Attributes:
+config: Configuration parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Genetic Programming Hyper-Heuristic policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh.GPHHPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh.GPHHPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class.</p>
+<p>Returns:
+Optional[Type]: Configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh.GPHHPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh.GPHHPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key.</p>
+<p>Returns:
+str: Configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh.GPHHPolicy._run_solver">
@@ -596,7 +615,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 hyperparameters like <code class="docutils literal notranslate"><span class="pre">gp_pop_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_gp_generations</span></code>, etc.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

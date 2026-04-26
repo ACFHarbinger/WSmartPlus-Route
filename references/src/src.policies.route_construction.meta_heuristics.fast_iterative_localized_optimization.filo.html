@@ -502,6 +502,11 @@ document.write(`
 <p>Fast Iterative Localized Optimization (FILO) policy module.</p>
 <p>This module provides the main entry point for the FILO metaheuristic,
 incorporating Ruin &amp; Recreate shaking and Local Search via Simulated Annealing.</p>
+<p>Attributes:
+FILOSolver: Main solver class for FILO.</p>
+<p>Example:
+&gt;&gt;&gt; solver = FILOSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>References:
 Accorsi, L., &amp; Vigo, D. “A fast and scalable heuristic for the solution
 of large-scale capacitated vehicle routing problems”, 2021.</p>
@@ -524,54 +529,117 @@ of large-scale capacitated vehicle routing problems”, 2021.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.</span></span><span class="sig-name descname"><span class="pre">FILOSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver" title="Link to this definition">#</a></dt>
 <dd><p>Implementation of Fast Iterative Localized Optimization (FILO) for CVRP/VRPP.</p>
+<p>Attributes:
+d: Symmetric distance matrix.
+waste: Mapping of bin IDs to waste quantities.
+Q: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+all_customers: List of customer node indices.
+random: Random number generator.
+rng: NumPy random generator.
+ruin_recreate: Shaking operator instance.
+local_search: Local search optimizer instance.
+node_gamma: Localized expansion parameters.
+non_improving_iter: Counter for stagnant iterations per node.
+node_omega: Localized shaking intensity parameters.
+svc_cache: Selective Vertex Caching (LRU).
+svc_history: History of SVC sizes.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the FILO solver.</p>
+<p>Initializes the Fast Iterative Localized Optimization solver.</p>
+<p>Args:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._evaluate_routes">
 <span class="sig-name descname"><span class="pre">_evaluate_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._evaluate_routes" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate VRPP cost and profit.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Tuple of (total_cost, net_profit).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma">
 <span class="sig-name descname"><span class="pre">_update_gamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_new_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ruined_and_recreated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_gamma" title="Link to this definition">#</a></dt>
 <dd><p>Update localized gamma parameters (expansion strategy).</p>
+<p>Args:
+is_new_best: Whether a new global best was found.
+improved: Whether the current solution improved.
+ruined_and_recreated: List of nodes affected by shaking.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_omega">
 <span class="sig-name descname"><span class="pre">_update_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ruined_and_recreated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_omega" title="Link to this definition">#</a></dt>
 <dd><p>Update localized omega meta-strategy strictly targeting ruined nodes.</p>
+<p>Args:
+current_cost: Current solution distance.
+routes: Current routing sequences.
+delta_profit: Profit change in the last iteration.
+ruined_and_recreated: List of nodes affected by shaking.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_svc">
 <span class="sig-name descname"><span class="pre">_update_svc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._update_svc" title="Link to this definition">#</a></dt>
 <dd><p>Update Selective Vertex Caching (LRU).</p>
+<p>Args:
+nodes: Nodes to add or move to end in cache.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._clarke_wright_initialization">
 <span class="sig-name descname"><span class="pre">_clarke_wright_initialization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._clarke_wright_initialization" title="Link to this definition">#</a></dt>
 <dd><p>Linearized Clarke and Wright savings algorithm.</p>
+<p>Returns:
+Initial set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._find_best_insertion">
 <span class="sig-name descname"><span class="pre">_find_best_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">working_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._find_best_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Find the best route index and position for a customer.</p>
+<p>Args:
+working_routes: Set of available routes.
+customer: Customer node ID to insert.</p>
+<p>Returns:
+Tuple of (route_index, position).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._route_minimization">
 <span class="sig-name descname"><span class="pre">_route_minimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver._route_minimization" title="Link to this definition">#</a></dt>
 <dd><p>Algorithm 4: Episodic Route Minimization.</p>
+<p>Args:
+routes: Current routing sequences.</p>
+<p>Returns:
+Minimized set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.FILOSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Execute the FILO heuristic.</p>
+<p>Returns:
+Tuple of (best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 </dd></dl>

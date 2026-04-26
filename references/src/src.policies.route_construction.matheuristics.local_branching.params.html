@@ -503,6 +503,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.local_branching.params">
 <span id="src-policies-route-construction-matheuristics-local-branching-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.local_branching.params" title="src.policies.route_construction.matheuristics.local_branching.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.local_branching.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Local Branching (LB) policy.</p>
+<p>Attributes:
+LBParams (LBParams): Implementation of the LB policy parameters.</p>
+<p>Example:
+&gt;&gt;&gt; params = LBParams(
+…     k=10,
+…     max_iterations=100,
+…     time_limit=60.0,
+…     time_limit_per_iteration=10.0,
+…     node_limit_per_iteration=1000,
+…     mip_gap=0.01,
+…     seed=42,
+…     engine=”gurobi”,
+…     framework=”ortools”,
+… )
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -588,12 +603,18 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.local_branching.params.LBParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.local_branching.params.LBParams" title="src.policies.route_construction.matheuristics.local_branching.params.LBParams"><span class="pre">src.policies.route_construction.matheuristics.local_branching.params.LBParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.local_branching.params.LBParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create LBParams from a configuration object or dictionary.</p>
+<p>Args:
+config (Any): Configuration object or dictionary.</p>
+<p>Returns:
+LBParams: Configuration parameters for the Local Branching (LB) policy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.local_branching.params.LBParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.local_branching.params.LBParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert Params to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary of LBParams.</p>
 </dd></dl>
 
 </dd></dl>

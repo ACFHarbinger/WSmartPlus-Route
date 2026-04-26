@@ -500,6 +500,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.base.steps">
 <span id="src-pipeline-rl-common-base-steps"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.base.steps" title="src.pipeline.rl.common.base.steps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.base.steps</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.base.steps" title="Link to this heading">#</a></h1>
 <p>Training/Validation step logic for RL4COLitModule.</p>
+<p>Attributes:
+StepMixin: Mixin for training, validation, and test steps.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -536,6 +540,14 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.steps.StepMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.steps.</span></span><span class="sig-name descname"><span class="pre">StepMixin</span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin" title="Link to this definition">#</a></dt>
 <dd><p>Mixin for training, validation, and test steps.</p>
+<p>Attributes:
+env: Environment for data generation.
+policy: Policy for data generation.
+baseline: Type of baseline for variance reduction (‘rollout’, ‘exponential’, ‘critic’, etc.).
+device: Device for data generation.
+mandatory_selector: Optional vectorized selector for mandatory bin selection.
+_current_baseline_val: Current baseline value.
+last_out: Last output from the policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -555,9 +567,10 @@ TensorDict with ‘mandatory’ mask added.</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.env.IEnv</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Compute RL loss.</p>
 <p>Args:
-td: TensorDict with environment state.
-out: Policy output dictionary.
-batch_idx: Current batch index.</p>
+td: TensorDict with problem instance data.
+out: Output dictionary from the policy.
+batch_idx: Batch index.
+env: The RL environment.</p>
 <p>Returns:
 Loss tensor.</p>
 </dd></dl>
@@ -579,8 +592,8 @@ Output dictionary with loss, reward, etc.</p>
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.training_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute a single training step.</p>
 <p>Args:
-*args: Positional arguments (batch, batch_idx).
-**kwargs: Additional keyword arguments.</p>
+args: Positional arguments (batch, batch_idx).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: The computed loss.</p>
 </dd></dl>
@@ -590,8 +603,8 @@ torch.Tensor: The computed loss.</p>
 <span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.validation_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute a single validation step.</p>
 <p>Args:
-*args: Positional arguments (batch, batch_idx).
-**kwargs: Additional keyword arguments.</p>
+args: Positional arguments (batch, batch_idx).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 dict: Output dictionary with metrics.</p>
 </dd></dl>
@@ -601,8 +614,8 @@ dict: Output dictionary with metrics.</p>
 <span class="sig-name descname"><span class="pre">test_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.test_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute a single test step.</p>
 <p>Args:
-*args: Positional arguments (batch, batch_idx).
-**kwargs: Additional keyword arguments.</p>
+args: Positional arguments (batch, batch_idx).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 dict: Output dictionary with metrics.</p>
 </dd></dl>

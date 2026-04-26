@@ -520,6 +520,11 @@ influence on all teams via the Coaching phase.</p>
 Moosavian, N., &amp; Rppdsarou, B. K. (2014).
 “Soccer league competition algorithm: A novel meta-heuristic
 algorithm for optimal design of water distribution networks.”</p>
+<p>Attributes:
+SLCSolver: Solver for the Soccer League Competition algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; solver = SLCSolver()
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,7 +544,26 @@ algorithm for optimal design of water distribution networks.”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.</span></span><span class="sig-name descname"><span class="pre">SLCSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver" title="Link to this definition">#</a></dt>
 <dd><p>Soccer League Competition solver for VRPP.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste quantities.
+capacity (float): Vehicle capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (SLCParams): Algorithm parameters.
+mandatory_nodes (Optional[List[int]]): Mandatory nodes.
+random (np.random.Generator): Random number generator.
+ls (ACOLocalSearch): Local search instance.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Soccer League Competition solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (SLCParams): Algorithm-specific parameters (teams, size).
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver.solve" title="Link to this definition">#</a></dt>
@@ -550,14 +574,23 @@ Tuple of (routes, profit, cost).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._update_superstars">
-<span class="sig-name descname"><span class="pre">_update_superstars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._update_superstars" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_update_superstars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._update_superstars" title="Link to this definition">#</a></dt>
 <dd><p>Maintain top 3 global solutions (Superstars).</p>
+<p>Args:
+teams: List of teams.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._play_match">
-<span class="sig-name descname"><span class="pre">_play_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._play_match" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_play_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">team_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._play_match" title="Link to this definition">#</a></dt>
 <dd><p>Teams compete; loser’s weakest player learns from winner’s best (Moosavian 2014).</p>
+<p>Args:
+team_a: First team.
+team_b: Second team.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -566,18 +599,27 @@ Tuple of (routes, profit, cost).</p>
 <dd><p>Superstar Influence (Coaching).</p>
 <p>Moosavian (2014): Weaker players imitate the best solutions (superstars).
 In discrete VRR, this corresponds to recombining with the global best.</p>
+<p>Args:
+player: Player to be coached.
+superstar: Best player.</p>
+<p>Returns:
+Coached player.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._new_team">
 <span class="sig-name descname"><span class="pre">_new_team</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._new_team" title="Link to this definition">#</a></dt>
 <dd><p>Create a fresh team of <code class="docutils literal notranslate"><span class="pre">team_size</span></code> random players.</p>
+<p>Returns:
+Team of random players.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._build_random_solution">
 <span class="sig-name descname"><span class="pre">_build_random_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._build_random_solution" title="Link to this definition">#</a></dt>
 <dd><p>Order-dependent sequential construction (matches ALNS style).</p>
+<p>Returns:
+Randomly constructed routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -607,18 +649,30 @@ New child routing solution.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._league_best">
 <span class="sig-name descname"><span class="pre">_league_best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._league_best" title="Link to this definition">#</a></dt>
 <dd><p>Return the best (routes, profit) across all teams.</p>
+<p>Args:
+teams: List of teams.</p>
+<p>Returns:
+Best routes and profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+Net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+Total routing distance.</p>
 </dd></dl>
 
 </dd></dl>

@@ -587,9 +587,9 @@ get_all: Get all registered algorithms</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.enums.registry.AnyTag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.register" title="Link to this definition">#</a></dt>
 <dd><p>Universal decorator for any class or function.</p>
 <p>Args:
-*tags: Tags to register the algorithm with</p>
+tags: Tags to register the algorithm with</p>
 <p>Returns:
-Decorator for registering the algorithm</p>
+Decorator for registering the algorithm.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -608,8 +608,8 @@ Name of the algorithm</p>
 <dd><p>Returns objects matching ALL tags.
 If expected_type is provided, strictly filters out non-matching classes.</p>
 <p>Args:
-*tags: Tags to query for
-expected_type: Expected type of the algorithm</p>
+expected_type: Optional type to filter by
+tags: Tags to match</p>
 <p>Returns:
 List of algorithms matching all tags</p>
 </dd></dl>
@@ -620,8 +620,8 @@ List of algorithms matching all tags</p>
 <dd><p>Returns objects matching AT LEAST ONE tag.
 If expected_type is provided, strictly filters out non-matching classes.</p>
 <p>Args:
-*tags: Tags to query for
-expected_type: Expected type of the algorithm</p>
+expected_type: Optional type to filter by
+tags: Tags to match</p>
 <p>Returns:
 List of algorithms matching at least one tag</p>
 </dd></dl>

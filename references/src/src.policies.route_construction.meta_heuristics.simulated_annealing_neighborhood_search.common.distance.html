@@ -493,6 +493,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-common-distance"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance" title="Link to this heading">#</a></h1>
 <p>Distance and time calculations for SANS.</p>
+<p>Attributes:
+compute_distance_per_route: Calculate the total travel distance for each individual route.
+compute_route_time: Calculate the total travel duration for each individual route.
+compute_sans_route_cost: Calculate the total travel cost for each individual route.
+compute_total_cost: Calculate the total travel cost for all routes.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.distance import compute_distance_per_route, compute_route_time, compute_sans_route_cost, compute_total_cost
+&gt;&gt;&gt; routes_list = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; distance_matrix = np.array([[0, 1, 2], [1, 0, 3], [2, 3, 0]])
+&gt;&gt;&gt; compute_distance_per_route(routes_list, distance_matrix)
+[3, 3]
+&gt;&gt;&gt; compute_route_time(routes_list, [3, 3])
+[21.0, 21.0]
+&gt;&gt;&gt; compute_sans_route_cost([0, 1, 2, 0], distance_matrix, {0: 0, 1: 1, 2: 2})
+4
+&gt;&gt;&gt; compute_total_cost(routes_list, distance_matrix, {0: 0, 1: 1, 2: 2, 3: 3, 4: 4})
+6</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

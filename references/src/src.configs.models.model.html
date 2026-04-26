@@ -499,6 +499,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.models.model">
 <span id="src-configs-models-model"></span><h1><a class="reference internal" href="#module-src.configs.models.model" title="src.configs.models.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models.model</span></code></a><a class="headerlink" href="#module-src.configs.models.model" title="Link to this heading">#</a></h1>
 <p>Model Config module.</p>
+<p>Attributes:
+ModelConfig: Model architecture configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs.models import ModelConfig
+&gt;&gt;&gt; config = ModelConfig()
+&gt;&gt;&gt; print(config)
+ModelConfig(name=’am’, encoder=&lt;EncoderConfig(type=’gat’, embed_dim=128, hidden_dim=512, n_layers=3, n_heads=8, n_sublayers=None, normalization=&lt;NormalizationConfig(embed_dim=128, use_layer_norm=True)&gt;, activation=&lt;ActivationConfig(type=’gelu’)&gt;, dropout=0.1, mask_inner=True, mask_graph=False, spatial_bias=False, connection_type=’residual’, aggregation_graph=’avg’, aggregation_node=’sum’, spatial_bias_scale=1.0, hyper_expansion=4)&gt;, decoder=&lt;DecoderConfig(type=’attention’, embed_dim=128, hidden_dim=512, n_layers=3, n_heads=8, normalization=&lt;NormalizationConfig(embed_dim=128, use_layer_norm=True)&gt;, activation=&lt;ActivationConfig(type=’gelu’)&gt;, decoding=&lt;DecodingConfig(strategy=’greedy’, beam_width=1, temperature=1.0, top_k=None, top_p=None, tanh_clipping=0.0, mask_logits=True, multistart=False, num_starts=1, select_best=False)&gt;, dropout=0.1, mask_logits=True, connection_type=’residual’, n_predictor_layers=None, tanh_clipping=10.0, hyper_expansion=4)&gt;, reward=&lt;ObjectiveConfig(type=’vrpp’)&gt;, temporal_horizon=0, policy_config=None, load_path=None)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

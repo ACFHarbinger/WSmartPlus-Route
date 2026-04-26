@@ -505,6 +505,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.gls">
 <span id="src-configs-policies-gls"></span><h1><a class="reference internal" href="#module-src.configs.policies.gls" title="src.configs.policies.gls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.gls</span></code></a><a class="headerlink" href="#module-src.configs.policies.gls" title="Link to this heading">#</a></h1>
 <p>GLS (Guided Local Search) configuration for Hydra.</p>
+<p>Attributes:
+GLSConfig: Configuration for the Guided Local Search policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.gls import GLSConfig
+&gt;&gt;&gt; config = GLSConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +531,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.gls.GLSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.gls.</span></span><span class="sig-name descname"><span class="pre">GLSConfig</span></span><a class="headerlink" href="#src.configs.policies.gls.GLSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Guided Local Search policy.</p>
+<p>Attributes:
+lambda_param (float): Lambda parameter for GLS.
+alpha_param (float): Alpha parameter for GLS.
+penalty_cycles (int): Number of penalty cycles.
+n_removal (int): Number of routes to remove.
+n_llh (int): Number of local low-level heuristics.
+inner_iterations (int): Number of inner iterations.
+fls_coupling_prob (float): Probability of coupling FLS.
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Seed for the random number generator.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.gls.GLSConfig.lambda_param">
 <span class="sig-name descname"><span class="pre">lambda_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.gls.GLSConfig.lambda_param" title="Link to this definition">#</a></dt>

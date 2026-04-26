@@ -513,6 +513,12 @@ document.write(`
 represents a feasible route. The master problem selects routes to maximize
 total collected profit across a finite fleet.</p>
 <p>Theoretical Basis: Barnhart et al. (1998).</p>
+<p>Attributes:
+VRPPMasterProblem: Main solver class for the master problem.</p>
+<p>Example:
+&gt;&gt;&gt; master = VRPPMasterProblem(n_nodes=10, mandatory_nodes={1, 2}, cost_matrix=dist,
+…                           wastes=w, capacity=100.0, revenue_per_kg=1.0, cost_per_km=0.1)
+&gt;&gt;&gt; master.solve_lp_relaxation()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -580,6 +586,25 @@ dual signal from oscillating between extreme basin points.</p>
 <p>Reference:
 - Barnhart, C., et al. (1998, 2000).
 - Wentges, T. (1997). “Weighted Dantzig-Wolfe decomposition.”</p>
+<p>Attributes:
+n_nodes (int): Number of customer nodes.
+mandatory_nodes (Set[int]): Indices of mandatory customers.
+optional_nodes (Set[int]): Indices of optional customers.
+cost_matrix (np.ndarray): Distance/cost matrix.
+wastes (Dict[int, float]): Demand/waste per node.
+capacity (float): Vehicle capacity.
+R (float): Revenue per unit collected.
+C (float): Cost per unit distance.
+vehicle_limit (Optional[int]): Fleet size limit K.
+global_cut_pool (GlobalCutPool): Shared valid inequalities.
+model (Optional[gp.Model]): Underlying Gurobi model.
+routes (List[Route]): Generated columns.
+lambda_vars (List[gp.Var]): Binary/continuous route variables.
+dual_node_coverage (Dict[int, float]): Dual values for node constraints.
+dual_vehicle_limit (float): Dual value for fleet limit.
+phase (int): Optimization phase (1: Feasibility, 2: Optimality).</p>
+<p>Example:
+&gt;&gt;&gt; master = VRPPMasterProblem(10, {1}, dist, w, 100.0, 1.0, 0.1)</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the Master Problem for VRPP.</p>
 <p>Framework (Barnhart, Hane, and Vance 2000):
@@ -674,8 +699,8 @@ Tuple of (-inf, {}) and populates self.farkas_duals.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing">
 <span class="sig-name descname"><span class="pre">_apply_dual_smoothing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing" title="Link to this definition">#</a></dt>
-<dd><p>Apply Exponential Dual Smoothing to stabilize CG price signals.
-pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev</p>
+<dd><p>Apply Exponential Dual Smoothing to stabilize CG price signals.</p>
+<p>pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev</p>
 <p>WARNING: Smoothing modifies self.dual_node_coverage in-place.
 When active, the duals passed to pricing are NOT the true LP duals.
 This means:</p>
@@ -684,7 +709,8 @@ This means:</p>
 <li><p>CG convergence (added == 0) does not prove LP optimality.
 Only enable this flag when running in heuristic (non-exact) mode.</p></li>
 </ul>
-<p>Reference: Wentges (1997), Guyenne et al. (1994).</p>
+<p>Reference:
+Wentges (1997), Guyenne et al. (1994).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -692,13 +718,11 @@ Only enable this flag when running in heuristic (non-exact) mode.</p></li>
 <span class="sig-name descname"><span class="pre">solve_ip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip" title="Link to this definition">#</a></dt>
 <dd><p>Solve the integer programme at the current B&amp;B node.</p>
 <p>Re-imposes binary integrality on all λ variables and calls Gurobi’s
-MIP solver.  Artificial variables are left continuous (they will be
-forced to zero by the Big-M penalty if any feasible integer solution
-exists).</p>
+MIP solver.</p>
 <p>Returns:
-Tuple of:
-obj_value       – IP objective value.
-selected_routes – Routes with λ_k = 1 in the optimal solution.</p>
+Tuple containing:
+- IP objective value.
+- List of routes selected in the optimal solution (λ_k = 1).</p>
 <p>Raises:
 ValueError: If build_model() has not been called.
 RuntimeError: If the MIP solve fails.</p>
@@ -709,7 +733,7 @@ RuntimeError: If the MIP solve fails.</p>
 <span class="sig-name descname"><span class="pre">add_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route" title="Link to this definition">#</a></dt>
 <dd><p>Add a route (column) to the master problem.</p>
 <p>If the Gurobi model has already been built, the column is inserted
-into the live model immediately.  Otherwise it is buffered in
+into the live model immediately. Otherwise it is buffered in
 self.routes and will be included when build_model() is called.</p>
 <p>Args:
 route: Route to insert as a new λ variable.</p>
@@ -718,20 +742,22 @@ route: Route to insert as a new λ variable.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._add_column_to_model">
 <span class="sig-name descname"><span class="pre">_add_column_to_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._add_column_to_model" title="Link to this definition">#</a></dt>
-<dd><p>Dynamically inserts a new column (route) into the Restricted Master Problem.
-This must inject the variable into both the base constraints AND any active cuts.</p>
+<dd><p>Dynamically inserts a new column (route) into the Restricted Master Problem.</p>
+<p>This must inject the variable into both the base constraints AND any active cuts.</p>
 <p>Args:
-route: Route whose λ variable is being added.</p>
+route (Route): Route whose λ variable is being added.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._wire_route_into_active_cuts">
-<span class="sig-name descname"><span class="pre">_wire_route_into_active_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._wire_route_into_active_cuts" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the exact coefficient of the new route for every active cutting plane,
-guaranteeing that newly priced columns strictly respect previously separated inequalities.</p>
-<p>This ensures that columns added after some cuts have been discovered
-(standard Column Generation + Cutting Planes sequence) correctly
+<span class="sig-name descname"><span class="pre">_wire_route_into_active_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Var</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._wire_route_into_active_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the exact coefficient of the new route for every active cut.</p>
+<p>Guarantees that newly priced columns strictly respect previously separated inequalities.
+This ensures that columns added after some cuts have been discovered correctly
 participate in those cuts, maintaining LP relaxation validity.</p>
+<p>Args:
+route: The new route to inject.
+var: The Gurobi variable associated with the route.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -761,8 +787,7 @@ rc(r) = profit(r) - Σ (a_{ik} * π_i), where π_i are the duals.
 - For &gt;= constraints (e.g. RCC), Pi is non-positive; we use -Pi.
 - For &lt;= constraints (e.g. SRI, Vehicle Limit), Pi is non-negative; we use +Pi.</p>
 <p>Returns:
-Dictionary mapping node ID (int) → dual value, plus the key
-“vehicle_limit” → vehicle-limit dual if a fleet cap is active.</p>
+Dictionary mapping node ID (int) -&gt; dual value, plus keys for cut duals.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -772,8 +797,7 @@ Dictionary mapping node ID (int) → dual value, plus the key
 <p>For each node i, returns Σ_{k: i ∈ route_k} λ_k, i.e. the total
 fractional “coverage” of that node across all selected routes.</p>
 <p>Returns:
-Mapping from node ID to aggregated λ coverage, or empty dict if
-the model has not been solved yet.</p>
+Mapping from node ID to aggregated λ coverage.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -786,10 +810,6 @@ Edges are returned as canonical sorted tuples (min, max).</p>
 only_elementary: If True, only elementary routes are considered.</p>
 <p>Returns:
 Mapping from (u, v) -&gt; fractional visitation sum.</p>
-<p>Note:
-Exact separation engines (e.g., Rounded Capacity Cuts) mathematically
-require flow conservation on a support graph of elementary routes.
-This filter prevents cyclic ng-routes from breaking max-flow separation.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -797,8 +817,7 @@ This filter prevents cyclic ng-routes from breaking max-flow separation.</p>
 <span class="sig-name descname"><span class="pre">save_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.save_basis" title="Link to this definition">#</a></dt>
 <dd><p>Save the basis (VBasis, CBasis) for variables and constraints.</p>
 <p>Returns:
-Tuple of (variable_basis, constraint_basis) lists, or None if model
-is not optimal or not initialized.</p>
+Tuple of (variable_basis, constraint_basis) lists, or None if failed.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -523,6 +523,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params">
 <span id="src-policies-route-construction-learning-heuristic-algorithms-reinforcement-learning-adaptive-large-neighborhood-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params" title="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params" title="Link to this heading">#</a></h1>
+<p>Module documentation.</p>
+<p>Attributes:
+RLALNSParams: Configuration parameters for the RL-ALNS solver.</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms import RLALNSParams
+&gt;&gt;&gt; policy = RLALNSParams()
+&gt;&gt;&gt; policy.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -614,113 +622,179 @@ rl_config: Centralized Reinforcement Learning configuration.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.rl_algorithm">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rl_algorithm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.rl_algorithm" title="Link to this definition">#</a></dt>
 <dd><p>Name of the RL algorithm being used.</p>
+<p>Returns:
+str: Name of the RL algorithm.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.alpha" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Learning rate for TD agents.</p>
+<p>Returns:
+float: Learning rate for TD agents.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.gamma" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Discount factor for TD agents.</p>
+<p>Returns:
+float: Discount factor for TD agents.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exploration probability for TD agents.</p>
+<p>Returns:
+float: Exploration probability for TD agents.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_c">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ucb_c</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_c" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>UCB exploration parameter.</p>
+<p>Returns:
+float: UCB exploration parameter.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_new_global_best">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_new_global_best</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_new_global_best" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Reward for finding a new global best solution.</p>
+<p>Returns:
+float: Reward for finding a new global best solution.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_improved_current">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_improved_current</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_improved_current" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Reward for improving the current solution.</p>
+<p>Returns:
+float: Reward for improving the current solution.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_accepted_worse">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_accepted_worse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_accepted_worse" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Reward for accepting a worsening solution (SA).</p>
+<p>Returns:
+float: Reward for accepting a worsening solution (SA).</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_rejected">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_rejected</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_rejected" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Penalty/reward for a rejected solution.</p>
+<p>Returns:
+float: Penalty/reward for a rejected solution.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.adaptive_rewards">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">adaptive_rewards</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.adaptive_rewards" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Whether rewards are scaled dynamically.</p>
+<p>Returns:
+bool: Whether rewards are scaled dynamically.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.normalize_rewards">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize_rewards</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.normalize_rewards" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Whether to normalize rewards across operators.</p>
+<p>Returns:
+bool: Whether to normalize rewards across operators.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon_decay" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Decay factor for epsilon exploration.</p>
+<p>Returns:
+float: Decay factor for epsilon exploration.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.epsilon_min" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Minimum value for epsilon exploration.</p>
+<p>Returns:
+float: Minimum value for epsilon exploration.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ucb_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_gamma" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Discount factor for Discounted UCB.</p>
+<p>Returns:
+float: Discount factor for Discounted UCB.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_window_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ucb_window_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ucb_window_size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Sliding window size for SW-UCB.</p>
+<p>Returns:
+int: Sliding window size for SW-UCB.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ts_alpha_prior">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ts_alpha_prior</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ts_alpha_prior" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Alpha prior for Thompson Sampling.</p>
+<p>Returns:
+float: Alpha prior for Thompson Sampling.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ts_beta_prior">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ts_beta_prior</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.ts_beta_prior" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Beta prior for Thompson Sampling.</p>
+<p>Returns:
+float: Beta prior for Thompson Sampling.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.exp3_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exp3_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.exp3_gamma" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Learning rate for EXP3 agents.</p>
+<p>Returns:
+float: Learning rate for EXP3 agents.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.progress_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">progress_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.progress_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Thresholds for classifying search progress.</p>
+<p>Returns:
+list[float]: Thresholds for classifying search progress.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.stagnation_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stagnation_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.stagnation_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Thresholds for classifying search stagnation.</p>
+<p>Returns:
+list[int]: Thresholds for classifying search stagnation.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.diversity_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">diversity_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.diversity_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Thresholds for classifying population diversity.</p>
+<p>Returns:
+list[float]: Thresholds for classifying population diversity.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.RLALNSConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams" title="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create RLALNSParams from a RLALNSConfig dataclass.
 Note: This remains for backward compatibility with Hydra loaders.</p>
+<p>Args:
+config (RLALNSConfig): The configuration dataclass.</p>
+<p>Returns:
+RLALNSParams: The parameters object.</p>
 </dd></dl>
 
 </dd></dl>

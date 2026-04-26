@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides a statistical selection strategy that predicts overflow
 probabilities using mean accumulation rates and standard deviations, marking
 bins for collection based on a specified confidence level.</p>
+<p>Attributes:
+ServiceLevelSelector: Statistical overflow prediction policy.</p>
+<p>Example:
+&gt;&gt;&gt; selector = ServiceLevelSelector(confidence_factor=1.5)
+&gt;&gt;&gt; mask = selector.select(fill_levels, rates, stds)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,6 +524,9 @@ bins for collection based on a specified confidence level.</p>
 <p>Uses mean accumulation rates and their standard deviations to predict the
 likelihood of overflow. A bin is selected if its predicted peak fill level
 (mean + confidence * std) exceeds the overflow threshold.</p>
+<p>Attributes:
+confidence_factor: Safety factor (z-score) for overflow risk.
+max_fill: Target maximum fill level before overflow.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the service level selector.</p>
 <p>Args:
@@ -532,12 +540,12 @@ max_fill: Maximum fill level (overflow threshold).</p>
 <p>Prediction Logic:
 predicted_fill = current + rate + (confidence * std) &gt;= max_fill</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-accumulation_rates: Mean daily fill rate [B, N].
-std_deviations: Standard deviation of fill rate [B, N].
-confidence_factor: Optional override for confidence multiplier.
-max_fill: Optional override for overflow threshold.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels [B, N].
+accumulation_rates: Mean daily waste generation per node [B, N].
+std_deviations: Standard deviation of daily generation [B, N].
+confidence_factor: Override for risk-aversion factor.
+max_fill: Override for overflow limit.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

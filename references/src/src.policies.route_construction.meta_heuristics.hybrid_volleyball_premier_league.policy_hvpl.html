@@ -500,6 +500,11 @@ document.write(`
 Sun, S., Ma, L., Liu, Y., &amp; Wang, L. (2023). “Volleyball premier league
 algorithm with ACO and ALNS for simultaneous pickup–delivery location
 routing problem.”</p>
+<p>Attributes:
+HVPLPolicy: Policy adapter for the HVPL metaheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; policy = HVPLPolicy()
+&gt;&gt;&gt; routes, profit, cost = policy(obs)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,64 +526,69 @@ routing problem.”</p>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>HVPL policy class.</p>
 <p>Visits pre-selected ‘mandatory’ bins using the population-based HVPL metaheuristic.</p>
+<p>Attributes:
+config: Configuration parameters for the policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HVPL policy with optional config.</p>
 <p>Args:
 config: HVPLConfig dataclass, raw dict from YAML, or None.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for HVPL.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+Optional[Type]: The HVPLConfig class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return config key for HVPL.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+str: “hvpl”.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.HVPLPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Execute the Hybrid Volleyball Premier League (HVPL) solver logic.
-
-    HVPL is a population-based metaheuristic inspired by the competition and
-    substitution dynamics in a volleyball league. In this implementation:
-</pre></div>
-</div>
-<p>team formation that reflects
-diverse tactical approaches.
-- Competition Phase: Teams (solutions) participate in matches where better
-performing team “brightness” or tactical strength influences others.
-- Substitution &amp; Coaching: Mechanisms for replacing weak components of a
-Team (solution) with stronger tactics (heuristics) derived from ACO or
-ALNS operator successes.
-Designed for complex combinatorial optimization, specifically addressing
-simultaneous profit selection and routing.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Args:
-        sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-            sub-problem nodes.
-        sub_wastes (Dict[int, float]): Mapping of local node indices to their
-            current bin inventory levels.
-        capacity (float): Maximum vehicle collection capacity.
-        revenue (float): Revenue obtained per kilogram of waste collected.
-        cost_unit (float): Monetary cost incurred per kilometer traveled.
-        values (Dict[str, Any]): Merged configuration dictionary containing
-            HVPL parameters and nested ACO/ALNS configs.
-        mandatory_nodes (List[int]): Local indices of bins that MUST be
-            collected in this period.
-        **kwargs: Additional context, including:
-            - search_context (Optional[SearchContext]): Context for tracking
-              recursive solver statistics.
-            - multi_day_context (Optional[MultiDayContext]): Context for
-              inter-day state propagation.
-
-    Returns:
-        Tuple[List[List[int]], float, float]: A 3-tuple containing:
-            - routes: Optimized collection routes (list-of-lists, local indices).
-            - profit: Total calculated net profit (Total Revenue - Total Cost).
-            - cost: Total travel cost calculated by the solver.
-</pre></div>
-</div>
+<dd><p>Execute the Hybrid Volleyball Premier League (HVPL) solver logic.</p>
+<p>HVPL is a population-based metaheuristic inspired by the competition and
+substitution dynamics in a volleyball league. In this implementation:</p>
+<ul class="simple">
+<li><p>Initialization: ACO-driven population formation.</p></li>
+<li><p>Competition Phase: Teams (solutions) participate in matches where better
+performing team “brightness” or tactical strength influences others.</p></li>
+<li><p>Substitution &amp; Coaching: Mechanisms for replacing weak components of a
+team with stronger tactics derived from ACO or ALNS successes.</p></li>
+</ul>
+<p>Args:
+sub_dist_matrix: Symmetric distance matrix for the current
+sub-problem nodes.
+sub_wastes: Mapping of local node indices to their
+current bin inventory levels.
+capacity: Maximum vehicle collection capacity.
+revenue: Revenue obtained per kilogram of waste collected.
+cost_unit: Monetary cost incurred per kilometer traveled.
+values: Merged configuration dictionary containing
+HVPL parameters and nested ACO/ALNS configs.
+mandatory_nodes: Local indices of bins that MUST be
+collected in this period.
+kwargs: Additional context, including:
+- search_context (Optional[SearchContext]): Context for tracking
+recursive solver statistics.
+- multi_day_context (Optional[MultiDayContext]): Context for
+inter-day state propagation.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: A 3-tuple containing:
+- routes: Optimized collection routes (list-of-lists, local indices).
+- profit: Total calculated net profit (Total Revenue - Total Cost).
+- cost: Total travel cost calculated by the solver.</p>
 </dd></dl>
 
 </dd></dl>

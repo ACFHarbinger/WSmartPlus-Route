@@ -497,6 +497,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.base">
 <span id="src-policies-helpers-reinforcement-learning-agents-base"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.base" title="src.policies.helpers.reinforcement_learning.agents.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.base</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.base" title="Link to this heading">#</a></h1>
+<p>Base Agent Module.</p>
+<p>This module defines the abstract base class for all Reinforcement Learning (RL)
+agents in the system, establishing a common interface for action selection,
+updates, and state persistence.</p>
+<p>Attributes:
+RLAgent: Abstract base class for all RL agents.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.base import RLAgent
+&gt;&gt;&gt; # RLAgent is abstract and should be subclassed.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +530,8 @@ document.write(`
 operator selection, parameter control, and route optimization.
 Implementing classes must provide specific logic for action selection
 and model updates.</p>
+<p>Attributes:
+None (abstract class).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.base.RLAgent.select_action">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.base.RLAgent.select_action" title="Link to this definition">#</a></dt>

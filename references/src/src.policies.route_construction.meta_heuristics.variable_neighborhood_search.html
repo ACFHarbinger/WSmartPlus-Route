@@ -491,9 +491,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.variable_neighborhood_search">
 <span id="src-policies-route-construction-meta-heuristics-variable-neighborhood-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.variable_neighborhood_search" title="src.policies.route_construction.meta_heuristics.variable_neighborhood_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.variable_neighborhood_search" title="Link to this heading">#</a></h1>
 <p>Variable Neighborhood Search (VNS) solver for VRPP.</p>
-<p>Exports:
+<p>Attributes:
 VNSSolver: The main solver class.
 VNSParams: Configuration parameters dataclass.</p>
+<p>Example:
+&gt;&gt;&gt; solver = VNSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

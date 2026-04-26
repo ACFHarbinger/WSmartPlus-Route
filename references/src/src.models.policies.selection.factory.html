@@ -498,6 +498,11 @@ document.write(`
 <p>Selection strategy factory.</p>
 <p>This module provides factory functions to create vectorized bin selection
 strategies from configuration objects or by explicit name.</p>
+<p>Attributes:
+get_vectorized_selector: Function to instantiate selectors by name.
+create_selector_from_config: Function to instantiate selectors from configuration.</p>
+<p>Example:
+&gt;&gt;&gt; selector = get_vectorized_selector(“last_minute”, threshold=0.8)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -599,14 +604,8 @@ ValueError: if strategy is unknown.</p>
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">get_vectorized_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.models.policies.selection.factory.get_vectorized_selector" title="Link to this definition">#</a></dt>
 <dd><p>Create a vectorized selector by name.</p>
 <p>Args:
-name: Selector name. Options:
-- ‘last_minute’: Threshold-based reactive selection.
-- ‘regular’: Periodic collection on scheduled days.
-- ‘lookahead’: Predictive overflow-based selection.
-- ‘revenue’: Revenue-based selection.
-- ‘service_level’: Statistical overflow prediction.
-- ‘manager’: Neural network-based selection (MandatoryManager).
-**kwargs: Parameters passed to the selector constructor.</p>
+name: Name of the selection strategy.
+kwargs: Strategy-specific parameters.</p>
 <p>Returns:
 VectorizedSelector: The instantiated selector.</p>
 <p>Raises:

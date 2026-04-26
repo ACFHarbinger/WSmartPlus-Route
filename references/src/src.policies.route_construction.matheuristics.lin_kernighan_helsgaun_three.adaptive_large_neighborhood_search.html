@@ -469,8 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-dispatch">Operator Dispatch</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
@@ -530,21 +528,14 @@ document.write(`
 <li><p><strong>Deep Plateau</strong>: If stuck for N iters, apply Perturbation</p></li>
 <li><p><strong>Loop</strong>: Return modified solution to step 2</p></li>
 </ol>
-</section>
-<section id="operator-dispatch">
-<h2>Operator Dispatch<a class="headerlink" href="#operator-dispatch" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">profit_aware_operators=False</span></code>: Standard CVRP operators (removed nodes only)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">profit_aware_operators=True</span></code>: VRPP operators (removed + unvisited pool)</p></li>
-</ul>
-</section>
-<section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import LKH3_ALNS
-solver = LKH3_ALNS(
+<p>Operator Dispatch:
+- <code class="docutils literal notranslate"><span class="pre">profit_aware_operators=False</span></code>: Standard CVRP operators (removed nodes only)
+- <code class="docutils literal notranslate"><span class="pre">profit_aware_operators=True</span></code>: VRPP operators (removed + unvisited pool)</p>
+<p>Attributes:
+LKH3_ALNS: Main solver class combining LKH-3 routing with ALNS outer loop.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import LKH3_ALNS
+&gt;&gt;&gt; solver = LKH3_ALNS(
 …     distance_matrix=dist,
 …     wastes={1: 10, 2: 20, 3: 30},
 …     capacity=100.0,
@@ -554,10 +545,7 @@ solver = LKH3_ALNS(
 …     mandatory_nodes=[1],
 …     seed=42,
 … )
-routes, profit = solver.solve(max_iterations=100, lkh_trials=500, n_vehicles=3)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+&gt;&gt;&gt; routes, profit = solver.solve(max_iterations=100, lkh_trials=500, n_vehicles=3)</p>
 </section>
 <p>LKH-3 Adaptive Large Neighborhood Search (ALNS) Matheuristic.</p>
 <p>Wraps the LKH-3 k-opt core in an outer ruin-and-recreate loop to handle
@@ -641,7 +629,8 @@ recorder: Optional state recorder for visualization.
 max_pool_size: Maximum number of elite solutions to retain.
 n_original: Number of original nodes (before augmentation).
 R: Revenue per unit collected (VRPP parameter).
-C: Cost per distance unit.</p>
+C: Cost per distance unit.
+perturb_operator_weights: Weights for each perturbation operator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lkh_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plateau_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deep_plateau_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popmusic_subpath_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popmusic_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popmusic_max_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k_opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ip_merging</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgradient_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_topology_discovery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_prize_collecting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS.solve" title="Link to this definition">#</a></dt>
@@ -689,9 +678,11 @@ popmusic_subpath_size: POPMUSIC parameter.
 popmusic_trials: POPMUSIC parameter.
 popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
 max_k_opt: Maximum k for k-opt.
-use_ip_merging: IP-based tour merging flag.</p>
+use_ip_merging: IP-based tour merging flag.
+subgradient_iterations: Subgradient optimization iterations.
+dynamic_topology_discovery: Toggle recursive B&amp;B search.</p>
 <p>Returns:
-Tuple of (routes, objective).</p>
+Tuple[List[List[int]], float, float]: (routes, objective, penalty).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -715,11 +706,11 @@ popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
 max_k_opt: Maximum k for k-opt.
 use_ip_merging: IP-based tour merging flag.
 initial_routes: Optional warm-start routes (global node indices).
-If provided, flattened to 1D tour and passed to solve_lkh3.</p>
+If provided, flattened to 1D tour and passed to solve_lkh3.
+dynamic_topology_discovery: Toggle recursive B&amp;B search.
+subgradient_iterations: Number of subgradient iterations.</p>
 <p>Returns:
-Tuple of (routes_global, objective) where:
-- routes_global: Routes with original node indices
-- objective: Profit (VRPP) or negative cost (CVRP)</p>
+Tuple[List[List[int]], float, float]: (routes_global, objective, penalty).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -737,9 +728,11 @@ popmusic_subpath_size: POPMUSIC parameter.
 popmusic_trials: POPMUSIC parameter.
 popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
 max_k_opt: Maximum k for k-opt.
-use_ip_merging: IP-based tour merging flag.</p>
+use_ip_merging: IP-based tour merging flag.
+subgradient_iterations: Subgradient optimization iterations.
+dynamic_topology_discovery: Toggle recursive B&amp;B search.</p>
 <p>Returns:
-Tuple of (optimized_routes, objective).</p>
+Tuple[List[List[int]], float, float]: (optimized_routes, objective, penalty).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -757,97 +750,170 @@ Modified routes after destroy-repair.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._compute_objective">
 <span class="sig-name descname"><span class="pre">_compute_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._compute_objective" title="Link to this definition">#</a></dt>
-<dd><p>Helper to compute current objective (profit or negative cost).</p>
+<dd><p>Compute current objective (profit or negative cost).</p>
+<p>Args:
+routes: List of routes (no depot nodes).</p>
+<p>Returns:
+float: Profit (VRPP) or negative routing cost (CVRP).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_destroy_operator">
 <span class="sig-name descname"><span class="pre">_select_destroy_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_destroy_operator" title="Link to this definition">#</a></dt>
-<dd><p>Weighted selection of destroy operator.</p>
+<dd><p>Select a destroy operator via ALNS roulette wheel.</p>
+<p>Returns:
+Callable: Destroy operator function (routes, n_remove) -&gt; (routes, removed).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_repair_operator">
 <span class="sig-name descname"><span class="pre">_select_repair_operator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_repair_operator" title="Link to this definition">#</a></dt>
-<dd><p>Weighted selection of repair operator.</p>
+<dd><p>Select a repair operator via ALNS roulette wheel.</p>
+<p>Returns:
+Callable: Repair operator function (routes, removed_nodes) -&gt; routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_historical_removal">
 <span class="sig-name descname"><span class="pre">_wrap_historical_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_historical_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for historical_removal.</p>
+<dd><p>Wrap historical_removal with instance state.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_neighbor_removal">
 <span class="sig-name descname"><span class="pre">_wrap_neighbor_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_neighbor_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for neighbor_removal.</p>
+<dd><p>Wrap neighbor_removal with instance state.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_sector_removal">
 <span class="sig-name descname"><span class="pre">_wrap_sector_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_sector_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for sector_removal (fallback to neighbor if no coords).</p>
+<dd><p>Wrap sector_removal, falling back to neighbor_removal if no coords.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_savings_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_savings_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_savings_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for savings_insertion.</p>
+<dd><p>Wrap savings_insertion with instance state.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with removed nodes reinserted.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_deep_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_deep_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_deep_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for deep_insertion.</p>
+<dd><p>Wrap deep_insertion with instance state.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with removed nodes reinserted.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_nearest_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_nearest_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_nearest_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for nearest_insertion.</p>
+<dd><p>Wrap nearest_insertion with instance state.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with removed nodes reinserted.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_historical_profit_removal">
 <span class="sig-name descname"><span class="pre">_wrap_historical_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_historical_profit_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for historical_profit_removal.</p>
+<dd><p>Wrap historical_profit_removal with instance state.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_neighbor_profit_removal">
 <span class="sig-name descname"><span class="pre">_wrap_neighbor_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_neighbor_profit_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for neighbor_profit_removal.</p>
+<dd><p>Wrap neighbor_profit_removal with instance state.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_sector_profit_removal">
 <span class="sig-name descname"><span class="pre">_wrap_sector_profit_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_sector_profit_removal" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for sector_profit_removal (fallback to neighbor if no coords).</p>
+<dd><p>Wrap sector_profit_removal, falling back to neighbor_profit_removal if no coords.</p>
+<p>Args:
+routes: Current solution routes.
+n_remove: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (modified_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_savings_profit_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_savings_profit_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_savings_profit_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for savings_profit_insertion with expand_pool=True.</p>
+<dd><p>Wrap savings_profit_insertion with expand_pool=True.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with profit-aware node reinsertion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_deep_profit_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_deep_profit_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_deep_profit_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for deep_profit_insertion with expand_pool=True.</p>
+<dd><p>Wrap deep_profit_insertion with expand_pool=True.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with profit-aware node reinsertion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_nearest_profit_insertion">
 <span class="sig-name descname"><span class="pre">_wrap_nearest_profit_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._wrap_nearest_profit_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper for nearest_profit_insertion with expand_pool=True.</p>
+<dd><p>Wrap nearest_profit_insertion with expand_pool=True.</p>
+<p>Args:
+routes: Current solution routes (after destroy).
+removed_nodes: Nodes removed by the destroy operator.</p>
+<p>Returns:
+List[List[int]]: Repaired routes with profit-aware node reinsertion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_worst_routes">
 <span class="sig-name descname"><span class="pre">_select_worst_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.LKH3_ALNS._select_worst_routes" title="Link to this definition">#</a></dt>
 <dd><p>Select the n worst routes based on profit-oriented strategy.</p>
+<p>Args:
+routes: Current solution routes.
+n: Number of routes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: (remaining_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -949,8 +1015,6 @@ Total routing cost.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-dispatch">Operator Dispatch</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>

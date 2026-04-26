@@ -501,6 +501,13 @@ document.write(`
 <span id="src-pipeline-rl-meta-td-learning"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.meta.td_learning" title="src.pipeline.rl.meta.td_learning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.meta.td_learning</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.meta.td_learning" title="Link to this heading">#</a></h1>
 <p>Cost Weight Manager using Temporal Difference (TD) Learning.
 Robust implementation for adaptive multi-objective weight management.</p>
+<p>Attributes:
+CostWeightManager: Manager for TD-based cost weight adjustment.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.meta.td_learning import CostWeightManager
+&gt;&gt;&gt; cost_weight_manager = CostWeightManager()
+&gt;&gt;&gt; cost_weight_manager
+&lt;logic.src.pipeline.rl.meta.td_learning.CostWeightManager object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,10 +541,21 @@ n_bins (int): Number of bins for discretizing weights.
 seed (int): Random seed for reproducibility.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize TDLearningWeightOptimizer.</p>
+<p>Args:
+initial_weights: Initial cost weights.
+learning_rate: Learning rate for TD updates.
+gamma: Discount factor for TD updates.
+epsilon: Exploration rate for epsilon-greedy policy.
+n_bins: Number of bins for discretizing weights.
+weight_bounds: Bounds for cost weights.
+seed: Random seed for reproducibility.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.td_learning.CostWeightManager.get_current_weights">
 <span class="sig-name descname"><span class="pre">get_current_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.get_current_weights" title="Link to this definition">#</a></dt>
 <dd><p>Return the current continuous weights.</p>
+<p>Returns:
+dict[str, float]: Current cost weights.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -545,6 +563,10 @@ seed (int): Random seed for reproducibility.</p>
 <span class="sig-name descname"><span class="pre">propose_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.propose_weights" title="Link to this definition">#</a></dt>
 <dd><p>Propose weights for the next epoch.
 This is where the ‘Action’ is taken (changing weights).</p>
+<p>Args:
+context: Context information for weight proposal.</p>
+<p>Returns:
+dict[str, float]: Proposed cost weights for the next epoch.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -552,12 +574,22 @@ This is where the ‘Action’ is taken (changing weights).</p>
 <span class="sig-name descname"><span class="pre">feedback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.feedback" title="Link to this definition">#</a></dt>
 <dd><p>Update V(s) based on the observed reward signal.</p>
 <p>V(s_t) &lt;- V(s_t) + alpha * [R_{t+1} + gamma * V(s_{t+1}) - V(s_t)]</p>
+<p>Args:
+reward: Reward received from the environment.
+metrics: Metrics from the environment.
+day: Day of the week.
+step: Step within the day.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.td_learning.CostWeightManager.update_weights">
-<span class="sig-name descname"><span class="pre">update_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.update_weights" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.update_weights" title="Link to this definition">#</a></dt>
 <dd><p>Update weights (compatibility).</p>
+<p>Args:
+reward: Reward received from the environment.
+cost_components: Cost components from the environment.</p>
+<p>Returns:
+dict[str, float]: Updated cost weights.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -565,24 +597,35 @@ This is where the ‘Action’ is taken (changing weights).</p>
 <span class="sig-name descname"><span class="pre">_discretize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager._discretize" title="Link to this definition">#</a></dt>
 <dd><p>Convert continuous weights to a discrete tuple key.
 Sorts keys to ensure consistent ordering.</p>
+<p>Args:
+weights: Weights to discretize.</p>
+<p>Returns:
+Tuple of ints representing discretized weights.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.td_learning.CostWeightManager._apply_change">
 <span class="sig-name descname"><span class="pre">_apply_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager._apply_change" title="Link to this definition">#</a></dt>
 <dd><p>Apply additive change to weight with clipping.</p>
+<p>Args:
+key: Name of the weight to update.
+delta: Change to apply to the weight.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.td_learning.CostWeightManager.state_dict">
-<span class="sig-name descname"><span class="pre">state_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.state_dict" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">state_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.state_dict" title="Link to this definition">#</a></dt>
 <dd><p>Get state dictionary.</p>
+<p>Returns:
+dict[str, Any]: State dictionary.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.meta.td_learning.CostWeightManager.load_state_dict">
-<span class="sig-name descname"><span class="pre">load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.load_state_dict" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.meta.td_learning.CostWeightManager.load_state_dict" title="Link to this definition">#</a></dt>
 <dd><p>Load state dictionary.</p>
+<p>Args:
+state_dict: State dictionary to load.</p>
 </dd></dl>
 
 </dd></dl>

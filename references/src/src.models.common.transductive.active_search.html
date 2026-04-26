@@ -529,10 +529,10 @@ model (nn.Module): The policy to be optimized.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the TransductiveModel.</p>
 <p>Args:
-model: The base neural policy to be adapted.
-optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., ‘lr’).
-n_search_steps: Number of search/adaptation steps to perform.
-**kwargs: Additional parameters stored in <code class="docutils literal notranslate"><span class="pre">self.kwargs</span></code>.</p>
+model: The base policy model to be adapted.
+optimizer_kwargs: Optimizer settings (e.g., learning rate).
+n_search_steps: Number of test-time optimization iterations.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.active_search.ActiveSearch._get_search_params">
 <span class="sig-name descname"><span class="pre">_get_search_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.transductive.active_search.ActiveSearch._get_search_params" title="Link to this definition">#</a></dt>

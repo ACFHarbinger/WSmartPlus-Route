@@ -499,6 +499,11 @@ document.write(`
 by introducing controlled perturbations. This mechanism allows the search
 to escape local optima while maintaining significant high-quality structural
 features of the solution.</p>
+<p>Attributes:
+IteratedLocalSearchPolicy: ILS solver for combinatorial routing problems.</p>
+<p>Example:
+&gt;&gt;&gt; policy = IteratedLocalSearchPolicy(env_name=”vrpp”)
+&gt;&gt;&gt; out = policy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,15 +543,15 @@ op_map: Mapping from string identifiers to functions.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ILS policy.</p>
 <p>Args:
-env_name: Problem environment identifier.
-ls_operator: Refinement strategy (‘random’ or specific name).
-perturbation_type: Jump strategy (‘random’ or specific name).
-n_restarts: Number of optimization cycles.
-ls_iterations: Loop limit for neighborhood search.
-perturbation_strength: Ratio of tour affected by structural changes.
-seed: RNG constant.
-device: Hardware target.
-**kwargs: Additional hyperparameters.</p>
+env_name: Name of the environment identifier.
+ls_operator: Identifier or probability map for local search operators.
+perturbation_type: Identifier or probability map for jumping modes.
+n_restarts: Number of ILS cycles (restarts).
+ls_iterations: Maximum iterations for each local search phase.
+perturbation_strength: Fraction of the solution to alter during jumps.
+seed: Random seed for search reproducibility.
+device: Computing device for operations.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.iterated_local_search.IteratedLocalSearchPolicy._perturb">
 <span class="sig-name descname"><span class="pre">_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.iterated_local_search.IteratedLocalSearchPolicy._perturb" title="Link to this definition">#</a></dt>
@@ -576,14 +581,14 @@ torch.Tensor: Summation of edge costs of shape [B].</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Run the complete ILS refinement procedure.</p>
 <p>Args:
-td: Input problem state bundle.
-env: Relevant environment instance.
-strategy: Search strategy (ignored).
-num_starts: Number of restarts (ignored).
-max_steps: Limit on sequence length (ignored).
-phase: Current execution phase (‘train’, ‘val’, or ‘test’).
-return_actions: Whether to include action history.
-**kwargs: Optional ‘initial_solution’ override.</p>
+td: TensorDict containing problem instance data.
+env: Optional environment for reward calculation.
+strategy: Solver strategy (e.g., “greedy”).
+num_starts: Unused in ILS.
+max_steps: Maximum step constraint.
+phase: Current phase (“train”, “val”, “test”).
+return_actions: Whether to return full action sequences.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Optimized results dictionary containing:
 - actions (torch.Tensor): Best discovered routes.

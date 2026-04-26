@@ -496,6 +496,15 @@ document.write(`
 <p>Intra-route node relocation operators.</p>
 <p>Provides procedures to move single or multiple bins to different positions
 within the same route, supporting both random and consecutive relocations.</p>
+<p>Attributes:
+move_1_route: Moves one bin to a different position in the same route.
+move_n_route_random: Moves n random bins to new positions within their routes.
+move_n_route_consecutive: Moves a sequence of consecutive bins to a new position in the same route.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.intra_move import move_1_route
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; move_1_route(routes, rng)
+&gt;&gt;&gt; print(routes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

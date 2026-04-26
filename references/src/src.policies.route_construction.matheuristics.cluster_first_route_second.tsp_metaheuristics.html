@@ -512,6 +512,15 @@ in the routing phase of the VFJ algorithm.</p>
 Sultana, T., Akhand, M. A. H., &amp; Rahman, M. M. H. (2017).
 Section 4: “VFJ algorithm with PSO performs better than VFJ algorithm with
 ACO and VFJ algorithm with GA”</p>
+<p>Attributes:
+find_route_pso: TSP solver using Velocity Tentative PSO.
+find_route_aco: TSP solver using Ant Colony Optimization.
+find_route_ga: TSP solver using a Genetic Algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics import find_route_pso
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; tour = find_route_pso(dm, [0, 1, 2])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -558,6 +567,11 @@ ACO and VFJ algorithm with GA”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._calculate_tour_distance">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics.</span></span><span class="sig-name descname"><span class="pre">_calculate_tour_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._calculate_tour_distance" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total distance of a TSP tour.</p>
+<p>Args:
+tour: Sequence of node indices representing the tour.
+distance_matrix: Distance matrix of shape (n_nodes, n_nodes).</p>
+<p>Returns:
+float: Sum of edge distances along the tour.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -606,12 +620,24 @@ List of (i, j) index pairs to swap</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._get_swap_operators">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics.</span></span><span class="sig-name descname"><span class="pre">_get_swap_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._get_swap_operators" title="Link to this definition">#</a></dt>
 <dd><p>Compute sequence of swap operations to transform tour1 into tour2.</p>
+<p>Args:
+tour1: Source tour to transform.
+tour2: Target tour to reach.</p>
+<p>Returns:
+List[Tuple[int, int]]: Index-pair swaps that convert tour1 to tour2.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._apply_2opt_local_search">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics.</span></span><span class="sig-name descname"><span class="pre">_apply_2opt_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_swaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._apply_2opt_local_search" title="Link to this definition">#</a></dt>
 <dd><p>Apply random 2-opt swaps to improve a tour.</p>
+<p>Args:
+tour: Current tour including depot at start and end.
+distance_matrix: Distance matrix of shape (n_nodes, n_nodes).
+n_customers: Number of customer nodes (excluding depot).
+max_swaps: Maximum number of 2-opt swaps to attempt.</p>
+<p>Returns:
+List[int]: Improved tour after applying the best 2-opt moves found.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -653,12 +679,20 @@ The paper Sultana &amp; Akhand (2017) specifies alpha=1 and beta=3 but is
 vague on evaporation and deposit scale. We adopt rho=0.1 and Q=100
 as robust defaults for the pheromone update Delta_tau = Q / L, where
 L is the tour distance.</p>
+<p>Returns:
+List[int]: Best TSP tour found as a list of node indices.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._eer_crossover">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics.</span></span><span class="sig-name descname"><span class="pre">_eer_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics._eer_crossover" title="Link to this definition">#</a></dt>
 <dd><p>Enhanced Edge Recombination (EER) crossover.</p>
+<p>Args:
+p1: First parent tour (customer nodes only, no depot).
+p2: Second parent tour (customer nodes only, no depot).
+customers: List of customer node indices.</p>
+<p>Returns:
+List[int]: Child tour produced by EER crossover.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -672,6 +706,8 @@ time_limit: Maximum time.
 seed: Random seed.
 pop_size: Population size.
 mutation_rate: Mutation probability.</p>
+<p>Returns:
+List[int]: Best TSP tour found as a list of node indices.</p>
 </dd></dl>
 
 </section>

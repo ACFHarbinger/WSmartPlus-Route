@@ -31,14 +31,14 @@
 
 ### API
 
-````{py:function} _initialize_solution_state(routes, id_to_index, distance_matrix, data)
+````{py:function} _initialize_solution_state(routes: typing.List[typing.List[int]], id_to_index: typing.Dict[int, int], distance_matrix: numpy.ndarray, data: typing.Dict[str, typing.Any]) -> typing.Tuple[typing.List[typing.List[int]], typing.Set[int]]
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans._initialize_solution_state
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans._initialize_solution_state
 ```
 ````
 
-````{py:function} _select_neighbor(solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, mandatory_bins, distance_matrix, rng)
+````{py:function} _select_neighbor(solution: typing.List[typing.List[int]], removed_bins: typing.Set[int], data: typing.Dict[str, typing.Any], vehicle_capacity: float, id_to_index: typing.Dict[int, int], stocks: typing.Dict[int, float], mandatory_bins: typing.Set[int], distance_matrix: numpy.ndarray, rng: random.Random) -> typing.Tuple[typing.Optional[typing.List[typing.List[int]]], typing.Optional[str]]
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans._select_neighbor
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans._select_neighbor

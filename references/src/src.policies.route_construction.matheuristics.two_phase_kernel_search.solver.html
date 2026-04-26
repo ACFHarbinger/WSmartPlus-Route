@@ -499,6 +499,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.two_phase_kernel_search.solver">
 <span id="src-policies-route-construction-matheuristics-two-phase-kernel-search-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.two_phase_kernel_search.solver" title="src.policies.route_construction.matheuristics.two_phase_kernel_search.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.two_phase_kernel_search.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.two_phase_kernel_search.solver" title="Link to this heading">#</a></h1>
+<p>Two-Phase Kernel Search Solver.</p>
+<p>Attributes:
+_PhaseIStats</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,6 +542,11 @@ document.write(`
 <dd><p>Per-variable statistics collected during Phase I.</p>
 <p>Used by Phase II to rank variables better than a fresh LP relaxation,
 since Phase I already explored the feasible region.</p>
+<p>Attributes:
+var_frequency (Dict[gp.Var, float]): Frequency of variable usage.
+var_obj_contribution (Dict[gp.Var, float]): Objective contribution of variable.
+phase1_best_obj (float): Best objective value in Phase I.
+phase1_used_vars (Set[gp.Var]): Variables used in Phase I.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.solver._PhaseIStats.var_frequency">
 <span class="sig-name descname"><span class="pre">var_frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.solver._PhaseIStats.var_frequency" title="Link to this definition">#</a></dt>
@@ -589,6 +599,18 @@ calling <code class="docutils literal notranslate"><span class="pre">_dfj_subtou
 Promote variables to the kernel if they appear in improving solutions.
 Continue recording frequency statistics.</p></li>
 </ol>
+<p>Args:
+model (gp.Model): The Gurobi model.
+x (Dict): Dictionary of variables.
+y (Dict): Dictionary of variables.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Wastes.
+capacity (float): Capacity.
+R (float): R.
+C (float): C.
+mandatory_nodes (List[int]): Mandatory nodes.
+params (TPKSParams): Parameters.
+phase1_time (float): Phase 1 time limit.</p>
 <p>Returns:
 _PhaseIStats populated with frequency/contribution data and the
 best solution found in Phase I.</p>
@@ -603,6 +625,11 @@ score(v) = α · frequency(v) + β · obj_contribution(v) / normaliser
 where α = 0.6, β = 0.4.</p>
 <p>The top <code class="docutils literal notranslate"><span class="pre">initial_kernel_size</span></code> variables (union with <code class="docutils literal notranslate"><span class="pre">phase1_used_vars</span></code>)
 form the Phase II kernel. The remainder are sorted into buckets.</p>
+<p>Args:
+x (Dict): Dictionary of variables.
+y (Dict): Dictionary of variables.
+stats (_PhaseIStats): Statistics from Phase I.
+params (TPKSParams): Parameters.</p>
 <p>Returns:
 (phase2_kernel_vars, phase2_remaining_vars)</p>
 </dd></dl>
@@ -611,6 +638,16 @@ form the Phase II kernel. The remainder are sorted into buckets.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.solver.run_tpks_gurobi">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.two_phase_kernel_search.solver.</span></span><span class="sig-name descname"><span class="pre">run_tpks_gurobi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.matheuristics.two_phase_kernel_search.params.html#src.policies.route_construction.matheuristics.two_phase_kernel_search.params.TPKSParams" title="src.policies.route_construction.matheuristics.two_phase_kernel_search.params.TPKSParams"><span class="pre">src.policies.route_construction.matheuristics.two_phase_kernel_search.params.TPKSParams</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.solver.run_tpks_gurobi" title="Link to this definition">#</a></dt>
 <dd><p>Solve VRPP using Two-Phase Kernel Search (TPKS).</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Wastes.
+capacity (float): Capacity.
+R (float): R.
+C (float): C.
+mandatory_nodes (List[int]): Mandatory nodes.
+params (TPKSParams): Parameters.
+env (Optional[gp.Env]): Gurobi environment.
+recorder (Optional[PolicyStateRecorder]): Policy state recorder.</p>
 <p>Returns:
 (tour, obj_val, routing_cost) — same contract as run_kernel_search_gurobi.</p>
 </dd></dl>

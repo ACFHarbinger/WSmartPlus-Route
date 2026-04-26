@@ -497,6 +497,17 @@ document.write(`
 Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., &amp; Min, S. (2020).
 POMO: Policy Optimization with Multiple Optima for Neural Combinatorial Optimization.
 Advances in Neural Information Processing Systems, 33, 21188-21198.</p>
+<p>Attributes:
+POMO: POMO algorithm: REINFORCE with shared baseline and multi-start decoding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import POMO
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; pomo = POMO(env, agent)
+&gt;&gt;&gt; pomo
+POMO(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,18 +539,31 @@ Kwon, Y. D., Choo, J., Kim, B., Yoon, I., Gwon, Y., &amp; Min, S. (2020).
 POMO: Policy Optimization with Multiple Optima for Reinforcement Learning.
 NeurIPS 2020. arXiv:2010.16011
 https://arxiv.org/abs/2010.16011</p>
+<p>Attributes:
+policy: The policy network used to generate actions.
+env: The environment used to generate rewards.
+num_augment: The number of augmentations used.
+augment_fn: The augmentation function used.
+first_aug_identity: Whether the first augmentation is identity.
+num_starts: The number of starts used.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize POMO module.</p>
 <p>Args:
-num_augment: Number of data augmentations during inference.
-augment_fn: Augmentation function (‘dihedral8’, ‘symmetric’, or callable).
-first_aug_identity: If True, first augmentation is identity.
-num_starts: Number of starting points for multi-start decoding.
-**kwargs: Arguments passed to REINFORCE.</p>
+num_augment: Number of augmentations to use (default: 8).
+augment_fn: Function to apply augmentations. Can be a string (‘dihedral8’) or a callable.
+first_aug_identity: Whether to apply identity augmentation first.
+num_starts: Number of starts to use for multi-start decoding. If None, uses the number of nodes.
+kwargs: Additional arguments to pass to the parent class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.pomo.POMO.shared_step">
 <span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.pomo.POMO.shared_step" title="Link to this definition">#</a></dt>
 <dd><p>POMO shared step with augmentation and multi-start.</p>
+<p>Args:
+batch: Batch of states from the dataset.
+batch_idx: Index of the batch.
+phase: Phase of the training (train, val, or test).</p>
+<p>Returns:
+Dictionary containing loss and other metrics.</p>
 </dd></dl>
 
 </dd></dl>

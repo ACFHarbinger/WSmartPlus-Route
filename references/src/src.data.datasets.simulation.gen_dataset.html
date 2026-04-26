@@ -499,6 +499,15 @@ document.write(`
 <p>This module provides a <code class="docutils literal notranslate"><span class="pre">GenerativeDataset</span></code> that lazily generates waste
 samples using distribution classes from <code class="docutils literal notranslate"><span class="pre">logic.src.data.distributions</span></code>,
 without requiring pre-computed data files.</p>
+<p>Attributes:
+GenerativeDataset: Dataset that generates instances on-the-fly.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import GenerativeDataset
+&gt;&gt;&gt; dataset = GenerativeDataset(generator, size)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,7 +537,7 @@ keys as other <code class="docutils literal notranslate"><span class="pre">Simul
 - <code class="docutils literal notranslate"><span class="pre">'max_waste'</span></code>:   <code class="docutils literal notranslate"><span class="pre">np.float64</span></code> scalar</p>
 <p>Samples are reproducible: each index gets a deterministic seed derived
 from <code class="docutils literal notranslate"><span class="pre">base_seed</span> <span class="pre">+</span> <span class="pre">index</span></code>.</p>
-<p>Args:
+<p>Attributes:
 data_dir: Path to data directory.
 n_samples: Total number of virtual samples.
 n_days: Number of simulation days per sample.
@@ -542,10 +551,27 @@ max_waste: Maximum waste capacity (percentage).
 grid: GridBase object for empirical sampling.
 seed: Random seed.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the generative dataset.</p>
+<p>Args:
+data_dir: Description of data_dir.
+n_samples: Description of n_samples.
+n_days: Description of n_days.
+n_bins: Description of n_bins.
+distribution: Description of distribution.
+depot: Description of depot.
+locs: Description of locs.
+noise_mean: Description of noise_mean.
+noise_variance: Description of noise_variance.
+max_waste: Description of max_waste.
+grid: Description of grid.
+seed: Description of seed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.gen_dataset.GenerativeDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.datasets.simulation.gen_dataset.GenerativeDataset.__len__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of samples in the dataset.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.gen_dataset.GenerativeDataset.__getitem__">

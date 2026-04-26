@@ -498,6 +498,16 @@ document.write(`
 <p>Identical to PCTSPEnv except that the prize revealed upon visiting a node
 is drawn from a stochastic distribution rather than being deterministic.
 The expected prize is still made available to the policy for conditioning.</p>
+<p>Attributes:
+NAME: Name of the environment.
+name: Name of the environment.
+node_dim: Node feature dimension (x, y coordinates only → 2).
+_stochastic: Boolean flag indicating that this is a stochastic environment.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“spctsp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()
+&gt;&gt;&gt; td = env.step(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,14 +532,17 @@ The expected prize is still made available to the policy for conditioning.</p>
 actually received when visiting a node (<code class="docutils literal notranslate"><span class="pre">real_prize</span></code>) is drawn
 from a uniform distribution centred on the expected prize, rather
 than being equal to it.  The expected prize is still observed.</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;spctsp&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Node feature dimension — 2 for (x, y) coordinates.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the base environment.</p>
+<p>Initialize the SPCTSP environment.</p>
 <p>Args:
-generator: Data generator instance for creating problem instances.
-generator_params: Parameters to pass to the generator if not provided.
-device: Device to place tensors on.
-batch_size: Batch size for the environment.
-**kwargs: Additional keyword arguments.</p>
+generator: Pre-built PCTSPGenerator; created from generator_params if None.
+generator_params: Keyword arguments forwarded to PCTSPGenerator constructor.
+device: Torch device for tensor placement.
+kwargs: Additional arguments forwarded to RL4COEnvBase.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.spctsp.SPCTSPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.spctsp.SPCTSPEnv.NAME" title="Link to this definition">#</a></dt>

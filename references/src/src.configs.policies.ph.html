@@ -505,6 +505,37 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ph">
 <span id="src-configs-policies-ph"></span><h1><a class="reference internal" href="#module-src.configs.policies.ph" title="src.configs.policies.ph"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ph</span></code></a><a class="headerlink" href="#module-src.configs.policies.ph" title="Link to this heading">#</a></h1>
 <p>Progressive Hedging (PH) policy configuration.</p>
+<p>Attributes:
+PHConfig: Configuration for the Progressive Hedging (PH) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ph import PHConfig
+&gt;&gt;&gt; config = PHConfig()
+&gt;&gt;&gt; config.rho
+1.0
+&gt;&gt;&gt; config.max_iterations
+50
+&gt;&gt;&gt; config.convergence_tol
+0.01
+&gt;&gt;&gt; config.sub_solver
+‘bc’
+&gt;&gt;&gt; config.num_scenarios
+10
+&gt;&gt;&gt; config.horizon
+7
+&gt;&gt;&gt; config.consensus_scope
+‘day_0’
+&gt;&gt;&gt; config.stockout_penalty
+500.0
+&gt;&gt;&gt; config.time_limit
+300.0
+&gt;&gt;&gt; config.verbose
+True
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None
+&gt;&gt;&gt; config.seed
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

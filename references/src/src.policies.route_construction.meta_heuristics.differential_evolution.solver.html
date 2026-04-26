@@ -507,34 +507,12 @@ document.write(`
 <p>This module implements the rigorous Differential Evolution algorithm as formulated
 by Storn &amp; Price (1997), using continuous Random Key (RK) representation to properly
 handle the discrete VRPP domain.</p>
-<p>Random Key Encoding:
-- Each solution is represented as a continuous vector in [-1.0, 1.0]^n
-- Decoding: nodes with positive keys are selected, sorted by key value
-- This enables true continuous DE operators while maintaining discrete feasibility</p>
-<p>Algorithm (Core DE):
-1. Initialize population with NP ≥ 4 continuous vectors (Gaussian-augmented)
-2. For each generation:
-a. Mutation: For each target vector x_i, create mutant v_i = x_r1 + F(x_r2 - x_r3)
-where r1, r2, r3 are mutually exclusive indices distinct from i
-b. Crossover: Create trial vector u_i by exponential crossover
-c. Local Search (Memetic Addition): Refine discrete phenotypic solution
-d. Selection: Greedy replacement - keep u_i if f(u_i) ≥ f(x_i), else keep x_i</p>
-<p>Mutual Exclusivity Axiom:
-The MDE/rand/1/exp strategy REQUIRES that indices r1, r2, r3 used in mutation
-satisfy: r1 ≠ r2 ≠ r3 ≠ i. This mandates a minimum population size of 4.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Without this constraint, the algorithm degenerates to:
-    - Random search (if r1 = r2 = r3): differential vector becomes zero
-    - Cloning (if any r_i = i): no mutation from current solution
-
-This is NOT a hyperparameter choice—it is a mathematical requirement of the
-algorithm as defined by the original authors.
-</pre></div>
-</div>
-<p>Key Advantages over Set-Theoretic DE:
-- Preserves routing sequence information through continuous ordering
-- Enables true differential mathematics (not probabilistic set operations)
-- Prevents population stagnation through continuous diversity
-- No information loss during mutation/crossover operations</p>
+<p>Attributes:
+DESolver: Core solver class for Differential Evolution.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+&gt;&gt;&gt; solver = DESolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>References:
 Storn, R., &amp; Price, K. (1997). “Differential Evolution – A Simple and
 Efficient Heuristic for Global Optimization over Continuous Spaces.”
@@ -571,7 +549,33 @@ with memetic local search. Key features include:</p>
 <li><p>Dynamic population scaling (NP depends on dimensionality D)</p></li>
 <li><p>Bounce-back boundary handling for genetic diversity</p></li>
 </ul>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+pop_size: Population size (NP).
+rng: NumPy random number generator.
+py_rng: Python random number generator.
+evo_strategy: Strategy for handling local search improvements.
+ls: Local search optimizer.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Memetic Differential Evolution solver.</p>
+<p>Args:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+params: Algorithm-specific parameters (F, CR, pop_size).
+mandatory_nodes: Nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver.solve" title="Link to this definition">#</a></dt>
@@ -588,16 +592,6 @@ degenerating into random search (r1=r2=r3 → zero differential) or
 cloning (r_i=i → no mutation).</p>
 <p>Returns:
 Tuple of (best_routes, best_profit, best_cost).</p>
-<p>Complexity:
-Time: O(G × NP × n²) where G = max_iterations, NP = pop_size
-- Continuous ops (mutation/crossover): O(G × NP × n) [vectorized]
-- Discrete ops (decode/eval): O(G × NP × n²) [sequential]
-Space: O(NP × n) to store continuous population</p>
-<p>References:
-Storn, R., &amp; Price, K. (1997). “Differential Evolution – A Simple and
-Efficient Heuristic for Global Optimization over Continuous Spaces.”
-Journal of Global Optimization, 11(4), 341-359.
-DOI: 10.1023/A:1008202821328</p>
 </dd></dl>
 
 <dl class="py method">
@@ -606,7 +600,10 @@ DOI: 10.1023/A:1008202821328</p>
 <dd><p>Pure NumPy implementation of 3 mutually exclusive random indices for all i.</p>
 <p>Ensures r1[i] != r2[i] != r3[i] != i for all i in [0, pop_size) using
 offset-based modulo arithmetic, avoiding sequential Python loops.</p>
-<p>Complexity: O(NP^2) for offset generation, hardware-accelerated.</p>
+<p>Args:
+pop_size: The size of the population.</p>
+<p>Returns:
+Tuple of three NumPy arrays (r1, r2, r3).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -615,23 +612,17 @@ offset-based modulo arithmetic, avoiding sequential Python loops.</p>
 <dd><p>Fully vectorized implementation of Exponential Crossover.</p>
 <p>Replaces the sequential population loop with a single matrix operation
 using 2D Boolean masks and probabilistic sequence length calculation.</p>
-<p>Behavior:
-- Start index ‘n’ is random for each participant.
-- Continuous inheritance from mutant until geometric stop or full cycle.
-- Mathematically equivalent to the do…while loop across NP individuals.</p>
+<p>Args:
+target_pop: The current population matrix.
+mutant_pop: The mutated population matrix.</p>
+<p>Returns:
+The trial population matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._initialize_population">
 <span class="sig-name descname"><span class="pre">_initialize_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._initialize_population" title="Link to this definition">#</a></dt>
 <dd><p>Initialize population as continuous Random Key vectors.</p>
-<p>Strategy:
-- Heuristic seeding: Seed first 10% of NP with Gaussian-noisy versions
-of the greedy solution (sigma=0.1) as per Storn &amp; Price (1997).
-- Remaining individuals: Uniform random in [-1.0, 1.0].</p>
-<p>By adding normally distributed deviations to a preliminary solution, we
-create a high-quality initial exploration manifold, accelerating
-convergence while the remaining random individuals preserve diversity.</p>
 <p>Returns:
 Population matrix of shape (pop_size, n_nodes) in [-1.0, 1.0].</p>
 </dd></dl>
@@ -640,53 +631,26 @@ Population matrix of shape (pop_size, n_nodes) in [-1.0, 1.0].</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._encode_routes">
 <span class="sig-name descname"><span class="pre">_encode_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._encode_routes" title="Link to this definition">#</a></dt>
 <dd><p>Encode discrete routes into a continuous Random Key vector with noise injection.</p>
-<p>This robust encoding prevents the Lamarckian Encoding Trap by maintaining
-genetic diversity through:</p>
-<ol class="arabic simple">
-<li><p>Random initialization of unvisited nodes across negative domain</p></li>
-<li><p>Noise injection into visited node encodings</p></li>
-</ol>
-<p>Without noise, all locally-optimized solutions would encode to nearly
-identical vectors, causing population collapse and premature convergence.</p>
-<p>Strategy:
-- Unvisited nodes: Random uniform values in [-1.0, -0.01]
-- Visited nodes: Linearly spaced base values [0.1, 0.9] + noise [-0.05, 0.05]</p>
 <p>Args:
-routes: Discrete routing solution</p>
+routes: Discrete routing solution.</p>
 <p>Returns:
-Continuous vector of shape (n_nodes,) in [-1.0, 1.0]</p>
-<p>Mathematical Justification:
-The noise injection preserves phenotypic quality (route sequence is unchanged
-by small perturbations during decoding) while maintaining genotypic diversity
-(population members have distinct continuous representations).</p>
-<p>References:
-Bean, J.C. (1994). “Genetic Algorithms and Random Keys for Sequencing
-and Optimization.” ORSA Journal on Computing, 6(2), 154-160.</p>
+Continuous vector of shape (n_nodes,) in [-1.0, 1.0].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._decode_vector">
 <span class="sig-name descname"><span class="pre">_decode_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._decode_vector" title="Link to this definition">#</a></dt>
 <dd><p>Decode continuous Random Key vector into discrete VRPP routes.</p>
-<p>Algorithm:
-1. Selection: Include node i if vector[i] &gt;= 0 OR i+1 in mandatory_nodes
-2. Sequencing: Sort selected nodes by their Random Key values (ascending)
-3. Route Packing: Greedily pack nodes into routes respecting capacity</p>
 <p>Args:
-vector: Continuous vector of shape (n_nodes,) in [-1.0, 1.0]</p>
+vector: Continuous vector of shape (n_nodes,) in [-1.0, 1.0].</p>
 <p>Returns:
-Discrete routing solution satisfying capacity constraints</p>
+Discrete routing solution satisfying capacity constraints.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._apply_boundary_handling">
 <span class="sig-name descname"><span class="pre">_apply_boundary_handling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._apply_boundary_handling" title="Link to this definition">#</a></dt>
 <dd><p>Apply bounce-back boundary handling to preserve genetic diversity.</p>
-<p>While Storn &amp; Price (1997) suggested incorporating parameter bounds via
-penalty constraints, we employ a “bounce-back” method here. This is a
-modern alternative that reassigns out-of-bounds values to a uniform
-random position between the base vector and the violated boundary,
-effectively preventing “boundary accumulation” in Random Key domains.</p>
 <p>Args:
 vector: The continuous vector to bound.
 base_vector: The reference vector (mutant base or target parent).</p>
@@ -698,45 +662,36 @@ Bounded vector strictly within [-1.0, 1.0].</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._exponential_crossover">
 <span class="sig-name descname"><span class="pre">_exponential_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._exponential_crossover" title="Link to this definition">#</a></dt>
 <dd><p>Perform exponential crossover (DE/rand/1/exp).</p>
-<p>Following Storn &amp; Price (1997), a series of consecutive parameters
-are inherited from the mutant starting from a random index j.</p>
-<p>Mathematical Logic:
-n = rand(D); L = 0;
-do {
-u[n] = v[n];
-n = (n + 1) % D;
-L = L + 1;
-} while (rand() &lt; CR &amp;&amp; L &lt; D);</p>
+<p>Args:
+target: Target vector.
+mutant: Mutant vector.</p>
+<p>Returns:
+The trial vector.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._differential_mutation">
 <span class="sig-name descname"><span class="pre">_differential_mutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._differential_mutation" title="Link to this definition">#</a></dt>
 <dd><p>Continuous DE mutation operator: v = x_r1 + F * (x_r2 - x_r3).</p>
-<p>This is the exact classical DE mutation formula operating in continuous space.</p>
 <p>Args:
-base: Base vector (x_r1)
-diff1: First differential vector (x_r2)
-diff2: Second differential vector (x_r3)
-F: Mutation scale factor</p>
+base: Base vector (x_r1).
+diff1: First differential vector (x_r2).
+diff2: Second differential vector (x_r3).
+F: Mutation scale factor.</p>
 <p>Returns:
-Mutant vector, clipped to domain [-1.0, 1.0]</p>
+Mutant vector, clipped to domain [-1.0, 1.0].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._binomial_crossover">
 <span class="sig-name descname"><span class="pre">_binomial_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CR</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._binomial_crossover" title="Link to this definition">#</a></dt>
 <dd><p>Binomial crossover operator with domain enforcement.</p>
-<p>For each dimension j, inherit from mutant with probability CR,
-otherwise inherit from target. At least one dimension must come from mutant.</p>
-<p>The resulting trial vector is clipped to [-1.0, 1.0] to prevent domain
-violations that could occur if target or mutant values are near boundaries.</p>
 <p>Args:
-target: Target vector (x_i)
-mutant: Mutant vector (v_i)
-CR: Crossover probability [0, 1]</p>
+target: Target vector (x_i).
+mutant: Mutant vector (v_i).
+CR: Crossover probability [0, 1].</p>
 <p>Returns:
-Trial vector (u_i), clipped to domain [-1.0, 1.0]</p>
+Trial vector (u_i), clipped to domain [-1.0, 1.0].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -744,9 +699,9 @@ Trial vector (u_i), clipped to domain [-1.0, 1.0]</p>
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate fitness (net profit) of a solution.</p>
 <p>Args:
-routes: Routing solution to evaluate</p>
+routes: Routing solution to evaluate.</p>
 <p>Returns:
-Net profit = Revenue - Cost</p>
+Net profit = Revenue - Cost.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -754,9 +709,9 @@ Net profit = Revenue - Cost</p>
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing distance.</p>
 <p>Args:
-routes: Routing solution</p>
+routes: Routing solution.</p>
 <p>Returns:
-Total distance traveled</p>
+Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

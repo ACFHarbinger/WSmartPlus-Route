@@ -503,6 +503,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.slc">
 <span id="src-configs-policies-slc"></span><h1><a class="reference internal" href="#module-src.configs.policies.slc" title="src.configs.policies.slc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.slc</span></code></a><a class="headerlink" href="#module-src.configs.policies.slc" title="Link to this heading">#</a></h1>
 <p>SLC (Soccer League Competition) configuration for Hydra.</p>
+<p>Attributes:
+SLCConfig: Configuration for the Soccer League Competition (SLC) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.slc import SLCConfig
+&gt;&gt;&gt; config = SLCConfig()
+&gt;&gt;&gt; config.n_teams
+5
+&gt;&gt;&gt; config.team_size
+4
+&gt;&gt;&gt; config.max_iterations
+50
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+[]
+&gt;&gt;&gt; config.route_improvement
+[]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

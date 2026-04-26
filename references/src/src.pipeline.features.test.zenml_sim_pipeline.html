@@ -506,6 +506,19 @@ step and log a summary.</p></li>
 <p>The pipeline is invoked from
 :func:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.features.test.engine._run_sim_via_zenml</span></code>
 when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>Attributes:
+_ZENML_AVAILABLE: Whether ZenML is available.
+zenml_pipeline: ZenML pipeline function.
+step: ZenML step function.
+prepare_sim_config: Prepares the simulation configuration.
+run_policy_step: Runs the simulation for a single policy.
+aggregate_sim_results: Aggregates the simulation results.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.zenml_sim_pipeline import simulation_pipeline
+&gt;&gt;&gt; simulation_pipeline(config)
+Traceback (most recent call last):
+…  # doctest: +ELLIPSIS
+ImportError: zenml is not installed — cannot run ZenML simulation pipeline</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

@@ -517,6 +517,14 @@ Done:   thief returns to depot (action == 0, step &gt; 0).</p>
 </div>
 <p>where w is the current carried weight and W is the knapsack capacity.
 Travel time from city i to j: t(i,j) = dist(i,j) / v(w_current).</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;thop&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Number of node features (x, y, weight, profit) = 4.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“thop”, num_loc=15)
+&gt;&gt;&gt; td = env.reset()</p>
 </section>
 <p>Thief Orienteering Problem (ThOP) environment.</p>
 <p>The agent starts at a depot, selects items to steal from customer cities,
@@ -555,14 +563,17 @@ indices 1…N    = customer cities (N = num_loc)</p>
 mask[0]     — depot return (always valid after step &gt; 0)
 mask[1..m]  — item k (valid when not yet picked, capacity allows,
 and time round-trip is feasible)</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;thop&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Number of node features (x, y, weight, profit) = 4.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the base environment.</p>
+<p>Initialize the ThOP environment.</p>
 <p>Args:
-generator: Data generator instance for creating problem instances.
-generator_params: Parameters to pass to the generator if not provided.
-device: Device to place tensors on.
-batch_size: Batch size for the environment.
-**kwargs: Additional keyword arguments.</p>
+generator: Pre-built ThOPGenerator; created from generator_params if None.
+generator_params: Keyword arguments forwarded to ThOPGenerator constructor.
+device: Torch device for tensor placement.
+kwargs: Additional arguments forwarded to RL4COEnvBase.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.thop.ThOPEnv.NAME" title="Link to this definition">#</a></dt>
@@ -585,12 +596,29 @@ batch_size: Batch size for the environment.
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv._reset_instance">
 <span class="sig-name descname"><span class="pre">_reset_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.thop.ThOPEnv._reset_instance" title="Link to this definition">#</a></dt>
 <dd><p>Initialise ThOP episode state from a generated instance.</p>
+<p>Args:
+td: TensorDict produced by the generator, containing <code class="docutils literal notranslate"><span class="pre">locs</span></code>
+(customer coordinates) and <code class="docutils literal notranslate"><span class="pre">depot</span></code> tensors.</p>
+<p>Returns:
+TensorDict: Initialised state with <code class="docutils literal notranslate"><span class="pre">current_node</span></code>, <code class="docutils literal notranslate"><span class="pre">visited</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, <code class="docutils literal notranslate"><span class="pre">first_node</span></code>, <code class="docutils literal notranslate"><span class="pre">reward</span></code>,
+<code class="docutils literal notranslate"><span class="pre">terminated</span></code>, and <code class="docutils literal notranslate"><span class="pre">truncated</span></code> fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.thop.ThOPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Execute action and update state for ThOP.</p>
+<p>Args:
+td: Current state TensorDict containing <code class="docutils literal notranslate"><span class="pre">action</span></code>, <code class="docutils literal notranslate"><span class="pre">current_city</span></code>,
+<code class="docutils literal notranslate"><span class="pre">current_time</span></code>, <code class="docutils literal notranslate"><span class="pre">current_weight</span></code>, <code class="docutils literal notranslate"><span class="pre">item_picked</span></code>, <code class="docutils literal notranslate"><span class="pre">locs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">depot</span></code>, <code class="docutils literal notranslate"><span class="pre">item_city</span></code>, <code class="docutils literal notranslate"><span class="pre">item_weights</span></code>, <code class="docutils literal notranslate"><span class="pre">capacity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">v_max</span></code>, and <code class="docutils literal notranslate"><span class="pre">v_min</span></code> fields.</p>
+<p>Returns:
+TensorDict: Updated state with <code class="docutils literal notranslate"><span class="pre">current_time</span></code>, <code class="docutils literal notranslate"><span class="pre">current_weight</span></code>,
+<code class="docutils literal notranslate"><span class="pre">item_picked</span></code>, <code class="docutils literal notranslate"><span class="pre">current_city</span></code>, <code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>,
+<code class="docutils literal notranslate"><span class="pre">reward</span></code>, <code class="docutils literal notranslate"><span class="pre">terminated</span></code>, and <code class="docutils literal notranslate"><span class="pre">truncated</span></code> fields.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv._step_instance">
@@ -599,13 +627,26 @@ batch_size: Batch size for the environment.
 <p>Action 0  → return to depot.
 Action k  → pick item k-1 (0-indexed); travel to its city first.</p>
 <p>Travel time uses the speed model v(w) = v_max - (w/W)*(v_max-v_min)
-evaluated at the weight <em>before</em> the item is added to the knapsack.</p>
+evaluated at the weight <em>before</em> the item is added to the knapsack.
+Args:
+td: Current state TensorDict containing <code class="docutils literal notranslate"><span class="pre">action</span></code>, <code class="docutils literal notranslate"><span class="pre">current_city</span></code>,
+<code class="docutils literal notranslate"><span class="pre">current_time</span></code>, <code class="docutils literal notranslate"><span class="pre">current_weight</span></code>, <code class="docutils literal notranslate"><span class="pre">item_picked</span></code>, <code class="docutils literal notranslate"><span class="pre">locs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">depot</span></code>, <code class="docutils literal notranslate"><span class="pre">item_city</span></code>, <code class="docutils literal notranslate"><span class="pre">item_weights</span></code>, <code class="docutils literal notranslate"><span class="pre">capacity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">v_max</span></code>, and <code class="docutils literal notranslate"><span class="pre">v_min</span></code> fields.</p>
+<p>Returns:
+TensorDict: Updated state with <code class="docutils literal notranslate"><span class="pre">current_time</span></code>, <code class="docutils literal notranslate"><span class="pre">current_weight</span></code>,
+<code class="docutils literal notranslate"><span class="pre">item_picked</span></code>, <code class="docutils literal notranslate"><span class="pre">current_city</span></code>, <code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>,
+<code class="docutils literal notranslate"><span class="pre">reward</span></code>, <code class="docutils literal notranslate"><span class="pre">terminated</span></code>, and <code class="docutils literal notranslate"><span class="pre">truncated</span></code> fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv._check_done">
 <span class="sig-name descname"><span class="pre">_check_done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.thop.ThOPEnv._check_done" title="Link to this definition">#</a></dt>
 <dd><p>Episode ends when the thief returns to the depot (city 0) after ≥1 step.</p>
+<p>Args:
+td: Current state TensorDict.</p>
+<p>Returns:
+torch.Tensor: Boolean tensor of shape <code class="docutils literal notranslate"><span class="pre">(batch,)</span></code> indicating terminated episodes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -619,12 +660,23 @@ evaluated at the weight <em>before</em> the item is added to the knapsack.</p>
 picking it fits within the remaining time budget.</p>
 <p>The depot (action 0) is always valid once the episode has started
 (step &gt; 0), and is forced valid if no items can be selected.</p>
+<p>Args:
+td: Current state TensorDict.</p>
+<p>Returns:
+torch.Tensor: Boolean mask of shape <code class="docutils literal notranslate"><span class="pre">[batch,</span> <span class="pre">num_items</span> <span class="pre">+</span> <span class="pre">1]</span></code> where
+<code class="docutils literal notranslate"><span class="pre">True</span></code> indicates a valid action.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.thop.ThOPEnv._get_reward">
 <span class="sig-name descname"><span class="pre">_get_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.thop.ThOPEnv._get_reward" title="Link to this definition">#</a></dt>
 <dd><p>Total profit of all items collected during the episode.</p>
+<p>Args:
+td: Final state TensorDict containing <code class="docutils literal notranslate"><span class="pre">item_profits</span></code> and
+<code class="docutils literal notranslate"><span class="pre">item_picked</span></code>.
+actions: Optional tour action sequence (unused).</p>
+<p>Returns:
+torch.Tensor: Total profit per batch element, shape <code class="docutils literal notranslate"><span class="pre">(batch,)</span></code>.</p>
 </dd></dl>
 
 </dd></dl>

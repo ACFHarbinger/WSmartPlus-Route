@@ -530,6 +530,13 @@ RL3:           u ← floor(sqrt(u))                 [root]</p>
 Ozcan, E., Misir, M., Ochoa, G., &amp; Burke, E. K. (2010).
 “A Reinforcement Learning – Great-Deluge Hyper-heuristic for
 Examination Timetabling.” Informs Journal on Computing.</p>
+<p>Attributes:
+RLGDHHSolver: Solver for RL-GD-HH.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHSolver
+&gt;&gt;&gt; solver = RLGDHHSolver()
+&gt;&gt;&gt; solution = solver.solve()
+&gt;&gt;&gt; print(solution)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -551,23 +558,53 @@ Examination Timetabling.” Informs Journal on Computing.</p>
 <dd><p>RL-GD-HH solver implementation for VRPP.</p>
 <p>Implements the algorithm of Ozcan et al. (2010) adapted for the
 Vehicle Routing Problem with Profits (VRPP).</p>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Waste at each node.
+capacity: Capacity of each vehicle.
+R: Recycling rate.
+C: Cost of recycling.
+params: Parameters for RL-GD-HH.
+mandatory_nodes: Mandatory nodes.
+n_nodes: Number of nodes.
+nodes: List of nodes.
+random: Random number generator.
+utilities: Utilities for each LLH.
+_llh_pool: Pool of LLHs.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the RL-GD-HH solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste at each node.
+capacity (float): Capacity of each vehicle.
+R (float): Recycling rate.
+C (float): Cost of recycling.
+params (RLGDHHParams): Parameters for RL-GD-HH.
+mandatory_nodes (Optional[List[int]]): Mandatory nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Runs the RL-GD-HH metaheuristic (Figure 2, Ozcan et al. 2010).</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Routes, profit, and cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._select_llh">
 <span class="sig-name descname"><span class="pre">_select_llh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._select_llh" title="Link to this definition">#</a></dt>
 <dd><p>Selects LLH index using max-utility with ties broken randomly.</p>
+<p>Returns:
+int: Index of the selected LLH.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_reward">
 <span class="sig-name descname"><span class="pre">_apply_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._apply_reward" title="Link to this definition">#</a></dt>
 <dd><p>Additive reward: u ← min(UB, u + reward). (All RL variants share this.)</p>
+<p>Args:
+u (float): Current utility.</p>
+<p>Returns:
+float: New utility.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -577,48 +614,78 @@ Vehicle Routing Problem with Profits (VRPP).</p>
 <p>RL1 (Section 3.2): u ← max(lb, u − penalty)   [subtractive]
 RL2 (Section 3.2): u ← floor(u / 2)            [divisional]
 RL3 (Section 3.2): u ← floor(sqrt(u))           [root]</p>
+<p>Args:
+u (float): Current utility.</p>
+<p>Returns:
+float: New utility.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_relocate">
 <span class="sig-name descname"><span class="pre">_llh_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_relocate" title="Link to this definition">#</a></dt>
 <dd><p>H1: Single-node relocation (1-0 exchange) — ruin-and-recreate variant.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.</p>
+<p>Returns:
+List[List[int]]: New routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_shaw">
 <span class="sig-name descname"><span class="pre">_llh_shaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_shaw" title="Link to this definition">#</a></dt>
 <dd><p>H2: Shaw removal + regret-2 insertion.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.</p>
+<p>Returns:
+List[List[int]]: New routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_string">
 <span class="sig-name descname"><span class="pre">_llh_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_string" title="Link to this definition">#</a></dt>
 <dd><p>H3: String removal + greedy insertion.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.</p>
+<p>Returns:
+List[List[int]]: New routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_regret2">
 <span class="sig-name descname"><span class="pre">_llh_regret2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._llh_regret2" title="Link to this definition">#</a></dt>
 <dd><p>H4: Random removal + regret-2 insertion.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.</p>
+<p>Returns:
+List[List[int]]: New routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._initialize_solution">
 <span class="sig-name descname"><span class="pre">_initialize_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._initialize_solution" title="Link to this definition">#</a></dt>
 <dd><p>Randomized greedy construction of a starting feasible routing.</p>
+<p>Returns:
+List[List[int]]: Initial feasible routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Calculates fitness F(g) as Net Profit ($).</p>
+<p>Args:
+routes (List[List[int]]): Routes.</p>
+<p>Returns:
+float: Net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.RLGDHHSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculates distance-based travel cost (km).</p>
+<p>Args:
+routes (List[List[int]]): Routes.</p>
+<p>Returns:
+float: Travel cost.</p>
 </dd></dl>
 
 </dd></dl>

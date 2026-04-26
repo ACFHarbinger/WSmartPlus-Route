@@ -512,6 +512,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params">
 <span id="src-policies-route-construction-meta-heuristics-fast-iterative-localized-optimization-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params" title="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params" title="Link to this heading">#</a></h1>
+<p>Parameters for the Fast Iterative Localized Optimization (FILO) algorithm.</p>
+<p>Attributes:
+FILOParams: Configuration parameters for the FILO solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = FILOParams(max_iterations=1000)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -519,8 +524,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams" title="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FILOParams</span></code></a></p></td>
-<td><p>Configuration parameters for the FILO solver context.
-Aligned with Accorsi &amp; Vigo (2021).</p></td>
+<td><p>Configuration parameters for the FILO solver context.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,8 +535,29 @@ Aligned with Accorsi &amp; Vigo (2021).</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.</span></span><span class="sig-name descname"><span class="pre">FILOParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams" title="Link to this definition">#</a></dt>
-<dd><p>Configuration parameters for the FILO solver context.
-Aligned with Accorsi &amp; Vigo (2021).</p>
+<dd><p>Configuration parameters for the FILO solver context.</p>
+<p>Aligned with Accorsi &amp; Vigo (2021).</p>
+<p>Attributes:
+time_limit: Maximum allowed runtime.
+max_iterations: Maximum number of optimization iterations.
+initial_temperature_factor: Scaling for starting SA temperature.
+final_temperature_factor: Scaling for final SA temperature.
+omega_alpha: Probability of jumping to a neighbor route in Random Walk.
+shaking_lb_factor: Lower bound factor for shaking.
+shaking_ub_factor: Upper bound factor for shaking.
+shaking_lb_intensity: Lower bound intensity for adaptive shaking.
+shaking_ub_intensity: Upper bound intensity for adaptive shaking.
+omega_base_multiplier: Base multiplier for shaking intensity.
+delta_gamma: Threshold for expanding localized search.
+gamma_base: Base expansion factor for nodes.
+gamma_lambda: Expansion factor for stagnant nodes.
+svc_size: Selective Vertex Caching size.
+n_cw: Number of neighbors to consider in Clarke-Wright.
+route_min_sa_temp: Temperature for route minimization SA.
+local_search_iterations: Iterations per local search call.
+seed: Random seed.
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams.time_limit" title="Link to this definition">#</a></dt>
@@ -657,6 +682,10 @@ Aligned with Accorsi &amp; Vigo (2021).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams" title="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.FILOParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create FILOParams from a configuration object.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+FILOParams instance.</p>
 </dd></dl>
 
 </dd></dl>

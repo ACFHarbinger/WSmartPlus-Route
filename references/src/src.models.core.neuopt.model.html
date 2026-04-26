@@ -531,21 +531,21 @@ env (Optional[RL4COEnvBase]): Environment managing problem context.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NeuOpt model.</p>
 <p>Args:
-env: Targeted optimization environment.
-policy: Optional pre-defined policy instance.
-embed_dim: Dimension of internal latent vectors.
-num_heads: Parallel attention head count for policy blocks.
-num_layers: Depth of the Transformer encoder stacks.
-**policy_kwargs: Extra parameters passed to NeuOptPolicy.</p>
+env: Environment managing problem logic and step transitions.
+policy: Optional pre-initialized NeuOptPolicy instance.
+embed_dim: Feature width for embeddings and internal layers.
+num_heads: Number of attention heads in the transformer layers.
+num_layers: Count of encoder-decoder blocks.
+policy_kwargs: Additional arguments for NeuOptPolicy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.model.NeuOpt.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.model.NeuOpt.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes the neural optimization pass.</p>
 <p>Args:
-td: Environment state container.
+td: TensorDict or dict containing problem state and initial solution.
 env: Optional environment override.
-strategy: Policy execution strategy (‘greedy’ or ‘sampling’).
-**kwargs: Extra parameters for the forward pass.</p>
+strategy: Decoding strategy (“greedy” or “sampling”).
+kwargs: Additional keyword arguments for the policy.</p>
 <p>Returns:
 Dict[str, Any]: Optimization results including refined actions and log-likelihoods.</p>
 </dd></dl>

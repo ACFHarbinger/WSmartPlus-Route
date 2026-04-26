@@ -37,14 +37,20 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy.__init__
 ```
 
-````{py:method} _config_class()
+````{py:method} _config_class() -> typing.Type[logic.src.configs.policies.lbbd.LBBDConfig]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._config_class
 :classmethod:
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._config_class
+```
 
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy._get_config_key
+```
 
 ````
 

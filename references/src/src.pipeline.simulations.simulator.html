@@ -469,6 +469,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -479,6 +480,15 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator._initialize_worker_repository"><code class="docutils literal notranslate"><span class="pre">_initialize_worker_repository()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.display_log_metrics"><code class="docutils literal notranslate"><span class="pre">display_log_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.single_simulation"><code class="docutils literal notranslate"><span class="pre">single_simulation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.SimpleCounter"><code class="docutils literal notranslate"><span class="pre">SimpleCounter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.SimpleCounter.update"><code class="docutils literal notranslate"><span class="pre">SimpleCounter.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater.set_values"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater.set_values()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater.update"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater.update()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.sequential_simulations"><code class="docutils literal notranslate"><span class="pre">sequential_simulations()</span></code></a></li>
 </ul>
 </li>
@@ -517,8 +527,30 @@ init_single_sim_worker: Initialize globals for parallel workers
 single_simulation: Execute one simulation run
 sequential_simulations: Execute batch of runs sequentially
 display_log_metrics: Format and display aggregated results</p>
+<p>Attributes:
+_lock: Multiprocessing Lock for file I/O synchronization.
+_counter: Multiprocessing Value for overall progress tracking.
+_shared_metrics: Multiprocessing Manager.dict for real-time stats.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.simulations.simulator import sequential_simulations
+&gt;&gt;&gt; # Run a sequential batch (pseudo-code)
+&gt;&gt;&gt; # log, log_std, failed = sequential_simulations(cfg, device, indices, samples, weights, lock)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.simulator.SimpleCounter" title="src.pipeline.simulations.simulator.SimpleCounter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpleCounter</span></code></a></p></td>
+<td><p>Simple counter for display.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.simulator.ProgressUpdater" title="src.pipeline.simulations.simulator.ProgressUpdater"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProgressUpdater</span></code></a></p></td>
+<td><p>Wrapper for the progress bar to maintain compatibility with RunningState.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
@@ -600,6 +632,8 @@ tracking_run_id: UUID of the parent run to attach to.</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.simulator._initialize_worker_repository">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.simulator.</span></span><span class="sig-name descname"><span class="pre">_initialize_worker_repository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.simulator._initialize_worker_repository" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the singleton repository instance in a worker process.</p>
+<p>Args:
+cfg: The configuration object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -634,6 +668,74 @@ model_weights_path: Path to pretrained model weights.
 n_cores: Number of CPU cores (for progress bar positioning).</p>
 <p>Returns:
 Result dictionary from SimulationContext.run()</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pipeline.simulations.simulator.SimpleCounter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.simulator.</span></span><span class="sig-name descname"><span class="pre">SimpleCounter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.simulator.SimpleCounter" title="Link to this definition">#</a></dt>
+<dd><p>Simple counter for display.</p>
+<p>Attributes:
+value: The current value of the counter.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the simple counter.</p>
+<p>Args:
+val: Initial value. Defaults to 0.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.simulator.SimpleCounter.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.simulator.SimpleCounter.update" title="Link to this definition">#</a></dt>
+<dd><p>Updates the counter by adding n.</p>
+<p>Args:
+n: Value to add.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pipeline.simulations.simulator.ProgressUpdater">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.simulator.</span></span><span class="sig-name descname"><span class="pre">ProgressUpdater</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_tmp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_reported_days</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_tic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.simulator.ProgressUpdater" title="Link to this definition">#</a></dt>
+<dd><p>Wrapper for the progress bar to maintain compatibility with RunningState.</p>
+<p>Calls the process_display_updates function to update the progress bar.</p>
+<p>Attributes:
+display: The display object to update (SimulationMonitor).
+shared_metrics: The shared metrics dictionary to update.
+log_tmp: The temporary log dictionary to update.
+last_reported_days: The last reported days dictionary to update.
+policy_names: The list of policy names.
+loop_tic: The loop start timestamp.
+counter: The counter object (SimpleCounter).
+process_display_updates: The function to update the display.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the progress updater wrapper.</p>
+<p>Args:
+display: The display object to update.
+shared_metrics: The shared metrics dictionary to update.
+log_tmp: The temporary log dictionary to update.
+last_reported_days: The last reported days dictionary to update.
+policy_names: The list of policy names.
+loop_tic: The loop tic value.
+counter: The counter object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.simulator.ProgressUpdater.set_values">
+<span class="sig-name descname"><span class="pre">set_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_tmp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_reported_days</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_tic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.simulator.ProgressUpdater.set_values" title="Link to this definition">#</a></dt>
+<dd><p>Set the values for the progress bar.</p>
+<p>Args:
+display: Display object to update.
+shared_metrics: Shared metrics dictionary to update.
+log_tmp: Temporary log dictionary to update.
+last_reported_days: Last reported days dictionary to update.
+policy_names: List of policy names.
+loop_tic: Loop tic value.
+counter: Counter object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.simulator.ProgressUpdater.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.simulator.ProgressUpdater.update" title="Link to this definition">#</a></dt>
+<dd><p>Update the progress bar.</p>
+<p>Args:
+n: Number of steps to update the progress bar.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -705,6 +807,7 @@ Tuple containing:
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -715,6 +818,15 @@ Tuple containing:
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator._initialize_worker_repository"><code class="docutils literal notranslate"><span class="pre">_initialize_worker_repository()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.display_log_metrics"><code class="docutils literal notranslate"><span class="pre">display_log_metrics()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.single_simulation"><code class="docutils literal notranslate"><span class="pre">single_simulation()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.SimpleCounter"><code class="docutils literal notranslate"><span class="pre">SimpleCounter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.SimpleCounter.update"><code class="docutils literal notranslate"><span class="pre">SimpleCounter.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater.set_values"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater.set_values()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.ProgressUpdater.update"><code class="docutils literal notranslate"><span class="pre">ProgressUpdater.update()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.simulator.sequential_simulations"><code class="docutils literal notranslate"><span class="pre">sequential_simulations()</span></code></a></li>
 </ul>
 </li>

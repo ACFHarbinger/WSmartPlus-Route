@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat.CPSATPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat.CPSATPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

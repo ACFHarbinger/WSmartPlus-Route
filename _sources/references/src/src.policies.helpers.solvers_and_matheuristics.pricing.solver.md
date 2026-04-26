@@ -127,7 +127,7 @@
 
 ````
 
-````{py:method} _compute_completion_bounds()
+````{py:method} _compute_completion_bounds() -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._compute_completion_bounds
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._compute_completion_bounds
@@ -135,7 +135,7 @@
 
 ````
 
-````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any])
+````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any]) -> typing.Tuple[typing.FrozenSet[typing.Tuple[int, int]], typing.Dict[int, int], typing.Dict[int, int], typing.Set[typing.Tuple[int, int]], typing.Set[typing.Tuple[int, int]]]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._preprocess_constraints
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._preprocess_constraints

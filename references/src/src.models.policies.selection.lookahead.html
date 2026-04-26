@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides a predictive selection strategy that marks bins for
 collection based on when they are expected to overflow, using current fill
 levels and accumulation rates to calculate a dynamic lookahead horizon.</p>
+<p>Attributes:
+LookaheadSelector: Predictive selection policy looking ahead several days.</p>
+<p>Example:
+&gt;&gt;&gt; selector = LookaheadSelector(max_fill=1.0)
+&gt;&gt;&gt; mask = selector.select(fill_levels, rates)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,7 +523,9 @@ levels and accumulation rates to calculate a dynamic lookahead horizon.</p>
 <p>Predictive selection looking several days ahead.</p>
 <p>Selects bins that are predicted to overflow within a dynamic lookahead
 horizon. The horizon is determined by the earliest upcoming overflow among
-the currently full bins.</p>
+the currently full bins.
+Attributes:
+max_fill: Target maximum fill level before overflow.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the lookahead selector.</p>
 <p>Args:
@@ -528,10 +535,10 @@ max_fill: Maximum fill level (overflow threshold).</p>
 <span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.lookahead.LookaheadSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins predicted to overflow within dynamic horizon.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-accumulation_rates: Daily fill rate [B, N] in [0, 1].
-max_fill: Optional override for overflow threshold.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels [B, N].
+accumulation_rates: Mean daily waste generation per node [B, N].
+max_fill: Override for overflow limit.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

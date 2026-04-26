@@ -79,7 +79,7 @@
 
 ````
 
-````{py:method} _separate_subtours_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_subtours_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_subtours_heuristic
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_subtours_heuristic
@@ -87,7 +87,7 @@
 
 ````
 
-````{py:method} _separate_disconnected_components(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_disconnected_components(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_disconnected_components
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_disconnected_components
@@ -95,7 +95,7 @@
 
 ````
 
-````{py:method} _separate_weak_subtours(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_weak_subtours(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_weak_subtours
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_weak_subtours
@@ -111,7 +111,7 @@
 
 ````
 
-````{py:method} _separate_capacity_cuts(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_capacity_cuts(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_capacity_cuts
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_capacity_cuts
@@ -119,7 +119,7 @@
 
 ````
 
-````{py:method} _separate_capacity_cuts_maxflow_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False, max_cuts: int = 50)
+````{py:method} _separate_capacity_cuts_maxflow_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False, max_cuts: int = 50) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_capacity_cuts_maxflow_heuristic
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_capacity_cuts_maxflow_heuristic
@@ -127,7 +127,7 @@
 
 ````
 
-````{py:method} _separate_pcsec_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False)
+````{py:method} _separate_pcsec_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_pcsec_exact
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_pcsec_exact
@@ -143,7 +143,7 @@
 
 ````
 
-````{py:method} _separate_comb_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_comb_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_comb_heuristic
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_comb_heuristic
@@ -183,7 +183,7 @@
 
 ````
 
-````{py:method} _separate_gsec_h2(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _separate_gsec_h2(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_gsec_h2
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_gsec_h2
@@ -191,7 +191,7 @@
 
 ````
 
-````{py:method} _strengthen_pool(ineq_list: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality], x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray])
+````{py:method} _strengthen_pool(ineq_list: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality], x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._strengthen_pool
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._strengthen_pool

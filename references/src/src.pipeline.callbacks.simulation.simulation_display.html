@@ -499,6 +499,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.simulation.simulation_display">
 <span id="src-pipeline-callbacks-simulation-simulation-display"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.simulation.simulation_display" title="src.pipeline.callbacks.simulation.simulation_display"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.simulation.simulation_display</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.simulation.simulation_display" title="Link to this heading">#</a></h1>
 <p>Unified simulation display for WSmart-Route using Rich and Plotext.</p>
+<p>Attributes:
+SimulationDisplayCallback: Callback to display a summary of the policies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.configs import Config
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.simulation.simulation_display import SimulationDisplayCallback
+&gt;&gt;&gt; callback = SimulationDisplayCallback()
+&gt;&gt;&gt; callback.display(cfg)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +531,8 @@ document.write(`
 <li><p>Policy-specific performance metrics (Averages)</p></li>
 <li><p>Historical progress chart (e.g., Profit/Overflows per day)</p></li>
 </ol>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the simulation display dashboard.</p>
 <p>Args:
@@ -565,18 +574,24 @@ new_daily_data: List of dicts {‘policy’: str, ‘day’: int, ‘metrics’:
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._render_layout">
 <span class="sig-name descname"><span class="pre">_render_layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.layout.Layout</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._render_layout" title="Link to this definition">#</a></dt>
 <dd><p>Render the current state of the layout.</p>
+<p>Returns:
+The rendered layout.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_chart">
 <span class="sig-name descname"><span class="pre">_generate_chart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.panel.Panel</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_chart" title="Link to this definition">#</a></dt>
 <dd><p>Generate plotext chart showing average metrics per day.</p>
+<p>Returns:
+The generated chart.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_metrics_table">
 <span class="sig-name descname"><span class="pre">_generate_metrics_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">rich.panel.Panel</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.simulation.simulation_display.SimulationDisplayCallback._generate_metrics_table" title="Link to this definition">#</a></dt>
 <dd><p>Generate table showing aggregate metrics per policy.</p>
+<p>Returns:
+The generated metrics table.</p>
 </dd></dl>
 
 </dd></dl>

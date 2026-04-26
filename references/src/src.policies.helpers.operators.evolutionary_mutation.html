@@ -525,6 +525,10 @@ Analogue of bit-flip mutation for discrete permutation spaces.</p>
     Faster convergence than DE/rand/1 at the cost of diversity.
 </pre></div>
 </div>
+<p>Attributes:
+EVOLUTIONARY_MUTATION_OPERATORS (Dict[str, Callable]): Registry mapping
+operator names to their corresponding mutation functions.
+EVOLUTIONARY_MUTATION_NAMES (List[str]): Sorted list of operator names.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.operators.evolutionary_mutation import (
 …     swap_mutation,

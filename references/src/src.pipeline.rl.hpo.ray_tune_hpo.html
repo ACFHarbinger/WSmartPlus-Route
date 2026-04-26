@@ -523,6 +523,13 @@ trial automatically logs to MLflow via <code class="docutils literal notranslate
 <p>This class is instantiated automatically by <code class="docutils literal notranslate"><span class="pre">run_hpo()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">logic/src/pipeline/features/train/hpo.py</span></code> when <code class="docutils literal notranslate"><span class="pre">cfg.hpo.method</span></code> is
 one of <code class="docutils literal notranslate"><span class="pre">&quot;asha&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pbt&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;bohb&quot;</span></code>.</p>
+<p>Attributes:
+RayTuneHPO: Ray Tune HPO class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import RayTuneHPO
+&gt;&gt;&gt; ray_tune_hpo = RayTuneHPO(cfg, objective_fn)
+&gt;&gt;&gt; ray_tune_hpo
+&lt;logic.src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO object at 0x…&gt;</p>
 </section>
 <p>Ray Tune HPO backend for WSmart-Route.</p>
 <p>Provides :class:<code class="docutils literal notranslate"><span class="pre">RayTuneHPO</span></code>, a :class:<code class="docutils literal notranslate"><span class="pre">BaseHPO</span></code> subclass that uses
@@ -559,7 +566,7 @@ Uses BOHB sampler paired with HyperBand-for-BOHB scheduler.</p></li>
 <p>Each trial runs in a Ray worker process, builds its own model and
 <code class="docutils literal notranslate"><span class="pre">WSTrainer</span></code>, and reports <code class="docutils literal notranslate"><span class="pre">val_reward</span></code> back to the Tune scheduler
 after every epoch via <code class="docutils literal notranslate"><span class="pre">ray.train.report()</span></code>.</p>
-<p>Args:
+<p>Attributes:
 cfg: Root application configuration.
 objective_fn: Callable <code class="docutils literal notranslate"><span class="pre">(trial_cfg:</span> <span class="pre">Config)</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code> that
 trains a model for one trial and returns the validation
@@ -568,13 +575,21 @@ worker processes (i.e. it should be a top-level function, not
 a lambda or local closure).
 search_space: Optional pre-normalised search space dict.  When
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.hpo.search_space</span></code> is used.
-scheduler: Which scheduler to use.  One of <code class="docutils literal notranslate"><span class="pre">&quot;asha&quot;</span></code> (default),
+_scheduler_name: Which scheduler to use.  One of <code class="docutils literal notranslate"><span class="pre">&quot;asha&quot;</span></code> (default),
 <code class="docutils literal notranslate"><span class="pre">&quot;pbt&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;bohb&quot;</span></code>.
-mlflow_tracking_uri: MLflow server URI forwarded to
+_mlflow_tracking_uri: MLflow server URI forwarded to
 <code class="docutils literal notranslate"><span class="pre">MLflowLoggerCallback</span></code>.  <code class="docutils literal notranslate"><span class="pre">None</span></code> disables per-trial
 MLflow logging.
-mlflow_experiment_name: MLflow experiment name for trial runs.</p>
+_mlflow_experiment_name: MLflow experiment name for trial runs.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the RayTuneHPO backend.</p>
+<p>Args:
+cfg: The root application configuration.
+objective_fn: Callable that trains a model for one trial and returns the validation reward.
+search_space: Optional pre-normalised search space dict.
+scheduler: Which scheduler to use (“asha”, “pbt”, “bohb”).
+mlflow_tracking_uri: MLflow server URI.
+mlflow_experiment_name: MLflow experiment name.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO.run" title="Link to this definition">#</a></dt>
@@ -588,24 +603,32 @@ no successful trial was recorded.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_ray_search_space">
 <span class="sig-name descname"><span class="pre">_build_ray_search_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_ray_search_space" title="Link to this definition">#</a></dt>
 <dd><p>Convert typed ParamSpec dict to Ray Tune <code class="docutils literal notranslate"><span class="pre">param_space</span></code>.</p>
+<p>Returns:
+Ray tune param space.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_scheduler">
 <span class="sig-name descname"><span class="pre">_build_scheduler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_scheduler" title="Link to this definition">#</a></dt>
 <dd><p>Instantiate the Ray Tune trial scheduler.</p>
+<p>Returns:
+Ray Tune scheduler.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_search_alg">
 <span class="sig-name descname"><span class="pre">_build_search_alg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_search_alg" title="Link to this definition">#</a></dt>
 <dd><p>Return a search algorithm compatible with the chosen scheduler.</p>
+<p>Returns:
+Ray tune search algorithm.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_run_callbacks">
 <span class="sig-name descname"><span class="pre">_build_run_callbacks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.ray_tune_hpo.RayTuneHPO._build_run_callbacks" title="Link to this definition">#</a></dt>
 <dd><p>Build Ray Tune run-level callbacks.</p>
+<p>Returns:
+Ray tune callbacks.</p>
 </dd></dl>
 
 </dd></dl>

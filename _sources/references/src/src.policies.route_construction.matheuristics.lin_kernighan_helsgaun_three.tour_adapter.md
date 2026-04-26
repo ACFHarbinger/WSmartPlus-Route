@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter.__init__
 ```
 
-````{py:method} _update_map(route_set) -> None
+````{py:method} _update_map(route_set: typing.Any) -> None
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter._update_map
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter._update_map

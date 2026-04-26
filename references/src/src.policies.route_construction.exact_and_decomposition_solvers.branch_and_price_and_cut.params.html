@@ -530,6 +530,11 @@ document.write(`
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-price-and-cut-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Branch-and-Price-and-Cut (BPC) solver.</p>
 <p>Based on Barnhart et al. (1998, 2000) and standard exact VRPP protocols.</p>
+<p>Attributes:
+BPCParams (class): Data container for solver settings.</p>
+<p>Example:
+&gt;&gt;&gt; params = BPCParams(time_limit=120.0, optimality_gap=1e-6)
+&gt;&gt;&gt; dict_params = params.to_dict()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,25 +555,41 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.</span></span><span class="sig-name descname"><span class="pre">BPCParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Branch-and-Price-and-Cut solver.</p>
 <p>Attributes:
-optimality_gap: Relative gap for proven optimality.
-early_termination_gap: Gap at which we stop the search (heuristic shortcut).
-use_ng_routes: Whether to use ng-route relaxation in pricing.
-ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
-enable_comb_cuts: Whether to enable heuristic comb inequalities.
-cut_orthogonality_threshold: cosine similarity ceiling for cut filtering.
-enable_column_pool_deduplication: Whether to enable column pool deduplication.
-rc_tolerance: Minimum reduced cost to accept a new column.
-exact_mode: Whether to enable strict exact management (no dual smoothing).
-strong_branching_size: Number of candidates to evaluate in strong branching.
-cg_at_root_only: Run column generation only at the root B&amp;B node; at all
-descendant nodes, no new columns are generated (use the pool built at
-root).  Replicates the “CG at root only” experiment in Table 2 of
-Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.</p>
-<p>Note:
-enable_heuristic_rcc_separation replaces the legacy enable_fractional_capacity_cuts
-to clarify that the connected-component-based separation is a heuristic,
-not an exact max-flow separation on the full support graph.</p>
+time_limit (float): Max wall-clock time in seconds.
+profit_aware_operators (bool): Enable VRPP profit logic in subproblems.
+vrpp (bool): Problem type flag.
+seed (Optional[int]): Random seed.
+search_strategy (str): Tree search type (depth_first, etc).
+cutting_planes (str): Cut type (rcc, etc).
+branching_strategy (str): Branching rule (divergence, etc).
+max_cg_iterations (int): Max CG rounds per node.
+max_cut_iterations (int): Max cut rounds per node.
+max_cuts_per_iteration (int): Max cuts added per round.
+max_routes_per_pricing (int): Max columns added per pricing call.
+max_bb_nodes (int): Global node limit.
+optimality_gap (float): Relative gap for proven optimality.
+early_termination_gap (float): Gap at which we stop the search.
+use_ng_routes (bool): Whether to use ng-route relaxation in pricing.
+ng_neighborhood_size (int): Size of ng-neighborhoods for relaxation.
+enable_heuristic_rcc_separation (bool): Whether to enable fractional RCC separation.
+enable_comb_cuts (bool): Whether to enable heuristic comb inequalities.
+cut_orthogonality_threshold (float): Cosine similarity ceiling for cut filtering.
+use_spatial_partitioning (bool): Enable spatial domain partitioning.
+enable_strong_branching_heuristic (bool): Use fast divergence-based branching.
+enable_column_pool_deduplication (bool): Whether to enable column pool deduplication.
+rc_tolerance (float): Minimum reduced cost to accept a new column.
+exact_mode (bool): Whether to enable strict exact management.
+strong_branching_size (int): Number of candidates to evaluate in strong branching.
+cg_at_root_only (bool): Generate columns only at the root node.
+rcspp_timeout (float): Max time for a single pricer call.
+rcspp_max_labels (int): Max labels in RCSPP solver.
+lr_pre_pruning (bool): Enable Lagrangian pruning.
+lr_lambda_init (float): Initial multiplier.
+lr_max_subgradient_iters (int): Max iterations for LR.
+lr_subgradient_theta (float): Step size multiplier.
+lr_op_time_limit (float): Time limit for OP solver in LR.
+lr_pre_pruning_depth_limit (int): Max depth for LR.
+lr_warm_start_cg (bool): Seed CG with LR result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.time_limit" title="Link to this definition">#</a></dt>
@@ -797,12 +818,18 @@ Only meaningful when lr_pre_pruning is also True (shares the λ* already compute
 <dd><p>Create BPCParams from a configuration object or dictionary.</p>
 <p>Performs explicit type casting for numeric fields to ensure compatibility
 with Hydra/YAML scientific notation which might be loaded as strings.</p>
+<p>Args:
+config: Configuration source (dict or Hydra config).</p>
+<p>Returns:
+BPCParams: Initialized parameter object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert BPCParams to a dictionary for backend compatibility.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of parameter names to values.</p>
 </dd></dl>
 
 </dd></dl>

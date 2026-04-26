@@ -497,6 +497,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions.route_improvement">
 <span id="src-pipeline-simulations-actions-route-improvement"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions.route_improvement" title="src.pipeline.simulations.actions.route_improvement"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.route_improvement</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions.route_improvement" title="Link to this heading">#</a></h1>
 <p>Action for tour route improvement and refinement.</p>
+<p>This module provides the RouteImprovementAction class, which applies
+post-processing algorithms (Local Search, ALNS-improvement, etc.) to refine tours.</p>
+<p>Attributes:
+RouteImprovementAction: Command for tour refinement.</p>
+<p>Example:
+&gt;&gt;&gt; # action = RouteImprovementAction()
+&gt;&gt;&gt; # action.execute(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,34 +524,56 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.route_improvement.</span></span><span class="sig-name descname"><span class="pre">RouteImprovementAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base.SimulationAction" title="src.pipeline.simulations.actions.base.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.base.SimulationAction</span></code></a></p>
 <p>Refines generated collection tours using modular refinement strategies.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.route_improvement.RouteImprovementAction.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction.execute" title="Link to this definition">#</a></dt>
 <dd><p>Refine the generated collection tour.</p>
+<p>Args:
+context: Shared dictionary containing simulation state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._get_route_improvement_configs">
 <span class="sig-name descname"><span class="pre">_get_route_improvement_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._get_route_improvement_configs" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve and normalize route improvement configurations.</p>
+<p>Args:
+context: Shared dictionary containing simulation state.</p>
+<p>Returns:
+A list of RouteImprovingConfig objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._create_processors">
 <span class="sig-name descname"><span class="pre">_create_processors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._create_processors" title="Link to this definition">#</a></dt>
 <dd><p>Create processors from a configuration entry.</p>
+<p>Args:
+entry: The configuration entry for the processors.
+context: Shared dictionary containing simulation state.</p>
+<p>Returns:
+A list of instantiated route improver processors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._create_legacy_processors">
 <span class="sig-name descname"><span class="pre">_create_legacy_processors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factory</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._create_legacy_processors" title="Link to this definition">#</a></dt>
 <dd><p>Handle legacy string/file configuration for processors.</p>
+<p>Args:
+item: The legacy configuration item.
+context: Shared dictionary containing simulation state.
+factory: The factory used to create processors.</p>
+<p>Returns:
+A list of instantiated route improver processors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._apply_processors">
 <span class="sig-name descname"><span class="pre">_apply_processors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.route_improvement.RouteImprovementAction._apply_processors" title="Link to this definition">#</a></dt>
 <dd><p>Apply a list of processors to the tour in the context.</p>
+<p>Args:
+processors: A list of processors to apply.
+context: Shared dictionary containing simulation state.</p>
 </dd></dl>
 
 </dd></dl>

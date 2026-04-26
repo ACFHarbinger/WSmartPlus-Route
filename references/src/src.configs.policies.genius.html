@@ -506,6 +506,13 @@ document.write(`
 Gendreau, M., Hertz, A., &amp; Laporte, G. (1992).
 “New Insertion and Postoptimization Procedures for the Traveling Salesman Problem”
 Operations Research, 40(6), 1086-1094.</p>
+<p>Attributes:
+GENIUSConfig: Configuration for the GENIUS (GENI + US) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.genius import GENIUSConfig
+&gt;&gt;&gt; config = GENIUSConfig()
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,6 +532,17 @@ Operations Research, 40(6), 1086-1094.</p>
 <dt class="sig sig-object py" id="src.configs.policies.genius.GENIUSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.genius.</span></span><span class="sig-name descname"><span class="pre">GENIUSConfig</span></span><a class="headerlink" href="#src.configs.policies.genius.GENIUSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the GENIUS (GENI + US) policy.</p>
+<p>Attributes:
+neighborhood_size (int): Neighborhood size.
+unstring_type (int): Type of unstring.
+string_type (int): Type of string.
+n_iterations (int): Number of iterations.
+random_us_sampling (bool): Whether to use random US sampling.
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Seed for the random number generator.
+vrpp (bool): Whether the problem is a VRRP.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.genius.GENIUSConfig.neighborhood_size">
 <span class="sig-name descname"><span class="pre">neighborhood_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.genius.GENIUSConfig.neighborhood_size" title="Link to this definition">#</a></dt>

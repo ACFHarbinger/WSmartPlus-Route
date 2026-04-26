@@ -501,7 +501,7 @@ their route assignment are never changed.  Route loads and revenue are
 therefore guaranteed to be preserved.  Only the <em>within-route</em> sequencing
 is improved.</p>
 <p>Algorithm (Held-Karp):
-State  dp[mask][v] — minimum travel cost to visit exactly the nodes
+State  dp[mask][v] – minimum travel cost to visit exactly the nodes
 in bitmask <em>mask</em>, starting from the depot (node 0), ending at node <em>v</em>.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Transition  dp[mask | (1&lt;&lt;j)][j] = min(dp[mask][v] + d[v, j])
             for all j not in mask.
@@ -510,9 +510,9 @@ Base        dp[1&lt;&lt;i][i] = d[0, nodes[i]] for each customer i.
 
 Answer      min_v( dp[full_mask][v] + d[v, 0] ).
 
-Complexity  O(2^n · n²) time, O(2^n · n) space.
+Complexity  O(2^n * n^2) time, O(2^n * n) space.
 
-Practical limit — the DP is tractable for n ≤ ~20 customers per route.
+Practical limit -- the DP is tractable for n &lt;= ~20 customers per route.
 Routes with more customers are returned unchanged (set *max_nodes* to
 control the cutoff).
 </pre></div>
@@ -520,6 +520,8 @@ control the cutoff).
 <p>For VRPP problems the CVRP and VRPP variants are identical: revenue depends
 only on which customers are visited (unchanged here), so the improvement
 objective reduces to pure distance minimisation on each route.</p>
+<p>Attributes:
+None</p>
 <p>Reference:
 Held, M., &amp; Karp, R. M. (1962). “A dynamic programming approach to
 sequencing problems.” Journal of the Society for Industrial and Applied

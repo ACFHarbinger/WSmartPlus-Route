@@ -557,6 +557,20 @@ waste_orig = {1: 10, 2: 20, 3: 15, 4: 25}</p>
 <p>augment_graph(distance_matrix, wastes, n_vehicles, capacity, high_penalty) -&gt;
 (augmented_dist, augmented_wastes, n_original)</p>
 <p>decode_augmented_tour(tour, n_original) -&gt; List[List[int]]</p>
+<p>Attributes:
+augment_graph: Augment a graph with dummy depots for multi-vehicle support.
+augment_prize_collecting_graph: Jonker-Volgenant ATSP transformation for prize-collecting.
+decode_augmented_tour: Decode a flat augmented tour into per-vehicle routes.
+is_dummy_depot: Check whether a node index is an augmented dummy depot.
+is_any_depot: Check whether a node index is any depot (real or dummy).
+inject_augmented_dummies: Rebuild a flat tour by injecting dummy depot indices.
+validate_augmented_graph: Validate structure of an augmented distance matrix.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation import augment_graph, decode_augmented_tour
+&gt;&gt;&gt; dist = np.zeros((3, 3))
+&gt;&gt;&gt; aug_dist, aug_waste, n_orig = augment_graph(dist, {1: 0.5}, n_vehicles=2)
+&gt;&gt;&gt; routes = decode_augmented_tour([0, 1, 3, 2, 0], n_orig)</p>
 </section>
 <p>Graph Augmentation Module for LKH-3 Multi-Vehicle Support.</p>
 <p>This module implements explicit dummy depot augmentation to avoid the catastrophic
@@ -653,6 +667,12 @@ ValueError: If n_vehicles &lt; 0 or distance_matrix is invalid.</p>
 </ul>
 </li>
 </ol>
+<p>Args:
+distance_matrix: Original (N×N) distance matrix.
+wastes: Waste amounts keyed by node index.</p>
+<p>Returns:
+Tuple[np.ndarray, np.ndarray, int]: Augmented distance matrix of shape
+(2N-1, 2N-1), zero waste array, and the original graph size N.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -685,12 +705,22 @@ Example: [[1, 2], [3, 4]]  (nodes &gt;= 5 act as route delimiters)</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.is_dummy_depot">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.</span></span><span class="sig-name descname"><span class="pre">is_dummy_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.is_dummy_depot" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is an augmented dummy depot.</p>
+<p>Args:
+node: Node index to check.
+n_original: Original graph size (depot + customers).</p>
+<p>Returns:
+bool: True if node index is &gt;= n_original (i.e., a dummy depot).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.is_any_depot">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.</span></span><span class="sig-name descname"><span class="pre">is_any_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.is_any_depot" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is either the main depot (0) or a dummy depot.</p>
+<p>Args:
+node: Node index to check.
+n_original: Original graph size (depot + customers).</p>
+<p>Returns:
+bool: True if node is the main depot (0) or a dummy depot index.</p>
 </dd></dl>
 
 <dl class="py function">

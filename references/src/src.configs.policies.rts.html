@@ -507,6 +507,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.rts">
 <span id="src-configs-policies-rts"></span><h1><a class="reference internal" href="#module-src.configs.policies.rts" title="src.configs.policies.rts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.rts</span></code></a><a class="headerlink" href="#module-src.configs.policies.rts" title="Link to this heading">#</a></h1>
 <p>RTS (Reactive Tabu Search) configuration for Hydra.</p>
+<p>Attributes:
+RTSConfig: Configuration for the Reactive Tabu Search (RTS) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.rts import RTSConfig
+&gt;&gt;&gt; config = RTSConfig()
+&gt;&gt;&gt; config.initial_tenure
+7
+&gt;&gt;&gt; config.max_iterations
+500
+&gt;&gt;&gt; config.vrpp
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,6 +537,22 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.rts.RTSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.rts.</span></span><span class="sig-name descname"><span class="pre">RTSConfig</span></span><a class="headerlink" href="#src.configs.policies.rts.RTSConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Reactive Tabu Search policy.</p>
+<p>Attributes:
+initial_tenure: Initial tenure for the tabu list.
+min_tenure: Minimum tenure for the tabu list.
+max_tenure: Maximum tenure for the tabu list.
+tenure_increase: Rate of increase for the tenure.
+tenure_decrease: Rate of decrease for the tenure.
+max_iterations: Maximum number of iterations.
+n_removal: Number of nodes to remove in each iteration.
+n_llh: Number of local search operators to apply in each iteration.
+time_limit: Time limit for the algorithm in seconds.
+seed: Random seed for the algorithm.
+vrpp: Whether to use VRPP.
+profit_aware_operators: Whether to use profit-aware operators.
+mandatory_selection: List of mandatory nodes.
+route_improvement: List of route improvements.
+acceptance_criterion: Acceptance criterion configuration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.rts.RTSConfig.initial_tenure">
 <span class="sig-name descname"><span class="pre">initial_tenure</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.rts.RTSConfig.initial_tenure" title="Link to this definition">#</a></dt>

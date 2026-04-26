@@ -493,6 +493,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.network.haversine">
 <span id="src-data-network-haversine"></span><h1><a class="reference internal" href="#module-src.data.network.haversine" title="src.data.network.haversine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network.haversine</span></code></a><a class="headerlink" href="#module-src.data.network.haversine" title="Link to this heading">#</a></h1>
 <p>Simple geometric distance strategies (Geodesic, Haversine, Euclidean).</p>
+<p>Attributes:
+HaversineStrategy: Strategy for computing Haversine distances.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.network.haversine import HaversineStrategy
+&gt;&gt;&gt; strategy = HaversineStrategy()
+&gt;&gt;&gt; strategy.calculate_pair((0, 0), (1, 1))
+157.21777538020614</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,10 +520,17 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.network.haversine.</span></span><span class="sig-name descname"><span class="pre">HaversineStrategy</span></span><a class="headerlink" href="#src.data.network.haversine.HaversineStrategy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.network.base.IterativeDistanceStrategy</span></code></p>
 <p>Strategy for computing Haversine distances (Spherical).</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.network.haversine.HaversineStrategy.calculate_pair">
 <span class="sig-name descname"><span class="pre">calculate_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.data.network.haversine.HaversineStrategy.calculate_pair" title="Link to this definition">#</a></dt>
 <dd><p>Computes distance using the Haversine formula (spherical Earth).</p>
+<p>Args:
+coords_i: Coordinates of the first point.
+coords_j: Coordinates of the second point.</p>
+<p>Returns:
+Haversine distance between the two points.</p>
 </dd></dl>
 
 </dd></dl>

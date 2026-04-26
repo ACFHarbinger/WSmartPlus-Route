@@ -492,6 +492,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-operators-inter-swap"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap" title="Link to this heading">#</a></h1>
 <p>Inter-route swap operators for the Look-Ahead policy.</p>
+<p>Attributes:
+swap_2_routes(routes_list, rng): Swaps one bin from one route with another bin
+from a different route.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swap_n_2_routes_random(routes_list, rng, n): Swaps n random bins between two different routes.
+
+swap_n_2_routes_consecutive(routes_list, rng, n): Swaps two consecutive sequences of n bins
+between two different routes.
+</pre></div>
+</div>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.inter_swap import swap_2_routes
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; swap_2_routes(routes, rng)
+&gt;&gt;&gt; print(routes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

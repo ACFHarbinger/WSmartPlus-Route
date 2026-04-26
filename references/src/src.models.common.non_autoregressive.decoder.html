@@ -530,16 +530,16 @@ kwargs (Dict[str, Any]): Additional parameters for the decoder.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NonAutoregressiveDecoder.</p>
 <p>Args:
-**kwargs: Additional parameters passed to the parent Module.</p>
+kwargs: Additional configuration parameters for the decoder.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.forward">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Produces logits and mask for the current construction step.</p>
 <p>Args:
-td: TensorDict containing the current environment state.
-heatmap: Pre-computed feature heatmap (e.g., edge probabilities).
-env: Environment object for transition logic.
-**kwargs: Additional arguments for step-wise decoding.</p>
+td: TensorDict with current environment state.
+heatmap: Pre-computed edge probability matrix.
+env: Environment providing step logic and constraints.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - logits: Predicted action logits.
@@ -553,10 +553,10 @@ Tuple[torch.Tensor, torch.Tensor]:
 <p>Subclasses should override this method to implement specific routing
 algorithms (e.g., ACO, Guided Search).</p>
 <p>Args:
-td: TensorDict containing the problem instance.
-heatmap: Global heatmap representing edge or node importance.
-env: Environment object used for state management.
-**kwargs: Configuration parameters for the construction process.</p>
+td: TensorDict with initial environment state.
+heatmap: Pre-computed edge probability matrix.
+env: Environment providing step logic.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, torch.Tensor]: Dictionary of construction results,
 typically including ‘actions’, ‘log_likelihood’, and ‘reward’.</p>

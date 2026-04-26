@@ -502,6 +502,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.qde">
 <span id="src-configs-policies-qde"></span><h1><a class="reference internal" href="#module-src.configs.policies.qde" title="src.configs.policies.qde"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.qde</span></code></a><a class="headerlink" href="#module-src.configs.policies.qde" title="Link to this heading">#</a></h1>
 <p>QDE (Quantum-Inspired Differential Evolution) configuration for Hydra.</p>
+<p>Attributes:
+QDEConfig: Configuration for the Quantum-Inspired Differential Evolution policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.qde import QDEConfig
+&gt;&gt;&gt; config = QDEConfig()
+&gt;&gt;&gt; config.pop_size
+20
+&gt;&gt;&gt; config.max_iterations
+200
+&gt;&gt;&gt; config.vrpp
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

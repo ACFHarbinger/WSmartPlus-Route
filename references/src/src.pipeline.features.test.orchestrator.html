@@ -492,6 +492,14 @@ document.write(`
 <span id="src-pipeline-features-test-orchestrator"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.orchestrator" title="src.pipeline.features.test.orchestrator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.orchestrator</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.orchestrator" title="Link to this heading">#</a></h1>
 <p>Simulation Orchestrator.
 Refactored into modular components.</p>
+<p>Attributes:
+simulator_testing: Main entry point for orchestrating parallel simulation runs.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.orchestrator import simulator_testing
+&gt;&gt;&gt; simulator_testing(cfg, data_size, device)
+Traceback (most recent call last):
+…  # doctest: +ELLIPSIS
+SystemExit: 1</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

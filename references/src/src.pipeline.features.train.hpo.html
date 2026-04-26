@@ -512,6 +512,17 @@ document.write(`
 wrapped in an MLflow parent run so aggregate results (best config, best
 score, total wall-time) are visible in the MLflow UI alongside the
 per-trial data logged by each backend.</p>
+<p>Attributes:
+_RAY_TUNE_METHODS: Methods that delegate to Ray Tune
+objective: Objective function for HPO
+_ray_tune_objective: Trainable passed to :class:<code class="docutils literal notranslate"><span class="pre">RayTuneHPO</span></code> — one epoch loop per trial
+run_hpo: Run Hyperparameter Optimization
+_run_hpo_via_zenml: Run HPO through the ZenML pipeline
+_mlflow_hpo_run: Context manager to wrap the HPO session in an MLflow run</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.train.hpo import run_hpo
+&gt;&gt;&gt; run_hpo(cfg)
+123456.0</p>
 </section>
 <p>Hyperparameter Optimization logic for training pipeline.</p>
 <section id="module-contents">
@@ -620,6 +631,11 @@ Best metric value found across all trials.</p>
 All exceptions from MLflow setup are suppressed so a broken server cannot
 block the HPO run.  Exceptions raised inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> body are always
 propagated — only the <em>setup</em> phase is guarded.</p>
+<p>Args:
+enabled: Whether to enable MLflow tracking.
+tracking_uri: MLflow tracking URI.
+experiment_name: MLflow experiment name.
+cfg: Root configuration object.</p>
 <p>Yields:
 The active <code class="docutils literal notranslate"><span class="pre">mlflow.ActiveRun</span></code> context, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd></dl>
@@ -629,6 +645,8 @@ The active <code class="docutils literal notranslate"><span class="pre">mlflow.A
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.hpo.</span></span><span class="sig-name descname"><span class="pre">_run_hpo_via_zenml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.features.train.hpo._run_hpo_via_zenml" title="Link to this definition">#</a></dt>
 <dd><p>Dispatch HPO to the ZenML HPO pipeline.</p>
 <p>Called when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>Args:
+cfg: Root configuration object.</p>
 <p>Returns:
 Best metric value found, or <code class="docutils literal notranslate"><span class="pre">0.0</span></code> on ZenML failure.</p>
 </dd></dl>

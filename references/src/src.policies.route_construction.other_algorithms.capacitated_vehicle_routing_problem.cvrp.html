@@ -523,16 +523,7 @@ with Heuristic Search for Routing Problems”, 2023.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes" title="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_routes</span></code></a></p></td>
-<td><p>Args:
-dist_mat (np.ndarray): Full distance matrix (N x N)
-wastes (np.ndarray): waste for each node (0-indexed, depot waste = 0)
-max_caps (int): Vehicle capacity limit
-to_collect (list/array): Node IDs to visit (1-based indexing)
-n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
-coords (pd.DataFrame, optional): Node coordinates (unused in PyVRP variant)
-depot (int): Depot node ID. Default: 0
-time_limit (float): Maximum time in seconds for the solver
-seed (int): Random seed for reproducibility. Default: 42</p></td>
+<td><p>Solve CVRP using PyVRP or OR-Tools.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes_ortools" title="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes_ortools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_routes_ortools</span></code></a></p></td>
 <td><p>Solve multi-vehicle VRP using Google OR-Tools.</p></td>
@@ -549,16 +540,19 @@ seed (int): Random seed for reproducibility. Default: 42</p></td>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.</span></span><span class="sig-name descname"><span class="pre">find_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_caps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_collect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyvrp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.find_routes" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-dist_mat (np.ndarray): Full distance matrix (N x N)
-wastes (np.ndarray): waste for each node (0-indexed, depot waste = 0)
-max_caps (int): Vehicle capacity limit
-to_collect (list/array): Node IDs to visit (1-based indexing)
-n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
-coords (pd.DataFrame, optional): Node coordinates (unused in PyVRP variant)
-depot (int): Depot node ID. Default: 0
-time_limit (float): Maximum time in seconds for the solver
-seed (int): Random seed for reproducibility. Default: 42</p>
+<dd><p>Solve CVRP using PyVRP or OR-Tools.</p>
+<p>Args:
+dist_mat: Distance matrix.
+wastes: Waste demands.
+max_caps: Vehicle capacity.
+to_collect: Nodes to collect.
+n_vehicles: Number of vehicles.
+coords: Coordinates of nodes.
+depot: Depot node.
+time_limit: Time limit for solving.
+seed: Random seed.
+engine: Solver engine to use (pyvrp or ortools).
+recorder: Policy state recorder.</p>
 <p>Returns:
 List[int]: Flattened tour with depot separators. Format: [0, route1…, 0, route2…, 0]</p>
 </dd></dl>
@@ -570,16 +564,17 @@ List[int]: Flattened tour with depot separators. Format: [0, route1…, 0, route
 <p>Alternative to PyVRP using OR-Tools’ constraint programming solver
 with PATH_CHEAPEST_ARC initialization and GUIDED_LOCAL_SEARCH.</p>
 <p>Args:
-dist_mat (np.ndarray): Full distance matrix (N x N)
-wastes (np.ndarray): waste for each node (0-indexed)
-max_caps (int): Vehicle capacity limit
-to_collect (list/array): Node IDs to visit (1-based indexing)
-n_vehicles (int): Number of vehicles. If 0, uses unlimited fleet.
-coords (pd.DataFrame, optional): Node coordinates (unused)
-depot (int): Depot node ID. Default: 0
-time_limit (float): Maximum time in seconds for the solver
-seed (int): Random seed for reproducibility. Default: 42
-Returns:
+dist_mat: Distance matrix.
+wastes: Waste demands.
+max_caps: Vehicle capacity.
+to_collect: Nodes to collect.
+n_vehicles: Number of vehicles.
+coords: Coordinates of nodes.
+depot: Depot node.
+time_limit: Time limit for solving.
+seed: Random seed.
+recorder: Policy state recorder.</p>
+<p>Returns:
 List[int]: Flattened tour with depot separators</p>
 </dd></dl>
 

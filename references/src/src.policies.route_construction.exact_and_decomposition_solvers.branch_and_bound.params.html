@@ -506,6 +506,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-bound-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params" title="Link to this heading">#</a></h1>
 <p>Parameter dataclasses for Branch-and-Bound solvers.</p>
+<p>Attributes:
+BBParams (class): Data structure for BB solver parameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params import BBParams
+&gt;&gt;&gt; params = BBParams(time_limit=120.0, formulation=”dfj”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,6 +532,20 @@ document.write(`
 <dd><p>Standardized parameters for Branch-and-Bound solvers (MTZ, DFJ, and LR-UOP).</p>
 <p>Shared parameters apply to all three formulations. Parameters prefixed with
 <code class="docutils literal notranslate"><span class="pre">lr_</span></code> are only used when <code class="docutils literal notranslate"><span class="pre">formulation</span> <span class="pre">=</span> <span class="pre">&quot;lr_uop&quot;</span></code>.</p>
+<p>Attributes:
+time_limit (float): Maximum runtime in seconds. Defaults to 60.0.
+mip_gap (float): Relative optimality gap threshold. Defaults to 0.01.
+seed (int): Random seed for reproducibility. Defaults to 42.
+branching_strategy (str): MTZ branching strategy (‘strong’, ‘most_fractional’, etc.).
+strong_branching_limit (int): Candidates for strong branching. Defaults to 5.
+formulation (str): Formulation choice (‘dfj’, ‘mtz’, or ‘lr_uop’).
+lr_lambda_init (float): Initial Lagrange multiplier for LR-UOP.
+lr_max_subgradient_iters (int): Iteration limit for subgradient phase.
+lr_subgradient_theta (float): Step-size multiplier for Polyak rule.
+lr_subgradient_time_fraction (float): Time fraction for Phase 1.
+lr_op_time_limit (float): Time limit for inner OP solves.
+lr_branching_strategy (str): LR-specific branching strategy.
+lr_max_bb_nodes (int): Safety limit for LR-UOP search tree nodes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params.BBParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params.BBParams.time_limit" title="Link to this definition">#</a></dt>

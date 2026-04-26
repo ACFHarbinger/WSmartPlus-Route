@@ -507,6 +507,14 @@ document.write(`
 <span id="src-policies-route-construction-hyper-heuristics-guided-indicators-hyper-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params" title="Link to this heading">#</a></h1>
 <p>Parameters for GIHH (Hyper-Heuristic with Two Guidance Indicators).</p>
 <p>This module defines the configuration parameters for the GIHH algorithm.</p>
+<p>Attributes:
+GIHHParams: Configuration parameters for GIHH algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHConfig
+&gt;&gt;&gt; config = GIHHConfig()
+&gt;&gt;&gt; params = GIHHParams.from_config(config)
+&gt;&gt;&gt; print(params)
+GIHHParams(time_limit=60.0, max_iterations=1000, seed=None, vrpp=True, profit_aware_operators=False, acceptance_criterion=ImprovingOnlyAcceptanceCriterion(), seg=80, alpha=0.5, beta=0.4, gamma=0.1, min_prob=0.05, nonimp_threshold=150)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,6 +534,13 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.</span></span><span class="sig-name descname"><span class="pre">GIHHParams</span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for GIHH algorithm.</p>
+<p>Attributes:
+time_limit (float): Maximum time allowed for the search.
+max_iterations (int): Maximum number of iterations to run.
+seed (Optional[int]): Random seed for reproducibility.
+vrpp (bool): Whether to use the Vehicle Routing Problem with Profits (VRPP) variant.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+acceptance_criterion (Optional[IAcceptanceCriterion]): Acceptance criterion for the search.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Episodic Learning parameters (Chen et al. 2018)
 seg (int): Segment size for episodic weight updates.
 alpha (float): Weight momentum factor.
@@ -611,14 +626,20 @@ nonimp_threshold (int): Maximum iterations without improvement (NONIMP).
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__">
-<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Ensure acceptance criterion is initialized even if not passed in config.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams" title="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+GIHHParams: Parameters for GIHH algorithm.</p>
 </dd></dl>
 
 </dd></dl>

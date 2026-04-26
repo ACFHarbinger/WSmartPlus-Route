@@ -508,6 +508,11 @@ document.write(`
 <p>Ruin-and-Recreate operators with adaptive selection mechanism.</p>
 <p>This module implements the destroy/repair paradigm integrated with HGS,
 including adaptive operator weight management using scoring feedback.</p>
+<p>Attributes:
+AdaptiveOperatorManager: Manages adaptive selection of operators.
+RuinRecreateOperator: Applies destroy/repair operators to individuals.</p>
+<p>Example:
+&gt;&gt;&gt; manager = AdaptiveOperatorManager([“random_removal”], [“greedy_insertion”])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,12 +536,16 @@ including adaptive operator weight management using scoring feedback.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.</span></span><span class="sig-name descname"><span class="pre">AdaptiveOperatorManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destroy_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay_parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager" title="Link to this definition">#</a></dt>
 <dd><p>Manages adaptive selection of destroy/repair operators using a scoring mechanism.</p>
 <p>Attributes:
-destroy_weights (Dict[str, float]): Current weights for destroy operators.
-repair_weights (Dict[str, float]): Current weights for repair operators.
-destroy_scores (Dict[str, float]): Accumulated scores for destroy operators.
-repair_scores (Dict[str, float]): Accumulated scores for repair operators.
-destroy_counts (Dict[str, int]): Usage counts for destroy operators.
-repair_counts (Dict[str, int]): Usage counts for repair operators.</p>
+reaction_factor: Rate of weight updates (0.0-1.0).
+decay_parameter: Exponential decay rate for weights (0.0-1.0).
+destroy_weights: Current weights for destroy operators.
+repair_weights: Current weights for repair operators.
+destroy_scores: Accumulated scores for destroy operators.
+repair_scores: Accumulated scores for repair operators.
+destroy_counts: Usage counts for destroy operators.
+repair_counts: Usage counts for repair operators.
+segment_size: Number of iterations per adaptation segment.
+current_iteration: Counter for iterations in current segment.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the adaptive operator manager.</p>
 <p>Args:
@@ -544,6 +553,8 @@ destroy_operators: List of destroy operator names.
 repair_operators: List of repair operator names.
 reaction_factor: Rate of weight updates (0.0-1.0).
 decay_parameter: Exponential decay rate for weights (0.0-1.0).</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.select_operators">
 <span class="sig-name descname"><span class="pre">select_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.select_operators" title="Link to this definition">#</a></dt>
@@ -551,7 +562,7 @@ decay_parameter: Exponential decay rate for weights (0.0-1.0).</p>
 <p>Args:
 rng: Random number generator.</p>
 <p>Returns:
-Tuple of (destroy_operator_name, repair_operator_name).</p>
+Tuple[str, str]: Names of selected destroy and repair operators.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -562,48 +573,78 @@ Tuple of (destroy_operator_name, repair_operator_name).</p>
 destroy_op: Name of the destroy operator used.
 repair_op: Name of the repair operator used.
 score: Performance score (higher is better).</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._end_segment">
 <span class="sig-name descname"><span class="pre">_end_segment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._end_segment" title="Link to this definition">#</a></dt>
 <dd><p>Update weights at the end of a segment using the reaction factor.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.decay_weights">
 <span class="sig-name descname"><span class="pre">decay_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.decay_weights" title="Link to this definition">#</a></dt>
-<dd><p>Deprecated in favor of segment-based updates, but kept for compatibility.</p>
+<dd><p>Deprecated in favor of segment-based updates.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.entropy">
 <span class="sig-name descname"><span class="pre">entropy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager.entropy" title="Link to this definition">#</a></dt>
-<dd><p>Compute entropy of operator weight distributions (measure of diversity).</p>
+<dd><p>Compute entropy of operator weight distributions.</p>
+<p>Args:
+None.</p>
 <p>Returns:
-Combined entropy of destroy and repair weights.</p>
+float: Combined entropy of destroy and repair weights.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._compute_entropy">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_compute_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._compute_entropy" title="Link to this definition">#</a></dt>
 <dd><p>Compute Shannon entropy of a probability distribution.</p>
+<p>Args:
+weights: List of weights to compute entropy for.</p>
+<p>Returns:
+float: Shannon entropy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._roulette_wheel">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_roulette_wheel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.AdaptiveOperatorManager._roulette_wheel" title="Link to this definition">#</a></dt>
 <dd><p>Roulette wheel selection based on weights.</p>
+<p>Args:
+weights: Mapping of item names to weights.
+rng: Random number generator.</p>
+<p>Returns:
+str: Selected item name.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.</span></span><span class="sig-name descname"><span class="pre">RuinRecreateOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_manager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.</span></span><span class="sig-name descname"><span class="pre">RuinRecreateOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator" title="Link to this definition">#</a></dt>
 <dd><p>Applies destroy and repair operators to an Individual.</p>
 <p>This class integrates ALNS-style ruin-and-recreate with the HGS framework,
 converting between giant tour representation and route-based representation.</p>
+<p>Attributes:
+dist_matrix: NxN distance matrix.
+wastes: Dictionary of node wastes.
+capacity: Maximum vehicle capacity.
+revenue: Revenue multiplier.
+cost_unit: Cost multiplier.
+params: HGS-RR parameters.
+split_manager: Giant tour splitting evaluator.
+rng: Random number generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ruin-recreate operator.</p>
 <p>Args:
@@ -614,6 +655,8 @@ revenue: Revenue per unit.
 cost_unit: Cost per distance unit.
 params: HGSRR parameters.
 split_manager: Split algorithm manager for evaluating giant tours.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator.apply">
 <span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.Individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destroy_operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair_operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.Individual</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator.apply" title="Link to this definition">#</a></dt>
@@ -623,7 +666,7 @@ individual: The individual to mutate.
 destroy_operator: Name of the destroy operator to use.
 repair_operator: Name of the repair operator to use.</p>
 <p>Returns:
-New mutated individual.</p>
+Individual: New mutated individual.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -635,7 +678,7 @@ routes: List of routes.
 operator_name: Name of the destroy operator.
 n_remove: Number of nodes to remove.</p>
 <p>Returns:
-Tuple of (modified routes, list of removed node IDs).</p>
+Tuple[List[List[int]], List[int]]: Modified routes and removed node IDs.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -647,17 +690,17 @@ routes: Current (partial) routes.
 removed_nodes: List of node IDs to reinsert.
 operator_name: Name of the repair operator.</p>
 <p>Returns:
-Repaired routes.</p>
+List[List[int]]: Repaired routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator._routes_to_giant_tour">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_routes_to_giant_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator._routes_to_giant_tour" title="Link to this definition">#</a></dt>
-<dd><p>Convert routes to a giant tour (concatenated node sequence).</p>
+<dd><p>Convert routes to a giant tour.</p>
 <p>Args:
 routes: List of routes.</p>
 <p>Returns:
-Flattened list of node IDs.</p>
+List[int]: Flattened list of node IDs.</p>
 </dd></dl>
 
 </dd></dl>

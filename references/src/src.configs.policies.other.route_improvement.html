@@ -659,6 +659,36 @@ document.write(`
 <p>Route improvement configuration module.</p>
 <p>Defines structured configurations for route refinement and route improvement strategies,
 mirroring the reinforcement learning configuration pattern.</p>
+<p>Attributes:
+FastTSPPostConfig: Configuration for Fast TSP optimization refinement.
+LKHPostConfig: Configuration for Lin-Kernighan-Helsgaun (LKH) refinement.
+LocalSearchPostConfig: Configuration for classical local search refinement.
+PathPostConfig: Configuration for path-based refinement (opportunistic pickups).
+RandomLocalSearchPostConfig: Configuration for stochastic (random) local search refinement.
+OrOptPostConfig: Configuration for Or-opt refinement.
+CrossExchangePostConfig: Configuration for Cross-exchange refinement.
+GuidedLocalSearchPostConfig: Configuration for Guided Local Search.
+SimulatedAnnealingPostConfig: Configuration for Simulated Annealing refinement.
+InsertionPostConfig: Configuration for insertion-based augmentation strategies.
+RuinRecreatePostConfig: Configuration for Ruin and Recreate (LNS).
+AdaptiveLNSPostConfig: Configuration for Adaptive LNS.
+FixAndOptimizePostConfig: Configuration for Fix-and-Optimize refinement.
+SetPartitioningPostConfig: Configuration for Set-partitioning (with pool construction).
+SetPartitioningPolishPostConfig: Configuration for Set-partitioning polish (bare wrapper).
+LearnedPostConfig: Configuration for the learned route improver.
+BranchAndPricePostConfig: Configuration for Branch-and-price (Consolidated).
+TNDPostConfig: Configuration for Time-Node-Dependent (TND) solvers.
+MetaHeuristicWrapperPostConfig: Configuration for metaheuristic wrappers.</p>
+<p>Example:
+fast_tsp_config = FastTSPPostConfig(
+time_limit=2.0,
+seed=42,
+)
+lkh_config = LKHPostConfig(
+max_iterations=1000,
+time_limit=30.0,
+seed=42,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -865,6 +895,10 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.OrOptPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">OrOptPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.OrOptPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Or-opt refinement.</p>
+<p>Attributes:
+chain_len: Length of the chain to move.
+iterations: Maximum number of iterations.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.OrOptPostConfig.chain_len">
 <span class="sig-name descname"><span class="pre">chain_len</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.OrOptPostConfig.chain_len" title="Link to this definition">#</a></dt>
@@ -889,6 +923,10 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.CrossExchangePostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">CrossExchangePostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.CrossExchangePostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Cross-exchange refinement.</p>
+<p>Attributes:
+cross_exchange_max_segment_len: Maximum length of segments to exchange.
+iterations: Maximum number of iterations.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.CrossExchangePostConfig.cross_exchange_max_segment_len">
 <span class="sig-name descname"><span class="pre">cross_exchange_max_segment_len</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.CrossExchangePostConfig.cross_exchange_max_segment_len" title="Link to this definition">#</a></dt>
@@ -913,6 +951,12 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.GuidedLocalSearchPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">GuidedLocalSearchPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.GuidedLocalSearchPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Guided Local Search.</p>
+<p>Attributes:
+gls_iterations: Number of Guided Local Search iterations.
+gls_inner_iterations: Number of inner iterations for each GLS iteration.
+gls_lambda_factor: Factor to increase penalties for frequent edges.
+gls_base_operator: Base local search operator to use within GLS.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.GuidedLocalSearchPostConfig.gls_iterations">
 <span class="sig-name descname"><span class="pre">gls_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.GuidedLocalSearchPostConfig.gls_iterations" title="Link to this definition">#</a></dt>
@@ -949,6 +993,11 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">SimulatedAnnealingPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Simulated Annealing refinement.</p>
+<p>Attributes:
+acceptance_criterion: Acceptance criterion configuration.
+iterations: Maximum number of iterations.
+params: Probabilities for selecting different local search operators.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance_criterion">
 <span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
@@ -979,6 +1028,13 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.InsertionPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">InsertionPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.InsertionPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for insertion-based augmentation strategies.</p>
+<p>Attributes:
+cost_per_km: Cost per kilometer.
+revenue_kg: Revenue per kilogram.
+regret_k: Number of best insertion candidates to consider.
+detour_epsilon: Maximum allowed detour factor (as a fraction of original route length).
+n_bins: Number of bins to use for clustering/binning (if applicable).
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.InsertionPostConfig.cost_per_km">
 <span class="sig-name descname"><span class="pre">cost_per_km</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.InsertionPostConfig.cost_per_km" title="Link to this definition">#</a></dt>
@@ -1021,6 +1077,14 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.RuinRecreatePostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">RuinRecreatePostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.RuinRecreatePostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Ruin and Recreate (LNS).</p>
+<p>Attributes:
+acceptance_criterion: Acceptance criterion configuration.
+lns_iterations: Number of LNS iterations.
+ruin_fraction: Fraction of routes to ruin in each iteration.
+repair_k: Number of best insertion candidates to consider.
+cost_per_km: Cost per kilometer.
+revenue_kg: Revenue per kilogram.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance_criterion">
 <span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
@@ -1069,6 +1133,17 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">AdaptiveLNSPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Adaptive LNS.</p>
+<p>Attributes:
+acceptance_criterion: Acceptance criterion configuration.
+alns_iterations: Number of Adaptive LNS iterations.
+ruin_fraction: Fraction of routes to ruin in each iteration.
+alns_bandit_warm_start_path: Path to the bandit warm-start file.
+alns_ruin_ops: List of ruin operators to use.
+alns_repair_ops: List of repair operators to use.
+repair_k: Number of best insertion candidates to consider.
+cost_per_km: Cost per kilometer.
+revenue_kg: Revenue per kilogram.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance_criterion">
 <span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
@@ -1135,6 +1210,11 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.FixAndOptimizePostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">FixAndOptimizePostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.FixAndOptimizePostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Fix-and-Optimize refinement.</p>
+<p>Attributes:
+fo_n_free: Number of nodes to keep fixed in each iteration.
+fo_free_fraction: Fraction of nodes to keep fixed in each iteration.
+fo_time_limit: Maximum time in seconds for the operator.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.FixAndOptimizePostConfig.fo_n_free">
 <span class="sig-name descname"><span class="pre">fo_n_free</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.FixAndOptimizePostConfig.fo_n_free" title="Link to this definition">#</a></dt>
@@ -1165,6 +1245,12 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SetPartitioningPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">SetPartitioningPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.SetPartitioningPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Set-partitioning (with pool construction).</p>
+<p>Attributes:
+sp_n_perturbations: Number of perturbations to generate for the set partitioning pool.
+sp_include_dp: Whether to include dynamic programming (DP) routes in the pool.
+sp_time_limit: Maximum time in seconds for the set partitioning solver.
+ruin_fraction: Fraction of routes to ruin in each iteration.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SetPartitioningPostConfig.sp_n_perturbations">
 <span class="sig-name descname"><span class="pre">sp_n_perturbations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.SetPartitioningPostConfig.sp_n_perturbations" title="Link to this definition">#</a></dt>
@@ -1201,6 +1287,10 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SetPartitioningPolishPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">SetPartitioningPolishPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.SetPartitioningPolishPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Set-partitioning polish (bare wrapper).</p>
+<p>Attributes:
+route_pool: Optional list of routes to use for the set partitioning polish.
+sp_time_limit: Maximum time in seconds for the set partitioning solver.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.SetPartitioningPolishPostConfig.route_pool">
 <span class="sig-name descname"><span class="pre">route_pool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.SetPartitioningPolishPostConfig.route_pool" title="Link to this definition">#</a></dt>
@@ -1225,6 +1315,12 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.LearnedPostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">LearnedPostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.LearnedPostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the learned route improver.</p>
+<p>Attributes:
+learned_weights_path: Path to the learned weights file.
+learned_max_iter: Maximum number of iterations for the learned route improver.
+learned_min_improvement: Minimum improvement required to continue training.
+learned_neighborhood_size: Size of the neighborhood for the learned route improver.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.LearnedPostConfig.learned_weights_path">
 <span class="sig-name descname"><span class="pre">learned_weights_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.LearnedPostConfig.learned_weights_path" title="Link to this definition">#</a></dt>
@@ -1261,6 +1357,23 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.BranchAndPricePostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">BranchAndPricePostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.BranchAndPricePostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Branch-and-price (Consolidated).</p>
+<p>Attributes:
+bp_max_iterations: Maximum number of Branch and Price iterations.
+bp_max_routes_per_iteration: Maximum number of routes to generate per iteration.
+bp_optimality_gap: Optimality gap for the Branch and Price algorithm.
+bp_branching_strategy: Branching strategy to use.
+bp_max_branch_nodes: Maximum number of branch nodes to explore.
+bp_use_exact_pricing: Whether to use exact pricing for the Branch and Price algorithm.
+bp_use_ng_routes: Whether to use NG (Neural Guided) routes.
+bp_ng_neighborhood_size: Size of the neighborhood for NG routes.
+bp_tree_search_strategy: Tree search strategy to use.
+bp_vehicle_limit: Limit on the number of vehicles to use.
+bp_cleanup_frequency: Frequency of cleanup operations.
+bp_cleanup_threshold: Threshold for cleanup operations.
+bp_early_termination_gap: Gap at which to terminate the Branch and Price algorithm early.
+bp_allow_heuristic_ryan_foster: Whether to allow heuristic Ryan Foster branching.
+bp_time_limit: Maximum time in seconds for the Branch and Price algorithm.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.BranchAndPricePostConfig.bp_max_iterations">
 <span class="sig-name descname"><span class="pre">bp_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.BranchAndPricePostConfig.bp_max_iterations" title="Link to this definition">#</a></dt>
@@ -1369,6 +1482,14 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.MultiPhasePostConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.route_improvement.</span></span><span class="sig-name descname"><span class="pre">MultiPhasePostConfig</span></span><a class="headerlink" href="#src.configs.policies.other.route_improvement.MultiPhasePostConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Multi-phase composition.</p>
+<p>Attributes:
+phases: List of route improvement methods to apply in sequence.
+Supported: ‘cheapest_insertion’, ‘lkh’, ‘classical_local_search’, ‘random_local_search’,
+‘path’, ‘or_opt’, ‘cross_exchange’, ‘guided_local_search’, ‘simulated_annealing’,
+‘insertion’, ‘ruin_recreate’, ‘adaptive_lns’, ‘fix_and_optimize’,
+‘set_partitioning’, ‘set_partitioning_polish’, ‘learned’, ‘branch_and_price’,
+‘tnd’, ‘metaheuristic_wrapper’.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.route_improvement.MultiPhasePostConfig.phases">
 <span class="sig-name descname"><span class="pre">phases</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.route_improvement.MultiPhasePostConfig.phases" title="Link to this definition">#</a></dt>

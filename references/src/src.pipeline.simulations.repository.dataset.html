@@ -501,6 +501,11 @@ document.write(`
 <p>Loads all simulation data (depot, coordinates, waste) from any supported
 dataset type (NumpyDictDataset, PandasExcelDataset, PandasCsvDataset)
 rather than from filesystem CSV/Excel files.</p>
+<p>Attributes:
+DatasetRepository: Repository sourcing data from WSmart-style datasets.</p>
+<p>Example:
+&gt;&gt;&gt; # dataset = NumpyDictDataset.load(“data.pkl”)
+&gt;&gt;&gt; # repo = DatasetRepository(dataset)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,29 +545,59 @@ rather than from filesystem CSV/Excel files.</p>
 <p>Repository that sources simulation data from any supported dataset.</p>
 <p>All dataset formats are expected to store coordinates in <code class="docutils literal notranslate"><span class="pre">(lat,</span> <span class="pre">lng)</span></code>
 order and include <code class="docutils literal notranslate"><span class="pre">node_ids</span></code> as bin-only (no depot).</p>
+<p>Attributes:
+dataset: The source dataset object.
+sample_id: Index of the currently active sample.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the dataset repository.</p>
+<p>Args:
+dataset: The dataset object containing simulation samples.
+sample_id: Index of the initial sample to use.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.dataset.DatasetRepository.set_sample">
 <span class="sig-name descname"><span class="pre">set_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.dataset.DatasetRepository.set_sample" title="Link to this definition">#</a></dt>
 <dd><p>Switch to a different sample within the dataset.</p>
+<p>Args:
+sample_id: Index of the sample to activate.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.dataset.DatasetRepository.get_indices">
 <span class="sig-name descname"><span class="pre">get_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.dataset.DatasetRepository.get_indices" title="Link to this definition">#</a></dt>
 <dd><p>Returns node indices from the dataset, or trivial [0..n_nodes-1].</p>
+<p>Args:
+filename: Path to the index file (unused in this implementation).
+n_samples: Number of samples to generate/load.
+n_nodes: Number of nodes per sample.
+data_size: Total size of the source data.
+lock: Optional file lock.</p>
+<p>Returns:
+A list containing the same set of indices for each requested sample.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.dataset.DatasetRepository.get_depot">
 <span class="sig-name descname"><span class="pre">get_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.dataset.DatasetRepository.get_depot" title="Link to this definition">#</a></dt>
 <dd><p>Builds a depot DataFrame from the dataset’s depot array.</p>
+<p>Args:
+area: Name of the area (unused).
+data_dir: Path to the data directory (unused).</p>
+<p>Returns:
+Pandas DataFrame containing depot coordinates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.repository.dataset.DatasetRepository.get_simulator_data">
 <span class="sig-name descname"><span class="pre">get_simulator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Rio</span> <span class="pre">Maior'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.repository.dataset.DatasetRepository.get_simulator_data" title="Link to this definition">#</a></dt>
 <dd><p>Builds data and bins_coordinates DataFrames from the dataset.</p>
+<p>Args:
+number_of_bins: Number of bins to load.
+area: Name of the area (unused).
+waste_type: Type of waste (unused).
+lock: Optional file lock.
+data_dir: Path to the data directory (unused).</p>
+<p>Returns:
+Tuple containing (stats_df, coordinates_df).</p>
 </dd></dl>
 
 </dd></dl>

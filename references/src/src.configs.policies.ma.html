@@ -510,6 +510,17 @@ via Hydra YAML files. It uses dataclasses to ensure validated parameter injectio
 <p>Reference:
 Moscato, P., Cotta, C., &amp; Mendes, A. (2004). “Memetic Algorithms”.
 Reference: bibliography/Memetic_Algorithms.pdf</p>
+<p>Attributes:
+MAConfig: Configuration for the Memetic Algorithm policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ma import MAConfig
+&gt;&gt;&gt; config = MAConfig()
+&gt;&gt;&gt; config.pop_size
+30
+&gt;&gt;&gt; config.max_generations
+100
+&gt;&gt;&gt; config.time_limit
+60.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

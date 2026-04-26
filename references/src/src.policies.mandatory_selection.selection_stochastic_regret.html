@@ -496,6 +496,12 @@ document.write(`
 <p>This module implements the Expected Overflow Regret strategy. It calculates
 the mathematically exact expected overflow volume of a bin if its collection
 is deferred to the next day, assuming normally distributed accumulation rates.</p>
+<p>Attributes:
+StochasticRegretSelection(IMandatorySelectionStrategy): Selection strategy based on Expected Overflow Regret (EOR).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_stochastic_regret import StochasticRegretSelection
+&gt;&gt;&gt; strategy = StochasticRegretSelection()
+&gt;&gt;&gt; bins, ctx = strategy.select_bins(context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

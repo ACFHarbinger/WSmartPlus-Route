@@ -499,6 +499,14 @@ document.write(`
 <p>Adaptive Boltzmann Metropolis Criterion.</p>
 <p>Provides a self-tuning cooling schedule based on the observed variance of
 objective value deltas during the search process.</p>
+<p>Attributes:
+AdaptiveBoltzmannMetropolis: Self-tuning Boltzmann-Metropolis acceptance
+criterion with adaptive temperature initialization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.adaptive_boltzmann_metropolis import AdaptiveBoltzmannMetropolis
+&gt;&gt;&gt; criterion = AdaptiveBoltzmannMetropolis(p0=0.5, window_size=100, alpha=0.95)
+&gt;&gt;&gt; criterion.setup(initial_objective=100.0)
+&gt;&gt;&gt; accepted, metrics = criterion.accept(current_obj=100.0, candidate_obj=98.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -557,16 +565,19 @@ initial_objective (ObjectiveValue): The initial solution’s objective.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis._update_stats">
 <span class="sig-name descname"><span class="pre">_update_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis._update_stats" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Append delta magnitude to the window and update sigma and initial temperature.</p>
+<p>Args:
+delta: Difference between candidate and current objective values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.accept">
 <span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.search_context.AcceptanceMetrics</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.accept" title="Link to this definition">#</a></dt>
 <dd><p>Determine whether to accept a transition based on Boltzmann probability.</p>
 <p>Args:
-current_obj (ObjectiveValue): Objective of the current solution.
-candidate_obj (ObjectiveValue): Objective of the candidate solution.
-**kwargs (Any): Additional context (not used).</p>
+current_obj: Objective value of the current incumbent solution.
+candidate_obj: Objective value of the proposed candidate solution.
+kwargs: Additional context passed through from the search loop.</p>
 <p>Returns:
 Tuple[bool, AcceptanceMetrics]: A tuple containing:
 - accepted (bool): True if move is accepted.
@@ -578,10 +589,10 @@ Tuple[bool, AcceptanceMetrics]: A tuple containing:
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.acceptance_criterion.ObjectiveValue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.acceptance_criteria.adaptive_boltzmann_metropolis.AdaptiveBoltzmannMetropolis.step" title="Link to this definition">#</a></dt>
 <dd><p>Update the statistical window and apply the cooling schedule.</p>
 <p>Args:
-current_obj (ObjectiveValue): Objective of the previous solution.
-candidate_obj (ObjectiveValue): Objective of the candidate solution.
-accepted (bool): Whether the candidate was accepted.
-**kwargs (Any): Additional context (not used).</p>
+current_obj: Objective value of the current incumbent solution.
+candidate_obj: Objective value of the proposed candidate solution.
+accepted: Whether the candidate was accepted in this iteration.
+kwargs: Additional context passed through from the search loop.</p>
 </dd></dl>
 
 <dl class="py method">

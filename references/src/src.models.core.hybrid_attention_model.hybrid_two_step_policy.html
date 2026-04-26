@@ -510,6 +510,9 @@ operators to improve the initial solution.</p></li>
 </ol>
 <p>Attributes:
 HybridTwoStagePolicy: Combined neural-heuristic optimization model.</p>
+<p>Example:
+&gt;&gt;&gt; policy = HybridTwoStagePolicy(env_name=”tsp”)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -547,14 +550,14 @@ aco_model (Optional[VectorizedACOPolicy]): Neural ACO instance (lazy).</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the hybrid two-stage policy.</p>
 <p>Args:
-env_name: Targeted optimization task identifier.
-embed_dim: Internal feature width.
-hidden_dim: Multi-layer perceptron width.
-n_encode_layers: Context encoder depth.
-n_heads: Count of attention heads.
-refine_steps: Number of improvement passes to perform.
-seed: random seed for stochastic actions.
-**kwargs: Extra parameters for encoder/embeddings.</p>
+env_name: Name of the environment (e.g., “tsp”, “wcvrp”).
+embed_dim: Dimension of node embeddings.
+hidden_dim: MLP hidden layer dimension.
+n_encode_layers: Number of Graph Attention Encoder layers.
+n_heads: Number of attention heads in the GAT.
+refine_steps: Number of refinement iterations to perform.
+seed: Random seed for reproducibility.
+kwargs: Additional keyword arguments for the encoder.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.__getstate__" title="Link to this definition">#</a></dt>
@@ -573,32 +576,32 @@ state: Pre-loaded attribute map.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours">
-<span class="sig-name descname"><span class="pre">_initialize_tours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_initialize_tours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours" title="Link to this definition">#</a></dt>
 <dd><p>Stage 1: Generates a batch of initial solutions using hybrid solvers.</p>
 <p>Args:
-td: Environment state.
-env: Task dynamics.
-strategy: selection mode (‘greedy’ or ‘sample’).
-embeddings: Contextual node features.
-**kwargs: Extra parameters for initialization algorithms.</p>
+td: TensorDict containing instance data.
+strategy: Choice strategy (“greedy” or “sampling”).
+embeddings: Contextual node embeddings.
+env: The problem environment.
+kwargs: Additional keyword arguments for the initial solvers.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
-- tours: initial node sequences [B, N].
-- init_choice_idx: algorithm category selected per instance [B].</p>
+- tours: Initial node sequences [B, N].
+- init_choice_idx: Algorithm category selected per instance [B].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step">
-<span class="sig-name descname"><span class="pre">_apply_operator_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_apply_operator_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step" title="Link to this definition">#</a></dt>
 <dd><p>Stage 2 Step: Selects and executes a single improvement operator.</p>
 <p>Args:
 td: problem state.
-env: problem dynamics.
 embeddings: graph features.
 current_tours: existing sequences [B, N_max].
 dist_matrix_all: pairwise distances [B, N, N].
 removed_nodes_state: buffer for partially destroyed solutions.
-strategy: selection mode.</p>
+strategy: selection mode.
+env: problem dynamics.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 - next_tours: improved sequences.
@@ -633,13 +636,13 @@ torch.Tensor: padded removed node tensor [B, Max_Rem].</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Main execution logic: Init -&gt; iterative refinement.</p>
 <p>Args:
-td: Problem instance.
-env: Task transitions.
-strategy: Choice mode (‘greedy’, ‘sample’).
-**kwargs: Extra parameters.</p>
+td: TensorDict containing instance data.
+env: The problem environment.
+strategy: Selection strategy for both stages.
+kwargs: Additional keyword arguments for the policies.</p>
 <p>Returns:
 Dict[str, Any]: Result map with final reward, actions, and audit data.</p>
 </dd></dl>
@@ -648,12 +651,20 @@ Dict[str, Any]: Result map with final reward, actions, and audit data.</p>
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_dist_matrix">
 <span class="sig-name descname"><span class="pre">_get_dist_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_dist_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Utility to calculate graph distance adjacency.</p>
+<p>Args:
+td: TensorDict containing “locs”.</p>
+<p>Returns:
+torch.Tensor: Pairwise distance matrix of shape [B, N, N].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_random_tours">
 <span class="sig-name descname"><span class="pre">_get_random_tours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_random_tours" title="Link to this definition">#</a></dt>
 <dd><p>Utility for naive initial permutations (excluding the depot).</p>
+<p>Args:
+td: TensorDict containing the problem context.</p>
+<p>Returns:
+torch.Tensor: Batch of random permutations [B, N-1].</p>
 </dd></dl>
 
 </dd></dl>

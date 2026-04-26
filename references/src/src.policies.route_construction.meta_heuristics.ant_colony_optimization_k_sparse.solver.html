@@ -501,10 +501,10 @@ document.write(`
 algorithm using MMAS_exp methodology. It manages the ant colony, global
 pheromone updates, and coordinates the search process.</p>
 <p>Attributes:
-None</p>
+KSparseACOSolver: K-Sparse MAX-MIN Ant System (MMAS_exp) solver for CVRP/VRPP.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-&gt;&gt;&gt; solver = KSparseACOSolver(dist_matrix, wastes, …)
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import KSparseACOSolver
+&gt;&gt;&gt; solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params)
 &gt;&gt;&gt; result = solver.solve()</p>
 <p>Reference:
 Hale, D. “Investigation of Ant Colony Optimization Implementation
@@ -538,26 +538,46 @@ the experimental MMAS variant (MMAS_exp) from Hale (2021), featuring:</p>
 <li><p>Pure roulette-wheel selection (no q0 exploitation)</p></li>
 <li><p>Dynamic default_value with precision-based pruning</p></li>
 </ul>
-<p class="rubric">Initialization</p>
-<p>Initialize the K-Sparse ACO solver.</p>
-<p>Args:
+<p>Attributes:
 dist_matrix: NxN distance matrix.
-wastes: Dictionary of node wastes {node_idx: waste}.
-capacity: Maximum vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-params: ACO hyperparameters.
-mandatory_nodes: List of mandatory node indices.</p>
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue multiplier for waste collected.
+C: Cost multiplier for distance traveled.
+params: Algorithm-specific hyperparameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Total number of nodes.
+nodes: List of customer nodes.
+eta: Heuristic visibility matrix.
+tau_0: Initial pheromone level.
+pheromone: Sparse pheromone matrix.
+ls: Local search optimizer.
+candidate_lists: K-sparse candidate neighbor lists.
+constructor: Solution constructor for ants.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the K-Sparse Ant Colony Optimization solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): NxN distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue multiplier for waste collected.
+C (float): Cost multiplier for distance traveled.
+params (KSACOParams): Algorithm-specific hyperparameters.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost">
 <span class="sig-name descname"><span class="pre">_nearest_neighbor_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute cost of nearest neighbor tour for tau_0 initialization.</p>
+<p>Returns:
+Approximate cost of a complete tour.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists">
 <span class="sig-name descname"><span class="pre">_build_candidate_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists" title="Link to this definition">#</a></dt>
 <dd><p>Build k-nearest neighbor candidate lists for each node.</p>
+<p>Returns:
+Dictionary mapping node index to list of nearest neighbors.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -584,6 +604,8 @@ where delta_bs = 1 / best_cost</p>
 <p>Args:
 best_routes: Best solution found so far.
 best_cost: Cost of the best solution.</p>
+<p>Returns:
+None.</p>
 <p>Reference:
 Hale (2021), Section 4.2.2: MMAS global update with evaporate-then-reinforce.</p>
 </dd></dl>
@@ -592,6 +614,10 @@ Hale (2021), Section 4.2.2: MMAS global update with evaporate-then-reinforce.</p
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost">
 <span class="sig-name descname"><span class="pre">_calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Args:
+routes: List of routes to evaluate.</p>
+<p>Returns:
+Total distance-based cost.</p>
 </dd></dl>
 
 </dd></dl>

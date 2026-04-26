@@ -497,6 +497,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-logic-based-benders-decomposition-master"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master" title="Link to this heading">#</a></h1>
+<p>Logic-Based Benders Decomposition (LBBD) Master Problem.</p>
+<p>Implements the master allocation problem for LBBD, distributing bins
+to different days of the planning horizon while considering predicted
+waste levels and overflow penalties.</p>
+<p>Attributes:
+LBBDMasterProblem: Master Problem for Logic-Based Benders Decomposition.</p>
+<p>Example:
+&gt;&gt;&gt; master = LBBDMasterProblem(config, num_customers)
+&gt;&gt;&gt; master.build(tree)
+&gt;&gt;&gt; assignments, thetas = master.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,8 +514,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LBBDMasterProblem</span></code></a></p></td>
-<td><p>Master Problem for Logic-Based Benders Decomposition (LBBD).
-Modelled as an allocation problem across multiple days.</p></td>
+<td><p>Master Problem for Logic-Based Benders Decomposition (LBBD).</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,42 +525,80 @@ Modelled as an allocation problem across multiple days.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.</span></span><span class="sig-name descname"><span class="pre">LBBDMasterProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.lbbd.LBBDConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem" title="Link to this definition">#</a></dt>
-<dd><p>Master Problem for Logic-Based Benders Decomposition (LBBD).
-Modelled as an allocation problem across multiple days.</p>
+<dd><p>Master Problem for Logic-Based Benders Decomposition (LBBD).</p>
+<p>Modelled as an allocation problem across multiple days.</p>
+<p>Attributes:
+config (LBBDConfig): Configuration parameters.
+num_customers (int): Number of customers.
+num_nodes (int): Total number of nodes (including depot).
+customers (List[int]): List of customer indices.
+model (gp.Model): Gurobi model instance.
+current_horizon (int): Number of days in the planning horizon.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the LBBD Master Problem.</p>
+<p>Args:
+config (LBBDConfig): Configuration parameters for LBBD.
+num_customers (int): Number of customers (bins) in the problem.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stochastic_master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.build" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stochastic_master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.build" title="Link to this definition">#</a></dt>
 <dd><p>Builds the allocation model using the ScenarioTree.</p>
+<p>Args:
+tree (ScenarioTree): Scenario tree providing predicted wastes.
+stochastic_master (bool): If True, build an Extensive Form (EF) model.
+If False, build an Expected Value (EV) model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem._build_ev_model">
 <span class="sig-name descname"><span class="pre">_build_ev_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem._build_ev_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the Expected Value (EV) version of the master problem.</p>
+<p>Args:
+tree (ScenarioTree): The scenario tree.
+horizon (int): Planning horizon in days.</p>
+<p>Returns:
+Any: The Gurobi expression for the expected profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem._build_ef_model">
 <span class="sig-name descname"><span class="pre">_build_ef_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem._build_ef_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the Extensive Form (EF) version of the master problem.</p>
+<p>Args:
+tree (ScenarioTree): The scenario tree.
+horizon (int): Planning horizon in days.</p>
+<p>Returns:
+Any: The Gurobi expression for the expected profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_nogood_cut">
-<span class="sig-name descname"><span class="pre">add_nogood_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_nogood_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_nogood_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_nogood_cut" title="Link to this definition">#</a></dt>
 <dd><p>Adds a cut preventing this set of nodes from being assigned together on this day.</p>
+<p>Args:
+day (int): The day for which the cut is added.
+assigned_nodes (List[int]): The list of nodes assigned to this day.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_optimality_cut">
-<span class="sig-name descname"><span class="pre">add_optimality_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_optimality_cut" title="Link to this definition">#</a></dt>
-<dd><p>Adds a logic-based optimality cut: theta &gt;= Dist * (1 - sum(1-z_i) - sum(z_j)).
-This is a standard LBBD optimality cut for routing.</p>
+<span class="sig-name descname"><span class="pre">add_optimality_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assigned_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_optimality_cut" title="Link to this definition">#</a></dt>
+<dd><p>Adds a logic-based optimality cut: theta &gt;= Dist * (1 - sum(1-z_i) - sum(z_j)).</p>
+<p>This is a standard LBBD optimality cut for routing.</p>
+<p>Args:
+day (int): The day for which the cut is added.
+assigned_nodes (List[int]): The list of nodes assigned to this day.
+distance (float): The optimal distance for the subproblem.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.solve" title="Link to this definition">#</a></dt>
 <dd><p>Solves the master problem and returns assignments and theta values.</p>
+<p>Returns:
+Tuple[Dict[int, List[int]], Dict[int, float]]: A tuple containing:
+- assignments: Dict mapping day index to list of assigned node IDs.
+- thetas: Dict mapping day index to value of theta variable.</p>
 </dd></dl>
 
 </dd></dl>

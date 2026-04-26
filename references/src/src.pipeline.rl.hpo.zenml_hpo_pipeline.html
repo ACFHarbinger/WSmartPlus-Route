@@ -504,6 +504,14 @@ three-step ZenML pipeline:</p>
 <p>The pipeline is invoked from
 :func:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.features.train.hpo._run_hpo_via_zenml</span></code>
 when <code class="docutils literal notranslate"><span class="pre">cfg.tracking.zenml_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>Attributes:
+ZenMLHPO: ZenML HPO pipeline class.
+_ZENML_AVAILABLE: Whether ZenML is available.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import ZenMLHPO
+&gt;&gt;&gt; zenml_hpo = ZenMLHPO(cfg)
+&gt;&gt;&gt; zenml_hpo
+&lt;logic.src.pipeline.rl.hpo.zenml_hpo.ZenMLHPO object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

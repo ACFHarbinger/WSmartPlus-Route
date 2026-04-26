@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides the abstract base class for decoders that construct
 solutions step-by-step by sequentially selecting actions based on
 the current state and encoded embeddings.</p>
+<p>Attributes:
+AutoregressiveDecoder: Base class for autoregressive decoders.</p>
+<p>Example:
+&gt;&gt;&gt; decoder = AutoregressiveDecoder()
+&gt;&gt;&gt; log_p, actions = decoder(td, embeddings, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,7 +529,7 @@ embed_dim: Dimensionality of the input embeddings.</p>
 <p>Initialize the AutoregressiveDecoder.</p>
 <p>Args:
 embed_dim: Internal dimensionality for decoding features.
-**kwargs: Additional parameters passed to the parent Module.</p>
+kwargs: Additional parameters passed to the parent Module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.autoregressive.decoder.AutoregressiveDecoder.forward">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.autoregressive.decoder.AutoregressiveDecoder.forward" title="Link to this definition">#</a></dt>
@@ -533,7 +538,7 @@ embed_dim: Internal dimensionality for decoding features.
 td: TensorDict containing the current problem/environment state.
 embeddings: Encoded state representation(s) from the encoder.
 env: Environment object used for state transitions and masking.
-**kwargs: Control parameters for decoding (e.g., strategy, mask).</p>
+kwargs: Control parameters for decoding (e.g., strategy, mask).</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p (torch.Tensor): Log-likelihood for the predicted actions.

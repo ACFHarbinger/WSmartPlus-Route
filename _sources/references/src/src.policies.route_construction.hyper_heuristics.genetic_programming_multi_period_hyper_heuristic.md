@@ -36,7 +36,7 @@ src.policies.route_construction.hyper_heuristics.genetic_programming_multi_perio
 ````{py:data} __all__
 :canonical: src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.__all__
 :value: >
-   ['GPMPHHPolicy']
+   ['GPMPHHPolicy', 'GP_MP_HH_Params']
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.genetic_programming_multi_period_hyper_heuristic.__all__
 ```

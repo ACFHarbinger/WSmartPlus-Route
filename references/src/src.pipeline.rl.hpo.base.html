@@ -502,6 +502,17 @@ document.write(`
 <p>Abstract base class for Hyperparameter Optimization backends.</p>
 <p>Provides shared logic for interpreting typed search space specifications
 and applying sampled parameter values to the structured Config object.</p>
+<p>Attributes:
+CS: ConfigSpace library.
+ParamSpec: Type alias for parameter specification.
+BaseHPO: Abstract base class for HPO algorithms.
+normalise_search_space: Normalise search space.
+apply_params: Apply parameters to config.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.hpo import BaseHPO
+&gt;&gt;&gt; hpo = BaseHPO(cfg, objective_fn)
+&gt;&gt;&gt; hpo
+&lt;logic.src.pipeline.rl.hpo.base.BaseHPO object at 0x…&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -586,6 +597,11 @@ objective_fn: Callable that trains a model for one trial and
 returns the scalar metric to <strong>maximise</strong>.
 search_space: Normalised search-space mapping.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the base HPO backend.</p>
+<p>Args:
+cfg: The root application configuration.
+objective_fn: Callable that trains a model for one trial and returns the scalar metric to maximise.
+search_space: Normalised search-space mapping.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.hpo.base.BaseHPO.run">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.rl.hpo.base.BaseHPO.run" title="Link to this definition">#</a></dt>

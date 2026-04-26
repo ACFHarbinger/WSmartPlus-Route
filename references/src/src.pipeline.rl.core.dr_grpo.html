@@ -498,6 +498,17 @@ document.write(`
 Zheng, G., Chen, W., Chadha, A., &amp; Ren, X. (2025). Understanding R1-Zero-Like
 Training: A Critical Perspective. arXiv preprint arXiv:2503.20783.
 https://arxiv.org/abs/2503.20783</p>
+<p>Attributes:
+DRGRPO: GRPO done Right algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import DRGRPO
+&gt;&gt;&gt; from logic.src.envs import DRGRPOEnv
+&gt;&gt;&gt; from logic.src.models import DRGRPOPPOAgent
+&gt;&gt;&gt; env = DRGRPOEnv()
+&gt;&gt;&gt; agent = DRGRPOPPOAgent(env)
+&gt;&gt;&gt; dr_grpo = DRGRPO(env, agent)
+&gt;&gt;&gt; dr_grpo
+DRGRPO(env=<DRGRPOEnv>, policy=<DRGRPOPPOAgent>, baseline=’rollout’, baseline_kwargs={‘val_dataset’: ‘val’, ‘update_every’: 10, ‘use_rollouts’: True}, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,27 +538,51 @@ https://arxiv.org/abs/2503.20783</p>
 Zheng, G., Chen, W., Chadha, A., &amp; Ren, X. (2025). Understanding R1-Zero-Like
 Training: A Critical Perspective. arXiv:2503.20783.
 https://arxiv.org/abs/2503.20783</p>
+<p>Attributes:
+env: The environment instance used for training.
+agent: The PPO agent for DR-GRPO.
+instance_generator: The generator used to create new problem instances.
+lr: Learning rate for the optimizer.
+gamma: Discount factor for future rewards.
+gae_lambda: Factor for generalized advantage estimation.
+clip_epsilon: Clipping parameter for PPO.
+value_loss_coef: Coefficient for the value function loss.
+entropy_coef: Coefficient for the entropy bonus.
+max_grad_norm: Maximum gradient norm for clipping.
+n_epochs: Number of epochs to train on collected data.
+n_steps_per_epoch: Number of steps to collect per epoch.
+batch_size: Batch size for training updates.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize PPO module.</p>
 <p>Args:
-critic: Critic network for value estimation.
-ppo_epochs: Number of PPO optimization epochs per batch.
-eps_clip: Clipping parameter for PPO surrogate objective.
-value_loss_weight: Weight for value function loss.
-entropy_weight: Weight for entropy bonus.
-max_grad_norm: Maximum gradient norm for clipping.
-mini_batch_size: Mini-batch size (int or fraction of batch).
-**kwargs: Arguments passed to RL4COLitModule.</p>
+critic: The critic network used for baseline estimation.
+ppo_epochs: The number of optimization epochs to run per batch of rollouts.
+eps_clip: The clipping parameter for the PPO loss (default: 0.2).
+value_loss_weight: The weight for the critic loss (default: 0.5).
+entropy_weight: The weight for the entropy bonus (default: 0.0).
+max_grad_norm: The maximum gradient norm for clipping (default: 0.5).
+mini_batch_size: The size of mini-batches for optimization. Can be an integer or a float (fraction of batch size, default: 0.25).
+kwargs: Additional arguments to pass to the parent class (RL4COLitModule).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.dr_grpo.DRGRPO.calculate_advantages">
 <span class="sig-name descname"><span class="pre">calculate_advantages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rewards</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.dr_grpo.DRGRPO.calculate_advantages" title="Link to this definition">#</a></dt>
 <dd><p>DR-GRPO centered advantages.</p>
+<p>Args:
+rewards: Tensor of rewards.
+values: Tensor of state values.</p>
+<p>Returns:
+Tensor of advantages.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.dr_grpo.DRGRPO.calculate_ratio">
 <span class="sig-name descname"><span class="pre">calculate_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_log_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_log_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.dr_grpo.DRGRPO.calculate_ratio" title="Link to this definition">#</a></dt>
 <dd><p>Importance ratio (no sequence length normalization).</p>
+<p>Args:
+new_log_p: Tensor of new log probabilities.
+old_log_p: Tensor of old log probabilities.</p>
+<p>Returns:
+Tensor of importance ratios.</p>
 </dd></dl>
 
 </dd></dl>

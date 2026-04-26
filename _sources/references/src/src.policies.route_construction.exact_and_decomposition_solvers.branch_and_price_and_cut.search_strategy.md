@@ -116,6 +116,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.get_name
 
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.BestFirstSearch.get_name
+```
+
 ````
 
 `````
@@ -138,6 +141,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name
+```
 
 ````
 
@@ -167,6 +173,9 @@ Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name
+```
 
 ````
 

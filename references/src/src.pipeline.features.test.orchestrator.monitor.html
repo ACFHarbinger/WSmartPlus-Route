@@ -492,6 +492,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.orchestrator.monitor">
 <span id="src-pipeline-features-test-orchestrator-monitor"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.orchestrator.monitor" title="src.pipeline.features.test.orchestrator.monitor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.orchestrator.monitor</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.orchestrator.monitor" title="Link to this heading">#</a></h1>
+<p>Simulation monitoring and dashboard updates.</p>
+<p>Attributes:
+initialize_simulation_display: Initializes the simulation dashboard display.
+process_display_updates: Processes real-time simulation metrics and updates the dashboard display.
+monitor_tasks_until_complete: Monitors task progress and updates display until all tasks complete.
+collect_all_task_results: Collects results from all tasks, logging any exceptions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.orchestrator.monitor import initialize_simulation_display
+&gt;&gt;&gt; display = initialize_simulation_display([‘random’], 100, 365)
+Simulation dashboard started…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -524,24 +534,43 @@ document.write(`
 policies: List of expanded policy names.
 n_samples: Number of samples per policy.
 total_days: Total simulation days.</p>
+<p>Returns:
+Initialized SimulationDisplayCallback instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.monitor.process_display_updates">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.monitor.</span></span><span class="sig-name descname"><span class="pre">process_display_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.callbacks.SimulationDisplayCallback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_tmp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_reported_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_tic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.monitor.process_display_updates" title="Link to this definition">#</a></dt>
 <dd><p>Process real-time simulation metrics and update the dashboard display.</p>
+<p>Args:
+display: Description of display.
+shared_metrics: Description of shared_metrics.
+log_tmp: Description of log_tmp.
+last_reported_days: Description of last_reported_days.
+policies: Description of policies.
+loop_tic: Description of loop_tic.
+counter: Description of counter.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.monitor.monitor_tasks_until_complete">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.monitor.</span></span><span class="sig-name descname"><span class="pre">monitor_tasks_until_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.callbacks.SimulationDisplayCallback</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_tmp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.monitor.monitor_tasks_until_complete" title="Link to this definition">#</a></dt>
 <dd><p>Monitor task progress and update display until all tasks complete.</p>
+<p>Args:
+tasks: List of simulation tasks to monitor.
+display: Optional simulation dashboard display.
+policies: List of policy names.
+shared_metrics: Shared metrics dictionary.
+counter: Task counter.
+log_tmp: Temporary log storage.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.monitor.collect_all_task_results">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.monitor.</span></span><span class="sig-name descname"><span class="pre">collect_all_task_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.monitor.collect_all_task_results" title="Link to this definition">#</a></dt>
 <dd><p>Collect results from all tasks, logging any exceptions.</p>
+<p>Args:
+tasks: List of simulation tasks to collect results from.</p>
 </dd></dl>
 
 </section>

@@ -499,6 +499,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src">
 <span id="src-policies-route-construction-other-algorithms-sequential-route-constructor-policy-src"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src" title="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src" title="Link to this heading">#</a></h1>
 <p>SRC (Sequential Route Constructor) — Meta-Constructor for Routing.</p>
+<p>Attributes:
+SequentialRouteConstructor: Sequential Route Constructor (SRC).
+SRCParams: Parameters for the Sequential Route Constructor (SRC).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.sequential_route_constructor import SequentialRouteConstructor, SRCParams
+&gt;&gt;&gt; params = SRCParams()
+&gt;&gt;&gt; src = SequentialRouteConstructor(config=params)
+&gt;&gt;&gt; src.execute(mandatory=[1, 2, 3], bins=bins_object, distance_matrix=distance_matrix)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -553,6 +561,11 @@ the routing arrangement.</p></li>
 profit, and contexts (search/multi-day) as input, allowing for continuous
 state propagation and incremental improvement.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;src&quot;</span></code></p>
+<p>Attributes:
+constructors: List of IRouteConstructor objects.
+_initialized: Whether the constructors have been initialized.
+config: Configuration object for the Sequential Route Constructor.
+params: Parameters for the Sequential Route Constructor.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Sequential Route Constructor.</p>
 <p>Args:
@@ -560,12 +573,18 @@ config: Either a SRCConfig dataclass or a dict.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the config class for SRC.</p>
+<p>Returns:
+Optional[Type]: The config class for the Sequential Route Constructor.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._get_config_key">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the config key for the Sequential Route Constructor.</p>
+<p>Returns:
+str: The config key for the Sequential Route Constructor.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._initialize_constructors">
@@ -584,7 +603,7 @@ strategy where multiple policies (e.g., NN followed by TS followed by
 allows for complex hybrid strategies, such as using a neural model for
 initial construction followed by classical meta-heuristics for refinement.</p>
 <p>Args:
-**kwargs: Context dictionary containing:
+kwargs: Context dictionary containing:
 - tour (Optional[Union[List[int], List[List[int]]]]): Initial
 tour to refine.
 - search_context (Optional[SearchContext]): Context for tracking
@@ -605,6 +624,20 @@ A 5-tuple containing:
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Not used as execute() is overridden directly.</p>
+<p>Args:
+sub_dist_matrix: Sub-distance matrix.
+sub_wastes: Sub-wastes.
+capacity: Capacity.
+revenue: Revenue.
+cost_unit: Cost unit.
+values: Values.
+mandatory_nodes: Mandatory nodes.
+kwargs: Keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Tuple of:
+- List[List[int]]: Collection of routes.
+- float: Total travel cost.
+- float: Total profit.</p>
 </dd></dl>
 
 </dd></dl>

@@ -500,28 +500,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-island-model-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver" title="Link to this heading">#</a></h1>
 <p>Memetic Algorithm with Island Model (MA-IM) for VRPP.</p>
-<p>This solver is FUNCTIONALLY IDENTICAL to the Soccer League Competition (SLC)
-algorithm. It uses standard Genetic Algorithm and Evolutionary terminology
-instead of sports metaphors.</p>
-<p>Terminology mapping (SLC → MA-IM):</p>
-<ul class="simple">
-<li><p>Teams → Islands (sub-populations)</p></li>
-<li><p>Players → Chromosomes/Individuals</p></li>
-<li><p>Seasons → Generations</p></li>
-<li><p>Matches → Fitness-based selection tournaments</p></li>
-<li><p>Superstar → Global best solution</p></li>
-</ul>
-<p>Algorithm structure:
-1. Initialize K islands with N chromosomes each
-2. For each generation:
-a. Intra-island evolution: Each chromosome is perturbed and refined
-b. Inter-island competition: Probabilistic recombination between islands
-c. Stagnation management: Regenerate stagnant islands
-d. Track global best solution</p>
-<p>Reference:
-Moosavian, N., &amp; Rppdsarou, B. K. (2014).
-“Soccer league competition algorithm: A novel meta-heuristic
-algorithm for optimal design of water distribution networks.”</p>
+<p>Attributes:
+MemeticAlgorithmIslandModelSolver: Core solver class for MA-IM.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MemeticAlgorithmIslandModelSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,32 +524,67 @@ algorithm for optimal design of water distribution networks.”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmIslandModelSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.html#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.MemeticAlgorithmIslandModelParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver" title="Link to this definition">#</a></dt>
 <dd><p>Memetic Algorithm with Island Model (MA-IM) solver for VRPP.</p>
-<p>EXACT COPY of SLC with rigorous nomenclature.</p>
+<p>Adaptation of SLC with rigorous nomenclature.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+random: Random number generator.
+ls: Local search optimizer.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Memetic Algorithm Island Model solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: MA-IM parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Execute the Memetic Island Model algorithm.</p>
 <p>Returns:
-Tuple of (routes, profit, cost).</p>
+Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._new_island">
 <span class="sig-name descname"><span class="pre">_new_island</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._new_island" title="Link to this definition">#</a></dt>
 <dd><p>Create a fresh island of <code class="docutils literal notranslate"><span class="pre">island_size</span></code> chromosomes.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+List[Tuple[List[List[int]], float]]: A list of chromosome-fitness pairs.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._build_random_solution">
 <span class="sig-name descname"><span class="pre">_build_random_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._build_random_solution" title="Link to this definition">#</a></dt>
 <dd><p>Order-dependent sequential construction (matches ALNS style).</p>
+<p>Args:
+None.</p>
+<p>Returns:
+List[List[int]]: A randomly constructed routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._mutate">
 <span class="sig-name descname"><span class="pre">_mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._mutate" title="Link to this definition">#</a></dt>
 <dd><p>Mutation operator using destroy-repair.</p>
+<p>Args:
+routes: The routing solution to mutate.</p>
+<p>Returns:
+List[List[int]]: The mutated and refined routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -579,25 +597,37 @@ unvisited nodes from that segment into the loser’s solution.</p>
 loser_routes: Losing chromosome’s route set.
 winner_routes: Winner’s best chromosome route set.</p>
 <p>Returns:
-New child routing solution.</p>
+List[List[int]]: New child routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._global_best">
 <span class="sig-name descname"><span class="pre">_global_best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">islands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._global_best" title="Link to this definition">#</a></dt>
 <dd><p>Return the best (routes, profit) across all islands.</p>
+<p>Args:
+islands: The set of all islands and their chromosomes.</p>
+<p>Returns:
+Tuple[List[List[int]], float]: The best routing solution and its profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: The routing solution to evaluate.</p>
+<p>Returns:
+float: The net profit (revenue - cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.MemeticAlgorithmIslandModelSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: The routing solution to calculate distance for.</p>
+<p>Returns:
+float: Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

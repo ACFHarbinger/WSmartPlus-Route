@@ -90,6 +90,9 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.reward.shaping.Rewar
 ````{py:method} compute_reward(*args, progress: float = 0.5, **kwargs) -> float
 :canonical: src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.compute_reward
 
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.reward.shaping.AdaptiveRewardShaper.compute_reward
+```
+
 ````
 
 `````

@@ -490,7 +490,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-cut"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut" title="Link to this heading">#</a></h1>
-<p>Branch-and-Cut Algorithm for Vehicle Routing Problem with Profits (VRPP).</p>
+<p>Branch-and-Cut (BC) solver for routing problems.</p>
+<p>This module provides an exact Branch-and-Cut implementation for solving VRPP
+and CWC VRP problems. It utilizes dynamic cut generation (separation) to
+enforce subtour elimination and other valid inequalities within a MIP framework.</p>
+<p>Attributes:
+run_bc_optimizer (function): Entry point for the Branch-and-Cut solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut import run_bc_optimizer
+&gt;&gt;&gt; routes, obj = run_bc_optimizer(dist_matrix, wastes, capacity, R, C)</p>
 <p>This module implements an exact branch-and-cut algorithm for VRPP based on
 cutting plane methods from:</p>
 <ul class="simple">

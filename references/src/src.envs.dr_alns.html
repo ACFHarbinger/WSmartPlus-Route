@@ -511,6 +511,12 @@ document.write(`
 Reijnen, R., Zhang, Y., Lau, H. C., &amp; Bukhsh, Z.
 “Online Control of Adaptive Large Neighborhood Search Using Deep
 Reinforcement Learning”, AAAI 2024.</p>
+<p>Attributes:
+DRALNSEnv: Gymnasium environment for training DR-ALNS with PPO.</p>
+<p>Example:
+env = DRALNSEnv(max_iterations=100, n_destroy_ops=3, n_repair_ops=2)
+env.reset()
+env.step(env.action_space.sample())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,7 +546,9 @@ MultiDiscrete([n_destroy, n_repair, 10, 50])
 - A3: Destroy severity level (0-9 = 10%-100%)
 - A4: Temperature level (0-49 = 0.1-5.0)</p>
 <p>Observation Space:
-Box(7,) - 7 problem-agnostic features</p>
+Box(7,) - 7 problem-agnostic features
+Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DR-ALNS environment.</p>
 <p>Args:
@@ -580,59 +588,124 @@ Tuple of (observation, reward, terminated, truncated, info).</p>
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._get_observation">
 <span class="sig-name descname"><span class="pre">_get_observation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._get_observation" title="Link to this definition">#</a></dt>
 <dd><p>Get current state observation.</p>
+<p>Returns:
+Array of 7 features:
+- best_improved
+- current_accepted
+- current_improved
+- is_current_best
+- cost_diff_best
+- stagnation_count
+- search_budget</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._apply_operators">
 <span class="sig-name descname"><span class="pre">_apply_operators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destroy_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">severity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._apply_operators" title="Link to this definition">#</a></dt>
 <dd><p>Apply selected destroy and repair operators.</p>
+<p>Args:
+routes: List of routes to apply operators to
+destroy_idx: Index of destroy operator to use
+repair_idx: Index of repair operator to use
+severity: Severity of destroy operator (0-1)</p>
+<p>Returns:
+List of routes after applying operators</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._accept">
 <span class="sig-name descname"><span class="pre">_accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._accept" title="Link to this definition">#</a></dt>
 <dd><p>Simulated Annealing acceptance criterion.</p>
+<p>Args:
+current_profit: Current solution profit
+new_profit: New solution profit
+temperature: Annealing temperature</p>
+<p>Returns:
+Whether to accept the new solution</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._random_removal">
 <span class="sig-name descname"><span class="pre">_random_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._random_removal" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Remove n random nodes from routes.</p>
+<p>Args:
+routes: List of routes to remove nodes from
+n: Number of nodes to remove</p>
+<p>Returns:
+Tuple of (routes after removal, removed nodes)</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._worst_removal">
 <span class="sig-name descname"><span class="pre">_worst_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._worst_removal" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Remove n worst nodes from routes.</p>
+<p>Args:
+routes: List of routes to remove nodes from
+n: Number of nodes to remove</p>
+<p>Returns:
+Tuple of (routes after removal, removed nodes)</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._cluster_removal">
 <span class="sig-name descname"><span class="pre">_cluster_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._cluster_removal" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Remove n nodes in clusters from routes.</p>
+<p>Args:
+routes: List of routes to remove nodes from
+n: Number of nodes to remove</p>
+<p>Returns:
+Tuple of (routes after removal, removed nodes)</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._greedy_insertion">
 <span class="sig-name descname"><span class="pre">_greedy_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._greedy_insertion" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Insert removed nodes into routes using greedy insertion heuristic.</p>
+<p>Args:
+partial_routes: List of partial routes
+removed: List of nodes to insert</p>
+<p>Returns:
+List of routes after inserting removed nodes</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._regret_2_insertion">
 <span class="sig-name descname"><span class="pre">_regret_2_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._regret_2_insertion" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Insert removed nodes into routes using regret-2 insertion heuristic.</p>
+<p>Args:
+partial_routes: List of partial routes
+removed: List of nodes to insert</p>
+<p>Returns:
+List of routes after inserting removed nodes</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._build_initial_solution" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build initial solution using nearest neighbor heuristic.</p>
+<p>Returns:
+List of routes representing the initial solution</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the profit of a given solution.</p>
+<p>Args:
+routes: List of routes representing the solution</p>
+<p>Returns:
+Total profit of the solution</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.dr_alns.DRALNSEnv._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.envs.dr_alns.DRALNSEnv._cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the total travel cost for a given solution.</p>
+<p>Args:
+routes: List of routes representing the solution</p>
+<p>Returns:
+Total travel cost of the solution</p>
+</dd></dl>
 
 </dd></dl>
 

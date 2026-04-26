@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_multi_period_pol
 :canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo.ALNSInterPeriodOperatorsPolicy._get_config_key
+```
 
 ````
 

@@ -493,6 +493,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.eval.evaluate">
 <span id="src-pipeline-features-eval-evaluate"></span><h1><a class="reference internal" href="#module-src.pipeline.features.eval.evaluate" title="src.pipeline.features.eval.evaluate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.eval.evaluate</span></code></a><a class="headerlink" href="#module-src.pipeline.features.eval.evaluate" title="Link to this heading">#</a></h1>
 <p>Evaluation Dispatcher.</p>
+<p>Attributes:
+get_automatic_batch_size
+evaluate_policy
+evaluate_policy_batch
+evaluate_policy_multiprocess
+generate_eval_result_path</p>
+<p>Example:
+&gt;&gt;&gt; evaluator = get_evaluator(env)
+&gt;&gt;&gt; evaluator(policy, data_loader)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -532,6 +541,16 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.features.eval.evaluate.get_automatic_batch_size">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.evaluate.</span></span><span class="sig-name descname"><span class="pre">get_automatic_batch_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.DataLoader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_tries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.pipeline.features.eval.evaluate.get_automatic_batch_size" title="Link to this definition">#</a></dt>
 <dd><p>Automatically find the maximum batch size that fits in GPU memory.</p>
+<p>Args:
+policy: Policy to evaluate.
+env: Environment to evaluate on.
+data_loader: DataLoader containing evaluation data.
+method: Evaluation method (e.g., ‘greedy’).
+initial_batch_size: Initial batch size to test.
+max_tries: Maximum number of attempts to find a valid batch size.
+kwargs: Additional keyword arguments for evaluation.</p>
+<p>Returns:
+The largest batch size that fits in GPU memory.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -539,15 +558,12 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.evaluate.</span></span><span class="sig-name descname"><span class="pre">evaluate_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_loader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.DataLoader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.eval.evaluate.evaluate_policy" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate a policy using the specified method.</p>
 <p>Args:
-policy: Policy to evaluate
-env: Environment
-data_loader: Dataset loader
-method: Decoding strategy (“greedy”, “sampling”, “augmentation”, “multistart”, “multistart_augment”)
-**kwargs: Additional arguments for evaluator
-- samples (int): for sampling
-- num_augment (int): for augmentation
-- num_starts (int): for multistart
-- decoding (dict): Dictionary of decoding parameters, e.g., {“temperature”: 1.0}</p>
+policy: Policy to evaluate.
+env: Environment to evaluate on.
+data_loader: DataLoader containing evaluation data.
+method: Evaluation method (e.g., ‘greedy’).
+return_results: Whether to return detailed results.
+kwargs: Additional keyword arguments for evaluation.</p>
 <p>Returns:
 Dict with metrics</p>
 </dd></dl>

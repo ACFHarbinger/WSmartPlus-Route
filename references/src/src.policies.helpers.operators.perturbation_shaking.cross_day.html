@@ -497,6 +497,11 @@ document.write(`
 day, depot excluded) and a ProblemContext describing day 0. They return a
 new plan and the index of the earliest modified day so the caller can call
 recompute_cascade_from efficiently.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.perturbation_shaking.cross_day import cross_day_move
+&gt;&gt;&gt; new_plan, start_day = cross_day_move(plan, problem, bin_id=5, from_day=1, to_day=2)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

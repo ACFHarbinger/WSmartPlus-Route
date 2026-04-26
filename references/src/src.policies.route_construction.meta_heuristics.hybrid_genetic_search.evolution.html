@@ -495,6 +495,12 @@ document.write(`
 <p>Evolutionary operators for Hybrid Genetic Search (HGS).</p>
 <p>This module contains the crossover, evaluation, and fitness calculation
 logic for maintaining and improving the HGS population.</p>
+<p>Attributes:
+update_biased_fitness: Updates biased fitness for a subpopulation.
+evaluate: Decodes giant tour and calculates metrics.</p>
+<p>Example:
+&gt;&gt;&gt; evaluate(individual, split_manager)
+&gt;&gt;&gt; update_biased_fitness(population, nb_elite=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -558,6 +564,8 @@ population: List of individuals to update (single subpopulation).
 nb_elite: Number of elite individuals to protect.
 neighbor_size: Number of nearest neighbors (nbClose) to consider for diversity.
 distance_cache: Optional cache for pairwise diversity distances (Fix 9).</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -574,6 +582,8 @@ insertion by local search operators.</p>
 ind: Individual to evaluate.
 split_manager: Split algorithm manager.
 penalty_capacity: Penalty coefficient for capacity violations.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </section>

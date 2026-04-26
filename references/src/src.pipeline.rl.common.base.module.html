@@ -500,6 +500,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.base.module">
 <span id="src-pipeline-rl-common-base-module"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.base.module" title="src.pipeline.rl.common.base.module"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.base.module</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.base.module" title="Link to this heading">#</a></h1>
 <p>Main RL4COLitModule class assembling all mixins.</p>
+<p>Attributes:
+RL4COLitModule: Base PyTorch Lightning module for RL training.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -539,7 +543,9 @@ document.write(`
 <p>Base PyTorch Lightning module for RL training.</p>
 <p>This module handles:</p>
 <ul class="simple">
-<li><p>Metric logging</p></li>
+<li><p>Metric logging
+Attributes:
+None</p></li>
 </ul>
 <p class="rubric">Initialization</p>
 <p>Initialize the RL4COLitModule.</p>
@@ -556,9 +562,11 @@ val_data_size: Number of validation samples.
 val_dataset_path: Optional path to a pre-saved validation dataset.
 train_dataset_path: Optional path to a pre-saved training dataset.
 batch_size: Batch size for training and validation.
-num_workers: Number of workers for data loading.
+num_workers: Number of data loading workers.
+persistent_workers: If True, the data loader will not shutdown the worker processes after a dataset has been consumed once.
+pin_memory: If True, the data loader will copy Tensors into device pinned memory before returning them.
 mandatory_selector: Optional vectorized selector for mandatory bin selection.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.module.RL4COLitModule.cfg">
 <span class="sig-name descname"><span class="pre">cfg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.Config</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.rl.common.base.module.RL4COLitModule.cfg" title="Link to this definition">#</a></dt>

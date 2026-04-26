@@ -497,6 +497,8 @@ document.write(`
 stochastic horizon of K days. Assuming daily waste generation is i.i.d Gaussian,
 the total accumulation variance scales by the square root of time (sqrt(D)),
 providing a much more mathematically rigorous risk assessment than linear bounds.</p>
+<p>Attributes:
+MultiDayOverflowSelection: The Multi Day Overflow Probability Selection strategy.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_multi_day_prob import MultiDayOverflowSelection
 &gt;&gt;&gt; strategy = MultiDayOverflowSelection()

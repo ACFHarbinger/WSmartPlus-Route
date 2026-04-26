@@ -491,6 +491,13 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-refinement-route-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search" title="Link to this heading">#</a></h1>
 <p>Routing search strategies and orchestration.
 Contains the main Simulated Annealing and Local Search loops for the LookAhead policy.</p>
+<p>Attributes:
+find_solutions: Find high-quality routing solutions using a randomized local search procedure.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search import find_solutions
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; cost, profit = find_solutions(routes, distance_matrix, values, capacities, mandatory_nodes)
+&gt;&gt;&gt; print(f”Cost: {cost}, Profit: {profit}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

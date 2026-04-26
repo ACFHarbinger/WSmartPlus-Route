@@ -502,6 +502,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params">
 <span id="src-policies-route-construction-meta-heuristics-knowledge-guided-local-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params" title="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params" title="Link to this heading">#</a></h1>
 <p>KGLS algorithm parameters.</p>
+<p>Attributes:
+KGLSParams: Parameters for the KGLS solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = KGLSParams(time_limit=300, num_perturbations=10, neighborhood_size=20, moves=[“2opt”], penalization_cycle=[], local_search_iterations=100, seed=42)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,8 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams" title="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KGLSParams</span></code></a></p></td>
-<td><p>Runtime parameters for the KGLS solver.
-Extracts and manages configuration values during execution.</p></td>
+<td><p>Runtime parameters for the KGLS solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -521,8 +524,17 @@ Extracts and manages configuration values during execution.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.</span></span><span class="sig-name descname"><span class="pre">KGLSParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams" title="Link to this definition">#</a></dt>
-<dd><p>Runtime parameters for the KGLS solver.
-Extracts and manages configuration values during execution.</p>
+<dd><p>Runtime parameters for the KGLS solver.</p>
+<p>Attributes:
+time_limit: Maximum execution time in seconds.
+num_perturbations: Number of perturbation steps per iteration.
+neighborhood_size: Size of the neighborhood to explore.
+moves: List of local search move types to apply.
+penalization_cycle: List of moves during which penalization is applied.
+local_search_iterations: Number of local search iterations.
+seed: Random seed for reproducibility.
+vrpp: Whether to solve as a VRP with profits.
+profit_aware_operators: Whether to use profit-aware heuristics.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.time_limit" title="Link to this definition">#</a></dt>
@@ -579,8 +591,12 @@ Extracts and manages configuration values during execution.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.KGLSConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams" title="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Build parameters from a KGLSConfig instance.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams" title="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.KGLSParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Build parameters from a configuration instance.</p>
+<p>Args:
+config: Configuration source (dataclass or object).</p>
+<p>Returns:
+KGLSParams: Initialized runtime parameters.</p>
 </dd></dl>
 
 </dd></dl>

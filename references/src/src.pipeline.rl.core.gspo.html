@@ -500,6 +500,17 @@ document.write(`
 Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
 arXiv preprint arXiv:2507.18071.
 https://arxiv.org/abs/2507.18071</p>
+<p>Attributes:
+GSPO: GSPO algorithm implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import GSPO
+&gt;&gt;&gt; from logic.src.envs import GSPOEnv
+&gt;&gt;&gt; from logic.src.models import GSPOPPOAgent
+&gt;&gt;&gt; env = GSPOEnv()
+&gt;&gt;&gt; agent = GSPOPPOAgent(env)
+&gt;&gt;&gt; gspo = GSPO(env, agent)
+&gt;&gt;&gt; gspo
+GSPO(env=<GSPOEnv>, policy=<GSPOPPOAgent>, baseline=’rollout’, baseline_kwargs={‘val_dataset’: ‘val’, ‘update_every’: 10, ‘use_rollouts’: True}, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,11 +542,13 @@ variable-length sequences common in routing problems.</p>
 <p>Reference:
 Zheng, C., Liu, S., Li, M., et al. (2025). Group Sequence Policy Optimization.
 arXiv:2507.18071. https://arxiv.org/abs/2507.18071</p>
+<p>Attributes:
+use_sequence_normalization: Whether to use sequence-level importance ratio.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize GSPO module.</p>
 <p>Args:
 use_sequence_normalization: If True, normalize importance ratio by sequence length.
-**kwargs: Arguments passed to PPO.</p>
+kwargs: Arguments passed to PPO.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.gspo.GSPO.training_step">
 <span class="sig-name descname"><span class="pre">training_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.gspo.GSPO.training_step" title="Link to this definition">#</a></dt>
@@ -582,6 +595,13 @@ Normalized advantage tensor (batch,)</p>
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.gspo.GSPO.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Dummy implementation to satisfy abstract requirement.
 GSPO uses manual optimization in training_step.</p>
+<p>Args:
+td: TensorDict containing the batch data.
+out: Dictionary containing the output of the policy.
+batch_idx: Index of the current batch.
+env: Optional environment instance.</p>
+<p>Returns:
+0.0 (dummy value)</p>
 </dd></dl>
 
 </dd></dl>

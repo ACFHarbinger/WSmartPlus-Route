@@ -493,11 +493,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.states.base.base">
 <span id="src-pipeline-simulations-states-base-base"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.states.base.base" title="src.pipeline.simulations.states.base.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.base.base</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.states.base.base" title="Link to this heading">#</a></h1>
-<p>base.py module.</p>
+<p>Abstract Base Class for Simulation States.</p>
+<p>This module defines the SimState interface for the Simulation State Machine.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+SimState: Abstract base class for all simulation states.</p>
 <p>Example:
-&gt;&gt;&gt; import base</p>
+&gt;&gt;&gt; # from logic.src.pipeline.simulations.states.base.base import SimState
+&gt;&gt;&gt; # class MyState(SimState): …</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +520,8 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.base.base.</span></span><span class="sig-name descname"><span class="pre">SimState</span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.base.SimState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for simulation states.</p>
+<p>Attributes:
+context: The SimulationContext object managing the state machine.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.base.SimState.context">
 <span class="sig-name descname"><span class="pre">context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.pipeline.simulations.states.base.context.html#src.pipeline.simulations.states.base.context.SimulationContext" title="src.pipeline.simulations.states.base.context.SimulationContext"><span class="pre">src.pipeline.simulations.states.base.context.SimulationContext</span></a></em><a class="headerlink" href="#src.pipeline.simulations.states.base.base.SimState.context" title="Link to this definition">#</a></dt>
@@ -527,7 +531,9 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.base.base.SimState.handle">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.pipeline.simulations.states.base.context.html#src.pipeline.simulations.states.base.context.SimulationContext" title="src.pipeline.simulations.states.base.context.SimulationContext"><span class="pre">src.pipeline.simulations.states.base.context.SimulationContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.base.base.SimState.handle" title="Link to this definition">#</a></dt>
-<dd><p>Handles the current state and returns the next state.</p>
+<dd><p>Handles the logic for the current state and triggers transitions.</p>
+<p>Args:
+ctx: The simulation context object.</p>
 </dd></dl>
 
 </dd></dl>

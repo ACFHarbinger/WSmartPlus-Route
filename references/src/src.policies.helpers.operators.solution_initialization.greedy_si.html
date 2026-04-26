@@ -493,6 +493,11 @@ document.write(`
 <p>Greedy Initialization Module.</p>
 <p>Creates an initial constructive solution for the VRPP using greedy insertion,
 enforcing strict economic termination to drop unprofitable opportunistic nodes.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+&gt;&gt;&gt; routes = build_greedy_routes(dist_matrix, wastes, capacity, R, C)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,6 +520,18 @@ enforcing strict economic termination to drop unprofitable opportunistic nodes.<
 <dt class="sig sig-object py" id="src.policies.helpers.operators.solution_initialization.greedy_si._greedy_profit_insertion">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.solution_initialization.greedy_si.</span></span><span class="sig-name descname"><span class="pre">_greedy_profit_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unvisited_optional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.solution_initialization.greedy_si._greedy_profit_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Internal greedy profit-driven insertion for initialization.</p>
+<p>Args:
+routes (List[List[int]]): Current routes.
+unvisited_optional (List[int]): Optional nodes not yet visited.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Node wastes.
+capacity (float): Vehicle capacity.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.
+mandatory_nodes_set (set[int]): Nodes that must be visited.
+rng (random.Random): Random generator.</p>
+<p>Returns:
+List[List[int]]: Modified routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -522,13 +539,13 @@ enforcing strict economic termination to drop unprofitable opportunistic nodes.<
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.solution_initialization.greedy_si.</span></span><span class="sig-name descname"><span class="pre">build_greedy_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.solution_initialization.greedy_si.build_greedy_routes" title="Link to this definition">#</a></dt>
 <dd><p>Create an initial solution using a simple greedy heuristic.</p>
 <p>Args:
-dist_matrix: Distance matrix.
-wastes: Waste dictionary mapping node ID to waste volume.
-capacity: Vehicle capacity.
-R: Revenue per unit.
-C: Cost per distance unit.
-mandatory_nodes: List of nodes that MUST be visited.
-rng: Random number generator.</p>
+dist_matrix (np.ndarray): (N+1)x(N+1) distance matrix.
+wastes (Dict[int, float]): Waste dictionary mapping node ID to waste volume.
+capacity (float): Vehicle capacity.
+R (float): Revenue per unit.
+C (float): Cost per distance unit.
+mandatory_nodes (Optional[List[int]]): List of nodes that MUST be visited.
+rng (Optional[random.Random]): Random number generator.</p>
 <p>Returns:
 List[List[int]]: Initial routing solution.</p>
 </dd></dl>

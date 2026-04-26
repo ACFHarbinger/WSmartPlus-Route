@@ -569,6 +569,31 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.other.acceptance_criteria">
 <span id="src-configs-policies-other-acceptance-criteria"></span><h1><a class="reference internal" href="#module-src.configs.policies.other.acceptance_criteria" title="src.configs.policies.other.acceptance_criteria"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.other.acceptance_criteria</span></code></a><a class="headerlink" href="#module-src.configs.policies.other.acceptance_criteria" title="Link to this heading">#</a></h1>
+<p>Configuration for various acceptance criteria used in local search and metaheuristics.</p>
+<p>Attributes:
+OnlyImprovingConfig: Configuration for Only Improving acceptance.
+ImprovingAndEqualConfig: Configuration for Improving and Equal acceptance.
+AllMovesAcceptedConfig: Configuration for All Moves Accepted (random walk).
+BoltzmannAcceptanceConfig: Configuration for Boltzmann-Metropolis (Simulated Annealing).
+DemonAlgorithmConfig: Configuration for Demon Algorithm.
+GeneralizedTsallisSAConfig: Configuration for Generalized Tsallis SA.
+NonLinearGreatDelugeConfig: Configuration for Non-Linear Great Deluge.
+EMCQConfig: Configuration for Exponential Monte Carlo with Counter.
+AdaptiveBoltzmannConfig: Configuration for Adaptive Boltzmann Metropolis.
+LateAcceptanceConfig: Configuration for Late Acceptance Hill Climbing.
+StepCountingConfig: Configuration for Step Counting Hill Climbing.
+GreatDelugeConfig: Configuration for Great Deluge.
+ThresholdAcceptingConfig: Configuration for Threshold Accepting.
+MonteCarloConfig: Configuration for Fixed Monte Carlo.
+AspirationConfig: Configuration for Aspiration Criterion.
+AcceptanceConfig: Unified configuration wrapper for selecting an acceptance criterion.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.other.acceptance_criteria import AcceptanceConfig
+&gt;&gt;&gt; config = AcceptanceConfig(method=’boltzmann’, params= BoltzmannAcceptanceConfig())
+&gt;&gt;&gt; config.method
+‘boltzmann’
+&gt;&gt;&gt; config.params
+BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.95, seed=42)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -633,24 +658,34 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.OnlyImprovingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">OnlyImprovingConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.OnlyImprovingConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Only Improving acceptance.</p>
+<p>Attributes:
+None</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.ImprovingAndEqualConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">ImprovingAndEqualConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.ImprovingAndEqualConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Improving and Equal acceptance.</p>
+<p>Attributes:
+None</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.AllMovesAcceptedConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">AllMovesAcceptedConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.AllMovesAcceptedConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for All Moves Accepted (random walk).</p>
+<p>Attributes:
+None</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.BoltzmannAcceptanceConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">BoltzmannAcceptanceConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.BoltzmannAcceptanceConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Boltzmann-Metropolis (Simulated Annealing).</p>
+<p>Attributes:
+initial_temp: Initial temperature for the Boltzmann distribution.
+alpha: Cooling rate for the temperature.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.BoltzmannAcceptanceConfig.initial_temp">
 <span class="sig-name descname"><span class="pre">initial_temp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.BoltzmannAcceptanceConfig.initial_temp" title="Link to this definition">#</a></dt>
@@ -675,6 +710,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">DemonAlgorithmConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Demon Algorithm.</p>
+<p>Attributes:
+initial_credit: Initial credit for the demon.
+is_stochastic: Whether the demon algorithm is stochastic.
+max_demon_credit: Maximum credit the demon can accumulate.
+maximization: Whether the problem is a maximization problem.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.initial_credit">
 <span class="sig-name descname"><span class="pre">initial_credit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.initial_credit" title="Link to this definition">#</a></dt>
@@ -711,6 +752,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.GeneralizedTsallisSAConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">GeneralizedTsallisSAConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.GeneralizedTsallisSAConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Generalized Tsallis SA.</p>
+<p>Attributes:
+q: Temperature parameter for the Tsallis distribution.
+initial_temp: Initial temperature for the Boltzmann distribution.
+alpha: Cooling rate for the temperature.
+seed: Random seed for reproducibility.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.GeneralizedTsallisSAConfig.q">
 <span class="sig-name descname"><span class="pre">q</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.GeneralizedTsallisSAConfig.q" title="Link to this definition">#</a></dt>
@@ -747,6 +794,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.NonLinearGreatDelugeConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">NonLinearGreatDelugeConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.NonLinearGreatDelugeConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Non-Linear Great Deluge.</p>
+<p>Attributes:
+initial_level: Initial level for the great deluge.
+beta: Decay rate for the level.
+t_max: Maximum number of iterations.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.NonLinearGreatDelugeConfig.initial_level">
 <span class="sig-name descname"><span class="pre">initial_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.NonLinearGreatDelugeConfig.initial_level" title="Link to this definition">#</a></dt>
@@ -777,6 +829,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.EMCQConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">EMCQConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.EMCQConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Exponential Monte Carlo with Counter.</p>
+<p>Attributes:
+p: Probability of accepting a solution.
+p_boost: Probability boost for accepting better solutions.
+q_threshold: Threshold for the counter.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.EMCQConfig.p">
 <span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.EMCQConfig.p" title="Link to this definition">#</a></dt>
@@ -807,6 +864,13 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.AdaptiveBoltzmannConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">AdaptiveBoltzmannConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.AdaptiveBoltzmannConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Adaptive Boltzmann Metropolis.</p>
+<p>Attributes:
+p0: Initial probability of accepting a solution.
+window_size: Size of the acceptance window.
+alpha: Cooling rate for the temperature.
+min_temp: Minimum temperature.
+seed: Random seed for reproducibility.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.AdaptiveBoltzmannConfig.p0">
 <span class="sig-name descname"><span class="pre">p0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.AdaptiveBoltzmannConfig.p0" title="Link to this definition">#</a></dt>
@@ -849,6 +913,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.LateAcceptanceConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">LateAcceptanceConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.LateAcceptanceConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Late Acceptance Hill Climbing.</p>
+<p>Attributes:
+history_length: Length of the acceptance history.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.LateAcceptanceConfig.history_length">
 <span class="sig-name descname"><span class="pre">history_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.LateAcceptanceConfig.history_length" title="Link to this definition">#</a></dt>
@@ -867,6 +934,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.StepCountingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">StepCountingConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Step Counting Hill Climbing.</p>
+<p>Attributes:
+step_limit: Maximum number of steps to count.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit">
 <span class="sig-name descname"><span class="pre">step_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit" title="Link to this definition">#</a></dt>
@@ -885,6 +955,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.GreatDelugeConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">GreatDelugeConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.GreatDelugeConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Great Deluge.</p>
+<p>Attributes:
+initial_level: Initial level for the great deluge.
+decay_rate: Decay rate for the level.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.GreatDelugeConfig.initial_level">
 <span class="sig-name descname"><span class="pre">initial_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.GreatDelugeConfig.initial_level" title="Link to this definition">#</a></dt>
@@ -909,6 +983,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.ThresholdAcceptingConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">ThresholdAcceptingConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.ThresholdAcceptingConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Threshold Accepting.</p>
+<p>Attributes:
+initial_threshold: Initial threshold for accepting solutions.
+decay_rate: Decay rate for the threshold.
+maximization: Whether the problem is a maximization problem.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.ThresholdAcceptingConfig.initial_threshold">
 <span class="sig-name descname"><span class="pre">initial_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.ThresholdAcceptingConfig.initial_threshold" title="Link to this definition">#</a></dt>
@@ -933,6 +1011,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.MonteCarloConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">MonteCarloConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.MonteCarloConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Fixed Monte Carlo.</p>
+<p>Attributes:
+p: Probability of accepting a solution.
+seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.MonteCarloConfig.p">
 <span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.MonteCarloConfig.p" title="Link to this definition">#</a></dt>
@@ -951,6 +1032,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.AspirationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">AspirationConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.AspirationConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Aspiration Criterion.</p>
+<p>Attributes:
+None</p>
 </dd></dl>
 
 <dl class="py class">

@@ -495,6 +495,13 @@ document.write(`
 <span id="src-data-generators-validators"></span><h1><a class="reference internal" href="#module-src.data.generators.validators" title="src.data.generators.validators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators.validators</span></code></a><a class="headerlink" href="#module-src.data.generators.validators" title="Link to this heading">#</a></h1>
 <p>validators.py module.</p>
 <p>Validation and sanitization for data generation configuration.</p>
+<p>Attributes:
+_sanitize_area: Sanitize and validate area name.
+_sanitize_waste: Sanitize and validate waste type.
+validate_data_config: Validate and sanitize data generation configuration.</p>
+<p>Example:
+from logic.src.data.generators.validators import validate_data_config
+validate_data_config(cfg)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -502,10 +509,10 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators._sanitize_area" title="src.data.generators.validators._sanitize_area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sanitize_area</span></code></a></p></td>
-<td></td>
+<td><p>Docstring.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.generators.validators._sanitize_waste" title="src.data.generators.validators._sanitize_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sanitize_waste</span></code></a></p></td>
-<td></td>
+<td><p>Docstring.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.generators.validators.validate_data_config" title="src.data.generators.validators.validate_data_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_data_config</span></code></a></p></td>
 <td><p>Validates and sanitizes data generation configuration values in-place.</p></td>
@@ -530,12 +537,22 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.generators.validators._sanitize_area">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_sanitize_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.generators.validators._sanitize_area" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+area: Description of area.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.generators.validators._sanitize_waste">
 <span class="sig-prename descclassname"><span class="pre">src.data.generators.validators.</span></span><span class="sig-name descname"><span class="pre">_sanitize_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.generators.validators._sanitize_waste" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+waste: Description of waste.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.generators.validators.validate_data_config">

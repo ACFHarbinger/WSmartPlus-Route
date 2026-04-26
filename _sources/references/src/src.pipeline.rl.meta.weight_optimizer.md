@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.__init__
 ```
 
-````{py:method} propose_weights(context=None)
+````{py:method} propose_weights(context: typing.Optional[typing.Any] = None) -> dict[str, float]
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.propose_weights
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.propose_weights
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} feedback(reward, metrics, day=None, step=None)
+````{py:method} feedback(reward: float, metrics: typing.Dict[str, float], day: typing.Optional[typing.Any] = None, step: typing.Optional[typing.Any] = None)
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.feedback
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.feedback
@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} prepare_meta_learning_batch()
+````{py:method} prepare_meta_learning_batch() -> typing.Tuple[typing.Optional[torch.Tensor], typing.Union[int, torch.Tensor]]
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.prepare_meta_learning_batch
@@ -69,7 +69,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} meta_learning_step()
+````{py:method} meta_learning_step() -> typing.Optional[float]
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.meta_learning_step
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.meta_learning_step
@@ -77,7 +77,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} recommend_weights()
+````{py:method} recommend_weights() -> torch.Tensor
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.recommend_weights
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.recommend_weights
@@ -85,7 +85,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} update_weights_internal(force_update=False)
+````{py:method} update_weights_internal(force_update: bool = False) -> bool
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_weights_internal
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.update_weights_internal
@@ -93,7 +93,7 @@ Bases: {py:obj}`logic.src.pipeline.rl.meta.weight_strategy.WeightAdjustmentStrat
 
 ````
 
-````{py:method} get_current_weights()
+````{py:method} get_current_weights() -> dict[str, float]
 :canonical: src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.get_current_weights
 
 ```{autodoc2-docstring} src.pipeline.rl.meta.weight_optimizer.RewardWeightOptimizer.get_current_weights

@@ -496,6 +496,11 @@ document.write(`
 <p>This module provides the abstract base class for encoders used in
 autoregressive models, transforming problem instances into initial latent
 representations.</p>
+<p>Attributes:
+AutoregressiveEncoder: Base class for autoregressive encoders.</p>
+<p>Example:
+&gt;&gt;&gt; encoder = AutoregressiveEncoder()
+&gt;&gt;&gt; embeddings = encoder(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,15 +528,15 @@ embed_dim: Dimensionality of the produced embeddings.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the AutoregressiveEncoder.</p>
 <p>Args:
-embed_dim: Internal dimensionality for encoding features.
-**kwargs: Additional parameters passed to the parent Module.</p>
+embed_dim: Internal dimensionality for the latent embeddings.
+kwargs: Additional keyword arguments passed to the parent nn.Module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.autoregressive.encoder.AutoregressiveEncoder.forward">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.autoregressive.encoder.AutoregressiveEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Compute initial embeddings for the problem instance.</p>
 <p>Args:
-td: TensorDict containing the problem instance metadata.
-**kwargs: Additional control parameters for encoding.</p>
+td: TensorDict containing the current problem/environment state.
+kwargs: Control parameters for the encoder forward pass.</p>
 <p>Returns:
 Union[torch.Tensor, Tuple[torch.Tensor, …]]:
 Encodings representing the problem state, either as a single

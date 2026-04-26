@@ -490,6 +490,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_algorithms.neural_agent.agent">
 <span id="src-policies-route-construction-learning-algorithms-neural-agent-agent"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_algorithms.neural_agent.agent" title="src.policies.route_construction.learning_algorithms.neural_agent.agent"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.agent</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_algorithms.neural_agent.agent" title="Link to this heading">#</a></h1>
 <p>Main Neural Agent class assembling mixins.</p>
+<p>Attributes:
+NeuralAgent: Neural Agent class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_algorithms import NeuralAgent
+&gt;&gt;&gt; agent = NeuralAgent(model)
+&gt;&gt;&gt; routes, metrics = agent.run_day(env)
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,11 +522,13 @@ document.write(`
 route improvement for waste collection routing.</p>
 <p>Attributes:
 model: The neural routing model (AttentionModel, etc.)
-problem: Problem instance (VRPP, WCVRP, etc.) for cost calculation</p>
+problem: Problem instance (VRPP, WCVRP, etc.) for cost calculation
+seed: Random seed for reproducibility.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the NeuralAgent.</p>
 <p>Args:
-model: The neural routing model (e.g., AttentionModel).</p>
+model: The neural routing model (e.g., AttentionModel).
+seed: Random seed for reproducibility.</p>
 </dd></dl>
 
 </section>

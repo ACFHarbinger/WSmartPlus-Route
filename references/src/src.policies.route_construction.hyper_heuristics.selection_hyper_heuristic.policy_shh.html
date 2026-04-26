@@ -493,6 +493,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh">
 <span id="src-policies-route-construction-hyper-heuristics-selection-hyper-heuristic-policy-shh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh" title="src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh" title="Link to this heading">#</a></h1>
+<p>Selection Hyper-Heuristic (SHH) policy implementation.</p>
+<p>Attributes:
+SelectionHHPolicy: Adapter for the SHH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import SSHHPolicy
+&gt;&gt;&gt; params = SSHHPolicy()
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,17 +527,27 @@ Controls a set of Low-Level Heuristics (LLHs).
 Uses a reinforcement learning-like mechanism (UCB or simple probability updates)
 to select the next LLH to apply, then accepts or rejects using Late Acceptance.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;shh&quot;</span></code></p>
+<p>Attributes:
+params: SHHParams instance.
+iters: Number of iterations.
+history_len: Length of late acceptance history.
+seed: Random seed.
+rng: Random number generator.
+llhs: Pool of low-level heuristics.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Selection Hyper-Heuristic policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh.SelectionHHPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh.SelectionHHPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the total profit of a plan.</p>
+<p>Args:
+plan: Collection plan.
+problem: Problem context.</p>
+<p>Returns:
+float: Total profit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.policy_shh.SelectionHHPolicy._run_multi_period_solver">

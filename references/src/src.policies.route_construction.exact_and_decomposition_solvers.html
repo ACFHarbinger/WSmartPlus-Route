@@ -469,14 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
             </nav>
         </div>
@@ -490,6 +482,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers" title="src.policies.route_construction.exact_and_decomposition_solvers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers" title="Link to this heading">#</a></h1>
+<p>Exact and decomposition-based solvers for the VRPP.</p>
+<p>Attributes:
+branch_and_bound (module): Classic exact solvers using tree search.
+branch_and_cut (module): Cutting plane based exact solvers.
+branch_and_price (module): Column generation based exact solvers.
+branch_and_price_and_cut (module): Unified BPC engine.
+constraint_programming_with_boolean_satisfiability (module): CP-SAT solvers.
+exact_stochastic_dynamic_programming (module): DP solvers for stochastic VRPP.
+integer_l_shaped_benders_decomposition (module): Benders decomposition for stochastic VRPP.
+logic_based_benders_decomposition (module): Logic-based Benders for multi-period VRPP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound import BranchAndBoundPolicy
+&gt;&gt;&gt; solver = BranchAndBoundPolicy(config)
+&gt;&gt;&gt; routes, obj = solver.execute(context)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -582,29 +588,6 @@ document.write(`
 </ul>
 </div>
 </section>
-<section id="package-contents">
-<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
-<section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.__all__" title="src.policies.route_construction.exact_and_decomposition_solvers.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="api">
-<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py data">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.__all__">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘policy_bb’, ‘policy_bc’, ‘policy_bp’, ‘policy_bpc’, ‘policy_cp_sat’, ‘policy_esdp’, ‘policy_ils_bd…</p>
-</dd></dl>
-
-</section>
-</section>
 </section>
 
 
@@ -653,14 +636,6 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
   </nav></div>
 

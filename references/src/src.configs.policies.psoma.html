@@ -477,15 +477,20 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.c1"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.c1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.c2"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.c2</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.max_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.local_search_freq"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.local_search_freq</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.n_removal"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.n_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.x_min"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.x_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.x_max"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.x_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.v_min"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.v_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.v_max"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.v_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.L"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.L</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.T0"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.T0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.lambda_cooling"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.lambda_cooling</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -506,6 +511,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.psoma">
 <span id="src-configs-policies-psoma"></span><h1><a class="reference internal" href="#module-src.configs.policies.psoma" title="src.configs.policies.psoma"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.psoma</span></code></a><a class="headerlink" href="#module-src.configs.policies.psoma" title="Link to this heading">#</a></h1>
 <p>PSOMA (Particle Swarm Optimization Memetic Algorithm) configuration for Hydra.</p>
+<p>Attributes:
+PSOMAConfig: Configuration for the PSOMA policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.psoma import PSOMAConfig
+&gt;&gt;&gt; config = PSOMAConfig()
+&gt;&gt;&gt; config.pop_size
+20
+&gt;&gt;&gt; config.max_iterations
+200
+&gt;&gt;&gt; config.seed
+42
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.profit_aware_operators
+False</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,17 +547,24 @@ document.write(`
 <dd><p>Configuration for the PSOMA policy.</p>
 <p>Attributes:
 pop_size: Swarm size.
-omega: Inertia weight (low value ≈ 0.4 forces exploitation).
+omega: Inertia weight.
 c1: Cognitive acceleration coefficient.
 c2: Social acceleration coefficient.
 max_iterations: Maximum PSO iterations.
-local_search_freq: Memetic local-search frequency (every N iterations).
-n_removal: Nodes removed per local-search step.
-local_search_iterations: Number of local search iterations.
+x_min: Minimum value for continuous position vector.
+x_max: Maximum value for continuous position vector.
+v_min: Minimum value for continuous velocity vector.
+v_max: Maximum value for continuous velocity vector.
+L: Number of iterations for simulated annealing cooling.
+T0: Initial temperature for simulated annealing.
+lambda_cooling: Cooling rate for simulated annealing.
 time_limit: Wall-clock time limit in seconds.
 vrpp: If True, solver operates in full VRPP mode.
+profit_aware_operators: Whether to use profit-aware operators.
+seed: Random seed for reproducibility.
 mandatory_selection: Mandatory selection strategy config list.
-route_improvement: Route improvement operation config list.</p>
+route_improvement: Route improvement operation config list.
+acceptance_criterion: Acceptance criterion config for local search.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.pop_size" title="Link to this definition">#</a></dt>
@@ -547,13 +574,13 @@ route_improvement: Route improvement operation config list.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.omega">
 <span class="sig-name descname"><span class="pre">omega</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.omega" title="Link to this definition">#</a></dt>
-<dd><p>0.4</p>
+<dd><p>1.0</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.c1">
 <span class="sig-name descname"><span class="pre">c1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.c1" title="Link to this definition">#</a></dt>
-<dd><p>1.5</p>
+<dd><p>2.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -569,33 +596,51 @@ route_improvement: Route improvement operation config list.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.local_search_freq">
-<span class="sig-name descname"><span class="pre">local_search_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.local_search_freq" title="Link to this definition">#</a></dt>
-<dd><p>10</p>
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.x_min">
+<span class="sig-name descname"><span class="pre">x_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.x_min" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.n_removal">
-<span class="sig-name descname"><span class="pre">n_removal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.n_removal" title="Link to this definition">#</a></dt>
-<dd><p>2</p>
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.x_max">
+<span class="sig-name descname"><span class="pre">x_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.x_max" title="Link to this definition">#</a></dt>
+<dd><p>4.0</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.local_search_iterations">
-<span class="sig-name descname"><span class="pre">local_search_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.local_search_iterations" title="Link to this definition">#</a></dt>
-<dd><p>500</p>
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.v_min">
+<span class="sig-name descname"><span class="pre">v_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.v_min" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.v_max">
+<span class="sig-name descname"><span class="pre">v_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.v_max" title="Link to this definition">#</a></dt>
+<dd><p>4.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.L">
+<span class="sig-name descname"><span class="pre">L</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.L" title="Link to this definition">#</a></dt>
+<dd><p>30</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.T0">
+<span class="sig-name descname"><span class="pre">T0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.T0" title="Link to this definition">#</a></dt>
+<dd><p>3.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.lambda_cooling">
+<span class="sig-name descname"><span class="pre">lambda_cooling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.lambda_cooling" title="Link to this definition">#</a></dt>
+<dd><p>0.9</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>60.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.seed">
-<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.seed" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -611,14 +656,26 @@ route_improvement: Route improvement operation config list.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.mandatory_selection">
-<span class="sig-name descname"><span class="pre">mandatory_selection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.mandatory_selection" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mandatory_selection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig" title="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><span class="pre">src.configs.policies.other.mandatory_selection.MandatorySelectionConfig</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.mandatory_selection" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.route_improvement">
-<span class="sig-name descname"><span class="pre">route_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.route_improvement" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">route_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.policies.other.route_improvement.html#src.configs.policies.other.route_improvement.RouteImprovingConfig" title="src.configs.policies.other.route_improvement.RouteImprovingConfig"><span class="pre">src.configs.policies.other.route_improvement.RouteImprovingConfig</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.route_improvement" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.psoma.PSOMAConfig.acceptance_criterion">
+<span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.psoma.PSOMAConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
@@ -682,15 +739,20 @@ route_improvement: Route improvement operation config list.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.c1"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.c1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.c2"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.c2</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.max_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.max_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.local_search_freq"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.local_search_freq</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.n_removal"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.n_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.x_min"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.x_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.x_max"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.x_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.v_min"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.v_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.v_max"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.v_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.L"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.L</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.T0"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.T0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.lambda_cooling"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.lambda_cooling</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.psoma.PSOMAConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">PSOMAConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -494,6 +494,9 @@ document.write(`
 encoder and decoder for iterative improvement of combinatorial solutions.</p>
 <p>Attributes:
 N2SPolicy: Collaborative Transformer policy for neighborhood search.</p>
+<p>Example:
+&gt;&gt;&gt; policy = N2SPolicy(embed_dim=128, k_neighbors=20)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,10 +526,10 @@ decoder (N2SDecoder): Pairwise node-selection decoder.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the N2S policy.</p>
 <p>Args:
-embed_dim: Width of the latent feature space.
-num_heads: count of attention heads for the internal subnets.
-k_neighbors: number of local neighbors to consider per node.
-**kwargs: Extra parameters passed to the improvement base.</p>
+embed_dim: Dimensionality of the node features.
+num_heads: Number of attention heads.
+k_neighbors: Number of candidate neighbors per node.
+kwargs: Additional keyword arguments.</p>
 </dd></dl>
 
 </section>

@@ -545,6 +545,16 @@ References:
 
     Fisher, M. L. (1981). The Lagrangian Relaxation Method for Solving Integer
     Programming Problems. Management Science, 27(1), 1–18.
+
+Attributes:
+    _LRNode (class): A node in the Lagrangian Relaxation B&amp;B search tree.
+    _select_branch_customer (function): Branching logic helper.
+    run_bb_lr_uop (function): Main entry point for LR-UOP solver.
+    _visited_to_routes (function): Route reconstruction helper.
+
+Example:
+    &gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop import run_bb_lr_uop
+    &gt;&gt;&gt; routes, obj = run_bb_lr_uop(dist_matrix, wastes, capacity, R, C)
 </pre></div>
 </div>
 </section>
@@ -652,7 +662,8 @@ C:                Distance cost coefficient (c_km).
 params:           BBParams instance; LR-specific fields are prefixed lr_.
 mandatory_indices:  Customers that MUST appear in every feasible solution.
 env:              Optional shared Gurobi environment.
-recorder:         Optional telemetry recorder.</p>
+recorder:         Optional telemetry recorder.
+kwargs:           Additional arguments.</p>
 <p>Returns:
 (routes, objective_value) matching the dispatcher contract:
 routes     – List of routes; each route is a list of customer node IDs.

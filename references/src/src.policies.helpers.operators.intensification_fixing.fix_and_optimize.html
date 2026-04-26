@@ -504,23 +504,29 @@ Routes are ranked by quality (total distance / total load for CVRP, or
 profit for VRPP).  The <code class="docutils literal notranslate"><span class="pre">free_fraction</span></code> worst-quality routes are
 designated “free” and submitted to the sub-MIP.  All other routes remain
 fixed and are appended unchanged to the final plan.</p>
-<p>Sub-MIP formulation (CVRP — Miller-Tucker-Zemlin):
-Variables  x[i,j] ∈ {0,1}  (arc traversal), u[i] ∈ [demand_i, Q]  (MTZ load).
-Objective  Minimize Σ d[i,j] · x[i,j].
+<p>Sub-MIP formulation (CVRP – Miller-Tucker-Zemlin)::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Variables  x[i,j] in {0,1}  (arc traversal), u[i] in [demand_i, Q]  (MTZ load).
+Objective  Minimize Sum d[i,j] * x[i,j].
 Constraints:
-Σ_j x[i,j] = 1  ∀ customer i      (depart each customer once)
-Σ_i x[i,j] = 1  ∀ customer j      (enter each customer once)
-Σ_j x[0,j] = K_free               (exactly K_free vehicles from depot)
-u[j] ≥ u[i] + demand[j] − Q(1 − x[i,j])   ∀ i,j ∈ customers  (MTZ)</p>
-<p>Sub-MIP formulation (VRPP):
-Additional binary y[i] ∈ {0,1} (whether customer i is visited).
-Objective  Maximize Σ waste[i]·R·y[i] − Σ d[i,j]·C·x[i,j].
-Flow conservation uses y[i] instead of 1:  Σ_j x[i,j] = y[i].
-MTZ:  u[j] ≥ u[i] + demand[j] − Q(1 − x[i,j])  (same as CVRP).</p>
+    Sum_j x[i,j] = 1  for all customer i      (depart each customer once)
+    Sum_i x[i,j] = 1  for all customer j      (enter each customer once)
+    Sum_j x[0,j] = K_free                     (exactly K_free vehicles from depot)
+    u[j] &gt;= u[i] + demand[j] - Q(1 - x[i,j]) for all i,j in customers (MTZ)
+</pre></div>
+</div>
+<p>Sub-MIP formulation (VRPP)::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Additional binary y[i] in {0,1} (whether customer i is visited).
+Objective  Maximize Sum waste[i]*R*y[i] - Sum d[i,j]*C*x[i,j].
+Flow conservation uses y[i] instead of 1:  Sum_j x[i,j] = y[i].
+MTZ:  u[j] &gt;= u[i] + demand[j] - Q(1 - x[i,j])  (same as CVRP).
+</pre></div>
+</div>
 <p>If Gurobi finds no feasible integer solution within <em>time_limit</em> the original
 free routes are returned unchanged as a fallback.</p>
+<p>Attributes:
+None</p>
 <p>Requirements:
-Gurobi Optimizer ≥ 11.0 with a valid licence.</p>
+Gurobi Optimizer &gt;= 11.0 with a valid licence.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.operators.intensification import fix_and_optimize
 &gt;&gt;&gt; improved = fix_and_optimize(routes, dist_matrix, wastes, capacity)
@@ -536,7 +542,7 @@ Gurobi Optimizer ≥ 11.0 with a valid licence.</p>
 <td><p>Total travel distance of <em>route</em> (depot-inclusive round trip).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_profit" title="src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_route_profit</span></code></a></p></td>
-<td><p>Net profit of <em>route</em>: revenue − C · distance.</p></td>
+<td><p>Net profit of <em>route</em>: revenue minus C times distance.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.intensification_fixing.fix_and_optimize._solve_cvrp_mip" title="src.policies.helpers.operators.intensification_fixing.fix_and_optimize._solve_cvrp_mip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_solve_cvrp_mip</span></code></a></p></td>
 <td><p>Solve a CVRP sub-MIP for <em>free_nodes</em> using Gurobi (MTZ formulation).</p></td>
@@ -560,12 +566,25 @@ Gurobi Optimizer ≥ 11.0 with a valid licence.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_distance">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intensification_fixing.fix_and_optimize.</span></span><span class="sig-name descname"><span class="pre">_route_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_distance" title="Link to this definition">#</a></dt>
 <dd><p>Total travel distance of <em>route</em> (depot-inclusive round trip).</p>
+<p>Args:
+route: List of customer node IDs (depot implicit at index 0).
+dist_matrix: Square distance matrix with depot at index 0.</p>
+<p>Returns:
+Total route distance as a float.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_profit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.intensification_fixing.fix_and_optimize.</span></span><span class="sig-name descname"><span class="pre">_route_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.intensification_fixing.fix_and_optimize._route_profit" title="Link to this definition">#</a></dt>
-<dd><p>Net profit of <em>route</em>: revenue − C · distance.</p>
+<dd><p>Net profit of <em>route</em>: revenue minus C times distance.</p>
+<p>Args:
+route: List of customer node IDs.
+dist_matrix: Square distance matrix with depot at index 0.
+wastes: Node demand lookup used to compute revenue.
+R: Revenue per unit waste.
+C: Cost per unit distance.</p>
+<p>Returns:
+Net profit as a float (revenue - C * distance).</p>
 </dd></dl>
 
 <dl class="py function">

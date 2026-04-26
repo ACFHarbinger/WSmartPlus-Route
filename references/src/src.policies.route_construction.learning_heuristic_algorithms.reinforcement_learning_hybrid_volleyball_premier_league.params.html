@@ -532,6 +532,19 @@ document.write(`
 <p>This configuration bridges the basic HVPL (ACO + ALNS in population framework)
 and the advanced RL-AHVPL (with HGS, CMAB, GLS), providing RL-enhanced operators
 without the full genetic evolution complexity.</p>
+<p>Attributes:
+RLHVPLParams (RLHVPLParams): RL-HVPL parameters class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms
+…     .reinforcement_learning_hybrid_volleyball_premier_league import (
+…         RLHVPLParams
+…     )
+&gt;&gt;&gt; params = RLHVPLParams(time_limit=3600.0)
+&gt;&gt;&gt; solver = RLHVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()
+&gt;&gt;&gt; print(routes)
+&gt;&gt;&gt; print(profit)
+&gt;&gt;&gt; print(cost)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -558,6 +571,22 @@ without the full genetic evolution complexity.</p>
 <li><p>Population-based framework (VPL) for global search</p></li>
 <li><p>NO genetic operators (simpler than RL-AHVPL)</p></li>
 </ul>
+<p>Attributes:
+n_teams (int): Population size.
+max_iterations (int): Number of league seasons.
+sub_rate (float): Fraction of teams replaced per iteration.
+time_limit (float): Overall time limit in seconds.
+seed (Optional[int]): Random seed.
+vrpp (bool): Whether to use VRPP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+rl_config (RLConfig): RL configuration.
+aco_params (KSACOParams): ACO parameters.
+alns_params (ALNSParams): ALNS parameters.
+pheromone_update_strategy (str): Pheromone update strategy.
+profit_weight (float): Weight for profit-based pheromone updates.
+elite_coaching_iterations (int): Number of elite coaching iterations.
+regular_coaching_iterations (int): Number of regular coaching iterations.
+elite_size (int): Number of teams receiving elite coaching.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.n_teams">
 <span class="sig-name descname"><span class="pre">n_teams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.n_teams" title="Link to this definition">#</a></dt>
@@ -608,8 +637,12 @@ without the full genetic evolution complexity.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__">
-<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.__post_init__" title="Link to this definition">#</a></dt>
 <dd><p>Sync flags across sub-parameters.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -657,107 +690,177 @@ without the full genetic evolution complexity.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_val">
 <span class="sig-name descname"><span class="pre">_get_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_val" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get value from RL configuration.</p>
+<p>Args:
+category (str): Category of the parameter.
+key (str): Key of the parameter.
+default (Any): Default value.</p>
+<p>Returns:
+Any: Value of the parameter.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_param">
 <span class="sig-name descname"><span class="pre">_get_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams._get_param" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get parameter from RL configuration.</p>
+<p>Args:
+key (str): Key of the parameter.
+default (Any): Default value.</p>
+<p>Returns:
+Any: Value of the parameter.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_alpha" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Learning rate for Q-Learning.</p>
+<p>Returns:
+float: Learning rate for Q-Learning.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_gamma" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Discount factor for Q-Learning.</p>
+<p>Returns:
+float: Discount factor for Q-Learning.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exploration rate for Q-Learning.</p>
+<p>Returns:
+float: Exploration rate for Q-Learning.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_decay" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Decay factor for Q-Learning exploration rate.</p>
+<p>Returns:
+float: Decay factor for Q-Learning exploration rate.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_decay_step">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_decay_step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Frequency of Q-Learning exploration rate decay (in iterations).</p>
+<p>Returns:
+int: Frequency of Q-Learning exploration rate decay (in iterations).</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_epsilon_min" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Minimum exploration rate for Q-Learning.</p>
+<p>Returns:
+float: Minimum exploration rate for Q-Learning.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_improvement_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_improvement_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_improvement_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Thresholds for classifying solution quality improvements in Q-Learning.</p>
+<p>Returns:
+Tuple[float, float]: Thresholds for classifying solution quality improvements in Q-Learning.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_history_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qlearning_history_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.qlearning_history_size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Size of the rolling history window for Q-Learning state estimation.</p>
+<p>Returns:
+int: Size of the rolling history window for Q-Learning state estimation.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_alpha" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Learning rate for SARSA (used in ALNS).</p>
+<p>Returns:
+float: Learning rate for SARSA (used in ALNS).</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_gamma">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_gamma" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Discount factor for SARSA.</p>
+<p>Returns:
+float: Discount factor for SARSA.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exploration rate for SARSA.</p>
+<p>Returns:
+float: Exploration rate for SARSA.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_decay">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_decay" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Decay factor for SARSA exploration rate.</p>
+<p>Returns:
+float: Decay factor for SARSA exploration rate.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_decay_step">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_decay_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_decay_step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Frequency of SARSA exploration rate decay (in iterations).</p>
+<p>Returns:
+int: Frequency of SARSA exploration rate decay (in iterations).</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_min">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_epsilon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_epsilon_min" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Minimum exploration rate for SARSA.</p>
+<p>Returns:
+float: Minimum exploration rate for SARSA.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_diversity_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_diversity_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_diversity_size" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Maximum number of diverse solutions to track for SARSA reward calculation.</p>
+<p>Returns:
+int: Maximum number of diverse solutions to track for SARSA reward calculation.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_improvement_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_improvement_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_improvement_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Thresholds for solution quality improvement rewards in SARSA.</p>
+<p>Returns:
+Tuple[float, float]: Thresholds for solution quality improvement rewards in SARSA.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_progress_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_progress_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_progress_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Progress-based thresholds for adjusting SARSA rewards.</p>
+<p>Returns:
+Tuple[float, float]: Progress-based thresholds for adjusting SARSA rewards.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_stagnation_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_stagnation_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_stagnation_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Stagnation count thresholds for triggering SARSA penalty/reset.</p>
+<p>Returns:
+Tuple[int, int]: Stagnation count thresholds for triggering SARSA penalty/reset.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_diversity_thresholds">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sarsa_operator_diversity_thresholds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.RLHVPLParams.sarsa_operator_diversity_thresholds" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Diversity-based thresholds for adjusting SARSA rewards.</p>
+<p>Returns:
+Tuple[float, float]: Diversity-based thresholds for adjusting SARSA rewards.</p>
+</dd></dl>
 
 </dd></dl>
 

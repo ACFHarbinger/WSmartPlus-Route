@@ -500,6 +500,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.generators.base">
 <span id="src-envs-generators-base"></span><h1><a class="reference internal" href="#module-src.envs.generators.base" title="src.envs.generators.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.base</span></code></a><a class="headerlink" href="#module-src.envs.generators.base" title="Link to this heading">#</a></h1>
 <p>Base generator class for problem instances.</p>
+<p>Attributes:
+Generator: Abstract base class for problem instance generators.</p>
+<p>Example:
+&gt;&gt;&gt; from src.envs.generators import get_generator
+&gt;&gt;&gt; generator = get_generator(“vrpp”, num_loc=20)
+&gt;&gt;&gt; problem = generator.generate()
+&gt;&gt;&gt; problem
+&lt;ProblemInstance: …&gt;</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; generator = get_generator(&quot;atsp&quot;, num_loc=20, tmat_class=True)
+&gt;&gt;&gt; problem = generator.generate()
+&gt;&gt;&gt; problem
+&lt;ProblemInstance: ...&gt;
+</pre></div>
+</div>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +536,16 @@ document.write(`
 <p>Abstract base class for problem instance generators.</p>
 <p>Generators create batches of problem instances as TensorDict objects,
 supporting various probability distributions for feature generation.</p>
+<p>Attributes:
+num_loc (int): Number of nodes in the problem.
+min_loc (float): Minimum location value.
+max_loc (float): Maximum location value.
+loc_distribution (Union[str, Callable]): Distribution for location generation.
+device (torch.device): Device for computation.
+bins (Optional[int]): Number of bins for location distribution.
+kwargs: Additional keyword arguments.
+rng: Random number generator.
+generator: PyTorch generator for reproducibility.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the generator.</p>
 <p>Args:
@@ -533,11 +557,13 @@ Can be “uniform”, “normal”, “clustered”, or a callable.
 device: Device to place tensors on.
 rng: Random number generator for numpy operations.
 generator: Random number generator for torch operations.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.envs.generators.base.Generator.kwargs">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.envs.generators.base.Generator.kwargs" title="Link to this definition">#</a></dt>
 <dd><p>Return all arguments used to initialize the generator.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -587,18 +613,34 @@ Tensor of shape (*batch_size, num_loc, 2) containing coordinates.</p>
 <dt class="sig sig-object py" id="src.envs.generators.base.Generator._uniform_locations">
 <span class="sig-name descname"><span class="pre">_uniform_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.base.Generator._uniform_locations" title="Link to this definition">#</a></dt>
 <dd><p>Generate uniformly distributed locations.</p>
+<p>Args:
+batch_size: Batch size tuple.
+num_loc: Number of locations.</p>
+<p>Returns:
+Tensor of shape (*batch_size, num_loc, 2) containing uniformly distributed coordinates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.base.Generator._normal_locations">
 <span class="sig-name descname"><span class="pre">_normal_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.base.Generator._normal_locations" title="Link to this definition">#</a></dt>
 <dd><p>Generate normally distributed locations (clipped to bounds).</p>
+<p>Args:
+batch_size: Batch size tuple.
+num_loc: Number of locations.</p>
+<p>Returns:
+Tensor of shape (*batch_size, num_loc, 2) containing normally distributed coordinates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.base.Generator._clustered_locations">
 <span class="sig-name descname"><span class="pre">_clustered_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_clusters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.base.Generator._clustered_locations" title="Link to this definition">#</a></dt>
 <dd><p>Generate clustered locations using Gaussian mixture.</p>
+<p>Args:
+batch_size: Batch size tuple.
+num_loc: Number of locations.
+num_clusters: Number of clusters.</p>
+<p>Returns:
+Tensor of shape (*batch_size, num_loc, 2) containing clustered coordinates.</p>
 </dd></dl>
 
 </dd></dl>

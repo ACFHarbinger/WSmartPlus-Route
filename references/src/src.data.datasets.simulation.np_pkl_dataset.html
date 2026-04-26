@@ -495,6 +495,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets.simulation.np_pkl_dataset">
 <span id="src-data-datasets-simulation-np-pkl-dataset"></span><h1><a class="reference internal" href="#module-src.data.datasets.simulation.np_pkl_dataset" title="src.data.datasets.simulation.np_pkl_dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.simulation.np_pkl_dataset</span></code></a><a class="headerlink" href="#module-src.data.datasets.simulation.np_pkl_dataset" title="Link to this heading">#</a></h1>
 <p>NumPy pickle dataset for legacy simulation data stored in .pkl files.</p>
+<p>Attributes:
+NumpyPickleDataset: Dataset wrapping legacy pickle simulation data.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets import NumpyPickleDataset
+&gt;&gt;&gt; dataset = NumpyPickleDataset(data)
+&gt;&gt;&gt; dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=tensordict_collate_fn)
+&gt;&gt;&gt; for batch in dataloader:
+…     print(batch)
+…     break</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,21 +529,38 @@ document.write(`
 - (depot, locs, waste, max_waste) for standard problems</p>
 <p>This class normalises access so that <strong>getitem</strong> always returns a dict
 with the same keys as NumpyDictDataset.</p>
+<p>Attributes:
+data: List of tuples containing the dataset.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the NumPy pickle dataset.</p>
+<p>Args:
+data: Description of data.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__len__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of samples in the dataset.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.__getitem__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the sample at the given index.</p>
+<p>Args:
+index: Description of index.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.load">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset" title="src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset"><span class="pre">src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset</span></a></span></span><a class="headerlink" href="#src.data.datasets.simulation.np_pkl_dataset.NumpyPickleDataset.load" title="Link to this definition">#</a></dt>
 <dd><p>Load a NumpyPickleDataset from a .pkl file.</p>
+<p>Args:
+path: Description of path.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 </dd></dl>

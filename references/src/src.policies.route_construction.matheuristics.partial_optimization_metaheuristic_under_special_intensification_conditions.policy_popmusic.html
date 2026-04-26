@@ -495,6 +495,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic">
 <span id="src-policies-route-construction-matheuristics-partial-optimization-metaheuristic-under-special-intensification-conditions-policy-popmusic"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic" title="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic" title="Link to this heading">#</a></h1>
 <p>Simulator adapter for the POPMUSIC matheuristic.</p>
+<p>Attributes:
+POPMUSICPolicy: Adapter for the POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions) matheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; popmusic = POPMUSICPolicy()
+&gt;&gt;&gt; routes, cost, profit, info = popmusic.run_solver(dist_matrix, wastes, capacity, revenue, cost_unit, values, mandatory_nodes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,22 +529,27 @@ a base solver (typically LKH3 or Gurobi) until no further improvements are
 possible across all centroids.</p>
 <p>The adapter handles the conversion from the simulator’s global state to the
 localized part-optimization context.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the POPMUSIC policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.POPMUSICPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.POPMUSICPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class for this policy.</p>
+<p>Returns:
+The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.POPMUSICPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.POPMUSICPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key for this policy.</p>
+<p>Returns:
+The configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.POPMUSICPolicy._run_solver">
@@ -564,7 +574,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 POPMUSIC settings, sub-problem sizes, and base solver choices.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - coords (np.ndarray): Spatial coordinates for clustering.
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.

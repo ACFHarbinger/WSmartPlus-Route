@@ -498,6 +498,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params">
 <span id="src-policies-route-construction-matheuristics-relax-and-fix-and-optimize-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params" title="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Relax-and-Fix-and-Optimize (RFO) matheuristic.</p>
+<p>Attributes:
+RFOParams: The RFO parameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params import RFOParams
+&gt;&gt;&gt; rfo_params = RFOParams()
+&gt;&gt;&gt; rfo_params.to_dict()
+{‘window_size’: 3, ‘step_size’: 2, ‘mip_time’: 60.0, ‘mip_gap’: 0.01}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,12 +557,18 @@ mip_gap: Target optimality gap for sub-MIP solves.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams" title="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams"><span class="pre">src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create RFOParams from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+RFOParams: RFO parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params.RFOParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert RFOParams to a dictionary for backend compatibility.</p>
+<p>Returns:
+Dict[str, Any]: RFO parameters as dictionary.</p>
 </dd></dl>
 
 </dd></dl>

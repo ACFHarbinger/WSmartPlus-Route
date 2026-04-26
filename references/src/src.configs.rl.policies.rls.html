@@ -495,6 +495,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.policies.rls">
 <span id="src-configs-rl-policies-rls"></span><h1><a class="reference internal" href="#module-src.configs.rl.policies.rls" title="src.configs.rl.policies.rls"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.policies.rls</span></code></a><a class="headerlink" href="#module-src.configs.rl.policies.rls" title="Link to this heading">#</a></h1>
 <p>RLS (Random Local Search) configuration.</p>
+<p>Attributes:
+RLSConfig: Configuration for RLS algorithm.</p>
+<p>Example:
+rls_config = RLSConfig(
+n_iterations=100,
+op_probs={
+“two_opt”: 0.25,
+“swap”: 0.15,
+“relocate”: 0.15,
+“two_opt_star”: 0.2,
+“swap_star”: 0.15,
+“three_opt”: 0.1,
+},
+time_limit=30.0,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

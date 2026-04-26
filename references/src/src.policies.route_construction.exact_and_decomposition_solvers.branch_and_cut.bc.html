@@ -522,6 +522,14 @@ Generalized Traveling Salesman Problem”. Operations Research, 45(2), 326-349.<
 for the capacitated vehicle routing problem&quot;. Mathematical Programming, 100(2), 423-445.
 </pre></div>
 </div>
+<p>Attributes:
+BranchAndCutSolver (class): The core optimization engine using Gurobi.
+GUROBI_AVAILABLE (bool): Whether the gurobipy package is installed.
+NETWORKX_AVAILABLE (bool): Whether the networkx package is installed.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import BranchAndCutSolver
+&gt;&gt;&gt; solver = BranchAndCutSolver(model, params)
+&gt;&gt;&gt; routes, profit, stats = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -549,59 +557,69 @@ for the capacitated vehicle routing problem&quot;. Mathematical Programming, 100
 <li><p>Branch if fractional</p></li>
 <li><p>Use primal heuristics for upper bounds</p></li>
 </ol>
+<p>Attributes:
+model (VRPPModel): Problem definition and data.
+params (BCParams): Solver configuration parameters.
+scenarios (Optional[List[Dict[int, float]]]): SAA demand scenarios.
+separator (SeparationEngine): Logic for cut detection.
+stats (Dict[str, Any]): Internal solve statistics (cuts, nodes, etc.).
+gurobi_model (Optional[gp.Model]): Underlying Gurobi optimization model.
+x_vars (Dict[Tuple[int, int], gp.Var]): Edge selection variables.
+y_vars (Dict[int, gp.Var]): Node selection variables.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Branch-and-Cut solver.</p>
 <p>Args:
 model: VRPPModel instance defining the problem.
 params: Standardized BC configuration.
 scenarios: Optional list of mappings from node index to stochastic demand for SAA scenarios.
-**kwargs: Legacy configuration parameters (for backward compatibility).</p>
+kwargs: Legacy configuration parameters (for backward compatibility).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Solve the VRPP instance.</p>
+<dd><p>Solve the VRPP instance using Branch-and-Cut.</p>
 <p>Returns:
-Tuple of (tour, profit, statistics).</p>
+A 3-tuple containing:
+- routes: Optimized collection routes (list-of-lists).
+- profit: Total net profit (Revenue - Cost).
+- stats: Dictionary of solver performance metrics.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._build_initial_model">
 <span class="sig-name descname"><span class="pre">_build_initial_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._build_initial_model" title="Link to this definition">#</a></dt>
-<dd><p>Build the initial Gurobi model with basic constraints.</p>
+<dd><p>Build the initial Gurobi model with basic degree and capacity constraints.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback">
 <span class="sig-name descname"><span class="pre">_lazy_constraint_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">where</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback" title="Link to this definition">#</a></dt>
 <dd><p>Gurobi callback for Optimized Branch-and-Cut.</p>
-<p>Optimized Callback Structure:
-1. MIPSOL (Integer Solutions):
-- Only separates and adds Subtour Elimination Cuts (SECs).
-- These are mandatory for integer feasibility to prevent disconnected cycles.
-- Added via cbLazy().</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>2. MIPNODE (Fractional LP Nodes):
-   - Separates and adds both Capacity Cuts and SECs.
-   - These act as User Cuts strengthening the LP relaxation bound.
-   - Capacity Cuts are mathematically redundant for integer feasibility
-     due to the global knapsack constraint, but essential for a tight LP.
-   - Added via cbCut().
-</pre></div>
-</div>
+<p>This method handles both integer solution checks (MIPSOL) and LP relaxation
+node processing (MIPNODE). It coordinates the separation and addition
+of SECs and Capacity Cuts to enforce feasibility and tighten the relaxation.</p>
+<p>Args:
+model: The Gurobi model instance.
+where: Callback context identifier.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts">
 <span class="sig-name descname"><span class="pre">_evaluate_pool_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts" title="Link to this definition">#</a></dt>
-<dd><p>Re-evaluate stored cuts against the current LP/MIP solution.
-Returns cuts whose violation exceeds the threshold.
-Paper Section 5.1: pool cuts are checked before any separation call.</p>
+<dd><p>Re-evaluate stored cuts against the current LP/MIP solution.</p>
+<p>Paper Section 5.1: pool cuts are checked before any separation call.</p>
+<p>Args:
+x_vals: Current edge variable values.
+y_vals: Current node variable values.</p>
+<p>Returns:
+List of cuts from the pool that are violated by the current solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching">
 <span class="sig-name descname"><span class="pre">_handle_custom_branching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching" title="Link to this definition">#</a></dt>
 <dd><p>Custom branching on cuts (Section 5.4, Fischetti et al. 1997).</p>
-<p>NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
+<p>Note:
+NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
 interface from within Python callbacks. The paper’s “branching on cuts”
 strategy (choosing S such that sum_{e in delta(S)} x_e is fractional-odd
 and imposing sum x_e &lt;= 2k or sum x_e &gt;= 2k+2) cannot be enforced via
@@ -614,6 +632,8 @@ cbBranch() — no such Gurobi API method exists.</p>
 </ol>
 <p>Gurobi’s default variable branching (most fractional variable) is used
 instead, which corresponds to the paper’s fallback strategy.</p>
+<p>Args:
+model: The Gurobi model instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -636,6 +656,8 @@ the SeparationEngine MUST detect it and return a CapacityCut.
 - Uses fast connected-components check for SECs (NetworkX-based)
 - Heuristic capacity separation (demand-based clustering)
 - O(n²) complexity, suitable for integer callback</p>
+<p>Args:
+model: The Gurobi model instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -651,12 +673,10 @@ The paper separates in this order:</p>
 <li><p>GSEC_H1 heuristic</p></li>
 <li><p>Per-threshold ε ∈ {0.1, 0.01, 0.001} combined pool check</p></li>
 <li><p>GSEC_SEP exact separation (forced every 10th node)</p></li>
-<li><p>Generalised comb heuristics — NOT IMPLEMENTED HERE
-This implementation calls separate_fractional() which covers steps 3, 4,
-and 6 (throttled). Steps 2, 5, and 7 are not implemented.
-Paper Rule (Section 3.1): Exact separation (GSEC_SEP) is forced at every
-10th decision-tree node regardless of depth.</p></li>
+<li><p>Generalised comb heuristics — NOT IMPLEMENTED HERE</p></li>
 </ol>
+<p>Args:
+model: The Gurobi model instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -665,6 +685,9 @@ Paper Rule (Section 3.1): Exact separation (GSEC_SEP) is forced at every
 <dd><p>Add a prize-collecting subtour elimination cut (PC-SEC) as a lazy constraint.</p>
 <p>Lazy constraints are only checked for integer solutions and are essential
 for correctness in the Natural Edge Formulation.</p>
+<p>Args:
+model: The Gurobi model instance.
+cut: The subtour elimination cut object to add.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -673,6 +696,9 @@ for correctness in the Natural Edge Formulation.</p>
 <dd><p>Add a capacity cut as a lazy constraint (integer callback).</p>
 <p>Lazy constraints are only checked for integer solutions and are essential
 for correctness when capacity violations cannot be detected by base constraints.</p>
+<p>Args:
+model: The Gurobi model instance.
+cut: The capacity cut object to add.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -681,6 +707,9 @@ for correctness when capacity violations cannot be detected by base constraints.
 <dd><p>Add a prize-collecting subtour elimination cut (PC-SEC) as a user cut.</p>
 <p>User cuts strengthen the LP relaxation at fractional nodes but are not
 required for correctness (unlike lazy constraints).</p>
+<p>Args:
+model: The Gurobi model instance.
+cut: The subtour elimination cut object to add.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -689,6 +718,9 @@ required for correctness (unlike lazy constraints).</p>
 <dd><p>Add a capacity cut as a user cut (fractional callback).</p>
 <p>User cuts strengthen the LP relaxation at fractional nodes but are not
 required for correctness.</p>
+<p>Args:
+model: The Gurobi model instance.
+cut: The capacity cut object to add.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -697,6 +729,11 @@ required for correctness.</p>
 <dd><p>Separate Stochastic Capacity Inequalities (SIRP).</p>
 <p>Evaluates scenarios to find subsets where expected demand frequently exceeds capacity,
 adding cuts that force additional vehicles or node shedding.</p>
+<p>Args:
+model: The Gurobi model instance.
+x_vals: Current edge variable values.
+y_vals: Current node variable values.
+is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -705,6 +742,11 @@ adding cuts that force additional vehicles or node shedding.</p>
 <dd><p>Separate Multi-star Inequalities (SIRP).</p>
 <p>Strengthens the routing structure around subsets of correlated high-demand nodes
 across multiple stochastic scenarios.</p>
+<p>Args:
+model: The Gurobi model instance.
+x_vals: Current edge variable values.
+y_vals: Current node variable values.
+is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -713,19 +755,30 @@ across multiple stochastic scenarios.</p>
 <dd><p>Separate inequalities derived from Deterministic Lot-Sizing problems.</p>
 <p>Limits combinations of disjoint routes that consistently produce capacity failures
 in extreme scenarios by linking fractional routing capacity to continuous recourse.</p>
+<p>Args:
+model: The Gurobi model instance.
+x_vals: Current edge variable values.
+y_vals: Current node variable values.
+is_integer: Whether the current solution is integer (MIPSOL) or fractional (MIPNODE).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._set_start_solution">
 <span class="sig-name descname"><span class="pre">_set_start_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._set_start_solution" title="Link to this definition">#</a></dt>
 <dd><p>Provide a warm start solution to Gurobi.</p>
+<p>Args:
+tour: List of node indices representing the initial tour.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._extract_solution">
 <span class="sig-name descname"><span class="pre">_extract_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._extract_solution" title="Link to this definition">#</a></dt>
-<dd><p>Extract the optimal routes from Gurobi solution.
-Handles multiple routes in the aggregate flow formulation.</p>
+<dd><p>Extract the optimal routes from Gurobi solution.</p>
+<p>Handles multiple routes in the aggregate flow formulation.</p>
+<p>Returns:
+A tuple containing:
+- routes: Optimized collection routes (list-of-lists).
+- profit: Total net profit (Total Revenue - Total Cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -733,28 +786,39 @@ Handles multiple routes in the aggregate flow formulation.</p>
 <span class="sig-name descname"><span class="pre">_pre_optimize_lagrangian</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._pre_optimize_lagrangian" title="Link to this definition">#</a></dt>
 <dd><p>Root Node Strengthening via Lagrangian Relaxation.</p>
 <p>Refactored to extract violated Basic GSECs (1-tree cycles) for direct injection.</p>
+<p>Returns:
+List of unique violated node sets (cuts) discovered during relaxation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle">
 <span class="sig-name descname"><span class="pre">_find_k_tree_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle" title="Link to this definition">#</a></dt>
-<dd><p>Find a cycle in a K-tree graph using an iterative stack-based DFS.
-Replaces recursive implementation to prevent RecursionError on large graphs.</p>
+<dd><p>Find a cycle in a K-tree graph using an iterative stack-based DFS.</p>
+<p>Replaces recursive implementation to prevent RecursionError on large graphs.</p>
 <p>Correctness note: each stack frame carries its own copy of the path from
 the start node to the current node. When we encounter a neighbour v that
 already appears in the current path (a back-edge), we have found a cycle
 and return it immediately. Globally-visited nodes are only skipped when
 they do not appear in the current path, preventing false negatives from
 cross-edges between separate DFS branches.</p>
+<p>Args:
+edges: List of edges (u, v) in the K-tree.</p>
+<p>Returns:
+A set of node indices forming the first cycle found, or None if acyclic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._solve_k_tree">
 <span class="sig-name descname"><span class="pre">_solve_k_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._solve_k_tree" title="Link to this definition">#</a></dt>
-<dd><p>Solve Minimum Cost K-Tree subproblem (Fischetti et al. 1997).
-Generalized from 1-tree to handle fleet size K.</p>
+<dd><p>Solve Minimum Cost K-Tree subproblem (Fischetti et al. 1997).</p>
+<p>Generalized from 1-tree to handle fleet size K.</p>
+<p>Args:
+costs: Dictionary of modified edge costs (cost - multipliers).</p>
 <p>Returns:
-Tuple of (edges, cost, all_components_from_kruskal).</p>
+A 3-tuple containing:
+- k_tree_edges: List of edges selected for the K-tree.
+- k_tree_cost: Total cost of the selected edges.
+- history_components: List of all intermediate components formed by Kruskal’s.</p>
 </dd></dl>
 
 </dd></dl>

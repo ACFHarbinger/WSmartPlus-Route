@@ -506,6 +506,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.reactive_tabu_search.params">
 <span id="src-policies-route-construction-meta-heuristics-reactive-tabu-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.reactive_tabu_search.params" title="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.reactive_tabu_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Reactive Tabu Search (RTS) solver.</p>
+<p>Attributes:
+RTSParams: Parameters for the Reactive Tabu Search solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.reactive_tabu_search.params import RTSParams
+&gt;&gt;&gt; params = RTSParams(
+…     initial_tenure=5,
+…     max_iterations=100,
+…     time_limit=30.0,
+… )
+&gt;&gt;&gt; print(params.initial_tenure)
+5</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -619,6 +630,10 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.RTSConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams" title="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create RTSParams from a Hydra configuration object.</p>
+<p>Args:
+config (RTSConfig): The configuration object.</p>
+<p>Returns:
+RTSParams: An instance of RTSParams populated from the config.</p>
 </dd></dl>
 
 </dd></dl>

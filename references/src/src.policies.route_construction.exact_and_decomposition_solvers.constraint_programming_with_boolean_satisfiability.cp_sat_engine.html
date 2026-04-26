@@ -497,6 +497,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-constraint-programming-with-boolean-satisfiability-cp-sat-engine"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine" title="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine" title="Link to this heading">#</a></h1>
+<p>CP-SAT solver engine using OR-Tools.</p>
+<p>Provides the underlying integration between the stochastic problem definition
+and the Google OR-Tools CP-SAT logic solver.</p>
+<p>Attributes:
+CPSATEngine (class): Core solver engine for CP-SAT logic.</p>
+<p>Example:
+&gt;&gt;&gt; engine = CPSATEngine(config, dist_matrix, wastes)
+&gt;&gt;&gt; route, profit = engine.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,8 +512,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine" title="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CPSATEngine</span></code></a></p></td>
-<td><p>CP-SAT multi-day routing solver using Google OR-Tools.
-Models the problem as an integrated inventory-routing problem over a fixed horizon.</p></td>
+<td><p>CP-SAT multi-day routing solver using Google OR-Tools.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,44 +523,85 @@ Models the problem as an integrated inventory-routing problem over a fixed horiz
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.</span></span><span class="sig-name descname"><span class="pre">CPSATEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.policies.cp_sat.CPSATConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine" title="Link to this definition">#</a></dt>
-<dd><p>CP-SAT multi-day routing solver using Google OR-Tools.
-Models the problem as an integrated inventory-routing problem over a fixed horizon.</p>
+<dd><p>CP-SAT multi-day routing solver using Google OR-Tools.</p>
+<p>Models the problem as an integrated inventory-routing problem over a fixed horizon.</p>
+<p>Attributes:
+config (CPSATConfig): Configuration parameters.
+distance_matrix (np.ndarray): Distance matrix between nodes.
+initial_wastes (Dict[int, float]): Initial waste levels at customer nodes.
+capacity (float): Vehicle capacity.
+num_nodes (int): Total number of nodes (including depot).
+num_customers (int): Total number of customer nodes.
+customers (List[int]): List of customer node indices.
+nodes (List[int]): List of all node indices.
+sf (int): Scaling factor for integer conversion.
+stats (Dict[str, Any]): Execution statistics.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the CP-SAT engine.</p>
+<p>Args:
+config: Configuration parameters.
+distance_matrix: Distance matrix between nodes.
+initial_wastes: Initial waste levels at customer nodes.
+capacity: Vehicle capacity.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine.solve" title="Link to this definition">#</a></dt>
-<dd><p>Solves the CP-SAT model for the multi-day horizon.
-Returns (best_route_day1, expected_profit).</p>
+<dd><p>Solves the CP-SAT model for the multi-day horizon.</p>
+<p>Returns:
+Tuple[List[int], float]: A tuple containing:
+- List[int]: The optimized route for the first day.
+- float: The expected profit over the horizon.</p>
+<p>Raises:
+ImportError: If OR-Tools is not installed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._init_variables">
 <span class="sig-name descname"><span class="pre">_init_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.sat.python.cp_model.CpModel</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._init_variables" title="Link to this definition">#</a></dt>
 <dd><p>Initialises all CP-SAT variables.</p>
+<p>Args:
+model: The CP model to populate with variables.</p>
+<p>Returns:
+Dict[str, Dict]: A dictionary mapping variable names (‘x’, ‘visit’, etc.)
+to their respective OR-Tools variable objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_routing_constraints">
 <span class="sig-name descname"><span class="pre">_add_routing_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.sat.python.cp_model.CpModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_routing_constraints" title="Link to this definition">#</a></dt>
 <dd><p>Adds routing constraints (circuit and capacity) per day.</p>
+<p>Args:
+model: The CP model to add constraints to.
+vars_dict: Dictionary containing the variables.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_inventory_constraints">
 <span class="sig-name descname"><span class="pre">_add_inventory_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.sat.python.cp_model.CpModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_inventory_constraints" title="Link to this definition">#</a></dt>
 <dd><p>Adds inventory flow and overflow constraints across days.</p>
+<p>Args:
+model: The CP model to add constraints to.
+vars_dict: Dictionary containing the variables.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_objective">
 <span class="sig-name descname"><span class="pre">_add_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.sat.python.cp_model.CpModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vars_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._add_objective" title="Link to this definition">#</a></dt>
 <dd><p>Defines the objective function.</p>
+<p>Args:
+model: The CP model to set the objective for.
+vars_dict: Dictionary containing the variables.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._extract_route">
 <span class="sig-name descname"><span class="pre">_extract_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.sat.python.cp_model.CpSolver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.CPSATEngine._extract_route" title="Link to this definition">#</a></dt>
 <dd><p>Extracts the day 1 route from the solution.</p>
+<p>Args:
+solver: The CP solver containing the solution.
+x: Dictionary of arc traversal variables.</p>
+<p>Returns:
+List[int]: The ordered sequence of node visits for day 1.</p>
 </dd></dl>
 
 </dd></dl>

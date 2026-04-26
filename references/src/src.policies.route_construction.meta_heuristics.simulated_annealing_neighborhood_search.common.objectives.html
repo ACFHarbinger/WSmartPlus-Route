@@ -492,6 +492,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-common-objectives"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives" title="Link to this heading">#</a></h1>
 <p>Objective functions for SANS.</p>
+<p>Attributes:
+compute_profit: Calculate the total objective value (Profit - Penalties).
+compute_real_profit: Calculate the “real” profit (Revenue - Travel Cost - Vehicle penalty).
+compute_total_profit: Calculate the total profit considering revenue and cost.</p>
+<p>Example:
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; cost, profit = compute_profit(
+…     routes,
+…     p_vehicle=0.1,
+…     p_load=0.1,
+…     p_route_difference=0.1,
+…     p_shift=0.1,
+…     data=data,
+…     distance_matrix=distance_matrix,
+…     values=values,
+… )
+&gt;&gt;&gt; print(f”Cost: {cost}, Profit: {profit}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -506,7 +523,7 @@ document.write(`
 excluding soft constraints.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives.compute_total_profit" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives.compute_total_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_profit</span></code></a></p></td>
-<td><p>Calcula o lucro total considerando:</p></td>
+<td><p>Calculate the total profit considering:</p></td>
 </tr>
 </tbody>
 </table>
@@ -550,11 +567,22 @@ float: Physical profit.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives.compute_total_profit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives.</span></span><span class="sig-name descname"><span class="pre">compute_total_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.objectives.compute_total_profit" title="Link to this definition">#</a></dt>
-<dd><p>Calcula o lucro total considerando:</p>
+<dd><p>Calculate the total profit considering:</p>
 <ul class="simple">
-<li><p>Receita: soma dos pesos (kg) coletados multiplicado por R (€/kg)</p></li>
-<li><p>Custo: soma das distâncias multiplicada por custo por km (default = 1.0 €/km)</p></li>
+<li><p>Revenue: sum of weights (kg) collected multiplied by R (€/kg)</p></li>
+<li><p>Cost: sum of distances multiplied by cost per km (default = 1.0 €/km)</p></li>
 </ul>
+<p>Args:
+routes (List[List[int]]): Current routing solution.
+distance_matrix (np.ndarray): Distance matrix.
+id_to_index (Dict): Mapping of bin IDs to their indices.
+data (pd.DataFrame): Bin data.
+R (float): Revenue per kg.
+V (float): Bin volume.
+density (float): Bin density.
+cost_per_km (float, optional): Cost per km. Defaults to 1.0.</p>
+<p>Returns:
+float: Total calculated profit.</p>
 </dd></dl>
 
 </section>

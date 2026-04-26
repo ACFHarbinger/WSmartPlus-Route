@@ -99,7 +99,7 @@
 
 `````
 
-`````{py:class} RuinRecreateOperator(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, params: src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams, split_manager)
+`````{py:class} RuinRecreateOperator(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, params: src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params.HGSRRParams, split_manager: typing.Any)
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate.RuinRecreateOperator

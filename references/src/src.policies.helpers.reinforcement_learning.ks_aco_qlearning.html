@@ -502,6 +502,11 @@ document.write(`
 <p>Enhanced K-Sparse ACO Solver with Q-Learning for Local Search Operator Selection.</p>
 <p>This module extends the standard K-Sparse ACO with Q-Learning reinforcement learning
 to dynamically select the most effective local search operators for route improvement.</p>
+<p>Attributes:
+KSparseACOQLSolver: Main solver class implementing ACO-QL.</p>
+<p>Example:
+&gt;&gt;&gt; solver = KSparseACOQLSolver(dist_matrix, wastes, capacity, R, C, params, rl_params)
+&gt;&gt;&gt; best_routes, profit, cost = solver.solve()</p>
 <p>Reference:
 Watkins &amp; Dayan, “Q-Learning”, Machine Learning, 1992.
 Gambardella &amp; Dorigo, “Ant Colony System”, IEEE Trans., 1997.</p>
@@ -524,18 +529,45 @@ Gambardella &amp; Dorigo, “Ant Colony System”, IEEE Trans., 1997.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.reinforcement_learning.ks_aco_qlearning.</span></span><span class="sig-name descname"><span class="pre">KSparseACOQLSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rl_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver" title="Link to this definition">#</a></dt>
 <dd><p>Enhanced K-Sparse ACO with Q-Learning for local search operator selection.</p>
+<p>Attributes:
+dist_matrix: Problem distance matrix.
+wastes: Dictionary of node waste demands.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+params: Configuration parameters for ACO.
+mandatory_nodes: Nodes that must be visited.
+pheromone: Sparse pheromone matrix.
+ls_manager: Manager for local search operations.
+ls_operators: List of available local search operators.
+agent: Q-Learning RL agent for operator selection.
+feature_extractor: State feature extractor for the RL agent.
+improvement_history: History of solution improvement rates.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize enhanced ACO-QL solver.</p>
+<p>Args:
+dist_matrix: Problem distance matrix.
+wastes: Dictionary of node waste demands.
+capacity: Vehicle capacity.
+R: Revenue per unit of waste collected.
+C: Cost per unit of distance traveled.
+params: Configuration parameters for ACO.
+rl_params: Hyperparameters for the Q-Learning agent.
+mandatory_nodes: Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._nearest_neighbor_cost">
 <span class="sig-name descname"><span class="pre">_nearest_neighbor_cost</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._nearest_neighbor_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute nearest neighbor heuristic cost.</p>
+<p>Returns:
+float: Total cost of the nearest neighbor route.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._build_candidate_lists">
 <span class="sig-name descname"><span class="pre">_build_candidate_lists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._build_candidate_lists" title="Link to this definition">#</a></dt>
 <dd><p>Build k-nearest neighbor candidate lists.</p>
+<p>Returns:
+Dict[int, List[int]]: Dictionary mapping each node to its k-nearest neighbors.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -545,7 +577,7 @@ Gambardella &amp; Dorigo, “Ant Colony System”, IEEE Trans., 1997.</p>
 <p>Creates geographically compact routes using build_nn_routes and applies
 local search to improve the initial solution.</p>
 <p>Returns:
-Tuple of (routes, profit, cost) for the NN-initialized solution.</p>
+Tuple[List[List[int]], float, float]: Tuple of (routes, profit, cost) for the solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -553,7 +585,9 @@ Tuple of (routes, profit, cost) for the NN-initialized solution.</p>
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run enhanced ACO with Q-Learning local search.</p>
 <p>The algorithm is seeded with a Nearest Neighbor heuristic solution
-to provide a strong starting point for the ACO search.</p>
+to provide a strong starting point for the ACO search.
+Returns:
+Tuple[List[List[int]], float, float]: Tuple of (best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -574,21 +608,28 @@ List[List[int]]: Improved routes after local search.</p>
 <span class="sig-name descname"><span class="pre">_apply_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._apply_operator" title="Link to this definition">#</a></dt>
 <dd><p>Apply the specified local search operator.</p>
 <p>Args:
-operator_name: Name of the operator to apply.</p>
+operator_name (str): Name of the operator to apply.</p>
 <p>Returns:
-True if the operator improved the solution.</p>
+bool: True if the operator improved the solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._global_pheromone_update">
 <span class="sig-name descname"><span class="pre">_global_pheromone_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">best_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._global_pheromone_update" title="Link to this definition">#</a></dt>
 <dd><p>ACS global pheromone update.</p>
+<p>Args:
+best_routes: Routes of the best ant.
+best_cost: Total cost of the best routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._calculate_cost">
 <span class="sig-name descname"><span class="pre">_calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.ks_aco_qlearning.KSparseACOQLSolver._calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Args:
+routes: Routes to evaluate.</p>
+<p>Returns:
+float: Total distance-based cost.</p>
 </dd></dl>
 
 </dd></dl>

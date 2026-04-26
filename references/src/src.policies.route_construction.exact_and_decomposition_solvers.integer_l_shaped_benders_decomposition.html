@@ -468,8 +468,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-classes">Key Classes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
@@ -495,30 +493,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-integer-l-shaped-benders-decomposition"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition" title="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition" title="Link to this heading">#</a></h1>
-<section id="public-api">
-<h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">run_ils</span></code>
-Canonical solver entry point.  Instantiates VRPPModel and ILS engine,
-executes the Benders outer loop, and returns the best feasible routing.</p>
-</section>
-<section id="key-classes">
-<h2>Key Classes<a class="headerlink" href="#key-classes" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">IntegerLShapedEngine</span></code>
-Benders outer loop coordinator.
-<code class="docutils literal notranslate"><span class="pre">MasterProblem</span></code>
-Gurobi MILP master problem with SEC lazy callbacks and Benders cut management.
-<code class="docutils literal notranslate"><span class="pre">RecourseEvaluator</span></code>
-Analytical expected recourse Q̄(ŷ) and Benders cut generator.
-<code class="docutils literal notranslate"><span class="pre">ScenarioGenerator</span></code>
-SAA scenario generation via Gamma-distributed fill-level perturbation.
-<code class="docutils literal notranslate"><span class="pre">ILSBDParams</span></code>
-Typed configuration dataclass.</p>
-</section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Laporte, G., &amp; Louveaux, F. V. (1993). “The integer L-shaped method for
 stochastic integer programs with complete recourse”. Operations Research
 Letters, 13(3), 133-142.</p>
+<p>Attributes:
+IntegerLShapedEngine (class): Benders outer loop coordinator.
+MasterProblem (class): Gurobi MILP master problem.
+RecourseEvaluator (class): Benders cut generator.
+ScenarioGenerator (class): SAA scenario generation.
+ILSBDParams (class): Configuration dataclass.
+run_ils_bd (func): Canonical solver entry point.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition import run_ils_bd</p>
 </section>
 <p>Integer L-Shaped Method (Benders Decomposition) policy package.</p>
 <p>Implements the Laporte &amp; Louveaux (1993) Integer L-Shaped Method for solving the
@@ -578,7 +566,8 @@ revenue: Revenue per unit of waste collected.
 cost_unit: Cost per unit of distance traveled.
 params: ILSBDParams configuration for the solver.
 mandatory_indices: Set of local node indices that are mandatory.
-vehicle_limit: Number of vehicles available (defaults to 1).</p>
+vehicle_limit: Number of vehicles available (defaults to 1).
+kwargs: Additional keyword arguments (e.g., scenario tree).</p>
 <p>Returns:
 Tuple of (routes, profit):
 routes: List of customer-only route lists (depot excluded).
@@ -640,8 +629,6 @@ profit: Deterministic net profit = revenue − travel_cost.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-classes">Key Classes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">

@@ -507,7 +507,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-memetic-search-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver" title="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver" title="Link to this heading">#</a></h1>
 <p>Hybrid Memetic Search (HMS) for VRPP.</p>
-<p>EXACT COPY of Hybrid Volleyball Premier League (HVPL) with rigorous nomenclature.</p>
+<p>Adaptation of Hybrid Volleyball Premier League (HVPL) for VRPP with rigorous nomenclature.</p>
 <p>TERMINOLOGY MAPPING (HVPL → HMS):</p>
 <ul class="simple">
 <li><p>“Active Teams” → Active Population</p></li>
@@ -535,9 +535,11 @@ Phase 3: ALNS Coaching Refinement
 Sun, S., Ma, L., Liu, Y., &amp; Wang, L. (2023). “Volleyball premier league
 algorithm with ACO and ALNS for simultaneous pickup–delivery location
 routing problem.”</p>
-<p>IMPORTANT: This implementation EXACTLY matches the HVPL algorithm with only
-terminology changed from sports metaphors to OR terminology.
-Uses identical RNG attribute name (self.random) and algorithm flow.</p>
+<p>Attributes:
+HybridMemeticSearchSolver: Core HMS solver logic.</p>
+<p>Example:
+&gt;&gt;&gt; solver = HybridMemeticSearchSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -545,8 +547,7 @@ Uses identical RNG attribute name (self.random) and algorithm flow.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver" title="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HybridMemeticSearchSolver</span></code></a></p></td>
-<td><p>Hybrid Memetic Search solver for VRPP.
-EXACT COPY of HVPL with rigorous nomenclature.</p></td>
+<td><p>Hybrid Memetic Search solver for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -557,8 +558,22 @@ EXACT COPY of HVPL with rigorous nomenclature.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.</span></span><span class="sig-name descname"><span class="pre">HybridMemeticSearchSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params.HybridMemeticSearchParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver" title="Link to this definition">#</a></dt>
-<dd><p>Hybrid Memetic Search solver for VRPP.
-EXACT COPY of HVPL with rigorous nomenclature.</p>
+<dd><p>Hybrid Memetic Search solver for VRPP.</p>
+<p>Adaptation of HVPL with rigorous nomenclature.</p>
+<p>Attributes:
+dist_matrix: NxN distance matrix.
+wastes: Dictionary of node wastes.
+capacity: Maximum vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: HMS algorithm parameters.
+mandatory_nodes: List of required nodes.
+n_nodes: Number of nodes excluding depot.
+nodes: List of node indices (1 to n_nodes).
+random: Random number generator.
+aco_solver: ACO solver for initialization and pheromone management.
+alns_solver: ALNS solver for refinement phase.
+ls: ACO-based local search utility.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HMS solver.</p>
 <p>Args:
@@ -569,12 +584,16 @@ R: Revenue per unit of waste collected.
 C: Cost per unit of distance traveled.
 params: HMS algorithm parameters.
 mandatory_nodes: List of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the Hybrid Memetic Search algorithm.</p>
+<p>Args:
+None.</p>
 <p>Returns:
-Tuple of (routes, profit, cost).</p>
+Tuple[List[List[int]], float, float]: (best_routes, best_profit, best_cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -583,14 +602,20 @@ Tuple of (routes, profit, cost).</p>
 <dd><p>Initialize population using ACO for intelligent construction.</p>
 <p>Runs truncated ACO to build high-quality diverse solutions using
 pheromone guidance.</p>
+<p>Args:
+None.</p>
 <p>Returns:
-List of N initial routing solutions.</p>
+List[List[List[int]]]: List of N initial routing solutions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._random_construction">
 <span class="sig-name descname"><span class="pre">_random_construction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._random_construction" title="Link to this definition">#</a></dt>
 <dd><p>Build a random routing solution.</p>
+<p>Args:
+None.</p>
+<p>Returns:
+List[List[int]]: Set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -602,7 +627,7 @@ List of N initial routing solutions.</p>
 population: Pool of candidate solutions.
 n_select: Number of solutions to select.</p>
 <p>Returns:
-Selected diverse elite solutions.</p>
+List[List[List[int]]]: Selected diverse elite solutions.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -614,13 +639,19 @@ Selected diverse elite solutions.</p>
 active_teams: Current active team solutions.
 active_profits: Fitness values for active teams.</p>
 <p>Returns:
-Offspring population.</p>
+List[List[List[int]]]: Offspring population.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._tournament_select">
 <span class="sig-name descname"><span class="pre">_tournament_select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._tournament_select" title="Link to this definition">#</a></dt>
 <dd><p>Select best solution from k random candidates.</p>
+<p>Args:
+teams: Population of solutions.
+profits: Fitness values of solutions.
+k: Tournament size.</p>
+<p>Returns:
+List[List[int]]: Best solution from the tournament.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -628,18 +659,31 @@ Offspring population.</p>
 <span class="sig-name descname"><span class="pre">_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._crossover" title="Link to this definition">#</a></dt>
 <dd><p>Order-crossover (OX) style operator for routing solutions.</p>
 <p>Combines node selections from both parents.</p>
+<p>Args:
+parent1: First parent solution.
+parent2: Second parent solution.</p>
+<p>Returns:
+List[List[int]]: Recombined child solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._mutate">
 <span class="sig-name descname"><span class="pre">_mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._mutate" title="Link to this definition">#</a></dt>
 <dd><p>Mutation operator using destroy-repair.</p>
+<p>Args:
+routes: Routing solution to mutate.</p>
+<p>Returns:
+List[List[int]]: Mutated solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._perturb">
 <span class="sig-name descname"><span class="pre">_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._perturb" title="Link to this definition">#</a></dt>
 <dd><p>Intra-team perturbation: worst-removal and greedy-insertion.</p>
+<p>Args:
+routes: Routing solution to perturb.</p>
+<p>Returns:
+List[List[int]]: Perturbed solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -650,7 +694,7 @@ Offspring population.</p>
 teams: Combined parent and offspring teams.
 profits: Fitness values.</p>
 <p>Returns:
-Tuple of (selected teams, selected profits).</p>
+Tuple[List[List[List[int]]], List[float]]: (selected_teams, selected_profits).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -661,7 +705,7 @@ Tuple of (selected teams, selected profits).</p>
 active_teams: Current active teams.
 passive_teams: Reserve passive teams.</p>
 <p>Returns:
-Active teams with injected diversity.</p>
+List[List[List[int]]]: Active teams with injected diversity.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -671,7 +715,7 @@ Active teams with injected diversity.</p>
 <p>Args:
 teams: Active teams to coach.</p>
 <p>Returns:
-Coached (refined) teams.</p>
+List[List[List[int]]]: Coached (refined) teams.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -681,18 +725,28 @@ Coached (refined) teams.</p>
 <p>Args:
 routes: Best routing solution.
 cost: Total cost of best solution.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit evaluation.</p>
+<p>Args:
+routes: Routing solution.</p>
+<p>Returns:
+float: Calculated profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.HybridMemeticSearchSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: Routing solution.</p>
+<p>Returns:
+float: Calculated travel cost.</p>
 </dd></dl>
 
 </dd></dl>

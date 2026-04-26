@@ -492,8 +492,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-diversity-control-split"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split" title="Link to this heading">#</a></h1>
-<p>Split algorithm for decoding giant tours into valid vehicle routes.
-Supports both Unconstrained Fleet (Prins 2004) and Constrained Fleet (Resource CSP).</p>
+<p>Split algorithm for decoding giant tours into valid vehicle routes.</p>
+<p>Supports both Unconstrained Fleet (Prins 2004) and Constrained Fleet (Resource CSP).</p>
+<p>Attributes:
+compute_daily_loads: Computes waste loads per node per day.
+split_day: Main entry point for decoding a giant tour.</p>
+<p>Example:
+&gt;&gt;&gt; routes, cost, viol = split_day(giant_tour, loads, dist, capacity, n_vehicles)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -528,7 +533,7 @@ base_wastes: Shape (N,). Inventory at day 0.
 daily_increments: Shape (T, N). Incremental waste generated per day 1..T.
 T: Horizon length.</p>
 <p>Returns:
-np.ndarray of shape (T, N) containing the physical load picked up if visited.
+np.ndarray: shape (T, N) containing the physical load picked up if visited.
 If node i is not visited on day t, the value is 0.</p>
 </dd></dl>
 
@@ -538,24 +543,39 @@ If node i is not visited on day t, the value is 0.</p>
 <dd><p>Decodes a generic daily giant tour into route sequences.</p>
 <p>Args:
 giant_tour: 1D array of active nodes.
-loads: 1D array of loads for all nodes (shape N). We look up loads[giant_tour[i]].
+loads: 1D array of loads for all nodes (shape N).
 distance_matrix: 2D array distance.
 capacity: Max capacity per route constraint (soft for fitness).
 n_vehicles: Hard topological limit on max vehicles (0 = unlimited).</p>
 <p>Returns:
-(Decoded routes, Day Cost, Capacity Violation Sum)</p>
+Tuple[List[List[int]], float, float]: Decoded routes, day cost, and violation sum.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split._split_unconstrained">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split.</span></span><span class="sig-name descname"><span class="pre">_split_unconstrained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">giant_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split._split_unconstrained" title="Link to this definition">#</a></dt>
 <dd><p>O(N) Bellman Split using Prins (2004) unconstrained shortest path.</p>
+<p>Args:
+giant_tour: 1D array of nodes.
+loads: Load per node.
+dist: Distance matrix.
+capacity: Vehicle capacity.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Decoded routes, cost, and violation.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split._split_constrained">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split.</span></span><span class="sig-name descname"><span class="pre">_split_constrained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">giant_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.split._split_constrained" title="Link to this definition">#</a></dt>
 <dd><p>O(K * N) Resource-Constrained Shortest Path for max K vehicles.</p>
+<p>Args:
+giant_tour: 1D array of nodes.
+loads: Load per node.
+dist: Distance matrix.
+capacity: Vehicle capacity.
+K: Max vehicles allowed.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Decoded routes, cost, and violation.</p>
 </dd></dl>
 
 </section>

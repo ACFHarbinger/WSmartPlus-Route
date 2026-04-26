@@ -500,6 +500,15 @@ Reference: bibliography/Reinforcement_Learning_Great_Deluge_Hyper-Heuristic.pdf<
 <li><p>Reinforcement Learning (RL) for online selection of low-level heuristics (LLHs).</p></li>
 <li><p>Great Deluge (GD) algorithm for deterministic, time-based threshold acceptance.</p></li>
 </ol>
+<p>Attributes:
+RLGDHHSolver: Solver for VRPP using RL-GD-HH.
+RLGDHHParams: Parameters for RL-GD-HH.
+RLGDHHPolicy: Policy for RL-GD-HH.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHSolver
+&gt;&gt;&gt; solver = RLGDHHSolver()
+&gt;&gt;&gt; solution = solver.solve()
+&gt;&gt;&gt; print(solution)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

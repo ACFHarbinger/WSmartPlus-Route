@@ -491,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-search"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search" title="Link to this heading">#</a></h1>
 <p>Search sub-package export for Simulated Annealing Neighborhood Search (SANS).</p>
+<p>Attributes:
+local_search: Apply a randomized set of local search operators to improve a solution.
+local_search_2: Apply a deterministic set of local search operators to improve a solution.
+local_search_reversed: Apply a deterministic set of local search operators to improve a solution using reversed routes.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search import local_search_2
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; cost, profit = local_search_2(routes, distance_matrix, values, capacities, mandatory_nodes)
+&gt;&gt;&gt; print(f”Cost: {cost}, Profit: {profit}”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

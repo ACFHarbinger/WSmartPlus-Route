@@ -501,6 +501,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.baselines.base">
 <span id="src-pipeline-rl-common-baselines-base"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.base" title="src.pipeline.rl.common.baselines.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.base</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.base" title="Link to this heading">#</a></h1>
 <p>Base abstract class and simple baseline implementations.</p>
+<p>Attributes:
+Baseline: Abstract base class for baselines.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,12 +542,20 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.baselines.base.</span></span><span class="sig-name descname"><span class="pre">Baseline</span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for baselines.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the baseline.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.eval">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.eval" title="Link to this definition">#</a></dt>
 <dd><p>Compute baseline value.</p>
+<p>Args:
+td: TensorDict with problem instance data.
+reward: Reward tensor.
+env: Environment for data generation.</p>
+<p>Returns:
+Baseline value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -560,30 +572,49 @@ Tuple: Unwrapped batch data and optional baseline.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.unwrap_dataset">
 <span class="sig-name descname"><span class="pre">unwrap_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.unwrap_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Unwrap the dataset if it’s wrapped.</p>
+<p>Args:
+dataset: Wrapped dataset.</p>
+<p>Returns:
+Unwrapped dataset.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.epoch_callback">
 <span class="sig-name descname"><span class="pre">epoch_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.epoch_callback" title="Link to this definition">#</a></dt>
 <dd><p>Optional callback at epoch end.</p>
+<p>Args:
+policy: RL policy module.
+epoch: Epoch number.
+val_dataset: Validation dataset.
+env: RL environment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.wrap_dataset">
 <span class="sig-name descname"><span class="pre">wrap_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.wrap_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Optional wrap dataset.</p>
+<p>Args:
+dataset: Dataset to wrap.
+policy: RL policy module.
+env: RL environment.</p>
+<p>Returns:
+Wrapped dataset.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.setup" title="Link to this definition">#</a></dt>
 <dd><p>Optional setup with policy reference.</p>
+<p>Args:
+policy: RL policy module.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.base.Baseline.get_learnable_parameters">
 <span class="sig-name descname"><span class="pre">get_learnable_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.base.Baseline.get_learnable_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Get learnable parameters for the optimizer.</p>
+<p>Returns:
+List of learnable parameters.</p>
 </dd></dl>
 
 </dd></dl>

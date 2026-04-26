@@ -496,6 +496,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.baselines.warmup">
 <span id="src-pipeline-rl-common-baselines-warmup"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.warmup" title="src.pipeline.rl.common.baselines.warmup"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.warmup</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.warmup" title="Link to this heading">#</a></h1>
 <p>Gradual transition warmup baseline.</p>
+<p>Attributes:
+WarmupBaseline: Warmup baseline using a gradual transition from ExponentialBaseline to target baseline.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.baselines import WarmupBaseline
+&gt;&gt;&gt; baseline = WarmupBaseline(baseline=ExponentialBaseline())
+&gt;&gt;&gt; td = TensorDict({“obs”: torch.randn(2, 10, 20)}, batch_size=[2])
+&gt;&gt;&gt; reward = torch.tensor([1.0, 2.0])
+&gt;&gt;&gt; baseline.eval(td, reward)
+tensor([1.0, 2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,14 +525,20 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.baselines.warmup.</span></span><span class="sig-name descname"><span class="pre">WarmupBaseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline" title="src.pipeline.rl.common.baselines.base.Baseline"><span class="pre">src.pipeline.rl.common.baselines.base.Baseline</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bl_warmup_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.warmup.WarmupBaseline" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline" title="src.pipeline.rl.common.baselines.base.Baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.base.Baseline</span></code></a></p>
 <p>Gradual transition from ExponentialBaseline to target baseline.</p>
+<p>Attributes:
+baseline: The target baseline.
+warmup_epochs: The number of epochs for warmup.
+warmup_baseline: The exponential baseline used for warmup.
+alpha: The warmup progress factor.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize WarmupBaseline.</p>
 <p>Args:
-baseline: Target baseline to transition to.
-warmup_epochs: Number of epochs for warmup transition.
-bl_warmup_epochs: Alternative name for warmup_epochs.
-beta: Beta parameter for the warmup exponential baseline.
-exp_beta: Alternative name for beta.</p>
+baseline: The target baseline.
+warmup_epochs: The number of epochs for warmup.
+bl_warmup_epochs: The number of epochs for baseline warmup.
+beta: The beta parameter for ExponentialBaseline.
+exp_beta: The exp_beta parameter for ExponentialBaseline.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.warmup.WarmupBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.warmup.WarmupBaseline.eval" title="Link to this definition">#</a></dt>
@@ -561,6 +576,8 @@ env: Environment.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.warmup.WarmupBaseline.get_learnable_parameters">
 <span class="sig-name descname"><span class="pre">get_learnable_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.warmup.WarmupBaseline.get_learnable_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Get learnable parameters of the inner baseline.</p>
+<p>Returns:
+List of learnable parameters.</p>
 </dd></dl>
 
 </dd></dl>

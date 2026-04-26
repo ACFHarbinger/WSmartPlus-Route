@@ -496,6 +496,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.base">
 <span id="src-data-distributions-base"></span><h1><a class="reference internal" href="#module-src.data.distributions.base" title="src.data.distributions.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.base</span></code></a><a class="headerlink" href="#module-src.data.distributions.base" title="Link to this heading">#</a></h1>
 <p>Statistical sampling distributions.</p>
+<p>Attributes:
+BaseDistribution: Base class for sampling distributions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.distributions import BaseDistribution
+&gt;&gt;&gt; distribution = BaseDistribution()
+&gt;&gt;&gt; print(distribution.sample())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,14 +522,21 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.base.</span></span><span class="sig-name descname"><span class="pre">BaseDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.base.BaseDistribution" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Constant value sampling.</p>
+<p>Attributes:
+_sampling_method: Sampling method.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
+<p>Args:
+args: Description of args.
+kwargs: Description of kwargs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.base.BaseDistribution.set_sampling_method">
 <span class="sig-name descname"><span class="pre">set_sampling_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.base.BaseDistribution.set_sampling_method" title="Link to this definition">#</a></dt>
 <dd><p>Set sampling method.</p>
 <p>Args:
 sampling_method: Sampling method.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">

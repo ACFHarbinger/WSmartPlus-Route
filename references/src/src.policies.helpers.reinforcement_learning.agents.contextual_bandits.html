@@ -492,6 +492,14 @@ document.write(`
 <p>Contextual Multi-Armed Bandit (CMAB) agents.</p>
 <p>Provides linear and non-linear agents for operator selection and parameter
 control based on environmental context.</p>
+<p>Attributes:
+ContextualBanditAgent: Base interface for CMAB agents.
+LinUCBAgent: Linear Upper Confidence Bound implementation.
+ContextualThompsonSamplingAgent: Bayesian linear regression agent.
+GPCMABAgent: Gaussian Process-based combinatorial agent.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.contextual_bandits import LinUCBAgent
+&gt;&gt;&gt; agent = LinUCBAgent(n_arms=5, feature_dim=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

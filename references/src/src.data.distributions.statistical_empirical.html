@@ -494,6 +494,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.distributions.statistical_empirical">
 <span id="src-data-distributions-statistical-empirical"></span><h1><a class="reference internal" href="#module-src.data.distributions.statistical_empirical" title="src.data.distributions.statistical_empirical"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions.statistical_empirical</span></code></a><a class="headerlink" href="#module-src.data.distributions.statistical_empirical" title="Link to this heading">#</a></h1>
 <p>Empirical sampling distributions.</p>
+<p>Attributes:
+Empirical(grid, area, indices, data_path, dataset):
+Empirical dataset sampling.</p>
+<p>Example:
+dist = Empirical(data_path=”data/test.pkl”)
+data = dist._sample_tensor(torch.Size((10, 50)))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,12 +520,18 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.data.distributions.statistical_empirical.</span></span><span class="sig-name descname"><span class="pre">Empirical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.distributions.statistical_empirical.Empirical" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.data.distributions.base.html#src.data.distributions.base.BaseDistribution" title="src.data.distributions.base.BaseDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.distributions.base.BaseDistribution</span></code></a></p>
 <p>Sampling from an empirical dataset (e.g. file or Bins object).</p>
+<p>Attributes:
+grid (Optional[GridBase]): The grid object.
+dataset (Optional[Any]): The dataset object.
+data_path (Optional[str]): The path to the dataset.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
-grid (Optional[GridBase]): Grid object.
-area (Optional[str]): Area name.
-data_path (Optional[str]): Path to data file/directory.</p>
+grid: Description of grid.
+area: Description of area.
+indices: Description of indices.
+data_path: Description of data_path.
+dataset: Description of dataset.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.distributions.statistical_empirical.Empirical._sample_tensor">
 <span class="sig-name descname"><span class="pre">_sample_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.data.distributions.statistical_empirical.Empirical._sample_tensor" title="Link to this definition">#</a></dt>

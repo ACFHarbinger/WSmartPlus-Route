@@ -494,6 +494,22 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.tasks.vrpp">
 <span id="src-envs-tasks-vrpp"></span><h1><a class="reference internal" href="#module-src.envs.tasks.vrpp" title="src.envs.tasks.vrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.vrpp</span></code></a><a class="headerlink" href="#module-src.envs.tasks.vrpp" title="Link to this heading">#</a></h1>
 <p>VRPP and CVRPP problem definitions.</p>
+<p>Attributes:
+VRPP: Vehicle Routing Problem with Profits (VRPP) definition.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.envs.tasks.vrpp import VRPP
+&gt;&gt;&gt; dataset = {
+…     “locs”: torch.tensor([[[0.0, 0.0], [1.0, 0.0]]]),
+…     “waste”: torch.tensor([[0.0, 10.0]]),
+…     “depot”: torch.tensor([0.0]),
+…     “cost_km”: 1.0,
+…     “revenue_kg”: 2.0,
+… }
+&gt;&gt;&gt; pi = torch.tensor([[[0, 1, 0]]])
+&gt;&gt;&gt; length, cost_dict, _ = VRPP.get_costs(dataset, pi)
+&gt;&gt;&gt; print(length)
+tensor([-2.0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +517,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.tasks.vrpp.VRPP" title="src.envs.tasks.vrpp.VRPP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPP</span></code></a></p></td>
-<td><p>Vehicle Routing Problem with Profits (VRPP).
-Objective: Maximize Profit (Revenue - Cost).</p></td>
+<td><p>Vehicle Routing Problem with Profits (VRPP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,8 +529,10 @@ Objective: Maximize Profit (Revenue - Cost).</p></td>
 <dt class="sig sig-object py" id="src.envs.tasks.vrpp.VRPP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.tasks.vrpp.</span></span><span class="sig-name descname"><span class="pre">VRPP</span></span><a class="headerlink" href="#src.envs.tasks.vrpp.VRPP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.envs.tasks.base.BaseProblem</span></code></p>
-<p>Vehicle Routing Problem with Profits (VRPP).
-Objective: Maximize Profit (Revenue - Cost).</p>
+<p>Vehicle Routing Problem with Profits (VRPP).</p>
+<p>Objective: Maximize Profit (Revenue - Cost).</p>
+<p>Attributes:
+NAME: Environment name identifier.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.tasks.vrpp.VRPP.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.tasks.vrpp.VRPP.NAME" title="Link to this definition">#</a></dt>

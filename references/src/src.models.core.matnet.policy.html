@@ -537,14 +537,14 @@ embed_dim (int): feature vector size.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the MatNetPolicy.</p>
 <p>Args:
-embed_dim: Internal latent feature size.
-hidden_dim: Hidden layer size for FFN/attention.
-problem: domain problem definition.
-num_layers: Depth of the matrix encoder stack.
+embed_dim: Dimensionality of latent embeddings.
+hidden_dim: Dimensionality of hidden layers.
+problem: Environment or problem logic wrapper.
+num_layers: Number of transformer encoder layers.
 n_heads: Number of attention heads.
-tanh_clipping: range value for logit normalization.
-normalization: Type of normalization layer (‘instance’, ‘batch’).
-**kwargs: Additional parameters for the MatNetDecoder.</p>
+tanh_clipping: Range for logit clipping.
+normalization: Type of layer normalization.
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.matnet.policy.MatNetPolicy.encoder">
 <span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.encoders.matnet.encoder.MatNetEncoder</span></em><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.encoder" title="Link to this definition">#</a></dt>
@@ -573,11 +573,11 @@ temp: soft-max temperature for sampling diversity.</p>
 <p>Identifies a cost matrix in <code class="docutils literal notranslate"><span class="pre">td</span></code> (keys: ‘dist’, ‘cost_matrix’),
 encodes it into row/col latents, and construction is handled by the decoder.</p>
 <p>Args:
-td: problem state container.
-env: Optional environment for transition logic.
-strategy: selection strategy.
-num_starts: Number of construction attempts.
-**kwargs: Extra parameters including ‘cost_weights’.</p>
+td: TensorDict containing the cost matrix and problem data.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “sampling”).
+num_starts: Number of parallel construction starts.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Construction results containing:
 - log_p (torch.Tensor): Cumulative log likelihood.

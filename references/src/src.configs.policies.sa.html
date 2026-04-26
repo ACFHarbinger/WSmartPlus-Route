@@ -504,6 +504,29 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.sa">
 <span id="src-configs-policies-sa"></span><h1><a class="reference internal" href="#module-src.configs.policies.sa" title="src.configs.policies.sa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.sa</span></code></a><a class="headerlink" href="#module-src.configs.policies.sa" title="Link to this heading">#</a></h1>
 <p>SANS (Simulated Annealing Neighborhood Search) configuration.</p>
+<p>Attributes:
+SAConfig: Configuration for the Simulated Annealing policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.sa import SAConfig
+&gt;&gt;&gt; config = SAConfig()
+&gt;&gt;&gt; config.initial_temperature
+100.0
+&gt;&gt;&gt; config.cooling_rate
+0.95
+&gt;&gt;&gt; config.min_temperature
+0.01
+&gt;&gt;&gt; config.iterations_per_temp
+100
+&gt;&gt;&gt; config.nb_granular
+20
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.seed
+42
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.profit_aware_operators
+False</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

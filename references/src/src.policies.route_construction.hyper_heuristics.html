@@ -490,6 +490,24 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics">
 <span id="src-policies-route-construction-hyper-heuristics"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics" title="src.policies.route_construction.hyper_heuristics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics" title="Link to this heading">#</a></h1>
+<p>Package documentation for Hyper-Heuristics module.</p>
+<p>This package implements various Hyper-Heuristics for the Vehicle Routing Problem (VRP).</p>
+<p>Attributes:
+- Adaptive Memory Programming (AMPHH): policy_amphh
+- Ant Colony Optimization (ACO): policy_aco_hh
+- Genetic Programming (GP): policy_gp_hh
+- Genetic Programming Multi-Period (GP MP): policy_gp_mp_hh
+- Guided Indicators (GIHH): policy_gihh
+- Hidden Markov Model - Great Deluge (HMM-GD): policy_hmm_gd_hh
+- Hyper-Heuristic Using Local Knowledge (HULK): policy_hulk
+- Matheuristic Hyper-Heuristic (MHH): policy_mhh
+- Population-Based (PHH): policy_phh
+- Selection (SHH): policy_shh
+- Sequence-Based Selection (SS-HH): policy_ss_hh</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import policy_amp_hh
+&gt;&gt;&gt; solver = policy_amp_hh.AMPHHPolicy()
+&gt;&gt;&gt; solution = solver.solve(problem, multi_day_ctx)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

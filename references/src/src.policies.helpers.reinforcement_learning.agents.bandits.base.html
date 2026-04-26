@@ -498,6 +498,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.base">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-base"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.base" title="src.policies.helpers.reinforcement_learning.agents.bandits.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.base</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.base" title="Link to this heading">#</a></h1>
+<p>Base Bandit Module.</p>
+<p>This module defines the abstract base class for Multi-Armed Bandit (MAB) agents,
+providing core functionality for statistics tracking, state persistence, and
+incremental updates.</p>
+<p>Attributes:
+BanditAgent: Abstract base class for all bandit agents.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.base import BanditAgent
+&gt;&gt;&gt; # Note: BanditAgent is abstract and cannot be instantiated directly.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,12 +559,16 @@ history_size: Maximum size of the reward tracking buffer for each arm.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.save" title="Link to this definition">#</a></dt>
 <dd><p>Save the agent’s state to a file using pickle.</p>
+<p>Args:
+path: The file path to save the state to.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.load" title="Link to this definition">#</a></dt>
 <dd><p>Load the agent’s state from a file.</p>
+<p>Args:
+path: The file path to load the state from.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -490,9 +490,26 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers">
 <span id="src-policies-helpers"></span><h1><a class="reference internal" href="#module-src.policies.helpers" title="src.policies.helpers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a><a class="headerlink" href="#module-src.policies.helpers" title="Link to this heading">#</a></h1>
-<p>Helpers Package for specialized policy components.</p>
-<p>This package contains reusable components, branching solvers,
-and local search utilities used by various routing policies.</p>
+<p>Policy Helpers Package.</p>
+<p>This package provides specialized helper components for routing policies, including:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hpo</span></code>: Hyper-parameter optimization handlers and search spaces.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">local_search</span></code>: Advanced local search managers (ACO, FILO, etc.).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operators</span></code>: Atomic inter-route and intra-route move implementations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reinforcement_learning</span></code>: RL-specific policy helpers (Q-Learning, etc.).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solvers_and_matheuristics</span></code>: Specialized matheuristics and exact sub-solvers.</p></li>
+</ul>
+<p>Attributes:
+hpo: Hyper-parameter optimization handlers.
+local_search: Local search managers.
+operators: Atomic inter-route and intra-route move implementations.
+reinforcement_learning: RL-specific policy helpers.
+solvers_and_matheuristics: Specialized matheuristics and exact sub-solvers.</p>
+<p>Example:
+&gt;&gt;&gt; import logic
+&gt;&gt;&gt; solver = logic.get_policy_by_name(“my_policy”)
+&gt;&gt;&gt; solver.evaluate()
+0.5678</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

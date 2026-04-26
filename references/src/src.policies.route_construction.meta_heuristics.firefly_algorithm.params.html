@@ -507,6 +507,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.firefly_algorithm.params">
 <span id="src-policies-route-construction-meta-heuristics-firefly-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.firefly_algorithm.params" title="src.policies.route_construction.meta_heuristics.firefly_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.firefly_algorithm.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Discrete Firefly Algorithm (FA) solver.</p>
+<p>Attributes:
+FAParams: Parameter dataclass for the Firefly Algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; params = FAParams(pop_size=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,21 +530,23 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.params.</span></span><span class="sig-name descname"><span class="pre">FAParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Discrete Firefly Algorithm.</p>
-<p>Firefly brightness = net profit.  Attractiveness decays with the
-discrete routing distance (swap distance between route sets).  A less
-bright firefly moves toward a brighter one via node-extraction and
-guided insertion using a favourability score.</p>
+<p>Firefly brightness = net profit. Attractiveness decays with the
+discrete routing distance.</p>
 <p>Attributes:
 pop_size: Number of fireflies.
 beta0: Maximum attractiveness (at distance 0).
 gamma: Light absorption coefficient controlling distance decay.
 alpha_profit: Weight of node profit in favourability score.
-beta_will: Weight of node willingness (waste fill fraction) in score.
-gamma_cost: Weight of insertion cost in favourability score (penalty).
-alpha_rnd: Probability of random-walk perturbation per firefly per iter.
+beta_will: Weight of node willingness (waste fill fraction).
+gamma_cost: Weight of insertion cost in score (penalty).
+alpha_rnd: Probability of random-walk perturbation.
+n_removal: Number of nodes to remove during random walk.
 max_iterations: Maximum algorithm iterations.
 local_search_iterations: Number of local search iterations.
-time_limit: Wall-clock time limit in seconds.</p>
+time_limit: Wall-clock time limit in seconds.
+seed: Random seed.
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams.pop_size" title="Link to this definition">#</a></dt>
@@ -629,6 +635,10 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams" title="src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+FAParams instance.</p>
 </dd></dl>
 
 </dd></dl>

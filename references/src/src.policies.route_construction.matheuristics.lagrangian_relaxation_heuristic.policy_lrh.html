@@ -495,6 +495,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh">
 <span id="src-policies-route-construction-matheuristics-lagrangian-relaxation-heuristic-policy-lrh"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh" title="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh" title="Link to this heading">#</a></h1>
+<p>Lagrangian Relaxation Heuristic (LRH) policy implementation.</p>
+<p>Attributes:
+LagrangianRelaxationHeuristicPolicy: Multi-period LRH policy using subgradient optimization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh import LagrangianRelaxationHeuristicPolicy
+&gt;&gt;&gt; policy = LagrangianRelaxationHeuristicPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,10 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy" title="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LagrangianRelaxationHeuristicPolicy</span></code></a></p></td>
-<td><p>Lagrangian Relaxation Heuristic.
-Relaxes capacity constraints into the objective via Lagrangian multipliers.
-Resolves simplified subproblems and uses a subgradient method to tune multipliers.
-Converts relaxed solutions to feasible using greedy repair.</p></td>
+<td><p>Lagrangian Relaxation Heuristic.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,37 +520,64 @@ Converts relaxed solutions to feasible using greedy repair.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.</span></span><span class="sig-name descname"><span class="pre">LagrangianRelaxationHeuristicPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Lagrangian Relaxation Heuristic.
-Relaxes capacity constraints into the objective via Lagrangian multipliers.
+<p>Lagrangian Relaxation Heuristic.</p>
+<p>Relaxes capacity constraints into the objective via Lagrangian multipliers.
 Resolves simplified subproblems and uses a subgradient method to tune multipliers.
 Converts relaxed solutions to feasible using greedy repair.</p>
+<p>Attributes:
+params: LRH runtime parameters.
+max_iter: Maximum number of subgradient iterations.
+step_size_initial: Initial step size for the subgradient method.
+halving_freq: Iteration frequency at which the step size is halved.
+seed: Random seed for reproducibility.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the LRH policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional Hydra configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._solve_relaxed_subproblem">
 <span class="sig-name descname"><span class="pre">_solve_relaxed_subproblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._solve_relaxed_subproblem" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Solve the Lagrangian-relaxed subproblem for each day in the horizon.</p>
+<p>Args:
+problem: Multi-day problem context.
+lambdas: Lagrangian multipliers, one per day in the planning horizon.</p>
+<p>Returns:
+List[List[List[int]]]: Relaxed plan with one route list per day.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._repair_to_feasible">
 <span class="sig-name descname"><span class="pre">_repair_to_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._repair_to_feasible" title="Link to this definition">#</a></dt>
 <dd><p>Repair capacity violations by dropping least profitable nodes.</p>
+<p>Args:
+problem: Multi-day problem context.
+plan: Relaxed plan with one route list per day.</p>
+<p>Returns:
+List[List[List[int]]]: Feasible plan with capacity constraints respected.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the total profit of a multi-day plan.</p>
+<p>Args:
+plan: Plan with one route list per day.
+problem: Multi-day problem context.</p>
+<p>Returns:
+float: Total net profit across all days.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh.LagrangianRelaxationHeuristicPolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Run the LRH subgradient loop over the full planning horizon.</p>
+<p>Args:
+problem: Multi-day problem context.
+multi_day_ctx: Optional multi-day context for inter-day state propagation.</p>
+<p>Returns:
+Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today’s
+solution context, best feasible plan, and solver metadata.</p>
+</dd></dl>
 
 </dd></dl>
 

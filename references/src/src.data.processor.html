@@ -500,6 +500,16 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">processing</span></code>:  Data transform wrappers (process_data, process_coordinates, process_model_data)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">setup</span></code>:       Simulation bootstrap (setup_basedata, setup_dist_path_tup)</p></li>
 </ul>
+<p>Attributes:
+dataframes: DataFrame helpers (sort, sample, convert, export)
+formatting: Coordinate normalization methods (mmn, wmp, hdp, …)
+mapper:      <code class="docutils literal notranslate"><span class="pre">SimulationDataMapper</span></code> class
+processing:  Data transform wrappers (process_data, process_coordinates, process_model_data)
+setup:       Simulation bootstrap (setup_basedata, setup_dist_path_tup)</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.processor.dataframes import convert_to_dict
+&gt;&gt;&gt; convert_to_dict(pd.DataFrame({“Lng”: [0, 1], “Lat”: [0, 1]}))
+{‘Lng’: [0, 1], ‘Lat’: [0, 1]}</p>
 </section>
 <p>Data Processing and Transformation Pipeline.</p>
 <p>This package provides coordinate formatting, DataFrame manipulation,

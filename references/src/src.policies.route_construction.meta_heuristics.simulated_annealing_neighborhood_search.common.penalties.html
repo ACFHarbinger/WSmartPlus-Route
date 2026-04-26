@@ -494,6 +494,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-common-penalties"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties" title="Link to this heading">#</a></h1>
 <p>Cost and penalty calculations for SANS.</p>
+<p>Attributes:
+compute_transportation_cost: Calculate the total transportation cost based on distance and cost coefficient.
+compute_vehicle_use_penalty: Calculate the penalty for the number of vehicles (routes) used.
+compute_route_time_difference_penalty: Calculate penalty for workload imbalance between routes.
+compute_shift_excess_penalty: Calculate penalty for routes exceeding the shift duration.
+compute_load_excess_penalty: Calculate penalty for vehicles exceeding their capacity limit.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.penalties import compute_transportation_cost
+&gt;&gt;&gt; cost = compute_transportation_cost(routes_list, distance_route_vector, C)
+&gt;&gt;&gt; print(cost)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

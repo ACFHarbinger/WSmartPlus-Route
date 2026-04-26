@@ -468,6 +468,8 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -505,6 +507,26 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-concurrent-adaptive-lagrangian-matheuristic-lookahead"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead" title="Link to this heading">#</a></h1>
+<section id="attributes">
+<h2>Attributes:<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<p>LookaheadTables: Container for all lookahead-derived quantities.
+LookaheadValuator: Class for building the scenario tree and producing the V / rho / early_regret tables.
+lagrangian_corrected_prizes: Produce effective prize coefficients for one Lagrangian subproblem.</p>
+</section>
+<section id="example">
+<h2>Example:<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>valuator = LookaheadValuator(params)
+tables = valuator.compute(
+…     current_wastes=bins.c,
+…     bin_stats={“means”: bins.means, “stds”: bins.std},
+… )</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</section>
 <p>Lookahead prize valuation.</p>
 <p>Given a scenario tree over the horizon T, compute for every optional bin i
 and every candidate first-visit period t the <em>expected collectable revenue</em>
@@ -552,7 +574,7 @@ paths to smooth out noise from the sampling distribution.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.</span></span><span class="sig-name descname"><span class="pre">LookaheadTables</span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables" title="Link to this definition">#</a></dt>
 <dd><p>Container for all lookahead-derived quantities.</p>
-<p class="rubric" id="id1">Attributes</p>
+<p class="rubric" id="id3">Attributes:</p>
 <p>V : np.ndarray of shape (N, T)
 V[i, t] = expected revenue (monetary units) collected by first visiting
 bin i at period t, given no earlier collections.  Accounts for overflow
@@ -607,24 +629,38 @@ bin_stats={“means”: bins.means, “stds”: bins.std},
 <p>The scenario tree is held internally (not part of LookaheadTables) so that
 downstream consumers - e.g. mandatory-node prediction - can reuse it via
 :meth:<code class="docutils literal notranslate"><span class="pre">get_scenario_tree</span></code>.</p>
+<p class="rubric" id="id4">Attributes:</p>
+<p>params : LookaheadParams
+Lookahead parameters.
+_tree : Optional[ScenarioTree]
+The scenario tree.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the LookaheadValuator.</p>
+<p class="rubric" id="id5">Args:</p>
+<p>params : LookaheadParams
+Lookahead parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator.get_scenario_tree">
 <span class="sig-name descname"><span class="pre">get_scenario_tree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator.get_scenario_tree" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the scenario tree generated by the last call to compute().</p>
+<p class="rubric" id="id6">Returns:</p>
+<p>ScenarioTree : The scenario tree.</p>
+<p class="rubric" id="raises">Raises:</p>
+<p>RuntimeError : If compute() has not been called.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator.compute">
 <span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truth_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables" title="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadTables</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator.compute" title="Link to this definition">#</a></dt>
 <dd><p>Build the scenario tree and compute V / rho / early_regret.</p>
-<p class="rubric" id="id2">Parameters</p>
+<p class="rubric" id="id7">Args:</p>
 <p>current_wastes : np.ndarray of shape (N,)
 Current fill levels (0-100) for each bin.
 bin_stats : dict or None
 Per-bin {“means”, “stds”} - daily fill increments.
 truth_generator : object or None
 Oracle-mode truth provider (passed through to ScenarioGenerator).</p>
-<p class="rubric" id="returns">Returns</p>
+<p class="rubric" id="id8">Returns:</p>
 <p>LookaheadTables</p>
 </dd></dl>
 
@@ -633,7 +669,13 @@ Oracle-mode truth provider (passed through to ScenarioGenerator).</p>
 <span class="sig-name descname"><span class="pre">_extract_expected_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.pipeline.simulations.bins.prediction.ScenarioTree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator._extract_expected_path" title="Link to this definition">#</a></dt>
 <dd><p>Walk the tree depth-first and at each depth compute a
 probability-weighted mean of the fill levels across siblings.</p>
-<p>Returns array of shape (N, T+1).</p>
+<p class="rubric" id="id9">Args:</p>
+<p>tree : ScenarioTree
+Scenario tree.
+N : int
+Number of bins.</p>
+<p class="rubric" id="id10">Returns:</p>
+<p>np.ndarray : (N, T+1) expected fill levels.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -644,16 +686,25 @@ the expected fill level at that period, capped at capacity_cap.</p>
 <p>revenue_per_bin(f) = (min(f, cap) / 100) * volume * density * revenue_per_kg</p>
 <p>We rely on the params having these parameters supplied; otherwise we
 use a unit revenue (which still ranks bins consistently).</p>
+<p class="rubric" id="id11">Args:</p>
+<p>expected_fill : (N, T+1) expected fill levels.</p>
+<p class="rubric" id="id12">Returns:</p>
+<p>np.ndarray : (N, T) value table.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator._compute_regret_table">
 <span class="sig-name descname"><span class="pre">_compute_regret_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.LookaheadValuator._compute_regret_table" title="Link to this definition">#</a></dt>
-<dd><p>rho[i, t] = max(0, V[i, t] - max_{tau &gt; t} V[i, tau]).</p>
+<dd><p>Compute regret for each bin at each time period.</p>
+<p>rho[i, t] = max(0, V[i, t] - max_{tau &gt; t} V[i, tau]).</p>
 <p>Interpretation: if rho[i, t] &gt; 0, deferring past t strictly loses
 value.  Typically this fires when the bin has saturated and V is
 declining (but V only declines on overflow, since a capped bin’s
 revenue stays at V_max and subsequent accumulated waste is lost).</p>
+<p class="rubric" id="id13">Args:</p>
+<p>V : (N, T) lookahead value table.</p>
+<p class="rubric" id="id14">Returns:</p>
+<p>np.ndarray : (N, T) regret table.</p>
 </dd></dl>
 
 </dd></dl>
@@ -662,7 +713,7 @@ revenue stays at V_max and subsequent accumulated waste is lost).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.lagrangian_corrected_prizes">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.</span></span><span class="sig-name descname"><span class="pre">lagrangian_corrected_prizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insertion_costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'knapsack'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.lookahead.lagrangian_corrected_prizes" title="Link to this definition">#</a></dt>
 <dd><p>Produce effective prize coefficients for one Lagrangian subproblem.</p>
-<p class="rubric" id="id3">Parameters</p>
+<p class="rubric" id="id15">Args:</p>
 <p>V : (N, T) lookahead value table.
 lambdas : (N, T) current multipliers for the coupling x^K_{i,t} = x^R_{i,t}.
 insertion_costs : (N, T) oracle’s current estimate of Delta[i, t]
@@ -680,6 +731,8 @@ The insertion-cost correction is applied only to the knapsack side
 because that is where the selection decision is made.
 </pre></div>
 </div>
+<p class="rubric" id="id16">Returns:</p>
+<p>np.ndarray : (N, T) effective prize coefficients.</p>
 </dd></dl>
 
 </section>
@@ -731,6 +784,8 @@ because that is where the selection decision is made.
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

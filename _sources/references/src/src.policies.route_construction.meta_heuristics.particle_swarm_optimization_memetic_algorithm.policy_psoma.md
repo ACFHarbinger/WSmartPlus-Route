@@ -41,10 +41,16 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma.PSOMAPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma.PSOMAPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma.PSOMAPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma.PSOMAPolicy._get_config_key
+```
 
 ````
 

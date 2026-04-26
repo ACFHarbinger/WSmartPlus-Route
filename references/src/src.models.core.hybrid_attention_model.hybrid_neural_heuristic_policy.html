@@ -498,6 +498,9 @@ an initial solution (constructive phase), and a classic meta-heuristic
 (refinement phase) iterates upon it to reach local optimality.</p>
 <p>Attributes:
 NeuralHeuristicHybrid: Unified policy for construction and refinement.</p>
+<p>Example:
+&gt;&gt;&gt; hybrid = NeuralHeuristicHybrid(neural_model, hgs_solver)
+&gt;&gt;&gt; out = hybrid(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -525,21 +528,21 @@ used for Stage 2 refinement.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the hybrid policy.</p>
 <p>Args:
-neural_policy: Pre-trained constructive model.
-heuristic_policy: Vectorized meta-heuristic instance.
-**kwargs: Extra parameters for base policy.</p>
+neural_policy: Autoregressive neural model for initial construction.
+heuristic_policy: Classical OR solver for refinement.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward" title="Link to this definition">#</a></dt>
 <dd><p>Solves problem instances using the hybrid execution flow.</p>
 <p>Args:
-td: problem state.
-env: dynamics and rewards.
-strategy: constructive decoding mode.
-num_starts: multi-start count for construction.
-**kwargs: extra parameters passed to both components.</p>
+td: TensorDict containing instance data.
+env: The problem environment.
+strategy: Construction strategy (“greedy” or “sampling”).
+num_starts: Number of starts for the neural model.
+kwargs: Additional keyword arguments passed to both policies.</p>
 <p>Returns:
-Dict[str, Any]: Refinement results including ‘actions’ and ‘reward’.</p>
+Dict[str, Any]: Results dictionary from the heuristic refinement phase.</p>
 </dd></dl>
 
 </dd></dl>

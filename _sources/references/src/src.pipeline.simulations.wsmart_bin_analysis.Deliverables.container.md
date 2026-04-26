@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:class} Container(my_df, my_rec, info)
+````{py:class} Container(my_df: pandas.DataFrame, my_rec: pandas.DataFrame, info: pandas.DataFrame)
 :canonical: src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container
 
 Bases: {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.core.DataMixin`, {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.analysis_utils.AnalysisMixin`, {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.processing_utils.ProcessingMixin`, {py:obj}`src.pipeline.simulations.wsmart_bin_analysis.Deliverables.modules.plotting_utils.VisualizationMixin`

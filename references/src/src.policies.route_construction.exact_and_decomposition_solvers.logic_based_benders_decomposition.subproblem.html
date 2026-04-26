@@ -492,6 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem">
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-logic-based-benders-decomposition-subproblem"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem" title="Link to this heading">#</a></h1>
+<p>Subproblem solver for Logic-Based Benders Decomposition (LBBD).</p>
+<p>Attributes:
+RoutingSubproblem: Subproblem solver for LBBD using OR-Tools Routing library.</p>
+<p>Example:
+&gt;&gt;&gt; solver = RoutingSubproblem(dist_matrix)
+&gt;&gt;&gt; is_feasible, dist, route = solver.solve([0, 1, 5])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem" title="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoutingSubproblem</span></code></a></p></td>
-<td><p>Subproblem solver for LBBD using OR-Tools Routing library.
-Solves the TSP for a fixed set of nodes.</p></td>
+<td><p>Subproblem solver for LBBD using OR-Tools Routing library.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,17 +516,27 @@ Solves the TSP for a fixed set of nodes.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.</span></span><span class="sig-name descname"><span class="pre">RoutingSubproblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem" title="Link to this definition">#</a></dt>
-<dd><p>Subproblem solver for LBBD using OR-Tools Routing library.
-Solves the TSP for a fixed set of nodes.</p>
+<dd><p>Subproblem solver for LBBD using OR-Tools Routing library.</p>
+<p>Solves the TSP for a fixed set of nodes.</p>
+<p>Attributes:
+distance_matrix (np.ndarray): Full N×N distance matrix.
+timeout_seconds (float): Solver timeout in seconds.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the LBBD subproblem solver.</p>
+<p>Args:
+distance_matrix (np.ndarray): Distance matrix.
+timeout_seconds (float): Timeout in seconds.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assigned_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.subproblem.RoutingSubproblem.solve" title="Link to this definition">#</a></dt>
 <dd><p>Solves TSP for a given subset of nodes (including depot 0).</p>
 <p>Args:
-assigned_nodes: List of node indices to visit (0 must be included).</p>
+assigned_nodes (List[int]): List of node indices to visit (0 must be included).</p>
 <p>Returns:
-Tuple of (is_feasible, min_distance, optimal_route)</p>
+Tuple[bool, float, List[int]]: A tuple containing:
+- is_feasible: True if a feasible TSP route was found.
+- min_distance: The total distance of the optimal route.
+- optimal_route: The sequence of node indices.</p>
 </dd></dl>
 
 </dd></dl>

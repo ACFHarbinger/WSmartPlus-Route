@@ -469,7 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
@@ -520,26 +519,23 @@ Held-Karp subgradient ascent to optimize node penalties π.</p>
 Compute α-nearness for every edge using MST sensitivity.</p>
 <p>get_candidate_set(distance_matrix, alpha_measures, …) -&gt; Dict[int, List[int]]
 Build sorted candidate list per node restricted to small α-measures.</p>
-</section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
-…     get_score, is_better, split_tour_at_dummies, solve_subgradient
-… )</p>
-<p class="rubric" id="optimize-penalties-and-compute-candidates">1. Optimize penalties and compute candidates</p>
-<p>pi = solve_subgradient(distance_matrix)
-alpha = compute_alpha_measures(distance_matrix, pi)
-candidates = get_candidate_set(distance_matrix, alpha)</p>
-<p class="rubric" id="evaluate-solution">2. Evaluate solution</p>
-<p>pen, cost = get_score(tour, dist, demands, capacity)
-if is_better(pen, cost, best_pen, best_cost):
-…     routes = split_tour_at_dummies(tour)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<p>Attributes:
+DEPOT_NODE: The index of the main depot (always 0).
+is_dummy_depot: Check if a node represents a secondary vehicle (dummy depot).
+is_any_depot: Check if node is either the main depot or an augmented dummy depot.
+calculate_penalty: Compute total capacity violation over all routes in the tour.
+get_score: Return the full (penalty, cost) pair for a tour with dummy depots.
+is_better: Lexicographic dominance check — True iff (p1, c1) strictly beats (p2, c2).
+split_tour_at_dummies: Extract multi-route representation from a dummy-depot-encoded tour.
+solve_subgradient: Held-Karp subgradient ascent to optimize node penalties.
+compute_alpha_measures: Compute alpha-nearness for every edge using MST sensitivity.
+get_candidate_set: Build sorted candidate list per node restricted to small alpha-measures.</p>
+<p>Example:
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective import get_score, is_better, solve_subgradient
+&gt;&gt;&gt; dm = np.zeros((3, 3))
+&gt;&gt;&gt; pi = solve_subgradient(dm)
+&gt;&gt;&gt; pen, cost = get_score([0, 1, 2, 0], dm, None, None, 3)</p>
 </section>
 <p>LKH-3 Objective Module.</p>
 <p>Provides the lexicographic (penalty, cost) objective used throughout the
@@ -641,12 +637,22 @@ to focus the k-opt search on the most promising edges.</p>
 <dd><p>Check if a node represents a secondary vehicle (dummy depot).</p>
 <p>In augmented graph mode (VRPP/CVRP), dummy depots are placed after
 original nodes. In legacy mode, they are represented by negative indices.</p>
+<p>Args:
+node: The node to check.
+n_original: The number of original nodes.</p>
+<p>Returns:
+True if the node is a dummy depot, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.</span></span><span class="sig-name descname"><span class="pre">is_any_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot" title="Link to this definition">#</a></dt>
 <dd><p>Check if node is either the main depot or an augmented dummy depot.</p>
+<p>Args:
+node: The node to check.
+n_original: The number of original nodes.</p>
+<p>Returns:
+True if the node is a depot or dummy depot, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -655,6 +661,11 @@ original nodes. In legacy mode, they are represented by negative indices.</p>
 <dd><p>Split an augmented Hamiltonian circuit into discrete vehicle routes.</p>
 <p>Segments are delimited by any node identified as a depot or dummy depot.
 Resulting routes contain only customer node indices.</p>
+<p>Args:
+tour: The tour to split.
+n_original: The number of original nodes.</p>
+<p>Returns:
+The split routes.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -664,6 +675,13 @@ Resulting routes contain only customer node indices.</p>
 <p>Penalty calculation is performed at the route level to avoid double-counting.
 A route only contributes to the penalty if its cumulative load exceeds
 the vehicle capacity.</p>
+<p>Args:
+tour: The tour to evaluate.
+waste: The waste vector.
+capacity: The capacity.
+n_original: The number of original nodes.</p>
+<p>Returns:
+The total penalty.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -672,6 +690,14 @@ the vehicle capacity.</p>
 <dd><p>Evaluate tour under the LKH-3 lexicographic (penalty, cost) objective.</p>
 <p>Penalty represents feasibility (sum of overloads), while cost represents
 optimality (total edge weight). Feasibility is always prioritized.</p>
+<p>Args:
+tour: The tour to evaluate.
+distance_matrix: The distance matrix.
+waste: The waste vector.
+capacity: The capacity.
+n_original: The number of original nodes.</p>
+<p>Returns:
+A tuple containing the penalty and cost.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -680,12 +706,27 @@ optimality (total edge weight). Feasibility is always prioritized.</p>
 <dd><p>Lexicographic dominance check.</p>
 <p>(p1, c1) beats (p2, c2) if p1 &lt; p2 OR (p1 == p2 AND c1 &lt; c2).
 Uses a small epsilon (1e-6) for float stability.</p>
+<p>Args:
+p1: The first penalty.
+c1: The first cost.
+p2: The second penalty.
+c2: The second cost.</p>
+<p>Returns:
+True if the first is better than the second, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.</span></span><span class="sig-name descname"><span class="pre">penalty_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta" title="Link to this definition">#</a></dt>
 <dd><p>Compute ΔP = P(new) - P(old). Used for pre-screening k-opt moves.</p>
+<p>Args:
+old_tour: The old tour.
+new_tour: The new tour.
+waste: The waste vector.
+capacity: The capacity.
+n_original: The number of original nodes.</p>
+<p>Returns:
+The penalty delta.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -695,6 +736,11 @@ Uses a small epsilon (1e-6) for float stability.</p>
 <p>The 1-tree consists of a MST of nodes {1..N-1} plus the two cheapest edges
 connected to the depot (node 0). The sum of node penalties (π) drives
 the MST nodes toward degree 2.</p>
+<p>Args:
+distance_matrix: The distance matrix.
+pi: The penalty vector.</p>
+<p>Returns:
+A tuple containing the minimum 1-tree length, degrees, and edges.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -703,12 +749,25 @@ the MST nodes toward degree 2.</p>
 <dd><p>Optimize node penalties π via Held-Karp Lagrangian relaxation.</p>
 <p>The penalties π_i are added to edges incident to node i to ‘encourage’
 the MST to resemble a Hamiltonian circuit (all degrees = 2).</p>
+<p>Args:
+distance_matrix: The distance matrix.
+max_iterations: The maximum number of iterations.
+n_original: The number of original nodes.
+initial_pi: The initial penalty vector.
+initial_step: The initial step size.</p>
+<p>Returns:
+The optimized penalty vector.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.</span></span><span class="sig-name descname"><span class="pre">_compute_all_pairs_max_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mst_adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge" title="Link to this definition">#</a></dt>
 <dd><p>O(N²) BFS pass to find heaviest edge on MST paths between all pairs.</p>
+<p>Args:
+mst_adj: The MST adjacency matrix.
+n: The number of nodes.</p>
+<p>Returns:
+The maximum edge weights.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -717,12 +776,23 @@ the MST to resemble a Hamiltonian circuit (all degrees = 2).</p>
 <dd><p>Compute α-measures using MST sensitivity.</p>
 <p>α(i,j) measures the ‘distance’ of edge (i,j) from the MST. Edges with
 low α are likely constituents of the optimal tour.</p>
+<p>Args:
+distance_matrix: The distance matrix.
+pi: The penalty vector.</p>
+<p>Returns:
+The α-measures.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.</span></span><span class="sig-name descname"><span class="pre">get_candidate_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_measures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set" title="Link to this definition">#</a></dt>
 <dd><p>Build per-node candidate lists restricted to small α-measures.</p>
+<p>Args:
+distance_matrix: The distance matrix.
+alpha_measures: The α-measures.
+max_candidates: The maximum number of candidates per node.</p>
+<p>Returns:
+The candidate set.</p>
 </dd></dl>
 
 </section>
@@ -775,7 +845,6 @@ low α are likely constituents of the optimal tour.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>

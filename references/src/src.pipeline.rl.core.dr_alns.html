@@ -498,14 +498,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.core.dr_alns">
 <span id="src-pipeline-rl-core-dr-alns"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.core.dr_alns" title="src.pipeline.rl.core.dr_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.core.dr_alns</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.core.dr_alns" title="Link to this heading">#</a></h1>
-<p>DR-ALNS (Deep Reinforcement Learning - Adaptive Large Neighborhood Search)
-PyTorch Lightning Module.</p>
-<p>Integrates DR-ALNS with the existing RL training pipeline using Gymnasium
-environments and PPO training.</p>
-<p>Reference:
-Reijnen, R., Zhang, Y., Lau, H. C., &amp; Bukhsh, Z.
-“Online Control of Adaptive Large Neighborhood Search Using Deep
-Reinforcement Learning”, AAAI 2024.</p>
+<p>DR-ALNS (Deep Reinforcement Learning - Adaptive Large Neighborhood Search).</p>
+<p>This module provides the DRALNSLitModule, which integrates the DR-ALNS
+framework with PyTorch Lightning for training neural neighborhood search
+controllers.</p>
+<p>Attributes:
+DRALNSLitModule: Lightning module for DR-ALNS training.</p>
+<p>Example:
+&gt;&gt;&gt; # env = DRALNSEnv()
+&gt;&gt;&gt; # agent = DRALNSPPOAgent(env)
+&gt;&gt;&gt; # model = DRALNSLitModule(env, agent)
+&gt;&gt;&gt; # trainer.fit(model)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -545,6 +548,20 @@ Reinforcement Learning”, AAAI 2024.</p>
 <p>PyTorch Lightning module for training DR-ALNS with PPO.</p>
 <p>This module wraps the DR-ALNS PPO agent and Gymnasium environment
 into the Lightning training framework.</p>
+<p>Attributes:
+env: The DR-ALNS Gymnasium environment.
+agent: The PPO agent network controlling ALNS operators.
+instance_generator: Optional generator for problem instances.
+lr: Optimizer learning rate.
+gamma: Discount factor for rewards.
+gae_lambda: Lambda factor for Generalized Advantage Estimation.
+clip_epsilon: PPO clipping parameter.
+value_loss_coef: Scaling factor for the value function loss.
+entropy_coef: Scaling factor for the entropy bonus.
+max_grad_norm: Gradient clipping threshold.
+n_epochs: Number of PPO updates per experience batch.
+n_steps_per_epoch: Steps to collect from environment per training epoch.
+batch_size: Minibatch size for neural network updates.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DR-ALNS Lightning module.</p>
 <p>Args:
@@ -560,7 +577,8 @@ max_grad_norm: Maximum gradient norm for clipping.
 n_epochs: Number of PPO update epochs per batch.
 n_steps_per_epoch: Steps to collect per training epoch.
 batch_size: Minibatch size for updates.
-instance_generator: Function to generate problem instances.</p>
+instance_generator: Function to generate problem instances.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.dr_alns.DRALNSLitModule.reset_buffer">
 <span class="sig-name descname"><span class="pre">reset_buffer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.dr_alns.DRALNSLitModule.reset_buffer" title="Link to this definition">#</a></dt>
@@ -574,10 +592,10 @@ instance_generator: Function to generate problem instances.</p>
 <p>Note: For DR-ALNS, we don’t use batches in the traditional sense.
 Instead, we collect experience by running the environment.</p>
 <p>Args:
-batch: Unused (required by Lightning interface).
-batch_idx: Batch index (unused).</p>
+batch: Unused batch object (required by Lightning).
+batch_idx: Batch sequence index.</p>
 <p>Returns:
-Total loss tensor.</p>
+Aggregated loss tensor for the current epoch.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -593,13 +611,15 @@ n_steps: Number of steps to collect.</p>
 <span class="sig-name descname"><span class="pre">_process_buffer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.core.dr_alns.DRALNSLitModule._process_buffer" title="Link to this definition">#</a></dt>
 <dd><p>Process the experience buffer to compute advantages and returns.</p>
 <p>Returns:
-Tuple of (states, actions, log_probs, advantages, returns).</p>
+Tuple containing (states, actions, log_probs, advantages, returns).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers">
-<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">configure_optimizers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.optim.Optimizer</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.dr_alns.DRALNSLitModule.configure_optimizers" title="Link to this definition">#</a></dt>
 <dd><p>Configure optimizer for Lightning.</p>
+<p>Returns:
+PyTorch Adam optimizer instance.</p>
 </dd></dl>
 
 </dd></dl>

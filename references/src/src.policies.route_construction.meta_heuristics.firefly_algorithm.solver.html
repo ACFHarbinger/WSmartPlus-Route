@@ -506,7 +506,13 @@ document.write(`
 with swap distance (number of non-matching edges) and replacing real-valued
 position updates with node-extraction / guided-insertion movements governed
 by a three-term favourability score.</p>
-<p>Reference:
+<p>Attributes:
+FASolver (Type): Core solver class for Firefly Algorithm.
+FAParams (Type): Parameter dataclass for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = FASolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
+<p>References:
 Ai, T. J., &amp; Kachitvichyanukul, V. “A particle swarm optimization for
 the vehicle routing problem with simultaneous pickup and delivery”, 2009.
 Sayadi, M. K., Ramezanian, R., &amp; Ghaffari-Nasab, N. “A discrete firefly
@@ -531,7 +537,30 @@ flow shop scheduling problems”, 2010.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.</span></span><span class="sig-name descname"><span class="pre">FASolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.params.FAParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver" title="Link to this definition">#</a></dt>
 <dd><p>Discrete Firefly Algorithm solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of node indices.
+random: Random number generator.
+ls: Local search optimizer instance.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Discrete Firefly Algorithm solver.</p>
+<p>Args:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+params: Algorithm-specific parameters (beta0, gamma).
+mandatory_nodes: Nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver.solve" title="Link to this definition">#</a></dt>
@@ -543,38 +572,36 @@ Tuple of (routes, profit, cost).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._build_random_solution">
 <span class="sig-name descname"><span class="pre">_build_random_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._build_random_solution" title="Link to this definition">#</a></dt>
-<dd><p>Order-dependent sequential construction (matches ALNS style).</p>
-<p>Random node ordering causes different capacity cutoffs, creating
-genuinely diverse initial solutions. Uses self.C for the profitability
-check so that economics are consistent with the solver’s _evaluate().</p>
+<dd><p>Order-dependent sequential construction.</p>
+<p>Returns:
+Initial set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._swap_distance">
 <span class="sig-name descname"><span class="pre">_swap_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._swap_distance" title="Link to this definition">#</a></dt>
 <dd><p>Compute discrete swap distance between two routing solutions.</p>
-<p>Defined as the number of edges present in one solution but not the
-other (symmetric edge set difference).</p>
 <p>Args:
 routes_a: First route set.
 routes_b: Second route set.</p>
 <p>Returns:
-Integer swap distance ≥ 0.</p>
+Integer swap distance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._edge_set">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_edge_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._edge_set" title="Link to this definition">#</a></dt>
-<dd><p>Extract the set of directed edges (including depot arcs) from routes.</p>
+<dd><p>Extract the set of directed edges.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Set of (u, v) tuples.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._attract">
 <span class="sig-name descname"><span class="pre">_attract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bright_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._attract" title="Link to this definition">#</a></dt>
-<dd><p>Move dim firefly toward bright firefly via Ai &amp; Kachitvichyanukul (2009)
-node extraction and guided insertion.</p>
-<p>Favourability score per candidate node n:
-score(n) = alpha_p * profit(n) + beta_w * willingness(n) - gamma_c * insertion_cost(n)</p>
+<dd><p>Move dim firefly toward bright firefly.</p>
 <p>Args:
 dim_routes: Routes of the less bright firefly.
 bright_routes: Routes of the brighter firefly.</p>
@@ -586,17 +613,21 @@ Updated routes for the dim firefly.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._partition_flat">
 <span class="sig-name descname"><span class="pre">_partition_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._partition_flat" title="Link to this definition">#</a></dt>
 <dd><p>Partition flat nodes into feasible routes.</p>
+<p>Args:
+nodes: List of node indices.</p>
+<p>Returns:
+Grouped routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._best_insertion_cost">
 <span class="sig-name descname"><span class="pre">_best_insertion_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._best_insertion_cost" title="Link to this definition">#</a></dt>
-<dd><p>Compute the minimum insertion cost of a node into existing routes.</p>
+<dd><p>Compute the minimum insertion cost of a node.</p>
 <p>Args:
 node: Node index to insert.
 routes: Existing routes.</p>
 <p>Returns:
-Minimum additional distance required to insert the node.</p>
+Minimum additional distance required.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -613,12 +644,20 @@ Perturbed routes.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Calculated net profit.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.FASolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Total distance.</p>
 </dd></dl>
 
 </dd></dl>

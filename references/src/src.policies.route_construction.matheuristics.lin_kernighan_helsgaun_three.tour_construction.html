@@ -472,7 +472,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perturbation">Perturbation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exact-gain-functions">Exact gain functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -556,22 +555,20 @@ the sequential 5-opt moves central to Helsgaun (2000), Section 4.3.</p>
 <li><p>:class:<code class="docutils literal notranslate"><span class="pre">TourAdapter</span></code> from <code class="docutils literal notranslate"><span class="pre">._tour_adapter</span></code> to wrap tours for operator calls.</p></li>
 <li><p>:func:<code class="docutils literal notranslate"><span class="pre">double_bridge</span></code> from the shared perturbation operator package.</p></li>
 </ul>
-</section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.helpers.operators.heuristics._tour_construction import (
+<p>Attributes:
+KoptTopologyFactory: Factory for generating k-opt topologies.
+merge_tours: Helper function for merging tours.
+merge_tours_ip: Helper function for merging tours using IP.
+merge_tours_best: Helper function for merging tours using best-first search.
+build_tour_from_segments: Helper function for building tours from segments.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.heuristics._tour_construction import (  # noqa: E402
 …     _initialize_tour, _double_bridge_kick, _2opt_gain, _3opt_gains
 … )
-tour = _initialize_tour(dist, initial_tour=None)
-gain = _2opt_gain(t1, t2, t3, t4, dist)
-if gain &gt; 1e-6:
+&gt;&gt;&gt; tour = _initialize_tour(dist, initial_tour=None)
+&gt;&gt;&gt; gain = _2opt_gain(t1, t2, t3, t4, dist)
+&gt;&gt;&gt; if gain &gt; 1e-6:
 …     tour = _double_bridge_kick(tour, dist, rng)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </section>
 <p>LKH-3 Tour Construction and Gain-Computation Module.</p>
 <p>Provides tour initialisation, elite-tour merging, and the double-bridge
@@ -669,7 +666,7 @@ tour1: First tour (closed).
 tour2: Second tour (closed).
 distance_matrix: (n × n) cost matrix.</p>
 <p>Returns:
-A new closed tour that reuses as many shared edges as possible.</p>
+List[int]: A new closed tour that reuses as many shared edges as possible.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -686,7 +683,7 @@ infeasible (e.g., too sparse to form a valid tour).</p>
 tour_pool: List of elite tours (each closed).
 distance_matrix: (n × n) symmetric cost matrix.</p>
 <p>Returns:
-A new closed tour combining edges from the elite pool.</p>
+List[int]: A new closed tour combining edges from the elite pool.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -702,7 +699,7 @@ n: Number of nodes.
 distance_matrix: Full cost matrix.
 tour_pool: Original tour pool (for greedy fallback).</p>
 <p>Returns:
-A closed tour.</p>
+List[int]: A closed tour.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -714,7 +711,7 @@ tour_pool: List of elite tours (each closed).
 distance_matrix: (n × n) cost matrix.
 use_ip: If True, attempt IP-based merging; else use greedy.</p>
 <p>Returns:
-A new closed tour combining edges from the pool.</p>
+List[int]: A new closed tour combining edges from the pool.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -731,8 +728,7 @@ tour: Current closed tour (first node repeated at end).
 distance_matrix: (n × n) cost matrix (forwarded to the adapter).
 rng: <code class="docutils literal notranslate"><span class="pre">random.Random</span></code> instance for reproducible cut selection.</p>
 <p>Returns:
-New perturbed closed tour.  Returns the original tour unchanged if
-the route is too short for a double-bridge move (&lt; 4 nodes).</p>
+List[int]: New perturbed closed tour, or original if too short for move.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -746,13 +742,18 @@ node repeated at end).</p>
 distance_matrix: (n × n) cost matrix.
 initial_tour: Optional existing tour.</p>
 <p>Returns:
-A closed tour over all n nodes.</p>
+List[int]: A closed tour over all n nodes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction._get_tour_array">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.</span></span><span class="sig-name descname"><span class="pre">_get_tour_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction._get_tour_array" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve the tour as a list starting from <code class="docutils literal notranslate"><span class="pre">start_node</span></code>.</p>
+<p>Args:
+start_node: Starting node.
+tour_dict: Tour dictionary.</p>
+<p>Returns:
+List[int]: Tour as ordered node list.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -760,6 +761,8 @@ A closed tour over all n nodes.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.</span></span><span class="sig-name descname"><span class="pre">KoptTopologyFactory</span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.KoptTopologyFactory" title="Link to this definition">#</a></dt>
 <dd><p>Programmatic generator for exhaustive non-sequential k-opt topologies.
 Memoizes the exact valid Hamiltonian reconnections to avoid hardcoding.</p>
+<p>Attributes:
+_cache: Cache for storing valid topologies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.KoptTopologyFactory._cache">
 <span class="sig-name descname"><span class="pre">_cache</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.KoptTopologyFactory._cache" title="Link to this definition">#</a></dt>
@@ -779,6 +782,12 @@ The tuples contain 0-based indices into the broken nodes array (t1..t2k).</p>
 <li><p>4-opt: 25 pure</p></li>
 <li><p>5-opt: exhaustive pure valid Hamiltonian reconnections</p></li>
 </ul>
+<p>Args:
+k: Number of edges to remove (k-opt).</p>
+<p>Returns:
+List[List[Tuple[int, int]]]: Valid added-edge topologies for k-opt.</p>
+<p>Yields:
+Valid topologies.</p>
 </dd></dl>
 
 </dd></dl>
@@ -795,7 +804,7 @@ pos: List of indices in curr_tour for [t1, t2, …, t2k].
 added_edges: Matching of endpoints [0..2k-1] defining the reconnection.
 k: The k-opt order.</p>
 <p>Returns:
-The new closed tour array.</p>
+List[int]: The new closed tour array.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -807,6 +816,14 @@ The new closed tour array.</p>
 <p>NOTE: For lexicographic objectives, this function only computes ΔC (cost change).
 The caller must separately evaluate ΔP (penalty change) to determine if the
 move should be accepted. See _should_accept_kopt_move() for the full logic.</p>
+<p>Args:
+t1: Node 1.
+t2: Node 2.
+t3: Node 3.
+t4: Node 4.
+d: Distance matrix.</p>
+<p>Returns:
+float: Exact distance gain for a 2-opt move.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -826,7 +843,7 @@ Negative values mean reduced violations.
 delta_cost: Change in routing cost (C_new - C_old).
 Positive values mean cost reduction.</p>
 <p>Returns:
-True if the move should be accepted for evaluation, False otherwise.</p>
+bool: True if the move should be accepted for evaluation, False otherwise.</p>
 <p>Mathematical Formulation:
 Accept iff: (ΔP &lt; -ε) OR (|ΔP| ≤ ε AND ΔC &gt; ε)
 where ε = 1e-6 is numerical tolerance.</p>
@@ -861,6 +878,16 @@ contribution is d(t1,t2) + d(t3,t4) + d(t5,t6).</p>
 The calling code in _try_3opt_move deliberately excludes them because
 the preceding _try_2opt_move search has already proven them unprofitable
 for the current (i, j) pair.</p>
+<p>Args:
+t1: Node 1.
+t2: Node 2.
+t3: Node 3.
+t4: Node 4.
+t5: Node 5.
+t6: Node 6.
+d: Distance matrix.</p>
+<p>Returns:
+List[float]: Exact gains for all seven non-trivial 3-opt reconnection cases.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -869,6 +896,18 @@ for the current (i, j) pair.</p>
 <dd><p>Exact gains for three common 4-opt reconnection cases.</p>
 <p>Removes edges (t1,t2), (t3,t4), (t5,t6), (t7,t8).</p>
 <p>Returns a list of three gain values (indices 0–2).</p>
+<p>Args:
+t1: Node 1.
+t2: Node 2.
+t3: Node 3.
+t4: Node 4.
+t5: Node 5.
+t6: Node 6.
+t7: Node 7.
+t8: Node 8.
+d: Distance matrix.</p>
+<p>Returns:
+List[float]: Exact gains for the three 4-opt reconnection cases.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -880,6 +919,20 @@ for the current (i, j) pair.</p>
 sequential 5-opt moves central to Helsgaun (2000), Section 4.3.
 The full 5-opt exhaustive enumeration has 60 non-trivial cases;
 only these 5 representative patterns are evaluated for efficiency.</p>
+<p>Args:
+t1: Node 1.
+t2: Node 2.
+t3: Node 3.
+t4: Node 4.
+t5: Node 5.
+t6: Node 6.
+t7: Node 7.
+t8: Node 8.
+t9: Node 9.
+t10: Node 10.
+d: Distance matrix.</p>
+<p>Returns:
+List[float]: Exact gains for the five 5-opt reconnection cases.</p>
 </dd></dl>
 
 </section>
@@ -935,7 +988,6 @@ only these 5 representative patterns are evaluated for efficiency.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perturbation">Perturbation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exact-gain-functions">Exact gain functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

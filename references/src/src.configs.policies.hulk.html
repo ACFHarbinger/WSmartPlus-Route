@@ -522,6 +522,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.hulk">
 <span id="src-configs-policies-hulk"></span><h1><a class="reference internal" href="#module-src.configs.policies.hulk" title="src.configs.policies.hulk"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.hulk</span></code></a><a class="headerlink" href="#module-src.configs.policies.hulk" title="Link to this heading">#</a></h1>
 <p>Hydra configuration for HULK hyper-heuristic.</p>
+<p>Attributes:
+HULKConfig: Configuration for the HULK policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.hulk import HULKConfig
+&gt;&gt;&gt; config = HULKConfig()
+&gt;&gt;&gt; config.max_iterations
+1000</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -552,6 +559,35 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.hulk.HULKConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.hulk.</span></span><span class="sig-name descname"><span class="pre">HULKConfig</span></span><a class="headerlink" href="#src.configs.policies.hulk.HULKConfig" title="Link to this definition">#</a></dt>
 <dd><p>Hydra config for HULK hyper-heuristic.</p>
+<p>Attributes:
+seed (Optional[int]): Seed for the random number generator.
+max_iterations (int): Maximum number of iterations.
+time_limit (float): Time limit in seconds.
+restarts (int): Number of restarts.
+restart_threshold (int): Threshold for restarting.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+epsilon (float): Epsilon parameter for operator selection.
+epsilon_decay (float): Decay rate for epsilon.
+min_epsilon (float): Minimum epsilon value.
+memory_size (int): Size of the performance memory.
+accept_worse_prob (float): Probability of accepting worse solutions.
+acceptance_decay (float): Decay rate for acceptance probability.
+start_temp (float): Initial temperature for simulated annealing.
+cooling_rate (float): Cooling rate for simulated annealing.
+min_temp (float): Minimum temperature for simulated annealing.
+min_destroy_size (int): Minimum number of routes to destroy.
+max_destroy_pct (float): Maximum percentage of routes to destroy.
+local_search_iterations (int): Number of local search iterations.
+local_search_operators (List[str]): List of local search operators.
+unstring_operators (List[str]): List of unstringing operators.
+string_operators (List[str]): List of stringing operators.
+score_alpha (float): Alpha parameter for scoring.
+score_beta (float): Beta parameter for scoring.
+score_gamma (float): Gamma parameter for scoring.
+score_delta (float): Delta parameter for scoring.
+weight_learning_rate (float): Learning rate for weight updates.
+weight_decay (float): Decay rate for weights.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hulk.HULKConfig.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.hulk.HULKConfig.seed" title="Link to this definition">#</a></dt>

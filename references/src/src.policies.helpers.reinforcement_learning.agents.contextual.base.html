@@ -497,6 +497,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.contextual.base">
 <span id="src-policies-helpers-reinforcement-learning-agents-contextual-base"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.base" title="src.policies.helpers.reinforcement_learning.agents.contextual.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.base</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.base" title="Link to this heading">#</a></h1>
+<p>Base class definition for Contextual Multi-Armed Bandit (CMAB) agents.</p>
+<p>Defines the core interface and shared state (history, rewards) for agents
+that incorporate side information into the bandit framework.</p>
+<p>Attributes:
+ContextualBanditAgent: Abstract base class for CMAB implementations.</p>
+<p>Example:
+&gt;&gt;&gt; # Should be inherited, not instantiated directly.
+&gt;&gt;&gt; class MyCMAB(ContextualBanditAgent): …</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +528,14 @@ document.write(`
 <p>Unlike traditional bandits, contextual bandits use external features (context)
 to inform action selection. This base class extends the standard RLAgent
 with bookkeeping for CMAB-specific metrics and histories.</p>
+<p>Attributes:
+n_arms (int): Number of available actions.
+d (int): Dimension of the context feature vector.
+trials (int): Total number of decision steps performed.
+history_size (int): Size of the reward tracking buffer.
+rng (np.random.Generator): Internal random number generator.
+rewards (Deque[float]): Buffer of recent observed rewards.
+actions (Deque[int]): Buffer of recent selected actions.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the contextual bandit agent.</p>
 <p>Args:
@@ -530,32 +546,49 @@ history_size: Size of the reward tracking buffer.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.decay_epsilon">
 <span class="sig-name descname"><span class="pre">decay_epsilon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.decay_epsilon" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Optionally decays the exploration rate (epsilon).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.select_action">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.select_action" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Selects an action given the current context.</p>
+<p>Args:
+context (np.ndarray): The current context vector.
+rng (np.random.Generator): Random number generator for exploration.</p>
+<p>Returns:
+int: The index of the selected arm.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.get_weights">
 <span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.get_weights" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current internal weights or parameters of the agent.</p>
+<p>Returns:
+Any: Agent-specific weights, or None if not applicable.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.save" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Saves the agent state to the specified path.</p>
+<p>Args:
+path (str): File system path to save the state.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.load" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Loads the agent state from the specified path.</p>
+<p>Args:
+path (str): File system path to load the state from.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent.reset" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Resets the agent state, trials, and history buffers.</p>
+</dd></dl>
 
 </dd></dl>
 

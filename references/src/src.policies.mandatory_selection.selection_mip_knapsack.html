@@ -548,7 +548,9 @@ symmetric vehicle assignments.</p>
 <h2>Unbounded case<a class="headerlink" href="#unbounded-case" title="Link to this heading">#</a></h2>
 <p>If <code class="docutils literal notranslate"><span class="pre">context.n_vehicles</span> <span class="pre">&lt;=</span> <span class="pre">0</span></code> the strategy short-circuits to all bins deemed
 risky (non-zero expected overflow score).</p>
-<p>Example::</p>
+<p>Attributes:
+MIPKnapsackSelection: The Mixed Integer Programming (MIP) knapsack selection strategy.</p>
+<p>Example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.policies.mandatory_selection.selection_mip_knapsack import (
 ...     MIPKnapsackSelection,
 ... )
@@ -623,6 +625,9 @@ loss across a lookahead horizon supplied as a <code class="docutils literal notr
 <p>Attributes:
 overflow_penalty_frac (float): Additional penalty per overflow event.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the MIP knapsack selection strategy.</p>
+<p>Args:
+overflow_penalty_frac: Fraction of overflow penalty to consider.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection.select_bins">
 <span class="sig-name descname"><span class="pre">select_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.interfaces.context.SearchContext</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection.select_bins" title="Link to this definition">#</a></dt>

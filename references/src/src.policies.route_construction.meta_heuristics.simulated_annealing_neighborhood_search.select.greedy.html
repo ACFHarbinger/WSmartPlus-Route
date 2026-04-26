@@ -491,6 +491,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-select-greedy"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy" title="Link to this heading">#</a></h1>
 <p>Greedy selection strategies for bin management.</p>
+<p>Attributes:
+insert_bins: Greedily insert bins from the removed set into the current routes if it improves profit.
+remove_bins_end: Greedily remove bins from the current routes if it increases total profit.</p>
+<p>Example:
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy import (
+insert_bins,
+remove_bins_end,
+)
+routes_list = []
+removed_bins = []
+bins_cannot_removed = []
+data = pd.DataFrame()
+distance_matrix = np.ndarray()
+values = {}
+p_vehicle = 1.0
+p_load = 1.0
+p_route_difference = 1.0
+p_shift = 1.0
+insert_bins(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, distance_matrix, values)
+remove_bins_end(routes_list, removed_bins, p_vehicle, p_load, p_route_difference, p_shift, data, bins_cannot_removed, distance_matrix, values)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

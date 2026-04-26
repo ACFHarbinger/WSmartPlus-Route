@@ -524,11 +524,15 @@ Best-effort at heuristic level: enforced lazily at route completion by
 discarding any finished route that contains exactly one node of a
 together-pair (i.e. partial together enforcement).  Full enforcement
 would require a DP.</p>
+<p>Attributes:
+PricingSubproblem (class): Heuristic RCSPP solver using greedy insertion.</p>
+<p>Example:
+&gt;&gt;&gt; pricer = PricingSubproblem(n_nodes=50, cost_matrix=dist, …)
+&gt;&gt;&gt; routes = pricer.solve(dual_values)</p>
 </section>
 <p>Pricing Subproblem for Branch-and-Price VRPP.</p>
 <p>Solves the resource-constrained shortest path problem (RCSPP) heuristically
-to generate new routes with positive reduced cost.  The pricing problem finds
-routes that improve the LP relaxation of the master problem.</p>
+to generate new routes with positive reduced cost.</p>
 <p>Based on Section 2.2 and Section 4 of Barnhart et al. (1998).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -550,9 +554,16 @@ routes that improve the LP relaxation of the master problem.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.</span></span><span class="sig-name descname"><span class="pre">PricingSubproblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem" title="Link to this definition">#</a></dt>
 <dd><p>Resource-Constrained Shortest Path Problem for Route Generation (Heuristic).</p>
 <p>Uses a greedy insertion heuristic to quickly generate routes with positive
-reduced cost.  For exact pricing, use :class:<code class="docutils literal notranslate"><span class="pre">rcspp_dp.RCSPPSolver</span></code>.</p>
-<p>The heuristic respects active branching constraints during construction so
-that generated columns are always feasible at the current B&amp;B node.</p>
+reduced cost.</p>
+<p>Attributes:
+n_nodes (int): Number of customer nodes.
+cost_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Map from node to waste volume.
+capacity (float): Vehicle capacity.
+R (float): Revenue per kg.
+C (float): Cost per km.
+mandatory_nodes (Set[int]): Nodes that must be visited.
+depot (int): Index of the depot node (always 0).</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the pricing subproblem.</p>
 <p>Args:
@@ -562,8 +573,7 @@ wastes: Mapping from node ID to waste volume.
 capacity: Vehicle payload capacity.
 revenue_per_kg: Revenue earned per unit of waste collected.
 cost_per_km: Cost per unit of distance travelled.
-mandatory_nodes: Set of node indices that must be visited.
-params: Standardized BP parameters.</p>
+mandatory_nodes: Set of node indices that must be visited.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem.IS_EXACT">
 <span class="sig-name descname"><span class="pre">IS_EXACT</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem.IS_EXACT" title="Link to this definition">#</a></dt>
@@ -575,26 +585,16 @@ params: Standardized BP parameters.</p>
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_cut_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_not_exact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem.solve" title="Link to this definition">#</a></dt>
 <dd><p>Generate routes with positive reduced cost.</p>
 <p><strong>Warning:</strong> This pricer is heuristic. It may miss columns with positive reduced
-cost. It must only be used for warm-starting the initial column pool, never as the
-pricer inside the B&amp;B column generation loop where LP optimality must be certified.</p>
-<p>Tries multiple starting nodes to diversify the column pool.  Each
-candidate route is built with the greedy insertion heuristic and is
-guaranteed to satisfy all active branching constraints.</p>
+cost.</p>
 <p>Args:
-dual_values: Dual values from the master problem.  Keys are
-customer node IDs (int) and optionally <code class="docutils literal notranslate"><span class="pre">&quot;vehicle_limit&quot;</span></code>.
+dual_values: Dual values from the master problem.
 max_routes: Maximum number of routes to return.
-active_constraints: Active branching constraints at the current
-B&amp;B node, or <code class="docutils literal notranslate"><span class="pre">None</span></code> / empty list for the root.  Accepts
-both :class:<code class="docutils literal notranslate"><span class="pre">branching.EdgeBranchingConstraint</span></code> and
-:class:<code class="docutils literal notranslate"><span class="pre">branching.RyanFosterBranchingConstraint</span></code> instances.
-capacity_cut_duals: Optional mapping of node-sets to dual values
-for active capacity cuts.
-assert_not_exact: If True, raises RuntimeError to prevent misuse
-in an exact B&amp;B pricing loop.</p>
+active_constraints: Active branching constraints at the current B&amp;B node.
+capacity_cut_duals: Optional mapping of node-sets to dual values.
+assert_not_exact: If True, raises RuntimeError to prevent misuse.
+kwargs: Additional parameters (e.g. node_prizes).</p>
 <p>Returns:
-List of <code class="docutils literal notranslate"><span class="pre">(route_nodes,</span> <span class="pre">reduced_cost)</span></code> tuples sorted by
-descending reduced cost.  <code class="docutils literal notranslate"><span class="pre">route_nodes</span></code> excludes the depot.</p>
+List of <code class="docutils literal notranslate"><span class="pre">(route_nodes,</span> <span class="pre">reduced_cost)</span></code> tuples.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -614,6 +614,19 @@ Five look-up structures used by the greedy heuristic.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion">
 <span class="sig-name descname"><span class="pre">_evaluate_candidate_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_arcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_successors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_predecessors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_separate_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate candidate v and find best insertion position and profit.</p>
+<p>Args:
+v: Candidate node to insert.
+v_waste: Waste volume of node v.
+route: Current partial route.
+dual_values: Node dual values.
+forbidden_arcs: Set of forbidden arcs.
+req_successors: Required successors map.
+req_predecessors: Required predecessors map.
+rf_separate_pairs: Ryan-Foster separation pairs.
+visited: Set of nodes already in the route.
+node_prizes: Optional fixed prizes per node.</p>
+<p>Returns:
+A tuple of (best_position, best_marginal_profit).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -621,7 +634,7 @@ Five look-up structures used by the greedy heuristic.</p>
 <span class="sig-name descname"><span class="pre">_greedy_route_construction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_arcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_successors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_predecessors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_separate_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_together_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_cut_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_prizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem._greedy_route_construction" title="Link to this definition">#</a></dt>
 <dd><p>Build a single route greedily from <em>start_node</em>.</p>
 <p>At each step the next insertion is chosen to maximise marginal profit
-(revenue + dual benefit − detour cost).  All active branching
+(revenue + dual benefit − detour cost). All active branching
 constraints are checked before a candidate node is accepted.</p>
 <p>Constraint enforcement inside the construction loop:</p>
 <ol class="arabic simple">
@@ -646,16 +659,17 @@ forbidden_arcs: Set of (u, v) pairs that must not be traversed.
 req_successors: u → w meaning u must be immediately followed by w.
 req_predecessors: v → x meaning v must be immediately preceded by x.
 rf_separate_pairs: Sorted node pairs that must be in different routes.
-rf_together_pairs: Sorted node pairs that must be in the same route.</p>
+rf_together_pairs: Sorted node pairs that must be in the same route.
+capacity_cut_duals: Optional duals for capacity cuts.
+node_prizes: Optional fixed prizes per node.</p>
 <p>Returns:
-<code class="docutils literal notranslate"><span class="pre">(route_nodes,</span> <span class="pre">reduced_cost)</span></code> where route_nodes excludes the depot.</p>
+A tuple of (route_nodes, reduced_cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem._violates_rf_separation">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_violates_rf_separation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_separate_pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.PricingSubproblem._violates_rf_separation" title="Link to this definition">#</a></dt>
-<dd><p>Return True if adding <em>candidate</em> to the route would violate a
-Ryan-Foster separation constraint.</p>
+<dd><p>Return True if adding <em>candidate</em> violates a Ryan-Foster separation constraint.</p>
 <p>A violation occurs when <em>candidate</em> is in a <code class="docutils literal notranslate"><span class="pre">together=False</span></code> pair
 with any node already present in <code class="docutils literal notranslate"><span class="pre">visited</span></code>.</p>
 <p>Args:
@@ -676,8 +690,8 @@ cost         = total_distance × C</p>
 <p>Args:
 route: Ordered list of customer nodes (depot excluded).
 dual_values: Node-coverage duals and optional vehicle-limit dual.
-capacity_cut_duals: Optional mapping of node-sets to dual values for active capacity cuts.
-node_prizes: Optional fixed prizes per node replacing standard volumetric revenue.</p>
+capacity_cut_duals: Optional duals for active capacity cuts.
+node_prizes: Optional fixed prizes per node.</p>
 <p>Returns:
 Scalar reduced cost.</p>
 </dd></dl>
@@ -689,7 +703,7 @@ Scalar reduced cost.</p>
 <p>Args:
 route: Ordered list of customer nodes (depot excluded).</p>
 <p>Returns:
-Tuple of (cost, revenue, load, node_coverage).</p>
+A 4-tuple of (cost, revenue, load, node_coverage).</p>
 </dd></dl>
 
 </dd></dl>

@@ -490,6 +490,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.orchestrator.results_handler">
 <span id="src-pipeline-features-test-orchestrator-results-handler"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.orchestrator.results_handler" title="src.pipeline.features.test.orchestrator.results_handler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.orchestrator.results_handler</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.orchestrator.results_handler" title="Link to this heading">#</a></h1>
+<p>Post-processing and aggregation of simulation results.</p>
+<p>Attributes:
+_log_sim_metrics: Log simulation metrics to WSTracker.
+aggregate_final_results: Aggregate final results from all simulation samples.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
+&gt;&gt;&gt; log, log_std = aggregate_final_results(log_tmp, cfg, lock)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,6 +519,9 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.results_handler._log_sim_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.results_handler.</span></span><span class="sig-name descname"><span class="pre">_log_sim_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.results_handler._log_sim_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Forward aggregated per-policy metrics to the active WSTracker run.</p>
+<p>Args:
+log: Description of log.
+log_std: Description of log_std.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -522,6 +532,10 @@ document.write(`
 log_tmp: Manager dict of policy -&gt; list of metric lists.
 cfg: Root configuration.
 lock: Multiprocessing lock.</p>
+<p>Returns:
+Tuple containing:
+- log (Dict[str, Any]): Aggregated simulation results.
+- log_std (Optional[Dict[str, Any]]): Standard deviation of results.</p>
 </dd></dl>
 
 </section>

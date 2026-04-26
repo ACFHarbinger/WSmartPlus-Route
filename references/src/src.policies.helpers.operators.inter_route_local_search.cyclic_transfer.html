@@ -568,12 +568,27 @@ ValueError: If fewer than 3 participants or duplicate routes.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.inter_route_local_search.cyclic_transfer._evaluate_shift">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.inter_route_local_search.cyclic_transfer.</span></span><span class="sig-name descname"><span class="pre">_evaluate_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.helpers.operators.inter_route_local_search.cyclic_transfer.RouteCut</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.inter_route_local_search.cyclic_transfer._evaluate_shift" title="Link to this definition">#</a></dt>
 <dd><p>Compute the cost gain for a cyclic shift in the given direction.</p>
+<p>Args:
+ls: LocalSearch instance with routes, distance matrix, and capacity Q.
+participants: List of (route_index, position) cut points defining which
+node in each route participates in the cyclic transfer.
+nodes: Node IDs at each participant position (parallel to participants).
+demands: Waste demands for each participant node (parallel to nodes).
+direction: Shift direction; +1 for forward (route i receives node from
+route i-1) or -1 for backward.</p>
+<p>Returns:
+float: Total cost gain of the cyclic shift, or -inf if infeasible.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.inter_route_local_search.cyclic_transfer._apply_shift">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.inter_route_local_search.cyclic_transfer.</span></span><span class="sig-name descname"><span class="pre">_apply_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.helpers.operators.inter_route_local_search.cyclic_transfer.RouteCut</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.inter_route_local_search.cyclic_transfer._apply_shift" title="Link to this definition">#</a></dt>
 <dd><p>Apply the cyclic shift by replacing nodes in each route.</p>
+<p>Args:
+ls: LocalSearch instance whose routes are mutated in-place.
+participants: List of (route_index, position) pairs to update.
+nodes: Node IDs at each participant position (parallel to participants).
+direction: Shift direction; +1 for forward, -1 for backward.</p>
 </dd></dl>
 
 </section>

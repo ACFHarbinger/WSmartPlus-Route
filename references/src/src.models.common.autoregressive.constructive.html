@@ -498,6 +498,10 @@ document.write(`
 <p>Base constructive policy modules.</p>
 <p>This module provides the foundation for constructive routing policies, which
 build solutions by selecting nodes sequentially.</p>
+<p>Attributes:
+ConstructivePolicy: Base class for constructive policies.</p>
+<p>Example:
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,7 +542,7 @@ env_name: Name of the environment associated with this policy.
 embed_dim: Feature dimensionality for latent representations.
 seed: Seed for random initialization and sampling.
 device: Computing device (‘cpu’, ‘cuda’).
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__" title="Link to this definition">#</a></dt>
@@ -568,7 +572,7 @@ td: TensorDict containing the problem instance metadata.
 env: Environment object for state transitions and masking.
 strategy: Decoding strategy (“sampling”, “greedy”, “beam_search”).
 num_starts: Number of parallel solution attempts.
-**kwargs: Additional control arguments for decoding.</p>
+kwargs: Additional control arguments for decoding.</p>
 <p>Returns:
 Dict[str, Any]: Results dictionary containing:
 - reward (torch.Tensor): Final reward/cost for the constructed tours.
@@ -586,7 +590,7 @@ selection, multinomial sampling, or beam search.</p>
 logits: Predicted action logits of shape [batch, num_nodes].
 mask: Valid action mask of shape [batch, num_nodes].
 strategy: Name of the decoding strategy to apply.
-**kwargs: Additional parameters (e.g., temperature) for the strategy.</p>
+kwargs: Additional parameters (e.g., temperature) for the strategy.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 - action: Selected node index.

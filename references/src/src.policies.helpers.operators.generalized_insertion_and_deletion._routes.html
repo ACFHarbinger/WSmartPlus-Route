@@ -489,6 +489,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.generalized_insertion_and_deletion._routes">
 <span id="src-policies-helpers-operators-generalized-insertion-and-deletion-routes"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion._routes" title="src.policies.helpers.operators.generalized_insertion_and_deletion._routes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion._routes</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion._routes" title="Link to this heading">#</a></h1>
+<p>Route extraction utilities for Generalized Insertion and Deletion.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion._routes import _extract_working_route
+&gt;&gt;&gt; n, is_closed, work_route, n_work = _extract_working_route(route)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -509,9 +515,13 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion._routes.</span></span><span class="sig-name descname"><span class="pre">_extract_working_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion._routes._extract_working_route" title="Link to this definition">#</a></dt>
 <dd><p>Extracts working route characteristics to handle open/closed route representations.</p>
 <p>Args:
-route: The tour as a list of node IDs.</p>
+route (List[int]): The tour as a list of node IDs.</p>
 <p>Returns:
-Tuple of (n, is_closed, work_route, n_work)</p>
+Tuple[int, bool, List[int], int]: (n, is_closed, work_route, n_work)
+- n: Original route length.
+- is_closed: True if the route is a closed tour.
+- work_route: Route without the closing depot if closed.
+- n_work: Length of the working route.</p>
 </dd></dl>
 
 </section>

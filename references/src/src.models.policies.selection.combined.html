@@ -495,6 +495,13 @@ document.write(`
 <p>Combined selection strategy.</p>
 <p>This module provides a mechanism to combine multiple bin selection strategies
 using logical operators (AND/OR).</p>
+<p>Attributes:
+CombinedSelector: Strategy for merging multiple selectors with logic.</p>
+<p>Example:
+&gt;&gt;&gt; s1 = RevenueSelector(threshold=10)
+&gt;&gt;&gt; s2 = ServiceLevelSelector(confidence_factor=1.5)
+&gt;&gt;&gt; combo = CombinedSelector([s1, s2], logic=”or”)
+&gt;&gt;&gt; mask = combo.select(fill_levels)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +524,9 @@ using logical operators (AND/OR).</p>
 <p>Combines multiple selection strategies with Boolean logic.</p>
 <p>A bin is selected if the logical combination (AND/OR) of all constituent
 selectors results in a True value.</p>
+<p>Attributes:
+selectors: List of constituent selection strategies.
+logic: Boolean reduction method (‘and’ or ‘or’).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the combined selector.</p>
 <p>Args:
@@ -530,7 +540,7 @@ ValueError: if logic is not ‘or’ or ‘and’.</p>
 <dd><p>Select bins chosen by constituent selectors according to logic.</p>
 <p>Args:
 fill_levels: Current fill levels [B, N].
-**kwargs: parameters passed to all constituent selectors.</p>
+kwargs: Shared arguments passed to all constituent selectors.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] of selected bins.</p>
 </dd></dl>

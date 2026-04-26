@@ -37,7 +37,7 @@ src.policies.route_construction.meta_heuristics.iterated_local_search.solver
 ````{py:data} __all__
 :canonical: src.policies.route_construction.meta_heuristics.iterated_local_search.__all__
 :value: >
-   ['ILSSolver', 'ILSParams']
+   ['ILSSolver', 'ILSPolicy', 'ILSParams']
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.iterated_local_search.__all__
 ```

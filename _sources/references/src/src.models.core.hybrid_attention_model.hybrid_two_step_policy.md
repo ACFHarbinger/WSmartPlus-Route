@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _initialize_tours(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _initialize_tours(td: tensordict.TensorDict, strategy: str, embeddings: torch.Tensor, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours
@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _apply_operator_step(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, embeddings: torch.Tensor, current_tours: torch.Tensor, dist_matrix_all: torch.Tensor, removed_nodes_state: torch.Tensor, strategy: str) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} _apply_operator_step(td: tensordict.TensorDict, embeddings: torch.Tensor, current_tours: torch.Tensor, dist_matrix_all: torch.Tensor, removed_nodes_state: torch.Tensor, strategy: str, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._apply_operator_step
@@ -85,7 +85,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward

@@ -497,6 +497,8 @@ document.write(`
 to maintain a service level guarantee. It uses a linear projection of
 the expected accumulation and standard deviation over a defined horizon
 to ensure bins are collected before their worst-case prediction hits capacity.</p>
+<p>Attributes:
+ServiceLevelSelection: Selection strategy using linear projection of future fill.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_service_level import ServiceLevelSelection
 &gt;&gt;&gt; strategy = ServiceLevelSelection()

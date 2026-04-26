@@ -490,6 +490,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.contextual">
 <span id="src-policies-helpers-reinforcement-learning-agents-contextual"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual" title="src.policies.helpers.reinforcement_learning.agents.contextual"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual" title="Link to this heading">#</a></h1>
+<p>Contextual Bandits Module.</p>
+<p>Provides agents that utilize environmental context (features) to inform
+the selection of operations or parameters.</p>
+<p>Attributes:
+ContextualBanditAgent: Base class for all contextual agents.
+LinUCBAgent: Linear Upper Confidence Bound implementation.
+ContextualThompsonSamplingAgent: Bayesian linear regression approach.
+GPCMABAgent: Gaussian Process-based combinatorial bandit.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.contextual import LinUCBAgent
+&gt;&gt;&gt; agent = LinUCBAgent(n_arms=3, feature_dim=10)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

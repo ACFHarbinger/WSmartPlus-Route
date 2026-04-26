@@ -493,6 +493,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.eval.evaluators.combined">
 <span id="src-pipeline-features-eval-evaluators-combined"></span><h1><a class="reference internal" href="#module-src.pipeline.features.eval.evaluators.combined" title="src.pipeline.features.eval.evaluators.combined"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.eval.evaluators.combined</span></code></a><a class="headerlink" href="#module-src.pipeline.features.eval.evaluators.combined" title="Link to this heading">#</a></h1>
 <p>Combined multi-start and augmentation evaluation implementation.</p>
+<p>Attributes:
+MultiStartAugmentEval: Evaluates a policy using multi-start and augmentation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.eval.evaluators import MultiStartAugmentEval
+&gt;&gt;&gt; evaluator = MultiStartAugmentEval(config)
+&gt;&gt;&gt; evaluator.evaluate()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,6 +519,11 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.evaluators.combined.</span></span><span class="sig-name descname"><span class="pre">MultiStartAugmentEval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_augment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.features.eval.evaluators.combined.MultiStartAugmentEval" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.features.eval.eval_base.EvalBase</span></code></p>
 <p>Combined Evaluation with multiple starts and data augmentation.</p>
+<p>Attributes:
+env: The environment to evaluate on.
+num_augment: Number of augmentations to perform.
+num_starts: Number of starts for multi-start search.
+progress: Whether to show progress bar.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:

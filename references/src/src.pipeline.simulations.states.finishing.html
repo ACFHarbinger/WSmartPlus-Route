@@ -494,11 +494,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.states.finishing">
 <span id="src-pipeline-simulations-states-finishing"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.states.finishing" title="src.pipeline.simulations.states.finishing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.finishing</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.states.finishing" title="Link to this heading">#</a></h1>
-<p>finishing.py module.</p>
+<p>Simulation Finishing State.</p>
+<p>This module provides the FinishingState class, which handles the final
+aggregation and persistence of simulation results.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+FinishingState: State responsible for simulation cleanup and reporting.</p>
 <p>Example:
-&gt;&gt;&gt; import finishing</p>
+&gt;&gt;&gt; # from logic.src.pipeline.simulations.states.finishing import FinishingState
+&gt;&gt;&gt; # state = FinishingState()
+&gt;&gt;&gt; # state.handle(ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,12 +534,14 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.finishing.</span></span><span class="sig-name descname"><span class="pre">FinishingState</span></span><a class="headerlink" href="#src.pipeline.simulations.states.finishing.FinishingState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.states.base.SimState</span></code></p>
 <p>State handles final result aggregation and persistence.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.finishing.FinishingState.handle">
 <span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.pipeline.simulations.states.base.SimulationContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.finishing.FinishingState.handle" title="Link to this definition">#</a></dt>
-<dd><p>Handle.</p>
+<dd><p>Finalizes simulation, computes aggregate metrics, and saves logs.</p>
 <p>Args:
-ctx (SimulationContext): Description of ctx.</p>
+ctx: The simulation context object.</p>
 </dd></dl>
 
 </dd></dl>
@@ -551,6 +557,11 @@ ctx (SimulationContext): Description of ctx.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — per-day JSON log for this <code class="docutils literal notranslate"><span class="pre">(policy,</span> <span class="pre">sample)</span></code> pair</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — Excel fill-history matrix with metadata tag <code class="docutils literal notranslate"><span class="pre">fill_history</span></code></p></li>
 </ul>
+<p>Args:
+ctx: The simulation context object.
+sim: Root configuration object.
+log_path: Path to the main log file.
+daily_log_path: Path to the daily log file.</p>
 </dd></dl>
 
 </section>

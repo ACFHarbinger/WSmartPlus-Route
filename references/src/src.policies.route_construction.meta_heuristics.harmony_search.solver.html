@@ -498,18 +498,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.harmony_search.solver">
 <span id="src-policies-route-construction-meta-heuristics-harmony-search-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.harmony_search.solver" title="src.policies.route_construction.meta_heuristics.harmony_search.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.harmony_search.solver" title="Link to this heading">#</a></h1>
 <p>Harmony Search (HS) algorithm for VRPP.</p>
-<p>Models the optimisation process as a musical improvisation session.  The
-Harmony Memory stores the most profitable route configurations found so
-far.  A new harmony (routing solution) is built node-by-node by consulting
-the HM (HMCR), applying pitch adjustment (PAR), or selecting a random
-unvisited node.</p>
-<p>Near-zero benchmark errors (&lt;0.01%) on Orienteering Problem instances have
-been reported in the literature when HMCR and PAR are carefully tuned.</p>
-<p>Reference:
-Rechenberg, I. (1973). “Evolutionsstrategie: Optimierung technischer
-Systeme nach Prinzipien der biologischen Evolution.”
-Geem, Z. W., Kim, J. H., &amp; Loganathan, G. V. “A New Heuristic
-Optimization Algorithm: Harmony Search.”, 2001</p>
+<p>Models the optimisation process as a musical improvisation session.</p>
+<p>Attributes:
+HSSolver: Main solver class for the Harmony Search.</p>
+<p>Example:
+&gt;&gt;&gt; solver = HSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,7 +523,30 @@ Optimization Algorithm: Harmony Search.”, 2001</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.solver.</span></span><span class="sig-name descname"><span class="pre">HSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver" title="Link to this definition">#</a></dt>
 <dd><p>Harmony Search solver for VRPP.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of node indices.
+random: Random number generator.
+ls: ACOLocalSearch instance for refinement.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Harmony Search solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: HS parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver.solve" title="Link to this definition">#</a></dt>
@@ -541,14 +558,19 @@ Tuple of (routes, profit, cost).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._build_random_solution">
 <span class="sig-name descname"><span class="pre">_build_random_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._build_random_solution" title="Link to this definition">#</a></dt>
-<dd><p>Order-dependent sequential construction.
-Uses greedy profit-aware construction.</p>
+<dd><p>Order-dependent sequential construction.</p>
+<p>Returns:
+Set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._improvise">
 <span class="sig-name descname"><span class="pre">_improvise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._improvise" title="Link to this definition">#</a></dt>
 <dd><p>Improvise a new harmony using HMCR, PAR, and random selection.</p>
+<p>Args:
+hm: Harmony Memory list.</p>
+<p>Returns:
+New set of routes.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -566,12 +588,20 @@ Sorted list of unvisited nodes (nearest first).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Net profit value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: Routing sequences.</p>
+<p>Returns:
+Total distance.</p>
 </dd></dl>
 
 </dd></dl>

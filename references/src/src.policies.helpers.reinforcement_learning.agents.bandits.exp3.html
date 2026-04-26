@@ -495,6 +495,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.exp3">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-exp3"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.exp3" title="src.policies.helpers.reinforcement_learning.agents.bandits.exp3"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.exp3</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.exp3" title="Link to this heading">#</a></h1>
+<p>Exp3 Bandit Module.</p>
+<p>This module implements the EXP3 (Exponential-weight algorithm for Exploration
+and Exploitation) bandit algorithm, which is designed for adversarial
+environments.</p>
+<p>Attributes:
+EXP3Agent: Bandit agent using the EXP3 policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.exp3 import EXP3Agent
+&gt;&gt;&gt; agent = EXP3Agent(n_arms=3, gamma=0.1)
+&gt;&gt;&gt; action = agent.select_action(state=None, rng=agent.rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +528,10 @@ document.write(`
 <p>Exponential-weight algorithm for Exploration and Exploitation. Designed to
 handle adversarial environments where the rewards are not drawn from a
 fixed distribution.</p>
+<p>Attributes:
+gamma: Exploration parameter.
+weights: Exponential weights for each arm.
+probs: Current probability distribution over arms.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the EXP3 agent.</p>
 <p>Args:

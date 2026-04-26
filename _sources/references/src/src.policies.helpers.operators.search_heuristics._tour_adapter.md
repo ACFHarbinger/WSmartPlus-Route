@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.__init__
 ```
 
-````{py:method} _update_map(route_set) -> None
+````{py:method} _update_map(route_set: typing.List[int]) -> None
 :canonical: src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter._update_map
 
 ```{autodoc2-docstring} src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter._update_map

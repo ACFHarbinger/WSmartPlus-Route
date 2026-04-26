@@ -494,6 +494,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-epsilon-greedy"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy" title="src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy" title="Link to this heading">#</a></h1>
+<p>Epsilon Greedy Bandit Module.</p>
+<p>This module implements the Epsilon-Greedy bandit algorithm, which balances
+exploration and exploitation by selecting a random arm with probability epsilon.</p>
+<p>Attributes:
+EpsilonGreedyBandit: Bandit agent using the Epsilon-Greedy policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy import EpsilonGreedyBandit
+&gt;&gt;&gt; agent = EpsilonGreedyBandit(n_arms=3, epsilon=0.1)
+&gt;&gt;&gt; action = agent.select_action(state=None, rng=agent.rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +526,10 @@ document.write(`
 <p>Balances exploration and exploitation by selecting a random arm with
 probability ‘epsilon’ and the best known arm with probability ‘1 - epsilon’.
 Supports dynamic epsilon decay to favor exploitation as search progresses.</p>
+<p>Attributes:
+epsilon: Current exploration probability.
+epsilon_decay: Multiplicative factor for reducing epsilon.
+epsilon_min: Minimum allowable exploration probability.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Epsilon-Greedy agent.</p>
 <p>Args:

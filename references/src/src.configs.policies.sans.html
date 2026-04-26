@@ -503,6 +503,33 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.sans">
 <span id="src-configs-policies-sans"></span><h1><a class="reference internal" href="#module-src.configs.policies.sans" title="src.configs.policies.sans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.sans</span></code></a><a class="headerlink" href="#module-src.configs.policies.sans" title="Link to this heading">#</a></h1>
 <p>SANS (Simulated Annealing Neighborhood Search) configuration.</p>
+<p>Attributes:
+SANSConfig: Configuration for the Simulated Annealing Neighborhood Search (SANS) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.sans import SANSConfig
+&gt;&gt;&gt; config = SANSConfig()
+&gt;&gt;&gt; config.engine
+‘new’
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.seed
+42
+&gt;&gt;&gt; config.perc_bins_can_overflow
+0.0
+&gt;&gt;&gt; config.T_min
+0.01
+&gt;&gt;&gt; config.T_init
+75.0
+&gt;&gt;&gt; config.iterations_per_T
+5000
+&gt;&gt;&gt; config.alpha
+0.95
+&gt;&gt;&gt; config.combination
+None
+&gt;&gt;&gt; config.mandatory_selection
+None
+&gt;&gt;&gt; config.route_improvement
+None</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

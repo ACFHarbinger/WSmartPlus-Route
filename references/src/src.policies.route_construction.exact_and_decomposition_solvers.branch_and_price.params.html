@@ -511,6 +511,11 @@ document.write(`
 <span id="src-policies-route-construction-exact-and-decomposition-solvers-branch-and-price-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Branch-and-Price (BP) solver.</p>
 <p>Standard Column Generation and Branch-and-Bound parameters.</p>
+<p>Attributes:
+BPParams (class): Configuration dataclass for the BP solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params import BPParams
+&gt;&gt;&gt; params = BPParams(max_iterations=200)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,23 +536,25 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.</span></span><span class="sig-name descname"><span class="pre">BPParams</span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Branch-and-Price solver.</p>
 <p>Attributes:
-max_iterations: Maximum iterations for column generation loop.
-max_routes_per_iteration: Maximum columns to add per pricing call.
-optimality_gap: Relative gap for proven optimality.
-branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘divergence’).
-max_branch_nodes: Maximum nodes to explore in the B&amp;B tree.
-use_exact_pricing: Whether to use DP-based exact pricing (True)
+max_iterations (int): Maximum iterations for column generation loop.
+max_routes_per_iteration (int): Maximum columns to add per pricing call.
+optimality_gap (float): Relative gap for proven optimality.
+branching_strategy (str): Branching rule (‘ryan_foster’, ‘edge’, or ‘divergence’).
+max_branch_nodes (int): Maximum nodes to explore in the B&amp;B tree.
+use_exact_pricing (bool): Whether to use DP-based exact pricing (True)
 or a heuristic pricer (False).
-use_ng_routes: Whether to use ng-route relaxation in exact pricing.
-ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-tree_search_strategy: B&amp;B search strategy (‘best_first’, ‘depth_first’).
-vehicle_limit: Maximum number of vehicles available.
-cleanup_frequency: Iterations between column cleanup rounds.
-cleanup_threshold: Minimum reduced cost for column retention.
-early_termination_gap: Gap at which to stop search early.
-multiple_waste_types: Whether the problem has multiple waste types.
-allow_heuristic_ryan_foster: Whether to allow Ryan-Foster branching
-even if it’s theoretically a heuristic for the formulation.</p>
+use_ng_routes (bool): Whether to use ng-route relaxation in exact pricing.
+ng_neighborhood_size (int): Size of ng-neighborhoods for relaxation.
+tree_search_strategy (str): B&amp;B search strategy (‘best_first’, ‘depth_first’).
+vehicle_limit (Optional[int]): Maximum number of vehicles available.
+cleanup_frequency (int): Iterations between column cleanup rounds.
+cleanup_threshold (float): Minimum reduced cost for column retention.
+early_termination_gap (float): Gap at which to stop search early.
+multiple_waste_types (bool): Whether the problem has multiple waste types.
+allow_heuristic_ryan_foster (bool): Whether to allow Ryan-Foster branching
+even if it’s theoretically a heuristic for the formulation.
+use_ryan_foster (bool): Explicit toggle for Ryan-Foster branching logic.
+multi_day_mode (bool): Multi-period adaptation (Inventory Routing Problem).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams.max_iterations" title="Link to this definition">#</a></dt>
@@ -653,7 +660,11 @@ even if it’s theoretically a heuristic for the formulation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.BPParams.from_config" title="Link to this definition">#</a></dt>
-<dd><p>Create BPParams from a configuration object or dictionary.</p>
+<dd><p>Create a BPParams instance from a configuration object or dictionary.</p>
+<p>Args:
+config: A configuration object (Hydra/OmegaConf) or a raw dictionary.</p>
+<p>Returns:
+A BPParams instance with values mapped from the config.</p>
 </dd></dl>
 
 </dd></dl>

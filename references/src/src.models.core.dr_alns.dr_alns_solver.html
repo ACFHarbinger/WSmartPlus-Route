@@ -604,36 +604,63 @@ bool: True if candidate is accepted.</p>
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._random_removal">
 <span class="sig-name descname"><span class="pre">_random_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._random_removal" title="Link to this definition">#</a></dt>
 <dd><p>Removes <code class="docutils literal notranslate"><span class="pre">n</span></code> nodes uniformly at random.</p>
+<p>Args:
+routes: Current solution paths.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: Partial routes and removed node list.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._worst_removal">
 <span class="sig-name descname"><span class="pre">_worst_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._worst_removal" title="Link to this definition">#</a></dt>
 <dd><p>Removes <code class="docutils literal notranslate"><span class="pre">n</span></code> nodes that contribute most to total cost.</p>
+<p>Args:
+routes: Current solution paths.
+n: Number of nodes to remove.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: Partial routes and removed node list.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._cluster_removal">
 <span class="sig-name descname"><span class="pre">_cluster_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._cluster_removal" title="Link to this definition">#</a></dt>
 <dd><p>Removes a cluster of spatially proximate nodes.</p>
+<p>Args:
+routes: Current solution paths.
+n: Number of nodes for the removal cluster.</p>
+<p>Returns:
+Tuple[List[List[int]], List[int]]: Partial routes and removed node list.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._greedy_insertion">
 <span class="sig-name descname"><span class="pre">_greedy_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._greedy_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Inserts removed nodes into best possible positions sequentially.</p>
+<p>Args:
+partial_routes: Routes with missing nodes.
+removed: List of node identifiers to re-insert.</p>
+<p>Returns:
+List[List[int]]: Reconstructed solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._regret_2_insertion">
 <span class="sig-name descname"><span class="pre">_regret_2_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._regret_2_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Inserts nodes based on the difference between best and second best positions.</p>
+<p>Args:
+partial_routes: Routes with missing nodes.
+removed: List of node identifiers to re-insert.</p>
+<p>Returns:
+List[List[int]]: Reconstructed solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.dr_alns_solver.DRALNSSolver._build_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Generates a starting solution using nearest neighbor logic.</p>
+<p>Returns:
+List[List[int]]: Initial routing solution.</p>
 </dd></dl>
 
 <dl class="py method">

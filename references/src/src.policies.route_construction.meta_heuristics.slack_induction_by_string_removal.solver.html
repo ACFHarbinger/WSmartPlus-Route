@@ -501,7 +501,7 @@ document.write(`
 It manages the iterative process of string removal (ruin) and greedy insertion
 with blinks (recreate), accepted via Simulated Annealing.</p>
 <p>Attributes:
-None</p>
+SISRSolver: Slack Induction by String Removal algorithm solver.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.slack_induction_by_string_removal.solver import SISRSolver
 &gt;&gt;&gt; solver = SISRSolver(dist_matrix, wastes, …)
@@ -528,6 +528,15 @@ for the vehicle routing problem.”, 2022.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.</span></span><span class="sig-name descname"><span class="pre">SISRSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params.html#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params.SISRParams" title="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params.SISRParams"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params.SISRParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver" title="Link to this definition">#</a></dt>
 <dd><p>Solver implementing the SISR metaheuristic.</p>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Waste values for each node.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: Parameters for the SISR algorithm.
+mandatory_nodes: Mandatory nodes.
+random: Random number generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SISR Solver.</p>
 <p>Args:
@@ -536,22 +545,40 @@ wastes: Waste values for each node.
 capacity: Vehicle capacity.
 R: Revenue multiplier.
 C: Cost multiplier.
-params: Parameters for the SISR algorithm.</p>
+params: Parameters for the SISR algorithm.
+mandatory_nodes: Mandatory nodes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run the SISR algorithm.</p>
+<p>Args:
+initial_solution: Optional initial solution.</p>
+<p>Returns:
+Tuple of (best_routes, best_cost, best_distance).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver._calculate_cost">
 <span class="sig-name descname"><span class="pre">_calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver._calculate_cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate total cost (distance) for routes.</p>
+<p>Args:
+routes: List of routes.</p>
+<p>Returns:
+Total cost.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.SISRSolver._build_initial_solution" title="Link to this definition">#</a></dt>
 <dd><p>Greedy constructive heuristic.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+wastes: Waste values for each node.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.</p>
+<p>Returns:
+Initial solution (list of routes).</p>
 </dd></dl>
 
 <dl class="py method">

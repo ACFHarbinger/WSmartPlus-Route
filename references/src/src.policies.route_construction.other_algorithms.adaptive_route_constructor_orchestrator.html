@@ -490,6 +490,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator">
 <span id="src-policies-route-construction-other-algorithms-adaptive-route-constructor-orchestrator"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator" title="src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator" title="Link to this heading">#</a></h1>
+<p>Adaptive Route Constructor Orchestrator (ARCO) package.</p>
+<p>This package implements an adaptive meta-constructor that learns optimal
+ordering of routing heuristics through online experience.</p>
+<p>Attributes:
+ARCOParams: Parameters for the ARCO algorithm.
+AdaptiveRouteConstructorOrchestrator: The ARCO algorithm itself.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator import ARCOParams, AdaptiveRouteConstructorOrchestrator
+&gt;&gt;&gt; params = ARCOParams()
+&gt;&gt;&gt; arco = AdaptiveRouteConstructorOrchestrator(params)
+&gt;&gt;&gt; routes = arco.build_routes(context)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

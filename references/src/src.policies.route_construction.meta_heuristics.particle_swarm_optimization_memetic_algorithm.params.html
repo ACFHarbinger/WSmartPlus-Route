@@ -477,13 +477,19 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.c1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c2"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.c2</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.max_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.max_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.local_search_freq</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.n_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.x_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.x_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.v_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.v_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.L</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.T0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.lambda_cooling</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.time_limit"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.vrpp"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.acceptance_criterion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -504,6 +510,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-memetic-algorithm-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Particle Swarm Optimization Memetic Algorithm (PSOMA).</p>
+<p>Attributes:
+PSOMAParams: Dataclass holding PSOMA solver hyperparameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params import PSOMAParams
+&gt;&gt;&gt; params = PSOMAParams(pop_size=20, omega=0.1, c1=1.5, c2=2.0)
+&gt;&gt;&gt; print(params.max_iterations)
+200</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,7 +524,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSOMAParams</span></code></a></p></td>
-<td><p>Configuration parameters for the PSOMA solver.</p></td>
+<td><p>Configuration parameters for the PSOMA-Split solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -522,20 +535,25 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.</span></span><span class="sig-name descname"><span class="pre">PSOMAParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams" title="Link to this definition">#</a></dt>
-<dd><p>Configuration parameters for the PSOMA solver.</p>
-<p>A particle’s position is a set of routes (permutation).  Velocity is
-implemented as a list of (node_swap | OX-segment) operations applied
-probabilistically from the personal best (pbest) and global best (gbest).</p>
+<dd><p>Configuration parameters for the PSOMA-Split solver.</p>
 <p>Attributes:
-pop_size: Swarm size (number of particles).
-omega: Inertia weight — fraction of current velocity retained.
-c1: Cognitive acceleration coefficient (toward pbest).
-c2: Social acceleration coefficient (toward gbest).
-max_iterations: Maximum PSO iterations.
-local_search_freq: Every N iterations, apply local search to all particles.
-n_removal: Number of nodes removed per local-search step.
-local_search_iterations: Number of local search iterations.
-time_limit: Wall-clock time limit in seconds.</p>
+pop_size (int): Number of particles in the swarm.
+omega (float): Inertia weight.
+c1 (float): Cognitive coefficient.
+c2 (float): Social coefficient.
+max_iterations (int): Maximum number of iterations.
+x_min (float): Minimum value for continuous position vector.
+x_max (float): Maximum value for continuous position vector.
+v_min (float): Minimum value for continuous velocity vector.
+v_max (float): Maximum value for continuous velocity vector.
+L (int): If gbest keeps fixed at consecutive L steps, then output the best solution.
+T0 (float): Initial temperature for simulated annealing.
+lambda_cooling (float): Cooling rate for simulated annealing.
+time_limit (float): Time limit in seconds.
+vrpp (bool): Whether to use VRPP mode.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+seed (Optional[int]): Random seed.
+acceptance_criterion (Optional[IAcceptanceCriterion]): Acceptance criterion.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.pop_size" title="Link to this definition">#</a></dt>
@@ -545,13 +563,13 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.omega">
 <span class="sig-name descname"><span class="pre">omega</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.omega" title="Link to this definition">#</a></dt>
-<dd><p>0.1</p>
+<dd><p>1.0</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1">
 <span class="sig-name descname"><span class="pre">c1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1" title="Link to this definition">#</a></dt>
-<dd><p>1.5</p>
+<dd><p>2.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -567,21 +585,45 @@ time_limit: Wall-clock time limit in seconds.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq">
-<span class="sig-name descname"><span class="pre">local_search_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq" title="Link to this definition">#</a></dt>
-<dd><p>10</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min">
+<span class="sig-name descname"><span class="pre">x_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal">
-<span class="sig-name descname"><span class="pre">n_removal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal" title="Link to this definition">#</a></dt>
-<dd><p>2</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max">
+<span class="sig-name descname"><span class="pre">x_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max" title="Link to this definition">#</a></dt>
+<dd><p>4.0</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations">
-<span class="sig-name descname"><span class="pre">local_search_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min">
+<span class="sig-name descname"><span class="pre">v_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max">
+<span class="sig-name descname"><span class="pre">v_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max" title="Link to this definition">#</a></dt>
+<dd><p>4.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L">
+<span class="sig-name descname"><span class="pre">L</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L" title="Link to this definition">#</a></dt>
+<dd><p>30</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0">
+<span class="sig-name descname"><span class="pre">T0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0" title="Link to this definition">#</a></dt>
+<dd><p>3.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling">
+<span class="sig-name descname"><span class="pre">lambda_cooling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling" title="Link to this definition">#</a></dt>
+<dd><p>0.9</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -605,7 +647,23 @@ time_limit: Wall-clock time limit in seconds.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion">
+<span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create PSOMAParams from a configuration source.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+PSOMAParams: Configured PSOMAParams instance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -668,13 +726,19 @@ time_limit: Wall-clock time limit in seconds.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c1"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.c1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.c2"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.c2</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.max_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.max_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_freq"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.local_search_freq</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.n_removal"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.n_removal</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.local_search_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_min"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.x_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.x_max"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.x_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_min"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.v_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.v_max"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.v_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.L"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.L</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.T0"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.T0</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.lambda_cooling"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.lambda_cooling</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.time_limit"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.vrpp"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.seed"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.acceptance_criterion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams.from_config"><code class="docutils literal notranslate"><span class="pre">PSOMAParams.from_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

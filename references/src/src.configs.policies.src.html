@@ -495,6 +495,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.src">
 <span id="src-configs-policies-src"></span><h1><a class="reference internal" href="#module-src.configs.policies.src" title="src.configs.policies.src"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.src</span></code></a><a class="headerlink" href="#module-src.configs.policies.src" title="Link to this heading">#</a></h1>
 <p>SRC (Sequential Route Constructor) configuration dataclass.</p>
+<p>Attributes:
+constructors: List of route constructor names to run in sequence.
+time_limit: Maximum wall-clock time (seconds) for the entire sequence.
+seed: Random seed for reproducibility.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.src import SRCConfig
+&gt;&gt;&gt; config = SRCConfig()
+&gt;&gt;&gt; config.constructors
+[‘tsp’, ‘nn’]
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.seed
+42</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

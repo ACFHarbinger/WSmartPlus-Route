@@ -492,6 +492,11 @@ document.write(`
 <span id="src-policies-helpers-operators-generalized-insertion-and-deletion-unstringing-iv"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv" title="src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv" title="Link to this heading">#</a></h1>
 <p>Type IV Unstringing Operator.</p>
 <p>Most complex US operator involving four neighbor nodes and multiple reversals.</p>
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv import apply_type_iv_us
+&gt;&gt;&gt; new_route = apply_type_iv_us(route, i, j, k, l)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -529,11 +534,13 @@ S_D = (V_l…V_k)
 S_A_rev = (V_{i-1}…V_{k+1})  [Reverse of V_{k+1}…V_{i-1}]
 S_B_rev = (V_{l-1}…V_j)    [Reverse of V_j…V_{l-1}]</p>
 <p>Args:
-route: The tour.
-i: Index of V_i.
-j, k, l: Indices of nodes V_j, V_k, V_l.</p>
+route (List[int]): The tour.
+i (int): Index of V_i.
+j (int): Index of node V_j.
+k (int): Index of node V_k.
+l (int): Index of node V_l.</p>
 <p>Returns:
-Modified tour.</p>
+List[int]: Modified tour.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -541,13 +548,17 @@ Modified tour.</p>
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv.</span></span><span class="sig-name descname"><span class="pre">apply_type_iv_us_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv.apply_type_iv_us_profit" title="Link to this definition">#</a></dt>
 <dd><p>Apply Type IV Unstringing and return profit delta.</p>
 <p>Args:
-route: The tour.
-i, j, k, l: Indices as defined in apply_type_iv_us.
-dist_matrix: Distance matrix.
-wastes: Waste levels.
-R, C: Revenue and cost multipliers.</p>
+route (List[int]): The tour.
+i (int): Index of V_i.
+j (int): Index of node V_j.
+k (int): Index of node V_k.
+l (int): Index of node V_l.
+dist_matrix (np.ndarray): Distance matrix.
+wastes (Dict[int, float]): Waste levels.
+R (float): Revenue multiplier.
+C (float): Cost multiplier.</p>
 <p>Returns:
-(new_route, delta_profit)</p>
+Tuple[List[int], float]: (new_route, delta_profit)</p>
 </dd></dl>
 
 </section>

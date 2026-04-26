@@ -505,6 +505,24 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.core.dr_alns">
 <span id="src-configs-rl-core-dr-alns"></span><h1><a class="reference internal" href="#module-src.configs.rl.core.dr_alns" title="src.configs.rl.core.dr_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.dr_alns</span></code></a><a class="headerlink" href="#module-src.configs.rl.core.dr_alns" title="Link to this heading">#</a></h1>
 <p>DR-ALNS specific configuration.</p>
+<p>Attributes:
+DRALNSConfig: Configuration for DR-ALNS algorithm.</p>
+<p>Example:
+dr_alns_config = DRALNSConfig(
+max_iterations=100,
+n_destroy_ops=3,
+n_repair_ops=2,
+n_steps_per_epoch=2048,
+batch_size=64,
+n_epochs=10,
+lr=3e-4,
+gamma=0.99,
+gae_lambda=0.95,
+clip_epsilon=0.2,
+value_loss_coef=0.5,
+entropy_coef=0.01,
+max_grad_norm=0.5,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +542,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.rl.core.dr_alns.DRALNSConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.core.dr_alns.</span></span><span class="sig-name descname"><span class="pre">DRALNSConfig</span></span><a class="headerlink" href="#src.configs.rl.core.dr_alns.DRALNSConfig" title="Link to this definition">#</a></dt>
 <dd><p>DR-ALNS specific configuration.</p>
+<p>Attributes:
+max_iterations: Maximum number of iterations.
+n_destroy_ops: Number of destroy operations to use.
+n_repair_ops: Number of repair operations to use.
+n_steps_per_epoch: Number of steps per epoch.
+batch_size: Batch size for training.
+n_epochs: Number of epochs to train.
+lr: Learning rate.
+gamma: Discount factor.
+gae_lambda: GAE lambda parameter.
+clip_epsilon: Clip epsilon for PPO.
+value_loss_coef: Coefficient for value loss.
+entropy_coef: Coefficient for entropy.
+max_grad_norm: Maximum gradient norm.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.core.dr_alns.DRALNSConfig.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.core.dr_alns.DRALNSConfig.max_iterations" title="Link to this definition">#</a></dt>

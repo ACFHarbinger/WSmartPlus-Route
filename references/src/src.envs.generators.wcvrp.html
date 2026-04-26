@@ -495,6 +495,38 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.generators.wcvrp">
 <span id="src-envs-generators-wcvrp"></span><h1><a class="reference internal" href="#module-src.envs.generators.wcvrp" title="src.envs.generators.wcvrp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.wcvrp</span></code></a><a class="headerlink" href="#module-src.envs.generators.wcvrp" title="Link to this heading">#</a></h1>
 <p>WCVRP problem generator.</p>
+<p>Attributes:
+WCVRPGenerator: WCVRPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import WCVRPGenerator
+&gt;&gt;&gt; generator = WCVRPGenerator(num_loc=50)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict(
+{
+‘locs’: TensorDict(
+# … customer locations (shape: [*B, 50, 2]) …
+),
+‘depot’: TensorDict(
+# … depot location (shape: [*B, 2]) …
+),
+‘waste’: TensorDict(
+# … waste at each location (shape: [*B, 50]) …
+),
+‘capacity’: TensorDict(
+# … vehicle capacity (shape: [*B]) …
+),
+‘max_waste’: TensorDict(
+# … max waste per vehicle (shape: [*B]) …
+),
+‘cost_km’: TensorDict(
+# … cost per km (shape: [*B]) …
+),
+‘revenue_kg’: TensorDict(
+# … revenue per kg (shape: [*B]) …
+)
+}
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,6 +553,18 @@ document.write(`
 <li><p>Collection thresholds</p></li>
 <li><p>Cost structure for collection</p></li>
 </ul>
+<p>Attributes:
+num_loc: Number of customer locations.
+min_loc: Minimum coordinate value.
+max_loc: Maximum coordinate value.
+loc_distribution: Distribution for location generation.
+min_fill: Minimum waste fill level.
+max_fill: Maximum waste fill level.
+fill_distribution: Distribution for fill level generation.
+capacity: Vehicle capacity.
+cost_km: Cost per kilometer.
+revenue_kg: Revenue per kilogram.
+depot_type: Depot placement strategy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize WCVRP generator.</p>
 <p>Args:
@@ -540,23 +584,42 @@ area: Area for grid generation.
 data_dir: Directory for grid data.
 indices: Indices for grid generation.
 generator: Generator for random number generation.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.wcvrp.WCVRPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.wcvrp.WCVRPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate WCVRP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — customer locations
+depot: [*B, 2]              — depot location
+waste: [*B, num_loc]        — waste at each location
+capacity: [*B]               — vehicle capacity
+max_waste: [*B]             — max waste per vehicle
+cost_km: [*B]               — cost per km
+revenue_kg: [*B]            — revenue per kg</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.wcvrp.WCVRPGenerator._generate_depot">
 <span class="sig-name descname"><span class="pre">_generate_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.wcvrp.WCVRPGenerator._generate_depot" title="Link to this definition">#</a></dt>
 <dd><p>Generate depot location based on depot_type.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with depot location (shape: [*B, 2]).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.wcvrp.WCVRPGenerator._generate_fill_levels">
 <span class="sig-name descname"><span class="pre">_generate_fill_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.generators.wcvrp.WCVRPGenerator._generate_fill_levels" title="Link to this definition">#</a></dt>
 <dd><p>Generate bin fill levels.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with fill levels (shape: [*B, num_loc]).</p>
 </dd></dl>
 
 </dd></dl>

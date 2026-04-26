@@ -496,6 +496,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.contextual.thompson">
 <span id="src-policies-helpers-reinforcement-learning-agents-contextual-thompson"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.thompson" title="src.policies.helpers.reinforcement_learning.agents.contextual.thompson"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.thompson</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.contextual.thompson" title="Link to this heading">#</a></h1>
+<p>Contextual Thompson Sampling Bandit Module.</p>
+<p>Implements Bayesian linear regression for contextual bandit problems.</p>
+<p>Attributes:
+ContextualThompsonSamplingAgent: Agent that samples parameters from a posterior.</p>
+<p>Example:
+&gt;&gt;&gt; agent = ContextualThompsonSamplingAgent(n_arms=10, feature_dim=5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +524,13 @@ document.write(`
 <p>Contextual Thompson Sampling agent with linear Gaussian model.</p>
 <p>Bayesian approach to contextual bandits. Maintains a posterior distribution
 over the parameters (theta) for each arm.</p>
+<p>Attributes:
+lambda_prior (float): Regularization parameter (initial precision).
+v2 (float): Estimated variance of the reward noise (sigma^2).
+B (List[np.ndarray]): Per-arm precision matrices.
+f (List[np.ndarray]): Per-arm weighted reward vectors.
+B_inv (List[np.ndarray]): Cached inverses of precision matrices.
+_cache_valid (List[bool]): Flags indicating if B_inv cache is fresh.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Contextual Thompson Sampling agent.</p>
 <p>Args:
@@ -568,6 +581,8 @@ Dictionary containing trials, prior/noise parameters, and recent rewards.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.reinforcement_learning.agents.contextual.thompson.ContextualThompsonSamplingAgent.get_weights">
 <span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.reinforcement_learning.agents.contextual.thompson.ContextualThompsonSamplingAgent.get_weights" title="Link to this definition">#</a></dt>
 <dd><p>Return the current posterior means for each arm.</p>
+<p>Returns:
+List of posterior mean vectors [d].</p>
 </dd></dl>
 
 </dd></dl>

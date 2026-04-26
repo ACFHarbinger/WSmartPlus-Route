@@ -495,6 +495,11 @@ document.write(`
 <p>Last-minute selection strategy.</p>
 <p>This module provides a threshold-based reactive selection strategy that marks
 bins for collection only when their fill levels exceed a specified limit.</p>
+<p>Attributes:
+LastMinuteSelector: Threshold-based reactive selection policy.</p>
+<p>Example:
+&gt;&gt;&gt; selector = LastMinuteSelector(threshold=0.8)
+&gt;&gt;&gt; mask = selector.select(fill_levels)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +523,8 @@ bins for collection only when their fill levels exceed a specified limit.</p>
 <p>Selects bins where the current fill level exceeds a predefined threshold.
 This strategy is simple but reactive, only triggering collection when bins
 are nearly full.</p>
+<p>Attributes:
+threshold: Default fill level threshold for selection.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the last-minute selector.</p>
 <p>Args:
@@ -527,9 +534,9 @@ threshold: Fill level threshold in [0, 1].</p>
 <span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.last_minute.LastMinuteSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins exceeding the fill threshold.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-threshold: Optional override for the predefined fill threshold.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels of bins [B, N].
+threshold: Override for the default fill threshold.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

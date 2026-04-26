@@ -498,6 +498,14 @@ document.write(`
 <p>Adapts the <code class="docutils literal notranslate"><span class="pre">ADPRolloutEngine</span></code> to the <code class="docutils literal notranslate"><span class="pre">BaseMultiPeriodRoutingPolicy</span></code>
 interface, enabling simulation-level evaluation via <code class="docutils literal notranslate"><span class="pre">test_sim</span></code> with the
 registry key <code class="docutils literal notranslate"><span class="pre">&quot;adp_rollout&quot;</span></code>.</p>
+<p>Attributes:
+ADPRolloutPolicy: Approximate Dynamic Programming with Rollout Policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_algorithms import ADPRolloutPolicy
+&gt;&gt;&gt; policy = ADPRolloutPolicy()
+&gt;&gt;&gt; routes, metrics = policy.run_day(env)
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,17 +538,29 @@ strategy and truncated greedy rollout for estimating :math:<code class="docutils
 <p>References:
 Powell, W. B. (2011). <em>Approximate Dynamic Programming:
 Solving the Curses of Dimensionality.</em> Wiley-Interscience.</p>
+<p>Attributes:
+config: Configuration for the ADP Rollout policy.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the ADP Rollout policy adapter.</p>
+<p>Args:
+config (Optional[Union[ADPRolloutConfig, Dict[str, Any]]]): Configuration for the ADP Rollout policy.</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp.ADPRolloutPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.ADPRolloutConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp.ADPRolloutPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+Type[ADPRolloutConfig]: The configuration class for this policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp.ADPRolloutPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp.ADPRolloutPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration key for this policy.</p>
+<p>Returns:
+str: The configuration key for this policy.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp.ADPRolloutPolicy._run_multi_period_solver">

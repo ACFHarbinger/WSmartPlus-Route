@@ -498,6 +498,11 @@ document.write(`
 <p>This module provides an expert policy that performs stochastic local search by
 iteratively sampling and applying improvement operators from a configurable pool.
 Useful for generating expert trajectories during imitation learning.</p>
+<p>Attributes:
+RandomLocalSearchPolicy: Expert policy using stochastic local search.</p>
+<p>Example:
+&gt;&gt;&gt; policy = RandomLocalSearchPolicy(env_name=”vrpp”)
+&gt;&gt;&gt; out = policy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,27 +535,25 @@ op_map: Internal mapping from strings to operator functions.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the random local search policy.</p>
 <p>Args:
-env_name: Name of the problem environment.
-n_iterations: Number of search iterations (operator applications).
-op_probs: Dictionary mapping operator names to selection probabilities.
-Supported: ‘two_opt’, ‘swap’, ‘relocate’, ‘two_opt_star’,
-‘swap_star’, ‘three_opt’.
-seed: Random seed for reproducibility.
-device: Computation device.
-**kwargs: Additional hyperparameters.</p>
+env_name: Name of the environment identifier.
+n_iterations: Total number of operator applications.
+op_probs: Optional dictionary mapping operator names to weights.
+seed: Random seed for search reproducibility.
+device: Computing device for tensor operations.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.random_local_search.RandomLocalSearchPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.random_local_search.RandomLocalSearchPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Refine solutions using stochastic local search.</p>
 <p>Args:
-td: Input state TensorDict.
-env: The environment being solved.
-strategy: Selection strategy (ignored).
-num_starts: Dummy parameter for interface compliance.
-max_steps: Maximum steps (ignored).
-phase: Current execution context (‘train’, ‘val’, or ‘test’).
-return_actions: Whether to include refined routes in output.
-**kwargs: Extra parameters like ‘initial_solution’.</p>
+td: TensorDict containing instance data (locations, demands).
+env: Optional environment for reward calculation.
+strategy: Solver strategy (e.g., “greedy”).
+num_starts: Unused in RLS.
+max_steps: Maximum step constraint.
+phase: Current phase (“train”, “val”, “test”).
+return_actions: Whether to return full action sequences.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Results dictionary containing:
 - actions (torch.Tensor): Padded action sequences.

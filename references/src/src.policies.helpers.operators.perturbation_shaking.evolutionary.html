@@ -532,13 +532,13 @@ None</p>
 <td><p>Micro-evolutionary perturbation for VRPP (Profit Maximization).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._decode_chromosome" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._decode_chromosome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_decode_chromosome</span></code></a></p></td>
-<td></td>
+<td><p>Decodes a chromosome into a list of routes using -1 as depot markers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_cvrp_chromosome" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_cvrp_chromosome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_eval_cvrp_chromosome</span></code></a></p></td>
-<td></td>
+<td><p>Evaluates the cost of a CVRP chromosome with capacity penalties.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_vrpp_chromosome" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_vrpp_chromosome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_eval_vrpp_chromosome</span></code></a></p></td>
-<td></td>
+<td><p>Evaluates the profit of a VRPP chromosome with capacity penalties.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._map_target_to_global" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._map_target_to_global"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_target_to_global</span></code></a></p></td>
 <td><p>Identify indices of provided sub-routes in the global solution.</p></td>
@@ -547,19 +547,19 @@ None</p>
 <td><p>Integrates optimized sub-routes back into the full solution.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._order_crossover" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._order_crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_order_crossover</span></code></a></p></td>
-<td></td>
+<td><p>Performs Order Crossover (OX1) on two chromosomes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._mutate_swap" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._mutate_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mutate_swap</span></code></a></p></td>
-<td></td>
+<td><p>Randomly swaps two genes in a chromosome.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._get_waste_val" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._get_waste_val"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_waste_val</span></code></a></p></td>
-<td></td>
+<td><p>Safe retrieval of waste/demand value for a node.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_cost" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sequence_cost</span></code></a></p></td>
-<td></td>
+<td><p>Calculates total distance cost of a sequence (depot included).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_profit" title="src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_profit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sequence_profit</span></code></a></p></td>
-<td></td>
+<td><p>Calculates total profit of a sequence (depot included).</p></td>
 </tr>
 </tbody>
 </table>
@@ -588,59 +588,139 @@ List[List[int]]: The updated full global solution.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary.evolutionary_perturbation_profit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">evolutionary_perturbation_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_generations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary.evolutionary_perturbation_profit" title="Link to this definition">#</a></dt>
 <dd><p>Micro-evolutionary perturbation for VRPP (Profit Maximization).</p>
+<p>Args:
+routes: Full global solution.
+distance_matrix: N x N distance matrix.
+capacity: Vehicle capacity constraint.
+wastes: Node demands/wastes.
+revenue: Revenue per unit of waste collected.
+cost_unit: Cost per unit of distance.
+target_routes: The specific routes to be optimized.
+pop_size: GA population size.
+n_generations: GA generations.
+rng: Random generator.</p>
+<p>Returns:
+List[List[int]]: The updated global solution with improved profit.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._decode_chromosome">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_decode_chromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._decode_chromosome" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Decodes a chromosome into a list of routes using -1 as depot markers.</p>
+<p>Args:
+seq: The chromosome (node sequence with -1 markers).</p>
+<p>Returns:
+List[List[int]]: Decoded routes.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_cvrp_chromosome">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_eval_cvrp_chromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_cvrp_chromosome" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluates the cost of a CVRP chromosome with capacity penalties.</p>
+<p>Args:
+seq: The chromosome.
+d: Distance matrix.
+cap: Capacity constraint.
+wastes: Node demands.</p>
+<p>Returns:
+Total cost including distance and capacity violations.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_vrpp_chromosome">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_eval_vrpp_chromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._eval_vrpp_chromosome" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluates the profit of a VRPP chromosome with capacity penalties.</p>
+<p>Args:
+seq: The chromosome.
+d: Distance matrix.
+cap: Capacity.
+wastes: Node profits/demands.
+R: Revenue multiplier.
+C: Cost multiplier.</p>
+<p>Returns:
+Total profit (Revenue - Cost) minus capacity penalties.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._map_target_to_global">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_map_target_to_global</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._map_target_to_global" title="Link to this definition">#</a></dt>
 <dd><p>Identify indices of provided sub-routes in the global solution.</p>
+<p>Args:
+routes: The full global solution.
+targets: Sub-routes to find.</p>
+<p>Returns:
+List of indices in <code class="docutils literal notranslate"><span class="pre">routes</span></code> where <code class="docutils literal notranslate"><span class="pre">targets</span></code> were found.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._apply_to_solution">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_apply_to_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._apply_to_solution" title="Link to this definition">#</a></dt>
 <dd><p>Integrates optimized sub-routes back into the full solution.</p>
+<p>Args:
+routes: Original full solution.
+indices: Global indices to replace.
+best_seq: Optimized chromosome segment.</p>
+<p>Returns:
+New full solution with updated routes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._order_crossover">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_order_crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._order_crossover" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Performs Order Crossover (OX1) on two chromosomes.</p>
+<p>Args:
+p1: First parent.
+p2: Second parent.
+rng: Random generator.</p>
+<p>Returns:
+A new child chromosome.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._mutate_swap">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_mutate_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._mutate_swap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Randomly swaps two genes in a chromosome.</p>
+<p>Args:
+seq: The chromosome (mutated in-place).
+rng: Random generator.
+prob: Mutation probability.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._get_waste_val">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_get_waste_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._get_waste_val" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Safe retrieval of waste/demand value for a node.</p>
+<p>Args:
+wastes: Demands as dict or array.
+node: Node index.</p>
+<p>Returns:
+Waste value for the node.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_sequence_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates total distance cost of a sequence (depot included).</p>
+<p>Args:
+d: Distance matrix.
+seq: Node sequence.</p>
+<p>Returns:
+Total distance cost.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_profit">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.perturbation_shaking.evolutionary.</span></span><span class="sig-name descname"><span class="pre">_sequence_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.perturbation_shaking.evolutionary._sequence_profit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates total profit of a sequence (depot included).</p>
+<p>Args:
+seq: Node sequence.
+d: Distance matrix.
+wastes: Node demands/profits.
+R: Revenue per unit waste.
+C: Cost per unit distance.</p>
+<p>Returns:
+Total profit.</p>
+</dd></dl>
 
 </section>
 </section>

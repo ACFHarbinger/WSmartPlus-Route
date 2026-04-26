@@ -69,6 +69,9 @@ Bases: {py:obj}`logic.src.envs.base.base.RL4COEnvBase`
 ````{py:method} _step(tensordict: tensordict.TensorDict) -> tensordict.TensorDict
 :canonical: src.envs.routing.vrpp.VRPPEnv._step
 
+```{autodoc2-docstring} src.envs.routing.vrpp.VRPPEnv._step
+```
+
 ````
 
 ````{py:method} _step_instance(tensordict: tensordict.TensorDict) -> tensordict.TensorDict

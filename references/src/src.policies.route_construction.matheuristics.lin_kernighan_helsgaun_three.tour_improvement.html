@@ -471,7 +471,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-size-thresholds">Instance-size thresholds</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -542,9 +542,11 @@ they are restricted by route length:</p>
 <li><p>:func:<code class="docutils literal notranslate"><span class="pre">move_kopt_intra</span></code> from the shared intra-route operator package</p></li>
 <li><p>:func:<code class="docutils literal notranslate"><span class="pre">get_exact_penalty_delta</span></code> from <code class="docutils literal notranslate"><span class="pre">load_tracker</span></code> for O(L) penalty queries</p></li>
 </ul>
+<p>Attributes:
+None</p>
 </section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
+<section id="example">
+<h2>Example:<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
 <blockquote>
 <div><blockquote>
 <div><blockquote>
@@ -584,11 +586,23 @@ pre-screening before delegating the actual segment swaps to the shared
 <td><p>Search for an improving 5-opt move with exhaustive topology enumeration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.__or_opt_relocation" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.__or_opt_relocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__or_opt_relocation</span></code></a></p></td>
-<td></td>
+<td><p>Evaluates and applies an Or-opt relocation move.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_oropt_move" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_oropt_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_try_oropt_move</span></code></a></p></td>
 <td><p>Or-opt move: Relocate a segment of 1, 2, or 3 nodes.
-Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.</p></td>
+Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.
+Args:
+curr_tour: The current tour.
+t1: The first node.
+i: The index of the first cut position.
+candidates: Candidates.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+pos: Position of nodes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._dynamic_kopt_search" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._dynamic_kopt_search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_dynamic_kopt_search</span></code></a></p></td>
 <td><p>Dynamic, recursive k-opt search following true sequential LKH-3 principles.</p></td>
@@ -618,15 +632,18 @@ d. Lexicographic gate: accept if ΔP&lt;0 OR (ΔP≈0 AND ΔC&gt;0)
 e. ONLY IF gate passes: construct tour and verify</p></li>
 </ol>
 <p>Args:
-curr_tour: Current closed tour.
-i: Position of t1 in the open route.
-t1, t2: Endpoints of the edge being considered for removal.
-candidates: α-nearest-neighbour lists.
-distance_matrix: Cost matrix.
-waste, capacity: VRP parameters (None for TSP).
-rng: Random number generator (unused, kept for interface compatibility).
-n_original: Original graph size (for augmented dummy depot mode).
-load_state: Optional LoadState for penalty calculation.</p>
+curr_tour: Description of curr_tour.
+i: Description of i.
+t1: Description of t1.
+t2: Description of t2.
+candidates: Description of candidates.
+distance_matrix: Description of distance_matrix.
+waste: Description of waste.
+capacity: Description of capacity.
+rng: Description of rng.
+n_original: Description of n_original.
+load_state: Description of load_state.
+pos: Description of pos.</p>
 <p>Returns:
 (new_tour, penalty, cost, improved, j) where j is the position of t3.
 Returns (None, 0, 0, False, -1) if no improvement found.</p>
@@ -661,14 +678,20 @@ evaluated anyway since the constant-factor overhead is negligible and
 they may find improving moves that were missed due to α-nearest neighbor
 filtering in the preceding _try_2opt_move search.</p>
 <p>Args:
-curr_tour: Current closed tour.
-i, j: Break-point positions of the first two cuts in the open route.
-t1..t4: Node pairs for the two existing broken edges.
-distance_matrix: Cost matrix.
-waste, capacity: VRP parameters.
-rng: Random number generator (unused, kept for interface compatibility).
-n_original: Original graph size (for augmented dummy depot mode).
-load_state: Optional LoadState for penalty calculation.</p>
+curr_tour: The current tour.
+i: The index of the first cut position.
+j: The index of the second cut position.
+t1: The first node.
+t2: The second node.
+t3: The third node.
+t4: The fourth node.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+pos: Position of nodes.</p>
 <p>Returns:
 (new_tour, penalty, cost, improved) tuple.
 Returns (None, 0.0, 0.0, False) if no improvement found.</p>
@@ -701,14 +724,23 @@ b. Call get_exact_penalty_delta for O(L) capacity check</p></li>
 <li><p>Verify with full (penalty, cost) evaluation</p></li>
 </ol>
 <p>Args:
-curr_tour: Current closed tour.
-i, j, k: Break-point positions of the first three cuts.
-t1..t6: Node pairs for the three existing broken edges.
-distance_matrix: Cost matrix.
-waste, capacity: VRP parameters.
-rng: Random number generator (unused, kept for interface compatibility).
-n_original: Original graph size (for augmented dummy depot mode).
-load_state: Optional LoadState for penalty calculation.</p>
+curr_tour: The current tour.
+i: The index of the first cut position.
+j: The index of the second cut position.
+k: The index of the third cut position.
+t1: The first node.
+t2: The second node.
+t3: The third node.
+t4: The fourth node.
+t5: The fifth node.
+t6: The sixth node.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+pos: Position of nodes.</p>
 <p>Returns:
 (new_tour, penalty, cost, improved) tuple.
 Returns (None, 0.0, 0.0, False) if no improvement found.</p>
@@ -749,14 +781,26 @@ b. Call get_exact_penalty_delta for O(L) capacity check</p></li>
 - Tour construction: O(N) once per accepted move
 - Overall: O(N^5) amortized (same asymptotic as before, more thorough)</p>
 <p>Args:
-curr_tour: Current closed tour.
-i, j, k, l: Break-point positions of the first four cuts.
-t1..t8: Node pairs for the four existing broken edges.
-distance_matrix: Cost matrix.
-waste, capacity: VRP parameters.
-rng: Random number generator (unused, kept for interface compatibility).
-n_original: Original graph size (for augmented dummy depot mode).
-load_state: Optional LoadState for penalty calculation.</p>
+curr_tour: The current tour.
+i: The index of the first cut position.
+j: The index of the second cut position.
+k: The index of the third cut position.
+l: The index of the fourth cut position.
+t1: The first node.
+t2: The second node.
+t3: The third node.
+t4: The fourth node.
+t5: The fifth node.
+t6: The sixth node.
+t7: The seventh node.
+t8: The eighth node.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+pos: Position of nodes.</p>
 <p>Returns:
 (new_tour, penalty, cost, improved) tuple.
 Returns (None, 0.0, 0.0, False) if no improving move found.</p>
@@ -769,13 +813,49 @@ traveling salesman heuristic. European Journal of Operational Research,
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.__or_opt_relocation">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.</span></span><span class="sig-name descname"><span class="pre">__or_opt_relocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seg_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_first</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_after</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_dest_after</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.__or_opt_relocation" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluates and applies an Or-opt relocation move.</p>
+<p>Args:
+seg_len: Length of the segment to relocate.
+t1: Base node.
+t_first: First node of the segment.
+t_after: Node originally after the segment.
+t_last: Last node of the segment.
+t_dest: Destination node.
+t_dest_after: Node after the destination.
+d: Distance matrix.
+load_state: Load state.
+waste: Node wastes.
+capacity: Vehicle capacity.
+curr_tour: Current tour.
+n_original: Original number of nodes.
+i: Current index in the tour.
+nodes_count: Number of nodes.
+curr_p: Current penalty.
+curr_c: Current cost.</p>
+<p>Returns:
+A tuple of (new_tour, penalty, cost, improved).</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_oropt_move">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.</span></span><span class="sig-name descname"><span class="pre">_try_oropt_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.LoadState</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._try_oropt_move" title="Link to this definition">#</a></dt>
 <dd><p>Or-opt move: Relocate a segment of 1, 2, or 3 nodes.
-Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.</p>
+Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.
+Args:
+curr_tour: The current tour.
+t1: The first node.
+i: The index of the first cut position.
+candidates: Candidates.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+pos: Position of nodes.</p>
+<p>Returns:
+(new_tour, penalty, cost, improved) tuple.
+Returns (None, 0.0, 0.0, False) if no improving move found.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -788,12 +868,42 @@ Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.</p>
 <li><p>Sequential branching: t_{2k+2} is the unique non-backtracking neighbor of t_{2k+1}.</p></li>
 <li><p>Efficiency: Uses the O(1) pos lookup array passed from the driver.</p></li>
 </ol>
+<p>Args:
+curr_tour: The current tour.
+i: The index of the first cut position.
+t1: The first node.
+t2: The second node.
+candidates: Candidates.
+distance_matrix: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+rng: Random number generator.
+n_original: Number of original nodes.
+load_state: Load state.
+max_k: Maximum k value.
+pos: Position of nodes.</p>
+<p>Returns:
+(new_tour, penalty, cost, improved) tuple.
+Returns (None, 0.0, 0.0, False) if no improving move found.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._verify_and_construct">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.</span></span><span class="sig-name descname"><span class="pre">_verify_and_construct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curr_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement._verify_and_construct" title="Link to this definition">#</a></dt>
 <dd><p>Helper to verify k-opt closure and build resulting tour.</p>
+<p>Args:
+curr_tour: The current tour.
+t_list: Sequence of k-opt points.
+d: Distance matrix.
+waste: Waste.
+capacity: Capacity.
+n_original: Number of original nodes.
+curr_p: Current penalty.
+curr_c: Current cost.
+pos: Position of nodes.</p>
+<p>Returns:
+(new_tour, penalty, cost, improved) tuple.
+Returns (None, 0.0, 0.0, False) if no improving move found.</p>
 </dd></dl>
 
 </section>
@@ -848,7 +958,7 @@ Relocates the segment [tour[i+1]…tour[i+len]] to follow node t_dest.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-size-thresholds">Instance-size thresholds</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

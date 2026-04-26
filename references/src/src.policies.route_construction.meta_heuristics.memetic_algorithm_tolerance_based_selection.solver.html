@@ -498,38 +498,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver">
 <span id="src-policies-route-construction-meta-heuristics-memetic-algorithm-tolerance-based-selection-solver"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver" title="Link to this heading">#</a></h1>
 <p>Memetic Algorithm with Tolerance-based Selection (MA-TS) for VRPP.</p>
-<p>EXACT COPY of League Championship Algorithm (LCA) with rigorous nomenclature.</p>
-<p>TERMINOLOGY MAPPING (LCA → MA-TS):</p>
-<ul class="simple">
-<li><p>“Teams” → Population (candidate solutions)</p></li>
-<li><p>“League Schedule” → Round-Robin Pairwise Matching</p></li>
-<li><p>“Playing Strength” → Fitness (objective function value)</p></li>
-<li><p>“Match Outcome” → Pairwise Comparison with Infeasibility Tolerance</p></li>
-<li><p>“Team Formation” → Solution Structure</p></li>
-<li><p>“Seasons” → Generations</p></li>
-</ul>
-<p>Algorithm Structure (Kashan, 2013):
-1. Initialize population of N solutions
-2. For each generation:
-a. Round-Robin Schedule: Random pairwise matching
-b. For each match (i vs j):
-- Determine winner using infeasibility tolerance
-- If |fitness_i - fitness_j| ≤ tolerance: random winner (diversity)
-- Otherwise: higher fitness wins
-- Loser generates new solution (crossover or mutation)
-- Loser ALWAYS accepts new solution (no elitism within match)
-c. Update global best</p>
-<p>Key Feature: Infeasibility Tolerance
-- Allows solutions with similar fitness to compete randomly
-- Preserves diversity and prevents premature convergence
-- Critical for bridging isolated feasible basins in constrained problems</p>
-<p>Reference:
-Kashan, A. H. (2013). “League Championship Algorithm (LCA): An algorithm
-for global optimization inspired by sport championships.”
-Applied Soft Computing, 13(5), 2171-2200.</p>
-<p>IMPORTANT: This implementation EXACTLY matches the LCA algorithm with only
-terminology changed from sports metaphors to OR terminology.
-Uses identical RNG attribute name (self.random) and algorithm flow.</p>
+<p>Attributes:
+MemeticAlgorithmToleranceBasedSelectionSolver: Core solver class for MA-TS.</p>
+<p>Example:
+&gt;&gt;&gt; solver = MemeticAlgorithmToleranceBasedSelectionSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,8 +510,7 @@ Uses identical RNG attribute name (self.random) and algorithm flow.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MemeticAlgorithmToleranceBasedSelectionSolver</span></code></a></p></td>
-<td><p>Memetic Algorithm with Tolerance-based Selection for VRPP.
-EXACT COPY of LCA with rigorous nomenclature.</p></td>
+<td><p>Memetic Algorithm with Tolerance-based Selection for VRPP.</p></td>
 </tr>
 </tbody>
 </table>
@@ -549,15 +521,39 @@ EXACT COPY of LCA with rigorous nomenclature.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmToleranceBasedSelectionSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.html#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams" title="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.MemeticAlgorithmToleranceBasedSelectionParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver" title="Link to this definition">#</a></dt>
-<dd><p>Memetic Algorithm with Tolerance-based Selection for VRPP.
-EXACT COPY of LCA with rigorous nomenclature.</p>
+<dd><p>Memetic Algorithm with Tolerance-based Selection for VRPP.</p>
+<p>Adaptation of LCA with rigorous nomenclature.</p>
+<p>Attributes:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per kg traveled.
+params: Algorithm-specific parameters.
+mandatory_nodes: Nodes that must be visited.
+n_nodes: Number of customer nodes.
+nodes: List of customer node indices.
+mandatory_set: Set of mandatory node indices.
+random: Random number generator.
+ls: Local search optimizer.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Memetic Algorithm Tolerance-Based Selection solver.</p>
+<p>Args:
+dist_matrix: Distance matrix between nodes.
+wastes: Dictionary mapping node indices to waste amounts.
+capacity: Vehicle capacity.
+R: Revenue per unit collected.
+C: Cost per unit distance.
+params: MA-TBS parameters.
+mandatory_nodes: Optional list of nodes that must be visited.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run MA-TS and return the best feasible solution.</p>
 <p>Returns:
-Tuple of (routes, profit, cost).</p>
+Tuple[List[List[int]], float, float]: A 3-tuple (routes, profit, cost).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -567,12 +563,20 @@ Tuple of (routes, profit, cost).</p>
 <p>Random node ordering causes different capacity cutoffs, creating
 genuinely diverse initial solutions. Uses self.C for the profitability
 check so that economics are consistent with the solver’s _evaluate().</p>
+<p>Args:
+None.</p>
+<p>Returns:
+List[List[int]]: A randomly constructed routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._perturb">
 <span class="sig-name descname"><span class="pre">_perturb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._perturb" title="Link to this definition">#</a></dt>
 <dd><p>Mutation operator using destroy-repair.</p>
+<p>Args:
+routes: The routing solution to perturb.</p>
+<p>Returns:
+List[List[int]]: The perturbed and refined routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -586,19 +590,27 @@ repaired via greedy_insertion to maintain feasibility.</p>
 loser_routes: Losing solution’s routes.
 winner_routes: Winning solution’s routes.</p>
 <p>Returns:
-Child routing solution.</p>
+List[List[int]]: Child routing solution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Net profit for a set of routes.</p>
+<p>Args:
+routes: The routing solution to evaluate.</p>
+<p>Returns:
+float: The net profit (revenue - cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.MemeticAlgorithmToleranceBasedSelectionSolver._cost" title="Link to this definition">#</a></dt>
 <dd><p>Total routing distance.</p>
+<p>Args:
+routes: The routing solution to calculate distance for.</p>
+<p>Returns:
+float: Total distance traveled.</p>
 </dd></dl>
 
 </dd></dl>

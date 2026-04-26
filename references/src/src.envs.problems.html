@@ -490,6 +490,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.problems">
 <span id="src-envs-problems"></span><h1><a class="reference internal" href="#module-src.envs.problems" title="src.envs.problems"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a><a class="headerlink" href="#module-src.envs.problems" title="Link to this heading">#</a></h1>
 <p>Facade for the problems package.</p>
+<p>Attributes:
+BaseProblem: Base class for all problems
+COST_KM: Cost per kilometer
+REVENUE_KG: Revenue per kilogram
+BIN_CAPACITY: Bin capacity
+VEHICLE_CAPACITY: Vehicle capacity
+VRPP: Capacitated VRP
+CVRPP: Capacitated VRP with waste
+WCVRP: Waste-only CVRP
+CWCVRP: Capacitated VRP with waste and time windows
+SCWCVRP: Single-depot Capacitated VRP with waste and time windows</p>
+<p>Example:
+from logic.src.envs.problems import VRPP
+env = VRPP(num_loc=50, cost_km=10)
+obs, _ = env.reset()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

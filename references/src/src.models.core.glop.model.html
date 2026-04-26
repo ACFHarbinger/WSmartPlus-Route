@@ -535,20 +535,20 @@ n_samples (int): count of parallel partition candidates per instance.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the GLOP model.</p>
 <p>Args:
-env: heavy-duty optimization environment.
-policy: Optional pre-configured partitioning policy.
-policy_kwargs: parameter map for automated policy creation.
-baseline: identifier for reward normalization.
-**kwargs: Unused extra parameters.</p>
+env: Environment managing problem physics.
+policy: Optional pre-initialized GLOP policy.
+policy_kwargs: Hyper-parameters for the underlying policy.
+baseline: RL baseline type (e.g., “mean”).
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.model.GLOP.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.model.GLOP.forward" title="Link to this definition">#</a></dt>
 <dd><p>Executes the partitioning and local optimization pipeline.</p>
 <p>Args:
-td: Environment state.
-env: Optional environment override.
-phase: Current execution phase (‘train’, ‘val’, ‘test’).
-**kwargs: Extra parameters for the policy logic.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+phase: Current execution phase (“train”, “val”, “test”).
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: results including ‘reward’, ‘log_likelihood’, and ‘actions’.</p>
 </dd></dl>

@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.policy_hgs_rr.HGSRRPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.policy_hgs_rr.HGSRRPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

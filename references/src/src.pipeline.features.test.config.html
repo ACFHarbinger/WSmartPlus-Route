@@ -496,6 +496,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.test.config">
 <span id="src-pipeline-features-test-config"></span><h1><a class="reference internal" href="#module-src.pipeline.features.test.config" title="src.pipeline.features.test.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.test.config</span></code></a><a class="headerlink" href="#module-src.pipeline.features.test.config" title="Link to this heading">#</a></h1>
 <p>Configuration loader for Test Engine.</p>
+<p>Attributes:
+expand_policy_configs: Expands policy names into full configuration paths and variants.
+_resolve_policy_cfg_path: Resolve the YAML configuration path for a policy.
+_extract_variants: Extract policy variants from its configuration.
+_find_inner_config: Find the list of configurations/variants within a policy config.
+_parse_inner_components: Parse the inner components (MS and PP) from a policy configuration.
+_apply_ms_override: Apply the multi-start (MS) override to a policy configuration.
+_clean_id: Clean an identifier string by removing a prefix and replacing underscores with hyphens.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.test.config import expand_policy_configs
+&gt;&gt;&gt; config = Config()
+&gt;&gt;&gt; expand_policy_configs(config)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -544,36 +556,62 @@ and <code class="docutils literal notranslate"><span class="pre">cfg.sim.data_di
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._resolve_policy_cfg_path">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_resolve_policy_cfg_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._resolve_policy_cfg_path" title="Link to this definition">#</a></dt>
 <dd><p>Resolve the YAML configuration path for a policy.</p>
+<p>Args:
+pol_name: Policy name.</p>
+<p>Returns:
+Configuration file path.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._extract_variants">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_extract_variants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._extract_variants" title="Link to this definition">#</a></dt>
 <dd><p>Extract policy variants from its configuration.</p>
+<p>Args:
+pol_name: Policy name.
+cfg_path: Configuration file path.</p>
+<p>Returns:
+Tuple of (variants, variant_name).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._find_inner_config">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_find_inner_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._find_inner_config" title="Link to this definition">#</a></dt>
 <dd><p>Find the list of configurations/variants within a policy config.</p>
+<p>Args:
+pol_cfg: Policy configuration object.</p>
+<p>Returns:
+Tuple of (inner_config, variant_name).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._parse_inner_components">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_parse_inner_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._parse_inner_components" title="Link to this definition">#</a></dt>
 <dd><p>Extract mandatory and route improvement lists from inner config.</p>
+<p>Args:
+inner_cfg: Inner configuration object.</p>
+<p>Returns:
+Tuple of (mandatory_list, route_improvement_list, match_index).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._apply_ms_override">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_apply_ms_override</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._apply_ms_override" title="Link to this definition">#</a></dt>
 <dd><p>Apply a mandatory override to a deep-copied config.</p>
+<p>Args:
+var_cfg: Deep-copied policy configuration object.
+match_idx: Index of the configuration to modify.
+ms_item: Mandatory list item to apply.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._clean_id">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_clean_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_or_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._clean_id" title="Link to this definition">#</a></dt>
 <dd><p>Clean a component ID from a path or string.</p>
+<p>Args:
+path_or_str: Path or string to clean.
+prefix: Prefix to remove.</p>
+<p>Returns:
+Cleaned identifier.</p>
 </dd></dl>
 
 </section>

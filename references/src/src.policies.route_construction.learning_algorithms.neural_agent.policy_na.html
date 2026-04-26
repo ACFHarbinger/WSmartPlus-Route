@@ -531,6 +531,8 @@ and the local search / simulation environment.</p>
 None: This class is a stateless wrapper.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize NeuralPolicy.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy.execute" title="Link to this definition">#</a></dt>
@@ -540,7 +542,7 @@ bin levels, etc.) and uses a Transformer or GNN-based decoder to
 constructively build routes. It supports Hierarchical RL (HRL) via a
 manager-worker architecture if provided.</p>
 <p>Args:
-**kwargs: Context for neural execution, including:
+kwargs: Context for neural execution, including:
 - model_env: The RL environment instance.
 - model_ls: Local search and profit variable data.
 - bins: The bin collection state.
@@ -566,6 +568,11 @@ Tuple of:
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._log_params">
 <span class="sig-name descname"><span class="pre">_log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._log_params" title="Link to this definition">#</a></dt>
 <dd><p>Log neural policy parameters to the active tracking run.</p>
+<p>Args:
+context: Context for neural execution.
+cost_weights: Cost weights for the neural policy.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -599,6 +606,17 @@ torch.Tensor: Boolean mask (1, N+1) including depot.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Stub to satisfy BaseRoutingPolicy as NeuralAgentPolicy overrides execute().</p>
+<p>Args:
+sub_dist_matrix: Sub-distance matrix.
+sub_wastes: Sub-wastes.
+capacity: Capacity of the vehicle.
+revenue: Revenue from the route.
+cost_unit: Cost unit.
+values: Values for the route.
+mandatory_nodes: Mandatory nodes for the route.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple of (routes, cost, profit).</p>
 </dd></dl>
 
 </dd></dl>

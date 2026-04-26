@@ -509,6 +509,12 @@ preventing cyclical revisitation.  Reactive Tabu Search enhances this
 with hash-based cycle detection: when configuration hashes repeat,
 the tabu tenure is increased to amplify diversification; during long
 non-cycling periods, tenure contracts for intensive exploitation.</p>
+<p>Attributes:
+RTSSolver (Type): Core solver class for RTS.
+RTSParams (Type): Parameter dataclass for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = RTSSolver(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, profit, cost = solver.solve()</p>
 <p>Reference:
 Battiti, R., &amp; Tecchiolli, G. “The Reactive Tabu Search”, 1994.</p>
 <section id="module-contents">
@@ -530,70 +536,162 @@ Battiti, R., &amp; Tecchiolli, G. “The Reactive Tabu Search”, 1994.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.</span></span><span class="sig-name descname"><span class="pre">RTSSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.html#src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams" title="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.RTSParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver" title="Link to this definition">#</a></dt>
 <dd><p>Reactive Tabu Search solver for VRPP.</p>
+<p>Attributes:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (RTSParams): Algorithm-specific parameters.
+mandatory_nodes (List[int]): Nodes that must be visited.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the Reactive Tabu Search solver.</p>
+<p>Args:
+dist_matrix (np.ndarray): Symmetric distance matrix.
+wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
+capacity (float): Maximum vehicle collection capacity.
+R (float): Revenue per kg of waste.
+C (float): Cost per km traveled.
+params (RTSParams): Algorithm-specific parameters.
+mandatory_nodes (Optional[List[int]]): Nodes that must be visited.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Run Reactive Tabu Search.</p>
 <p>Returns:
-Tuple of (routes, profit, cost).</p>
+Tuple[List[List[int]], float, float]: Optimized (routes, profit, cost).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh0">
 <span class="sig-name descname"><span class="pre">_llh0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh0" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Random removal followed by greedy insertion.
+Uses random_removal to remove a sequence of nodes and greedy_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh1">
 <span class="sig-name descname"><span class="pre">_llh1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh1" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Worst profit removal followed by regret-2 insertion.
+Uses worst_profit_removal to remove a sequence of nodes and regret_2_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh2">
 <span class="sig-name descname"><span class="pre">_llh2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh2" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Cluster removal followed by greedy insertion.
+Uses cluster_removal to remove a sequence of nodes and greedy_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh3">
 <span class="sig-name descname"><span class="pre">_llh3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh3" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Worst profit removal followed by greedy insertion.
+Uses worst_profit_removal to remove a sequence of nodes and greedy_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh4">
 <span class="sig-name descname"><span class="pre">_llh4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh4" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Random removal followed by regret-2 insertion.
+Uses random_removal to remove a sequence of nodes and regret_2_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh5">
 <span class="sig-name descname"><span class="pre">_llh5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh5" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Shaw removal followed by regret-2 insertion.
+Uses shaw_removal to remove a sequence of nodes and regret_2_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh6">
 <span class="sig-name descname"><span class="pre">_llh6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._llh6" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>String removal followed by greedy insertion.
+Uses string_removal to remove a sequence of nodes and greedy_profit_insertion
+to insert them back.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.
+n (int): The number of nodes to remove.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._hash_routes">
 <span class="sig-name descname"><span class="pre">_hash_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._hash_routes" title="Link to this definition">#</a></dt>
 <dd><p>Compute a hash of the route configuration for cycle detection.</p>
+<p>Args:
+routes (List[List[int]]): The routes to hash.</p>
+<p>Returns:
+int: The hash of the routes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._build_initial_solution">
 <span class="sig-name descname"><span class="pre">_build_initial_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._build_initial_solution" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build an initial solution using the nearest neighbor heuristic.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.</p>
+<p>Returns:
+List[List[int]]: The routes evaluated.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Compute the total profit of the routes.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.</p>
+<p>Returns:
+float: The total profit of the routes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._cost">
 <span class="sig-name descname"><span class="pre">_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.RTSSolver._cost" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Compute the total cost of the routes.</p>
+<p>Args:
+routes (List[List[int]]): The routes to evaluate.</p>
+<p>Returns:
+float: The total cost of the routes.</p>
+</dd></dl>
 
 </dd></dl>
 

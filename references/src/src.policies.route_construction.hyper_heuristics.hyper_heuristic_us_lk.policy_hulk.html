@@ -496,6 +496,12 @@ document.write(`
 <span id="src-policies-route-construction-hyper-heuristics-hyper-heuristic-us-lk-policy-hulk"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk" title="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk" title="Link to this heading">#</a></h1>
 <p>Policy adapter for HULK hyper-heuristic.</p>
 <p>Provides the interface between the simulator and the HULK solver.</p>
+<p>Attributes:
+HULKPolicy: Adapter for the HULK solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import HULKPolicy
+&gt;&gt;&gt; policy = HULKPolicy()
+&gt;&gt;&gt; routes, profit, cost = policy.solve(dist_matrix, wastes, capacity, revenue, cost_unit, mandatory_nodes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,22 +522,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.</span></span><span class="sig-name descname"><span class="pre">HULKPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.hulk.HULKConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>HULK hyper-heuristic policy class.</p>
+<p>Attributes:
+config: Configuration for the policy.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initialize the HULK hyper-heuristic policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config (Optional[Union[HULKConfig, Dict[str, Any]]]): Configuration for the policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration class for this policy.</p>
+<p>Returns:
+Optional[Type]: Configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the configuration key for this policy.</p>
+<p>Returns:
+str: Configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.HULKPolicy._run_solver">
@@ -557,7 +568,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 hyperparameters like <code class="docutils literal notranslate"><span class="pre">epsilon</span></code>, <code class="docutils literal notranslate"><span class="pre">weight_learning_rate</span></code>, etc.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

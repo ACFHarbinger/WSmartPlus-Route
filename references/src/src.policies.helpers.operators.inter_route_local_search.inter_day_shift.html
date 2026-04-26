@@ -490,6 +490,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.inter_route_local_search.inter_day_shift">
 <span id="src-policies-helpers-operators-inter-route-local-search-inter-day-shift"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.inter_route_local_search.inter_day_shift" title="src.policies.helpers.operators.inter_route_local_search.inter_day_shift"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.inter_route_local_search.inter_day_shift</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.inter_route_local_search.inter_day_shift" title="Link to this heading">#</a></h1>
 <p>Inter-Day Shift Operator.</p>
+<p>Provides a perturbation operator for multi-period (multi-day) routing
+that moves a single node visit from one day to another in an Individual’s
+pattern representation.</p>
+<p>Attributes:
+inter_day_shift: Attempt to shift one node visit between days to reduce
+total routing cost.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.inter_route_local_search.inter_day_shift import (
+…     inter_day_shift,
+… )
+&gt;&gt;&gt; improved = inter_day_shift(ind, base_wastes, daily_increments, dist, capacity, n_vehicles, T)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -513,7 +524,19 @@ document.write(`
 Flips the bits in p_i to maintain open unconstrained search.
 Re-evaluates incremental loads and splits.
 If fitness improves, commits the change.</p>
-<p>Returns True if an improvement was found.</p>
+<p>Args:
+ind: Individual whose pattern and giant-tour representations are
+mutated in-place on improvement.
+base_wastes: Array of shape (N,) containing baseline waste levels
+for each node.
+daily_increments: Array of shape (N, T) containing daily fill
+increments for each node across the horizon.
+dist: Square distance matrix of shape (N+1, N+1) including depot.
+capacity: Vehicle capacity constraint.
+n_vehicles: Maximum number of vehicles available per day.
+T: Planning horizon length (number of days).</p>
+<p>Returns:
+bool: True if an improving shift was found and committed; False otherwise.</p>
 </dd></dl>
 
 </section>

@@ -511,6 +511,25 @@ to evaluate Low-Level Heuristics (LLHs) based on their Pareto performance:</p>
 Chen, B., Qu, R., Bai, R., &amp; Laesanklang, W. (2018). “A hyper-heuristic with
 two guidance indicators for bi-objective mixed-shift vehicle routing problem
 with time windows.” European Journal of Operational Research, 269(2), 661-675.</p>
+<p>Attributes:
+ScoreAIndicator: ScoreA (Quality Reward)
+ScoreBIndicator: ScoreB (Directional Reward)</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators import ScoreAIndicator, ScoreBIndicator
+&gt;&gt;&gt; score_a_indicator = ScoreAIndicator()
+&gt;&gt;&gt; score_b_indicator = ScoreBIndicator()
+&gt;&gt;&gt; score_a_indicator.update(“operator1”, True)
+&gt;&gt;&gt; score_a_indicator.get_score(“operator1”)
+1.0
+&gt;&gt;&gt; score_a_indicator.reset(“operator1”)
+&gt;&gt;&gt; score_a_indicator.get_score(“operator1”)
+0.0
+&gt;&gt;&gt; score_b_indicator.update(“operator1”, True, True)
+&gt;&gt;&gt; score_b_indicator.get_score(“operator1”)
+1.0
+&gt;&gt;&gt; score_b_indicator.reset(“operator1”)
+&gt;&gt;&gt; score_b_indicator.get_score(“operator1”)
+0.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -535,8 +554,12 @@ with time windows.” European Journal of Operational Research, 269(2), 661-675.
 <dd><p>ScoreA (Quality Reward).</p>
 <p>Measures the frequency an operator successfully produces a solution that
 is good enough to be accepted into the non-dominated Pareto Archive (ARCH).</p>
+<p>Attributes:
+scores (Dict[str, float]): Dictionary of ScoreA values for each operator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize ScoreA tracking.</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.update" title="Link to this definition">#</a></dt>
@@ -544,18 +567,28 @@ is good enough to be accepted into the non-dominated Pareto Archive (ARCH).</p>
 <p>Args:
 operator: Name of the operator.
 accepted: True if the solution was accepted into ARCH.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.get_score">
 <span class="sig-name descname"><span class="pre">get_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.get_score" title="Link to this definition">#</a></dt>
 <dd><p>Get the accumulated ScoreA for an operator.</p>
+<p>Args:
+operator: Name of the operator.</p>
+<p>Returns:
+float: Accumulated ScoreA for the operator.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreAIndicator.reset" title="Link to this definition">#</a></dt>
 <dd><p>Reset ScoreA for a specific operator (used at segment boundaries).</p>
+<p>Args:
+operator: Name of the operator.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>
@@ -567,6 +600,8 @@ accepted: True if the solution was accepted into ARCH.</p>
 <p>Measures the objective-space directional bias of an operator.
 If it improves Revenue (Objective 1), score increases by 1.
 If it improves Cost (Objective 2), score decreases by 1.</p>
+<p>Attributes:
+scores (Dict[str, float]): Dictionary of ScoreB values for each operator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize ScoreB tracking.</p>
 <dl class="py method">
@@ -583,18 +618,28 @@ only if exactly one objective was improved.</p>
 operator: Name of the operator.
 revenue_improved: True if revenue &gt; parent’s revenue.
 cost_improved: True if cost &lt; parent’s cost.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.get_score">
 <span class="sig-name descname"><span class="pre">get_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.get_score" title="Link to this definition">#</a></dt>
 <dd><p>Get the accumulated ScoreB for an operator.</p>
+<p>Args:
+operator: Name of the operator.</p>
+<p>Returns:
+float: Accumulated ScoreB for the operator.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.ScoreBIndicator.reset" title="Link to this definition">#</a></dt>
 <dd><p>Reset ScoreB for a specific operator (used at segment boundaries).</p>
+<p>Args:
+operator: Name of the operator.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

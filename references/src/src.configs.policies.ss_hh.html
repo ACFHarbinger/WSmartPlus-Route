@@ -503,6 +503,33 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ss_hh">
 <span id="src-configs-policies-ss-hh"></span><h1><a class="reference internal" href="#module-src.configs.policies.ss_hh" title="src.configs.policies.ss_hh"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ss_hh</span></code></a><a class="headerlink" href="#module-src.configs.policies.ss_hh" title="Link to this heading">#</a></h1>
 <p>SS-HH (Sequence-based Selection Hyper-Heuristic) configuration for Hydra.</p>
+<p>Attributes:
+SSHHConfig: Configuration for the Sequence-based Selection Hyper-Heuristic (SS-HH) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ss_hh import SSHHConfig
+&gt;&gt;&gt; config = SSHHConfig()
+&gt;&gt;&gt; config.max_iterations
+500
+&gt;&gt;&gt; config.n_removal
+2
+&gt;&gt;&gt; config.n_llh
+5
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.threshold_infeasible
+0.001
+&gt;&gt;&gt; config.threshold_feasible_base
+0.0001
+&gt;&gt;&gt; config.threshold_decay_rate
+0.01
+&gt;&gt;&gt; config.seed
+None
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.mandatory_selection
+[]
+&gt;&gt;&gt; config.route_improvement
+[]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

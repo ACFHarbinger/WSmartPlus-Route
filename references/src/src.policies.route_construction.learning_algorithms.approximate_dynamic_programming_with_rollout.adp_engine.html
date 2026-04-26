@@ -516,6 +516,14 @@ d. Sum: <code class="docutils literal notranslate"><span class="pre">ΔObj(S)</s
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <p>Powell, W. B. (2011). “Approximate Dynamic Programming: Solving the Curses
 of Dimensionality.” Wiley-Interscience.</p>
+<p>Attributes:
+ADPRolloutEngine: Approximate Dynamic Programming engine for SIRP.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_algorithms import ADPRolloutEngine
+&gt;&gt;&gt; engine = ADPRolloutEngine(dist_matrix, wastes, capacity, R, C, params)
+&gt;&gt;&gt; routes, metrics = engine.run_day()
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 </section>
 <p>ADP Rollout Engine for Stochastic Multi-Period IRP.</p>
 <p>Implements Powell’s Approximate Dynamic Programming framework adapted to
@@ -544,6 +552,15 @@ plus a truncated rollout estimate of future costs, and selects the best set.</p>
 <p>Uses a greedy rollout baseline to estimate the expected future value
 V(S_{t+1}) under candidate visit decisions, then selects the visit set
 that minimises total expected cost across the look-ahead horizon H.</p>
+<p>Attributes:
+dist_matrix: Square distance/cost matrix (0-indexed, depot = 0).
+wastes: Mapping {node_id: current_fill_level_%} for all customers.
+capacity: Vehicle capacity.
+R: Revenue per unit waste collected.
+C: Cost per unit distance.
+params: ADP rollout configuration.
+mandatory_nodes: Nodes that must be served regardless of fill level.
+n_nodes: Number of nodes.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the ADP rollout engine.</p>
 <p>Args:

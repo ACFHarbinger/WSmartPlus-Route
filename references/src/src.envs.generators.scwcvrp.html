@@ -493,6 +493,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.envs.generators.scwcvrp">
 <span id="src-envs-generators-scwcvrp"></span><h1><a class="reference internal" href="#module-src.envs.generators.scwcvrp" title="src.envs.generators.scwcvrp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.scwcvrp</span></code></a><a class="headerlink" href="#module-src.envs.generators.scwcvrp" title="Link to this heading">#</a></h1>
 <p>SCWCVRP problem generator.</p>
+<p>Attributes:
+SCWCVRPGenerator: SCWCVRPGenerator class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import SCWCVRPGenerator
+&gt;&gt;&gt; generator = SCWCVRPGenerator(num_loc=20)
+&gt;&gt;&gt; instance = generator.generate()
+&gt;&gt;&gt; instance
+TensorDict({
+# … WCVRP fields plus ‘real_waste’ and ‘noisy_waste’ …
+})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,12 +524,40 @@ document.write(`
 <dd><p>Bases: <a class="reference internal" href="src.envs.generators.wcvrp.html#src.envs.generators.wcvrp.WCVRPGenerator" title="src.envs.generators.wcvrp.WCVRPGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.envs.generators.wcvrp.WCVRPGenerator</span></code></a></p>
 <p>Generator for Stochastic Capacitated Waste Collection VRP (SCWCVRP) instances.</p>
 <p>Adds noise to the fill levels to simulate uncertain waste fill levels.</p>
+<p>Attributes:
+noise_mean: Mean of the noise added to fill levels.
+noise_variance: Variance of the noise added to fill levels.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SCWCVRP generator.</p>
+<p>Args:
+num_loc: Number of bin locations (excluding depot).
+min_loc: Minimum coordinate value.
+max_loc: Maximum coordinate value.
+loc_distribution: Distribution for location generation.
+min_fill: Minimum bin fill level in [0, 1].
+max_fill: Maximum bin fill level in [0, 1].
+fill_distribution: Distribution for fill level generation.
+capacity: Vehicle capacity in kg.
+cost_km: Cost per kilometer traveled.
+revenue_kg: Revenue per kg collected.
+depot_type: Depot placement (“center”, “corner”, “random”).
+noise_mean: Mean of Gaussian noise added to fill levels.
+noise_variance: Variance of Gaussian noise; 0 disables noise.
+device: Target device for generated tensors.
+kwargs: Forwarded to WCVRPGenerator base.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.generators.scwcvrp.SCWCVRPGenerator._generate">
 <span class="sig-name descname"><span class="pre">_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.generators.scwcvrp.SCWCVRPGenerator._generate" title="Link to this definition">#</a></dt>
 <dd><p>Generate SCWCVRP instances.</p>
+<p>Args:
+batch_size: Batch size.</p>
+<p>Returns:
+TensorDict with:
+locs: [*B, num_loc, 2]     — customer locations
+depot: [*B, 2]              — depot location
+waste: [*B, num_loc]        — waste fill levels
+real_waste: [*B, num_loc]     — real waste levels
+noisy_waste: [*B, num_loc]  — noisy waste levels</p>
 </dd></dl>
 
 </dd></dl>

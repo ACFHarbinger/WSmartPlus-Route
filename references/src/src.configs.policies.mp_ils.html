@@ -498,6 +498,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.mp_ils">
 <span id="src-configs-policies-mp-ils"></span><h1><a class="reference internal" href="#module-src.configs.policies.mp_ils" title="src.configs.policies.mp_ils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.mp_ils</span></code></a><a class="headerlink" href="#module-src.configs.policies.mp_ils" title="Link to this heading">#</a></h1>
 <p>Configuration for the Multi-Period Iterated Local Search (MP-ILS).</p>
+<p>Attributes:
+MP_ILS_Config: Configuration for the Multi-Period Iterated Local Search (MP-ILS) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.mp_ils import MP_ILS_Config
+&gt;&gt;&gt; config = MP_ILS_Config()
+&gt;&gt;&gt; config.iters
+50
+&gt;&gt;&gt; config.perturb_size
+3
+&gt;&gt;&gt; config.seed
+42
+&gt;&gt;&gt; config.vrpp
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

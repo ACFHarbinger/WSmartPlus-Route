@@ -494,6 +494,11 @@ document.write(`
 <span id="src-policies-route-construction-meta-heuristics-fast-iterative-localized-optimization-ruin-recreate"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate" title="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate" title="Link to this heading">#</a></h1>
 <p>Ruin and Recreate operator for Fast Iterative Localized Optimization (FILO).</p>
 <p>Upgraded to be strictly Profit-Aware for the VRPP and topologically rigorous.</p>
+<p>Attributes:
+RuinAndRecreate: Shaking operator for FILO.</p>
+<p>Example:
+&gt;&gt;&gt; rr = RuinAndRecreate(dist_matrix, wastes, capacity, R, C, rng)
+&gt;&gt;&gt; new_routes, n_removed, footprint = rr.apply(routes, seed, customers, mandatory)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate" title="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RuinAndRecreate</span></code></a></p></td>
-<td><p>Operator that applies localized Ruin &amp; Recreate (shaking) to a solution.
-Modified to accurately reflect Accorsi &amp; Vigo (2021) Random Walk.</p></td>
+<td><p>Operator that applies localized Ruin &amp; Recreate (shaking) to a solution.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,15 +517,44 @@ Modified to accurately reflect Accorsi &amp; Vigo (2021) Random Walk.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.</span></span><span class="sig-name descname"><span class="pre">RuinAndRecreate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate" title="Link to this definition">#</a></dt>
-<dd><p>Operator that applies localized Ruin &amp; Recreate (shaking) to a solution.
-Modified to accurately reflect Accorsi &amp; Vigo (2021) Random Walk.</p>
+<dd><p>Operator that applies localized Ruin &amp; Recreate (shaking) to a solution.</p>
+<p>Modified to accurately reflect Accorsi &amp; Vigo (2021) Random Walk.</p>
+<p>Attributes:
+d: Symmetric distance matrix.
+waste: Mapping of bin IDs to waste quantities.
+Q: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+rng: Random number generator.
+profit_aware_operators: Whether to use profit-aware operators.
+vrpp: Whether solving VRP with Profits.
+neighbors: Pre-computed list of neighbors for each node.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize RuinAndRecreate operator.</p>
+<p>Args:
+dist_matrix: Symmetric distance matrix.
+wastes: Mapping of bin IDs to waste quantities.
+capacity: Maximum vehicle collection capacity.
+R: Revenue per kg of waste.
+C: Cost per km traveled.
+rng: Random number generator.
+profit_aware_operators: Whether to use profit-aware operators.
+vrpp: Whether solving VRP with Profits.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply">
 <span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_intensity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.RuinAndRecreate.apply" title="Link to this definition">#</a></dt>
-<dd><p>Apply Ruin and Recreate to the current routing solution.
-Random Walk length is strictly omega_intensity.</p>
+<dd><p>Apply Ruin and Recreate to the current routing solution.</p>
+<p>Random Walk length is strictly omega_intensity.</p>
+<p>Args:
+routes: Current routing sequences.
+seed: Initial node to start the random walk.
+all_customers: List of all customer node indices.
+mandatory_nodes: Nodes that must be visited.
+omega_intensity: Shaking intensity (walk length).</p>
+<p>Returns:
+Tuple of (new_routes, num_removed, footprint_nodes).</p>
 </dd></dl>
 
 </dd></dl>

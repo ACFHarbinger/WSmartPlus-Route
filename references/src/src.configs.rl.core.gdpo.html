@@ -496,6 +496,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.rl.core.gdpo">
 <span id="src-configs-rl-core-gdpo"></span><h1><a class="reference internal" href="#module-src.configs.rl.core.gdpo" title="src.configs.rl.core.gdpo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.gdpo</span></code></a><a class="headerlink" href="#module-src.configs.rl.core.gdpo" title="Link to this heading">#</a></h1>
 <p>GDPO specific configuration.</p>
+<p>Attributes:
+GDPOConfig: Configuration for GDPO algorithm.</p>
+<p>Example:
+gdpo_config = GDPOConfig(
+objective_keys=[“reward_waste”, “reward_cost”],
+objective_weights=None,
+conditional_key=None,
+renormalize=True,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +524,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.rl.core.gdpo.GDPOConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.core.gdpo.</span></span><span class="sig-name descname"><span class="pre">GDPOConfig</span></span><a class="headerlink" href="#src.configs.rl.core.gdpo.GDPOConfig" title="Link to this definition">#</a></dt>
 <dd><p>GDPO specific configuration.</p>
+<p>Attributes:
+objective_keys: List of objective keys to use.
+objective_weights: Weights for the objective functions.
+conditional_key: Conditional key for the objective functions.
+renormalize: Whether to renormalize the objective functions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.core.gdpo.GDPOConfig.objective_keys">
 <span class="sig-name descname"><span class="pre">objective_keys</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.rl.core.gdpo.GDPOConfig.objective_keys" title="Link to this definition">#</a></dt>

@@ -495,6 +495,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg">
 <span id="src-policies-route-construction-learning-matheuristic-algorithms-adaptive-branch-and-price-and-cut-with-heuristic-guidance-progressive-hedging-cg"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" title="src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.progressive_hedging_cg" title="Link to this heading">#</a></h1>
 <p>Progressive Scenario Hedging within Column Generation.</p>
+<p>Attributes:
+ProgressiveHedgingCGLoop: The Progressive Hedging algorithm implementation.</p>
+<p>Examples:
+&gt;&gt;&gt; from .progressive_hedging_cg import ProgressiveHedgingCGLoop
+&gt;&gt;&gt; progressive_hedging_cg = ProgressiveHedgingCGLoop()
+&gt;&gt;&gt; progressive_hedging_cg.update_x_bar()
+&gt;&gt;&gt; progressive_hedging_cg.compute_dynamic_penalty()
+&gt;&gt;&gt; progressive_hedging_cg.calculate_augmented_reduced_cost()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -532,7 +540,7 @@ a linear term w_k · (x_k − x̄_k) with a Lagrange multiplier w_k that is
 updated each iteration.  This implementation omits the linear term for
 simplicity; it can be incorporated by maintaining a dual multiplier
 vector updated as w_k ← w_k + ρ · (x_k − x̄_k) after each consensus step.</p>
-<p class="rubric" id="id2">Attributes</p>
+<p class="rubric" id="id2">Attributes:</p>
 <p>num_scenarios : int
 Total number of scenarios |Ξ|; denominator of the x̄ average.
 base_rho : float

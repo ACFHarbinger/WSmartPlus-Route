@@ -505,6 +505,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Simulated Annealing Neighborhood Search (SANS) policy.</p>
+<p>Attributes:
+SANSParams: Configuration parameters for the SANS solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params import SANSParams
+&gt;&gt;&gt; sans_params = SANSParams()
+&gt;&gt;&gt; sans_params.to_dict()
+{‘engine’: ‘new’, ‘T_init’: 75.0, ‘iterations_per_T’: 5000, ‘alpha’: 0.95, ‘T_min’: 0.01, ‘time_limit’: 60.0, ‘perc_bins_can_overflow’: 0.0, ‘V’: 0.0, ‘shift_duration’: 28800.0, ‘combination’: ‘best’, ‘seed’: 42}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -606,12 +613,18 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create SANSParams from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+SANSParams: SANS parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert Params to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary representation of Params.</p>
 </dd></dl>
 
 </dd></dl>

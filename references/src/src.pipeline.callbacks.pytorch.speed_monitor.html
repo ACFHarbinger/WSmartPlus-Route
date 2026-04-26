@@ -500,6 +500,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.pytorch.speed_monitor">
 <span id="src-pipeline-callbacks-pytorch-speed-monitor"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.pytorch.speed_monitor" title="src.pipeline.callbacks.pytorch.speed_monitor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.pytorch.speed_monitor</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.pytorch.speed_monitor" title="Link to this heading">#</a></h1>
 <p>Speed monitoring callback for Lightning.</p>
+<p>Attributes:
+SpeedMonitor: Callback to monitor training speed.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.pytorch.speed_monitor import SpeedMonitor
+&gt;&gt;&gt; trainer = L.Trainer(callbacks=[SpeedMonitor()])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,6 +527,12 @@ Logs intra-step (forward/backward) and inter-step (data loading) times.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.Callback</span></code></p>
 <p>Monitor the speed of each step and each epoch.
 Logs intra-step (forward/backward) and inter-step (data loading) times.</p>
+<p>Attributes:
+_snap_intra_step_time: Timestamp of intra-step measurement start.
+_snap_inter_step_time: Timestamp of inter-step measurement start.
+_snap_epoch_time: Timestamp of epoch measurement start.
+_log_stats: AttributeDict containing logging flags.
+verbose: Whether to print timing info to console.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SpeedMonitor callback.</p>
 <p>Args:
@@ -533,52 +544,76 @@ verbose: Whether to print timing info to console.</p>
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_start">
 <span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_start" title="Link to this definition">#</a></dt>
 <dd><p>Reset epoch time snapshot at training start.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_epoch_start">
 <span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Reset timing snapshots and capture epoch start time.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_validation_epoch_start">
 <span class="sig-name descname"><span class="pre">on_validation_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_validation_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Reset inter-step time snapshot for validation.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_test_epoch_start">
 <span class="sig-name descname"><span class="pre">on_test_epoch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_test_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Reset inter-step time snapshot for testing.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_batch_start">
 <span class="sig-name descname"><span class="pre">on_train_batch_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">unused_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">unused_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_batch_start" title="Link to this definition">#</a></dt>
 <dd><p>Capture intra-step start time and log inter-step time.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+unused_args: Unused arguments.
+unused_kwargs: Unused keyword arguments.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_batch_end">
 <span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">unused_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">unused_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_batch_end" title="Link to this definition">#</a></dt>
 <dd><p>Capture inter-step start time and log intra-step time.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.
+unused_args: Unused arguments.
+unused_kwargs: Unused keyword arguments.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_epoch_end">
 <span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor.on_train_epoch_end" title="Link to this definition">#</a></dt>
 <dd><p>Log epoch duration at end of training epoch.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.
+pl_module: The PyTorch Lightning module instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor._should_log">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_should_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor._should_log" title="Link to this definition">#</a></dt>
-<dd><p>should log.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_should_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.speed_monitor.SpeedMonitor._should_log" title="Link to this definition">#</a></dt>
+<dd><p>Determine whether to log based on current step and logging frequency.</p>
 <p>Args:
-trainer (Any): Description of trainer.</p>
+trainer: The PyTorch Lightning trainer instance.</p>
 <p>Returns:
-Any: Description of return value.</p>
+bool: True if logging should occur, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>

@@ -492,6 +492,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns">
 <span id="src-policies-route-construction-learning-heuristic-algorithms-reinforcement-learning-adaptive-large-neighborhood-search-policy-rl-alns"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns" title="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns" title="Link to this heading">#</a></h1>
+<p>Module documentation.</p>
+<p>Attributes:
+RLALNSPolicy: Adapter for the RL-ALNS solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.learning_heuristic_algorithms import RLALNSPolicy
+&gt;&gt;&gt; params = RLALNSPolicy()
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,6 +520,8 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Adapter for the RL-ALNS solver.</p>
 <p>Bridges the centralized RLConfig structure with the RLALNSSolver.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize policy with optional config dataclass or raw dict.</p>
 <p>Args:
@@ -544,7 +553,7 @@ values (Dict[str, Any]): Merged configuration dictionary containing
 RL configurations and ALNS parameters like <code class="docutils literal notranslate"><span class="pre">start_temp</span></code>, <code class="docutils literal notranslate"><span class="pre">cooling_rate</span></code>.
 mandatory_nodes (List[int]): Local indices of bins that MUST be
 collected in this period.
-**kwargs: Additional context, including:
+kwargs: Additional context, including:
 - search_context (Optional[SearchContext]): Context for tracking
 recursive solver statistics.
 - multi_day_context (Optional[MultiDayContext]): Context for

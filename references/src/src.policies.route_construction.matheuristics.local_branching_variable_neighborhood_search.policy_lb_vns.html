@@ -499,6 +499,12 @@ document.write(`
 <p>This policy adapts the LB-VNS matheuristic (Hansen et al., 2006) for use within
 the WSmart+ Route simulation framework, extracting problem state and
 orchestrating the Gurobi optimization process.</p>
+<p>Attributes:
+LocalBranchingVNSPolicy: The LB-VNS policy class.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search import LocalBranchingVNSPolicy
+&gt;&gt;&gt; policy = LocalBranchingVNSPolicy()
+&gt;&gt;&gt; policy.execute()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,6 +537,8 @@ matheuristic within the WSmart+ Route simulator. It handles:</p>
 LB-VNS is designed for hard combinatorial problems where standard local search
 fails to reach global minima. By systematically increasing the radius of the
 ‘restricted’ MILP search space, it avoids entrapment in sub-optimal attraction basins.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the LB-VNS policy with a provided or default configuration.</p>
 <p>Args:
@@ -556,6 +564,18 @@ str: “lb_vns”</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.policy_lb_vns.LocalBranchingVNSPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Not used - LB-VNS requires specialized execute().</p>
+<p>Args:
+sub_dist_matrix: Sub-problem distance matrix.
+sub_wastes: Map of node IDs to waste values.
+capacity: Vehicle capacity.
+revenue: Revenue multiplier.
+cost_unit: Cost multiplier.
+values: Additional values dictionary.
+mandatory_nodes: List of mandatory nodes.
+kwargs: Additional arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]:
+(routes, total_cost, total_revenue).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -570,7 +590,7 @@ applies shaking (VNS) to escape local optima when Local Branching
 converges without further improvement.</p>
 <p>This implementation uses Gurobi for the restricted MIP solves.</p>
 <p>Args:
-**kwargs: Context for matheuristic execution, including:
+kwargs: Context for matheuristic execution, including:
 - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
 - wastes (Dict[int, float]): Map of customer IDs to collection profits.
 - capacity (float): Maximum weight the vehicle can carry.

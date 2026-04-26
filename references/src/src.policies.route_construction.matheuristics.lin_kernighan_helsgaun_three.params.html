@@ -513,6 +513,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params">
 <span id="src-policies-route-construction-matheuristics-lin-kernighan-helsgaun-three-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Lin-Kernighan-Helsgaun 3 (LKH-3) policy.</p>
+<p>Attributes:
+LKH3Params: Dataclass holding LKH-3 solver hyperparameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params import LKH3Params
+&gt;&gt;&gt; params = LKH3Params(runs=10, time_limit=60.0)
+&gt;&gt;&gt; d = params.to_dict()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -668,12 +674,18 @@ vrpp: Whether to solve as a Vehicle Routing Problem with Profits.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params" title="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create LKH3Params from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object or dict with LKH-3 parameter attributes.</p>
+<p>Returns:
+LKH3Params: Populated parameter dataclass.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert Params to a dictionary.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of parameter names to their values.</p>
 </dd></dl>
 
 </dd></dl>

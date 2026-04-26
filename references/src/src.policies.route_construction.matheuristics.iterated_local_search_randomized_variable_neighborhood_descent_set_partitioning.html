@@ -482,6 +482,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning">
 <span id="src-policies-route-construction-matheuristics-iterated-local-search-randomized-variable-neighborhood-descent-set-partitioning"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning" title="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning" title="Link to this heading">#</a></h1>
+<p>ILS-RVND-SP matheuristic package.</p>
+<p>Iterated Local Search with Randomized Variable Neighborhood Descent and
+Set Partitioning post-optimization.</p>
+<p>Attributes:
+ILSRVNDSPSolver: Core ILS-RVND-SP solver class.
+ILSRVNDSPParams: Configuration parameters dataclass.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning import ILSRVNDSPSolver, ILSRVNDSPParams
+&gt;&gt;&gt; params = ILSRVNDSPParams()
+&gt;&gt;&gt; solver = ILSRVNDSPSolver(dist_matrix, wastes, capacity, R, C, params)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

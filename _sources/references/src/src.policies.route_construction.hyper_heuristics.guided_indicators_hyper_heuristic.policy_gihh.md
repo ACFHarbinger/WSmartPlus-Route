@@ -41,6 +41,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 :canonical: src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh.GIHHPolicy._config_class
 :classmethod:
 
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh.GIHHPolicy._config_class
+```
+
 ````
 
 ````{py:method} _get_config_key() -> str

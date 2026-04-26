@@ -17,3 +17,29 @@ src.policies.route_construction.meta_heuristics.league_championship_algorithm.po
 src.policies.route_construction.meta_heuristics.league_championship_algorithm.params
 src.policies.route_construction.meta_heuristics.league_championship_algorithm.solver
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.policies.route_construction.meta_heuristics.league_championship_algorithm.__all__>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.league_championship_algorithm.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.policies.route_construction.meta_heuristics.league_championship_algorithm.__all__
+:value: >
+   ['LCAParams', 'LCAPolicy']
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.league_championship_algorithm.__all__
+```
+
+````

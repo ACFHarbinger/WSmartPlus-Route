@@ -504,6 +504,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ma_dp">
 <span id="src-configs-policies-ma-dp"></span><h1><a class="reference internal" href="#module-src.configs.policies.ma_dp" title="src.configs.policies.ma_dp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ma_dp</span></code></a><a class="headerlink" href="#module-src.configs.policies.ma_dp" title="Link to this heading">#</a></h1>
 <p>Island Model Genetic Algorithm with Stochastic Tournaments (IMGA-ST) Configuration.</p>
+<p>Attributes:
+MemeticAlgorithmDualPopulationConfig: Configuration for the Memetic Algorithm Dual Population policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ma_dp import MemeticAlgorithmDualPopulationConfig
+&gt;&gt;&gt; config = MemeticAlgorithmDualPopulationConfig()
+&gt;&gt;&gt; config.population_size
+30
+&gt;&gt;&gt; config.time_limit
+300.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +532,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.ma_dp.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmDualPopulationConfig</span></span><a class="headerlink" href="#src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the Memetic Algorithm Dual Population policy.</p>
+<p>Attributes:
+population_size (int): Size of the population.
+max_iterations (int): Maximum number of iterations.
+diversity_injection_rate (float): Rate of diversity injection.
+elite_learning_weights (Optional[List[float]]): Weights for elite learning.
+elite_count (int): Number of elites.
+local_search_iterations (int): Number of local search iterations.
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Random seed.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (List[str]): Mandatory customer/request selection strategy.
+route_improvement (List[Any]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.population_size">
 <span class="sig-name descname"><span class="pre">population_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.population_size" title="Link to this definition">#</a></dt>

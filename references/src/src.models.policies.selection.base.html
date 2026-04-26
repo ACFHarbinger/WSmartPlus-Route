@@ -497,6 +497,12 @@ document.write(`
 <p>This module defines the abstract interface for vectorized bin selection
 strategies, including an instrumentation mechanism for automatic telemetry
 recording across all subclasses.</p>
+<p>Attributes:
+VectorizedSelector: Abstract interface for batch-wise bin selection.</p>
+<p>Example:
+&gt;&gt;&gt; class MySelector(VectorizedSelector):
+&gt;&gt;&gt;     def select(self, fill_levels, **kwargs):
+&gt;&gt;&gt;         return fill_levels &gt; 0.8</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,12 +526,16 @@ recording across all subclasses.</p>
 <p>This class serves as the foundation for all selection heuristics that
 determine which bins should be collected based on their current fill levels
 and other environmental features.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.base.VectorizedSelector.__init_subclass__">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.__init_subclass__" title="Link to this definition">#</a></dt>
 <dd><p>Auto-wrap <code class="docutils literal notranslate"><span class="pre">select</span></code> in every concrete subclass to record telemetry.</p>
 <p>Args:
-**kwargs: Class creation arguments passed to super.</p>
+kwargs: Class creation arguments passed to super.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -533,8 +543,8 @@ and other environmental features.</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins that must be collected.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-**kwargs: Strategy-specific parameters (e.g., threshold, current_day).</p>
+fill_levels: Current fill levels of all bins [B, N].
+kwargs: Additional environmental features (history, coordinates, etc.).</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.
 Note: Index 0 (depot) should always be False.</p>

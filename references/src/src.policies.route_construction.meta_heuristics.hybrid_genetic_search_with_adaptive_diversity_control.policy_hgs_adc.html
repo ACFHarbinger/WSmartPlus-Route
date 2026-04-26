@@ -496,6 +496,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-diversity-control-policy-hgs-adc"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc" title="Link to this heading">#</a></h1>
 <p>Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC) for MPVRP.</p>
+<p>Attributes:
+Population: Management class for HGS sub-populations.
+Individual: Solution representation for HGS-ADC.
+LocalSearchManager: Orchestrator for descent heuristics.</p>
+<p>Example:
+&gt;&gt;&gt; policy = PolicyHGSADC(config)
+&gt;&gt;&gt; sol, plan, stats = policy.solve_multi_period(problem)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,13 +544,16 @@ to bypass narrow corridors of feasibility.</p></li>
 Vidal, T., et al. (2012). “A hybrid genetic algorithm with adaptive
 diversity management for a large class of vehicle routing problems with
 time windows”. Computers &amp; Operations Research, 39(9), 2125-2136.</p>
+<p>Attributes:
+config: Policy configuration object.</p>
+<p>Example:
+&gt;&gt;&gt; policy = PolicyHGSADC()</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the HGS-ADC policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Configuration source for the algorithm.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._run_multi_period_solver" title="Link to this definition">#</a></dt>
@@ -578,19 +588,47 @@ Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._construct_multi_period_routes">
 <span class="sig-name descname"><span class="pre">_construct_multi_period_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_increments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._construct_multi_period_routes" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Internal helper to evolve multi-period routes.</p>
+<p>Args:
+T: Planning horizon in days.
+base_wastes: Waste quantities at the start.
+daily_increments: Expected daily waste accumulation.
+dist_matrix: Distance matrix.
+capacity: Vehicle capacity.
+kwargs: Additional configuration parameters (n_vehicles, etc).</p>
+<p>Returns:
+Optional[Individual]: The best evolved solution, if found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._evaluate_individual">
 <span class="sig-name descname"><span class="pre">_evaluate_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_increments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC._evaluate_individual" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate an individual’s objective and feasibility.</p>
+<p>Args:
+ind: The individual to evaluate.
+base_wastes: Initial waste levels.
+daily_increments: Daily waste accumulation.
+dist: Distance matrix.
+capacity: Vehicle capacity.
+n_vehicles: Number of vehicles available.
+T: Planning horizon.</p>
+<p>Returns:
+None.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC.run_intra_day_local_search">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_intra_day_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.policy_hgs_adc.PolicyHGSADC.run_intra_day_local_search" title="Link to this definition">#</a></dt>
-<dd><p>Intra-day Local Search (Education).
-Applies unified local search operators (2-opt, SWAP*)
+<dd><p>Intra-day Local Search (Education).</p>
+<p>Applies unified local search operators (2-opt, SWAP*)
 to the given decoded routes on a day-by-day basis.</p>
+<p>Args:
+routes: Initial decoded routes per day.
+dist: Distance matrix.
+capacity: Vehicle capacity.
+loads: Projected loads per day per node.</p>
+<p>Returns:
+List[List[List[int]]]: Improved routes after local search.</p>
 </dd></dl>
 
 </dd></dl>

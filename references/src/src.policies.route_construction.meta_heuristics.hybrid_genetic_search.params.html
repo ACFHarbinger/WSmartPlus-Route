@@ -525,6 +525,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Hybrid Genetic Search.</p>
+<p>Attributes:
+HGSParams: Dataclass for configuration parameters.</p>
+<p>Example:
+&gt;&gt;&gt; params = HGSParams(mu=25, lambda_param=40)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -571,6 +575,8 @@ initial_penalty_capacity: Initial penalty coefficient for capacity violations.
 penalty_increase: Multiplier for increasing penalty (when too many feasible).
 penalty_decrease: Multiplier for decreasing penalty (when too many infeasible).
 engine: Engine to use for the solver.</p>
+<p>Example:
+&gt;&gt;&gt; params = HGSParams(mu=25)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.restart_timer">
 <span class="sig-name descname"><span class="pre">restart_timer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.restart_timer" title="Link to this definition">#</a></dt>
@@ -747,30 +753,40 @@ HGSParams instance with values from config.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.lambda_param">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lambda_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.lambda_param" title="Link to this definition">#</a></dt>
 <dd><p>Alias for n_offspring (Vidal 2022 terminology).</p>
+<p>Returns:
+int: The number of offspring per generation.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.population_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">population_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.population_size" title="Link to this definition">#</a></dt>
 <dd><p>Alias for mu (common evolutionary terminology).</p>
+<p>Returns:
+int: The minimum population size per subpopulation.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.elite_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elite_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.elite_size" title="Link to this definition">#</a></dt>
 <dd><p>Alias for nb_elite.</p>
+<p>Returns:
+int: The number of elite individuals.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.no_improvement_threshold">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_improvement_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.no_improvement_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Alias for n_iterations_no_improvement.</p>
+<p>Returns:
+int: The stop threshold.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.neighbor_list_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">neighbor_list_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.neighbor_list_size" title="Link to this definition">#</a></dt>
 <dd><p>Alias for nb_granular.</p>
+<p>Returns:
+int: The neighbor list size.</p>
 </dd></dl>
 
 </dd></dl>

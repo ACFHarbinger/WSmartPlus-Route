@@ -511,9 +511,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params">
 <span id="src-policies-route-construction-meta-heuristics-particle-swarm-optimization-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for Particle Swarm Optimization (PSO).</p>
-<p><strong>TRUE PSO</strong> with inertia-weighted velocity updates (Kennedy &amp; Eberhart 1995).
-This serves as a rigorous replacement for the Sine Cosine Algorithm (SCA),
-which is mathematically equivalent to PSO without velocity momentum.</p>
+<p>Attributes:
+PSOParams: Parameter dataclass for Particle Swarm Optimization.</p>
+<p>Example:
+&gt;&gt;&gt; params = PSOParams(pop_size=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,7 +522,7 @@ which is mathematically equivalent to PSO without velocity momentum.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSOParams</span></code></a></p></td>
-<td><p>Parameters for standard Particle Swarm Optimization with velocity momentum.</p></td>
+<td><p>Parameters for standard Particle Swarm Optimization.</p></td>
 </tr>
 </tbody>
 </table>
@@ -532,56 +533,21 @@ which is mathematically equivalent to PSO without velocity momentum.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.</span></span><span class="sig-name descname"><span class="pre">PSOParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams" title="Link to this definition">#</a></dt>
-<dd><p>Parameters for standard Particle Swarm Optimization with velocity momentum.</p>
-<p><strong>Replaces SCA</strong> - The Sine Cosine Algorithm is mathematically identical to
-PSO without the velocity term, personal best tracking, and with expensive
-trigonometric functions replacing simple random weights.</p>
-<p>Core PSO Velocity Update Equation (Kennedy &amp; Eberhart 1995):
-v(t+1) = w<em>v(t) + c₁</em>r₁*(pbest - x(t)) + c₂<em>r₂</em>(gbest - x(t))
-x(t+1) = x(t) + v(t+1)</p>
-<p>Where:
-- w: inertia weight (balances exploration vs exploitation)
-- v(t): current velocity vector
-- c₁: cognitive acceleration coefficient (personal best attraction)
-- c₂: social acceleration coefficient (global best attraction)
-- r₁, r₂: random numbers ∈ [0,1]
-- pbest: particle’s personal best position
-- gbest: swarm’s global best position
-- x(t): current particle position</p>
+<dd><p>Parameters for standard Particle Swarm Optimization.</p>
 <p>Attributes:
 pop_size: Number of particles in swarm.
-max_iterations: Maximum number of PSO iterations.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># PSO Velocity Parameters (Kennedy &amp; Eberhart 1995)
-inertia_weight_start: Initial inertia weight w(0) for exploration.
-inertia_weight_end: Final inertia weight w(T) for exploitation.
-cognitive_coef: c₁ - personal best acceleration constant.
-social_coef: c₂ - global best acceleration constant.
-
-# Continuous Space Parameters
+inertia_weight_start: Initial inertia weight w(0).
+inertia_weight_end: Final inertia weight w(T).
+cognitive_coef: c1 - personal best acceleration constant.
+social_coef: c2 - global best acceleration constant.
 position_min: Minimum value for position vector components.
 position_max: Maximum value for position vector components.
-velocity_max: Maximum velocity magnitude (velocity clamping).
-
-# Runtime Control
-time_limit: Wall-clock time limit in seconds (0 = no limit).
-</pre></div>
-</div>
-<p>Complexity:
-- Space: O(pop_size × n) for swarm + velocities + personal bests
-- Time per iteration: O(pop_size × n) for velocity updates</p>
-<p>Why PSO &gt; SCA:
-1. <strong>Velocity Momentum</strong>: PSO maintains inertia from previous iterations
-2. <strong>Personal Best</strong>: Each particle learns from its own experience
-3. <strong>No Expensive Trigonometry</strong>: sin(r) ≈ random(-1,1) but slower
-4. <strong>Proven Theory</strong>: PSO has 30+ years of theoretical foundation
-5. <strong>Better Convergence</strong>: Velocity helps escape local optima</p>
-<p>References:
-Kennedy, J., &amp; Eberhart, R. (1995). “Particle swarm optimization.”
-Proceedings of ICNN’95 - International Conference on Neural Networks.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Shi, Y., &amp; Eberhart, R. (1998). &quot;A modified particle swarm optimizer.&quot;
-IEEE International Conference on Evolutionary Computation.
-</pre></div>
-</div>
+velocity_max: Maximum velocity magnitude.
+max_iterations: Maximum number of PSO iterations.
+time_limit: Wall-clock time limit in seconds.
+seed: Random seed.
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.pop_size">
 <span class="sig-name descname"><span class="pre">pop_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.pop_size" title="Link to this definition">#</a></dt>
@@ -664,44 +630,52 @@ IEEE International Conference on Evolutionary Computation.
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.get_inertia_weight">
 <span class="sig-name descname"><span class="pre">get_inertia_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.get_inertia_weight" title="Link to this definition">#</a></dt>
 <dd><p>Compute linearly decreasing inertia weight.</p>
-<p>High inertia weight early → exploration (particles move freely).
-Low inertia weight late → exploitation (particles converge to best).</p>
 <p>Args:
 iteration: Current iteration number (0-indexed).</p>
 <p>Returns:
-Inertia weight w(t) ∈ [w_end, w_start].</p>
-<p>Formula (Shi &amp; Eberhart 1998):
-w(t) = w_max - (w_max - w_min) × (t / T_max)</p>
+Inertia weight w(t).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.c1">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.c1" title="Link to this definition">#</a></dt>
-<dd><p>Alias for cognitive_coef (standard PSO notation).</p>
+<dd><p>Standard PSO notation for cognitive_coef.</p>
+<p>Returns:
+Cognitive coefficient.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.c2">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">c2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.c2" title="Link to this definition">#</a></dt>
-<dd><p>Alias for social_coef (standard PSO notation).</p>
+<dd><p>Standard PSO notation for social_coef.</p>
+<p>Returns:
+Social coefficient.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.w_start">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.w_start" title="Link to this definition">#</a></dt>
 <dd><p>Alias for inertia_weight_start.</p>
+<p>Returns:
+Initial inertia weight.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.w_end">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w_end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.w_end" title="Link to this definition">#</a></dt>
 <dd><p>Alias for inertia_weight_end.</p>
+<p>Returns:
+Final inertia weight.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams" title="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source.</p>
+<p>Returns:
+Instantiated PSOParams.</p>
 </dd></dl>
 
 </dd></dl>

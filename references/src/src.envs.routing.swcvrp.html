@@ -499,6 +499,14 @@ document.write(`
 <p>Stochastic Capacitated Waste Collection Vehicle Routing Problem:
 Agent sees noisy estimates of bin fill levels but collects real waste.
 Rewards are based on real waste levels and overflows.</p>
+<p>Attributes:
+NAME: Environment identifier string <code class="docutils literal notranslate"><span class="pre">&quot;swcvrp&quot;</span></code>.
+name: Alias for NAME used by the registry.
+node_dim: Node feature dimension — 2 for (x, y) coordinates.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.routing import get_env
+&gt;&gt;&gt; env = get_env(“swcvrp”, num_loc=20)
+&gt;&gt;&gt; td = env.reset(batch_size=[4])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,8 +529,19 @@ Rewards are based on real waste levels and overflows.</p>
 <p>Stochastic Capacitated Waste Collection VRP Environment.</p>
 <p>The agent must collect waste from bins based on noisy observations.
 The real waste level is used for reward calculation (overflows).</p>
+<p>Attributes:
+name: Alias for NAME used by the registry.
+generator_params: Keyword arguments forwarded to SCWCVRPGenerator constructor.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize SCWCVRPEnv.</p>
+<p>Args:
+generator: Data generator for the environment.
+generator_params: Parameters for the data generator.
+overflow_penalty: Description of overflow_penalty.
+waste_weight: Description of waste_weight.
+cost_weight: Description of cost_weight.
+device: Torch device to place tensors on.
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.swcvrp.SCWCVRPEnv.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.routing.swcvrp.SCWCVRPEnv.name" title="Link to this definition">#</a></dt>
@@ -533,18 +552,39 @@ The real waste level is used for reward calculation (overflows).</p>
 <dt class="sig sig-object py" id="src.envs.routing.swcvrp.SCWCVRPEnv._reset_instance">
 <span class="sig-name descname"><span class="pre">_reset_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.swcvrp.SCWCVRPEnv._reset_instance" title="Link to this definition">#</a></dt>
 <dd><p>Initialize SWCVRP episode state.</p>
+<p>Args:
+td: TensorDict produced by the generator, containing <code class="docutils literal notranslate"><span class="pre">locs</span></code>
+(customer coordinates) and <code class="docutils literal notranslate"><span class="pre">depot</span></code> tensors.</p>
+<p>Returns:
+TensorDict: Initialised state with <code class="docutils literal notranslate"><span class="pre">current_node</span></code>, <code class="docutils literal notranslate"><span class="pre">visited</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tour</span></code>, <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, <code class="docutils literal notranslate"><span class="pre">first_node</span></code>, <code class="docutils literal notranslate"><span class="pre">reward</span></code>,
+<code class="docutils literal notranslate"><span class="pre">terminated</span></code>, and <code class="docutils literal notranslate"><span class="pre">truncated</span></code> fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.swcvrp.SCWCVRPEnv._step_instance">
 <span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.swcvrp.SCWCVRPEnv._step_instance" title="Link to this definition">#</a></dt>
 <dd><p>Execute action and update state with real waste collection.</p>
+<p>Args:
+td: Current state containing <code class="docutils literal notranslate"><span class="pre">action</span></code>, <code class="docutils literal notranslate"><span class="pre">current_node</span></code>,
+<code class="docutils literal notranslate"><span class="pre">capacity</span></code>, <code class="docutils literal notranslate"><span class="pre">current_load</span></code>, <code class="docutils literal notranslate"><span class="pre">real_waste</span></code>, <code class="docutils literal notranslate"><span class="pre">locs</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">depot</span></code> tensors.</p>
+<p>Returns:
+TensorDict: Updated state with incremented <code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, updated
+<code class="docutils literal notranslate"><span class="pre">visited</span></code> mask, <code class="docutils literal notranslate"><span class="pre">current_node</span></code> set to the selected action,
+and the action appended to <code class="docutils literal notranslate"><span class="pre">tour</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.swcvrp.SCWCVRPEnv._get_reward">
 <span class="sig-name descname"><span class="pre">_get_reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDictBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.swcvrp.SCWCVRPEnv._get_reward" title="Link to this definition">#</a></dt>
-<dd><p>Compute SCWCVRP reward based on REAL waste levels and collection.</p>
+<dd><p>Compute SCWCVRP reward based on REAL waste levels and collection.
+Args:
+td: Final state TensorDict containing <code class="docutils literal notranslate"><span class="pre">total_real_collected</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tour_length</span></code>, <code class="docutils literal notranslate"><span class="pre">current_node</span></code>, <code class="docutils literal notranslate"><span class="pre">locs</span></code>, and <code class="docutils literal notranslate"><span class="pre">depot</span></code>.
+actions: Optional tour action sequence <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">tour_len)</span></code> (unused).</p>
+<p>Returns:
+torch.Tensor: Scalar reward per batch element, shape <code class="docutils literal notranslate"><span class="pre">(batch,)</span></code>.</p>
 </dd></dl>
 
 </dd></dl>

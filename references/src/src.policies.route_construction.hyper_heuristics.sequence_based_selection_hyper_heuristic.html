@@ -483,6 +483,34 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic">
 <span id="src-policies-route-construction-hyper-heuristics-sequence-based-selection-hyper-heuristic"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic" title="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic" title="Link to this heading">#</a></h1>
 <p>Sequence-based Selection Hyper-Heuristic (SS-HH) for VRPP.</p>
+<p>This module implements the Sequence-based Selection Hyper-Heuristic (SS-HH)
+solver for the Vehicle Routing Problem with Profit (VRPP). The SS-HH is an
+online-learning hyper-heuristic that models the search as a sequence of moves.
+It learns the transition probabilities between low-level heuristics based on their
+historical performance in discovering improving or intensifying solutions.</p>
+<p>Bibliography:
+- Kheiri, A. “Heuristic Sequence Selection for Inventory Routing Problem”, 2014.
+- Bibliography: bibliography/Sequence-based_Selection_Hyper-Heuristic.pdf</p>
+<p>Attributes:
+SSHHPolicy: Adapter for the SS-HH solver.
+SSHHParams: Configuration parameters for the SS-HH solver.
+SSHHSolver: Implements the Sequence-based Selection Hyper-Heuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import SSHHPolicy
+&gt;&gt;&gt; params = SSHHPolicy()
+&gt;&gt;&gt; print(params)
+SSHHParams(
+max_iterations=500,
+n_removal=2,
+n_llh=5,
+time_limit=60.0,
+threshold_infeasible=0.001,
+threshold_feasible_base=0.0001,
+threshold_decay_rate=0.01,
+vrpp=True,
+profit_aware_operators=False,
+seed=None,
+)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

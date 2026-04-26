@@ -512,6 +512,27 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.popmusic">
 <span id="src-configs-policies-popmusic"></span><h1><a class="reference internal" href="#module-src.configs.policies.popmusic" title="src.configs.policies.popmusic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.popmusic</span></code></a><a class="headerlink" href="#module-src.configs.policies.popmusic" title="Link to this heading">#</a></h1>
 <p>POPMUSIC (Partial Optimization Metaheuristic Under Special Intensification Conditions) configuration.</p>
+<p>Attributes:
+POPMUSICConfig: Configuration for the POPMUSIC matheuristic.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.popmusic import POPMUSICConfig
+&gt;&gt;&gt; config = POPMUSICConfig()
+&gt;&gt;&gt; config.subproblem_size
+3
+&gt;&gt;&gt; config.max_iterations
+None
+&gt;&gt;&gt; config.base_solver
+‘alns’
+&gt;&gt;&gt; config.cluster_solver
+‘fast_tsp’
+&gt;&gt;&gt; config.initial_solver
+‘nearest_neighbor’
+&gt;&gt;&gt; config.seed
+None
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.profit_aware_operators
+False</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

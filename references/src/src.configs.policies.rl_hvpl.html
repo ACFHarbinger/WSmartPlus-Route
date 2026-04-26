@@ -509,6 +509,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.rl_hvpl">
 <span id="src-configs-policies-rl-hvpl"></span><h1><a class="reference internal" href="#module-src.configs.policies.rl_hvpl" title="src.configs.policies.rl_hvpl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.rl_hvpl</span></code></a><a class="headerlink" href="#module-src.configs.policies.rl_hvpl" title="Link to this heading">#</a></h1>
 <p>RL-HVPL (Reinforcement Learning Hybrid Volleyball Premier League) configuration for Hydra.</p>
+<p>Attributes:
+RLHVPLConfig: Configuration for the RL-HVPL policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.rl_hvpl import RLHVPLConfig
+&gt;&gt;&gt; config = RLHVPLConfig()
+&gt;&gt;&gt; config.n_teams
+10
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.max_iterations
+100
+&gt;&gt;&gt; config.vrpp
+True
+&gt;&gt;&gt; config.profit_aware_operators
+False</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,6 +545,24 @@ document.write(`
 <dd><p>Configuration for the Reinforcement Learning Hybrid Volleyball Premier League policy.</p>
 <p>Combines VPL population dynamics, ACO initialization with Q-Learning,
 and ALNS local search with SARSA for adaptive operator selection.</p>
+<p>Attributes:
+n_teams: Number of teams in the VPL population.
+time_limit: Time limit for the algorithm in seconds.
+max_iterations: Maximum number of iterations.
+elite_coaching_iterations: Maximum number of iterations for elite coaching.
+regular_coaching_iterations: Maximum number of iterations for regular coaching.
+elite_size: Size of the elite set.
+sub_rate: Rate of subproblem solving.
+pheromone_update_strategy: Strategy for updating pheromones.
+profit_weight: Weight for profit in pheromone updates.
+aco: Configuration for ACO initialization.
+alns: Configuration for ALNS local search.
+rl_config: Configuration for the RL policy.
+vrpp: Whether to use VRPP.
+seed: Random seed.
+profit_aware_operators: Whether to use profit-aware operators.
+mandatory_selection: List of mandatory nodes.
+route_improvement: List of route improvements.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.rl_hvpl.RLHVPLConfig.n_teams">
 <span class="sig-name descname"><span class="pre">n_teams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.rl_hvpl.RLHVPLConfig.n_teams" title="Link to this definition">#</a></dt>

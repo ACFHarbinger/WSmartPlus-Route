@@ -500,6 +500,25 @@ document.write(`
 <li><p>Fix sensor data anomalies.</p></li>
 <li><p>Calculate and visualize statistics like Spearman correlations and distances.</p></li>
 </ul>
+<p>Attributes:
+fix_collections_sensor: Orchestrates the collections adjustment measures. Deletes the region of the container considered to be inactive (which has random measures) and adjust/places collections.
+get_overall_sensors_statistics: Simple Wrapper to get all the containers statistics in an organized way.
+filter_containers: Given a containers dictionary returns the ids list whose tags are good.
+pre_process_container_metrics: Simple Wrapper to compute the metrics that give base stats to the model.
+view_metrics: Simple Wrapper to compute and plot the metrics that give base stats to the model.</p>
+<p>Example:
+&gt;&gt;&gt; import pandas as pd
+&gt;&gt;&gt; from src.pipeline.simulations.wsmart_bin_analysis.container import Container
+&gt;&gt;&gt; from src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform import fix_collections_sensor, get_overall_sensors_statistics, filter_containers, pre_process_container_metrics, view_metrics
+&gt;&gt;&gt; df = pd.read_csv(“test.csv”)
+&gt;&gt;&gt; containers_dict = {}
+&gt;&gt;&gt; for row in df.iterrows():
+…     containers_dict[row[0]] = Container(df=pd.DataFrame([row[1]]))
+&gt;&gt;&gt; fix_collections_sensor(containers_dict[0], box_window=10, mv_thresh=0.7, min_days=5, dist_thresh=2, c_trash=10, max_fill=20, var_thresh=0.1, use=”spear”)
+&gt;&gt;&gt; get_overall_sensors_statistics(containers_dict)
+&gt;&gt;&gt; filter_containers(containers_dict)
+&gt;&gt;&gt; pre_process_container_metrics(containers_dict)
+&gt;&gt;&gt; view_metrics(containers_dict, box_window=10, mv_thresh=0.7, min_days=5, use=”spear”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -521,7 +540,8 @@ Returns Nones if things are undefined</p></td>
 <td><p>Wrapper to calculate all pre_processing metrics for each container”</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.view_metrics" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.view_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_metrics</span></code></a></p></td>
-<td><p>Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance distribution across bins across all bins as well as tags</p></td>
+<td><p>Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance
+distribution across bins across all bins as well as tags</p></td>
 </tr>
 </tbody>
 </table>
@@ -534,8 +554,8 @@ Returns Nones if things are undefined</p></td>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.</span></span><span class="sig-name descname"><span class="pre">fix_collections_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mv_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_trash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spear_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.TAG</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container.Container</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.fix_collections_sensor" title="Link to this definition">#</a></dt>
 <dd><p>Orchestrates the collections adjustment measures. Deletes the region of the container considered to be inactive (which has
 random measures) and adjust/places collections.</p>
-<p class="rubric" id="id7">Parameters</p>
-<p>container:Container
+<p>Args:
+container:Container
 container for collections to be fixed
 box_window:int
 window to compute the right moving average of spearman correlations
@@ -558,10 +578,10 @@ use: str
 weather to use average distance or spearman for tagging. Can be “spear” or “avg_dist”
 spear_thresh:int, optional
 threshold for spearman to look at the surrounding collections</p>
-<p class="rubric" id="id8">Returns</p>
-<p>dvar: float
+<p>Returns:
+dvar: float
 variance of the distance between the collection in number of days,
-tags: list[Tag]
+tags: list[TAG]
 list of the tags of the container obtained after each filter
 container:
 copy of the adjusted container adjusted if inplace is false. A pointer to the actual container otherwise.</p>
@@ -572,11 +592,11 @@ copy of the adjusted container adjusted if inplace is false. A pointer to the ac
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.</span></span><span class="sig-name descname"><span class="pre">get_overall_sensors_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">containers_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.get_overall_sensors_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Simple Wrapper to get all the containers statistics in an organized way.
 Returns Nones if things are undefined</p>
-<p class="rubric" id="id9">Parameters</p>
-<p>containers_dict: dict
+<p>Args:
+containers_dict: dict
 Dictionary of container objects to extract statistics from</p>
-<p class="rubric" id="id10">Returns</p>
-<p>dict_dist: dict
+<p>Returns:
+dict_dist: dict
 dictionary with ids from the bins and avg distance information
 dict_spear: dict
 dictionary with ids from the bins and spearman information</p>
@@ -586,11 +606,11 @@ dictionary with ids from the bins and spearman information</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.filter_containers">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.</span></span><span class="sig-name descname"><span class="pre">filter_containers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">containers_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.filter_containers" title="Link to this definition">#</a></dt>
 <dd><p>Given a containers dictionary returns the ids list whose tags are good</p>
-<p class="rubric" id="id11">Parameters</p>
-<p>containers_dict: dict
+<p>Args:
+containers_dict: dict
 Dictionary of container objects to extract statistics from</p>
-<p class="rubric" id="id12">Returns</p>
-<p>c_dict: dict
+<p>Returns:
+c_dict: dict
 dictionary with the filtered bins</p>
 </dd></dl>
 
@@ -598,8 +618,8 @@ dictionary with the filtered bins</p>
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.pre_process_container_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.</span></span><span class="sig-name descname"><span class="pre">pre_process_container_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">containers_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_spearman</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.pre_process_container_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper to calculate all pre_processing metrics for each container”</p>
-<p class="rubric" id="id13">Parameters</p>
-<p>containers_dict: dict
+<p>Args:
+containers_dict: dict
 Dictionary of container objects to extract statistics from
 calc_spearman:bool (True)
 Optional; if spearman correlation is to be calculated</p>
@@ -608,10 +628,11 @@ Optional; if spearman correlation is to be calculated</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.view_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.</span></span><span class="sig-name descname"><span class="pre">view_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">containers_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mv_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform.view_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance distribution across bins across all bins as well as tags</p>
-<p class="rubric" id="id14">Parameters</p>
-<p>container:Container
-container for collections to be fixed
+<dd><p>Receives the parameters necessary for tagging. Makes 3 histograms with Spearman Average Distance
+distribution across bins across all bins as well as tags</p>
+<p>Args:
+containers_dict: dict
+Dictionary of container objects to extract statistics from
 box_window:int
 window to compute the right moving average of spearman correlations
 mv_thresh: int

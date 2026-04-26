@@ -497,6 +497,11 @@ document.write(`
 </ul>
 <p>This architecture mirrors the SWC-TCF dispatcher pattern, allowing seamless
 switching between mathematical formulations based on problem characteristics.</p>
+<p>Attributes:
+run_bb_optimizer (function): Main dispatcher for BB solvers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dispatcher import run_bb_optimizer
+&gt;&gt;&gt; routes, obj = run_bb_optimizer(dist_matrix, wastes, capacity, R, C)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -560,7 +565,8 @@ C: Cost coefficient per unit distance.
 params: Standardized BB parameters.
 mandatory_indices: Set of mandatory customer nodes.
 env: Optional Gurobi environment for resource management.
-recorder: Optional telemetry recorder for state tracking.</p>
+recorder: Optional telemetry recorder for state tracking.
+kwargs: Additional arguments for specific formulations.</p>
 <p>Returns:
 Tuple of (routes, objective_value).</p>
 <p>Raises:

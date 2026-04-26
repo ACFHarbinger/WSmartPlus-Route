@@ -498,6 +498,17 @@ document.write(`
 Williams, R. J. (1992).
 Simple statistical gradient-following algorithms for connectionist reinforcement learning.
 Machine learning, 8(3-4), 229-256.</p>
+<p>Attributes:
+REINFORCE: REINFORCE algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.core import REINFORCE
+&gt;&gt;&gt; from logic.src.envs import COEnv
+&gt;&gt;&gt; from logic.src.models import COPolicy
+&gt;&gt;&gt; env = COEnv()
+&gt;&gt;&gt; agent = COPolicy(env)
+&gt;&gt;&gt; reinforce = REINFORCE(env, agent)
+&gt;&gt;&gt; reinforce
+REINFORCE(env=<COEnv>, policy=<COPolicy>, baseline=’rollout’, actor_optimizer=’adam’, actor_lr=0.0001, critic_optimizer=’adam’, critic_lr=0.001, entropy_coef=0.01, value_loss_coef=0.5, normalize_advantage=True, enable_checkpointing=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,23 +535,38 @@ Williams, R. J. (1992).
 Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning.
 Machine Learning, 8(3-4), 229-256.
 https://doi.org/10.1007/BF00992696</p>
+<p>Attributes:
+policy: Policy network.
+critic: Critic network.
+entropy_weight: Weight for entropy bonus.
+max_grad_norm: Maximum gradient norm for clipping.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize REINFORCE module.</p>
 <p>Args:
-entropy_weight: Weight for entropy bonus in loss.
-max_grad_norm: Maximum gradient norm for clipping.
-**kwargs: Arguments passed to RL4COLitModule.</p>
+entropy_weight: Weight for the entropy bonus (default: 0.0).
+max_grad_norm: Maximum gradient norm for clipping (default: 1.0).
+lr_critic: Learning rate for the critic optimizer (default: 1e-4).
+kwargs: Additional arguments to pass to the parent class (RL4COLitModule).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.reinforce.REINFORCE.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.env.IEnv</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.core.reinforce.REINFORCE.calculate_loss" title="Link to this definition">#</a></dt>
 <dd><p>Compute REINFORCE loss.</p>
 <p>Loss = -E[(R - b) * log π(a|s)]</p>
+<p>Args:
+td: Input tensor dictionary containing state information.
+out: Output dictionary from the policy containing ‘reward’, ‘log_likelihood’, and optionally ‘entropy’.
+batch_idx: Index of the current batch.
+env: Environment instance for baseline evaluation (optional).</p>
+<p>Returns:
+Computed policy gradient loss tensor.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.core.reinforce.REINFORCE.on_before_optimizer_step">
 <span class="sig-name descname"><span class="pre">on_before_optimizer_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.core.reinforce.REINFORCE.on_before_optimizer_step" title="Link to this definition">#</a></dt>
 <dd><p>Gradient clipping.</p>
+<p>Args:
+optimizer: PyTorch optimizer instance about to step.</p>
 </dd></dl>
 
 </dd></dl>

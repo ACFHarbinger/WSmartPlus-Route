@@ -526,6 +526,11 @@ horizon depth <span class="math notranslate nohighlight">\(T\)</span>. It provid
 quality (Perfect Information or SAA-optimal) but requires significant
 computational resources.</p>
 <p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;st_ef&quot;</span></code></p>
+<p>Attributes:
+ScenarioTreeExtensiveFormPolicy: Policy adapter for ST-EF.</p>
+<p>Example:
+&gt;&gt;&gt; policy = ScenarioTreeExtensiveFormPolicy()
+&gt;&gt;&gt; sol, plan, stats = policy._run_multi_period_solver(problem, ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,8 +538,7 @@ computational resources.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy" title="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScenarioTreeExtensiveFormPolicy</span></code></a></p></td>
-<td><p>Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.
-Now standardized to the Multi-Period framework.</p></td>
+<td><p>Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -546,24 +550,28 @@ Now standardized to the Multi-Period framework.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.</span></span><span class="sig-name descname"><span class="pre">ScenarioTreeExtensiveFormPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.
-Now standardized to the Multi-Period framework.</p>
+<p>Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.</p>
+<p>Now standardized to the Multi-Period framework.</p>
+<p>Attributes:
+config (ScenarioTreeExtensiveFormConfig): Policy configuration.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the BaseMultiPeriodRoutingPolicy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the configuration class for this policy.</p>
+<p>Returns:
+Type[ScenarioTreeExtensiveFormConfig]: The configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return the configuration key.</p>
+<p>Returns:
+str: The config key.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -591,6 +599,17 @@ Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy._run_solver" title="Link to this definition">#</a></dt>
 <dd><p>Legacy fallback.</p>
+<p>Args:
+sub_dist_matrix (np.ndarray): Local distance matrix.
+sub_wastes (Dict[int, float]): Local fill levels.
+capacity (float): Vehicle capacity.
+revenue (float): Unit revenue.
+cost_unit (float): Unit travel cost.
+values (Dict[str, Any]): Additional state values.
+mandatory_nodes (Optional[List[int]]): Local mandatory node indices.
+kwargs (Any): Additional keyword arguments.</p>
+<p>Returns:
+Tuple[List[List[int]], float, float]: Empty results.</p>
 </dd></dl>
 
 </dd></dl>

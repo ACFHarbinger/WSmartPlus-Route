@@ -498,6 +498,24 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.processor.formatting">
 <span id="src-data-processor-formatting"></span><h1><a class="reference internal" href="#module-src.data.processor.formatting" title="src.data.processor.formatting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor.formatting</span></code></a><a class="headerlink" href="#module-src.data.processor.formatting" title="Link to this heading">#</a></h1>
 <p>Coordinate transformation and normalization logic for simulation data.</p>
+<p>Attributes:
+_format_c3d: Format coordinates using the 3D Cartesian method.
+_format_ecp: Format coordinates using the Equidistant Cylindrical Projection.
+_format_hdp: Format coordinates using the Haberman Distance Preserving projection.
+_format_mun: Format coordinates using the Mean-Unit Normalization method.
+_format_mmn: Format coordinates using the Mean-Max Normalization method.
+_format_s4d: Format coordinates using the Spherical 4D method.
+_format_smsd: Format coordinates using the Standardized Mean Squared Differences method.
+_format_wmp: Format coordinates using the World Map Projection method.
+format_coordinates: Normalize and format coordinates based on the specified method.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.processor.formatting import format_coordinates
+&gt;&gt;&gt; coords = np.array([[40.7128, -74.0060], [34.0522, -118.2437]])
+&gt;&gt;&gt; depot, loc = format_coordinates(coords, “mmn”)
+&gt;&gt;&gt; print(depot)
+[-0.07018945  0.9974605 ]
+&gt;&gt;&gt; print(loc)
+[[[ 0.34246975  0.9408447 ]] [[-0.60114167  0.79934471]]]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -509,28 +527,28 @@ document.write(`
 Supported methods: ‘mmn’, ‘mun’, ‘smsd’, ‘ecp’, ‘utmp’, ‘wmp’, ‘hdp’, ‘c3d’, ‘s4d’.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_c3d" title="src.data.processor.formatting._format_c3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_c3d</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the 3D Cartesian method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_s4d" title="src.data.processor.formatting._format_s4d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_s4d</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Spherical 4D method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_mun" title="src.data.processor.formatting._format_mun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_mun</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Mean-Unit Normalization method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_smsd" title="src.data.processor.formatting._format_smsd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_smsd</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Standardized Mean Squared Differences method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_ecp" title="src.data.processor.formatting._format_ecp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_ecp</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Equidistant Cylindrical Projection method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_wmp" title="src.data.processor.formatting._format_wmp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_wmp</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the World Map Projection method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_hdp" title="src.data.processor.formatting._format_hdp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_hdp</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Haberman Distance Preserving projection.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.processor.formatting._format_mmn" title="src.data.processor.formatting._format_mmn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_mmn</span></code></a></p></td>
-<td></td>
+<td><p>Format coordinates using the Mean-Max Normalization method.</p></td>
 </tr>
 </tbody>
 </table>
@@ -543,47 +561,115 @@ Supported methods: ‘mmn’, ‘mun’, ‘smsd’, ‘ecp’, ‘utmp’, ‘w
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">format_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.processor.formatting.format_coordinates" title="Link to this definition">#</a></dt>
 <dd><p>Normalizes and formats coordinates based on the specified method.
 Supported methods: ‘mmn’, ‘mun’, ‘smsd’, ‘ecp’, ‘utmp’, ‘wmp’, ‘hdp’, ‘c3d’, ‘s4d’.</p>
+<p>Args:
+coords: Coordinates to format, can be NumPy array or pandas DataFrame.
+method: Normalization method (e.g., ‘mmn’, ‘mun’, ‘smsd’, ‘ecp’, ‘utmp’, ‘wmp’, ‘hdp’, ‘c3d’, ‘s4d’).
+col_names: Optional list of column names for latitude and longitude.</p>
+<p>Returns:
+Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_c3d">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_c3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_c3d" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the 3D Cartesian method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_s4d">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_s4d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_s4d" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Spherical 4D method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (depot, loc), where depot is the depot coordinates and loc is the location coordinates.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_mun">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_mun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_mun" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Mean-Unit Normalization method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_smsd">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_smsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_smsd" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Standardized Mean Squared Differences method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_ecp">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_ecp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_ecp" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Equidistant Cylindrical Projection method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_wmp">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_wmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_wmp" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the World Map Projection method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_hdp">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_hdp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_hdp" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Haberman Distance Preserving projection.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.processor.formatting._format_mmn">
 <span class="sig-prename descclassname"><span class="pre">src.data.processor.formatting.</span></span><span class="sig-name descname"><span class="pre">_format_mmn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IS_PANDAS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.processor.formatting._format_mmn" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coordinates using the Mean-Max Normalization method.</p>
+<p>Args:
+lat: Latitude values (pandas Series or numpy array).
+lng: Longitude values (pandas Series or numpy array).
+coords: Coordinates to format (used for non-pandas arrays).
+IS_PANDAS: Whether the input is a pandas DataFrame.</p>
+<p>Returns:
+Tuple of (lat, lng, coords), where lat and lng are normalized latitude/longitude values and coords is the formatted coordinates array.</p>
+</dd></dl>
 
 </section>
 </section>

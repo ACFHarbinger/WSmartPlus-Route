@@ -501,6 +501,12 @@ document.write(`
 <p>WCVRP Environment implementation.</p>
 <p>Waste Collection Vehicle Routing Problem: Collect waste from bins
 while respecting vehicle capacity constraints.</p>
+<p>Attributes:
+WCVRPEnv: Class definition of WCVRP Env.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.envs.generators import WCVRPGenerator
+&gt;&gt;&gt; generator = WCVRPGenerator(num_nodes=10, generator_params={“num_nodes”: 10})
+&gt;&gt;&gt; env = WCVRPEnv(generator)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,6 +529,8 @@ while respecting vehicle capacity constraints.</p>
 <p>Waste Collection VRP Environment.</p>
 <p>The agent must collect waste from bins before they overflow,
 while minimizing travel cost and respecting vehicle capacity.</p>
+<p>Attributes:
+WCVRPEnv: Class definition of WCVRP Env.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize WCVRPEnv.</p>
 <p>Args:
@@ -534,7 +542,7 @@ cost_weight: Weight for travel cost in reward.
 revenue_kg: Optional revenue per kg (overrides waste_weight).
 cost_km: Optional cost per kg (overrides cost_weight).
 device: Device for torch tensors (‘cpu’ or ‘cuda’).
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.envs.routing.wcvrp.WCVRPEnv.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><a class="headerlink" href="#src.envs.routing.wcvrp.WCVRPEnv.NAME" title="Link to this definition">#</a></dt>
@@ -625,7 +633,12 @@ The method calls super()._step_instance(tensordict) first to handle base VRP sta
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.wcvrp.WCVRPEnv._step">
 <span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.wcvrp.WCVRPEnv._step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Step through environment with OpsMixin.</p>
+<p>Args:
+tensordict: TensorDict containing the state.</p>
+<p>Returns:
+TensorDict: The next state.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.wcvrp.WCVRPEnv._get_action_mask">
@@ -676,9 +689,10 @@ tensordict (TensorDict): Current state containing:
 - depot (Tensor): Depot location, shape (batch, 2)
 - visited (BoolTensor): Visit status, shape (batch, num_nodes)
 - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
-- max_waste (Tensor): Maximum bin capacity, shape (batch,) or (batch, N)</p>
+- max_waste (Tensor): Maximum bin capacity, shape (batch,) or (batch, N)
+actions (Optional[torch.Tensor]): Actions taken (optional, not used in this reward calculation).</p>
 <p>Returns:
-Tensor: Reward tensor, shape (batch,)</p>
+torch.Tensor: Reward tensor, shape (batch,)</p>
 </dd></dl>
 
 </dd></dl>

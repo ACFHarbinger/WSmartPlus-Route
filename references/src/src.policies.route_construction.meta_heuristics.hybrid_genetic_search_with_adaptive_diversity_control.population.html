@@ -497,6 +497,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population">
 <span id="src-policies-route-construction-meta-heuristics-hybrid-genetic-search-with-adaptive-diversity-control-population"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population" title="Link to this heading">#</a></h1>
 <p>Population manager tracking feasibility, calculating diversity contribution, and selecting individuals.</p>
+<p>Attributes:
+Population: Manages feasible and infeasible sub-populations.</p>
+<p>Example:
+&gt;&gt;&gt; pop = Population(target_size=25, nb_close=4)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,37 +520,74 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.</span></span><span class="sig-name descname"><span class="pre">Population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_close</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population" title="Link to this definition">#</a></dt>
 <dd><p>Maintains feasible and infeasible subpopulations for HGS-ADC.</p>
+<p>Attributes:
+feas: List of feasible individuals.
+inf: List of infeasible individuals.
+target_size: Desired number of individuals in each sub-population.
+nb_close: Number of closest neighbors to consider for diversity.</p>
+<p>Example:
+&gt;&gt;&gt; pop = Population(25, 4)</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the sub-population manager.</p>
+<p>Args:
+target_size: Desired number of individuals in each sub-population.
+nb_close: Number of closest neighbors to consider for diversity.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.add_individual">
 <span class="sig-name descname"><span class="pre">add_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.add_individual" title="Link to this definition">#</a></dt>
 <dd><p>Adds an individual to the correct subpopulation.</p>
+<p>Args:
+ind: The individual to add.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.compute_diversity">
 <span class="sig-name descname"><span class="pre">compute_diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subpop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.compute_diversity" title="Link to this definition">#</a></dt>
-<dd><p>Calculates DC for every individual in the subpopulation.
-Metric: Hamming Pattern Distance + Route Broken Pairs Distance.</p>
+<dd><p>Calculates DC for every individual in the subpopulation.</p>
+<p>Metric: Hamming Pattern Distance + Route Broken Pairs Distance.</p>
+<p>Args:
+subpop: The subpopulation to update.
+T: Number of days.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population._distance">
 <span class="sig-name descname"><span class="pre">_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population._distance" title="Link to this definition">#</a></dt>
-<dd><p>Calculate distance between two individuals.
-Hamming distance for patterns, broken pairs for routes.</p>
+<dd><p>Calculate distance between two individuals.</p>
+<p>Hamming distance for patterns, broken pairs for routes.</p>
+<p>Args:
+ind_a: First individual.
+ind_b: Second individual.
+T: Number of days.</p>
+<p>Returns:
+float: The calculated distance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.rank_and_survive">
 <span class="sig-name descname"><span class="pre">rank_and_survive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subpop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.rank_and_survive" title="Link to this definition">#</a></dt>
 <dd><p>Ranks a subpopulation by Biased Fitness and culls to targeted size.</p>
+<p>Args:
+subpop: Subpopulation list.
+T: Number of days.</p>
+<p>Returns:
+List[Individual]: The surviving subpopulation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.trigger_survivor_selection">
 <span class="sig-name descname"><span class="pre">trigger_survivor_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.population.Population.trigger_survivor_selection" title="Link to this definition">#</a></dt>
 <dd><p>Applies survival to both populations.</p>
+<p>Args:
+T: Number of days.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 </dd></dl>

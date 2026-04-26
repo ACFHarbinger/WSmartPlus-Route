@@ -516,6 +516,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params">
 <span id="src-policies-route-construction-matheuristics-iterated-local-search-randomized-variable-neighborhood-descent-set-partitioning-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params" title="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params" title="Link to this heading">#</a></h1>
 <p>ILS-RVND-SP algorithm parameters.</p>
+<p>Attributes:
+ILSRVNDSPParams: Dataclass with ILS-RVND-SP runtime configuration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+&gt;&gt;&gt; params = ILSRVNDSPParams(max_restarts=10, time_limit=300.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,8 +528,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams" title="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ILSRVNDSPParams</span></code></a></p></td>
-<td><p>Runtime parameters for the ILS-RVND-SP solver.
-Extracts and manages the configuration values during execution.</p></td>
+<td><p>Runtime parameters for the ILS-RVND-SP solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -535,8 +539,18 @@ Extracts and manages the configuration values during execution.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.</span></span><span class="sig-name descname"><span class="pre">ILSRVNDSPParams</span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams" title="Link to this definition">#</a></dt>
-<dd><p>Runtime parameters for the ILS-RVND-SP solver.
-Extracts and manages the configuration values during execution.</p>
+<dd><p>Runtime parameters for the ILS-RVND-SP solver.</p>
+<p>Attributes:
+max_restarts: Number of independent restarts from different initial solutions.
+max_iter_ils: Maximum ILS iterations per restart.
+perturbation_strength: Number of nodes removed during perturbation.
+use_set_partitioning: Whether to apply set partitioning post-optimization.
+mip_time_limit: Time budget for set partitioning MIP.
+sp_mip_gap: Relative gap tolerance for set partitioning.
+N: Maximum number of nodes for subgradient optimization.
+time_limit: Total wall-clock time budget.
+seed: Random seed.
+vrpp: Whether to operate in VRPP profit-aware mode.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_restarts">
 <span class="sig-name descname"><span class="pre">max_restarts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.max_restarts" title="Link to this definition">#</a></dt>
@@ -679,6 +693,10 @@ Extracts and manages the configuration values during execution.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams" title="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object with ILS-RVND-SP parameter attributes.</p>
+<p>Returns:
+ILSRVNDSPParams: Populated parameter dataclass with acceptance criterion.</p>
 </dd></dl>
 
 </dd></dl>

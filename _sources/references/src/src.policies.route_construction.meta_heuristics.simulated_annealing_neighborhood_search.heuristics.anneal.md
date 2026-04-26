@@ -38,14 +38,14 @@
 ```
 ````
 
-````{py:function} _update_removed_bins(proc, removed, b_rem, b_add, bs_rem_rnd, bs_rem_con, bs_add_rnd, bs_add_con, bs_rnd, bs_con)
+````{py:function} _update_removed_bins(proc: str, removed: typing.List[int], b_rem: typing.Optional[int], b_add: typing.Optional[int], bs_rem_rnd: typing.List[int], bs_rem_con: typing.List[int], bs_add_rnd: typing.List[int], bs_add_con: typing.List[int], bs_rnd: typing.List[int], bs_con: typing.List[int])
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._update_removed_bins
 ```
 ````
 
-````{py:function} _rollback_removed_bins(proc, removed, b_rem, b_add, bs_rem_rnd, bs_rem_con, bs_add_rnd, bs_add_con, bs_rnd, bs_con)
+````{py:function} _rollback_removed_bins(proc: str, removed: typing.List[int], b_rem: typing.Optional[int], b_add: typing.Optional[int], bs_rem_rnd: typing.List[int], bs_rem_con: typing.List[int], bs_add_rnd: typing.List[int], bs_add_con: typing.List[int], bs_rnd: typing.List[int], bs_con: typing.List[int])
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._rollback_removed_bins
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.anneal._rollback_removed_bins

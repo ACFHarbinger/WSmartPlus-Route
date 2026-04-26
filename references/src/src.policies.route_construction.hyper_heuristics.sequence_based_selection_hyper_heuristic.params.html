@@ -505,6 +505,12 @@ document.write(`
 <p>Configuration parameters for the Sequence-based Selection Hyper-Heuristic (SS-HH).</p>
 <p>Reference:
 Kheiri, A. “Heuristic Sequence Selection for Inventory Routing Problem”, 2014.</p>
+<p>Attributes:
+SSHHParams: Configuration parameters for the SS-HH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import SSHHParams
+&gt;&gt;&gt; params = SSHHParams()
+&gt;&gt;&gt; print(params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -550,7 +556,10 @@ is infeasible (Eq. 4, top branch).
 threshold_feasible_base: Base acceptance threshold T for feasible
 solutions (Eq. 4, bottom branch, first addend).
 threshold_decay_rate: Time-decay coefficient for the feasible
-threshold (Eq. 4, bottom branch, second addend).</p>
+threshold (Eq. 4, bottom branch, second addend).
+vrpp: Whether to use profit-aware operators.
+profit_aware_operators: Whether to use profit-aware operators.
+seed: Random seed.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams.max_iterations">
 <span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams.max_iterations" title="Link to this definition">#</a></dt>
@@ -615,6 +624,10 @@ threshold (Eq. 4, bottom branch, second addend).</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams" title="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.SSHHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create parameters from a configuration object.</p>
+<p>Args:
+config: Configuration object.</p>
+<p>Returns:
+SSHHParams: Parameters for the SS-HH solver.</p>
 </dd></dl>
 
 </dd></dl>

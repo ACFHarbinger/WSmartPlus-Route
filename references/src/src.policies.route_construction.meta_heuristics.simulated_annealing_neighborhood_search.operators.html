@@ -469,6 +469,14 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -483,6 +491,24 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-operators"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators" title="Link to this heading">#</a></h1>
 <p>Operators for local search moves and swaps.</p>
+<p>Attributes:
+move_1_route: Move one bin from one route to another.
+move_2_routes: Move one bin from one route to another.
+move_n_2_routes_consecutive: Move n consecutive bins from one route to another.
+move_n_2_routes_random: Move n random bins from one route to another.
+move_n_route_consecutive: Move n consecutive bins from one route to another.
+move_n_route_random: Move n random bins from one route to another.
+swap_1_route: Swap one bin from one route with another bin from a different route.
+swap_2_routes: Swap one bin from one route with another bin from a different route.
+swap_n_2_routes_consecutive: Swap two consecutive sequences of n bins between two different routes.
+swap_n_2_routes_random: Swap n random bins between two different routes.
+swap_n_route_consecutive: Swap two consecutive sequences of n bins between two different routes.
+swap_n_route_random: Swap n random bins between two different routes.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators import move_1_route, move_2_routes, move_n_2_routes_consecutive, move_n_2_routes_random, move_n_route_consecutive, move_n_route_random, swap_1_route, swap_2_routes, swap_n_2_routes_consecutive, swap_n_2_routes_random, swap_n_route_consecutive, swap_n_route_random
+&gt;&gt;&gt; routes = [[0, 1, 2, 0], [0, 3, 4, 0]]
+&gt;&gt;&gt; move_1_route(routes, rng)
+&gt;&gt;&gt; print(routes)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -495,6 +521,29 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.intra_swap.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.intra_swap</span></code></a></li>
 </ul>
 </div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘move_1_route’, ‘move_2_routes’, ‘move_n_2_routes_consecutive’, ‘move_n_2_routes_random’, ‘move_n_r…</p>
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -544,6 +593,14 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

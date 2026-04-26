@@ -496,6 +496,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes">
 <span id="src-policies-route-construction-meta-heuristics-simulated-annealing-neighborhood-search-common-routes"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes" title="Link to this heading">#</a></h1>
+<p>Route manipulation utilities for SANS.</p>
+<p>Attributes:
+create_points: Create a mapping of bin IDs to their coordinates.
+uncross_arcs_in_routes: Improve routes by uncrossing arcs while maintaining profit constraints.
+rearrange_part_route: Select a random portion of a route and reorder it using a greedy Nearest Neighbor heuristic.
+organize_route: Group bins into zones based on longitude.
+two_opt_uncross_arc: Apply a 2-opt swap to uncross arcs in a route.
+uncross_arcs_in_sans_routes: Identify and remove invalid crossings (depot-connected or sharing endpoints).</p>
+<p>Examples:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes import create_points
+&gt;&gt;&gt; points = create_points(data, bins_coordinates)
+&gt;&gt;&gt; print(points)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -506,7 +518,7 @@ document.write(`
 <td><p>Create a mapping of bin IDs to their coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_crossed_arcs</span></code></a></p></td>
-<td><p>Identify intersecting arcs within a route.</p></td>
+<td><p>Identify intersecting arcs within a route and store them in the cache.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings" title="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remove_invalid_crossings</span></code></a></p></td>
 <td><p>Filter out invalid crossings (depot-connected or sharing endpoints).</p></td>
@@ -546,13 +558,27 @@ Dict[int, Tuple[float, float]]: Mapping from bin ID to coordinates.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes.</span></span><span class="sig-name descname"><span class="pre">_find_crossed_arcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._find_crossed_arcs" title="Link to this definition">#</a></dt>
-<dd><p>Identify intersecting arcs within a route.</p>
+<dd><p>Identify intersecting arcs within a route and store them in the cache.</p>
+<p>Args:
+route (List[int]): The sequence of node IDs in the route.
+points (List[List[float]]): Mapping from node ID to [lng, lat] coordinates.
+route_idx (int): The index of the route being processed.
+cache (Dict[int, List[List[List[int]]]]): A dictionary to store found
+intersecting arc pairs for each route index.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes.</span></span><span class="sig-name descname"><span class="pre">_remove_invalid_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings" title="Link to this definition">#</a></dt>
 <dd><p>Filter out invalid crossings (depot-connected or sharing endpoints).</p>
+<p>Args:
+crossings (List[List[List[int]]]): List of arc pairs that intersect.
+points (List[List[float]]): Mapping from node ID to [lng, lat] coordinates.</p>
+<p>Returns:
+List[List[List[int]]]: The filtered list of valid geometric crossings
+that should be resolved by swapping.</p>
 </dd></dl>
 
 <dl class="py function">

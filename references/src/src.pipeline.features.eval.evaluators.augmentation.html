@@ -493,6 +493,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.eval.evaluators.augmentation">
 <span id="src-pipeline-features-eval-evaluators-augmentation"></span><h1><a class="reference internal" href="#module-src.pipeline.features.eval.evaluators.augmentation" title="src.pipeline.features.eval.evaluators.augmentation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.eval.evaluators.augmentation</span></code></a><a class="headerlink" href="#module-src.pipeline.features.eval.evaluators.augmentation" title="Link to this heading">#</a></h1>
 <p>Augmentation evaluation implementation.</p>
+<p>Attributes:
+AugmentationEval: Evaluates a policy using Test-Time Augmentation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.eval.evaluators import AugmentationEval
+&gt;&gt;&gt; evaluator = AugmentationEval(config)
+&gt;&gt;&gt; evaluator.evaluate()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +521,11 @@ Performs N augmentations and picks the best result for each sample.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.pipeline.features.eval.eval_base.EvalBase</span></code></p>
 <p>Evaluation with data augmentation (Test-Time Augmentation).
 Performs N augmentations and picks the best result for each sample.</p>
+<p>Attributes:
+env: The environment to evaluate on.
+num_augment: Number of augmentations to perform.
+augment_fn: Name of the augmentation function.
+progress: Whether to show progress bar.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:

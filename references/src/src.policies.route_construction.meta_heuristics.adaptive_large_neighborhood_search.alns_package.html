@@ -503,6 +503,10 @@ document.write(`
 <p>Integration with the external <code class="docutils literal notranslate"><span class="pre">alns</span></code> Python package.</p>
 <p>This module provides the necessary state representation and operator wrappers
 to use the <code class="docutils literal notranslate"><span class="pre">alns</span></code> package as a solver backend for the routing problem.</p>
+<p>Attributes:
+ALNSState: State representation for the <code class="docutils literal notranslate"><span class="pre">alns</span></code> package.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_package import run_alns_package</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -544,6 +548,18 @@ to use the <code class="docutils literal notranslate"><span class="pre">alns</sp
 <dd><p>State representation for the <code class="docutils literal notranslate"><span class="pre">alns</span></code> Python package.</p>
 <p>Encapsulates the current solution (routes and unassigned nodes) and
 provides methods for copying and objective evaluation.</p>
+<p>Attributes:
+routes: List of routes, where each route is a list of node indices.
+unassigned: List of node indices not yet assigned to any route.
+dist_matrix: NxN distance matrix.
+wastes: Dictionary mapping node indices to their waste/weight.
+capacity: Maximum vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+values: Additional configuration parameters.
+_score: Current profit value.</p>
+<p>Example:
+&gt;&gt;&gt; state = ALNSState(routes, unassigned, dist, wastes, cap, R, C, values)</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the ALNS state.</p>
 <p>Args:
@@ -595,7 +611,8 @@ float: The objective value.</p>
 <dd><p>Randomly remove nodes from the current solution for the <code class="docutils literal notranslate"><span class="pre">alns</span></code> package.</p>
 <p>Args:
 state: The current ALNSState.
-rng: NumPy Generator for reproducibility.</p>
+rng: NumPy Generator for reproducibility.
+kwargs: Additional arguments (ignored).</p>
 <p>Returns:
 ALNSState: A new state with nodes removed.</p>
 </dd></dl>
@@ -606,7 +623,8 @@ ALNSState: A new state with nodes removed.</p>
 <dd><p>Remove nodes with the highest cost contribution for the <code class="docutils literal notranslate"><span class="pre">alns</span></code> package.</p>
 <p>Args:
 state: The current ALNSState.
-rng: NumPy Generator for reproducibility.</p>
+rng: NumPy Generator for reproducibility.
+kwargs: Additional arguments (ignored).</p>
 <p>Returns:
 ALNSState: A new state with nodes removed.</p>
 </dd></dl>
@@ -617,7 +635,8 @@ ALNSState: A new state with nodes removed.</p>
 <dd><p>Greedily insert unassigned nodes into the best positions for the <code class="docutils literal notranslate"><span class="pre">alns</span></code> package.</p>
 <p>Args:
 state: The current ALNSState.
-rng: NumPy Generator for reproducibility.</p>
+rng: NumPy Generator for reproducibility.
+kwargs: Additional arguments (ignored).</p>
 <p>Returns:
 ALNSState: A new state with nodes re-inserted.</p>
 </dd></dl>
@@ -632,7 +651,8 @@ wastes: Dictionary of node wastes.
 capacity: Maximum vehicle capacity.
 R: Revenue multiplier.
 C: Cost multiplier.
-values: Configuration parameters including <code class="docutils literal notranslate"><span class="pre">time_limit</span></code>.</p>
+values: Configuration parameters including <code class="docutils literal notranslate"><span class="pre">time_limit</span></code>.
+recorder: Optional recorder for solver state.</p>
 <p>Returns:
 Tuple[List[List[int]], float, float]: Best routes, total profit, and total distance cost.</p>
 </dd></dl>

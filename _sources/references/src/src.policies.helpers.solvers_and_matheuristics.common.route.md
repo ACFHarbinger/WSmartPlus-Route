@@ -38,6 +38,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.policies.helpers.solvers_and_matheuristics.common.route.Route.__repr__
 
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.common.route.Route.__repr__
+```
+
 ````
 
 `````

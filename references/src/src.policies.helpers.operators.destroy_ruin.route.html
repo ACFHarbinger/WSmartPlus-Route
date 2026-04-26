@@ -529,7 +529,7 @@ None</p>
 <td><p>Return the index of the route to remove.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.route._route_cost" title="src.policies.helpers.operators.destroy_ruin.route._route_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_route_cost</span></code></a></p></td>
-<td><p>Compute total edge cost of depot → route → depot.</p></td>
+<td><p>Compute total edge cost of depot -&gt; route -&gt; depot.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.route.route_profit_removal" title="src.policies.helpers.operators.destroy_ruin.route.route_profit_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">route_profit_removal</span></code></a></p></td>
 <td><p>Remove an entire route based on profit-based selection strategies (VRPP).</p></td>
@@ -562,12 +562,25 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.route._select_route">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.route.</span></span><span class="sig-name descname"><span class="pre">_select_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.route._select_route" title="Link to this definition">#</a></dt>
 <dd><p>Return the index of the route to remove.</p>
+<p>Args:
+routes: Current solution (list of routes).
+strategy: Selection strategy string.
+dist_matrix: Distance matrix (optional, required for some strategies).
+wastes: Waste lookup (optional, required for ‘profitable’ strategy).
+rng: Random number generator.</p>
+<p>Returns:
+Index of the route selected for removal, or -1 if no route is available.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.route._route_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.route.</span></span><span class="sig-name descname"><span class="pre">_route_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.route._route_cost" title="Link to this definition">#</a></dt>
-<dd><p>Compute total edge cost of depot → route → depot.</p>
+<dd><p>Compute total edge cost of depot -&gt; route -&gt; depot.</p>
+<p>Args:
+route: Sequence of customer node IDs.
+dist_matrix: Distance matrix with depot at index 0.</p>
+<p>Returns:
+Total route travel cost as a float.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -591,6 +604,16 @@ Tuple of (modified routes, list of removed node IDs).</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.route._select_profit_route">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.route.</span></span><span class="sig-name descname"><span class="pre">_select_profit_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.route._select_profit_route" title="Link to this definition">#</a></dt>
 <dd><p>Select route index to remove based on profit-oriented strategy.</p>
+<p>Args:
+routes: Current solution (list of routes).
+strategy: Profit-based selection strategy string.
+dist_matrix: Distance matrix with depot at index 0.
+wastes: Waste/profit values for each node.
+R: Revenue per unit waste.
+C: Cost per unit distance.
+rng: Random number generator.</p>
+<p>Returns:
+Index of the route selected for removal, or -1 if no route is available.</p>
 </dd></dl>
 
 </section>

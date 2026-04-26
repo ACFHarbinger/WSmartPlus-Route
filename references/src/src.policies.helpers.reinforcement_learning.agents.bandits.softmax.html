@@ -493,6 +493,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.reinforcement_learning.agents.bandits.softmax">
 <span id="src-policies-helpers-reinforcement-learning-agents-bandits-softmax"></span><h1><a class="reference internal" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.softmax" title="src.policies.helpers.reinforcement_learning.agents.bandits.softmax"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits.softmax</span></code></a><a class="headerlink" href="#module-src.policies.helpers.reinforcement_learning.agents.bandits.softmax" title="Link to this heading">#</a></h1>
+<p>Softmax Bandit Module.</p>
+<p>This module implements the Softmax bandit algorithm, which selects arms with a
+probability proportional to their estimated values using the Gibbs (Boltzmann)
+distribution.</p>
+<p>Attributes:
+SoftmaxBandit: Bandit agent using the Softmax policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits.softmax import SoftmaxBandit
+&gt;&gt;&gt; agent = SoftmaxBandit(n_arms=3, temperature=0.5)
+&gt;&gt;&gt; action = agent.select_action(state=None, rng=agent.rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +525,9 @@ document.write(`
 <p>Softmax Sampling Bandit policy.</p>
 <p>Selects arms with a probability proportional to their estimated values using
 the Gibbs (Boltzmann) distribution. Controlled by a ‘temperature’ parameter.</p>
+<p>Attributes:
+temperature: Exploration temperature.
+probs: Current probability distribution over arms.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the Softmax agent.</p>
 <p>Args:

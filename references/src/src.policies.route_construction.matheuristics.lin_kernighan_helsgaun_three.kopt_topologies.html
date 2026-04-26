@@ -566,6 +566,14 @@ Number of 5-opt cases: 60</p>
 <p>Helsgaun, K. (2000). An effective implementation of the Lin-Kernighan
 traveling salesman heuristic. <em>European Journal of Operational Research</em>,
 126(1), 106-130.</p>
+<p>Attributes:
+EXHAUSTIVE_5OPT_CASES: Pre-computed list of all valid 5-opt reconnection topologies.
+EXHAUSTIVE_4OPT_CASES: Pre-computed list of all valid 4-opt reconnection topologies.
+EXHAUSTIVE_3OPT_CASES: Pre-computed list of all valid 3-opt reconnection topologies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies import EXHAUSTIVE_5OPT_CASES
+&gt;&gt;&gt; len(EXHAUSTIVE_5OPT_CASES)
+60</p>
 </section>
 <p>Exhaustive k-opt Topology Generator with Module-Level Caching.</p>
 <p>This module generates and caches all valid, non-sequential k-opt reconnection

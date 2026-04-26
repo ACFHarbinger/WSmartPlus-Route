@@ -497,6 +497,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation">
 <span id="src-pipeline-simulations-wsmart-bin-analysis-deliverables-simulation"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation" title="Link to this heading">#</a></h1>
 <p>Simulation engine for bin fill levels.</p>
+<p>Attributes:
+Simulation (GridBase): Simulation engine for bin fill levels.
+Inherits from GridBase.</p>
+<p>Example:
+&gt;&gt;&gt; from src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation import Simulation
+&gt;&gt;&gt; sim = Simulation(“sampled”, [1, 2, 3], “.”)
+&gt;&gt;&gt; sim.advance_timestep()
+(0, None, None)
+&gt;&gt;&gt; sim.get_current_step()
+(array([0, 0, 0]), None, None)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +527,15 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictQ</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_ver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefit_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.html#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase" title="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid.GridBase</span></code></a></p>
 <p>A simulation class that extends GridBase to provide time-stepping and collection logic.</p>
+<p>Attributes:
+fill (np.ndarray): The current fill levels of the bins.
+sim_type (str): The type of simulation.
+predictQ (bool): Whether to use a predictor.
+start_date (pd.Timestamp): The start date of the simulation.
+split (pd.Timestamp): The split date for training/testing.
+end_date (pd.Timestamp): The end date of the simulation.
+current_date (pd.Timestamp): The current date of the simulation.
+rates (pd.DataFrame): The simulated rates.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the simulation with a specific type and time range.</p>
 <p>Args:
@@ -534,46 +553,45 @@ savefit_name (str, optional): Filename for saved model weights.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.pre_simulate_rates">
 <span class="sig-name descname"><span class="pre">pre_simulate_rates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.pre_simulate_rates" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="pre-simulates-rates-according-to-set-at-init-returns">Pre_simulates Rates according to set at init
-Returns</p>
+<dd><p>Pre_simulates Rates according to set at init</p>
+<p class="rubric" id="returns">Returns:</p>
 <p>rate: pd.Dataframe
 dataframe with simulated rates</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation">
-<span class="sig-name descname"><span class="pre">reset_simulation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reset_simulation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.reset_simulation" title="Link to this definition">#</a></dt>
 <dd><p>Reset the simulation witout changing the pre-simulated rates and predictions</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.get_current_step">
 <span class="sig-name descname"><span class="pre">get_current_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.get_current_step" title="Link to this definition">#</a></dt>
-<dd><p class="rubric" id="gets-rates-and-prediction-at-the-given-timestep-returns">Gets rates and prediction at the given timestep
-Returns</p>
-<p>rate: np.ndarray
-current rate</p>
-<p>pred: np.ndarray
+<dd><p>Gets rates and prediction at the given timestep</p>
+<p>Returns:
+rate: np.ndarray
+current rate
+pred: np.ndarray
 current prediction
-error:
+error: np.ndarray
 current predicted error on the prediction</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.make_collections">
 <span class="sig-name descname"><span class="pre">make_collections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins_index_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.make_collections" title="Link to this definition">#</a></dt>
-<dd><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Preforms collections on the bins specified by the index. The index is induced by the order of
-    the dataframe.
-
-    Returns
-</pre></div>
-</div>
-<hr class="docutils" />
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    collected_junk: np.ndarray
-        the collected trash in each of the collected bins using bins_index_list as an index map.
-        It corresponds to the percentage of the bin
-</pre></div>
-</div>
+<dd><p>Preforms collections on the bins specified by the index. The index is induced by the order of
+the dataframe.</p>
+<p>Args:
+bins_index_list: list[int]
+list of the bins indices to collect from</p>
+<p>Returns:
+collected_junk: np.ndarray
+the collected trash in each of the collected bins using bins_index_list as an index map.
+It corresponds to the percentage of the bin</p>
 </dd></dl>
 
 <dl class="py method">
@@ -581,10 +599,10 @@ current predicted error on the prediction</p>
 <span class="sig-name descname"><span class="pre">advance_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation.Simulation.advance_timestep" title="Link to this definition">#</a></dt>
 <dd><p>Advances the timeStep of the simulation by updating the fill level according to the rates the
 update procedure defined at init.</p>
-<p class="rubric" id="parameters">Parameters</p>
+<p class="rubric" id="args">Args:</p>
 <p>date: str, datetime
 date to fetch values. string format %d-%m-%Y or datetime</p>
-<p class="rubric" id="returns">Returns</p>
+<p class="rubric" id="id1">Returns:</p>
 <p>n_overflows: int
 the number of overflows occurred in that step
 prediction: np.ndarray

@@ -492,6 +492,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.hpo.search_spaces">
 <span id="src-policies-helpers-hpo-search-spaces"></span><h1><a class="reference internal" href="#module-src.policies.helpers.hpo.search_spaces" title="src.policies.helpers.hpo.search_spaces"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.hpo.search_spaces</span></code></a><a class="headerlink" href="#module-src.policies.helpers.hpo.search_spaces" title="Link to this heading">#</a></h1>
 <p>Search space definitions for simulation policies.</p>
+<p>This module contains the default hyperparameter search spaces for all supported
+simulation policies, including ALNS, HGS, ACO, and SISR. Each policy’s search
+space is defined as a dictionary with parameter names as keys and their HPO
+specifications as values.</p>
+<p>Attributes:
+POLICY_SEARCH_SPACES: Dictionary mapping policy names to their search spaces.</p>
+<p>Functions:
+get_search_space: Retrieves the search space for a specific policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.hpo import get_search_space
+&gt;&gt;&gt; alns_space = get_search_space(“alns”)
+&gt;&gt;&gt; print(alns_space)
+{
+‘max_iterations’: {‘type’: ‘int’, ‘low’: 500, ‘high’: 10000, ‘step’: 500},
+‘start_temp’: {‘type’: ‘float’, ‘low’: 1.0, ‘high’: 500.0, ‘log’: True},
+…
+}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -529,9 +546,10 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.hpo.search_spaces.</span></span><span class="sig-name descname"><span class="pre">get_search_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.hpo.search_spaces.get_search_space" title="Link to this definition">#</a></dt>
 <dd><p>Get the search space for a specific policy.</p>
 <p>Args:
-policy_name: Name of the policy (e.g., ‘alns’, ‘hgs’).</p>
+policy_name (str): Name of the policy (e.g., ‘alns’, ‘hgs’).</p>
 <p>Returns:
-Search space dictionary.</p>
+Dict[str, Dict[str, Any]]: The search space specification dictionary for
+the requested policy, or an empty dictionary if not found.</p>
 </dd></dl>
 
 </section>

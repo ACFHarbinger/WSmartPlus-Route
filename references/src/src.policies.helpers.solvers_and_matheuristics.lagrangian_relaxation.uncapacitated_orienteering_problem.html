@@ -510,6 +510,10 @@ the Gurobi model small. The full Lagrangian bound is then:</p>
 <p>References:
 Dantzig, G., Fulkerson, R., &amp; Johnson, S. (1954). “Solution of a large-scale
 traveling-salesman problem”. Journal of Operations Research, 2(4), 393-410.</p>
+<p>Attributes:
+solve_uncapacitated_op: Exact Gurobi solver for the uncapacitated OP at a fixed λ.</p>
+<p>Example:
+&gt;&gt;&gt; visited, obj, dist = solve_uncapacitated_op(dm, w, lam=0.5, R=1.0, C=0.1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -535,6 +539,11 @@ traveling-salesman problem”. Journal of Operations Research, 2(4), 393-410.</p
 <p>Triggered at integer solutions (MIPSOL). Detects connected components that
 do not contain the depot (node 0) and injects a cut forcing at least one
 outgoing edge from each subtour component.</p>
+<p>Args:
+model: Gurobi model instance.
+where: Callback location code.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py function">

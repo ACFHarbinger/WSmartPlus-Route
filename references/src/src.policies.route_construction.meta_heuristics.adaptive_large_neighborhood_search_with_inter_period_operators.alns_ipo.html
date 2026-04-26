@@ -539,6 +539,11 @@ Computers &amp; Operations Research, 39(11), 2537–2548.</p>
 chromosome <code class="docutils literal notranslate"><span class="pre">horizon_routes:</span> <span class="pre">List[List[List[int]]]</span></code> by incorporating
 inter-period destroy/repair operators (IPO) that can move and remove visits
 across days.</p>
+<p>Attributes:
+ALNSSolverIPO: Core ALNS-IPO implementation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo import ALNSSolverIPO
+&gt;&gt;&gt; solver = ALNSSolverIPO(dist, wastes, 50.0, 1.0, 1.0, params)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -563,6 +568,18 @@ across days.</p>
 and the ForwardLookingInsertion repair to the adaptive weight registry.
 Single-day operators inherited from <code class="docutils literal notranslate"><span class="pre">ALNSSolver</span></code> are preserved and
 can be applied to individual days of the horizon.</p>
+<p>Attributes:
+horizon: Planning horizon T.
+stockout_penalty: Penalty for bin overflow.
+forward_looking_depth: Lookahead depth for insertion.
+shift_direction: Direction for ShiftVisitRemoval.
+inventory_lambda: Weight on inventory terms.
+inter_period_weight_init: Initial weight for IPO operators.
+inter_period_operators_enabled: Whether IPO is active.
+stochastic_repair: Whether to use scenario tree for repair.
+ip_destroy_start: Index where IP destroy operators start.
+ip_repair_start: Index where IP repair operators start.
+_scenario_tree: Current scenario tree for evaluation.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the multi-period ALNS solver.</p>
 <p>Args:
@@ -578,36 +595,52 @@ recorder: Optional policy state recorder.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._append_inter_period_destroy_ops">
 <span class="sig-name descname"><span class="pre">_append_inter_period_destroy_ops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._append_inter_period_destroy_ops" title="Link to this definition">#</a></dt>
 <dd><p>Append ShiftVisitRemoval, PatternRemoval, and new horizon operators to the destroy registry.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._append_inter_period_repair_ops">
 <span class="sig-name descname"><span class="pre">_append_inter_period_repair_ops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._append_inter_period_repair_ops" title="Link to this definition">#</a></dt>
 <dd><p>Append Horizon insertion operators to the repair registry.</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._make_fl_repair">
 <span class="sig-name descname"><span class="pre">_make_fl_repair</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._make_fl_repair" title="Link to this definition">#</a></dt>
 <dd><p>Build the forward-looking repair operator closure.</p>
+<p>Returns:
+The repair operator function.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.build_initial_horizon_solution">
 <span class="sig-name descname"><span class="pre">build_initial_horizon_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.build_initial_horizon_solution" title="Link to this definition">#</a></dt>
 <dd><p>Build an initial T-day horizon solution using the parent greedy heuristic.</p>
+<p>Returns:
+A full T-day initial plan.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.calculate_horizon_cost">
 <span class="sig-name descname"><span class="pre">calculate_horizon_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizon_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.calculate_horizon_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute total routing cost across the horizon.</p>
+<p>Args:
+horizon_routes: Full T-day solution to evaluate.</p>
+<p>Returns:
+Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.calculate_horizon_profit">
 <span class="sig-name descname"><span class="pre">calculate_horizon_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizon_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO.calculate_horizon_profit" title="Link to this definition">#</a></dt>
 <dd><p>Compute total profit (revenue − routing cost) across the horizon.</p>
+<p>Args:
+horizon_routes: Full T-day solution to evaluate.</p>
+<p>Returns:
+Total net profit.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -633,12 +666,24 @@ Tuple of:
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._apply_single_day_ops">
 <span class="sig-name descname"><span class="pre">_apply_single_day_ops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._apply_single_day_ops" title="Link to this definition">#</a></dt>
 <dd><p>Apply a single-day destroy operator and greedily repair.</p>
+<p>Args:
+day_routes: Routes for the selected day.
+d_idx: Index of the destroy operator to apply.</p>
+<p>Returns:
+Tuple containing (repaired_routes, removed_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._check_accept">
 <span class="sig-name descname"><span class="pre">_check_accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo.ALNSSolverIPO._check_accept" title="Link to this definition">#</a></dt>
 <dd><p>Delegate acceptance check to the criterion from the parent class.</p>
+<p>Args:
+current_profit: Objective value of the current solution.
+new_profit: Objective value of the candidate solution.
+best_profit: Objective value of the best solution found so far.
+iteration: Current iteration index.</p>
+<p>Returns:
+Tuple containing (accepted, additional_data).</p>
 </dd></dl>
 
 </dd></dl>

@@ -469,7 +469,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -498,21 +497,13 @@ document.write(`
 Return the total tour distance for a closed or open tour.</p>
 <p>is_better(c1, c2) -&gt; bool
 Simple cost comparison: True iff c1 strictly beats c2.</p>
-</section>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.policies.helpers.operators.heuristics._objective import (
-…     get_cost, is_better
-… )
-cost = get_cost(tour, dist)
-if is_better(cost, best_cost):
+<p>Attributes:
+None</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.operators.search_heuristics._objective import get_cost, is_better
+&gt;&gt;&gt; cost = get_cost(tour, dist)
+&gt;&gt;&gt; if is_better(cost, best_cost):
 …     best_tour = tour[:]</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
 </section>
 <p>LKH Objective Module.</p>
 <p>Provides the standard TSP cost objective used throughout the
@@ -550,7 +541,11 @@ Total tour distance (cost).</p>
 <dt class="sig sig-object py" id="src.policies.helpers.operators.search_heuristics._objective.is_better">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.search_heuristics._objective.</span></span><span class="sig-name descname"><span class="pre">is_better</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.operators.search_heuristics._objective.is_better" title="Link to this definition">#</a></dt>
 <dd><p>Simple cost comparison for TSP.</p>
-<p>Returns True iff c1 strictly beats c2.</p>
+<p>Args:
+c1: First cost.
+c2: Second cost.</p>
+<p>Returns:
+bool: True if c1 strictly beats c2.</p>
 </dd></dl>
 
 </section>
@@ -603,7 +598,6 @@ Total tour distance (cost).</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

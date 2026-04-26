@@ -503,7 +503,14 @@ document.write(`
 <p>This module implements an ALNS solver that uses various online RL algorithms
 to intelligently select destroy/repair operators during the search process.</p>
 <p>Based on the research: “Online Reinforcement Learning for Inference-Time
-Operator Selection in the Stochastic Multi-Period Capacitated Vehicle Routing Problem”</p>
+Operator Selection in the Stochastic Multi-Period Capacitated Vehicle Routing Problem”.</p>
+<p>Attributes:
+RLALNSSolver: The RL-ALNS solver.</p>
+<p>Example:
+&gt;&gt;&gt; solver = RLALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+&gt;&gt;&gt; routes, metrics = solver.solve()
+&gt;&gt;&gt; print(f”Best routes: {routes}”)
+&gt;&gt;&gt; print(f”Metrics: {metrics}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -528,6 +535,29 @@ Operator Selection in the Stochastic Multi-Period Capacitated Vehicle Routing Pr
 <li><p>Multi-Armed Bandits: UCB1, D-UCB, SW-UCB, Thompson Sampling, EXP3</p></li>
 <li><p>Temporal Difference Learning: Q-Learning, SARSA, Expected SARSA</p></li>
 </ul>
+<p>Attributes:
+dist_matrix: NxN distance matrix.
+wastes: Dictionary of node wastes/demands.
+capacity: Maximum vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: RL-ALNS parameters.
+mandatory_nodes: List of mandatory nodes.
+random: Random number generator.
+np_random: NumPy random number generator.
+n_nodes: Number of nodes.
+nodes: List of nodes.
+destroy_ops: List of destroy operators.
+destroy_names: List of destroy operator names.
+repair_ops: List of repair operators.
+repair_names: List of repair operator names.
+action_to_ops: Mapping from action indices to destroy/repair operator pairs.
+best_solution: Best solution found so far.
+best_profit: Best profit found so far.
+best_route: Best route found so far.
+best_routes: List of best routes.
+improvement_history: List of improvements.
+operator_performance: List of operator performances.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize RL-ALNS solver.</p>
 <p>Args:
@@ -612,6 +642,8 @@ List[List[int]]: Initial set of routes.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver.RLALNSSolver.get_statistics">
 <span class="sig-name descname"><span class="pre">get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver.RLALNSSolver.get_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Get solver statistics.</p>
+<p>Returns:
+Dict: Solver statistics.</p>
 </dd></dl>
 
 </dd></dl>

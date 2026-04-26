@@ -493,6 +493,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.features.eval.evaluators">
 <span id="src-pipeline-features-eval-evaluators"></span><h1><a class="reference internal" href="#module-src.pipeline.features.eval.evaluators" title="src.pipeline.features.eval.evaluators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.eval.evaluators</span></code></a><a class="headerlink" href="#module-src.pipeline.features.eval.evaluators" title="Link to this heading">#</a></h1>
 <p>Evaluator implementations.</p>
+<p>Attributes:
+AugmentationEval: Evaluates a policy using augmentation.
+MultiStartAugmentEval: Evaluates a policy using multi-start and augmentation.
+GreedyEval: Evaluates a policy using greedy search.
+MultiStartEval: Evaluates a policy using multi-start search.
+SamplingEval: Evaluates a policy using sampling.
+MultiStartGreedyEval: Alias for MultiStartEval.
+MultiStartGreedyAugmentEval: Alias for MultiStartAugmentEval.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.eval.evaluators import GreedyEval
+&gt;&gt;&gt; evaluator = GreedyEval(config)
+&gt;&gt;&gt; evaluator.evaluate()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

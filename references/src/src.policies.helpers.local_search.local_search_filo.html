@@ -529,6 +529,10 @@ Tier-1 operators are shuffled, each evaluated to local optimality.
 If any operator improves, the tier restarts. If Tier-1 stagnates,
 Tier-2 (recursive ejection chains, depth up to n_EC=3) is invoked.</p>
 <p>Gamma sparsification probabilistically filters neighbor evaluations.</p>
+<p>Attributes:
+FILOLocalSearch: Implementation of the FILO Local Search algorithm.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.helpers.local_search import FILOLocalSearch</p>
 <p>References:
 Accorsi &amp; Vigo (2021) Section 4.4, 4.5, and 4.6.</p>
 <section id="module-contents">
@@ -577,15 +581,16 @@ Accorsi &amp; Vigo (2021) Section 4.4, 4.5, and 4.6.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.local_search.local_search_filo.</span></span><span class="sig-name descname"><span class="pre">FILOLocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.helpers.local_search.local_search_base.LocalSearch</span></code></p>
 <p>Localized HRVND with O(1) state tracking, RVND, and gamma sparsification.</p>
-<p><strong>Key data structures (maintained incrementally):</strong></p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">node_to_route_pos</span></code>: <code class="docutils literal notranslate"><span class="pre">Dict[int,</span> <span class="pre">Tuple[int,</span> <span class="pre">int]]</span></code> mapping each node
-to its <code class="docutils literal notranslate"><span class="pre">(route_idx,</span> <span class="pre">position_idx)</span></code>.  Replaces O(N) <code class="docutils literal notranslate"><span class="pre">_find_node</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">route_loads</span></code>: <code class="docutils literal notranslate"><span class="pre">List[float]</span></code> storing the current load of each route.
-Replaces O(N) <code class="docutils literal notranslate"><span class="pre">sum(waste...)</span></code> calls.</p></li>
-</ul>
+<p>Attributes:
+node_to_route_pos (Dict[int, Tuple[int, int]]): mapping each node
+to its <code class="docutils literal notranslate"><span class="pre">(route_idx,</span> <span class="pre">position_idx)</span></code>.  Replaces O(N) <code class="docutils literal notranslate"><span class="pre">_find_node</span></code>.
+_route_loads (List[float]): storing the current load of each route.
+Replaces O(N) <code class="docutils literal notranslate"><span class="pre">sum(waste...)</span></code> calls.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize FILO Local Search.</p>
+<p>Args:
+args (Any): Variable length argument list.
+kwargs (Any): Arbitrary keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._rebuild_index">
 <span class="sig-name descname"><span class="pre">_rebuild_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._rebuild_index" title="Link to this definition">#</a></dt>
@@ -597,96 +602,179 @@ Replaces O(N) <code class="docutils literal notranslate"><span class="pre">sum(w
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._rebuild_route_positions">
 <span class="sig-name descname"><span class="pre">_rebuild_route_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._rebuild_route_positions" title="Link to this definition">#</a></dt>
 <dd><p>Rebuild position indices for a single route.  Cost: O(|route|).</p>
+<p>Args:
+ri (int): Index of the route to rebuild.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._find_node">
 <span class="sig-name descname"><span class="pre">_find_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._find_node" title="Link to this definition">#</a></dt>
 <dd><p>O(1) lookup for node position via inverse mapping.</p>
+<p>Args:
+u (int): Node ID to find.</p>
+<p>Returns:
+Tuple[int, int]: (route_idx, position_idx) of the node, or (-1, -1) if not found.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_relocate">
 <span class="sig-name descname"><span class="pre">_get_gain_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_relocate" title="Link to this definition">#</a></dt>
 <dd><p>Cost delta for moving <em>u</em> from route <em>ri</em> to position <em>pj</em> in <em>rj</em>.</p>
+<p>Args:
+u (int): Node to move.
+ri (int): Current route index.
+pi (int): Current position index in route ri.
+rj (int): Target route index.
+pj (int): Target position index in route rj.</p>
+<p>Returns:
+float: Cost delta (gain) of the relocate move.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_swap">
 <span class="sig-name descname"><span class="pre">_get_gain_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_swap" title="Link to this definition">#</a></dt>
 <dd><p>Cost delta for swapping nodes <em>u</em> and <em>v</em>.</p>
+<p>Args:
+u (int): First node to swap.
+ri (int): Route index of first node.
+pi (int): Position index of first node.
+v (int): Second node to swap.
+rj (int): Route index of second node.
+pj (int): Position index of second node.</p>
+<p>Returns:
+float: Cost delta (gain) of the swap move.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_2opt">
 <span class="sig-name descname"><span class="pre">_get_gain_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_2opt" title="Link to this definition">#</a></dt>
 <dd><p>Cost delta for reversing segment <code class="docutils literal notranslate"><span class="pre">routes[ri][pi..pj]</span></code>.</p>
+<p>Args:
+ri (int): Route index.
+pi (int): Start position index of the segment.
+pj (int): End position index of the segment.</p>
+<p>Returns:
+float: Cost delta (gain) of the 2-opt move.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_tails">
 <span class="sig-name descname"><span class="pre">_get_gain_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_tails" title="Link to this definition">#</a></dt>
 <dd><p>Cost delta for swapping tails <code class="docutils literal notranslate"><span class="pre">routes[ri][pi:]</span></code> &lt;-&gt; <code class="docutils literal notranslate"><span class="pre">routes[rj][pj:]</span></code>.</p>
+<p>Args:
+ri (int): First route index.
+pi (int): Start position of tail in first route.
+rj (int): Second route index.
+pj (int): Start position of tail in second route.</p>
+<p>Returns:
+float: Cost delta (gain) of the tails swap.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_split">
 <span class="sig-name descname"><span class="pre">_get_gain_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._get_gain_split" title="Link to this definition">#</a></dt>
 <dd><p>Cost delta for splitting route <em>ri</em> at position <em>pi</em>.</p>
+<p>Args:
+ri (int): Route index.
+pi (int): Position index to split the route at.</p>
+<p>Returns:
+float: Cost delta (gain) of the split move.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._gamma_neighbors">
 <span class="sig-name descname"><span class="pre">_gamma_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._gamma_neighbors" title="Link to this definition">#</a></dt>
 <dd><p>Return neighbors of <em>u</em> filtered by gamma sparsification.</p>
+<p>Args:
+u (int): Node ID to get neighbors for.</p>
+<p>Returns:
+List[int]: Filtered list of neighbors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_relocate">
 <span class="sig-name descname"><span class="pre">_try_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_relocate" title="Link to this definition">#</a></dt>
 <dd><p>Exhaustively search for the best relocate move in the SVC kernel.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_swap">
 <span class="sig-name descname"><span class="pre">_try_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_swap" title="Link to this definition">#</a></dt>
 <dd><p>Exhaustively search for the best swap move in the SVC kernel.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_2opt">
 <span class="sig-name descname"><span class="pre">_try_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_2opt" title="Link to this definition">#</a></dt>
 <dd><p>Exhaustively search for the best 2-opt move in the SVC kernel.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_tails">
 <span class="sig-name descname"><span class="pre">_try_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_tails" title="Link to this definition">#</a></dt>
 <dd><p>Exhaustively search for the best tails (2-opt*) move in the SVC kernel.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_split">
 <span class="sig-name descname"><span class="pre">_try_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_split" title="Link to this definition">#</a></dt>
 <dd><p>Exhaustively search for the best split move in the SVC kernel.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_ejection_chain">
 <span class="sig-name descname"><span class="pre">_try_ejection_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._try_ejection_chain" title="Link to this definition">#</a></dt>
 <dd><p>Attempt a recursive ejection chain from an SVC vertex.</p>
+<p>Args:
+active_nodes (Set[int]): Set of active node IDs to search.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._recursive_eject">
 <span class="sig-name descname"><span class="pre">_recursive_eject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._recursive_eject" title="Link to this definition">#</a></dt>
 <dd><p>Recursively eject node <em>u</em> from route <em>ri</em>, displacing others.</p>
+<p>Args:
+u (int): Node ID to eject.
+ri (int): Route index of the node.
+pi (int): Position index of the node.
+depth (int): Remaining depth of the recursion.
+visited (Set[int]): Set of visited nodes to prevent cycles.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._place_displaced">
 <span class="sig-name descname"><span class="pre">_place_displaced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.local_search.local_search_filo.FILOLocalSearch._place_displaced" title="Link to this definition">#</a></dt>
 <dd><p>Try to place displaced node <em>v</em> via direct insertion or cascade.</p>
+<p>Args:
+v (int): Node ID to place.
+depth (int): Remaining depth of the recursion.
+visited (Set[int]): Set of visited nodes to prevent cycles.</p>
+<p>Returns:
+bool: True if a move was made, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">

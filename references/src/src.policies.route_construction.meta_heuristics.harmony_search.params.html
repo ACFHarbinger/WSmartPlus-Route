@@ -503,6 +503,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.harmony_search.params">
 <span id="src-policies-route-construction-meta-heuristics-harmony-search-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.harmony_search.params" title="src.policies.route_construction.meta_heuristics.harmony_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.harmony_search.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Harmony Search (HS) solver.</p>
+<p>Attributes:
+HSParams: Parameter dataclass for the Harmony Search.</p>
+<p>Example:
+&gt;&gt;&gt; params = HSParams(hm_size=20)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -522,20 +526,17 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.params.</span></span><span class="sig-name descname"><span class="pre">HSParams</span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the Harmony Search solver.</p>
-<p>The algorithm maintains a Harmony Memory (HM) that archives the most
-profitable route topologies.  New harmonies are improvised node-by-node
-using three probability-driven mechanisms: HM consideration, pitch
-adjustment, and random selection.</p>
 <p>Attributes:
 hm_size: Size of the Harmony Memory (archive capacity).
-HMCR: Harmony Memory Considering Rate ∈ [0, 1].
-PAR: Pitch Adjusting Rate ∈ [0, 1] (conditional on HMCR success).
+HMCR: Harmony Memory Considering Rate.
+PAR: Pitch Adjusting Rate.
+BW: Bandwidth for adjustment.
 max_iterations: Total number of improvisation cycles.
 local_search_iterations: Number of local search iterations.
 time_limit: Wall-clock time limit in seconds.
 seed: Random seed for reproducibility.
-vrpp: Whether the problem is VRPP (True) or CVRP (False).
-profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
+vrpp: Whether solving VRP with Profits.
+profit_aware_operators: Whether to use profit-aware operators.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams.hm_size">
 <span class="sig-name descname"><span class="pre">hm_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams.hm_size" title="Link to this definition">#</a></dt>
@@ -600,6 +601,10 @@ profit_aware_operators: Whether to use profit-aware insertion/removal.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams" title="src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.harmony_search.params.HSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
+<p>Args:
+config: Configuration source.</p>
+<p>Returns:
+Instantiated HSParams.</p>
 </dd></dl>
 
 </dd></dl>

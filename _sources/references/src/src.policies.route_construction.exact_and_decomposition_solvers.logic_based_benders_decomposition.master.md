@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.__init__
 ```
 
-````{py:method} build(tree: logic.src.pipeline.simulations.bins.prediction.ScenarioTree, stochastic_master: bool = False)
+````{py:method} build(tree: logic.src.pipeline.simulations.bins.prediction.ScenarioTree, stochastic_master: bool = False) -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.build
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.build
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} add_nogood_cut(day: int, assigned_nodes: typing.List[int])
+````{py:method} add_nogood_cut(day: int, assigned_nodes: typing.List[int]) -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_nogood_cut
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_nogood_cut
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} add_optimality_cut(day: int, assigned_nodes: typing.List[int], distance: float)
+````{py:method} add_optimality_cut(day: int, assigned_nodes: typing.List[int], distance: float) -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_optimality_cut
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.master.LBBDMasterProblem.add_optimality_cut

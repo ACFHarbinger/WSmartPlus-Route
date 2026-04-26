@@ -496,6 +496,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks">
 <span id="src-policies-route-construction-matheuristics-two-phase-kernel-search-policy-tpks"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks" title="src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks" title="Link to this heading">#</a></h1>
 <p>Simulator adapter for the Two-Phase Kernel Search (TPKS) matheuristic.</p>
+<p>Attributes:
+TPKSPolicy: The Two-Phase Kernel Search policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search import TPKSPolicy
+&gt;&gt;&gt; tpks_policy = TPKSPolicy()
+&gt;&gt;&gt; tpks_policy.execute(distance_matrix=…, wastes={}, capacity=1e9, R=1.0, C=1.0, mandatory_nodes=[])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,6 +530,8 @@ without re-running an expensive LP relaxation.</p>
 BaseMultiPeriodRoutingPolicy, because TPKS operates on a single-day
 VRPP subproblem. Multi-period extension is achieved by calling it from
 inside a multi-period policy’s _run_multi_period_solver.</p>
+<p>Attributes:
+None</p>
 <p class="rubric">Initialization</p>
 <p>Initialize policy with optional config dataclass or raw dict.</p>
 <p>Args:
@@ -534,22 +542,45 @@ typed dataclass automatically.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._config_class" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return configuration class.</p>
+<p>Returns:
+Type: Configuration class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._get_config_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return configuration key.</p>
+<p>Returns:
+str: Configuration key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Not used — execute() calls run_tpks_gurobi directly.</p>
+<p>Args:
+sub_dist_matrix (np.ndarray): Distance matrix.
+sub_wastes (Dict[int, float]): Wastes.
+capacity (float): Capacity.
+revenue (Optional[float]): Revenue.
+cost_unit (float): Cost unit.
+values (Optional[np.ndarray]): Values.
+mandatory_nodes (List[int]): Mandatory nodes.
+kwargs (dict): Keyword arguments containing problem parameters.</p>
+<p>Returns:
+Tuple[List[int], float, float]: (tour, cost, profit).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks.TPKSPolicy.execute" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Executes the Two-Phase Kernel Search policy.</p>
+<p>Args:
+kwargs: Keyword arguments containing problem parameters.</p>
+<p>Returns:
+A tuple of (tour, cost, profit, search_context, multi_day_context).</p>
+</dd></dl>
 
 </dd></dl>
 

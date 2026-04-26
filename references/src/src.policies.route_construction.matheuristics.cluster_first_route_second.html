@@ -504,6 +504,14 @@ solver: Core implementation of the angular clustering and TSP routing.
 greedy_assignment: Greedy heuristic for node-to-cluster assignment.
 mip_assignment: Exact MIP formulation for node-to-cluster assignment.
 policy_cf_rs: Simulator adapter for the CF-RS algorithm.</p>
+<p>Attributes:
+ClusterFirstRouteSecondPolicy: Policy adapter class for CF-RS.
+run_cf_rs: Core solver function for CF-RS routing.
+assign_greedy: Greedy cluster assignment function.
+assign_exact_mip: Exact MIP cluster assignment function.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.cluster_first_route_second import ClusterFirstRouteSecondPolicy
+&gt;&gt;&gt; policy = ClusterFirstRouteSecondPolicy()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

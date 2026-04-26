@@ -497,6 +497,11 @@ document.write(`
 <p>This module provides a neural network-based selection strategy that wraps a
 trained MandatoryManager to make collection decisions based on learned
 temporal patterns and spatial context.</p>
+<p>Attributes:
+ManagerSelector: Neural network-based selection using MandatoryManager.</p>
+<p>Example:
+&gt;&gt;&gt; selector = ManagerSelector(threshold=0.5)
+&gt;&gt;&gt; mask = selector.select(fill_levels, locs=locs, waste_history=history)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +525,10 @@ temporal patterns and spatial context.</p>
 <p>This selector wraps a trained HRL manager to make mandatory collection
 decisions. The manager learns to predict which bins require collection
 based on waste history, spatial distribution, and critical thresholds.</p>
+<p>Attributes:
+threshold: Probability threshold for mandatory decisions.
+device: Computation device.
+manager: The underlying neural manager model.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the manager selector.</p>
 <p>Args:
@@ -532,11 +541,11 @@ device: Computation device (‘cpu’ or ‘cuda’).</p>
 <span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.manager.ManagerSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins using the neural manager.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N] in [0, 1].
-locs: Node locations [B, N, 2].
-waste_history: Historical waste levels [B, N, H].
-threshold: Optional override for probability threshold.
-**kwargs: Extra parameters (ignored).</p>
+fill_levels: Current fill levels of bins [B, N].
+locs: Spatial coordinates of nodes [B, N, 2].
+waste_history: Temporal fill history [B, N, T].
+threshold: Override for the default selection threshold.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>

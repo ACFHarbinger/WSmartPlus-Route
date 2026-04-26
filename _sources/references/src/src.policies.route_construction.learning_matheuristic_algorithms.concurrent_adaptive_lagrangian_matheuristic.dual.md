@@ -101,6 +101,9 @@ Bases: {py:obj}`src.policies.route_construction.learning_matheuristic_algorithms
 ````{py:method} submit(period: int, lambdas: numpy.ndarray, subgrad: numpy.ndarray, lagrangian_value_contrib: float, tour_quality_ratio: float) -> bool
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.submit
 
+```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.dual.EMADualBoundTracker.submit
+```
+
 ````
 
 ````{py:method} current_dual_bound() -> float

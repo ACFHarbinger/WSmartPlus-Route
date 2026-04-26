@@ -516,9 +516,9 @@ document.write(`
 <p>This module defines the configuration parameters for the K-Sparse Ant Colony
 Optimization algorithm. It uses a dataclass to store and validate hyperparameters.</p>
 <p>Attributes:
-None</p>
+KSACOParams: Parameters for K-Sparse Ant Colony Optimization (MMAS_exp variant).</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 &gt;&gt;&gt; params = KSACOParams(n_ants=20, rho=0.1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -560,7 +560,9 @@ local_search_iterations: Number of iterations for local search.
 elitist_weight: Weight for best-so-far solution in pheromone update.
 vrpp: Whether to use VRPP (Vehicle Routing Problem with Profits) mode.
 profit_aware_operators: Whether to use profit-aware feasibility checks.
-seed: Random seed for reproducibility.</p>
+q0: Probability of best-edge selection.
+seed: Random seed for reproducibility.
+acceptance_criterion: Acceptance criterion for solutions.</p>
 <p>Reference:
 Hale, D. “Investigation of Ant Colony Optimization Implementation
 Strategies For Low-Memory Operating Environments”, 2021.</p>
@@ -689,6 +691,10 @@ Strategies For Low-Memory Operating Environments”, 2021.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.KSparseACOConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams" title="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create KSACOParams from an KSparseACOConfig dataclass or dict.</p>
 <p>Performs explicit type casting for numeric fields to ensure consistency.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+KSACOParams instance.</p>
 </dd></dl>
 
 </dd></dl>

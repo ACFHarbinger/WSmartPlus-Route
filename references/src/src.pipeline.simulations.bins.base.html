@@ -507,6 +507,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.bins.base">
 <span id="src-pipeline-simulations-bins-base"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.bins.base" title="src.pipeline.simulations.bins.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.bins.base</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.bins.base" title="Link to this heading">#</a></h1>
 <p>Bin State Management and Waste Accumulation Simulation.</p>
+<p>This module provides the Bins class, which manages the state, daily waste
+accumulation, and collection processes for a population of bins.</p>
+<p>Attributes:
+Bins: Manager class for bin state and dynamics.</p>
+<p>Example:
+&gt;&gt;&gt; # bins = Bins(n=100, data_dir=”data/vrpp”)
+&gt;&gt;&gt; # bins.collect(tour=[0, 1, 2, 0], cost=15.5)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -536,7 +543,7 @@ document.write(`
 <p>The Bins object maintains two parallel state vectors:
 - real_c: Ground truth fill levels (0-100%)
 - c: Observed fill levels (may include sensor noise)</p>
-<p>Args:
+<p>Attributes:
 n (int): Number of bins.
 data_dir (str): Path to data directory.
 sample_dist (str, optional): Sampling distribution. Defaults to “gamma”.
@@ -551,95 +558,158 @@ n_days (int, optional): Number of days to simulate. Defaults to 31.
 n_samples (int, optional): Number of samples to generate. Defaults to 1.
 seed (Optional[int], optional): Random seed. Defaults to None.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the bin population with area-specific parameters.</p>
+<p>Initializes the bin population with area-specific parameters.
+Args:
+n: Number of bins.
+data_dir: Path to the data directory.
+sample_dist: Sampling distribution (e.g., “gamma”, “emp”).
+grid: GridBase object for empirical data.
+area: Name of the area for parameter loading.
+waste_type: Type of waste (e.g., “all”, “glass”).
+indices: Subset of bin indices to use.
+waste_file: Path to a file containing pre-recorded waste data.
+noise_mean: Mean of the sensor noise.
+noise_variance: Variance of the sensor noise.
+n_days: Total number of simulation days.
+n_samples: Number of waste samples in the dataset.
+seed: Random seed for reproducibility.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.__get_stdev">
 <span class="sig-name descname"><span class="pre">__get_stdev</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.__get_stdev" title="Link to this definition">#</a></dt>
 <dd><p>Computes current standard deviation.</p>
+<p>Returns:
+Numpy array of standard deviations for each bin.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_statistics">
 <span class="sig-name descname"><span class="pre">set_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stats_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_statistics" title="Link to this definition">#</a></dt>
 <dd><p>Loads pre-computed fill statistics.</p>
+<p>Args:
+stats_file: Path to the statistics CSV file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.is_stochastic">
 <span class="sig-name descname"><span class="pre">is_stochastic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.is_stochastic" title="Link to this definition">#</a></dt>
 <dd><p>Checks if using stochastic filling.</p>
+<p>Returns:
+True if the waste dataset is generative/stochastic.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.get_fill_history">
 <span class="sig-name descname"><span class="pre">get_fill_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.get_fill_history" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves history of daily fill increments.</p>
+<p>Args:
+device: Optional torch device to move the tensor to.</p>
+<p>Returns:
+Numpy array or Torch tensor of fill history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.get_level_history">
 <span class="sig-name descname"><span class="pre">get_level_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.get_level_history" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves history of daily absolute fill levels.</p>
+<p>Args:
+device: Optional torch device to move the tensor to.</p>
+<p>Returns:
+Numpy array or Torch tensor of level history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.predict_days_to_overflow">
 <span class="sig-name descname"><span class="pre">predict_days_to_overflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.predict_days_to_overflow" title="Link to this definition">#</a></dt>
 <dd><p>Predicts days to overflow based on statistics.</p>
+<p>Args:
+cl: Confidence level for prediction.</p>
+<p>Returns:
+Numpy array of predicted days to overflow.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_indices">
 <span class="sig-name descname"><span class="pre">set_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_indices" title="Link to this definition">#</a></dt>
 <dd><p>Sets subset of bin indices.</p>
+<p>Args:
+indices: Optional list or array of bin indices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_sample_waste">
 <span class="sig-name descname"><span class="pre">set_sample_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_sample_waste" title="Link to this definition">#</a></dt>
 <dd><p>Sets current waste profile from dataset.</p>
+<p>Args:
+sample_id: Index of the waste sample to load.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.collect">
 <span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idsfull</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.collect" title="Link to this definition">#</a></dt>
 <dd><p>Processes waste collection from bins in the tour.</p>
+<p>Args:
+idsfull: List of bin IDs in the tour (1-indexed, 0 is depot).
+cost: Total travel distance for the tour.</p>
+<p>Returns:
+Tuple containing (collected_mass_vector, total_mass, n_bins_collected, profit).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins._process_filling">
 <span class="sig-name descname"><span class="pre">_process_filling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">todaysfilling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisyfilling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins._process_filling" title="Link to this definition">#</a></dt>
 <dd><p>Processes daily waste deposition.</p>
+<p>Args:
+todaysfilling: Ground truth waste increments.
+noisyfilling: Optional sensor-observed increments.</p>
+<p>Returns:
+Tuple containing (n_overflows, filling_array, level_array, lost_waste).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.deterministic_filling">
 <span class="sig-name descname"><span class="pre">deterministic_filling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.deterministic_filling" title="Link to this definition">#</a></dt>
 <dd><p>Loads deterministic fill levels from historical data.</p>
+<p>Args:
+date: Date string or object to load values for.</p>
+<p>Returns:
+The processed filling tuple.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.load_filling">
 <span class="sig-name descname"><span class="pre">load_filling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.load_filling" title="Link to this definition">#</a></dt>
 <dd><p>Loads deterministic waste fills from pre-recorded data.</p>
+<p>Args:
+day: Current simulation day index.</p>
+<p>Returns:
+The processed filling tuple.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.__setDistribution">
 <span class="sig-name descname"><span class="pre">__setDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.__setDistribution" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper to set sampling distribution parameters.</p>
+<p>Args:
+param1: First parameter (e.g., shape k).
+param2: Second parameter (e.g., scale theta).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_gamma_distribution">
 <span class="sig-name descname"><span class="pre">set_gamma_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_gamma_distribution" title="Link to this definition">#</a></dt>
 <dd><p>Configures bins with predefined Gamma distribution profiles.</p>
+<p>Args:
+option: The predefined configuration index (0-3).</p>
+<p>Returns:
+None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_collection_level_and_freq">
 <span class="sig-name descname"><span class="pre">set_collection_level_and_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_collection_level_and_freq" title="Link to this definition">#</a></dt>
 <dd><p>Sets visit frequency and level thresholds.</p>
+<p>Args:
+cf: Confidence factor for frequency calculation.</p>
 </dd></dl>
 
 </dd></dl>

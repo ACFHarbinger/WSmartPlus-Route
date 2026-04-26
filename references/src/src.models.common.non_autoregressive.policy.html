@@ -499,6 +499,13 @@ document.write(`
 <p>This module provides the <code class="docutils literal notranslate"><span class="pre">NonAutoregressivePolicy</span></code> base class, which decouples
 global graph feature prediction (heatmap generation) from solution
 construction (decoding from heatmaps).</p>
+<p>Attributes:
+NonAutoregressivePolicy: Base class for non-autoregressive policies.</p>
+<p>Example:
+&gt;&gt;&gt; encoder = NonAutoregressiveEncoder(embed_dim=128)
+&gt;&gt;&gt; decoder = NonAutoregressiveDecoder(embed_dim=128)
+&gt;&gt;&gt; policy = NonAutoregressivePolicy(encoder, decoder, env_name=”tsp”)
+&gt;&gt;&gt; out = policy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -530,21 +537,21 @@ embed_dim: Feature vector dimensionality.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the NonAutoregressivePolicy.</p>
 <p>Args:
-encoder: Encoder instance for predicting edge/node logits.
-decoder: Decoder instance for creating routes from heatmaps.
-env_name: Name of the environment.
-embed_dim: Internal feature dimensionality.
-**kwargs: Additional parameters for the package.</p>
+encoder: Encoder module for global heatmap prediction.
+decoder: Decoder module for solution construction.
+env_name: Optional environment identifier.
+embed_dim: Dimensionality of latent embeddings.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Perform a full forward pass: heatmap prediction followed by decoding.</p>
 <p>Args:
-td: TensorDict containing the problem instance.
-env: Environment object for transition logic and reward calculation.
-strategy: Decoding strategy (e.g., ‘sampling’, ‘greedy’).
-num_starts: Number of parallel solution attempts.
-**kwargs: Additional control arguments for encoder/decoder.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem logic and rules.
+strategy: Decoding strategy identifier (e.g., “greedy”, “sampling”).
+num_starts: Number of parallel construction starts.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Results dictionary containing:
 - reward (torch.Tensor): Calculated reward/cost for the solution.
@@ -560,8 +567,8 @@ Dict[str, Any]: Results dictionary containing:
 <p>Useful for aligning with evaluation pipelines that vary decoding
 parameters (e.g., temperature, beam width).</p>
 <p>Args:
-strategy: Strategy identifier string.
-**kwargs: Configuration parameters for the strategy.</p>
+strategy: Strategy name (e.g., “beam_search”, “greedy”).
+kwargs: Additional strategy-specific parameters (e.g., temperature).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -571,12 +578,12 @@ strategy: Strategy identifier string.
 <p>This utility manages strategy instantiation, pre/post-decoding hooks,
 and the iterative selection loop driven by the pre-computed heatmap.</p>
 <p>Args:
-strategy: Decoding strategy (‘sampling’, ‘greedy’, etc.).
-td: Initial state TensorDict.
-env: Environment instance.
-heatmap: Global feature matrix produced by the encoder.
+strategy: Name of the decoding strategy.
+td: TensorDict with current environment state.
+env: Environment providing step logic.
+heatmap: Pre-computed edge probability matrix.
 actions: Optional pre-defined actions for evaluation.
-**decoding_kwargs: Parameters for the decoding strategy.</p>
+decoding_kwargs: Strategy-specific parameters.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor, TensorDict, RL4COEnvBase]:
 - logprobs: Cumulative log probabilities.

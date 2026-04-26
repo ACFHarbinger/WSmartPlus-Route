@@ -497,6 +497,11 @@ document.write(`
 <span id="src-policies-acceptance-criteria-base-registry"></span><h1><a class="reference internal" href="#module-src.policies.acceptance_criteria.base.registry" title="src.policies.acceptance_criteria.base.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria.base.registry</span></code></a><a class="headerlink" href="#module-src.policies.acceptance_criteria.base.registry" title="Link to this heading">#</a></h1>
 <p>Registry for move acceptance criteria.</p>
 <p>Maintains a mapping of criterion identifiers to their respective classes.</p>
+<p>Attributes:
+AcceptanceCriterionRegistry._registry: Internal mapping of identifiers to class types.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.acceptance_criteria.base import AcceptanceCriterionRegistry
+&gt;&gt;&gt; criterion = AcceptanceCriterionRegistry.get(“boltzmann_metropolis_criterion”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">

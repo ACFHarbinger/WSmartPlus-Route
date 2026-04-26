@@ -520,6 +520,15 @@ metaheuristic under special intensification conditions. OR,
 Springer, 613-629.
 Helsgaun, K. (2017). An extension of the LKH-TSP solver for
 constrained traveling salesman and vehicle routing problems.</p>
+<p>Attributes:
+HAS_SCIPY: Boolean flag set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if SciPy is installed.
+decompose_tour: Decomposes a closed tour into overlapping sub-paths.
+optimize_subpath: Optimizes a sub-path using repeated 2-opt local search.
+generate_optimized_tour: Generates an optimized tour by repeating
+sub-path optimization on randomized versions of the initial tour.
+popmusic_candidates: Generates a sparse candidate graph using the
+POPMUSIC (Partial Optimization Metaheuristic Under Special
+Intensification Conditions) strategy, suitable for large instances (N &gt; 1000).</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.lin_kernighan_helsgaun_three._popmusic import (
 …     popmusic_candidates
@@ -601,12 +610,25 @@ Set of (min_node, max_node) tuples.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic._generate_randomized_tour">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.</span></span><span class="sig-name descname"><span class="pre">_generate_randomized_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic._generate_randomized_tour" title="Link to this definition">#</a></dt>
 <dd><p>Generate a randomized tour by shuffling the non-depot nodes.</p>
+<p>Args:
+initial_tour: Description of initial_tour.
+np_rng: Description of np_rng.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.generate_optimized_tour">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.</span></span><span class="sig-name descname"><span class="pre">generate_optimized_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subpath_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.generate_optimized_tour" title="Link to this definition">#</a></dt>
 <dd><p>Generate an optimized tour by applying 2-opt to the initial tour.</p>
+<p>Args:
+initial_tour: Description of initial_tour.
+distance_matrix: Description of distance_matrix.
+subpath_size: Description of subpath_size.
+max_trials: Description of max_trials.
+np_rng: Description of np_rng.</p>
+<p>Returns:
+Description of return value.</p>
 </dd></dl>
 
 <dl class="py function">

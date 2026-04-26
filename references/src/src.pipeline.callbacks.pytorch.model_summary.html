@@ -494,6 +494,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.callbacks.pytorch.model_summary">
 <span id="src-pipeline-callbacks-pytorch-model-summary"></span><h1><a class="reference internal" href="#module-src.pipeline.callbacks.pytorch.model_summary" title="src.pipeline.callbacks.pytorch.model_summary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks.pytorch.model_summary</span></code></a><a class="headerlink" href="#module-src.pipeline.callbacks.pytorch.model_summary" title="Link to this heading">#</a></h1>
 <p>Enhanced model summary callback for WSmart-Route.</p>
+<p>Prints a Rich table at training start listing the environment, algorithm,
+policy, encoder, decoder, baseline, mandatory selector, and expert policy
+with parameter counts for each component.</p>
+<p>Attributes:
+ModelSummaryCallback: Callback that renders the architecture summary table.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.callbacks.pytorch.model_summary import ModelSummaryCallback
+&gt;&gt;&gt; import pytorch_lightning as pl
+&gt;&gt;&gt; trainer = pl.Trainer(callbacks=[ModelSummaryCallback()])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,16 +525,26 @@ including encoder, decoder, and mandatory selection details.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.Callback</span></code></p>
 <p>Callback to print a detailed summary of the model architecture,
 including encoder, decoder, and mandatory selection details.</p>
+<p>Attributes:
+trainer (pl.Trainer): The PyTorch Lightning trainer instance.
+pl_module (pl.LightningModule): The LightningModule being trained.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.model_summary.ModelSummaryCallback.on_train_start">
 <span class="sig-name descname"><span class="pre">on_train_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.model_summary.ModelSummaryCallback.on_train_start" title="Link to this definition">#</a></dt>
 <dd><p>Print summary when training starts.</p>
+<p>Args:
+trainer: PyTorch Lightning trainer instance.
+pl_module: The LightningModule being trained.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.callbacks.pytorch.model_summary.ModelSummaryCallback._print_summary">
 <span class="sig-name descname"><span class="pre">_print_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.callbacks.pytorch.model_summary.ModelSummaryCallback._print_summary" title="Link to this definition">#</a></dt>
 <dd><p>Extract information and print the table.</p>
+<p>Args:
+model: The LightningModule whose architecture will be summarised.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

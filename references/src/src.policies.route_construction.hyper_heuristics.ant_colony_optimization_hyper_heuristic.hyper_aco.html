@@ -508,7 +508,7 @@ The pheromone matrix encodes transition probabilities between operators.</p>
 <li><p>Solution evaluation: Apply operator sequence to a base solution</p></li>
 </ul>
 <p>Attributes:
-None</p>
+HyperHeuristicACO: HyperHeuristicACO class.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.ant_colony_optimization_hyper_heuristic import HyperHeuristicACO
 &gt;&gt;&gt; solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params)
@@ -534,6 +534,24 @@ None</p>
 <dd><p>Hyper-Heuristic ACO solver.</p>
 <p>Ants construct sequences of local search operators.
 The best sequences are reinforced via pheromone updates.</p>
+<p>Attributes:
+dist_matrix: Distance matrix.
+wastes: Node wastes.
+capacity: Vehicle capacity.
+R: Revenue multiplier.
+C: Cost multiplier.
+params: Hyper-heuristics parameters.
+initial_solution: Initial routes.
+mandatory_nodes: Mandatory nodes.
+random: Random number generator.
+np_rng: NumPy random number generator.
+operator_names: List of operator names.
+n_operators: Number of operators.
+op_to_idx: Mapping from operator names to indices.
+tau: Pheromone matrix.
+eta: Heuristic information matrix.
+edge_count: Edge count matrix.
+sequence_length: Length of operator sequences.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize HyperHeuristicACO.</p>
 <p>Args:
@@ -549,8 +567,8 @@ mandatory_nodes: List of mandatory node indices.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve">
 <span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO.solve" title="Link to this definition">#</a></dt>
 <dd><p>Solve VRP using Hyper-ACO with proper ant state synchronization.</p>
-<p>Task 1: Accumulate eta updates from all ants and apply evaporation once per iteration.
-Task 2: Maintain individual ant solutions, only synchronize to global best when improved.</p>
+<p>Accumulate eta updates from all ants and apply evaporation once per iteration.
+Maintain individual ant solutions, only synchronize to global best when improved.</p>
 <p>Returns:
 Tuple[List[List[int]], float, float]: Best routes, profit, and cost.</p>
 </dd></dl>
@@ -571,19 +589,27 @@ Tuple[List[List[int]], List[str], np.ndarray]: Modified routes, operator sequenc
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence">
 <span class="sig-name descname"><span class="pre">_select_sequence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._select_sequence" title="Link to this definition">#</a></dt>
 <dd><p>Construct an operator sequence using ACO rules with ACS q0 exploitation.</p>
-<p>Task 3: Use self.sequence_length (dynamically set to n_operators).</p>
+<p>Use self.sequence_length (dynamically set to n_operators).</p>
+<p>Returns:
+List[str]: Sequence of operator names.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost">
 <span class="sig-name descname"><span class="pre">_calculate_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate total routing cost.</p>
+<p>Args:
+routes (List[List[int]]): Routes.</p>
+<p>Returns:
+float: Total routing cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones">
-<span class="sig-name descname"><span class="pre">_evaporate_pheromones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_evaporate_pheromones</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._evaporate_pheromones" title="Link to this definition">#</a></dt>
 <dd><p>Apply pheromone evaporation (no clipping here per Phase 4).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

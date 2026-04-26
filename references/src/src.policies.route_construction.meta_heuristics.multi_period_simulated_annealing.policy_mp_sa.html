@@ -494,6 +494,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa">
 <span id="src-policies-route-construction-meta-heuristics-multi-period-simulated-annealing-policy-mp-sa"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa" title="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa" title="Link to this heading">#</a></h1>
+<p>Multi-Period Simulated Annealing (MP-SA) policy.</p>
+<p>Attributes:
+MultiPeriodSimulatedAnnealingPolicy: Policy class for the MP-SA approach.</p>
+<p>Example:
+&gt;&gt;&gt; policy = MultiPeriodSimulatedAnnealingPolicy(config)
+&gt;&gt;&gt; sol, plan, meta = policy._run_multi_period_solver(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy" title="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiPeriodSimulatedAnnealingPolicy</span></code></a></p></td>
-<td><p>Multi-Period Simulated Annealing metaheuristic.
-Accepts worse solutions with probability e^(delta/T).</p></td>
+<td><p>Multi-Period Simulated Annealing metaheuristic.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,24 +519,43 @@ Accepts worse solutions with probability e^(delta/T).</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.</span></span><span class="sig-name descname"><span class="pre">MultiPeriodSimulatedAnnealingPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Multi-Period Simulated Annealing metaheuristic.
-Accepts worse solutions with probability e^(delta/T).</p>
+<p>Multi-Period Simulated Annealing metaheuristic.</p>
+<p>Accepts worse solutions with probability e^(delta/T).</p>
+<p>Attributes:
+params: MPSA specific parameters.
+max_iter: Maximum number of iterations.
+init_temp: Initial temperature.
+cooling_rate: Cooling rate coefficient.
+seed: Random seed.
+rng: Random number generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the Multi-Period Simulated Annealing policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional configuration dictionary or Hydra config.</p>
+<p>Returns:
+None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy._evaluate">
 <span class="sig-name descname"><span class="pre">_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy._evaluate" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Evaluate the multi-period plan and return total profit.</p>
+<p>Args:
+plan: The multi-period routing plan.
+problem: The problem context.</p>
+<p>Returns:
+float: Total net profit across all periods.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy._neighbor">
 <span class="sig-name descname"><span class="pre">_neighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy._neighbor" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate a neighbor solution by making a small stochastic change.</p>
+<p>Swap 2 nodes between days, or add/drop.</p>
+<p>Args:
+plan: The current multi-period plan.
+problem: The initial problem context.</p>
+<p>Returns:
+List[List[List[int]]]: The neighbor multi-period plan.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.policy_mp_sa.MultiPeriodSimulatedAnnealingPolicy._run_multi_period_solver">

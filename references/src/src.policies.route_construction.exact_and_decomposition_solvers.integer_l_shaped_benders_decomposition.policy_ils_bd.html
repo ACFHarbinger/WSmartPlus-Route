@@ -527,6 +527,11 @@ based on latest inventory observations.</p>
 Laporte, G., &amp; Louveaux, F. V. (1993). “The integer L-shaped method for
 stochastic integer programs with complete recourse”. Operations Research
 Letters, 13(3), 133-142.</p>
+<p>Attributes:
+IntegerLShapedPolicy (class): Two-Stage Stochastic MPVRP policy adapter.</p>
+<p>Example:
+&gt;&gt;&gt; policy = IntegerLShapedPolicy(config)
+&gt;&gt;&gt; sol, plan, stats = policy.run(problem, multi_day_ctx)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -571,18 +576,26 @@ expected cost higher than <span class="math notranslate nohighlight">\(\theta\)<
 <p>.. note::
 Requires a Gurobi license (<code class="docutils literal notranslate"><span class="pre">gurobipy</span></code>). Without it, the policy
 will raise an <code class="docutils literal notranslate"><span class="pre">ImportError</span></code> during the execution phase.</p>
+<p>Attributes:
+config (IntegerLShapedBendersConfig): Policy configuration.</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the ILS policy adapter.</p>
+<p>Args:
+config: Optional configuration object or dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd.IntegerLShapedPolicy._config_class">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_config_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.IntegerLShapedBendersConfig</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd.IntegerLShapedPolicy._config_class" title="Link to this definition">#</a></dt>
 <dd><p>Return the typed configuration class.</p>
+<p>Returns:
+Type[IntegerLShapedBendersConfig]: The configuration class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd.IntegerLShapedPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd.IntegerLShapedPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return the YAML config key.</p>
+<p>Returns:
+str: The config key.</p>
 </dd></dl>
 
 <dl class="py method">

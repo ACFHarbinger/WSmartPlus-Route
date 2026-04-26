@@ -490,6 +490,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover">
 <span id="src-policies-helpers-operators-crossover-recombination-pattern-and-itinerary-crossover"></span><h1><a class="reference internal" href="#module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover" title="src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover</span></code></a><a class="headerlink" href="#module-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover" title="Link to this heading">#</a></h1>
 <p>Pattern and Itinerary Crossover (PAIX).</p>
+<p>References:
+- A. A. Ebrahimi, K. F. K. El-Nawawy and S. N. Al-Hamad, “A hybrid genetic algorithm with a self-adaptive local search operator
+for the vehicle routing problem with simultaneous pickup and delivery and time windows,” 2023 IEEE 45th Annual Conference of
+the Industrial Electronics Society (IECON), Singapore, Singapore, 2023, pp. 3784-3789, doi: 10.1109/IECON49141.2023.10396611.</p>
+<p>Attributes:
+pattern_itinerary_crossover: Pattern and Itinerary Crossover (PAIX).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_diversity_control.individual import Individual
+&gt;&gt;&gt; operator = pattern_itinerary_crossover(
+…    Individual(giant_tour=[1, 2, 3, 4]),
+…    Individual(giant_tour=[4, 3, 2, 1]),
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -514,6 +526,13 @@ document.write(`
 <li><p>Builds giant tours using Order Crossover (OX) applied to the parents’ giant tours,
 filtering nodes to respect the inherited pattern.</p></li>
 </ol>
+<p>Args:
+parent_a: First parent individual.
+parent_b: Second parent individual.
+T: Number of time steps (days).
+N: Number of nodes.</p>
+<p>Returns:
+Child individual.</p>
 </dd></dl>
 
 </section>

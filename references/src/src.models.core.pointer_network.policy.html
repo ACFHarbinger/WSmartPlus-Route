@@ -498,6 +498,9 @@ LSTM encoder-decoder architecture of <code class="docutils literal notranslate">
 <code class="docutils literal notranslate"><span class="pre">AutoregressivePolicy</span></code> interface used by the RL4CO pipeline.</p>
 <p>Attributes:
 PointerNetworkPolicy: Adapter for LSTM-based constructive search.</p>
+<p>Example:
+&gt;&gt;&gt; policy = PointerNetworkPolicy(env_name=”vrp”, embed_dim=128)
+&gt;&gt;&gt; out = policy(td, env, strategy=”greedy”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,21 +529,21 @@ model (PointerNetwork): Standalone LSTM pointer architecture.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the Pointer Network Policy adapter.</p>
 <p>Args:
-env_name: Target optimization environment name.
-embed_dim: Dimensionality of node embeddings.
-hidden_dim: Width of recurrent hidden states.
-**kwargs: Extra parameters passed to the inner model.</p>
+env_name: Name of the environment identifier.
+embed_dim: Dimensionality of latent embeddings.
+hidden_dim: Dimensionality of LSTM hidden states.
+kwargs: Additional keyword arguments for the PointerNetwork model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.pointer_network.policy.PointerNetworkPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Calculates construction solution using the recurrent pointer loop.</p>
 <p>Args:
-td: problem state container (requires ‘locs’).
-env: problem dynamics for reward calculation.
-strategy: constructive decoding mode.
-num_starts: parallel starts (NOTE: mostly ignored by legacy RNN code).
-actions: Pre-selected actions for teacher forcing evaluation.
-**kwargs: extra params.</p>
+td: TensorDict containing problem instance data.
+env: Environment managing problem physics.
+strategy: Decoding strategy identifier (e.g., “sampling”).
+num_starts: Number of parallel construction starts.
+actions: Optional pre-selected actions for teacher forcing.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Result mapping containing:
 - reward: calculated scores [B].

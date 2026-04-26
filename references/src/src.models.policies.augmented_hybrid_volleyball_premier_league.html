@@ -502,6 +502,11 @@ Volleyball Premier League (VPL) framework with Hybrid Genetic Search (HGS)
 operators and diversity management. It utilizes parallel ACO for initial
 construction, HGS ordered crossover for learning, and ALNS for coaching/local
 search.</p>
+<p>Attributes:
+VectorizedAHVPL: Augmented hybrid population-based solver.</p>
+<p>Example:
+&gt;&gt;&gt; policy = VectorizedAHVPL(env_name=”scwcvrp”)
+&gt;&gt;&gt; out = policy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,19 +536,19 @@ elite_size: Number of top individuals protected during selection.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the AHVPL solver.</p>
 <p>Args:
-env_name: Identifier for the problem environment.
-n_teams: Population size (teams) per batch instance.
-max_iterations: Number of league seasons (cycles).
-sub_rate: Percentage of non-improving teams to replace via ACO.
-time_limit: Wall-clock timeout for the entire search in seconds.
-aco_iterations: Construction phase iterations.
-alns_iterations: Coaching phase (local search) iterations.
-crossover_rate: Frequency of genetic recombination.
-elite_size: Protected group size for survivor selection.
-device: Target hardware.
-generator: Torch RNG instance.
-rng: Standard library RNG instance.
-**kwargs: Additional hyperparameters.</p>
+env_name: Name of the environment identifier.
+n_teams: Number of parallel teams (individuals) in the league.
+max_iterations: Number of seasons (generations) to simulate.
+sub_rate: Probability/ratio of replacing underperforming teams.
+time_limit: Maximum execution time in seconds.
+aco_iterations: Number of construction iterations for new teams.
+alns_iterations: Number of refinement iterations in the coaching phase.
+crossover_rate: Probability of performing HGS crossover.
+elite_size: Number of elite individuals kept per generation.
+device: Computing device for tensor operations.
+generator: Torch RNG generator for sampling.
+rng: Python random instance for heuristics.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.__getstate__" title="Link to this definition">#</a></dt>
@@ -567,14 +572,14 @@ state: Serialized dictionary of solver attributes.</p>
 <p>Orchestrates ACO initialization, HGS-based learning (crossover),
 ALNS-based coaching, and HGS-style population management across all batches.</p>
 <p>Args:
-td: State bundle including locations and node demands.
-env: Relevant environment instance.
-strategy: Selection strategy (ignored).
-num_starts: Number of restarts (not applicable).
-max_steps: Sequence length limit (ignored).
-phase: Current execution phase (‘train’, ‘val’, or ‘test’).
-return_actions: Whether to include results in the output.
-**kwargs: Runtime overrides.</p>
+td: TensorDict containing instance data (locations, demands).
+env: Optional environment for reward calculation.
+strategy: Solver strategy (e.g., “greedy”).
+num_starts: Unused in AHVPL.
+max_steps: Maximum step constraint.
+phase: Current phase (“train”, “val”, “test”).
+return_actions: Whether to return full action sequences.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
 Dict[str, Any]: Results dictionary containing:
 - actions (torch.Tensor): Padded action sequences.

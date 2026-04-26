@@ -529,6 +529,21 @@ report_path = run_drift_detection(
 print(f&quot;Report saved to: {report_path}&quot;)
 </pre></div>
 </div>
+<p>Attributes:
+run_drift_detection: Runs drift detection between a reference and current dataset.
+_load_npz_as_df: Load an NPZ file into a 2-D DataFrame for drift analysis.
+_load_json_or_jsonl_as_df: Load a JSON or JSONL file into a DataFrame.
+_load_and_flatten: Load a dataset from disk (CSV, NPZ, JSON/JSONL, or PKL) and flatten it into a 2-D DataFrame.
+_check_evidently: Check if Evidently AI is installed.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.features.eval.drift_detection import run_drift_detection
+&gt;&gt;&gt;
+&gt;&gt;&gt; report_path = run_drift_detection(
+…     reference_path=”assets/datasets/april_2024_summary.csv”,
+…     current_path=”assets/datasets/eval_synthetic.npz”,
+…     problem=”vrpp”,
+… )
+&gt;&gt;&gt; print(f”Report saved to: {report_path}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -554,7 +569,7 @@ print(f&quot;Report saved to: {report_path}&quot;)
 <td><p>Print a brief drift summary to the logger (non-critical).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.eval.drift_detection._build_arg_parser" title="src.pipeline.features.eval.drift_detection._build_arg_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_arg_parser</span></code></a></p></td>
-<td></td>
+<td><p>Build command-line argument parser for drift detection.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.eval.drift_detection.main" title="src.pipeline.features.eval.drift_detection.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
 <td><p>CLI entry point for data drift detection.</p></td>
@@ -661,6 +676,10 @@ ValueError: If the file extension is unsupported.</p>
 Arrays of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">D)</span></code> → four columns: mean, std, min, max.
 Arrays of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">K,</span> <span class="pre">D)</span></code> → flattened to <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">K*D)</span></code> then summarised.
 Scalar arrays are skipped.</p>
+<p>Args:
+path: Path to the NPZ file.</p>
+<p>Returns:
+A 2-D DataFrame containing the summary statistics.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -673,12 +692,17 @@ Scalar arrays are skipped.</p>
 <dt class="sig sig-object py" id="src.pipeline.features.eval.drift_detection._log_drift_summary">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.drift_detection.</span></span><span class="sig-name descname"><span class="pre">_log_drift_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.eval.drift_detection._log_drift_summary" title="Link to this definition">#</a></dt>
 <dd><p>Print a brief drift summary to the logger (non-critical).</p>
+<p>Args:
+report: The generated drift report.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.drift_detection._build_arg_parser">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.eval.drift_detection.</span></span><span class="sig-name descname"><span class="pre">_build_arg_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">argparse.ArgumentParser</span></span></span><a class="headerlink" href="#src.pipeline.features.eval.drift_detection._build_arg_parser" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build command-line argument parser for drift detection.</p>
+<p>Returns:
+The argument parser.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.eval.drift_detection.main">

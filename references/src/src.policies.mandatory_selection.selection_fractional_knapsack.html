@@ -536,6 +536,9 @@ via the standard <code class="docutils literal notranslate"><span class="pre">OP
 <p>If <code class="docutils literal notranslate"><span class="pre">context.n_vehicles</span> <span class="pre">&lt;=</span> <span class="pre">0</span></code> the problem has no binding capacity
 constraint and the strategy short-circuits to every revenue-positive
 bin with non-negative net profit.</p>
+<p>Attributes:
+FractionalKnapsackSelection: The Fractional Knapsack selection strategy.
+_EPS: Small constant for numerical stability.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.mandatory.selection_fractional_knapsack <br />
 …     import FractionalKnapsackSelection

@@ -496,6 +496,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params">
 <span id="src-policies-route-construction-hyper-heuristics-matheuristic-hyper-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params" title="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params" title="Link to this heading">#</a></h1>
 <p>Configuration parameters for the Matheuristic Hyper-Heuristic (MHH).</p>
+<p>Attributes:
+MHHParams: Configuration parameters for the MHH solver.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.hyper_heuristics import MHHParams
+&gt;&gt;&gt; params = MHHParams()
+&gt;&gt;&gt; print(params)
+MHHParams(
+iters=10,
+seed=42,
+)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -534,12 +544,18 @@ seed: Random seed.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams" title="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams"><span class="pre">src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create MHHParams from a configuration object or dictionary.</p>
+<p>Args:
+config: Configuration object or dictionary.</p>
+<p>Returns:
+MHHParams: Parameters for the MHH solver.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params.MHHParams.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Convert MHHParams to a dictionary for backend compatibility.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary representation of MHHParams.</p>
 </dd></dl>
 
 </dd></dl>

@@ -501,6 +501,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.rl.common.baselines.rollout">
 <span id="src-pipeline-rl-common-baselines-rollout"></span><h1><a class="reference internal" href="#module-src.pipeline.rl.common.baselines.rollout" title="src.pipeline.rl.common.baselines.rollout"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl.common.baselines.rollout</span></code></a><a class="headerlink" href="#module-src.pipeline.rl.common.baselines.rollout" title="Link to this heading">#</a></h1>
 <p>Greedy rollout baseline with significance-based updates.</p>
+<p>Attributes:
+RolloutBaseline: Greedy rollout baseline with significance-based updates.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.pipeline.rl.common.baselines import RolloutBaseline
+&gt;&gt;&gt; baseline = RolloutBaseline()
+&gt;&gt;&gt; baseline.eval()
+tensor(0.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,53 +548,94 @@ document.write(`
 <p>Uses greedy decoding with a frozen policy copy as baseline.
 The baseline policy is updated only if the current policy outperforms it
 significantly according to a T-test.</p>
+<p>Attributes:
+baseline_policy: Copy of the policy used as baseline.
+update_every: Frequency of baseline updates.
+bl_alpha: Significance level for T-test.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize RolloutBaseline.</p>
 <p>Args:
 policy: Policy to use as initial baseline (will be copied).
 update_every: Update baseline every N epochs.
 bl_alpha: Significance level for T-test to decide on updates.
-**kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup">
 <span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup" title="Link to this definition">#</a></dt>
 <dd><p>Copy policy for baseline.</p>
+<p>Args:
+policy: Policy to use as initial baseline (will be copied).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout">
 <span class="sig-name descname"><span class="pre">_rollout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td_or_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout" title="Link to this definition">#</a></dt>
 <dd><p>Run greedy rollout on a batch or dataset.</p>
+<p>Args:
+policy: Policy to use for rollout.
+td_or_dataset: TensorDict or Dataset to evaluate.
+env: Environment instance.</p>
+<p>Returns:
+Rewards from the rollout.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset">
 <span class="sig-name descname"><span class="pre">_rollout_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Run greedy rollout on a complete dataset.</p>
+<p>Args:
+policy: Policy to use for rollout.
+dataset: Dataset to evaluate.
+env: Environment instance.</p>
+<p>Returns:
+Rewards from the rollout.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch">
 <span class="sig-name descname"><span class="pre">_rollout_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch" title="Link to this definition">#</a></dt>
 <dd><p>Run greedy rollout on a single batch.</p>
+<p>Args:
+policy: Policy to use for rollout.
+td: TensorDict to evaluate.
+env: Environment instance.</p>
+<p>Returns:
+Rewards from the rollout.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.wrap_dataset">
 <span class="sig-name descname"><span class="pre">wrap_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.wrap_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Wrap the dataset with rollout baseline values.</p>
+<p>Args:
+dataset: Dataset to wrap.
+policy: Policy to use for rollout.
+env: Environment instance.</p>
+<p>Returns:
+Dataset with rollout baseline values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.eval" title="Link to this definition">#</a></dt>
 <dd><p>Compute baseline value.</p>
+<p>Args:
+td: TensorDict to evaluate.
+reward: Reward tensor.
+env: Environment instance.</p>
+<p>Returns:
+Baseline value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.epoch_callback">
 <span class="sig-name descname"><span class="pre">epoch_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.epoch_callback" title="Link to this definition">#</a></dt>
 <dd><p>Update baseline policy if current policy improves significantly.</p>
+<p>Args:
+policy: Policy to evaluate.
+epoch: Epoch number.
+val_dataset: Dataset for evaluation.
+env: Environment instance.</p>
 </dd></dl>
 
 </dd></dl>

@@ -496,6 +496,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip">
 <span id="src-policies-route-construction-matheuristics-large-neighborhood-search-mixed-integer-programming-policy-lns-mip"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip" title="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip" title="Link to this heading">#</a></h1>
+<p>LNS-MIP policy implementation.</p>
+<p>Attributes:
+LNSMIPPolicy: Multi-period Large Neighborhood Search with MIP repair policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip import LNSMIPPolicy
+&gt;&gt;&gt; policy = LNSMIPPolicy()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,8 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy" title="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LNSMIPPolicy</span></code></a></p></td>
-<td><p>Large Neighborhood Search with MIP Repair.
-Destroys a subset of visits and repairs using an exact solver.</p></td>
+<td><p>Large Neighborhood Search with MIP Repair.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,40 +521,72 @@ Destroys a subset of visits and repairs using an exact solver.</p></td>
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.</span></span><span class="sig-name descname"><span class="pre">LNSMIPPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy</span></code></p>
-<p>Large Neighborhood Search with MIP Repair.
-Destroys a subset of visits and repairs using an exact solver.</p>
+<p>Large Neighborhood Search with MIP Repair.</p>
+<p>Destroys a subset of visits and repairs using an exact solver.</p>
+<p>Attributes:
+params: LNS-MIP runtime parameters.
+rng: Random instance for stochastic destroy and accept operations.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the LNS-MIP policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional Hydra configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._evaluate_plan">
 <span class="sig-name descname"><span class="pre">_evaluate_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._evaluate_plan" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate expected multi-day profit deterministically (using mean increments).</p>
+<p>Args:
+plan: Multi-day plan with one route list per day.
+problem: Multi-day problem context.</p>
+<p>Returns:
+float: Total net profit summed across the planning horizon.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._destroy">
 <span class="sig-name descname"><span class="pre">_destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._destroy" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Apply a destroy operator to select nodes for removal from the plan.</p>
+<p>Args:
+problem: Multi-day problem context providing distance matrix and wastes.
+plan: Current multi-day plan with one route list per day.</p>
+<p>Returns:
+Dict[int, List[int]]: Mapping from day index to list of nodes to remove.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._repair_mip">
 <span class="sig-name descname"><span class="pre">_repair_mip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destroyed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._repair_mip" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Repair destroyed nodes using a MIP sub-solver for each affected day.</p>
+<p>Args:
+problem: Multi-day problem context.
+plan: Current multi-day plan.
+destroyed: Mapping from day index to nodes that were removed.</p>
+<p>Returns:
+List[List[List[int]]]: New plan with repaired routes for each destroyed day.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._accept">
 <span class="sig-name descname"><span class="pre">_accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">best_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._accept" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Determine whether to accept a new solution based on SA criteria.</p>
+<p>Args:
+best_profit: Best profit found so far.
+new_profit: Profit of the candidate solution.
+temp: Current simulated annealing temperature.</p>
+<p>Returns:
+bool: True if the new solution should be accepted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.large_neighborhood_search_mixed_integer_programming.policy_lns_mip.LNSMIPPolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Run the LNS-MIP loop over the full planning horizon.</p>
+<p>Args:
+problem: Multi-day problem context.
+multi_day_ctx: Optional multi-day context for inter-day state propagation.</p>
+<p>Returns:
+Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]: Today’s
+solution context, best plan found, and solver metadata.</p>
+</dd></dl>
 
 </dd></dl>
 

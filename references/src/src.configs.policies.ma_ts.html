@@ -504,8 +504,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.configs.policies.ma_ts">
 <span id="src-configs-policies-ma-ts"></span><h1><a class="reference internal" href="#module-src.configs.policies.ma_ts" title="src.configs.policies.ma_ts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.ma_ts</span></code></a><a class="headerlink" href="#module-src.configs.policies.ma_ts" title="Link to this heading">#</a></h1>
-<p>Stochastic Tournament GA configuration.</p>
-<p>Replaces LCA with rigorous GA terminology.</p>
+<p>Configuration for the Memetic Algorithm Tolerance-based Selection (MA-TS) policy.</p>
+<p>Attributes:
+MemeticAlgorithmToleranceBasedSelectionConfig: Configuration for the Memetic Algorithm Tolerance-based Selection (MA-TS) policy.</p>
+<p>Example:
+&gt;&gt;&gt; from configs.policies.ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
+&gt;&gt;&gt; config = MemeticAlgorithmToleranceBasedSelectionConfig()
+&gt;&gt;&gt; config.time_limit
+60.0
+&gt;&gt;&gt; config.max_iterations
+100
+&gt;&gt;&gt; config.tolerance_pct
+0.05</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -526,6 +536,20 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.ma_ts.</span></span><span class="sig-name descname"><span class="pre">MemeticAlgorithmToleranceBasedSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Memetic Algorithm Tolerance-based Selection (MA-TS) policy.</p>
 <p>GA with sigmoid-based pairwise tournament selection.</p>
+<p>Attributes:
+population_size (int): Size of the population.
+max_iterations (int): Maximum number of iterations.
+tolerance_pct (float): Tolerance percentage for pairwise tournament selection.
+recombination_rate (float): Probability of applying recombination.
+perturbation_strength (int): Strength of perturbation.
+n_removal (int): Number of individuals to remove during replacement.
+local_search_iterations (int): Number of local search iterations per individual.
+time_limit (float): Time limit in seconds.
+seed (Optional[int]): Random seed.
+vrpp (bool): Whether the problem is a VRRP.
+profit_aware_operators (bool): Whether to use profit-aware operators.
+mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory customers/requests selection strategies.
+route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement strategies.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.population_size">
 <span class="sig-name descname"><span class="pre">population_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.population_size" title="Link to this definition">#</a></dt>

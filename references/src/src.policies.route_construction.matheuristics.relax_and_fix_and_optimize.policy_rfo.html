@@ -493,6 +493,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo">
 <span id="src-policies-route-construction-matheuristics-relax-and-fix-and-optimize-policy-rfo"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo" title="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo" title="Link to this heading">#</a></h1>
+<p>Relax-and-Fix and Optimize (RFO) policy implementation.</p>
+<p>Attributes:
+RelaxFixOptimizePolicy: The RFO policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo import RelaxFixOptimizePolicy
+&gt;&gt;&gt; rfo_policy = RelaxFixOptimizePolicy()
+&gt;&gt;&gt; tour, distance, metadata = rfo_policy.execute(**env_state)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,23 +548,36 @@ the long-term relaxed impact of future scenarios.</p></li>
 covers the entire execution day.</p></li>
 <li><p><strong>Step 3</strong>: Extractions the resulting routing plan for the current day.</p></li>
 </ul>
-<p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;rfo&quot;</span></code></p>
+<p>Registry key: <code class="docutils literal notranslate"><span class="pre">&quot;rfo&quot;</span></code>
+Attributes:
+None</p>
 <p class="rubric">Initialization</p>
-<p>Initialize policy with optional config dataclass or raw dict.</p>
+<p>Initializes the RFO policy.</p>
 <p>Args:
-config: Dataclass config, raw dict from YAML, or None.
-If a raw dict is passed and the subclass defines
-<code class="docutils literal notranslate"><span class="pre">_config_class()</span></code>, it will be parsed into the
-typed dataclass automatically.</p>
+config: Optional Hydra configuration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo.RelaxFixOptimizePolicy._setup_multi_day_model">
 <span class="sig-name descname"><span class="pre">_setup_multi_day_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relaxed_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo.RelaxFixOptimizePolicy._setup_multi_day_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+problem: Description of problem.
+int_days: Description of int_days.
+relaxed_days: Description of relaxed_days.
+fixed_plan: Description of fixed_plan.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo.RelaxFixOptimizePolicy._run_multi_period_solver">
 <span class="sig-name descname"><span class="pre">_run_multi_period_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_day_ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.solution_context.SolutionContext</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo.RelaxFixOptimizePolicy._run_multi_period_solver" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Docstring.</p>
+<p>Args:
+problem: Description of problem.
+multi_day_ctx: Description of multi_day_ctx.</p>
+<p>Returns:
+Description of return value.</p>
+</dd></dl>
 
 </dd></dl>
 
