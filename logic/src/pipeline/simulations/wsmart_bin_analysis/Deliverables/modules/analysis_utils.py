@@ -1,5 +1,11 @@
 """
 Analysis utilities for Container fill level data.
+
+Attributes:
+    AnalysisMixin (Mixin): Mixin providing analysis methods for Container fill level data.
+
+Example:
+    None
 """
 
 import warnings
@@ -13,14 +19,24 @@ from .core import TAG
 
 
 class AnalysisMixin:
-    """Mixin providing analysis methods for Container fill level data."""
+    """Mixin providing analysis methods for Container fill level data.
+
+    Attributes:
+        df (pd.DataFrame): The fill level data.
+        recs (pd.DataFrame): The collection data.
+        tag (Optional[TAG]): The quality tag.
+    """
 
     df: pd.DataFrame
     recs: pd.DataFrame
     tag: Optional[TAG]
 
     def get_collection_quantities(self) -> tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-        """Return average distance and Spearman correlation arrays for collections."""
+        """Return average distance and Spearman correlation arrays for collections.
+
+        Returns:
+            tuple[Optional[np.ndarray], Optional[np.ndarray]]: The average distance and Spearman correlation arrays.
+        """
         try:
             avgd = self.recs["Avg_Dist"].copy(deep=True).dropna().to_numpy()
         except Exception:
@@ -32,7 +48,15 @@ class AnalysisMixin:
         return avgd, spear
 
     def get_scan_linear_spline(self, key, interval) -> tuple[pd.DatetimeIndex, np.ndarray]:
-        """Compute a linear spline interpolation of cumulative fill rate."""
+        """Compute a linear spline interpolation of cumulative fill rate.
+
+        Args:
+            key (str): The key to use for the spline interpolation. Must be one of ["Mean", "Fill"].
+            interval (str): The interval to use for the spline interpolation.
+
+        Returns:
+            tuple[pd.DatetimeIndex, np.ndarray]: The date range and the spline interpolation.
+        """
         assert key in ["Mean", "Fill"]
         recs_index = cast(pd.DatetimeIndex, self.recs.index)
         date_range = pd.date_range(
@@ -52,21 +76,45 @@ class AnalysisMixin:
         return date_range, spline
 
     def get_monotonic_mean_rate(self, freq) -> pd.DataFrame:
-        """Compute monotonic mean fill rate at the given frequency."""
+        """Compute monotonic mean fill rate at the given frequency.
+
+        Args:
+            freq (str): The frequency to compute the monotonic mean fill rate for.
+
+        Returns:
+            pd.DataFrame: The monotonic mean fill rate at the given frequency.
+        """
         data_range, spline = self.get_scan_linear_spline("Mean", freq)
         df = pd.Series(data=np.diff(spline), index=data_range[:-1], name="Rate")
         df.index.name = "Date"
         return df.to_frame()
 
     def get_crude_rate(self, freq) -> pd.Series:
-        """Compute crude fill rate at the given frequency."""
+        """Compute crude fill rate at the given frequency.
+
+        Args:
+            freq (str): The frequency to compute the crude fill rate for.
+
+        Returns:
+            pd.Series: The crude fill rate at the given frequency.
+        """
         data_range, spline = self.get_scan_linear_spline("Fill", freq)
         s = pd.Series(data=np.diff(spline), index=data_range[:-1], name="Rate")
         s.index.name = "Date"
         return s
 
     def get_tag(self, window: int, mv_thresh: int, min_days: int, use: str) -> TAG:
-        """Compute and return a quality tag based on collection metrics."""
+        """Compute and return a quality tag based on collection metrics.
+
+        Args:
+            window (int): The window size for the moving average.
+            mv_thresh (int): The moving average threshold.
+            min_days (int): The minimum number of days.
+            use (str): The metric to use for the moving average. Must be one of ["spear", "avg_dist"].
+
+        Returns:
+            TAG: The quality tag.
+        """
         KEYS = ["spear", "avg_dist"]
         recs_index = cast(pd.DatetimeIndex, self.recs.index)
         if len(self.df) == 0:
@@ -97,12 +145,24 @@ class AnalysisMixin:
         return self.tag
 
     def get_collections_std(self) -> int:
-        """Compute standard deviation of collection intervals."""
+        """Compute standard deviation of collection intervals.
+
+        Returns:
+            int: The standard deviation of collection intervals.
+        """
         series: pd.Series = cast(pd.Series, self.recs.index.to_series().diff().dropna())
         return np.sqrt(series.dt.total_seconds().std() / 7464960000)
 
-    def calc_spearman(self, start_idx: int = 0, end_idx: int = -1):
-        """Calculate Spearman correlation for fill levels between collections."""
+    def calc_spearman(self, start_idx: int = 0, end_idx: int = -1) -> None:
+        """Calculate Spearman correlation for fill levels between collections.
+
+        Args:
+            start_idx (int, optional): The start index of the period to calculate Spearman correlation for. Defaults to 0.
+            end_idx (int, optional): The end index of the period to calculate Spearman correlation for. Defaults to -1.
+
+        Returns:
+            None
+        """
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ConstantInputWarning)
             groupDF = self.df[
@@ -113,8 +173,16 @@ class AnalysisMixin:
             res = groupDF["Fill"].agg(lambda group: 100 * spearmanr(np.arange(len(group)), group).statistic).fillna(0)
             self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Spearman"] = res.to_numpy()
 
-    def calc_avg_dist_metric(self, start_idx: int = 0, end_idx: int = -1):
-        """Calculate average distance metric for fill levels between collections."""
+    def calc_avg_dist_metric(self, start_idx: int = 0, end_idx: int = -1) -> None:
+        """Calculate average distance metric for fill levels between collections.
+
+        Args:
+            start_idx (int, optional): The start index of the period to calculate average distance metric for. Defaults to 0.
+            end_idx (int, optional): The end index of the period to calculate average distance metric for. Defaults to -1.
+
+        Returns:
+            None
+        """
         groupDF = self.df[
             self.df.index[self.recs["End_Pointer"].iloc[start_idx]] : self.df.index[
                 self.recs["End_Pointer"].iloc[end_idx] - 1
@@ -125,11 +193,28 @@ class AnalysisMixin:
         ).to_numpy()
         self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Avg_Dist"] = res
 
-    def calc_max_min_mean(self, start_idx: int = 0, end_idx: int = -1):
-        """Compute max, min, and mean fill levels between collections."""
+    def calc_max_min_mean(self, start_idx: int = 0, end_idx: int = -1) -> None:
+        """Compute max, min, and mean fill levels between collections.
+
+        Args:
+            start_idx (int, optional): The start index of the period to compute max, min, and mean fill levels for. Defaults to 0.
+            end_idx (int, optional): The end index of the period to compute max, min, and mean fill levels for. Defaults to -1.
+
+        Returns:
+            None
+        """
 
         def loop(vec: np.ndarray, mask: np.ndarray, mode="max") -> tuple[np.ndarray, bool]:
-            """Propagate max or min values through the fill vector."""
+            """Propagate max or min values through the fill vector.
+
+            Args:
+                vec (np.ndarray): The fill vector.
+                mask (np.ndarray): The mask to apply.
+                mode (str, optional): The mode to use. Defaults to "max".
+
+            Returns:
+                tuple[np.ndarray, bool]: The updated fill vector and whether any values were updated.
+            """
             if mode == "max":
                 shf = np.roll(vec, 1)
                 shf[0] = 0

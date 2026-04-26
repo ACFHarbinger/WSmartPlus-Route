@@ -3,6 +3,18 @@ A bundle of tools to pre-process diferent import sources
 used thoughout the project. After pre-processing the data, create container
 objects that you can be easily saved and loaded to separate csv files and compute predictions or correct
 collections as you go.
+
+Attributes:
+    pre_process_data: The function that pre-processes the data.
+    import_separate_file: The function that imports data from separate files.
+    generate_collection_rate_file: The function that generates a collection rate file.
+    generate_fill_rate_file: The function that generates a fill rate file.
+
+Example:
+    >>> from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract import pre_process_data
+    >>> fill, collect, info = pre_process_data(df_fill, df_collection, id_header_fill, date_header_fill,
+    ... date_format_fill, fill_header_fill, id_header_collect, date_header_collect, date_format_collect,
+    ... start_date, end_date)
 """
 
 from typing import cast
@@ -40,7 +52,7 @@ def pre_process_data(
     one can iterate through both grouby by their order without needing to earch for a specific id
     because they would be aligned.
 
-    Parameters
+    Args:
     ----------
 
     df_fill : pd.Dataframe
@@ -65,6 +77,25 @@ def pre_process_data(
     end/start_date: string with format %d/%m/%Y.
         Period to be analysed. First day is inclusive staring at 00:01 last day is exclusive.
         Set to 01/01/2020 - 01/01/2025 by default
+    id_header_fill: string
+        Name of the column with the id data the orginal df with fill info.
+    id_header_collect: string
+        Name of the column with the id data the orginal df with collection info.
+    start_date: string with format %d/%m/%Y.
+        Start date of the period to be analysed. First day is inclusive staring at 00:01.
+        Set to 01/01/2020 by default
+    end_date: string with format %d/%m/%Y.
+        End date of the period to be analysed. Last day is exclusive.
+        Set to 01/01/2025 by default
+
+    Returns:
+    --------
+    fill_df: pd.DataFrame
+        The dataframe with fill data
+    rec_df: pd.DataFrame
+        The dataframe with collection data
+    info: pd.DataFrame
+        The dataframe with info data
     """
     # Renaming
     rename_keys_fill = {
@@ -145,12 +176,12 @@ def pre_process_data(
     df_date_intersect["upper_bound"] = df_date_intersect[["flast", "clast"]].min(axis=1)
     df_date_intersect["lower_bound"] = df_date_intersect[["f1", "c1"]].max(axis=1)
 
-    def filter_by_bounds(group_df):
+    def filter_by_bounds(group_df: pd.Series) -> pd.DataFrame:
         """
         Filter rows in the group based on calculated date bounds.
 
         Args:
-            group_df (pd.DataFrame): The dataframe group to filter.
+            group_df (pd.Series): The dataframe group to filter.
 
         Returns:
             pd.DataFrame: Filtered dataframe.
@@ -183,7 +214,7 @@ def import_separate_file(
     sep_f: str = ",",
     sep_c: str = ",",
     path: str = "",
-    print_firt_line=True,
+    print_first_line=True,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     import method for when the collections and fill is in separate files.
@@ -194,7 +225,7 @@ def import_separate_file(
 
     Set print_first_line to False not to print helpful infomration
 
-    Parameters
+    Args:
     ----------
     src_fill: list[strtins]
         List of name of file strings to import fill data from
@@ -209,6 +240,13 @@ def import_separate_file(
     print_first_line: bool
         Weather to print the first line of each dataframe to infer keys
         and formats for the next steps
+
+    Returns:
+    --------
+    fill_df: pd.DataFrame
+        The dataframe with fill data
+    rec_df: pd.DataFrame
+        The dataframe with collection data
     """
     if len(path) > 0:
         if path[-1] != "/":
@@ -222,7 +260,7 @@ def import_separate_file(
 
     fill_df = pd.concat(fill_df, ignore_index=True)
     rec_df = pd.concat(rec_df, ignore_index=True)
-    if print_firt_line:
+    if print_first_line:
         print("FILL DF LINE 1: ")
         print(fill_df.iloc[0])
         print("REC DF LINE 1: ")
@@ -240,7 +278,8 @@ def import_same_file(
     """
     import method for when the collections and fill is in the same file files.
     this will separate collections and fill inforation in separate dataframes
-    Parameters
+
+    Args:
     ----------
     src_fill: str
         List of name of file strings to import fill data from
@@ -254,6 +293,13 @@ def import_same_file(
     print_first_line: bool
         Weather to print the first line of each dataframe to infer keys
         and formats for the next steps
+
+    Returns:
+    --------
+    fill_df: pd.DataFrame
+        The dataframe with fill data
+    rec_df: pd.DataFrame
+        The dataframe with collection data
     """
     if len(path) > 0:
         if path[-1] != "/":
@@ -284,18 +330,18 @@ def container_global_sorted_wrapper(
     pre-processing.
     Assumes fill and collect have the container ids that are sorted.
 
-    Parameters
+    Args:
     ----------
-    fill: DataFrameGroupBy
+    fill_: DataFrameGroupBy
         groupby object with fill info for each container
-    collect: DataFrameGroupBy
+    collect_: DataFrameGroupBy
         groupby obejct with collection info
     info: pd.Dataframe
         dataframe relative other information regarding each container
     path: str
         path string where to save container info
 
-    Returns
+    Returns:
     -------
     res: dict
         returns a dictionary  with keys id and container objects.

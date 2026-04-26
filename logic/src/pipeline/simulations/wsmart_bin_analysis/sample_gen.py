@@ -1,6 +1,15 @@
 """
 DEPRECATED: Background management for container data sampling.
 This module is legacy code and has been replaced by GridBase in simulation.py.
+
+Attributes:
+    OldGridBase: Class that manages the background behind containers.
+        It receives a csv file, and pre-processes the necessary data in order to allow sampling.
+    fix10pad: Function that fixes the 0.1 and 0.9 cumulative probability values.
+
+Example:
+    >>> from logic.src.pipeline.simulations.wsmart_bin_analysis.sample_gen import OldGridBase
+    >>> grid_base = OldGridBase(data_dir="", area="")
 """
 
 import os
@@ -14,6 +23,13 @@ class OldGridBase:
     Class that manages the background behind containers.
 
     It receives a csv file, and pre-processes the necessary data in order to allow sampling.
+
+    Attributes:
+        data_dir (str): Root directory for data files.
+        src_area (str): Area name (e.g., 'cascais') used to identify specific CSV files.
+        __data (pd.DataFrame): The dataframe with the fill rates.
+        __info (pd.DataFrame): The dataframe with the container metadata.
+        __freq_table (pd.DataFrame): A dataframe whose columns are the distribution of each rate.
     """
 
     def __init__(self, data_dir: str, area: str) -> None:
@@ -36,7 +52,11 @@ class OldGridBase:
 
     def __data_preprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        @return: The dataframe with dates as row indexes and rates rounded to the nearest integer
+        Args:
+            data (pd.DataFrame): The dataframe with the fill rates.
+
+        Returns:
+            pd.DataFrame: The dataframe with dates as row indexes and rates rounded to the nearest integer.
         """
         data["Date"] = pd.to_datetime(data["Date"], format="%Y-%m-%d")
         data = data.set_index("Date")
@@ -45,7 +65,8 @@ class OldGridBase:
 
     def __calc_freq_tables(self) -> pd.DataFrame:
         """
-        @return: A dataframe whose columns are the distribution of each rate
+        Returns:
+            pd.DataFrame: A dataframe whose columns are the distribution of each rate.
         """
         freq_table = self.__data.select_dtypes(include="number").apply(lambda x: x.value_counts(normalize=True), axis=0)
         freq_table = freq_table.fillna(0).cumsum()
@@ -54,25 +75,29 @@ class OldGridBase:
 
     def get_mean_rate(self) -> np.ndarray:
         """
-        @return: The mean for each bin
+        Returns:
+            np.ndarray: The mean of each bin.
         """
         return self.__data.mean(axis=0, skipna=True, numeric_only=True).to_numpy()
 
     def get_var_rate(self) -> np.ndarray:
         """
-        @return: The var of each bin
+        Returns:
+            np.ndarray: The variance of each bin.
         """
         return self.__data.var(axis=0, skipna=True, numeric_only=True).to_numpy()
 
     def get_std_rate(self) -> np.ndarray:
         """
-        @return: The stardard variation of each bin
+        Returns:
+            np.ndarray: The standard variation of each bin.
         """
         return self.__data.var(axis=0, skipna=True, numeric_only=True).transform("sqrt").to_numpy()
 
     def get_daterange(self) -> tuple[pd.Timestamp, pd.Timestamp]:
         """
-        @return: The start and end of real values
+        Returns:
+            tuple[pd.Timestamp, pd.Timestamp]: The start and end of real values.
         """
         index = self.__data.index
         return pd.Timestamp(index[0]), pd.Timestamp(index[-1])
@@ -106,9 +131,12 @@ class OldGridBase:
 
     def get_values_by_date(self, date, sample: bool = False) -> np.ndarray:
         """
-        @param date: Datetime object (e.g., when looping through a daterange) or string in %Y-%m-%d format.
-        @param sample: Whether The bins NaN values should be sampled or mantained.
-        @return: Each container rate in required date.
+        Args:
+            date (pd.Timestamp): The date to get the rates for.
+            sample (bool): Whether The bins NaN values should be sampled or mantained.
+
+        Returns:
+            np.ndarray: Each container rate in required date.
         """
         try:
             date = pd.to_datetime(date, format="%Y-%m-%d", errors="raise")
@@ -124,19 +152,28 @@ class OldGridBase:
 
     def ___values_by_date(self, date: pd.Timestamp) -> pd.Series:
         """
-        @return: The actual rate row of each bin
+        Args:
+            date (pd.Timestamp): The date to get the rates for.
+
+        Returns:
+            pd.Series: The actual rate row of each bin.
         """
         return self.__data.loc[date, :]
 
     def get_info(self, i: int) -> dict:
         """
-        @return: The info of the container with the given index
+        Args:
+            i (int): The index of the container.
+
+        Returns:
+            dict: The info of the container with the given index.
         """
         return self.__info.iloc[i, :].to_dict()
 
     def get_num_bins(self) -> int:
         """
-        @return: The number of bins the the grid
+        Returns:
+            int: The number of bins in the grid.
         """
         return len(self.__info.index)
 
@@ -171,6 +208,12 @@ def fix10pad(s: pd.Series) -> pd.Series:
 
     1-0.9999999 < 1/365*3 ~ 0.0001 Hard Coded, change for much bigger datasets; same goes for zero.
     @return: A series with all its 1 values padded to 2 without changing the first 1.
+
+    Args:
+        s (pd.Series): The series to process.
+
+    Returns:
+        pd.Series: The processed series.
     """
     temp = s[s >= 0.9999999]
     temp.iloc[1:] = 2.0
