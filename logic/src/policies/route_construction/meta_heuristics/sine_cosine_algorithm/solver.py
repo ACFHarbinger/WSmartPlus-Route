@@ -116,7 +116,7 @@ class SCASolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
         T = self.params.max_iterations
 
         # Initialise population in continuous space
@@ -131,7 +131,7 @@ class SCASolver:
         best_cost = self._cost(best_routes)
 
         for t in range(T):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Control parameter a decays linearly from a_max → 0 (Mirjalili 2016, Eq 3.4)

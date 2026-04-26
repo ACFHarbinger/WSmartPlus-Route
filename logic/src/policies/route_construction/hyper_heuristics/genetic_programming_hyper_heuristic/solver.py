@@ -192,7 +192,7 @@ class GPHHSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Resolve training environments
         training = self._resolve_training()
@@ -208,7 +208,7 @@ class GPHHSolver:
         # GP evolution loop
         for _gen in range(self.params.max_gp_generations):
             # Reserve 40% of time budget for final construction
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit * 0.6:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit * 0.6:
                 break
 
             # --- Elitism: Preserve the best individuals ---

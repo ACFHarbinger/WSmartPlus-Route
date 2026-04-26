@@ -140,7 +140,7 @@ class RLGDHHSolver:
         if not self.nodes:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # --- Initialisation ---
         current_routes = self._initialize_solution()
@@ -154,7 +154,7 @@ class RLGDHHSolver:
 
         # --- Main Loop ---
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
+            if self.params.time_limit > 0 and (time.perf_counter() - start_time) > self.params.time_limit:
                 break
 
             # (a) Heuristic Selection — max utility, random tie-break

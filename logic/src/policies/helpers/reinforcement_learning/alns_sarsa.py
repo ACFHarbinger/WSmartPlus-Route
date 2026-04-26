@@ -763,7 +763,7 @@ class ALNSSARSASolver:
 
         # Initialize Simulated Annealing temperature
         T = self.params.start_temp
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Step 2: SARSA Initialization - Start with an initial state
         state_tuple = self.feature_extractor.discretize_state(0, self.params.max_iterations, 0, 1.0)
@@ -771,7 +771,7 @@ class ALNSSARSASolver:
 
         # Main ALNS Evolutionary loop
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Calculate current solution diversity to inform the state representation

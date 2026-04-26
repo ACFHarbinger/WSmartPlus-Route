@@ -108,7 +108,7 @@ def run_annealing_loop(
     )
 
     routes_list = deepcopy(initial_solution)
-    tic = time.process_time()
+    tic = time.perf_counter()
 
     for i in range(1, number_iterations + 1):
         (
@@ -199,7 +199,7 @@ def run_annealing_loop(
             )
 
         routes_list = deepcopy(previous_sol)
-        if (time.process_time() - tic) > time_limit:
+        if (time.perf_counter() - tic) > time_limit:
             break
 
     return previous_sol, removed_bins

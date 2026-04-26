@@ -266,7 +266,7 @@ class RLAHVPLSolver:
         Returns:
             Tuple of (best_routes, best_profit, best_cost).
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Phase 1: Enhanced ACO initialization
         population = self._initialize_population()
@@ -285,7 +285,7 @@ class RLAHVPLSolver:
         iteration = 0
         it_no_improvement = 0
         while it_no_improvement < self.params.hgs_params.n_iterations_no_improvement:
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
             iteration += 1
             it_no_improvement += 1
@@ -303,7 +303,7 @@ class RLAHVPLSolver:
             n_crossovers = max(1, int(len(population) * self.params.hgs_params.crossover_rate))
             n_children = 0
             for _ in range(n_crossovers):
-                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                     break
 
                 # Select parents
@@ -311,7 +311,7 @@ class RLAHVPLSolver:
 
                 # Calculate progress based on time
                 progress = (
-                    (time.process_time() - start_time) / self.params.time_limit if self.params.time_limit > 0 else 0.0
+                    (time.perf_counter() - start_time) / self.params.time_limit if self.params.time_limit > 0 else 0.0
                 )
 
                 # CMAB selects crossover operator and creates child
@@ -360,7 +360,7 @@ class RLAHVPLSolver:
             # 3. Adaptive coaching (VND for elites, ALNS-SARSA for others)
             population.sort(key=lambda x: (x.profit_score, tuple(tuple(r) for r in x.routes)), reverse=True)
             for i, ind in enumerate(population):
-                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                     break
 
                 if i < self.params.hgs_params.nb_elite:

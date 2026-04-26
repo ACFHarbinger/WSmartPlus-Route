@@ -310,7 +310,6 @@ class LinearSplit:
 
         C_cost = self.C
         cap = self.capacity
-
         for k in range(1, K + 1):
             V_curr = [-float("inf")] * (n + 1)
             dq: Deque[Tuple[int, float]] = deque()

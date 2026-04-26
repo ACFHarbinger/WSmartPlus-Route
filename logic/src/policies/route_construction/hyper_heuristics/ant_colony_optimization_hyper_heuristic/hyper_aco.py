@@ -134,9 +134,9 @@ class HyperHeuristicACO:
         # Task 2: Initialize individual ant solutions (swarm memory)
         ant_solutions = [copy.deepcopy(self.initial_solution) for _ in range(self.params.n_ants)]
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         for _it in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Task 1: Initialize eta accumulator for this iteration
@@ -250,9 +250,9 @@ class HyperHeuristicACO:
             if op_func:
                 # Measure execution time T_kj(t)
                 cost_before = self._calculate_cost(ctx.routes)
-                start_time = time.process_time()
+                start_time = time.perf_counter()
                 op_func(ctx)
-                execution_time = time.process_time() - start_time
+                execution_time = time.perf_counter() - start_time
                 cost_after = self._calculate_cost(ctx.routes)
 
                 # Calculate cost improvement I_kj

@@ -121,7 +121,7 @@ class CheckpointHook:
         Returns:
             Dictionary with crash diagnostics and partial results.
         """
-        execution_time = time.process_time() - self.tic if self.tic else 0
+        execution_time = time.perf_counter() - self.tic if self.tic else 0
         day = self.get_current_day()
         info = self.checkpoint.get_simulation_info()
         policy = info.get("policy", "")

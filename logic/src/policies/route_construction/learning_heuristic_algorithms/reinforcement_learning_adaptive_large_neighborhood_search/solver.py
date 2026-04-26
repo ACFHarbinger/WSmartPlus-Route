@@ -360,14 +360,14 @@ class RLALNSSolver:
 
         # Initialize search state
         T = self.params.start_temp
-        start_time = time.process_time()
+        start_time = time.perf_counter()
         stagnation_count = 0
         self.improvement_history = []
 
         # Main loop
         for iteration in range(self.params.max_iterations):
             # Check time limit
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Extract state features

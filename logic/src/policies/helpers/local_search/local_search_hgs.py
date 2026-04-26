@@ -59,6 +59,8 @@ class HGSLocalSearch(LocalSearch):
     def optimize(self, solution: "Individual") -> "Individual":
         """
         Iteratively improve an individual using local search operators.
+        Reconstructs the genotype by proportionally interleaving unvisited nodes
+        to prevent evolutionary degradation.
 
         Args:
             solution: The individual to optimize.
@@ -76,15 +78,33 @@ class HGSLocalSearch(LocalSearch):
 
         solution.routes = self.routes
         solution.profit_score = self.current_profit
-        new_gt = []
-        for r in self.routes:
-            new_gt.extend(r)
 
-        # Preserve all nodes in giant_tour for genetic consistency (OX crossover)
-        # Append any nodes that are NOT in the current routes to the end of giant_tour
-        visited_set = set(new_gt)
-        missing_nodes = [node for node in solution.giant_tour if node not in visited_set]
-        new_gt.extend(missing_nodes)
+        # Flatten active routes into a single continuous sequence
+        route_positions = {node: i for i, node in enumerate(solution.giant_tour)}
+        self.routes.sort(key=lambda r: route_positions.get(r[0], float("inf")))
+        active_seq = [node for r in self.routes for node in r]
+        visited_set = set(active_seq)
+
+        # Rigorous Genotype Reconstruction:
+        # We iterate through the *original* giant tour structure.
+        # This perfectly preserves the spatial entropy of unvisited nodes while
+        # maintaining the continuous sequential chunks of the optimized routes.
+        new_gt = []
+        active_idx = 0
+        for orig_node in solution.giant_tour:
+            if orig_node in visited_set:
+                # Slot originally held an active node; place the next optimized active node
+                if active_idx < len(active_seq):
+                    new_gt.append(active_seq[active_idx])
+                    active_idx += 1
+            else:
+                # Slot originally held an unvisited node; preserve its relative position
+                new_gt.append(orig_node)
+
+        # Safety fallback (invariant safeguard)
+        while active_idx < len(active_seq):
+            new_gt.append(active_seq[active_idx])
+            active_idx += 1
 
         solution.giant_tour = new_gt
         return solution

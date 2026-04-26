@@ -135,12 +135,12 @@ class RLHVPLSolver:
         Returns:
             Tuple[List[List[int]], float, float]: (best_routes, best_profit, best_cost)
         """
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # ===== Phase 1: Initialization - Create Initial Population =====
         population: List[Tuple[List[List[int]], float, float]] = []
         for _ in range(self.params.n_teams):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Use enhanced ACO with Q-Learning to construct solution
@@ -157,13 +157,13 @@ class RLHVPLSolver:
 
         # ===== Phase 2: Main Evolutionary Loop =====
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # ===== 3. Coaching Phase: Apply ALNS-SARSA to each team =====
             new_population = []
             for team_rank, (routes, _profit, _cost) in enumerate(population):
-                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                     break
 
                 # Determine coaching intensity based on team rank
@@ -198,7 +198,7 @@ class RLHVPLSolver:
             n_sub = int(self.params.n_teams * self.params.sub_rate)
 
             for i in range(self.params.n_teams - n_sub, self.params.n_teams):
-                if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                     break
 
                 # Replace with new solution generated using updated pheromones

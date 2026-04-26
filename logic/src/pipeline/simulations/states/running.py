@@ -59,7 +59,7 @@ class RunningState(SimState):
             f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
         )
 
-        ctx.tic = time.process_time() + ctx.run_time
+        ctx.tic = time.perf_counter() + ctx.run_time
 
         try:
             assert ctx.checkpoint is not None
@@ -100,7 +100,7 @@ class RunningState(SimState):
             day_context = self._create_day_context(ctx, day, current_policy_config, realtime_log_path)
 
             day_context = run_day(day_context)
-            ctx.execution_time = time.process_time() - ctx.tic
+            ctx.execution_time = time.perf_counter() - ctx.tic
 
             self._update_ctx_from_day_context(ctx, day_context)
             self._update_metrics(ctx, day, day_context.output_dict, day_context.daily_log)

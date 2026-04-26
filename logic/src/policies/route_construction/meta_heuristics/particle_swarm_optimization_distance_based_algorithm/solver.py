@@ -150,7 +150,7 @@ class DistancePSOSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initialize swarm (particle positions)
         swarm = [self._initialize_particle() for _ in range(self.params.population_size)]
@@ -171,7 +171,7 @@ class DistancePSOSolver:
 
         # PSO main loop with velocity momentum
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # Compute dynamic inertia weight (linearly decreasing)

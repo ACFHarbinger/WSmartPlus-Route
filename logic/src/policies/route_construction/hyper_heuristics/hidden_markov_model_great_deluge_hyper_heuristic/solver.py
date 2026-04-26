@@ -232,7 +232,7 @@ class HMMGDHHSolver:
         best_profit = profit
         best_cost = self._cost(routes)
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # Great Deluge: water level starts linearly rising
         water_level = (
@@ -240,7 +240,7 @@ class HMMGDHHSolver:
         )
 
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # 1. Action Selection: Entropy-Maximizing (Fix #5, #R1, #R-Final-1 & #Final-3)

@@ -170,7 +170,7 @@ class HybridMemeticSearchSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start_time = time.process_time()
+        start_time = time.perf_counter()
 
         # ═══════════════════════════════════════════════════════════
         # PHASE 1: ACO-DRIVEN INITIALIZATION
@@ -195,7 +195,7 @@ class HybridMemeticSearchSolver:
         # PHASE 2: POPULATION EVOLUTION WITH HGS
         # ═══════════════════════════════════════════════════════════
         for iteration in range(self.params.max_iterations):
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
             # Competition Phase: Rank teams (already sorted)

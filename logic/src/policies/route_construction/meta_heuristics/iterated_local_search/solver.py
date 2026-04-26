@@ -105,7 +105,7 @@ class ILSSolver:
         if self.n_nodes == 0:
             return [], 0.0, 0.0
 
-        start = time.process_time()
+        start = time.perf_counter()
 
         # Initial solution
         routes = self._build_initial_solution()
@@ -117,7 +117,7 @@ class ILSSolver:
         self.params.acceptance_criterion.setup(profit)
 
         for restart in range(self.params.n_restarts):
-            if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                 break
 
             # The inner loop is the Descent phase
@@ -126,7 +126,7 @@ class ILSSolver:
             improved = True
             inner_count = 0
             while improved and inner_count < self.params.inner_iterations:
-                if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
+                if self.params.time_limit > 0 and time.perf_counter() - start > self.params.time_limit:
                     break
                 improved = False
                 inner_count += 1

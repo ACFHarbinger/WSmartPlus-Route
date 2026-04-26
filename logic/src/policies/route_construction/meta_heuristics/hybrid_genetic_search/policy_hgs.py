@@ -46,7 +46,7 @@ class HGSPolicy(BaseRoutingPolicy):
 
     Algorithm Logic:
     1.  **Exploration (Genetic)**: Maintains a population of solutions and
-        generates offspring using advanced crossover operators (e.g., PIX, OX)
+        generates offspring using advanced crossover operators (e.g., OX)
         that preserve spatial clusters and route segments.
     2.  **Intensification (Local Search)**: Every offspring undergoes a rigorous
         "education" phase using a highly optimized Local Search engine (SWAP*,
@@ -115,7 +115,7 @@ class HGSPolicy(BaseRoutingPolicy):
 
         HGS (specifically HGS-CVRP) is a state-of-the-art genetic algorithm for
         vehicle routing. It combines:
-        - Advanced Genetic Operators: Pivot-based crossover (PIX) and large
+        - Advanced Genetic Operators: Ordered Crossover (OX) and large
           neighborhood movements.
         - Local Search: Intense refinement of offspring using localized local
           search (SWAP*, 2-OPT).
