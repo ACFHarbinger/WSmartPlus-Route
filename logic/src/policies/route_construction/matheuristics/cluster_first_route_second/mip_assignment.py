@@ -192,6 +192,7 @@ def assign_exact_mip(
         # 2. Setup Gurobi Environment and Model
         env = gp.Env(empty=True)
         env.setParam("OutputFlag", 0)  # Silence solver output
+        env.setParam("LogToConsole", 0)
         env.start()
         model = gp.Model("Fisher_Jaikumar_GAP", env=env)
 

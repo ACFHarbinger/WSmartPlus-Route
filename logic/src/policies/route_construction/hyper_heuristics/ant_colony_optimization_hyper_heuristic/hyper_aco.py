@@ -562,6 +562,7 @@ class HyperHeuristicACO:
             dist_matrix=dm,
             wastes=ws,
             capacity=cap,
+            max_discrepancy=0,
             mandatory_nodes=man,
             expand_pool=False,
         )
@@ -720,6 +721,7 @@ class HyperHeuristicACO:
             capacity=cap,
             R=R,
             C=C,
+            max_discrepancy=0,
             mandatory_nodes=man,
             expand_pool=False,
         )
@@ -750,7 +752,9 @@ class HyperHeuristicACO:
         # Strategic Oscillation: relax capacity when search is stagnating
         effective_capacity = float("inf") if self.pv < self.initial_pv else self.capacity
 
-        ctx = self._make_context(base_solution, effective_capacity)
+        # Optimization: only compute SWAP* cache if the sequence contains it
+        use_cache = "swap_star" in sequence
+        ctx = self._make_context(base_solution, effective_capacity, use_cache=use_cache)
 
         eta_updates = np.zeros_like(self.eta)
         stability_constant = 1e-3
@@ -822,7 +826,9 @@ class HyperHeuristicACO:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _make_context(self, routes: List[List[int]], effective_capacity: float) -> "HyperOperatorContext":
+    def _make_context(
+        self, routes: List[List[int]], effective_capacity: float, use_cache: bool = False
+    ) -> "HyperOperatorContext":
         """Construct a HyperOperatorContext for the given solution snapshot.
 
         Args:
@@ -843,6 +849,7 @@ class HyperHeuristicACO:
             rng=self.random,
             profit_aware_operators=self.params.profit_aware_operators,
             vrpp=self.params.vrpp,
+            use_cache=use_cache,
         )
 
     def _select_sequence(self, start_op_idx: int) -> Tuple[List[str], int]:

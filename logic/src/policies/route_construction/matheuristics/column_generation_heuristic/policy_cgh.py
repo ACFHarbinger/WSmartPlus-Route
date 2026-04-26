@@ -117,6 +117,7 @@ class ColumnGenerationHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         # Master problem
         model = gp.Model("CG_Heur")
         model.setParam("OutputFlag", 0)
+        model.setParam("LogToConsole", 0)
 
         N = len(problem.distance_matrix)
 

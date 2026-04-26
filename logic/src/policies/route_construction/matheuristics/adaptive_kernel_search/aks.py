@@ -410,6 +410,7 @@ def run_adaptive_kernel_search_gurobi(
     """
     model = gp.Model("AKS_VRPP", env=env) if env else gp.Model("AKS_VRPP")
     model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 

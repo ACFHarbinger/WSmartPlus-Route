@@ -144,6 +144,7 @@ def solve_uncapacitated_op(
 
     model = gp.Model("BB_LR_OP", env=env) if env else gp.Model("BB_LR_OP")
     model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)
     model.setParam("TimeLimit", time_limit)
     model.setParam("Seed", seed)
     model.Params.LazyConstraints = 1

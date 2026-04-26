@@ -93,6 +93,8 @@ def test_fix_3_strong_branching_safe_access():
     solver.x[(0, 1)].LB = 0.0
     solver.x[(0, 1)].UB = 1.0
     solver.x[(0, 1)].X = 0.5
+    solver.model.setParam("OutputFlag", 0)
+    solver.model.setParam("LogToConsole", 0)
 
     fractional_vars = [("x", (0, 1), 0.5)]
 

@@ -287,6 +287,7 @@ class ILSRVNDSPSolver:
         # Build Model
         env = gp.Env(empty=True)
         env.setParam("OutputFlag", 0)
+        env.setParam("LogToConsole", 0)
         env.start()
         model = gp.Model("ILSRVNDSP_SetPartitioning", env=env)
 

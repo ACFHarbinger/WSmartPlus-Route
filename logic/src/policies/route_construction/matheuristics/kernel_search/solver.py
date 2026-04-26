@@ -688,6 +688,7 @@ def run_kernel_search_gurobi(
     # 1. Initialize Model
     model = gp.Model("KS_VRPP", env=env) if env else gp.Model("KS_VRPP")
     model.setParam("OutputFlag", 0)  # Deactivate verbose output
+    model.setParam("LogToConsole", 0)
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 

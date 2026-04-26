@@ -298,6 +298,7 @@ def run_tpks_gurobi(
 
     model = gp.Model("TPKS_VRPP", env=env) if env else gp.Model("TPKS_VRPP")
     model.setParam("OutputFlag", 0)
+    model.setParam("LogToConsole", 0)
     model.setParam("Seed", params.seed)
     model.setParam("MIPGap", params.mip_gap)
     model.Params.LazyConstraints = 1

@@ -151,6 +151,7 @@ class MasterProblem:
         m.Params.TimeLimit = self.params.time_limit
         m.Params.MIPGap = self.params.mip_gap
         m.Params.OutputFlag = 1 if self.params.verbose else 0
+        m.Params.LogToConsole = 1 if self.params.verbose else 0
 
         # ---- Decision Variables ------------------------------------------
 

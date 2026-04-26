@@ -977,14 +977,14 @@ def _column_generation_loop(  # noqa: C901
             in_arcs[bc.v] = bc.u
 
     for _iteration in range(max_cg_iterations):
-        if time_limit and (time.monotonic() - start_time) > time_limit:
+        if time_limit is not None and time_limit > 0 and (time.monotonic() - start_time) > time_limit:
             timed_out = True
             break
 
         # PHASE 1: Column Generation (price until convergence)
         _inner_iter = 0
         while True:
-            if time_limit and (time.monotonic() - start_time) > time_limit:
+            if time_limit is not None and time_limit > 0 and (time.monotonic() - start_time) > time_limit:
                 timed_out = True
                 break
 
@@ -1032,7 +1032,7 @@ def _column_generation_loop(  # noqa: C901
                 # master LP cannot blow past the node's overall time budget. Python-side
                 # time checks only fire between Gurobi calls, so a single optimize() call
                 # with no TimeLimit can overshoot the global limit on degenerate instances.
-                if time_limit is not None and master.model is not None:
+                if time_limit is not None and time_limit > 0 and master.model is not None:
                     _remaining_t = max(0.1, time_limit - (time.monotonic() - start_time))
                     master.model.Params.TimeLimit = _remaining_t
                 obj_val, route_vals = master.solve_lp_relaxation()  # type: ignore[assignment]
@@ -1047,7 +1047,11 @@ def _column_generation_loop(  # noqa: C901
                             "LP is infeasible but Farkas duals are unavailable. "
                             "Gurobi may have returned INF_OR_UNBD — check model bounds."
                         )
-                    _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
+                    _rem_t = (
+                        max(0.1, time_limit - (time.monotonic() - start_time))
+                        if time_limit is not None and time_limit > 0
+                        else None
+                    )
                     added, _ = _solve_farkas_pricing_step(
                         master,
                         pricing_solver,
@@ -1430,7 +1434,7 @@ def run_bpc(  # noqa: C901
 
     # 6. Branch-and-Bound Loop
     while not bb_tree.is_empty() and nodes_explored < max_bb_nodes:
-        if time_limit and (time.monotonic() - start_time) > time_limit:
+        if time_limit > 0 and (time.monotonic() - start_time) > time_limit:
             break
 
         # The BBTree now internally manages the frontier priority queues (tuples vs lists).
@@ -1475,7 +1479,7 @@ def run_bpc(  # noqa: C901
             _lr_forced_in |= m_set
 
             # Time budget: a small fraction of remaining solve time, capped hard.
-            _remaining = time_limit - (time.monotonic() - start_time) if time_limit else 60.0
+            _remaining = time_limit - (time.monotonic() - start_time) if time_limit > 0 else 300.0
             _lr_budget = min(
                 _remaining * 0.05,  # at most 5% of remaining wall time
                 params.lr_op_time_limit * params.lr_max_subgradient_iters,
@@ -1552,7 +1556,7 @@ def run_bpc(  # noqa: C901
             # Fix 12: Snapshot-and-restore ng-neighborhoods
             ng_snapshot = pricing_solver.save_ng_snapshot()
             try:
-                _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
+                _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit > 0 else None
                 lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
                     master=master,
                     pricing_solver=pricing_solver,
