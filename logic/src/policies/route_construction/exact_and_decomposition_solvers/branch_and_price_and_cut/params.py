@@ -63,7 +63,12 @@ class BPCParams:
     vrpp: bool = True
     seed: Optional[int] = None
     search_strategy: str = "depth_first"
-    cutting_planes: str = "rcc"
+    # Bug #1 fix: paper §4 uses Lifted Cover Inequalities on saturated arcs as its
+    # sole cut family. "rcc" (Rounded Capacity Cuts, Lysgaard et al. 2004) post-dates
+    # the paper and is a completely different family.  "saturated_arc_lci" matches §6
+    # exactly and replicates the Tables 3–4 experimental setup.
+    # Set to "rcc" (or "all") for VRPP-specific tightening beyond the paper.
+    cutting_planes: str = "saturated_arc_lci"
     branching_strategy: str = "divergence"
     max_cg_iterations: int = 50
     max_cut_iterations: int = 5
@@ -92,6 +97,11 @@ class BPCParams:
     cg_at_root_only: bool = False  # Paper Table 2: Run column generation only at root node
     rcspp_timeout: float = 30.0  # Safety cap for single pricer call
     rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
+
+    # Paper §3.2 (Node Selection) explicitly states the DFS always explores
+    # the side where the shorter path p is still allowed — i.e., the child that forbids
+    # A(d, a2) (the arc set of the longer path). This takes priority over LP-bound hints.
+    prefer_shorter_path_dfs: bool = True
 
     # ---------------------------------------------------------------------------
     # Lagrangian Relaxation Pre-Pruning

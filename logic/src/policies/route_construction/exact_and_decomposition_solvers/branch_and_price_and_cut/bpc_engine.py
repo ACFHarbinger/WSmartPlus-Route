@@ -54,10 +54,14 @@ Paper-to-Implementation Mapping (BHV2000)
 §4.3 – Divergence Node Branching
     Two highest-λ fractional routes are traced step-by-step from the depot.
     The first node where they diverge is the branching node d.  arc_set_1
-    contains the arc of the longer-remaining-path route (child 1 is explored
-    first in DFS — better basis warm-start).  arc_set_2 covers all other
-    outgoing arcs from d.  Falls back to aggregate-flow heuristic when no
-    common prefix exists.
+    contains the arc of the *shorter* path (path p in the paper); arc_set_2
+    contains the remaining outgoing arcs including the longer path's arc.
+    strategies.py swaps arc_p1/arc_p2 when path1 is longer, ensuring nxt_p1
+    (shorter path's arc) heads the flow-sorted list and lands in arc_set_1.
+    left_child  forbids arc_set_1 → longer path kept  (Paper's Child 1).
+    right_child forbids arc_set_2 → shorter path kept (Paper's Child 2,
+    explored FIRST per §3.2: "we choose the side where A(d,a2) is forbidden").
+    Falls back to aggregate-flow heuristic when no common prefix exists.
     Implementation: ``MultiEdgePartitionBranching.find_divergence_node``
     in branching.py.
 
@@ -1718,27 +1722,41 @@ def run_bpc(  # noqa: C901
             children = (left_child, right_child)
 
         left_child, right_child = children
-        # Order child nodes on the stack so the stronger bound is explored first (LIFO)
-        hint_l = left_child.lp_bound if left_child.lp_bound is not None else -float("inf")
-        hint_r = right_child.lp_bound if right_child.lp_bound is not None else -float("inf")
+        use_paper_ordering = (
+            getattr(params, "prefer_shorter_path_dfs", True)
+            and branching_strategy_name == "divergence"
+            and bb_tree.search_strategy not in ("best_first", "best-first")
+        )
 
-        if hint_l < hint_r:
-            # Right child is stronger (higher bound) — add left first, then right
-            bb_tree.add_node(left_child)
-            bb_tree.add_node(right_child)
-        elif hint_r < hint_l:
-            # Left child is stronger — add right first, then left
-            bb_tree.add_node(right_child)
-            bb_tree.add_node(left_child)
+        if use_paper_ordering:
+            # Paper §3.2: right_child (shorter path kept) explored first.
+            # Push left_child first (popped last), right_child last (popped first).
+            bb_tree.add_node(left_child)  # pushed first → popped last (explored second)
+            bb_tree.add_node(right_child)  # pushed last  → popped first (paper §3.2)
         else:
-            # Task 14: Tie-break for equal LP hints.
-            # Explore the child with fewer local constraints first (LP closer to parent basis).
-            if len(left_child.constraints) <= len(right_child.constraints):
-                bb_tree.add_node(right_child)  # pushed first = popped last
-                bb_tree.add_node(left_child)  # pushed last  = popped first
-            else:
+            # LP-hint-guided ordering (non-divergence branching, or best_first mode,
+            # or prefer_shorter_path_dfs=False). Explore the child with the stronger
+            # LP bound first; when equal, use the child with fewer local constraints.
+            hint_l = left_child.lp_bound if left_child.lp_bound is not None else -float("inf")
+            hint_r = right_child.lp_bound if right_child.lp_bound is not None else -float("inf")
+
+            if hint_l < hint_r:
+                # Right child is stronger (higher bound) — push left first, right last
                 bb_tree.add_node(left_child)
                 bb_tree.add_node(right_child)
+            elif hint_r < hint_l:
+                # Left child is stronger — push right first, left last
+                bb_tree.add_node(right_child)
+                bb_tree.add_node(left_child)
+            else:
+                # Tie-break: explore child with fewer local constraints first
+                # (LP closer to parent basis → better warm-start).
+                if len(left_child.constraints) <= len(right_child.constraints):
+                    bb_tree.add_node(right_child)  # pushed first = popped last
+                    bb_tree.add_node(left_child)  # pushed last  = popped first
+                else:
+                    bb_tree.add_node(left_child)
+                    bb_tree.add_node(right_child)
 
     # 6. Extract best integer solution
     if bb_tree.best_integer_node is None:

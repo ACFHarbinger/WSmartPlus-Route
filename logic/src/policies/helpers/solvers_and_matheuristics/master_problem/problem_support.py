@@ -99,6 +99,8 @@ class MasterProblemSupport(Protocol):
     active_lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]]
     active_sri_cuts: Dict[FrozenSet[int], gp.Constr]
     active_edge_clique_cuts: Dict[Tuple[int, int], Tuple[gp.Constr, Dict[int, float]]]
+    # Multistar cuts: maps frozenset(S) → Gurobi constraint (Σ −a_k λ_k ≤ 0)
+    active_multistar_cuts: Dict[FrozenSet[int], gp.Constr]
 
     # Dual value registries
     dual_src_cuts: Dict[FrozenSet[int], float]
@@ -109,6 +111,9 @@ class MasterProblemSupport(Protocol):
     dual_lci_cuts: Dict[FrozenSet[int], float]
     dual_sri_cuts: Dict[FrozenSet[int], float]
     dual_edge_clique_cuts: Dict[Tuple[int, int], float]
+    # Multistar duals: γ_S ≥ 0, emitted in get_reduced_cost_coefficients
+    # under key "multistar_duals" so the RCSPP pricer can apply arc-level penalties.
+    dual_multistar_cuts: Dict[FrozenSet[int], float]
 
     # Dual stabilization configurations
     dual_smoothing_alpha: float
@@ -391,6 +396,44 @@ class MasterProblemSupport(Protocol):
 
         Returns:
             bool: True if the cut was successfully added.
+        """
+        ...
+
+    def add_multistar_cut(
+        self: "MasterProblemSupport",
+        node_list: List[int],
+        coefficients: Dict[int, float],
+    ) -> bool:
+        """Add a Generalized Multistar Inequality cut (Letchford et al. 2002).
+
+        The cut is stored as:  Σ_{k} (−a_k) · λ_k ≤ 0
+        where coefficients[k] = −a_k for each route k with |a_k| > 1e-6.
+
+        The Gurobi constraint is registered in ``active_multistar_cuts`` and
+        its dual γ_S (extracted in ``_extract_duals``) is emitted via
+        ``get_reduced_cost_coefficients`` under the ``"multistar_duals"`` key,
+        so the RCSPP pricer can apply the arc-level penalty in ``_extend_label``.
+
+        Implementation in ``VRPPMasterProblem`` (model.py):
+        ---------------------------------------------------
+        1. Build key:  node_key = frozenset(node_list)
+        2. Skip if already active: if node_key in self.active_multistar_cuts: return False
+        3. Build expr: sum(coefficients[i] * self.lambda_vars[i]
+                           for i in coefficients if i < len(self.lambda_vars))
+        4. Add constr: c = self.model.addConstr(expr <= 0.0, name=f"multistar_{hash(node_key)}")
+        5. Store: self.active_multistar_cuts[node_key] = c
+        6. Archive in GlobalCutPool: self.global_cut_pool.add_cut("multistar", (node_key, coefficients))
+        7. Wire new routes: update ``_wire_route_into_active_cuts`` to include multistar.
+        8. In ``_extract_duals``: self.dual_multistar_cuts = {s: max(0.0, c.Pi)
+               for s, c in self.active_multistar_cuts.items()}
+        9. In ``get_reduced_cost_coefficients``: add "multistar_duals": self.dual_multistar_cuts
+
+        Args:
+            node_list: Nodes forming the cut set S.
+            coefficients: {route_index: −a_k} for routes with |a_k| > 1e-6.
+
+        Returns:
+            bool: True if the cut was successfully added (False if duplicate).
         """
         ...
 

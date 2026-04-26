@@ -28,11 +28,16 @@ class HyperHeuristicACOConfig:
         beta: Heuristic (distance) importance factor.
         rho: Pheromone evaporation rate.
         tau_0: Initial pheromone level.
-        tau_min: Minimum pheromone bound.
-        tau_max: Maximum pheromone bound.
+        Q: Pheromone floor constant added to every improving-journey deposit.
+        lambda_val: Base for the visibility exponential when use_dynamic_lambda=False.
+        use_dynamic_lambda: If True (default), replace λ^I with exp(I / Z) where Z is
+            a running EMA of |improvement|. This achieves scale invariance across
+            problem sizes and is the recommended setting for the VRPP. Set to False for
+            strict paper fidelity (λ = 1.0001 as base).
         max_iterations: Maximum number of ACO iterations.
+        elitism_ratio: Fraction of the swarm teleported to the global best.
         time_limit: Maximum time in seconds for the solver.
-        q0: Probability of exploitation vs exploration (ACS-style).
+        stagnation_limit: Number of iterations without improvement before pheromone update.
         sequence_length: Length of operator sequence for hyper-heuristic ACO.
         local_search: Whether to apply local search after construction.
         local_search_iterations: Number of local search iterations.
@@ -47,12 +52,14 @@ class HyperHeuristicACOConfig:
     beta: float = 2.0
     rho: float = 0.1
     tau_0: float = 1.0
-    tau_min: float = 0.01
-    tau_max: float = 10.0
+    Q: float = 1.0
+    lambda_val: float = 1.0001
+    use_dynamic_lambda: bool = True
     max_iterations: int = 50
+    elitism_ratio: float = 0.5
     time_limit: float = 30.0
     seed: Optional[int] = None
-    q0: float = 0.9
+    stagnation_limit: int = 10
     sequence_length: int = 5
     local_search: bool = True
     local_search_iterations: int = 500

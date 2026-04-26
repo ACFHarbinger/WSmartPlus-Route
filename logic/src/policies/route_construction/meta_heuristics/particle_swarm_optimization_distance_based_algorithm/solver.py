@@ -52,7 +52,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators import greedy_insertion, greedy_profit_insertion, random_removal
 from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
@@ -126,7 +126,7 @@ class DistancePSOSolver:
             profit_aware_operators=self.params.profit_aware_operators,
             seed=self.params.seed,
         )
-        self.ls = ACOLocalSearch(
+        self.ls = GeneralLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,

@@ -8,8 +8,20 @@ The pheromone matrix encodes transition probabilities between operators.
 Key Features:
 - Operator graph: Nodes represent local search operators (2-opt, swap, etc.)
 - Pheromone trail: tau[i][j] = favorability of applying operator j after operator i
-- Heuristic information: Dynamic based on operator success rate
+- Heuristic information: Dynamic based on operator success rate / execution time
 - Solution evaluation: Apply operator sequence to a base solution
+
+Paper reference: Chen, Kendall & Vanden Berghe (2007),
+"An Ant Based Hyper-heuristic for the Travelling Tournament Problem".
+
+Adaptations from TTP to VRPP:
+- Objective = total routing cost (× C) − collected revenue (× R), subject to
+  capacity constraints; infeasible solutions are penalised via Strategic Oscillation.
+- `use_dynamic_lambda=True` (default): replaces the paper's λ=1.0001 base with a
+  scale-invariant exp(I/Z) using an EMA of recent |improvement|, improving
+  robustness across different problem scales.
+- `elitism_ratio < 1.0` (optional): hedged elitism for diversity preservation;
+  paper default is 1.0 (all ants sync to global best on improvement).
 
 Attributes:
     HyperHeuristicACO: HyperHeuristicACO class.
@@ -21,6 +33,7 @@ Example:
 """
 
 import copy
+import math
 import random
 import time
 from typing import Dict, List, Optional, Tuple
@@ -36,7 +49,7 @@ from .params import HyperACOParams
 
 class HyperHeuristicACO:
     """
-    Hyper-Heuristic ACO solver.
+    Pure Ant System (AS) Hyper-Heuristic ACO solver.
 
     Ants construct sequences of local search operators.
     The best sequences are reinforced via pheromone updates.
@@ -55,10 +68,12 @@ class HyperHeuristicACO:
         operator_names: List of operator names.
         n_operators: Number of operators.
         op_to_idx: Mapping from operator names to indices.
-        tau: Pheromone matrix.
-        eta: Heuristic information matrix.
-        edge_count: Edge count matrix.
-        sequence_length: Length of operator sequences.
+        tau: Pheromone matrix. Row n_operators is the virtual start row used
+            only when an ant has no prior position (first journey step after
+            uniform placement on real vertices already seeds the real rows).
+        eta: Heuristic visibility matrix (per directed edge i→j).
+        edge_count: Cumulative edge traversal count (num(i,j) in the paper).
+        sequence_length: Length of operator sequences (= n_operators, per paper).
     """
 
     def __init__(
@@ -102,134 +117,251 @@ class HyperHeuristicACO:
         self.n_operators = len(self.operator_names)
         self.op_to_idx = {name: i for i, name in enumerate(self.operator_names)}
 
-        # Dynamic journey length matches number of heuristics
+        # Journey length = n (number of heuristics/vertices), per Chen et al. (2007) §III.B
         self.sequence_length = self.n_operators
 
-        # Pheromone matrix: n_operators x n_operators
-        # tau[i][j] where i is the previous operator and j is the next.
-        # We add one extra row for the start state (0).
+        # tau[i][j]: pheromone on directed edge i→j.
+        # Row n_operators is a virtual "no prior position" row — only used on the very
+        # first selection step of an ant that somehow lacks a recorded position.
+        # After uniform placement (Bug #2 fix) the real rows [0..n_operators-1] are
+        # seeded immediately by the initial operator application, so this row is
+        # primarily a safety fallback.
         self.tau = np.full((self.n_operators + 1, self.n_operators), self.params.tau_0)
 
-        # Heuristic information: Time-weighted visibility (Task 1)
-        # eta[i][j] represents visibility of transitioning from operator i to j
+        # eta[i][j]: per-edge visibility (heuristic information).
+        # Initialised to 1 per paper: "For each vertex j: set ηj = 1".
         self.eta = np.ones((self.n_operators + 1, self.n_operators))
 
-        # Edge traversal counter: num(i,j) tracks how many times edge (i,j) was traversed
+        # edge_count[i][j]: num(i,j) — cumulative count of traversals, never reset.
+        # Grows monotonically from the start of the run (per paper §III.B).
         self.edge_count = np.zeros((self.n_operators + 1, self.n_operators))
+
+        # Strategic Oscillation state (per paper §III.B)
+        self.initial_best_cost = self._calculate_routing_cost(self.initial_solution)
+        self.initial_pv = self.initial_best_cost / 100.0 if self.initial_best_cost > 0 else 10.0
+        self.pv = self.initial_pv
+
+        # Dynamic Normalization state for scale-invariant visibility (VRPP extension)
+        self.Z = self.initial_best_cost * 0.01 if self.initial_best_cost > 0 else 1.0
+        self.Z_alpha = 0.1  # EMA smoothing factor
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Solve VRP using Hyper-ACO with proper ant state synchronization.
-
-        Accumulate eta updates from all ants and apply evaporation once per iteration.
-        Maintain individual ant solutions, only synchronize to global best when improved.
+        Solve the problem using the Ant Colony Optimization algorithm.
 
         Returns:
-            Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
+            Tuple[List[List[int]], float, float]:
+                - Best routes
+                - Collected revenue - cost
+                - Final cost
         """
         best_routes = copy.deepcopy(self.initial_solution)
-        best_cost = self._calculate_cost(best_routes)
-        best_profit = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r) - best_cost
+        best_objective = self._evaluate_objective(best_routes)
 
-        # Task 2: Initialize individual ant solutions (swarm memory)
         ant_solutions = [copy.deepcopy(self.initial_solution) for _ in range(self.params.n_ants)]
 
+        # ----------------------------------------------------------------
+        # Bug #2 fix: uniform ant placement on real operator vertices.
+        # Paper: "Put m ants uniformly on the n vertices."
+        # ----------------------------------------------------------------
+        ant_positions: List[int] = [i % self.n_operators for i in range(self.params.n_ants)]
+
+        # ----------------------------------------------------------------
+        # Bug #2 fix (cont.): apply starting operator before main loop.
+        # Paper: "For each ant k: apply low-level heuristic from ant k's
+        #         current location to Sk."
+        # ----------------------------------------------------------------
+        effective_capacity = float("inf") if self.pv < self.initial_pv else self.capacity
+        for ant_idx in range(self.params.n_ants):
+            start_op_name = self.operator_names[ant_positions[ant_idx]]
+            op_func = HYPER_OPERATORS.get(start_op_name)
+            if op_func:
+                ctx = self._make_context(ant_solutions[ant_idx], effective_capacity)
+                op_func(ctx)
+                ant_solutions[ant_idx] = ctx.routes
+
+        stagnation_counter = 0
         start_time = time.perf_counter()
+
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.perf_counter() - start_time > self.params.time_limit:
                 break
 
-            # Task 1: Initialize eta accumulator for this iteration
             total_eta_updates = np.zeros_like(self.eta)
-
-            # 1. Ant solutions construction - each ant works from its own state
             ant_results: List[Tuple[List[List[int]], float, float, List[str], int]] = []
 
             for ant_idx in range(self.params.n_ants):
-                start_cost = self._calculate_cost(ant_solutions[ant_idx])
-                routes, sequence, eta_updates = self.build_solution(ant_solutions[ant_idx])
-                final_cost = self._calculate_cost(routes)
+                start_obj = self._evaluate_objective(ant_solutions[ant_idx])
+                # Bug #2 fix: pass each ant's current position into build_solution
+                routes, sequence, eta_updates, end_op_idx = self.build_solution(
+                    ant_solutions[ant_idx], ant_positions[ant_idx]
+                )
+                final_obj = self._evaluate_objective(routes)
 
-                # Task 1: Accumulate eta updates from this ant
+                # Update ant position for next iteration (persistent across journeys)
+                ant_positions[ant_idx] = end_op_idx
+
                 total_eta_updates += eta_updates
-
-                # Update this ant's individual solution
                 ant_solutions[ant_idx] = routes
+                ant_results.append((routes, start_obj, final_obj, sequence, ant_idx))
 
-                ant_results.append((routes, start_cost, final_cost, sequence, ant_idx))
+            # Evaluate iteration results (minimisation)
+            ant_results.sort(key=lambda x: x[2])
+            iter_best_routes = ant_results[0][0]
+            iter_best_obj = ant_results[0][2]
 
-            # 2. Identify iteration best by final cost
-            iter_best_routes = min(ant_results, key=lambda x: x[2])[0]
-            iter_best_cost = self._calculate_cost(iter_best_routes)
-            iter_best_profit = sum(self.wastes.get(n, 0) * self.R for r in iter_best_routes for n in r) - iter_best_cost
-
-            # Task 2: Synchronization - only if new global best found
             global_best_improved = False
-            if iter_best_profit > best_profit:
-                best_profit = iter_best_profit
-                best_cost = iter_best_cost
+            if iter_best_obj < best_objective:
+                best_objective = iter_best_obj
                 best_routes = copy.deepcopy(iter_best_routes)
                 global_best_improved = True
 
-                # Synchronize all ants to the new global best
-                ant_solutions = [copy.deepcopy(best_routes) for _ in range(self.params.n_ants)]
+                # ----------------------------------------------------------------
+                # Bug #4 context: elitism_ratio=1.0 (paper default) → all ants
+                # sync to global best (exact paper behaviour).
+                # elitism_ratio < 1.0 → hedged elitism (VRPP diversity option).
+                # Paper: "For all ants: Sk = Sb"
+                # ----------------------------------------------------------------
+                sync_count = max(1, int(self.params.n_ants * self.params.elitism_ratio))
 
-            # 3. Pheromone evaporation
+                for rank, (routes, _, _, _, ant_idx) in enumerate(ant_results):
+                    if rank >= self.params.n_ants - sync_count:
+                        ant_solutions[ant_idx] = copy.deepcopy(best_routes)
+                    else:
+                        ant_solutions[ant_idx] = routes
+            else:
+                for routes, _, _, _, ant_idx in ant_results:
+                    ant_solutions[ant_idx] = routes
+
+            # Strategic Oscillation management (per paper §III.B)
+            if global_best_improved:
+                stagnation_counter = 0
+                self.pv = self.initial_pv
+            else:
+                stagnation_counter += 1
+                if stagnation_counter >= self.params.stagnation_limit:
+                    self.pv /= 2.0
+
+            # Pure AS pheromone evaporation
             self._evaporate_pheromones()
 
-            # 4. Multi-ant pheromone deposit (AS-style, not ACS elitist)
-            # Only ants with positive journey improvement deposit pheromone
-            for _routes, start_cost_ant, final_cost_ant, sequence, _ant_idx in ant_results:
-                journey_improvement = start_cost_ant - final_cost_ant  # I_k
+            # ----------------------------------------------------------------
+            # Bug #1 fix: pheromone deposit includes Q constant.
+            # Paper: Δτ^k_ij = Q + I_k / L_k  when I_k > 0.
+            # ----------------------------------------------------------------
+            for _routes, start_obj_ant, final_obj_ant, sequence, _ant_idx in ant_results:
+                journey_improvement = start_obj_ant - final_obj_ant
                 if journey_improvement > 0:
-                    # Delta_tau = I_k / L_k
-                    delta_tau = journey_improvement / len(sequence)
-                    prev_op_idx = self.n_operators  # Start state
+                    delta_tau = self.params.Q + journey_improvement / len(sequence)
+                    prev_op_idx = self.n_operators  # virtual start — first real edge seeds real rows
                     for op_name in sequence:
                         next_op_idx = self.op_to_idx[op_name]
                         self.tau[prev_op_idx][next_op_idx] += delta_tau
                         prev_op_idx = next_op_idx
 
-            # 5. Clip pheromones after deposit
-            np.clip(self.tau, self.params.tau_min, self.params.tau_max, out=self.tau)
+            # Visibility integration
+            self.eta = (self.params.eta_decay * self.eta) + total_eta_updates
 
-            # Task 1: Apply visibility evaporation and updates ONCE per iteration
-            self.eta = (self.params.rho * self.eta) + total_eta_updates
-            self.eta = np.clip(self.eta, 0.01, 100.0)
-
-            getattr(self, "_viz_record", lambda **k: None)(
-                iteration=_it,
-                best_profit=best_profit,
-                best_cost=best_cost,
-                iter_best_cost=iter_best_cost,
-                tau_mean=float(self.tau.mean()),
-                eta_mean=float(self.eta.mean()),
-                global_best_improved=global_best_improved,
-            )
-
+        best_cost = self._calculate_routing_cost(best_routes)
         collected_rev = sum(self.wastes.get(n, 0) * self.R for r in best_routes for n in r)
         final_cost = best_cost / self.C if self.C > 0 else best_cost
+
         return best_routes, collected_rev - best_cost, final_cost
 
-    def build_solution(self, base_solution: List[List[int]]) -> Tuple[List[List[int]], List[str], np.ndarray]:
+    def build_solution(
+        self,
+        base_solution: List[List[int]],
+        start_op_idx: int,
+    ) -> Tuple[List[List[int]], List[str], np.ndarray, int]:
         """
-        Build a solution by applying a sequence of operators.
-
-        Task 1: Track execution time, cost improvement, and return eta updates.
-        The visibility matrix evaporation is applied once per iteration, not per ant.
+        Build a solution by constructing and applying an operator sequence.
 
         Args:
-            base_solution: The starting solution for this ant.
+            base_solution: Base solution to improve.
+            start_op_idx: The operator vertex this ant currently occupies.
+                Sequences are constructed beginning from this vertex, not from
+                the virtual start node (Bug #2 fix).
 
         Returns:
-            Tuple[List[List[int]], List[str], np.ndarray]: Modified routes, operator sequence, and eta updates.
+            Tuple of:
+                - Improved routes.
+                - Sequence of operator names applied.
+                - Per-edge eta update matrix accumulated during this sequence.
+                - Ending operator index (the ant's new position for next iteration).
         """
-        sequence = self._select_sequence()
-        ctx = HyperOperatorContext(
-            routes=copy.deepcopy(base_solution),
+        sequence, end_op_idx = self._select_sequence(start_op_idx)
+
+        # Strategic Oscillation: relax capacity when search is stagnating
+        effective_capacity = float("inf") if self.pv < self.initial_pv else self.capacity
+
+        ctx = self._make_context(base_solution, effective_capacity)
+
+        eta_updates = np.zeros_like(self.eta)
+        stability_constant = 1e-3
+        prev_op_idx = start_op_idx  # first edge departs from the ant's current real vertex
+        for op_name in sequence:
+            next_op_idx = self.op_to_idx[op_name]
+            op_func = HYPER_OPERATORS.get(op_name)
+            if op_func:
+                obj_before = self._evaluate_objective(ctx.routes)
+                t0 = time.perf_counter()
+                op_func(ctx)
+                execution_time = time.perf_counter() - t0
+                obj_after = self._evaluate_objective(ctx.routes)
+
+                improvement = obj_before - obj_after
+
+                # ----------------------------------------------------------------
+                # Bug #3 context: visibility contribution λ^I or exp(I/Z).
+                # Paper: λ=1.0001 as base of exponential (λ^{I_kj}).
+                # VRPP extension: exp(I/Z) with running EMA normaliser Z.
+                # ----------------------------------------------------------------
+                if self.params.use_dynamic_lambda:
+                    # Scale-invariant extension: update EMA of |improvement|
+                    abs_imp = abs(improvement)
+                    if abs_imp > 1e-6:
+                        self.Z = (1 - self.Z_alpha) * self.Z + self.Z_alpha * abs_imp
+                    scaled_improvement = improvement / max(self.Z, 1e-6)
+                    capped = max(min(scaled_improvement, 10.0), -10.0)
+                    lam = math.exp(capped)
+                else:
+                    # Paper-faithful: λ = 1.0001 as exponential base.
+                    # λ^I is positive for any real I, converging to 0 for large
+                    # negative I (rare operators still get a tiny signal).
+                    lam = self.params.lambda_val**improvement
+
+                self.edge_count[prev_op_idx][next_op_idx] += 1
+                safe_count = max(self.edge_count[prev_op_idx][next_op_idx], 1)
+
+                eta_updates[prev_op_idx][next_op_idx] += lam / ((execution_time + stability_constant) * safe_count)
+
+            prev_op_idx = next_op_idx
+
+        return ctx.routes, sequence, eta_updates, end_op_idx
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _make_context(self, routes: List[List[int]], effective_capacity: float) -> "HyperOperatorContext":
+        """Construct a HyperOperatorContext for the given solution snapshot.
+
+        Args:
+            routes: Current routes (will be deep-copied inside).
+            effective_capacity: Capacity to enforce (may be inf during oscillation).
+
+        Returns:
+            HyperOperatorContext ready for operator application.
+        """
+        return HyperOperatorContext(
+            routes=copy.deepcopy(routes),
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
-            capacity=self.capacity,
+            capacity=effective_capacity,
             R=self.R,
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
@@ -238,80 +370,43 @@ class HyperHeuristicACO:
             vrpp=self.params.vrpp,
         )
 
-        # Task 1: Time-weighted visibility update
-        # Accumulate visibility updates for this ant's journey
-        eta_updates = np.zeros_like(self.eta)
-        prev_op_idx = self.n_operators  # Start state
-
-        for op_name in sequence:
-            next_op_idx = self.op_to_idx[op_name]
-            op_func = HYPER_OPERATORS.get(op_name)
-
-            if op_func:
-                # Measure execution time T_kj(t)
-                cost_before = self._calculate_cost(ctx.routes)
-                start_time = time.perf_counter()
-                op_func(ctx)
-                execution_time = time.perf_counter() - start_time
-                cost_after = self._calculate_cost(ctx.routes)
-
-                # Calculate cost improvement I_kj
-                cost_improvement = cost_before - cost_after
-
-                # Apply monotonic conversion
-                lambda_power = self.params.lambda_factor**cost_improvement
-
-                # Increment edge count
-                self.edge_count[prev_op_idx][next_op_idx] += 1
-
-                # Compute visibility contribution: lambda^I_kj / (T_kj * num(i,j))
-                # Avoid division by zero
-                safe_time = max(execution_time, 1e-9)
-                safe_count = max(self.edge_count[prev_op_idx][next_op_idx], 1)
-
-                eta_updates[prev_op_idx][next_op_idx] += lambda_power / (safe_time * safe_count)
-
-            prev_op_idx = next_op_idx
-
-        # Return eta_updates without applying them - solve() will handle the evaporation
-        return ctx.routes, sequence, eta_updates
-
-    def _select_sequence(self) -> List[str]:
+    def _select_sequence(self, start_op_idx: int) -> Tuple[List[str], int]:
         """
-        Construct an operator sequence using ACO rules with ACS q0 exploitation.
+        Pure Ant System proportional selection, starting from a real operator vertex.
 
-        Use self.sequence_length (dynamically set to n_operators).
+        Bug #2 fix: the sequence now departs from the ant's actual current position
+        (a real operator index in [0, n_operators-1]) rather than the virtual start
+        node (index n_operators). This means pheromone trails on real operator-to-
+        operator edges are reinforced from the very first journey.
+
+        Args:
+            start_op_idx: Operator index this ant currently occupies.
 
         Returns:
-            List[str]: Sequence of operator names.
+            Tuple of:
+                - Ordered list of operator names selected for this journey.
+                - Ending operator index (ant's new position).
         """
-        sequence = []
-        current_op_idx = self.n_operators  # Start state (index n_operators in tau)
+        sequence: List[str] = []
+        current_op_idx = start_op_idx
 
         for _ in range(self.sequence_length):
-            # ACS pseudo-random proportional rule with 2D eta
             numerator = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta[current_op_idx] ** self.params.beta)
-
-            # ACS q0 rule: exploit vs. explore
-            if self.random.random() < self.params.q0:
-                # Exploit: choose best known operator
-                next_op_idx = int(np.argmax(numerator))
-            else:
-                # Explore: roulette wheel selection
-                denom = np.sum(numerator)
-                probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
-                next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
+            denom = np.sum(numerator)
+            probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
+            next_op_idx = int(self.np_rng.choice(self.n_operators, p=probs))
 
             sequence.append(self.operator_names[next_op_idx])
             current_op_idx = next_op_idx
 
-        return sequence
+        return sequence, current_op_idx
 
-    def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost.
+    def _calculate_routing_cost(self, routes: List[List[int]]) -> float:
+        """
+        Calculate total routing cost.
 
         Args:
-            routes (List[List[int]]): Routes.
+            routes: Routes.
 
         Returns:
             float: Total routing cost.
@@ -326,8 +421,30 @@ class HyperHeuristicACO:
             total += self.dist_matrix[route[-1], 0]
         return total * self.C
 
+    def _evaluate_objective(self, routes: List[List[int]]) -> float:
+        """
+        Adaptive objective incorporating Strategic Oscillation penalty.
+
+        Infeasible solutions (capacity violations) are penalised by pv per
+        violation. pv is dynamically adjusted during the search (halved on
+        stagnation, reset to initial_pv on improvement) per Chen et al. (2007).
+
+        Args:
+            routes: Routes.
+
+        Returns:
+            float: Penalised objective value.
+        """
+        routing_cost = self._calculate_routing_cost(routes)
+        num_violations = sum(1 for r in routes if sum(self.wastes.get(n, 0) for n in r) > self.capacity)
+        return routing_cost + (self.pv * num_violations)
+
     def _evaporate_pheromones(self) -> None:
-        """Apply pheromone evaporation (no clipping here per Phase 4).
+        """Pure Ant System pheromone evaporation.
+
+        Paper: τ_ij(t) = ρ · τ_ij(t−n) + Σ_k Δτ^k_ij
+        Evaporation is applied before deposit each iteration (equivalent since
+        each outer iteration corresponds to exactly one complete journey).
 
         Returns:
             None

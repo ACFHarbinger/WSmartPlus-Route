@@ -279,6 +279,55 @@ class VRPPMasterProblemConstraintsMixin:
             self.model.update()
         return True
 
+    def add_multistar_cut(
+        self: "MasterProblemSupport",
+        node_list: List[int],
+        coefficients: Dict[int, float],
+    ) -> bool:
+        """Add a Generalized Multistar Inequality cut (Letchford, Eglese, Lysgaard 2002).
+
+        Constraint stored in Gurobi as:
+            Σ_k (-a_k) · λ_k  ≤  0
+        where ``coefficients[k] = -a_k`` for routes with |a_k| > 1e-6.
+
+        The dual γ_S ≥ 0 (Pi of a ≤ constraint in a MAX LP) is extracted in
+        ``_extract_duals`` into ``self.dual_multistar_cuts`` and emitted by
+        ``get_reduced_cost_coefficients`` under the ``"multistar_duals"`` key,
+        where ``solver.py._extend_label`` applies the arc-level penalty.
+
+        Args:
+            node_list: Customer nodes forming the cover set S.
+            coefficients: {route_index: -a_k} for routes with |a_k| > 1e-6.
+
+        Returns:
+            True if the cut was newly added to the model; False if duplicate or
+            if no column has a non-negligible coefficient.
+        """
+        if self.model is None or not self.lambda_vars:
+            return False
+
+        node_set = frozenset(node_list)
+        if node_set in self.active_multistar_cuts:
+            return False
+
+        lhs = gp.LinExpr()
+        for idx, coeff in coefficients.items():
+            if idx < len(self.lambda_vars) and abs(coeff) > 1e-9:
+                lhs += coeff * self.lambda_vars[idx]
+
+        if lhs.size() == 0:
+            return False
+
+        name = f"multistar_{abs(hash(node_set))}"
+        constr = self.model.addConstr(lhs <= 0.0, name=name)
+        self.active_multistar_cuts[node_set] = constr
+        # Archive so descendant B&B nodes replay the cut with freshly recomputed
+        # coefficients (route indices shift across nodes — pool.apply_to_master
+        # handles the recomputation via wastes / capacity).
+        self.global_cut_pool.add_cut("multistar", (node_set, coefficients))
+        self.model.update()
+        return True
+
     def add_set_packing_capacity_cut(self: MasterProblemSupport, node_list: List[int], rhs: float) -> bool:
         """
         Add a Rounded Capacity Cut (RCC) to the master problem.

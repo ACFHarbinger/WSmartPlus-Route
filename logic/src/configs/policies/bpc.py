@@ -66,6 +66,7 @@ class BPCConfig:
         lr_op_time_limit: Time limit for LR operations (seconds).
         lr_pre_pruning_depth_limit: Depth limit for LR pre-pruning.
         lr_warm_start_cg: Whether to warm-start column generation with LR solutions.
+        prefer_shorter_path_dfs: Whether to prefer the child where the shorter path is still allowed.
     """
 
     time_limit: float = 60.0
@@ -106,3 +107,4 @@ class BPCConfig:
     lr_warm_start_cg: bool = False
     rcspp_timeout: float = 30.0  # Safety cap for single pricer call
     rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
+    prefer_shorter_path_dfs: bool = True
