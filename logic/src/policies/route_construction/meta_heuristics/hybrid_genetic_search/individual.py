@@ -110,6 +110,9 @@ class Individual:
         # VRPP-specific: controls whether repair operators expand node pool
         self.expand_pool = expand_pool
 
+        # Genetic Diversity
+        self._edge_key: Optional[frozenset] = None
+
     @property
     def routes(self) -> List[List[int]]:
         """
@@ -133,6 +136,7 @@ class Individual:
         """
         self._routes = value
         self._visited_cache = None
+        self._edge_key = None
 
     @property
     def penalized_profit(self) -> float:

@@ -562,15 +562,24 @@ class VRPPMasterProblemSupportMixin:
         Returns:
             Number of routes re-activated and added to the RMP.
         """
-
         if not self.global_column_pool:
             return 0
+
+        # Normalize list-of-tuples format (from get_reduced_cost_coefficients)
+        # into the dict format that calculate_reduced_cost expects.
+        def _to_dict(duals: Union[Dict, List[Tuple[Set[int], float]]]) -> Dict[FrozenSet[int], float]:
+            if isinstance(duals, list):
+                return {frozenset(s): d for s, d in duals}
+            return duals  # already a dict
+
+        rcc_duals_dict = _to_dict(rcc_duals)
+        sri_duals_dict = _to_dict(sri_duals)
 
         # Bundle duals for calculate_reduced_cost
         dual_values: Dict[str, Any] = {
             "node_duals": node_duals,
-            "rcc_duals": rcc_duals,
-            "sri_duals": sri_duals,
+            "rcc_duals": rcc_duals_dict,
+            "sri_duals": sri_duals_dict,
             "edge_clique_duals": edge_clique_duals,
             "lci_duals": lci_duals or {},
             "lci_node_alphas": lci_node_alphas or {},
@@ -585,7 +594,6 @@ class VRPPMasterProblemSupportMixin:
         # and only inject the top 'max_to_add' (N=30) movers. This prevents RMP bloat.
         max_to_add = 30
         candidates: List[Tuple[float, int]] = []
-
         for i, route in enumerate(self.global_column_pool):
             # Task 1: Enforce physical elementarity.
             if len(set(route.nodes)) != len(route.nodes):
@@ -656,15 +664,18 @@ class VRPPMasterProblemSupportMixin:
 
         # 3. Capacity Cut (RCC) duals
         rcc_duals = dual_values.get("rcc_duals", {})
-        for node_set, dual in rcc_duals.items():
-            crossings = self._count_crossings(route, node_set)
+        # Handle both dict {frozenset: dual} and list [(set, dual)] formats
+        rcc_iter = ((frozenset(s), d) for s, d in rcc_duals) if isinstance(rcc_duals, list) else rcc_duals.items()
+        for node_set, dual in rcc_iter:
+            crossings = self._count_crossings(route, frozenset(node_set))
             if crossings > 0:
                 rc -= float(crossings) * dual
 
         # 4. Subset-Row Inequality (SRI) duals
         sri_duals = dual_values.get("sri_duals", {})
+        sri_iter = ((frozenset(s), d) for s, d in sri_duals) if isinstance(sri_duals, list) else sri_duals.items()
         route_nodes = set(route.nodes)
-        for subset, dual in sri_duals.items():
+        for subset, dual in sri_iter:
             count = len(subset.intersection(route_nodes))
             coeff = count // 2
             if coeff > 0:
