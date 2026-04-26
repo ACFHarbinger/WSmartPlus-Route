@@ -35,7 +35,7 @@ class MemeticAlgorithmToleranceBasedSelectionSolver:
     """
     Memetic Algorithm with Tolerance-based Selection for VRPP.
 
-    EXACT COPY of LCA with rigorous nomenclature.
+    Adaptation of LCA with rigorous nomenclature.
 
     Attributes:
         dist_matrix: Symmetric distance matrix.

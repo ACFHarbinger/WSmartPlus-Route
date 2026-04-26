@@ -2,11 +2,11 @@
 Lin-Kernighan (LK) Route Improver.
 
 Attributes:
-    LKRouteImprover: Main class for Lin-Kernighan improvement.
+    LinKernighanRouteImprover: Main class for Lin-Kernighan improvement.
 
 Example:
-    >>> from logic.src.policies.route_improvement.lk import LKRouteImprover
-    >>> improver = LKRouteImprover(config=cfg)
+    >>> from logic.src.policies.route_improvement.lk import LinKernighanRouteImprover
+    >>> improver = LinKernighanRouteImprover(config=cfg)
     >>> refined_tour, metrics = improver.process(tour, max_iterations=50)
 """
 
@@ -29,7 +29,7 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.LOCAL_SEARCH,
 )
 @RouteImproverRegistry.register("lk")
-class LKRouteImprover(IRouteImprovement):
+class LinKernighanRouteImprover(IRouteImprovement):
     """Lin-Kernighan route improver.
 
     Iterative improvement heuristic for the TSP. Highly effective for medium-sized
@@ -40,7 +40,7 @@ class LKRouteImprover(IRouteImprovement):
         config (Dict[str, Any]): Internal configuration state.
 
     Example:
-        >>> improver = LKRouteImprover(config=cfg)
+        >>> improver = LinKernighanRouteImprover(config=cfg)
         >>> refined_tour, metrics = improver.process(tour, max_iterations=50)
     """
 

@@ -31,7 +31,7 @@ class MemeticAlgorithmDualPopulationSolver:
     """
     Memetic Algorithm with Dual Population for VRPP.
 
-    EXACT COPY of VPL with rigorous nomenclature.
+    Adaptation of VPL with rigorous nomenclature.
 
     Attributes:
         dist_matrix: Symmetric distance matrix.

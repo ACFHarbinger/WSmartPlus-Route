@@ -101,6 +101,10 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         Returns:
             float: The best objective value.
         """
+        f_best = kwargs.get("f_best")
+        if f_best is not None:
+            return float(f_best)
+        return self.f_best_ever
 
     def accept(
         self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any

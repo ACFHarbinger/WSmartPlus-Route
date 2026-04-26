@@ -54,7 +54,7 @@ else:
 
 parts: tuple[str, ...] = path.parts  # Split path into components
 try:
-    root_dir = Path(*parts[: parts.index("logic")]).parent.absolute()
+    root_dir = Path(*parts[: parts.index("logic")]).absolute()
 except ValueError:
     root_dir = Path(*parts[:-3]).absolute()
 

@@ -32,7 +32,7 @@ class MemeticAlgorithmIslandModelSolver:
     """
     Memetic Algorithm with Island Model (MA-IM) solver for VRPP.
 
-    EXACT COPY of SLC with rigorous nomenclature.
+    Adaptation of SLC with rigorous nomenclature.
 
     Attributes:
         dist_matrix: Symmetric distance matrix.

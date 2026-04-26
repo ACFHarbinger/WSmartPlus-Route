@@ -4,104 +4,127 @@
 # PSOMA (Particle Swarm Optimization Memetic Algorithm) Policy Configuration
 # =============================================================================
 # PURPOSE:
-#   Discrete PSO where particles are route permutations. "Velocity" is a list
-#   of swap operations derived from personal and global best positions.
-#   Periodically augmented with a memetic local-search step (worst-removal +
-#   greedy reinsertion) for intensification.
+#   Continuous PSO with Ranked-Order-Value (ROV) mapping and Linear Split.
+#   Particles evolve in a continuous [x_min, x_max] space, which is mapped to
+#   a permutation (giant tour) via the ROV rule. This giant tour is then
+#   decoded into feasible routes using the optimal Linear Split algorithm.
 #
 # ALGORITHM:
-#   1. Initialize pop_size particles with random feasible routes
-#   2. Each particle maintains pbest (personal best) and references gbest
-#   3. Velocity update:
-#      - Inertia: retain fraction omega of current swap operations
-#      - Cognitive: with prob c1*rand, OX-segment copy toward pbest
-#      - Social: with prob c2*rand, OX-segment copy toward gbest
-#   4. Position update: apply accumulated swap operations to current solution
-#   5. Memetic step every local_search_freq iterations:
-#      worst_removal + greedy_insertion on all particles
-#   6. Update pbest / gbest; repeat until time_limit
+#   1. Initialize pop_size particles with random continuous positions X and
+#      velocities V in D-dimensional space (D = number of customers).
+#   2. Velocity Update:
+#      V = omega*V + c1*rand*(pbest - X) + c2*rand*(gbest - X)
+#      (Limited by [v_min, v_max])
+#   3. Position Update: X = X + V (Clamped to [x_min, x_max])
+#   4. Phenotype Mapping:
+#      - ROV Rule: Sort customer indices by their values in X to get a giant tour.
+#      - Linear Split: Partition giant tour into optimal routes based on capacity.
+#   5. Intensification:
+#      Simulated Annealing (SA) search on the giant tour using the 2-Opt
+#      neighborhood to refine the permutation before splitting.
+#   6. Update pbest / gbest; repeat until time_limit.
 #
 # KEY FEATURE:
-#   Low inertia (omega≈0.4) forces exploitation — particles converge quickly
-#   to gbest neighbourhood, while the memetic step prevents premature
-#   stagnation by re-optimising insertion quality.
+#   Hybridizing continuous swarm dynamics with discrete local search via
+#   ROV mapping provides a flexible balance between global exploration and
+#   rigorous intensification in the permutation space.
 #
 # TYPICAL USE CASES:
-#   - Moderate instances (20-100 nodes)
-#   - Benchmarking swarm intelligence hybridised with local search
-#   - Scenarios where both diversity (PSO) and depth (LS) matter
+#   - Large VRP instances where continuous exploration is efficient.
+#   - Scenarios requiring high-quality solutions via SA refinement.
 #
 # PERFORMANCE EXPECTATIONS:
-#   - Better than pure PSO due to memetic refinement
-#   - Local search frequency trades convergence speed vs. quality
-#   - Competitive with ALNS on 30-node instances; lags on 100+ nodes
+#   - Significantly better convergence than discrete swap-based PSO.
+#   - SA local search provides high-quality intensification.
+#   - Scales well with number of customers due to Linear Split's efficiency.
 # =============================================================================
 
 psoma:
-  custom:
-    # -------------------------------------------------------------------------
-    # Swarm Parameters
-    # -------------------------------------------------------------------------
-    - pop_size: 20
-      # Number of particles (route solutions) in the swarm
-      # Range: 10-50 (10 = fast, 20 = balanced, 50 = diverse but slower)
+  # -------------------------------------------------------------------------
+  # Swarm Parameters
+  # -------------------------------------------------------------------------
+  pop_size:
+    20
+    # Number of particles (continuous solutions) in the swarm
+    # Range: 10-50 (10 = fast, 20 = balanced, 50 = diverse but slower)
 
-    - n_removal: 2
-      # Nodes removed during memetic local-search step
-      # Range: 1-5 (1 = micro perturbation, 3 = moderate shake)
+  # -------------------------------------------------------------------------
+  # PSO Velocity & Position Coefficients
+  # -------------------------------------------------------------------------
+  omega:
+    1.0
+    # Inertia weight — controls momentum of particles
+    # Range: 0.4-1.2 (1.0 = balanced)
 
-    # -------------------------------------------------------------------------
-    # PSO Velocity Coefficients
-    # -------------------------------------------------------------------------
-    - omega: 0.4
-      # Inertia weight — fraction of previous velocity retained
-      # Range: 0.1-0.9 (0.4 = exploitation-focused, 0.9 = exploration-focused)
-      # Low omega → rapid convergence to best known region
+  c1:
+    2.0
+    # Cognitive acceleration — pull toward particle's personal best
+    # Range: 0.5-2.5 (higher → stronger individual memory influence)
 
-    - c1: 1.5
-      # Cognitive acceleration — pull toward particle's personal best
-      # Range: 0.5-2.5 (higher → stronger individual memory influence)
+  c2:
+    2.0
+    # Social acceleration — pull toward global best
+    # Range: 0.5-2.5 (higher → stronger global best influence)
 
-    - c2: 2.0
-      # Social acceleration — pull toward global best
-      # Range: 0.5-2.5 (higher → stronger global best influence)
-      # c2 > c1 → social learning dominates (typical for exploitation)
+  x_min: 0.0
+  x_max:
+    4.0
+    # Bounds for continuous position vector
 
-    # -------------------------------------------------------------------------
-    # Memetic Local Search
-    # -------------------------------------------------------------------------
-    - local_search_freq: 10
-      # Apply worst-removal + greedy reinsertion every N iterations
-      # Range: 5-50 (5 = frequent refinement, 20 = occasional, 50 = rare)
-      # Lower frequency → higher quality per iteration but slower overall
+  v_min: -4.0
+  v_max:
+    4.0
+    # Bounds for continuous velocity vector
 
-    - local_search_iterations: 500
-      # Number of local search iterations
-      # Range: 10-500 (10 = quick, 100 = production, 500 = benchmark)
+  # -------------------------------------------------------------------------
+  # Intensification (Simulated Annealing)
+  # -------------------------------------------------------------------------
+  L:
+    30
+    # If gbest keeps fixed at consecutive L steps, then output the best solution
+    # Range: 10-100 (higher → deeper intensification)
 
-    # -------------------------------------------------------------------------
-    # Runtime Control
-    # -------------------------------------------------------------------------
-    - max_iterations: 200
-      # Maximum PSO iterations
-      # Range: 50-500 (100 = quick, 200 = production, 500 = benchmark)
+  T0:
+    3.0
+    # Initial temperature for Simulated Annealing
+    # Range: 0.5-10.0
 
-    - time_limit: 60.0
-      # Maximum wall-clock seconds
-      # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
+  lambda_cooling:
+    0.9
+    # Cooling rate (alpha) for temperature reduction
+    # Range: 0.8-0.999 (higher → slower cooling, more intensive)
 
-    # -------------------------------------------------------------------------
-    # Infrastructure Settings
-    # -------------------------------------------------------------------------
-    # VRPP Settings
-    - profit_aware_operators: false
-    - vrpp: true
+  acceptance_criterion:
+    method: "bmc"
+    params:
+      initial_temp: 3.0
+      alpha: 0.9
+      seed: 42
 
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
+  # -------------------------------------------------------------------------
+  # Runtime Control
+  # -------------------------------------------------------------------------
+  max_iterations:
+    200
+    # Maximum PSO iterations
+    # Range: 50-500 (100 = quick, 200 = production, 500 = benchmark)
 
-    - route_improvement: []
-      # Memetic step already refines routes; no further route improvement needed
-      # Empty = use PSOMA output directly
+  time_limit:
+    60.0
+    # Maximum wall-clock seconds
+    # Range: 10-300 (30s = quick, 60s = production, 120s = benchmark)
+
+  # -------------------------------------------------------------------------
+  # Infrastructure Settings
+  # -------------------------------------------------------------------------
+  seed: 42
+  profit_aware_operators: false
+  vrpp: true
+
+  mandatory_selection:
+    ["other/ms_lookahead.yaml"]
+    # Node selection strategy for waste collection problems
+
+  route_improvement: []
+    # SA already refines routes; no further route improvement needed
 # =============================================================================

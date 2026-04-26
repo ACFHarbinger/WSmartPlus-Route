@@ -1,7 +1,7 @@
 """
 Hybrid Memetic Search (HMS) for VRPP.
 
-EXACT COPY of Hybrid Volleyball Premier League (HVPL) with rigorous nomenclature.
+Adaptation of Hybrid Volleyball Premier League (HVPL) for VRPP with rigorous nomenclature.
 
 TERMINOLOGY MAPPING (HVPL → HMS):
 - "Active Teams" → Active Population
@@ -69,7 +69,7 @@ class HybridMemeticSearchSolver:
     """
     Hybrid Memetic Search solver for VRPP.
 
-    EXACT COPY of HVPL with rigorous nomenclature.
+    Adaptation of HVPL with rigorous nomenclature.
 
     Attributes:
         dist_matrix: NxN distance matrix.
@@ -477,7 +477,6 @@ class HybridMemeticSearchSolver:
         n = max(3, self.params.n_removal)
         use_profit = self.params.profit_aware_operators
         expand_pool = self.params.vrpp
-
         try:
             if use_profit:
                 partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R)

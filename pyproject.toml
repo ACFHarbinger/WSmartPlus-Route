@@ -267,7 +267,7 @@ addopts = [
     "--tb=short",              # Shorter traceback format
     "--color=yes",             # Color output
     "--show-capture=all",      # Show captured output on failure
-    "--disable-warnings",      # Disable warnings to reduce noise
+    #"--disable-warnings",      # Disable warnings to reduce noise
     "--import-mode=importlib", # Resolve conftest conflicts
 ]
 

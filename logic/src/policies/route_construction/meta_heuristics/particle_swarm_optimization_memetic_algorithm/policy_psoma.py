@@ -25,7 +25,7 @@ from logic.src.policies.route_construction.base.base_routing_policy import BaseR
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .params import PSOMAParams
-from .solver import PSOMAsSolver
+from .solver import PSOMASolver
 
 
 @RouteConstructorRegistry.register("psoma")
@@ -36,7 +36,7 @@ class PSOMAPolicy(BaseRoutingPolicy):
     Visits bins using Particle Swarm Optimization with a memetic local-search step.
 
     Attributes:
-        solver (PSOMAsSolver): Internal solver instance.
+        solver (PSOMASolver): Internal solver instance.
         params (PSOMAParams): Algorithm parameters.
     """
 
@@ -114,22 +114,9 @@ class PSOMAPolicy(BaseRoutingPolicy):
                 - profit: Total calculated net profit (Total Revenue - Total Cost).
                 - cost: Total travel cost calculated by the solver.
         """
-        params = PSOMAParams(
-            pop_size=int(values.get("pop_size", 20)),
-            omega=float(values.get("omega", 0.4)),
-            c1=float(values.get("c1", 1.5)),
-            c2=float(values.get("c2", 2.0)),
-            max_iterations=int(values.get("max_iterations", 200)),
-            local_search_freq=int(values.get("local_search_freq", 10)),
-            n_removal=int(values.get("n_removal", 2)),
-            local_search_iterations=int(values.get("local_search_iterations", 500)),
-            time_limit=float(values.get("time_limit", 60.0)),
-            vrpp=values.get("vrpp", True),
-            profit_aware_operators=values.get("profit_aware_operators", False),
-            seed=values.get("seed", 42),
-        )
+        params = PSOMAParams.from_config(values)
 
-        solver = PSOMAsSolver(
+        solver = PSOMASolver(
             sub_dist_matrix,
             sub_wastes,
             capacity,
@@ -139,5 +126,4 @@ class PSOMAPolicy(BaseRoutingPolicy):
             mandatory_nodes,
         )
 
-        routes, profit, cost = solver.solve()
-        return routes, profit, cost
+        return solver.solve()

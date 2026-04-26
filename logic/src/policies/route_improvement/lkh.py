@@ -1,11 +1,11 @@
 """
-LKH-3 Route Improver (Keldahl & Helsgaun).
+LKH-1 Route Improver (Keldahl & Helsgaun).
 
 Attributes:
-    LKHRouteImprover: Main class for LKH-3 based improvement.
+    LinKernighanHelsgaunRouteImprover: Main class for LKH-1 based improvement.
 
 Example:
-    >>> improver = LKHRouteImprover(config=cfg)
+    >>> improver = LinKernighanHelsgaunRouteImprover(config=cfg)
     >>> refined_tour, metrics = improver.process(tour, max_iterations=200)
 """
 
@@ -27,8 +27,8 @@ from .common.helpers import assemble_tour, split_tour, to_numpy
     PolicyTag.HEURISTIC,
 )
 @RouteImproverRegistry.register("lkh")
-class LKHRouteImprover(IRouteImprovement):
-    """LKH-3 route improver.
+class LinKernighanHelsgaunRouteImprover(IRouteImprovement):
+    """LKH-1 route improver.
 
     Utilizes the sophisticated Lin-Kernighan-Helsgaun (LKH) solver
     (v3.0.x) for high-quality TSP reoptimization.

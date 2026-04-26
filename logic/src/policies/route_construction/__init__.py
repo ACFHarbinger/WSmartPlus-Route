@@ -11,7 +11,6 @@ Example:
     None
 """
 
-from . import acceptance_criteria as acceptance_criteria
 from . import exact_and_decomposition_solvers as exact_and_decomposition_solvers
 from . import hyper_heuristics as hyper_heuristics
 from . import learning_algorithms as learning_algorithms
@@ -22,7 +21,6 @@ from . import meta_heuristics as meta_heuristics
 from . import other_algorithms as other_algorithms
 
 __all__ = [
-    "acceptance_criteria",
     "exact_and_decomposition_solvers",
     "hyper_heuristics",
     "learning_algorithms",
