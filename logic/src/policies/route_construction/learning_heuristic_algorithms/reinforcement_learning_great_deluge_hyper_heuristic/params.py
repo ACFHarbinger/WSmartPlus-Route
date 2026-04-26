@@ -12,6 +12,14 @@ Paper mappings (Section 3 and Table 1):
     - totalTime = time_limit (600 s in the paper; lower for VRPP instances)
     - Reward magnitude = +1 (RL1 additive)
     - Penalty magnitude = -1 (RL1 subtractive), ÷2 (RL2), √ (RL3)
+
+Attributes:
+    RLGDHHParams: Parameters for RL-GD-HH.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHParams
+    >>> params = RLGDHHParams()
+    >>> print(params)
 """
 
 from __future__ import annotations
@@ -86,7 +94,11 @@ class RLGDHHParams:
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
 
     def __post_init__(self):
-        """Ensure acceptance criterion is initialized even if not passed in config."""
+        """Ensure acceptance criterion is initialized even if not passed in config.
+
+        Returns:
+            None
+        """
         if self.acceptance_criterion is None:
             from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
@@ -100,7 +112,14 @@ class RLGDHHParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "RLGDHHParams":
-        """Create parameters from a configuration object."""
+        """Create parameters from a configuration object.
+
+        Args:
+            config (Any): Configuration object.
+
+        Returns:
+            RLGDHHParams: Parameters for RL-GD-HH.
+        """
         # Build parameters
         params = cls(
             max_iterations=getattr(config, "max_iterations", 5000),

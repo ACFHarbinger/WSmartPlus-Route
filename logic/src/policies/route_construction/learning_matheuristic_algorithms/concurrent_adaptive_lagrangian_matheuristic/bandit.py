@@ -32,6 +32,19 @@ Design notes
   arms tie at sqrt(phi^T phi / lambda) * alpha, so the tiebreaker (first
   arm) is used.  We shuffle the arm order once at init to avoid systematic
   bias.
+
+Attributes:
+    BanditArm: Per-arm LinUCB state.
+    LinUCBBandit: Contextual bandit with LinUCB arm selection.
+    build_context: Build the context vector.
+    select_arm: Select the best arm based on the UCB score.
+    update: Update the bandit with the reward for the given arm and context.
+
+Examples:
+    >>> from .params import BanditParams
+    >>> bandit = LinUCBBandit(BanditParams())
+    >>> arm_idx, engine, cut_strategy, score = bandit.select_arm(np.zeros(bandit.params.feature_dim))
+    >>> bandit.update(arm_idx, np.zeros(bandit.params.feature_dim), 1.0)
 """
 
 from __future__ import annotations
@@ -46,7 +59,17 @@ from .params import BanditParams
 
 @dataclass
 class BanditArm:
-    """Per-arm LinUCB state."""
+    """Per-arm LinUCB state.
+
+    Attributes:
+        engine (str): Engine name.
+        cut_strategy (str): Cut strategy name.
+        A (np.ndarray): (d, d), inverse maintained separately
+        A_inv (np.ndarray): (d, d), inverse maintained separately
+        b (np.ndarray): (d,)
+        n_pulls (int): Number of pulls.
+        cumulative_reward (float): Cumulative reward.
+    """
 
     engine: str
     cut_strategy: str
@@ -67,7 +90,14 @@ class BanditArm:
 
 
 class LinUCBBandit:
-    """Contextual bandit with LinUCB arm selection."""
+    """Contextual bandit with LinUCB arm selection.
+
+    Attributes:
+        _arms (List[BanditArm]): List of bandit arms.
+        _arm_index (Dict[Tuple[str, str], int]): Mapping of (engine, cut_strategy) to arm index.
+        params (BanditParams): Configuration for features, lambda, and exploration.
+        rng (Optional[np.random.Generator]): Random generator for arm shuffling.
+    """
 
     def __init__(self, params: BanditParams, rng: Optional[np.random.Generator] = None):
         """Initialize the LinUCB bandit coordinator.
@@ -91,6 +121,13 @@ class LinUCBBandit:
     # ------------------------------------------------------------------
 
     def _build_arms(self) -> None:
+        """Build the bandit arms.
+
+        Iterates over all combinations of engines and cut strategies, creating a BanditArm for each.
+
+        Returns:
+            None
+        """
         d = self.params.feature_dim
         lam = self.params.ridge_lambda
         for engine in self.params.engines:
@@ -115,7 +152,13 @@ class LinUCBBandit:
 
     def select_arm(self, context: np.ndarray) -> Tuple[int, str, str, float]:
         """
-        Return (arm_index, engine, cut_strategy, ucb_score).
+        Select the best arm based on the UCB score.
+
+        Args:
+            context (np.ndarray): Context vector.
+
+        Returns:
+            Tuple[int, str, str, float]: Tuple of (arm_index, engine, cut_strategy, ucb_score).
         """
         assert context.shape == (self.params.feature_dim,), (
             f"Context dimension {context.shape} does not match feature_dim={self.params.feature_dim}"
@@ -136,7 +179,14 @@ class LinUCBBandit:
         return best_idx, arm.engine, arm.cut_strategy, best_score
 
     def update(self, arm_index: int, context: np.ndarray, reward: float) -> None:
-        """Sherman-Morrison incremental update of A_inv and b."""
+        """
+        Update the bandit with the reward for the given arm and context.
+
+        Args:
+            arm_index (int): Index of the arm to update.
+            context (np.ndarray): Context vector.
+            reward (float): Reward for the given arm and context.
+        """
         arm = self._arms[arm_index]
         x = context
         scale = self.params.reward_scale
@@ -210,6 +260,22 @@ def build_context(
         7: bias (always 1.0)
 
     If `feature_dim` is larger than 8 we pad with zeros; smaller, we truncate.
+
+    Args:
+        outer_iter (int): Current outer iteration number.
+        max_outer (int): Maximum number of outer iterations.
+        primal_gap_frac (float): Fractional primal gap.
+        dual_progress_frac (float): Fractional dual progress.
+        iters_since_improvement (int): Number of iterations since improvement.
+        stagnation_patience (int): Patience for stagnation detection.
+        fraction_bins_selected (float): Fraction of bins selected.
+        fraction_periods_saturated (float): Fraction of periods saturated.
+        lambda_norm (float): L2 norm of Lagrangian multipliers.
+        lambda_norm_scale (float): Scale factor for L2 norm of Lagrangian multipliers.
+        feature_dim (int): Dimension of the feature vector.
+
+    Returns:
+        np.ndarray: Feature vector.
     """
     raw = np.array(
         [

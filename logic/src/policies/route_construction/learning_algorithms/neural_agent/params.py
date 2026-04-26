@@ -1,5 +1,15 @@
 """
 Configuration parameters for the Neural Policy.
+
+Attributes:
+    NeuralParams: Configuration parameters for the Neural Policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import NeuralAgent
+    >>> policy = NeuralAgent(model)
+    >>> routes, metrics = policy.run_day(env)
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from __future__ import annotations
@@ -31,7 +41,14 @@ class NeuralParams:
 
     @classmethod
     def from_config(cls, config: Any) -> NeuralParams:
-        """Create NeuralParams from a configuration object or dictionary."""
+        """Create NeuralParams from a configuration object or dictionary.
+
+        Args:
+            config: Configuration object or dictionary.
+
+        Returns:
+            NeuralParams: Configuration parameters for the Neural Policy.
+        """
         if isinstance(config, dict):
             return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
 
@@ -45,5 +62,9 @@ class NeuralParams:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert Params to a dictionary."""
+        """Convert NeuralParams to a dictionary.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of NeuralParams.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

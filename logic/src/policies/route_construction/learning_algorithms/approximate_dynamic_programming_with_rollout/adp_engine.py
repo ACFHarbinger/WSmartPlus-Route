@@ -21,6 +21,16 @@ References
 ----------
 Powell, W. B. (2011). "Approximate Dynamic Programming: Solving the Curses
 of Dimensionality." Wiley-Interscience.
+
+Attributes:
+    ADPRolloutEngine: Approximate Dynamic Programming engine for SIRP.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import ADPRolloutEngine
+    >>> engine = ADPRolloutEngine(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, metrics = engine.run_day()
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from __future__ import annotations
@@ -42,6 +52,16 @@ class ADPRolloutEngine:
     Uses a greedy rollout baseline to estimate the expected future value
     V(S_{t+1}) under candidate visit decisions, then selects the visit set
     that minimises total expected cost across the look-ahead horizon H.
+
+    Attributes:
+        dist_matrix: Square distance/cost matrix (0-indexed, depot = 0).
+        wastes: Mapping {node_id: current_fill_level_%} for all customers.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste collected.
+        C: Cost per unit distance.
+        params: ADP rollout configuration.
+        mandatory_nodes: Nodes that must be served regardless of fill level.
+        n_nodes: Number of nodes.
     """
 
     def __init__(

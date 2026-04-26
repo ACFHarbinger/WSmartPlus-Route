@@ -1,5 +1,60 @@
 """
 ML-Guided Node Selection and Variable Fixing.
+
+Attributes:
+    MLBranchingStrategy: A class that implements the ML-guided node selection and variable fixing strategy.
+
+    Role in the Pipeline
+    --------------------
+    Plugs into the BPC Branch-and-Bound tree as the variable-selection oracle.
+    At each fractional LP relaxation, the oracle selects the variable to branch
+    on.  Two modes are supported:
+
+    **GNN surrogate (when** ``model`` **is set)**
+        A graph neural network trained via imitation learning on strong-
+        branching decisions encodes the B&B state as a bipartite graph and
+        predicts a ranking score for each fractional variable.  Inference is
+        O(|variables|) per node, compared to O(|variables| · LP_solves) for
+        exact strong branching.
+
+    **Reliability branching (fallback)**
+        Selects the variable with the highest pseudo-cost score:
+
+            Score(xᵢ) = min(Ψ↓ᵢ, Ψ↑ᵢ) + c · max(Ψ↓ᵢ, Ψ↑ᵢ)
+
+        Variables not yet evaluated (no pseudo-cost history) receive score
+        +∞ to prioritise exploration of unexplored candidates first.
+
+    Pseudo-cost Update
+    ------------------
+    After each exact evaluation (strong branching or child LP solve):
+
+        Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+
+    where Δ is the observed objective degradation per unit of fractionality,
+    and α is the EMA coefficient (``pseudocost_ema_alpha``).
+
+    GNN Feature Representation
+    --------------------------
+    ``compute_gnn_features`` constructs a bipartite graph representation of
+    the current fractional LP state:
+
+    Node features (one per fractional variable):
+        [current_fill, mean_fill_rate, variance_of_scenario_prizes,
+         expected_days_to_overflow]
+
+    Edge features (one per fractional arc in the LP):
+        [λ_ij, |reduced_cost_ij|]
+
+    This representation is compatible with standard B&B GNN architectures
+    (e.g. Gasse et al. 2019, Nair et al. 2020).
+
+Example:
+    >>> import numpy as np
+    >>> from my_gnn_model_pkg import load_gnn_branching_model
+    >>> model = load_gnn_branching_model("path/to/trained.pth")
+    >>> branching_oracle = MLBranchingStrategy(model=model)
+    ...
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -57,7 +112,7 @@ class MLBranchingStrategy:
     This representation is compatible with standard B&B GNN architectures
     (e.g. Gasse et al. 2019, Nair et al. 2020).
 
-    Attributes
+    Attributes:
     ----------
     model : Any or None
         Trained GNN branching model.  ``None`` activates the reliability
@@ -157,9 +212,7 @@ class MLBranchingStrategy:
         psi_down, psi_up = self.historical_pseudocosts[var_id]
         return min(psi_down, psi_up) + self.reliability_c * max(psi_down, psi_up)
 
-    def select_branching_variable(
-        self, fractional_vars: List[Any], **kwargs: Any
-    ) -> Any:
+    def select_branching_variable(self, fractional_vars: List[Any], **kwargs: Any) -> Any:
         """
         Select the variable to branch on from the fractional LP solution.
 
@@ -170,7 +223,7 @@ class MLBranchingStrategy:
         Args:
             fractional_vars: Fractional variable objects (0 < λ < 1) from
                 the current master LP relaxation.  Each must expose ``.id``.
-            **kwargs: Optional keyword arguments forwarded to the GNN model's
+            kwargs: Optional keyword arguments forwarded to the GNN model's
                 inference routine (e.g. pre-computed graph features).
 
         Returns:
@@ -195,9 +248,7 @@ class MLBranchingStrategy:
 
         return best_var
 
-    def update_pseudocosts(
-        self, var_id: int, delta_down: float, delta_up: float
-    ) -> None:
+    def update_pseudocosts(self, var_id: int, delta_down: float, delta_up: float) -> None:
         """
         Update the pseudo-cost estimates for a variable after an exact
         evaluation (strong branching or observed child LP objective change).

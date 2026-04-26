@@ -1,5 +1,15 @@
 """
 Module documentation.
+
+Attributes:
+    ADPRolloutPolicy: Approximate Dynamic Programming with Rollout Policy.
+    HierarchicalNeuralAgentPolicy: Hierarchical Neural Agent Policy.
+    NeuralAgentPolicy: Neural Agent Policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import ADPRolloutPolicy
+    >>> policy = ADPRolloutPolicy()
+    >>> policy.construct_routes(env)
 """
 
 from .approximate_dynamic_programming_with_rollout import ADPRolloutPolicy as ADPRolloutPolicy

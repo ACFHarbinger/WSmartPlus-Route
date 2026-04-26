@@ -8,6 +8,15 @@ engine to the agnostic BaseRoutingPolicy interface.
 Reference:
     Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
     "A Reinforcement Learning – Great-Deluge Hyper-heuristic for Examination Timetabling".
+
+Attributes:
+    RLGDHHPolicy: Adapter for the RL-GD-HH solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHPolicy
+    >>> policy = RLGDHHPolicy()
+    >>> solution = policy.solve()
+    >>> print(solution)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -44,6 +53,9 @@ class RLGDHHPolicy(BaseRoutingPolicy):
     RLGDHHPolicy acts as a bridge, allowing the learning-based solver
     implementation to be used within the simulator's standardized routing
     framework.
+
+    Attributes:
+        config: Configuration for the RL-GD-HH solver.
     """
 
     def __init__(self, config: Optional[Union[RLGDHHConfig, Dict[str, Any]]] = None):
@@ -109,7 +121,7 @@ class RLGDHHPolicy(BaseRoutingPolicy):
                 RL parameters and Great Deluge settings like `flood_margin`.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

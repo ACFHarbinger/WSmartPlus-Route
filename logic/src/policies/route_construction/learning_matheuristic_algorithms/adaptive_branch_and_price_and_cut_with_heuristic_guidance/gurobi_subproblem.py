@@ -5,6 +5,14 @@ Solves the LP relaxation of a single-vehicle VRPP for one (day, scenario)
 pair given fixed master assignment decisions z̄. Returns the LP optimal
 profit and dual multipliers on the assignment constraints for Benders cut
 generation.
+
+Attributes:
+    GurobiVRPSubproblem: A class that solves the LP relaxation of a single-vehicle VRPP for Benders cut generation.
+
+Example:
+    >>> from gurobi_vrp_subproblem import GurobiVRPSubproblem
+    >>> solver = GurobiVRPSubproblem()
+    >>> profit, duals, route = solver.solve(z_bar_day, prizes, dist_matrix, loads)
 """
 
 import logging
@@ -73,7 +81,7 @@ class GurobiVRPSubproblem:
     ``{i : z̄[i] > 0}``, reducing the LP size significantly when few bins
     are assigned on a given day.
 
-    Attributes
+    Attributes:
     ----------
     n_bins       : Total number of bins (matches master formulation).
     capacity     : Vehicle capacity Q used in the capacity constraint.
@@ -167,7 +175,23 @@ class GurobiVRPSubproblem:
         loads: Optional[np.ndarray],
         eligible: List[int],
     ) -> Tuple[float, Dict[int, float], List[int]]:
-        """LP relaxation solve with direct dual extraction."""
+        """LP relaxation solve with direct dual extraction.
+
+        Args:
+            z_bar_day: Integer lower bound on bin selections.
+            prizes: Bin prizes.
+            dist_matrix: Travel cost matrix.
+            loads: Bin loads.
+            eligible: List of eligible bin indices.
+
+        Returns:
+            profit: Subproblem optimal value Q(z̄, ξ).
+            duals: ``{bin_id: μ_i}`` dual values on assignment constraints.
+                Positive μ_i means making bin i available increases profit.
+            route: Approximate feasible route ``[0, n_1, …, n_k, 0]``
+                reconstructed from the LP/MIP solution via nearest-neighbour
+                ordering.
+        """
         sub_nodes = [0] + eligible  # depot (0) + eligible bins
 
         model = gp.Model("VRP_Sub_LP")
@@ -273,6 +297,19 @@ class GurobiVRPSubproblem:
 
         This gives tighter Benders cuts than the LP relaxation at the cost of
         an additional LP solve per subproblem call.
+
+        Args:
+            z_bar_day: Integer lower bound on bin selections.
+            prizes: Bin prizes.
+            dist_matrix: Travel cost matrix.
+            loads: Bin loads.
+            eligible: List of eligible bin indices.
+
+        Returns:
+            profit: Subproblem optimal value Q(z̄, ξ).
+            duals: {bin_id: μ_i} dual values on assignment constraints.
+            route: Approximate feasible route [0, n_1, …, n_k, 0] reconstructed
+                from the LP/MIP solution via nearest-neighbour ordering.
         """
         sub_nodes = [0] + eligible
         n_sub = len(eligible)

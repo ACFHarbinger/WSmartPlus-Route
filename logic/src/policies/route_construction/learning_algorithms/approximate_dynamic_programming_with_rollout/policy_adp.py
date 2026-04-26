@@ -4,6 +4,16 @@ ADP Rollout Policy Adapter.
 Adapts the ``ADPRolloutEngine`` to the ``BaseMultiPeriodRoutingPolicy``
 interface, enabling simulation-level evaluation via ``test_sim`` with the
 registry key ``"adp_rollout"``.
+
+Attributes:
+    ADPRolloutPolicy: Approximate Dynamic Programming with Rollout Policy.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import ADPRolloutPolicy
+    >>> policy = ADPRolloutPolicy()
+    >>> routes, metrics = policy.run_day(env)
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from dataclasses import asdict
@@ -44,20 +54,40 @@ class ADPRolloutPolicy(BaseMultiPeriodRoutingPolicy):
     References:
         Powell, W. B. (2011). *Approximate Dynamic Programming:
         Solving the Curses of Dimensionality.* Wiley-Interscience.
+
+    Attributes:
+        config: Configuration for the ADP Rollout policy.
     """
 
     def __init__(
         self,
         config: Optional[Union[ADPRolloutConfig, Dict[str, Any]]] = None,
     ) -> None:
-        """Initialise the ADP Rollout policy adapter."""
+        """Initialise the ADP Rollout policy adapter.
+
+        Args:
+            config (Optional[Union[ADPRolloutConfig, Dict[str, Any]]]): Configuration for the ADP Rollout policy.
+
+        Returns:
+            None
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Type[ADPRolloutConfig]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            Type[ADPRolloutConfig]: The configuration class for this policy.
+        """
         return ADPRolloutConfig
 
     def _get_config_key(self) -> str:
+        """Return the configuration key for this policy.
+
+        Returns:
+            str: The configuration key for this policy.
+        """
         return "adp_rollout"
 
     def _run_multi_period_solver(

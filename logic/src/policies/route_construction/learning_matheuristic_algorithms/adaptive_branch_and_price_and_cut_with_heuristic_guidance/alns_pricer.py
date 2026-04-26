@@ -1,5 +1,13 @@
 """
 ALNS Metaheuristic Pricing.
+
+Attributes:
+    ALNSMultiPeriodPricer: A class that implements the ALNS heuristic pricing for the Benders decomposition.
+
+Example:
+    >>> from alns_pricer import ALNSMultiPeriodPricer
+    >>> pricer = ALNSMultiPeriodPricer()
+    >>> pricer.solve()
 """
 
 from typing import Any, Dict, List, Tuple
@@ -46,7 +54,7 @@ class ALNSMultiPeriodPricer:
     This is the sign-flip of the standard LP minimisation convention
     (rc < −tol).
 
-    Attributes
+    Attributes:
     ----------
     exact_pricer : RCSPPSolver
         Exact ESPPRC solver used as fallback when ALNS fails to find
@@ -269,7 +277,7 @@ class ALNSMultiPeriodPricer:
                 LP minimisation convention.
             alns_iterations: Number of destroy-and-repair cycles per seed
                 route.
-            **kwargs: Forwarded verbatim to ``self.exact_pricer.solve()`` when
+            kwargs: Forwarded verbatim to ``self.exact_pricer.solve()`` when
                 the fallback is triggered.
 
         Returns:
@@ -291,19 +299,19 @@ class ALNSMultiPeriodPricer:
 
                 # Destroy step
                 num_remove = max(1, len(current_route) // 4)
-                current_route = self.scenario_overflow_removal(
-                    current_route, scenario_prizes, dual_values, num_remove
-                )
+                current_route = self.scenario_overflow_removal(current_route, scenario_prizes, dual_values, num_remove)
 
                 # Repair step
                 current_route = self.scenario_aware_insertion(
-                    current_route, unrouted, scenario_prizes, dual_values,
-                    dist_matrix, num_remove,
+                    current_route,
+                    unrouted,
+                    scenario_prizes,
+                    dual_values,
+                    dist_matrix,
+                    num_remove,
                 )
 
-                rc = self._calculate_reduced_cost(
-                    current_route, scenario_prizes, dual_values, dist_matrix
-                )
+                rc = self._calculate_reduced_cost(current_route, scenario_prizes, dual_values, dist_matrix)
 
                 if rc > rc_tolerance:
                     r = Route(
@@ -326,6 +334,4 @@ class ALNSMultiPeriodPricer:
             return best_routes, False
 
         # Fallback: exact ESPPRC guarantees an optimal pricing solution
-        return self.exact_pricer.solve(
-            dual_values=dual_values, max_routes=max_routes, **kwargs
-        ), True
+        return self.exact_pricer.solve(dual_values=dual_values, max_routes=max_routes, **kwargs), True

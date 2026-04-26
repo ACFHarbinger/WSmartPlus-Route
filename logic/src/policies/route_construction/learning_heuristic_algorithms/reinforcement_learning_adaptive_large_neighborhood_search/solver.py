@@ -5,7 +5,16 @@ This module implements an ALNS solver that uses various online RL algorithms
 to intelligently select destroy/repair operators during the search process.
 
 Based on the research: "Online Reinforcement Learning for Inference-Time
-Operator Selection in the Stochastic Multi-Period Capacitated Vehicle Routing Problem"
+Operator Selection in the Stochastic Multi-Period Capacitated Vehicle Routing Problem".
+
+Attributes:
+    RLALNSSolver: The RL-ALNS solver.
+
+Example:
+    >>> solver = RLALNSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes)
+    >>> routes, metrics = solver.solve()
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 import copy
@@ -67,6 +76,30 @@ class RLALNSSolver:
     Supports:
     - Multi-Armed Bandits: UCB1, D-UCB, SW-UCB, Thompson Sampling, EXP3
     - Temporal Difference Learning: Q-Learning, SARSA, Expected SARSA
+
+    Attributes:
+        dist_matrix: NxN distance matrix.
+        wastes: Dictionary of node wastes/demands.
+        capacity: Maximum vehicle capacity.
+        R: Revenue multiplier.
+        C: Cost multiplier.
+        params: RL-ALNS parameters.
+        mandatory_nodes: List of mandatory nodes.
+        random: Random number generator.
+        np_random: NumPy random number generator.
+        n_nodes: Number of nodes.
+        nodes: List of nodes.
+        destroy_ops: List of destroy operators.
+        destroy_names: List of destroy operator names.
+        repair_ops: List of repair operators.
+        repair_names: List of repair operator names.
+        action_to_ops: Mapping from action indices to destroy/repair operator pairs.
+        best_solution: Best solution found so far.
+        best_profit: Best profit found so far.
+        best_route: Best route found so far.
+        best_routes: List of best routes.
+        improvement_history: List of improvements.
+        operator_performance: List of operator performances.
     """
 
     def __init__(
@@ -524,7 +557,11 @@ class RLALNSSolver:
         return routes
 
     def get_statistics(self) -> Dict:
-        """Get solver statistics."""
+        """Get solver statistics.
+
+        Returns:
+            Dict: Solver statistics.
+        """
         stats = {
             "algorithm": self.params.rl_algorithm,
             "rl_agent_stats": self.rl_agent.get_statistics(),

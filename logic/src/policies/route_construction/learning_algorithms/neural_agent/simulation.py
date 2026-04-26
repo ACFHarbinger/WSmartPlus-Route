@@ -1,8 +1,20 @@
 """
 Simulator day logic for Neural Agent.
+
+Attributes:
+    SimulationMixin: Mixin for single-day simulation logic in NeuralAgent.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import NeuralAgent
+    >>> agent = NeuralAgent(model)
+    >>> routes, metrics = agent.run_day(env)
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from __future__ import annotations
+
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 
@@ -15,20 +27,37 @@ from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
 class SimulationMixin:
     """
     Mixin for single-day simulation logic in NeuralAgent.
+
+    Attributes:
+        None
     """
 
     def compute_simulator_day(
         self,
-        input,
-        graph,
-        distC,
-        profit_vars=None,
-        waste_history=None,
-        cost_weights=None,
-        mandatory=None,
-        **kwargs,
+        input: Dict[str, Any],
+        graph: Tuple[Any, Any],
+        distC: torch.Tensor,
+        profit_vars: Optional[Any] = None,
+        waste_history: Optional[torch.Tensor] = None,
+        cost_weights: Optional[Dict[str, float]] = None,
+        mandatory: Optional[torch.Tensor] = None,
+        **kwargs: Any,
     ):
-        """Execute neural routing policy for a single simulation day."""
+        """Execute neural routing policy for a single simulation day.
+
+        Args:
+            input: Input for the neural policy.
+            graph: Graph for the neural policy.
+            distC: Distance cost for the neural policy.
+            profit_vars: Profit variables for the neural policy.
+            waste_history: Waste history for the neural policy.
+            cost_weights: Cost weights for the neural policy.
+            mandatory: Mandatory nodes for the neural policy.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple of (routes, cost, profit).
+        """
         edges, dist_matrix = graph
         hook_data = add_attention_hooks(self.model.encoder)  # type: ignore[attr-defined]
 
@@ -90,23 +119,36 @@ class SimulationMixin:
             self._viz_record(cost=float(cost), n_visited=n_visited, route_len=len(route_list))
         return (route_list, cost, {"attention_weights": attention_weights, "graph_masks": hook_data["masks"]})
 
-    def _validate_mandatory(self, mandatory):
-        """Validates if any bins are marked as mandatory."""
+    def _validate_mandatory(self, mandatory: torch.Tensor) -> torch.Tensor:
+        """Validates if any bins are marked as mandatory.
+
+        Args:
+            mandatory: Tensor of mandatory bins.
+
+        Returns:
+            bool: True if any bins are marked as mandatory, False otherwise.
+        """
         if not isinstance(mandatory, torch.Tensor):
             mandatory = torch.tensor(mandatory, dtype=torch.bool)
         if mandatory.dim() == 1:
             mandatory = mandatory.unsqueeze(0)
         return mandatory[:, 1:].any() if mandatory.size(1) > 1 else mandatory.any()
 
-    def _prepare_temporal_features(self, input_for_model, waste_history):
-        """Populates temporal features (fill1, fill2, ...) based on waste history."""
+    def _prepare_temporal_features(self, input_for_model: Dict[str, Any], waste_history: torch.Tensor):
+        """Populates temporal features (fill1, fill2, ...) based on waste history.
+
+        Args:
+            input_for_model: Input for the neural policy.
+            waste_history: Waste history for the neural policy.
+
+        Returns:
+            None
+        """
         horizon = getattr(self.model, "temporal_horizon", 0)  # type: ignore[attr-defined]
         if horizon <= 0 or waste_history is None:
             return
 
-        loc_tensor = (
-            input_for_model.get("locs") if "locs" in input_for_model.keys() else input_for_model.get("loc", None)
-        )
+        loc_tensor = input_for_model.get("locs") if "locs" in input_for_model.keys() else input_for_model.get("loc")
         if loc_tensor is None:
             raise KeyError("Input must contain 'loc' or 'locs'")
 

@@ -1,5 +1,14 @@
 """
 Scenario-Consistent Branching.
+
+Attributes:
+    ScenarioConsistentBranching: The Scenario Consistent Branching algorithm implementation.
+
+Examples:
+    >>> from .scenario_branching import ScenarioConsistentBranching
+    >>> scenario_branching = ScenarioConsistentBranching()
+    >>> scenario_branching.calculate_consensus()
+    >>> scenario_branching.select_branching_variable()
 """
 
 from typing import Any, Dict, List
@@ -44,7 +53,7 @@ class ScenarioConsistentBranching:
     The current implementation uses the pure score-maximisation variant,
     which is equivalent to setting threshold = 0.
 
-    Attributes
+    Attributes:
     ----------
     base_threshold : float
         Reference consensus threshold used as the anchor for horizon-adaptive
@@ -97,11 +106,7 @@ class ScenarioConsistentBranching:
             return 0.5
 
         total_scenarios = len(deterministic_scenario_solutions)
-        visited_count = sum(
-            1
-            for sol in deterministic_scenario_solutions.values()
-            if sol.get(var_id, 0) == 1
-        )
+        visited_count = sum(1 for sol in deterministic_scenario_solutions.values() if sol.get(var_id, 0) == 1)
 
         return visited_count / total_scenarios if total_scenarios > 0 else 0.5
 
@@ -147,9 +152,7 @@ class ScenarioConsistentBranching:
         best_score = -1.0
 
         for var in fractional_vars:
-            consensus = self.calculate_consensus(
-                var.id, scenario_tree, deterministic_solutions
-            )
+            consensus = self.calculate_consensus(var.id, scenario_tree, deterministic_solutions)
             score = abs(consensus - 0.5)
 
             if score > best_score:

@@ -23,6 +23,23 @@ This matches the discussion:
     solution that is an improvement or within X% of the incumbent, to
     prevent the Lookahead from being poisoned by temporary sub-optimal
     routes.
+
+Attributes:
+---------
+    PeriodIncumbent: Best-known tour and cost for a single period.
+    InsertionCostOracle: Shared, thread-safe insertion-cost table.
+
+Example:
+--------
+    >>> oracle = InsertionCostOracle(n_bins=10, horizon=3)
+    >>> oracle.update_from_routing(
+    ...     period=0,
+    ...     tour=[0, 1, 2, 0],
+    ...     tour_cost=100.0,
+    ...     selection=[1, 2],
+    ...     insertion_costs_for_unselected={3: 10.0, 4: 20.0},
+    ... )
+    'accepted_improving'
 """
 
 from __future__ import annotations
@@ -36,7 +53,17 @@ import numpy as np
 
 @dataclass
 class PeriodIncumbent:
-    """Best-known tour and cost for a single period."""
+    """Best-known tour and cost for a single period.
+
+    Attributes:
+    ----------
+    tour: List[int]
+        Tour for the period (depot-first-last).  List of bin indices.
+    cost: float
+        Total travel cost for this tour.
+    selection: frozenset
+        Set of bin indices in the tour.
+    """
 
     tour: List[int] = field(default_factory=list)
     cost: float = float("inf")
@@ -47,7 +74,7 @@ class InsertionCostOracle:
     """
     Shared, thread-safe insertion-cost table.
 
-    Parameters
+    Attributes:
     ----------
     n_bins : int
         Number of optional bins (indices 1..N; index 0 is the depot).
@@ -60,9 +87,14 @@ class InsertionCostOracle:
         A new observation is fully accepted if RS tour cost <= incumbent * 1.0,
         partially accepted (at alpha/4) if RS tour cost <= incumbent * threshold,
         rejected otherwise.  E.g. 1.05 = accept within 5% of incumbent.
-    default_delta : float
-        Initial Delta value before any observations.  Use a large-but-finite
-        number so the knapsack sees some cost penalty at startup.
+    delta : np.ndarray
+        Delta values for each bin and period.
+    incumbents : List[PeriodIncumbent]
+        Incumbent solutions for each period.
+    _has_observation : np.ndarray
+        Whether the Delta value for each bin and period has been observed.
+    _lock : Lock
+        Lock for thread safety.
     """
 
     def __init__(
@@ -73,7 +105,19 @@ class InsertionCostOracle:
         quality_threshold: float = 1.05,
         default_delta: float = 0.0,
     ):
-        """__init__ docstring."""
+        """Init docstring.
+
+        Args:
+            n_bins (int): Number of optional bins (indices 1..N; index 0 is the depot).
+            horizon (int): Number of periods.
+            alpha (float): EMA smoothing factor in (0, 1].  Higher = more reactive.
+                Applied to improving updates.
+            quality_threshold (float): A new observation is fully accepted if RS tour cost <= incumbent * 1.0,
+                partially accepted (at alpha/4) if RS tour cost <= incumbent * threshold,
+                rejected otherwise.  E.g. 1.05 = accept within 5% of incumbent.
+            default_delta (float): Initial Delta value before any observations.  Use a large-but-finite
+                number so the knapsack sees some cost penalty at startup.
+        """
         self.n_bins = n_bins
         self.horizon = horizon
         self.alpha = alpha
@@ -93,12 +137,23 @@ class InsertionCostOracle:
     # ------------------------------------------------------------------
 
     def snapshot(self) -> np.ndarray:
-        """Return a copy of the current Delta table (N, T)."""
+        """Return a copy of the current Delta table (N, T).
+
+        Returns:
+            np.ndarray: Copy of the Delta table.
+        """
         with self._lock:
             return self.delta.copy()
 
     def get_incumbent(self, period: int) -> PeriodIncumbent:
-        """get_incumbent docstring."""
+        """Get the incumbent solution for a given period.
+
+        Args:
+            period (int): Period to get the incumbent for.
+
+        Returns:
+            PeriodIncumbent: Incumbent solution for the given period.
+        """
         with self._lock:
             inc = self.incumbents[period]
             # Shallow copy -- tour is a list, selection is a frozenset.
@@ -119,7 +174,7 @@ class InsertionCostOracle:
         """
         Ingest a routing subproblem result.
 
-        Parameters
+        Args:
         ----------
         period : int
         tour : list of bin indices (depot at start/end; the tour for period t)
@@ -131,7 +186,7 @@ class InsertionCostOracle:
             bins NOT in the current selection, since bins in the selection
             have "insertion cost" = 0 tautologically.
 
-        Returns
+        Returns:
         -------
         outcome : {"accepted_improving", "accepted_partial", "rejected"}
             For logging / diagnostics.
@@ -188,12 +243,19 @@ class InsertionCostOracle:
 
     @staticmethod
     def cheapest_insertion_cost(dist_matrix: np.ndarray, tour: List[int], bin_id: int) -> float:
-        """
-        Compute the cheapest insertion cost of `bin_id` into `tour`:
+        """Compute the cheapest insertion cost of `bin_id` into `tour`:
 
             min over edges (u, v) in tour of  d(u, bin_id) + d(bin_id, v) - d(u, v)
 
         O(|tour|).  Returns 0.0 if tour is empty or has only the depot.
+
+        Args:
+            dist_matrix (np.ndarray): Distance matrix.
+            tour (List[int]): Tour.
+            bin_id (int): Bin index.
+
+        Returns:
+            float: Cheapest insertion cost.
         """
         if len(tour) < 2:
             return 0.0
@@ -211,7 +273,16 @@ class InsertionCostOracle:
         tour: List[int],
         candidates: List[int],
     ) -> Dict[int, float]:
-        """Vectorised batch variant of `cheapest_insertion_cost` over candidates."""
+        """Vectorised batch variant of `cheapest_insertion_cost` over candidates.
+
+        Args:
+            dist_matrix (np.ndarray): Distance matrix.
+            tour (List[int]): Tour.
+            candidates (List[int]): Candidate bin indices.
+
+        Returns:
+            Dict[int, float]: Dictionary mapping bin indices to their cheapest insertion costs.
+        """
         if len(tour) < 2 or not candidates:
             return {c: 0.0 for c in candidates}
         # Build a (|edges|,) vector of d(u,v) and (|edges|, |cand|) of d(u, c) + d(c, v).

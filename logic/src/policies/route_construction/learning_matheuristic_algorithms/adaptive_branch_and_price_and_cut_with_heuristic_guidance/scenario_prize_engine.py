@@ -1,5 +1,13 @@
 """
 Module documentation.
+
+Attributes:
+    ScenarioPrizeEngine: The Scenario Prize Engine algorithm implementation.
+
+Examples:
+    >>> from .scenario_prize_engine import ScenarioPrizeEngine
+    >>> scenario_prize_engine = ScenarioPrizeEngine()
+    >>> temporal_benders.solve()
 """
 
 from __future__ import annotations
@@ -27,6 +35,17 @@ class ScenarioPrizeEngine:
 
     Where V_future is approximated analytically from the scenario tree
     using the Gamma-distribution overflow predictor.
+
+    Attributes:
+    -----------
+    tree: ScenarioTree
+        The scenario tree used to generate the prizes.
+    gamma: float
+        The discount factor for future revenues.
+    tau: float
+        The maximum capacity of the bins.
+    overflow_penalty: float
+        The penalty multiplier for overflow risk.
     """
 
     def __init__(
@@ -36,7 +55,15 @@ class ScenarioPrizeEngine:
         tau: float = 100.0,  # max bin capacity
         overflow_penalty: float = 2.0,  # revenue multiplier for overflow risk
     ):
-        """__init__ docstring."""
+        """
+        Initialize the ScenarioPrizeEngine.
+
+        Args:
+            scenario_tree: The scenario tree used to generate the prizes.
+            gamma: The discount factor for future revenues.
+            tau: The maximum capacity of the bins.
+            overflow_penalty: The penalty multiplier for overflow.
+        """
         self.tree = scenario_tree
         self.gamma = gamma
         self.tau = tau
@@ -52,8 +79,14 @@ class ScenarioPrizeEngine:
         """
         Compute scenario-augmented node prizes for all bins.
 
+        Args:
+            current_wastes: The current waste levels of all bins.
+            bin_stats: A dictionary containing the means and standard deviations of waste accumulation for each bin.
+            revenue: The revenue per unit of waste.
+            days_remaining: The number of days remaining in the planning horizon.
+
         Returns:
-            Dict mapping bin index (1-based) to augmented prize.
+            A dictionary mapping bin index (1-based) to its scenario-augmented prize.
         """
         n_bins = len(current_wastes)
         means = bin_stats["means"]  # E[δ_i]
@@ -117,6 +150,18 @@ class ScenarioPrizeEngine:
 
         If days_to_overflow < days_remaining: overflow risk applies.
         Otherwise: expected accumulated revenue at next optimal visit.
+
+        Args:
+            idx: The index of the bin.
+            current_fill: The current fill level of the bin.
+            mean_rate: The mean rate of waste accumulation.
+            variance: The variance of waste accumulation.
+            days_to_overflow: The number of days until the bin overflows.
+            days_remaining: The number of days remaining in the planning horizon.
+            revenue: The revenue per unit of waste.
+
+        Returns:
+            The expected future value of not visiting the bin today.
         """
         if days_to_overflow <= 1.0:
             # Will overflow before next day — certain penalty
@@ -140,6 +185,16 @@ class ScenarioPrizeEngine:
         E[future value | bin visited today — resets to ~mean_rate fill].
 
         Bin accumulates from reset; next visit at optimal frequency.
+
+        Args:
+            idx: The index of the bin.
+            mean_rate: The mean rate of waste accumulation.
+            variance: The variance of waste accumulation.
+            days_remaining: The number of days remaining in the planning horizon.
+            revenue: The revenue per unit of waste.
+
+        Returns:
+            The expected future value of visiting the bin today.
         """
         opt_freq, target_level = calculate_frequency_and_level(ui=mean_rate, vi=variance, cf=0.9)
 
@@ -159,6 +214,14 @@ class ScenarioPrizeEngine:
         """
         Aggregate prizes across all scenarios at a given day,
         weighted by scenario probability.
+
+        Args:
+            day: The day to aggregate prizes for.
+            revenue: The revenue per unit of waste.
+            days_remaining: The number of days remaining in the planning horizon.
+
+        Returns:
+            A dictionary mapping bin index to its scenario-weighted prize.
         """
         scenarios_at_day = self.tree.get_scenarios_at_day(day)
         if not scenarios_at_day:

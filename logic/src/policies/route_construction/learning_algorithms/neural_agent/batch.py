@@ -1,5 +1,15 @@
 """
 Batch simulation logic for Neural Agent.
+
+Attributes:
+    BatchMixin: Mixin for batch simulation logic in NeuralAgent.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms import NeuralAgent
+    >>> agent = NeuralAgent(model)
+    >>> routes, metrics = agent.run_day(env)
+    >>> print(f"Best routes: {routes}")
+    >>> print(f"Metrics: {metrics}")
 """
 
 from __future__ import annotations
@@ -12,6 +22,9 @@ from logic.src.tracking.hooks import add_attention_hooks
 class BatchMixin:
     """
     Mixin for batch simulation logic in NeuralAgent.
+
+    Attributes:
+        None
     """
 
     def compute_batch_sim(

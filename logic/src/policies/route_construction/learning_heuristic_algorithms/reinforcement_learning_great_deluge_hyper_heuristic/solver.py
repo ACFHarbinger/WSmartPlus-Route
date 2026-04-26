@@ -31,6 +31,15 @@ References:
     Ozcan, E., Misir, M., Ochoa, G., & Burke, E. K. (2010).
     "A Reinforcement Learning – Great-Deluge Hyper-heuristic for
     Examination Timetabling." Informs Journal on Computing.
+
+Attributes:
+    RLGDHHSolver: Solver for RL-GD-HH.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHSolver
+    >>> solver = RLGDHHSolver()
+    >>> solution = solver.solve()
+    >>> print(solution)
 """
 
 import copy
@@ -61,6 +70,20 @@ class RLGDHHSolver:
 
     Implements the algorithm of Ozcan et al. (2010) adapted for the
     Vehicle Routing Problem with Profits (VRPP).
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Waste at each node.
+        capacity: Capacity of each vehicle.
+        R: Recycling rate.
+        C: Cost of recycling.
+        params: Parameters for RL-GD-HH.
+        mandatory_nodes: Mandatory nodes.
+        n_nodes: Number of nodes.
+        nodes: List of nodes.
+        random: Random number generator.
+        utilities: Utilities for each LLH.
+        _llh_pool: Pool of LLHs.
     """
 
     def __init__(
@@ -73,7 +96,17 @@ class RLGDHHSolver:
         params: RLGDHHParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """__init__ docstring."""
+        """Initialize the RL-GD-HH solver.
+
+        Args:
+            dist_matrix (np.ndarray): Distance matrix.
+            wastes (Dict[int, float]): Waste at each node.
+            capacity (float): Capacity of each vehicle.
+            R (float): Recycling rate.
+            C (float): Cost of recycling.
+            params (RLGDHHParams): Parameters for RL-GD-HH.
+            mandatory_nodes (Optional[List[int]]): Mandatory nodes.
+        """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -99,7 +132,11 @@ class RLGDHHSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """Runs the RL-GD-HH metaheuristic (Figure 2, Ozcan et al. 2010)."""
+        """Runs the RL-GD-HH metaheuristic (Figure 2, Ozcan et al. 2010).
+
+        Returns:
+            Tuple[List[List[int]], float, float]: Routes, profit, and cost.
+        """
         if not self.nodes:
             return [], 0.0, 0.0
 
@@ -174,12 +211,24 @@ class RLGDHHSolver:
     # ------------------------------------------------------------------
 
     def _select_llh(self) -> int:
-        """Selects LLH index using max-utility with ties broken randomly."""
+        """Selects LLH index using max-utility with ties broken randomly.
+
+        Returns:
+            int: Index of the selected LLH.
+        """
         max_util = max(self.utilities)
         candidates = [i for i, u in enumerate(self.utilities) if u == max_util]
         return self.random.choice(candidates)
 
     def _apply_reward(self, u: float) -> float:
+        """Additive reward: u ← min(UB, u + reward). (All RL variants share this.)
+
+        Args:
+            u (float): Current utility.
+
+        Returns:
+            float: New utility.
+        """
         """Additive reward: u ← min(UB, u + reward). (All RL variants share this.)"""
         return min(self.params.utility_upper_bound, u + self.params.reward_improvement)
 
@@ -190,6 +239,12 @@ class RLGDHHSolver:
         RL1 (Section 3.2): u ← max(lb, u − penalty)   [subtractive]
         RL2 (Section 3.2): u ← floor(u / 2)            [divisional]
         RL3 (Section 3.2): u ← floor(sqrt(u))           [root]
+
+        Args:
+            u (float): Current utility.
+
+        Returns:
+            float: New utility.
         """
         variant = self.params.punishment_type
         lb = self.params.min_utility
@@ -205,7 +260,14 @@ class RLGDHHSolver:
     # ------------------------------------------------------------------
 
     def _llh_relocate(self, routes: List[List[int]]) -> List[List[int]]:
-        """H1: Single-node relocation (1-0 exchange) — ruin-and-recreate variant."""
+        """H1: Single-node relocation (1-0 exchange) — ruin-and-recreate variant.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+
+        Returns:
+            List[List[int]]: New routes.
+        """
         if not routes:
             return copy.deepcopy(routes)
         new_routes = copy.deepcopy(routes)
@@ -244,7 +306,14 @@ class RLGDHHSolver:
         return new_routes
 
     def _llh_shaw(self, routes: List[List[int]]) -> List[List[int]]:
-        """H2: Shaw removal + regret-2 insertion."""
+        """H2: Shaw removal + regret-2 insertion.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+
+        Returns:
+            List[List[int]]: New routes.
+        """
         routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
@@ -276,7 +345,14 @@ class RLGDHHSolver:
             )
 
     def _llh_string(self, routes: List[List[int]]) -> List[List[int]]:
-        """H3: String removal + greedy insertion."""
+        """H3: String removal + greedy insertion.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+
+        Returns:
+            List[List[int]]: New routes.
+        """
         routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 4, 10))
         use_profit = self.params.profit_aware_operators
@@ -308,7 +384,14 @@ class RLGDHHSolver:
             )
 
     def _llh_regret2(self, routes: List[List[int]]) -> List[List[int]]:
-        """H4: Random removal + regret-2 insertion."""
+        """H4: Random removal + regret-2 insertion.
+
+        Args:
+            routes (List[List[int]]): Current routes.
+
+        Returns:
+            List[List[int]]: New routes.
+        """
         routes = copy.deepcopy(routes)
         n = max(1, min(len(self.nodes) // 5, 5))
         use_profit = self.params.profit_aware_operators
@@ -343,7 +426,11 @@ class RLGDHHSolver:
     # ------------------------------------------------------------------
 
     def _initialize_solution(self) -> List[List[int]]:
-        """Randomized greedy construction of a starting feasible routing."""
+        """Randomized greedy construction of a starting feasible routing.
+
+        Returns:
+            List[List[int]]: Initial feasible routes.
+        """
         nodes = copy.copy(self.nodes)
         self.random.shuffle(nodes)
 
@@ -372,14 +459,28 @@ class RLGDHHSolver:
             return [[n] for n in nodes]
 
     def _evaluate(self, routes: List[List[int]]) -> float:
-        """Calculates fitness F(g) as Net Profit ($)."""
+        """Calculates fitness F(g) as Net Profit ($).
+
+        Args:
+            routes (List[List[int]]): Routes.
+
+        Returns:
+            float: Net profit.
+        """
         if not routes:
             return 0.0
         rev = sum(self.wastes.get(n, 0.0) * self.R for r in routes for n in r)
         return rev - self._cost(routes) * self.C
 
     def _cost(self, routes: List[List[int]]) -> float:
-        """Calculates distance-based travel cost (km)."""
+        """Calculates distance-based travel cost (km).
+
+        Args:
+            routes (List[List[int]]): Routes.
+
+        Returns:
+            float: Travel cost.
+        """
         total = 0.0
         for route in routes:
             if not route:
