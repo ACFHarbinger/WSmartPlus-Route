@@ -54,7 +54,7 @@ aco_hh:
     # ---------------------------------------------------------------------
     # Pheromone Update
     # ---------------------------------------------------------------------
-    - rho: 0.1
+    - rho: 0.5
       # Evaporation rate: τ_new = (1 - ρ) * τ_old + Δτ
       # Range: 0.01-0.5 (0.01 = slow decay, 0.5 = fast decay)
       # Lower ρ → more memory of historical good sequences
@@ -63,13 +63,10 @@ aco_hh:
       # Initial pheromone level on all operator transitions
       # Range: 0.1-10.0 (affects exploration early on)
 
-    - tau_min: 0.01
-      # Minimum pheromone (prevents stagnation)
-      # Ensures all operators remain selectable
-
-    - tau_max: 10.0
-      # Maximum pheromone (prevents premature convergence)
-      # Caps pheromone accumulation on best transitions
+    - stagnation_limit: 10
+      # Number of iterations without improvement before pheromone update
+      # Range: 5-50 (5 = fast/unstable, 20 = balanced, 50 = thorough/slow)
+      # Recommendation: 10 for 30s budget, 20 for 120s budget
 
     # ---------------------------------------------------------------------
     # Execution Control
@@ -77,6 +74,11 @@ aco_hh:
     - max_iterations: 50
       # Maximum ACO cycles (each cycle = n_ants sequences evaluated)
       # Range: 10-200 (10 = quick test, 100 = thorough)
+
+    - elitism_ratio: 0.5
+      # Fraction of the swarm teleported to the global best
+      # Range: 0.0-1.0 (0.0 = pure exploration, 1.0 = full elitism)
+      # Recommendation: 0.5 for 30s budget, 0.2 for 120s budget
 
     - time_limit: 60.0
       # Maximum wall-clock seconds
@@ -91,10 +93,17 @@ aco_hh:
       # Range: 2-10 (2 = simple chains, 10 = complex strategies)
       # Example sequence: [swap, 2opt_intra, relocate, swap_star, 2opt_intra]
 
-    - q0: 0.9
-      # Exploitation vs exploration balance (pseudo-random proportional rule)
-      # Range: 0.5-1.0 (0.5 = exploratory, 1.0 = greedy)
-      # With prob q0: select best operator; otherwise: roulette selection
+    - Q: 0.9
+      # Pheromone floor constant added to every improving-journey deposit.
+
+    - lambda_val: 1.0001
+      # Base for the visibility exponential when use_dynamic_lambda=False.
+
+    - use_dynamic_lambda: True
+      # If True (default), replace λ^I with exp(I / Z) where Z is
+      # a running EMA of |improvement|. This achieves scale invariance across
+      # problem sizes and is the recommended setting for the VRPP. Set to False for
+      # strict paper fidelity (λ = 1.0001 as base).
 
     # ---------------------------------------------------------------------
     # Local Search Operators Pool

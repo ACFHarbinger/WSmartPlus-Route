@@ -222,6 +222,7 @@ class LKH3_ALNS:
         subgradient_iterations: int = 50,
         dynamic_topology_discovery: bool = False,
         native_prize_collecting: bool = False,
+        sa_max_trials: int = 0,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Main ALNS+LKH-3 matheuristic loop.
@@ -245,6 +246,7 @@ class LKH3_ALNS:
             subgradient_iterations: Iterations for subgradient optimization.
             dynamic_topology_discovery: Toggle recursive B&B search.
             native_prize_collecting: Toggle Jonker-Volgenant ATSP.
+            sa_max_trials: Number of SA trials.
 
         Returns:
             Tuple of (best_routes, best_objective, best_penalty) where:
@@ -324,6 +326,7 @@ class LKH3_ALNS:
                 use_ip_merging,
                 subgradient_iterations,
                 dynamic_topology_discovery=dynamic_topology_discovery,
+                sa_max_trials=sa_max_trials,
             )
 
             # 2b. Update best solution and ALNS scoring
@@ -513,6 +516,7 @@ class LKH3_ALNS:
         subgradient_iterations: int = 0,
         initial_routes: Optional[List[List[int]]] = None,
         dynamic_topology_discovery: bool = False,
+        sa_max_trials: int = 0,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Route a given set of nodes with LKH-3.
@@ -539,6 +543,7 @@ class LKH3_ALNS:
                 If provided, flattened to 1D tour and passed to solve_lkh3.
             dynamic_topology_discovery: Toggle recursive B&B search.
             subgradient_iterations: Number of subgradient iterations.
+            sa_max_trials: Number of SA trials.
 
         Returns:
             Tuple[List[List[int]], float, float]: (routes_global, objective, penalty).
@@ -652,6 +657,7 @@ class LKH3_ALNS:
             seed=self.seed,
             n_original=0,  # Use sub-problem size for augmentation
             dynamic_topology_discovery=dynamic_topology_discovery,
+            sa_max_trials=sa_max_trials,
         )
 
         # Extract routes and map back to original indices
@@ -680,6 +686,7 @@ class LKH3_ALNS:
         use_ip_merging: bool,
         subgradient_iterations: int,
         dynamic_topology_discovery: bool = False,
+        sa_max_trials: int = 0,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Re-optimize current routes with LKH-3 using warm-start.
@@ -699,6 +706,7 @@ class LKH3_ALNS:
             use_ip_merging: IP-based tour merging flag.
             subgradient_iterations: Subgradient optimization iterations.
             dynamic_topology_discovery: Toggle recursive B&B search.
+            sa_max_trials: Number of SA trials.
 
         Returns:
             Tuple[List[List[int]], float, float]: (optimized_routes, objective, penalty).
@@ -716,6 +724,7 @@ class LKH3_ALNS:
             subgradient_iterations=subgradient_iterations,
             initial_routes=routes,  # Phase 2: Warm-start from repaired routes
             dynamic_topology_discovery=dynamic_topology_discovery,
+            sa_max_trials=sa_max_trials,
         )
 
     def _destroy_repair(self, routes: List[List[int]]) -> List[List[int]]:

@@ -74,6 +74,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.policies.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation import (
     augment_graph,
     decode_augmented_tour,
@@ -125,6 +127,7 @@ def _improve_tour(  # noqa: C901
     max_k_opt: int = 5,
     n_original: Optional[int] = None,
     dynamic_topology_discovery: bool = False,
+    acceptance_criterion: Optional[IAcceptanceCriterion] = None,
 ) -> Tuple[List[int], float, float, bool, Optional[np.ndarray]]:
     """
     Execute one complete pass of sequential k-opt local search (k = 2..5).
@@ -161,6 +164,7 @@ def _improve_tour(  # noqa: C901
         max_k_opt: Maximum k for k-opt moves (2-5).
         n_original: Original graph size before augmentation.
         dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
+        acceptance_criterion: Acceptance criterion for moves.
 
     Returns:
         Tuple[List[int], float, float, bool, Optional[np.ndarray]]: New tour,
@@ -171,12 +175,9 @@ def _improve_tour(  # noqa: C901
 
     # Allocate dont_look_bits safely for augmented graphs
     if dont_look_bits is None:
-        # Use max of nodes_count and distance_matrix size to handle
-        # augmented dummy depots whose IDs may exceed nodes_count
         max_idx = max(nodes_count, len(distance_matrix))
         dont_look_bits = np.zeros(max_idx, dtype=bool)
     elif len(dont_look_bits) < nodes_count:
-        # Resize if needed (e.g. after augmentation change)
         expanded = np.zeros(nodes_count, dtype=bool)
         expanded[: len(dont_look_bits)] = dont_look_bits
         dont_look_bits = expanded
@@ -273,6 +274,7 @@ def _improve_tour(  # noqa: C901
             n_original=n_original,
             load_state=load_state,
             pos=pos,
+            acceptance_criterion=acceptance_criterion,
         )
         if res_imp and res_tour is not None:
             curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
@@ -283,7 +285,7 @@ def _improve_tour(  # noqa: C901
                 dont_look_bits[t1] = False
             if t3 < len(dont_look_bits):
                 dont_look_bits[t3] = False
-            # Rebuild load state after accepted move
+
             if load_state is not None:
                 load_state = update_load_state_after_move(
                     load_state,
@@ -292,7 +294,6 @@ def _improve_tour(  # noqa: C901
                     capacity,  # type: ignore[arg-type]
                     n_original,  # type: ignore[arg-type]
                 )
-            # Rebuild pos after accepted move
             for idx, node in enumerate(curr_tour[:-1]):
                 pos[node] = idx
             return curr_tour, curr_pen, curr_cost, True, dont_look_bits
@@ -322,6 +323,7 @@ def _improve_tour(  # noqa: C901
                     n_original=n_original,
                     load_state=load_state,
                     pos=pos,
+                    acceptance_criterion=acceptance_criterion,
                 )
                 if res_imp and res_tour is not None and is_better(res_p, res_c, curr_pen, curr_cost):
                     curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
@@ -368,6 +370,7 @@ def _improve_tour(  # noqa: C901
                             n_original=n_original,
                             load_state=load_state,
                             pos=pos,
+                            acceptance_criterion=acceptance_criterion,
                         )
                         if ri4 and res4 is not None and is_better(rp4, rc4, curr_pen, curr_cost):
                             curr_tour, curr_pen, curr_cost = res4, rp4, rc4
@@ -415,6 +418,7 @@ def _improve_tour(  # noqa: C901
                                     n_original=n_original,
                                     load_state=load_state,
                                     pos=pos,
+                                    acceptance_criterion=acceptance_criterion,
                                 )
                                 if ri5 and res5 is not None and is_better(rp5, rc5, curr_pen, curr_cost):
                                     curr_tour, curr_pen, curr_cost = res5, rp5, rc5
@@ -438,6 +442,7 @@ def _improve_tour(  # noqa: C901
 
         if not found_improvement_for_t1 and t1 < len(dont_look_bits):
             dont_look_bits[t1] = True
+
     return curr_tour, curr_pen, curr_cost, improved_overall, dont_look_bits
 
 
@@ -481,6 +486,7 @@ def solve_lkh3(  # noqa: C901
     seed: int = 42,
     dynamic_topology_discovery: bool = False,
     native_prize_collecting: bool = False,
+    sa_max_trials: int = 0,
 ) -> Tuple[List[List[int]], float, float]:
     """
     Solve a TSP or CVRP instance using the LKH-3 iterated local-search scheme.
@@ -629,6 +635,16 @@ def solve_lkh3(  # noqa: C901
     curr_pen, curr_cost = get_score(curr_tour, distance_matrix, waste, capacity, n_original)
     best_tour = curr_tour[:]
     best_pen, best_cost = curr_pen, curr_cost
+    lkh_criterion = None
+    if sa_max_trials > 0:
+        # Start temp configured to accept ~5% worse initial routing cost with 50% probability
+        start_temp = (curr_cost * 0.05) / 0.693 if curr_cost > 0 else 10.0
+        lkh_criterion = AcceptanceCriterionFactory.create(
+            name="bmc",
+            initial_temp=start_temp,
+            alpha=0.999,  # Very slow decay for deep k-opt exploration
+            seed=seed,
+        )
 
     dont_look_bits: Optional[np.ndarray] = None
 
@@ -652,6 +668,7 @@ def solve_lkh3(  # noqa: C901
                 max_k_opt,
                 n_original,
                 dynamic_topology_discovery=dynamic_topology_discovery,
+                acceptance_criterion=lkh_criterion,  # THREAD THE CRITERION
             )
             if not improved_local:
                 break
@@ -663,6 +680,9 @@ def solve_lkh3(  # noqa: C901
             tour_pool.append(best_tour[:])
             if len(tour_pool) > max_pool_size:
                 tour_pool.pop(0)
+
+        if lkh_criterion is not None:
+            lkh_criterion.step(current_obj=-best_cost, candidate_obj=-best_cost, accepted=True)
 
         if recorder is not None:
             recorder.record(
@@ -738,6 +758,7 @@ def solve_lkh3_with_alns(
     seed: int = 42,
     dynamic_topology_discovery: bool = False,
     native_prize_collecting: bool = False,
+    sa_max_trials: int = 0,
 ) -> Tuple[List[List[int]], float, float]:
     """
     Solve VRP/VRPP using LKH-3 + Adaptive Large Neighborhood Search matheuristic.
@@ -789,6 +810,7 @@ def solve_lkh3_with_alns(
         dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
         native_prize_collecting: Whether to use native prize collecting algorithm.
         subgradient_iterations: Number of subgradient optimization iterations.
+        sa_max_trials: Number of SA trials.
 
     Returns:
         Tuple[List[List[int]], float, float]: Routes (each a list of node IDs
@@ -856,6 +878,7 @@ def solve_lkh3_with_alns(
         subgradient_iterations=subgradient_iterations,
         dynamic_topology_discovery=dynamic_topology_discovery,
         native_prize_collecting=native_prize_collecting,
+        sa_max_trials=sa_max_trials,
     )
 
     return routes, objective, penalty

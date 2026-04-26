@@ -45,7 +45,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators import (
     greedy_insertion,
     greedy_profit_insertion,
@@ -145,7 +145,7 @@ class HybridMemeticSearchSolver:
         )
 
         # Initialize Local Search
-        self.ls = ACOLocalSearch(
+        self.ls = GeneralLocalSearch(
             dist_matrix,
             wastes,
             capacity,

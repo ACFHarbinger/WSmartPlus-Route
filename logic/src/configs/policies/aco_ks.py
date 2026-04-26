@@ -33,7 +33,6 @@ class KSparseACOConfig:
         tau_max: Maximum pheromone bound.
         max_iterations: Maximum number of ACO iterations.
         time_limit: Maximum time in seconds for the solver.
-        q0: Probability of exploitation vs exploration (ACS-style).
         k_sparse: Number of nearest neighbors to consider.
         local_search: Whether to apply local search after construction.
         local_search_iterations: Number of local search iterations.
@@ -53,7 +52,6 @@ class KSparseACOConfig:
     max_iterations: int = 50
     time_limit: float = 30.0
     seed: Optional[int] = None
-    q0: float = 0.9
     k_sparse: int = 15
     local_search: bool = True
     local_search_iterations: int = 500

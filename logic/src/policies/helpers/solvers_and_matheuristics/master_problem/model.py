@@ -182,6 +182,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.active_lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
         self.active_sri_cuts: Dict[FrozenSet[int], gp.Constr] = {}
         self.active_edge_clique_cuts: Dict[Tuple[int, int], Tuple[gp.Constr, Dict[int, float]]] = {}
+        self.active_multistar_cuts: Dict[FrozenSet[int], gp.Constr] = {}
 
         # Dual value registries
         self.dual_src_cuts: Dict[FrozenSet[int], float] = {}
@@ -192,6 +193,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.dual_lci_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_sri_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_edge_clique_cuts: Dict[Tuple[int, int], float] = {}
+        self.dual_multistar_cuts: Dict[FrozenSet[int], float] = {}
 
         # Dual stabilization configurations
         self.dual_smoothing_alpha: float = 0.5
@@ -383,6 +385,8 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.dual_sri_cuts = {s: abs(c.Pi) for s, c in self.active_sri_cuts.items()}
         self.dual_lci_cuts = {s: max(0.0, c.Pi) for s, c in self.active_lci_cuts.items()}
         self.dual_edge_clique_cuts = {e: max(0.0, c[0].Pi) for e, c in self.active_edge_clique_cuts.items()}
+        # Multistar: ≤ 0 constraint in a MAX LP → dual Pi ≥ 0.
+        self.dual_multistar_cuts = {s: max(0.0, c.Pi) for s, c in self.active_multistar_cuts.items()}
 
         if self.enable_dual_smoothing:
             self._apply_dual_smoothing()
@@ -496,7 +500,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self._wire_route_into_active_cuts(route, var)
         self.model.update()
 
-    def _wire_route_into_active_cuts(self, route: Route, var: gp.Var) -> None:
+    def _wire_route_into_active_cuts(self, route: Route, var: gp.Var) -> None:  # noqa: C901
         """Calculate the exact coefficient of the new route for every active cut.
 
         Guarantees that newly priced columns strictly respect previously separated inequalities.
@@ -558,6 +562,29 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             if contains_edge:
                 self.model.chgCoeff(constr, var, 1.0)
 
+        # 5. Multistar Cuts (Letchford, Eglese, Lysgaard 2002)
+        # Coefficient for route k in cut Σ (-a_k) λ_k ≤ 0:
+        #   a_k = crossings(k,S) - (2/Q)*visit_demand(k,S) - (2/Q)*adj_demand(k,S)
+        for node_set, constr in self.active_multistar_cuts.items():
+            S = node_set
+            Q = self.capacity
+            k_cross = 0
+            k_adj = 0.0
+            k_visit = sum(self.wastes.get(n, 0.0) for n in route.nodes if n in S)
+            for p in range(len(full_path) - 1):
+                u, v = full_path[p], full_path[p + 1]
+                u_in, v_in = u in S, v in S
+                if u_in != v_in:
+                    k_cross += 1
+                    if u_in and v != 0 and not v_in:
+                        k_adj += self.wastes.get(v, 0.0)
+                    elif v_in and u != 0 and not u_in:
+                        k_adj += self.wastes.get(u, 0.0)
+            a_k = k_cross - (2.0 / Q) * k_visit - (2.0 / Q) * k_adj
+            neg_a_k = -a_k  # stored coefficient in the ≤ 0 constraint
+            if abs(neg_a_k) > 1e-6:
+                self.model.chgCoeff(constr, var, neg_a_k)
+
     def purge_useless_columns(self, tolerance: float = -0.1) -> int:
         """Remove non-basic columns with significantly negative reduced cost.
 
@@ -611,21 +638,46 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         Returns:
             Dictionary mapping node ID (int) -> dual value, plus keys for cut duals.
         """
-        node_duals: Dict[Union[int, str, frozenset[int], Tuple[int, int]], float] = {
-            k: v for k, v in self.dual_node_coverage.items()
-        }
-        if self.vehicle_limit is not None:
-            node_duals["vehicle_limit"] = self.dual_vehicle_limit
+        if self.model is None or self.model.Status not in (GRB.OPTIMAL, GRB.SUBOPTIMAL):
+            return {}
 
-        return {
-            "node_duals": node_duals,
-            "rcc_duals": self.dual_capacity_cuts,
-            "sri_duals": self.dual_sri_cuts,
-            "edge_clique_duals": self.dual_edge_clique_cuts,
-            "lci_duals": self.dual_lci_cuts,
-            "lci_node_alphas": self.active_lci_node_alphas,
-            "lci_arcs": self.active_lci_arcs,
+        duals: Dict[str, Any] = {
+            "node_duals": {},
+            "rcc_duals": [],
+            "sri_duals": [],
+            "edge_clique_duals": {},
+            "lci_duals": [],
+            "lci_arc_duals": {},
+            "multistar_duals": [],
         }
+
+        # 1. Base Node Visitation Duals
+        for i, constr in getattr(self, "visitation_constrs", {}).items():
+            duals["node_duals"][i] = constr.Pi
+
+        # 2. Rounded Capacity Cuts (RCC)
+        for node_set_froz, constr in getattr(self, "capacity_constrs", {}).items():
+            if abs(constr.Pi) > 1e-6:
+                duals["rcc_duals"].append((set(node_set_froz), abs(constr.Pi)))
+
+        # 3. Precedence-Constrained SEC (PC-SEC)
+        # A PC-SEC is mathematically identical to an RCC cut on the DP side
+        # (penalizing the cutset boundaries). We feed them directly to the RCSPP RCC logic.
+        for node_set_froz, constr in getattr(self, "sec_constrs", {}).items():
+            if abs(constr.Pi) > 1e-6:
+                duals["rcc_duals"].append((set(node_set_froz), abs(constr.Pi)))
+
+        # 4. Subset-Row Inequalities (3-SRI)
+        for node_set_froz, constr in getattr(self, "sri_constrs", {}).items():
+            if abs(constr.Pi) > 1e-6:
+                duals["sri_duals"].append((set(node_set_froz), abs(constr.Pi)))
+
+        # 5. Edge Clique Constraints
+        for (u, v), constr in getattr(self, "edge_clique_constrs", {}).items():
+            if abs(constr.Pi) > 1e-6:
+                duals["edge_clique_duals"][(u, v)] = abs(constr.Pi)
+
+        return duals
 
     def get_node_visitation(self) -> Dict[int, float]:
         """Aggregate fractional node-visitation values from the current LP solution.

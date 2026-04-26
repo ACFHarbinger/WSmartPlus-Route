@@ -29,8 +29,8 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from logic.src.policies.helpers.local_search.local_search_aco import (
-    ACOLocalSearch,
+from logic.src.policies.helpers.local_search.local_search_general import (
+    GeneralLocalSearch,
 )
 from logic.src.policies.helpers.operators import (
     build_greedy_routes,
@@ -105,7 +105,7 @@ class ILSRVNDSPSolver:
         # A route is mapped to a tuple for correct hashing
         self.route_pool: Set[Tuple[int, ...]] = set()
 
-        self.ls_manager = ACOLocalSearch(
+        self.ls_manager = GeneralLocalSearch(
             dist_matrix=self.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,

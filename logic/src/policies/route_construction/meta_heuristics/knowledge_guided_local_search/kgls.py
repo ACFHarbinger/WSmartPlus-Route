@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
+from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.cost_evaluator import (
@@ -98,7 +98,7 @@ class KGLSSolver:
 
         self.evaluator = CostEvaluator(dist_matrix=self.dist_matrix)
 
-        self.ls_manager = ACOLocalSearch(
+        self.ls_manager = GeneralLocalSearch(
             dist_matrix=self.evaluator.dist_matrix,
             waste=self.wastes,
             capacity=self.capacity,
@@ -168,7 +168,7 @@ class KGLSSolver:
         )
 
     def apply_local_search(
-        self, routes: List[List[int]], ls_manager: ACOLocalSearch, targeted_nodes: Optional[List[int]] = None
+        self, routes: List[List[int]], ls_manager: GeneralLocalSearch, targeted_nodes: Optional[List[int]] = None
     ) -> List[List[int]]:
         """Apply local search operators to improve the solution.
 
@@ -239,7 +239,7 @@ class KGLSSolver:
 
             # Run Local Search heavily restricted/targeted around the perturbed (penalized) matrix
             perturbed_matrix = self.evaluator.get_distance_matrix()
-            ls_manager_perturbed = ACOLocalSearch(
+            ls_manager_perturbed = GeneralLocalSearch(
                 dist_matrix=perturbed_matrix,
                 waste=self.wastes,
                 capacity=self.capacity,
@@ -252,7 +252,7 @@ class KGLSSolver:
             # --- Improvement Phase (True Descents) ---
             self.evaluator.disable_penalization()
 
-            # For ACOLocalSearch, optimize() re-initializes routes automatically
+            # For GeneralLocalSearch, optimize() re-initializes routes automatically
             current_routes = self.apply_local_search(current_routes, self.ls_manager)
 
             # Evaluate using True Distance baseline

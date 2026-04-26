@@ -23,6 +23,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+from scipy.spatial.ckdtree import cKDTree
 
 from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
 
@@ -42,7 +43,7 @@ class KSparseACOSolver:
     - Dynamic default_value with precision-based pruning
 
     Attributes:
-        dist_matrix: NxN distance matrix.
+        node_coords: Node coordinates.
         wastes: Mapping of bin IDs to waste quantities.
         capacity: Maximum vehicle collection capacity.
         R: Revenue multiplier for waste collected.
@@ -51,7 +52,6 @@ class KSparseACOSolver:
         mandatory_nodes: Nodes that must be visited.
         n_nodes: Total number of nodes.
         nodes: List of customer nodes.
-        eta: Heuristic visibility matrix.
         tau_0: Initial pheromone level.
         pheromone: Sparse pheromone matrix.
         ls: Local search optimizer.
@@ -61,7 +61,7 @@ class KSparseACOSolver:
 
     def __init__(
         self,
-        dist_matrix: np.ndarray,
+        node_coords: np.ndarray,
         wastes: Dict[int, float],
         capacity: float,
         R: float,
@@ -72,7 +72,7 @@ class KSparseACOSolver:
         """Initializes the K-Sparse Ant Colony Optimization solver.
 
         Args:
-            dist_matrix (np.ndarray): NxN distance matrix.
+            node_coords (np.ndarray): Node coordinates.
             wastes (Dict[int, float]): Mapping of bin IDs to waste quantities.
             capacity (float): Maximum vehicle collection capacity.
             R (float): Revenue multiplier for waste collected.
@@ -80,7 +80,7 @@ class KSparseACOSolver:
             params (KSACOParams): Algorithm-specific hyperparameters.
             mandatory_nodes (Optional[List[int]]): Nodes that must be visited.
         """
-        self.dist_matrix = dist_matrix
+        self.node_coords = np.array(node_coords)
         self.wastes = wastes
         self.capacity = capacity
         self.R = R
@@ -88,22 +88,21 @@ class KSparseACOSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes
 
-        self.n_nodes = len(dist_matrix)
-        self.nodes = list(range(1, self.n_nodes))  # Exclude depot (0)
+        self.n_nodes = len(self.node_coords)
+        self.nodes = list(range(1, self.n_nodes))
 
-        # Precompute heuristic values (eta = 1/distance)
-        self.eta = np.zeros_like(dist_matrix, dtype=float)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            self.eta = np.where(dist_matrix > 0, 1.0 / dist_matrix, 0.0)
+        # Build spatial index for O(N log N) nearest neighbor queries
+        self.tree = cKDTree(self.node_coords)
 
-        # Compute initial pheromone based on nearest neighbor heuristic
+        # Build candidate lists efficiently without an N x N matrix
+        self.candidate_lists = self._build_candidate_lists()
+
         if params.tau_0 is None:
             nn_cost = self._nearest_neighbor_cost()
-            self.tau_0 = 1.0 / (self.n_nodes * nn_cost) if nn_cost > 0 else params.tau_max
+            self.tau_0 = params.rho / nn_cost if nn_cost > 0 else params.tau_max
         else:
             self.tau_0 = params.tau_0
 
-        # Initialize sparse pheromone matrix with scale-based pruning
         self.pheromone = SparsePheromoneTau(
             n_nodes=self.n_nodes,
             tau_0=self.tau_0,
@@ -112,9 +111,8 @@ class KSparseACOSolver:
             tau_max=params.tau_max,
         )
 
-        # Initialize Local Search
         self.ls = ACOLocalSearch(
-            dist_matrix,
+            self.node_coords,
             wastes,
             capacity,
             R,
@@ -122,66 +120,99 @@ class KSparseACOSolver:
             params,
         )
 
-        # Build candidate lists (k-nearest neighbors for each node)
-        self.candidate_lists = self._build_candidate_lists()
-
-        # Initialize Constructor
         self.constructor = SolutionConstructor(
-            dist_matrix,
-            wastes,
-            capacity,
-            self.pheromone,
-            self.eta,
-            self.candidate_lists,
-            self.nodes,
-            params,
-            self.tau_0,
+            node_coords=self.node_coords,
+            wastes=wastes,
+            capacity=capacity,
+            pheromone=self.pheromone,
+            candidate_lists=self.candidate_lists,
+            nodes=self.nodes,
+            params=params,
+            tau_0=self.tau_0,
             R=self.R,
             C=self.C,
             mandatory_nodes=self.mandatory_nodes,
         )
 
-    def _nearest_neighbor_cost(self) -> float:
-        """Compute cost of nearest neighbor tour for tau_0 initialization.
-
-        Returns:
-            Approximate cost of a complete tour.
-        """
-        visited = set([0])
-        current = 0
-        cost = 0.0
-        for _ in range(len(self.nodes)):
-            best_next = None
-            best_dist = float("inf")
-            for node in self.nodes:
-                if node not in visited:
-                    d = self.dist_matrix[current][node]
-                    if d < best_dist:
-                        best_dist = d
-                        best_next = node
-            if best_next is not None:
-                cost += best_dist
-                visited.add(best_next)
-                current = best_next
-        cost += self.dist_matrix[current][0]  # Return to depot
-        return cost
-
     def _build_candidate_lists(self) -> Dict[int, List[int]]:
-        """Build k-nearest neighbor candidate lists for each node.
+        """Build k-nearest neighbor candidate lists in O(N log N) time.
 
         Returns:
-            Dictionary mapping node index to list of nearest neighbors.
+            Dict[int, List[int]]: Dictionary mapping node index to list of nearest neighbors.
         """
         candidates: Dict[int, List[int]] = {}
-        k = min(self.params.k_sparse, len(self.nodes))
+
+        # Query k+1 to account for the node finding itself
+        k = min(self.params.k_sparse + 1, self.n_nodes)
+        _, indices = self.tree.query(self.node_coords, k=k)
 
         for i in range(self.n_nodes):
-            # Get distances to all other nodes
-            distances = [(self.dist_matrix[i][j], j) for j in range(self.n_nodes) if j != i]
-            distances.sort()
-            candidates[i] = [j for _, j in distances[:k]]
+            # Filter out the self-reference
+            cands = [j for j in indices[i] if j != i][: self.params.k_sparse]
 
+            # THE CVRP RELAXATION: Guarantee depot access.
+            # If we are not the depot, and the depot isn't in our k-nearest neighbors,
+            # we sacrifice the furthest neighbor to insert the depot.
+            if i != 0 and 0 not in cands:
+                if len(cands) == self.params.k_sparse:
+                    cands[-1] = 0
+                else:
+                    cands.append(0)
+
+            candidates[i] = cands
         return candidates
+
+    def _nearest_neighbor_cost(self) -> float:
+        """Compute baseline cost using a VRP-aware greedy heuristic.
+        Respects vehicle capacity and returns to the depot, providing a mathematically
+        sound baseline for tau_0 in a multi-route environment.
+
+        Returns:
+            float: Cost of the nearest neighbor tour.
+        """
+        unvisited = set(self.nodes)
+        log_n_limit = max(1, int(np.log2(self.n_nodes)))
+        total_cost = 0.0
+        while unvisited:
+            current = 0
+            load = 0.0
+            while unvisited:
+                best_next = None
+                best_dist = float("inf")
+
+                # Part (a): k-sparse candidates
+                for cand in self.candidate_lists.get(current, []):
+                    if cand in unvisited and load + self.wastes.get(cand, 0) <= self.capacity:
+                        d = float(np.linalg.norm(self.node_coords[current] - self.node_coords[cand]))
+                        if d < best_dist:
+                            best_next = cand
+                            best_dist = d
+
+                # Part (b): Strict O(N log N) fallback
+                if best_next is None and unvisited:
+                    valid_unvisited = [n for n in unvisited if load + self.wastes.get(n, 0) <= self.capacity]
+                    if valid_unvisited:
+                        sample_size = min(log_n_limit, len(valid_unvisited))
+                        sampled = self.constructor.random.sample(valid_unvisited, sample_size)
+                        for cand in sampled:
+                            d = float(np.linalg.norm(self.node_coords[current] - self.node_coords[cand]))
+                            if d < best_dist:
+                                best_next = cand
+                                best_dist = d
+
+                if best_next is not None:
+                    total_cost += best_dist
+                    unvisited.remove(best_next)
+                    load += self.wastes.get(best_next, 0)
+                    current = best_next
+                else:
+                    # Vehicle is full or no valid moves, return to depot
+                    break
+
+            # Add cost to return to depot
+            total_cost += float(np.linalg.norm(self.node_coords[current] - self.node_coords[0]))
+
+        return total_cost
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
@@ -220,10 +251,20 @@ class KSparseACOSolver:
             # Sort iteration solutions by cost
             iteration_solutions.sort(key=lambda x: x[1])
 
-            # Update global best
+            # Update global best and dynamic MMAS bounds
             if iteration_best_cost < best_cost:
                 best_cost = iteration_best_cost
                 best_routes = iteration_best_routes
+
+                # Dynamic MMAS Bound Update (Stützle & Hoos, 2000)
+                # We update tau_max based on the new best cost, and scale tau_min proportionately.
+                new_tau_max = 1.0 / (self.params.rho * best_cost)
+                self.pheromone.tau_max = new_tau_max
+
+                # tau_min is typically set to tau_max / a, where a depends on the problem size.
+                # Hale uses a fixed tau_min, but scaling it is theoretically safer.
+                # For now, we enforce that the default_value respects the new bounds.
+                self.pheromone.default_value = min(self.pheromone.default_value, new_tau_max)
 
             # Global pheromone update: MMAS (evaporate all, then reinforce best)
             self._global_pheromone_update(best_routes, best_cost)
@@ -269,10 +310,9 @@ class KSparseACOSolver:
         if not best_routes or best_cost <= 0:
             return
 
-        # Step 1: Global evaporation (affects all pheromones including default_value)
-        self.pheromone.evaporate_all(self.params.rho)
-
-        # Step 2: Reinforce edges in best solution
+        # Step 1: Reinforce edges in best solution FIRST
+        # Depositing before evaporation ensures the new edges are immediately
+        # subjected to the precision check relative to the shifting default value.
         delta_bs = 1.0 / best_cost
 
         for route in best_routes:
@@ -282,15 +322,14 @@ class KSparseACOSolver:
             # Depot to first node
             prev = 0
             for node in route:
-                current_tau = self.pheromone.get(prev, node)
-                new_tau = current_tau + delta_bs
-                self.pheromone.set(prev, node, new_tau)
+                self.pheromone.deposit_edge(prev, node, delta_bs)
                 prev = node
 
             # Last node back to depot
-            current_tau = self.pheromone.get(prev, 0)
-            new_tau = current_tau + delta_bs
-            self.pheromone.set(prev, 0, new_tau)
+            self.pheromone.deposit_edge(prev, 0, delta_bs)
+
+        # Steps 2 & 3: Global evaporation, bounding, and precision-based pruning
+        self.pheromone.evaporate_all(self.params.rho)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         """Calculate total routing cost.
@@ -299,14 +338,14 @@ class KSparseACOSolver:
             routes: List of routes to evaluate.
 
         Returns:
-            Total distance-based cost.
+            Total cost of the routes.
         """
         total = 0.0
         for route in routes:
             if not route:
                 continue
-            total += self.dist_matrix[0][route[0]]
+            total += np.linalg.norm(self.node_coords[0] - self.node_coords[route[0]])
             for k in range(len(route) - 1):
-                total += self.dist_matrix[route[k]][route[k + 1]]
-            total += self.dist_matrix[route[-1]][0]
-        return total
+                total += np.linalg.norm(self.node_coords[route[k]] - self.node_coords[route[k + 1]])
+            total += np.linalg.norm(self.node_coords[route[-1]] - self.node_coords[0])
+        return float(total)

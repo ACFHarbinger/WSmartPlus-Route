@@ -82,7 +82,7 @@ class LocalSearch(ABC):
 
     def __init__(
         self,
-        dist_matrix: np.ndarray,
+        dist_matrix: Optional[np.ndarray],
         waste: Dict[int, float],
         capacity: float,
         R: float,
@@ -91,6 +91,7 @@ class LocalSearch(ABC):
         neighbors: Optional[Dict[int, List[int]]] = None,
         penalty_capacity: float = 1.0,
         acceptance_criterion: Optional[IAcceptanceCriterion] = None,
+        node_coords: Optional[np.ndarray] = None,
     ):
         """Initialize Local Search base class.
 
@@ -104,8 +105,20 @@ class LocalSearch(ABC):
             neighbors (Optional[Dict[int, List[int]]]): Precomputed granular neighbors. Defaults to None.
             penalty_capacity (float): Initial capacity violation penalty weight. Defaults to 1.0.
             acceptance_criterion (Optional[IAcceptanceCriterion]): Custom acceptance strategy. Defaults to None.
+            node_coords (np.ndarray): (N, 2) array of node coordinates.
         """
-        self.d = np.array(dist_matrix)
+        # Store matrix only if provided (O(n^2) memory)
+        self.d = np.array(dist_matrix) if dist_matrix is not None else None
+
+        # Store coordinates for on-demand calculation (O(n) memory)
+        self.node_coords = node_coords
+        if node_coords is not None:
+            self.x_coords = node_coords[:, 0]
+            self.y_coords = node_coords[:, 1]
+        else:
+            self.x_coords = np.array([])
+            self.y_coords = np.array([])
+
         self.waste = waste
         self.Q = capacity
         self.R = R
@@ -126,40 +139,94 @@ class LocalSearch(ABC):
 
         if neighbors is not None:
             self.neighbors = neighbors
-        else:
-            # Common initialization for neighbors (used by all LS)
-            n_nodes = len(dist_matrix)
+        elif self.d is not None:
+            # Traditional O(n^2) neighbor generation
+            n_nodes = len(self.d)
             self.neighbors = {}
             nb_granular = getattr(params, "nb_granular", 20)
             for i in range(1, n_nodes):
                 row = self.d[i]
                 order = np.argsort(row)
-                cands = []
-                for c in order:
-                    if c not in (i, 0):
-                        cands.append(c)
-                        if len(cands) >= nb_granular:
-                            break
+                cands = [c for c in order if c not in (i, 0)][:nb_granular]
                 self.neighbors[i] = cands
+        else:
+            raise ValueError("K-Sparse optimization requires precomputed neighbors if dist_matrix is None.")
 
+        # Initialize caches
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.route_loads: List[float] = []
         self.routes: List[List[int]] = []
-
-        # Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
-        # Maps: node_id -> route_idx -> [(cost_delta, position), ...]
-        # Stores the 3 best insertion positions for each node into each route
         self.top_insertions: Dict[int, Dict[int, List[Tuple[float, int]]]] = {}
-
-        # Coordinate arrays for polar sector pruning (Fix 3)
-        self.x_coords: Optional[np.ndarray] = None
-        self.y_coords: Optional[np.ndarray] = None
-
-        # Route sector cache: route_idx -> (min_angle, max_angle)
         self.route_sectors: Dict[int, Optional[Tuple[float, float]]] = {}
-
-        # Current objective value tracking
         self.current_profit: float = 0.0
+
+    def get_dist(self, i: int, j: int) -> float:
+        """Abstraction to fetch distance from matrix or calculate on-demand.
+
+        This follows the MMAS_exp strategy of recomputing
+        values to avoid intractable matrix sizes.
+
+        Args:
+            i (int): The index of the first node.
+            j (int): The index of the second node.
+
+        Returns:
+            float: The distance between the two nodes.
+        """
+        if self.d is not None:
+            return float(self.d[i, j])
+        if self.node_coords is not None:
+            return float(np.linalg.norm(self.node_coords[i] - self.node_coords[j]))
+        raise RuntimeError("Neither distance matrix nor coordinates available.")
+
+    def _compute_top_insertions(self, route_idx: Optional[int] = None):
+        """Modified to use get_dist abstraction.
+
+        Args:
+            route_idx (Optional[int]): The index of the route to compute the top insertions for.
+                                     If None, computes for all routes.
+        """
+        routes_to_update = [route_idx] if route_idx is not None else range(len(self.routes))
+        for r_idx in routes_to_update:
+            route = self.routes[r_idx]
+            if not route:
+                continue
+
+            for node in self.neighbors:
+                if node in route:
+                    continue
+                if node not in self.top_insertions:
+                    self.top_insertions[node] = {}
+
+                insertion_costs = []
+                for pos in range(len(route) + 1):
+                    prev = route[pos - 1] if pos > 0 else 0
+                    nxt = route[pos] if pos < len(route) else 0
+                    # Use get_dist to allow O(n) execution
+                    delta = self.get_dist(prev, node) + self.get_dist(node, nxt) - self.get_dist(prev, nxt)
+                    insertion_costs.append((delta, pos))
+
+                insertion_costs.sort(key=lambda x: x[0])
+                self.top_insertions[node][r_idx] = insertion_costs[:3]
+
+    def _cost(self, routes: List[List[int]]) -> float:
+        """Calculate total cost of all routes.
+
+        Args:
+            routes (List[List[int]]): List of routes, where each route is a list of node IDs.
+
+        Returns:
+            float: Total distance traveled across all routes, including returns to depot.
+        """
+        total = 0.0
+        for r in routes:
+            if not r:
+                continue
+            total += self.get_dist(0, r[0])
+            for i in range(len(r) - 1):
+                total += self.get_dist(r[i], r[i + 1])
+            total += self.get_dist(r[-1], 0)
+        return total
 
     @abstractmethod
     def optimize(self, solution: Any) -> Any:
@@ -216,9 +283,9 @@ class LocalSearch(ABC):
 
         improved = True
         it = 0
-        t_start = time.perf_counter()
+        t_start = time.process_time()
         while improved and it < self.params.local_search_iterations:
-            if self.params.time_limit > 0 and time.perf_counter() - t_start > self.params.time_limit:
+            if self.params.time_limit > 0 and time.process_time() - t_start > self.params.time_limit:
                 break
 
             improved = False
@@ -254,67 +321,6 @@ class LocalSearch(ABC):
             float: Sum of waste for all nodes in the route.
         """
         return sum(self.waste.get(x, 0) for x in r)
-
-    def _compute_top_insertions(self, route_idx: Optional[int] = None):
-        """
-        Compute or update the Top-3 Insertion Cache for O(1) SWAP* evaluation.
-
-        Following Vidal et al. (2022), this cache stores the 3 best insertion positions
-        for each node into each route, enabling constant-time insertion cost evaluation.
-
-        Args:
-            route_idx: If provided, update cache only for this route. If None, initialize for all routes.
-        """
-        routes_to_update = [route_idx] if route_idx is not None else range(len(self.routes))
-
-        for r_idx in routes_to_update:
-            route = self.routes[r_idx]
-            if not route:
-                continue
-
-            # For each node that could potentially be inserted into this route
-            for node in self.neighbors:
-                # Skip nodes already in this route
-                if node in route:
-                    continue
-
-                # Initialize cache structure if needed
-                if node not in self.top_insertions:
-                    self.top_insertions[node] = {}
-
-                # Calculate insertion costs for all positions
-                insertion_costs = []
-                for pos in range(len(route) + 1):
-                    prev = route[pos - 1] if pos > 0 else 0
-                    nxt = route[pos] if pos < len(route) else 0
-                    delta = self.d[prev, node] + self.d[node, nxt] - self.d[prev, nxt]
-                    insertion_costs.append((delta, pos))
-
-                # Keep top 3 (lowest cost) insertions
-                insertion_costs.sort(key=lambda x: x[0])
-                self.top_insertions[node][r_idx] = insertion_costs[:3]
-
-    def _cost(self, routes: List[List[int]]) -> float:
-        """Calculate total distance of all routes.
-
-        Args:
-            routes (List[List[int]]): List of routes, where each route is a list of node IDs.
-
-        Returns:
-            float: Total distance traveled across all routes, including returns to depot.
-        """
-        total = 0.0
-        for r in routes:
-            if not r:
-                continue
-            # Depot to first node
-            total += self.d[0, r[0]]
-            # Between nodes
-            for i in range(len(r) - 1):
-                total += self.d[r[i], r[i + 1]]
-            # Last node to depot
-            total += self.d[r[-1], 0]
-        return total
 
     def _should_try_operator(self, op_name: str) -> bool:
         """Check if the operator should be tried based on target_neighborhood filter.
@@ -861,7 +867,7 @@ class LocalSearch(ABC):
 
         # 1. Base Case: Empty route
         if not route:
-            cost_delta = 2 * self.d[0, node] * self.C
+            cost_delta = 2 * self.get_dist(0, node) * self.C
             best_pos = 0
         else:
             # 2. O(1) Cache Query - No loops required!

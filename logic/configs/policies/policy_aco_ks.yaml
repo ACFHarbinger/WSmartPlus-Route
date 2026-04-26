@@ -61,13 +61,9 @@ aco_ks:
       # Pheromone evaporation rate
       # Range: 0.01-0.3 (0.05 = slow decay, 0.2 = fast decay)
 
-    # ---------------------------------------------------------------------
-    # Pseudo-Random Proportional Rule
-    # ---------------------------------------------------------------------
-    - q0: 0.9
-      # Exploitation vs exploration balance
-      # Range: 0.7-0.99 (0.7 = more random, 0.99 = very greedy)
-      # With prob q0: select best node; otherwise: roulette selection
+    - eta_decay: 0.5
+      # Short-term visibility decay (p in the paper)
+      # Range: 0.1-0.9 (lower = stronger short-term memory, higher = weaker)
 
     # ---------------------------------------------------------------------
     # Pheromone Bounds (MAX-MIN Ant System)
@@ -121,7 +117,7 @@ aco_ks:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-    - acceptance_criterion: {method: "oi"}
+    - acceptance_criterion: { method: "oi" }
       # Local search already integrated; no further refinement needed
       # Empty = use KS-ACO output directly
 # =============================================================================
