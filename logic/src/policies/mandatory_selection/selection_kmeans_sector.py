@@ -28,6 +28,7 @@ import hashlib
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+from sklearn.cluster import KMeans
 
 from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context import SearchContext, SelectionContext
@@ -68,8 +69,6 @@ def _fit_kmeans(coordinates: np.ndarray, n_sectors: int) -> np.ndarray:
     effective_sectors = min(n_sectors, n_bins)
 
     try:
-        from sklearn.cluster import KMeans  # type: ignore
-
         km = KMeans(n_clusters=effective_sectors, n_init=10, random_state=0)
         labels: np.ndarray = km.fit_predict(coordinates)
     except ImportError:

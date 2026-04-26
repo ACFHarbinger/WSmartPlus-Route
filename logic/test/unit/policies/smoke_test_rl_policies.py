@@ -38,44 +38,9 @@ def test_rl_alns_solver():
         assert profit is not None
         assert isinstance(routes, list)
 
-def test_ahvpl_rl_solver():
-    print("\n=== Testing AHVPLRLSolver ===")
-    from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
-    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
-        RLAHVPLParams,
-    )
-    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl import RLAHVPLSolver as AHVPLRLSolver
-
-    # Mock Data
-    dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
-    wastes = {1: 10., 2: 20.}
-    capacity = 50.0
-    R = 1.0
-    C = 1.0
-
-    aco_params = KSACOParams(max_iterations=5, n_ants=2)
-    from logic.src.configs.policies.other import RLConfig, BanditConfig, LinUCBConfig
-    rl_config = RLConfig(
-        agent_type="bandit",
-        bandit=BanditConfig(algorithm="linucb"),
-        contextual=LinUCBConfig(alpha=0.1)
-    )
-    rl_params = RLAHVPLParams(
-        rl_config=rl_config,
-        aco_params=aco_params
-    )
-
-    solver = AHVPLRLSolver(dist_matrix, wastes, capacity, R, C, rl_params)
-    routes, profit, cost = solver.solve()
-
-    print(f"  Result: Routes={routes}, Profit={profit:.2f}, Cost={cost:.2f}")
-    assert profit is not None
-    assert isinstance(routes, list)
-
 if __name__ == "__main__":
     try:
         test_rl_alns_solver()
-        test_ahvpl_rl_solver()
         print("\nAll RL smoke tests passed!")
     except Exception as e:
         print(f"\nSmoke test failed: {e}")

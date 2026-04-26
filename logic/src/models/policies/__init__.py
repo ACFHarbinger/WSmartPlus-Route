@@ -52,7 +52,6 @@ from logic.src.models.core.temporal_attention_model.policy import TemporalAMPoli
 
 from .alns import VectorizedALNS
 from .ant_colony_system import VectorizedACOPolicy
-from .augmented_hybrid_volleyball_premier_league import VectorizedAHVPL
 from .hgs import VectorizedHGS
 from .hgs_alns import VectorizedHGSALNS
 from .hybrid_volleyball_premier_league import VectorizedHVPL
@@ -91,10 +90,6 @@ _POLICY_REGISTRY_SPEC: Dict[str, Tuple[str, str]] = {
     "hvpl": (
         "logic.src.models.policies.hybrid_volleyball_premier_league",
         "VectorizedHVPL",
-    ),
-    "ahvpl": (
-        "logic.src.models.policies.augmented_hybrid_volleyball_premier_league",
-        "VectorizedAHVPL",
     ),
     "hgs": ("logic.src.models.policies.hgs", "VectorizedHGS"),
     "hgs_alns": ("logic.src.models.policies.hgs_alns", "VectorizedHGSALNS"),
@@ -161,7 +156,6 @@ __all__ = [
     "VectorizedALNS",
     "VectorizedHGS",
     "VectorizedHVPL",
-    "VectorizedAHVPL",
     "NeuralHeuristicHybrid",
     "HybridTwoStagePolicy",
 ]

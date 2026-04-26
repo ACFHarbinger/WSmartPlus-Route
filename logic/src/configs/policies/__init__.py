@@ -6,7 +6,7 @@ Attributes:
     HyperHeuristicACOConfig: Hyper-heuristic ACO policy configuration.
     KSparseACOConfig: K-sparse ACO policy configuration.
     ADPRolloutConfig: ADP rollout policy configuration.
-    AHVPLConfig: AHVPL policy configuration.
+
     AdaptiveKernelSearchConfig: Adaptive kernel search policy configuration.
     ALNSConfig: ALNS policy configuration.
     ALNSIPOConfig: ALNS-IPO policy configuration.
@@ -78,7 +78,6 @@ Attributes:
     QDEConfig: QDE policy configuration.
     RENSConfig: RENS policy configuration.
     RFOConfig: RFO policy configuration.
-    RLAHVPLConfig: RLAH VPL policy configuration.
     RLALNSConfig: RL-ALNS policy configuration.
     RLGDHHConfig: RL-GD-HH policy configuration.
     RLHVPLConfig: RL-HVPL policy configuration.
@@ -110,7 +109,6 @@ from .abpc_hg import ABPCHGConfig
 from .aco_hh import HyperHeuristicACOConfig
 from .aco_ks import KSparseACOConfig
 from .adp import ADPRolloutConfig
-from .ahvpl import AHVPLConfig
 from .aks import AdaptiveKernelSearchConfig
 from .alns import ALNSConfig
 from .alns_ipo import ALNSIPOConfig
@@ -181,7 +179,6 @@ from .psoma import PSOMAConfig
 from .qde import QDEConfig
 from .rens import RENSConfig
 from .rfo import RFOConfig
-from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
 from .rl_gd_hh import RLGDHHConfig
 from .rl_hvpl import RLHVPLConfig
@@ -208,7 +205,6 @@ __all__ = [
     "ADPRolloutConfig",
     "KSparseACOConfig",
     "HyperHeuristicACOConfig",
-    "AHVPLConfig",
     "ALNSConfig",
     "ALNSIPOConfig",
     "BBConfig",
@@ -232,7 +228,6 @@ __all__ = [
     "KGLSConfig",
     "LKH3Config",
     "NeuralAgentConfig",
-    "RLAHVPLConfig",
     "RLALNSConfig",
     "RLGDHHConfig",
     "RLHVPLConfig",

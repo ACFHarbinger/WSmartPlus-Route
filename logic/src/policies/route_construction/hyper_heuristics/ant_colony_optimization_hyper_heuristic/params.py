@@ -101,7 +101,7 @@ class HyperACOParams:
             elitism_ratio=getattr(config, "elitism_ratio", 1.0),
             time_limit=getattr(config, "time_limit", 30.0),
             stagnation_limit=getattr(config, "stagnation_limit", 10),
-            operators=getattr(config, "operators", None) or OPERATOR_NAMES.copy(),
+            operators=getattr(config, "operators", OPERATOR_NAMES.copy()),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             seed=getattr(config, "seed", None),

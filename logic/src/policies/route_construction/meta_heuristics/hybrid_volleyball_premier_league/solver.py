@@ -37,11 +37,11 @@ from logic.src.policies.helpers.operators import (
     random_removal,
 )
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco import (
+    HyperHeuristicACO,
+)
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
     ALNSSolver,
-)
-from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import (
-    KSparseACOSolver,
 )
 from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import (
     HVPLParams,
@@ -108,7 +108,7 @@ class HVPLSolver:
         assert params.alns_params is not None, "alns_params must be initialized"
 
         # Initialize ACO solver for population initialization
-        self.aco_solver = KSparseACOSolver(
+        self.aco_solver = HyperHeuristicACO(
             dist_matrix=dist_matrix,
             wastes=wastes,
             capacity=capacity,
@@ -243,7 +243,7 @@ class HVPLSolver:
 
         # Run truncated ACO iterations
         for _ in range(self.params.aco_init_iterations):
-            routes = self.aco_solver.constructor.construct()
+            routes = self.aco_solver.construct([0] + self.nodes, self.mandatory_nodes)
             if routes:
                 population.append(routes)
 
@@ -529,7 +529,7 @@ class HVPLSolver:
 
         # Evaporate
         assert self.params.aco_params is not None
-        self.aco_solver.pheromone.evaporate_all(self.params.aco_params.rho)
+        self.aco_solver.evaporate_all()
 
         # Deposit on best solution edges
         delta = 1.0 / cost
@@ -537,12 +537,12 @@ class HVPLSolver:
             if not route:
                 continue
             # Depot to first node
-            self.aco_solver.pheromone.deposit_edge(0, route[0], delta)
+            self.aco_solver.deposit_edge(0, route[0], delta)
             # Inter-node edges
             for k in range(len(route) - 1):
-                self.aco_solver.pheromone.deposit_edge(route[k], route[k + 1], delta)
+                self.aco_solver.deposit_edge(route[k], route[k + 1], delta)
             # Last node back to depot
-            self.aco_solver.pheromone.deposit_edge(route[-1], 0, delta)
+            self.aco_solver.deposit_edge(route[-1], 0, delta)
 
     # ------------------------------------------------------------------
     # Private: Evaluation

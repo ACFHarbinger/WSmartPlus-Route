@@ -11,11 +11,11 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import (
+    HyperACOParams,
+)
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import (
     ALNSParams,
-)
-from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
-    KSACOParams,
 )
 
 
@@ -60,7 +60,7 @@ class HybridMemeticSearchParams:
     profit_aware_operators: bool = False
 
     # Sub-algorithm Parameters
-    aco_params: Optional[KSACOParams] = field(default_factory=lambda: None)
+    aco_params: Optional[HyperACOParams] = field(default_factory=lambda: None)
     alns_params: Optional[ALNSParams] = field(default_factory=lambda: None)
 
     def __post_init__(self):
@@ -73,19 +73,16 @@ class HybridMemeticSearchParams:
             None.
         """
         if self.aco_params is None:
-            self.aco_params = KSACOParams(
+            self.aco_params = HyperACOParams(
                 n_ants=20,
-                k_sparse=10,
                 alpha=1.0,
                 beta=2.0,
                 rho=0.1,
-                scale=5.0,
-                tau_0=None,
-                tau_min=0.001,
-                tau_max=10.0,
-                max_iterations=1,
+                tau_0=1.0,
+                eta_decay=0.5,
+                max_iterations=1,  # Only one iteration per construction phase
                 time_limit=60.0,
-                local_search=False,
+                elitism_ratio=1.0,  # ALNS handles local search
                 vrpp=self.vrpp,
                 profit_aware_operators=self.profit_aware_operators,
             )
@@ -134,7 +131,7 @@ class HybridMemeticSearchParams:
                 vrpp=config.get("vrpp", True),
                 n_removal=config.get("n_removal", 3),
                 profit_aware_operators=config.get("profit_aware_operators", False),
-                aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,  # type: ignore[arg-type]
+                aco_params=HyperACOParams.from_config(config.get("aco")) if config.get("aco") else None,  # type: ignore[arg-type]
                 alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
             )
 
@@ -150,7 +147,7 @@ class HybridMemeticSearchParams:
             n_removal=config.n_removal,
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
-            aco_params=KSACOParams.from_config(config.aco) if config.aco else None,
+            aco_params=HyperACOParams.from_config(config.aco) if config.aco else None,
             alns_params=ALNSParams.from_config(config.alns) if config.alns else None,
         )
 
