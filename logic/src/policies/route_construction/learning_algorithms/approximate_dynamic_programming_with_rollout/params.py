@@ -1,5 +1,13 @@
 """
 Configuration parameters for the ADP Rollout engine.
+
+Attributes:
+    ADPRolloutParams: Runtime parameters for the ADPRolloutEngine.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout import ADPRolloutParams
+    >>> params = ADPRolloutParams()
+    >>> print(params)
 """
 
 from __future__ import annotations

@@ -3,6 +3,19 @@ RL-AHVPL Policy Adapter.
 
 Adapts the Reinforcement Learning Augmented Hybrid Volleyball Premier League
 (RL-AHVPL) logic to the agnostic policy interface.
+
+Uses Q-Learning algorithm for dynamic operator selection and route construction.
+
+Attributes:
+    RLAHVPLPolicy (BaseRoutingPolicy): RL-AHVPL policy class.
+
+Example:
+    >>> config = RLAHVPLConfig()
+    >>> policy = RLAHVPLPolicy(config)
+    >>> routes, profit, cost = policy.run(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, values)
+    >>> print(routes)
+    >>> print(profit)
+    >>> print(cost)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -49,17 +62,37 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
 
     Visits pre-selected 'mandatory' bins using the Reinforcement Learning
     augmented HVPL metaheuristic combining ACO, ALNS, HGS, and CMAB.
+
+    Attributes:
+        config (RLAHVPLConfig): Configuration for the RL-AHVPL policy.
     """
 
     def __init__(self, config: Optional[Union[RLAHVPLConfig, Dict[str, Any]]] = None):
-        """__init__ docstring."""
+        """
+        Initialize the RLAHVPL policy.
+
+        Args:
+            config (Optional[Union[RLAHVPLConfig, Dict[str, Any]]]): Configuration for the RL-AHVPL policy.
+        """
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """
+        Returns the configuration class for the RL-AHVPL policy.
+
+        Returns:
+            Optional[Type]: The configuration class for the RL-AHVPL policy.
+        """
         return RLAHVPLConfig
 
     def _get_config_key(self) -> str:
+        """
+        Returns the configuration key for the RL-AHVPL policy.
+
+        Returns:
+            str: The configuration key for the RL-AHVPL policy.
+        """
         return "rl_ahvpl"
 
     def _run_solver(
@@ -100,7 +133,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
                 RL configurations and nested parameters for ACO, ALNS, HGS, and RTS.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

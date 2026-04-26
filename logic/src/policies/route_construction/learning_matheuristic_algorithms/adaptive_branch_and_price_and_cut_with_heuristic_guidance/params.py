@@ -1,5 +1,23 @@
 """
 Configuration parameters for ABPC-HG.
+
+Attributes:
+    ABPCHGParams: configuration for Adaptive Branch-and-Price-and-Cut with Heuristic Guidance.
+
+Example:
+    >>> from logic.src.policies.route_construction.adaptive_branch_and_price_and_cut_with_heuristic_guidance.params import ABPCHGParams
+    >>> params = ABPCHGParams()
+    >>> print(params)
+    ABPCHGParams(gamma=0.95, seed=None, overflow_penalty=2.0, ph_base_rho=1.0, ph_max_iterations=100,
+        ph_convergence_tol=0.0001, alns_iterations=50, alns_max_routes=5, alns_rc_tolerance=0.0001,
+        alns_remove_fraction=0.25, dive_penalty_M=10000.0, ive_root_time_limit=600.0, dive_min_subproblems=1,
+        dive_max_subproblems=25, dive_min_per_subproblem=0, dive_max_per_subproblem=25, fo_root_time_limit=600.0,
+        fo_max_improvement=0.001, fo_warmup_routes=50, fo_batch_size=10, ml_branching_pool_size=128,
+        ml_node_pool_size=1000, ml_target_depth=32, ml_min_reliable_decisions=4, ml_reliability_threshold=0.55,
+        ml_reliability_decay=0.5, ml_eval_batch_size=128, ml_train_epochs=10, ml_train_patience=5,
+        sc_branch_fraction=0.7, sc_depth_threshold=128, sc_reliability_decay=0.3, sc_reliability_threshold=0.75,
+        sc_min_reliable_decisions=4, benders_max_iterations=150, benders_lower_bound_improvement_tol=0.0005,
+        benders_upper_bound_improvement_tol=0.0002, benders_no_improvement_window=8, benders_early_stop_fraction=0.6)
 """
 
 from __future__ import annotations
@@ -13,7 +31,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class ABPCHGParams:
-    """
+    r"""
     Comprehensive configuration for Adaptive Branch-and-Price-and-Cut with
     Heuristic Guidance (ABPC-HG).
 
@@ -41,11 +59,95 @@ class ABPCHGParams:
     This codebase follows the VRPP maximisation convention throughout:
     a column with *positive* reduced cost is improving.  Where a comment
     references the minimisation dual, the sign is flipped accordingly.
-    """
 
-    # ------------------------------------------------------------------ #
-    # Global                                                               #
-    # ------------------------------------------------------------------ #
+    Attributes:
+        gamma (float): Inter-day discount factor γ ∈ (0, 1] applied to future
+            value estimates in ScenarioPrizeEngine and the Bellman recursion.
+
+        seed (Optional[int]): Global RNG seed.
+
+        overflow_penalty (float): Revenue multiplier applied when a bin is
+            projected to overflow before the next feasible visit (i.e.
+            days_to_overflow ≤ 1).  The effective penalty is:
+            −overflow_penalty × τ × revenue.
+
+        ph_base_rho (float): Base augmented-Lagrangian penalty coefficient ρ₀ for the PH proximal
+            term added to each per-scenario reduced cost: c'_{k,ξ} += −ρ_eff · (x_k − x̄_k)²
+
+        ph_max_iterations (int): Maximum number of PH consensus iterations before declaring convergence
+            of the root-node multi-scenario CG.  Each iteration involves one solve
+            per scenario RMP followed by an x̄ update.
+
+        ph_convergence_tol (float): Convergence tolerance for the PH loop.  Iteration stops when the
+            normalised consensus residual satisfies:
+
+                max_ξ  ‖x^ξ − x̄‖ / max(1, ‖x̄‖)  <  tol
+
+            Tighter tolerances improve the quality of the non-anticipative LP bound
+            but increase root-node solve time.
+
+        alns_iterations (int): Maximum number of ALNS outer-loop iterations (per B&P node).
+
+        alns_max_routes (int): Target number of routes to decompose into when building
+
+        alns_rc_tolerance (float): Tolerance on the duality gap (dual - LP value).  The ALNS loop
+            terminates when the gap closes below this fraction of the current LP bound:
+
+                (UB_ALNS - LB_LP) / max(1, LB_LP)  <  tol
+
+            Low tolerances force tighter integration between ALNS and PH but increase the number
+            of ALNS iterations required to close the gap.
+
+        alns_remove_fraction (float): Fraction of customer-arcs to remove in each destroy step,
+            drawn uniformly from the current ALNS solution.
+
+        dive_penalty_M (float): Large constant M used in the penalty formulation for route
+            feasibility violations (vehicle capacity, time windows) within the DiveAndPricePrimalHeuristic.
+
+        fo_tabu_length (int): Length of the tabu list used in the FixAndOptimizeRefiner.
+
+        fo_max_unfix (int): Maximum number of arcs to unfix in each iteration of the FixAndOptimizeRefiner.
+
+        fo_strategy (str): Strategy used to select arcs to fix and unfix in the FixAndOptimizeRefiner.
+            Possible values are: 'ml', 'greedy', 'random'.
+
+        fo_max_iterations (int): Maximum number of iterations of the FixAndOptimizeRefiner.
+
+        ml_reliability_c (float): Blending coefficient c in the reliability branching score function.
+
+        ml_pseudocost_ema_alpha (float): Exponential moving-average coefficient α for pseudo-cost updates after
+            each exact strong-branching evaluation: Ψ_new = α · Ψ_old + (1 − α) · Δ_observed
+            α = 0.5 gives equal weight to history and new observations.  Lower α
+            makes pseudo-costs more adaptive to recent LP changes; higher α
+            stabilises estimates in the presence of noisy LP solutions.
+
+        sc_consensus_threshold (float): Base consensus threshold above which a fractional
+            variable is considered 'strongly agreed upon' across deterministic scenario solutions.
+
+        benders_max_iterations (int): Maximum number of Benders master–subproblem iteration cycles before
+            terminating and returning the best primal solution found.
+
+        benders_convergence_tol (float): Primal–dual gap tolerance for early Benders termination:
+            (UB_current - LB_LP) / max(1, UB_current) < tol
+
+        benders_cut_pool_max (int): Maximum number of Benders cuts to store in the cut pool.
+
+        max_visits_per_bin (int): Maximum number of visits per bin.
+
+        theta_upper_bound (float): Upper bound on θ used in the node prize calculation.
+
+        gurobi_master_time_limit (float): Lower bound on θ used in the node prize calculation.
+
+        gurobi_sub_time_limit (float): Number of subproblems in the Branch-and-Price-and-Cut algorithm.
+
+        gurobi_mip_gap (float): Tolerance for the MIP gap.  The algorithm terminates when the
+            relative gap between the upper bound (best integer solution) and the
+            lower bound (relaxed master LP) is smaller than this value.
+
+        gurobi_output_flag (bool): Whether to output Gurobi solver logs to the console.
+
+        subproblem_relax (bool): Whether to solve the subproblems as LPs (True) or MIPs (False).
+    """
 
     gamma: float = 0.95
     """Inter-day discount factor γ ∈ (0, 1] applied to future value estimates

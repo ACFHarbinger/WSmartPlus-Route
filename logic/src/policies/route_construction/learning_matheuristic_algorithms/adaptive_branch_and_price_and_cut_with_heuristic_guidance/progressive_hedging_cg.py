@@ -1,5 +1,15 @@
 """
 Progressive Scenario Hedging within Column Generation.
+
+Attributes:
+    ProgressiveHedgingCGLoop: The Progressive Hedging algorithm implementation.
+
+Examples:
+    >>> from .progressive_hedging_cg import ProgressiveHedgingCGLoop
+    >>> progressive_hedging_cg = ProgressiveHedgingCGLoop()
+    >>> progressive_hedging_cg.update_x_bar()
+    >>> progressive_hedging_cg.compute_dynamic_penalty()
+    >>> progressive_hedging_cg.calculate_augmented_reduced_cost()
 """
 
 from typing import Dict, List, Set
@@ -33,7 +43,7 @@ class ProgressiveHedgingCGLoop:
     simplicity; it can be incorporated by maintaining a dual multiplier
     vector updated as w_k ← w_k + ρ · (x_k − x̄_k) after each consensus step.
 
-    Attributes
+    Attributes:
     ----------
     num_scenarios : int
         Total number of scenarios |Ξ|; denominator of the x̄ average.
@@ -87,9 +97,7 @@ class ProgressiveHedgingCGLoop:
             total = sum(sol.get(var_id, 0.0) for sol in scenario_solutions.values())
             self.x_bar[var_id] = total / self.num_scenarios
 
-    def compute_dynamic_penalty(
-        self, var_id: int, scenario_prizes: Dict[int, float]
-    ) -> float:
+    def compute_dynamic_penalty(self, var_id: int, scenario_prizes: Dict[int, float]) -> float:
         """
         Compute the dynamic penalty coefficient ρ_eff for a given variable.
 

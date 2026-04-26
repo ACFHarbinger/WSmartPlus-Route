@@ -1,5 +1,15 @@
 """
 Temporal Decomposition via Benders Cuts.
+
+Attributes:
+    _GUROBI_AVAILABLE: Whether Gurobi is available.
+    logger: Logger for the Temporal Benders algorithm.
+    TemporalBendersCoordinator: The Temporal Benders algorithm implementation.
+
+Examples:
+    >>> from .temporal_benders import TemporalBendersCoordinator
+    >>> temporal_benders = TemporalBendersCoordinator()
+    >>> temporal_benders.solve()
 """
 
 import logging
@@ -79,7 +89,7 @@ class TemporalBendersCoordinator:
     dive_heuristic : DiveAndPricePrimalHeuristic or None
     fix_optimizer : FixAndOptimizeRefiner or None
 
-    Attributes
+    Attributes:
     ----------
     tree, prize_engine, capacity, revenue, cost_unit
         Problem parameters.
@@ -176,7 +186,15 @@ class TemporalBendersCoordinator:
     # ------------------------------------------------------------------ #
 
     def _add_cut(self, cut: Dict[str, Any]) -> None:
-        """Add a cut to the internal pool (FIFO eviction at capacity)."""
+        """
+        Add a cut to the internal pool (FIFO eviction at capacity).
+
+        Args:
+            cut: The cut to add to the pool.
+
+        Returns:
+            None
+        """
         self._cut_pool.append(cut)
         if len(self._cut_pool) > self.cut_pool_max:
             self._cut_pool.pop(0)
@@ -189,12 +207,15 @@ class TemporalBendersCoordinator:
         """
         Solve the multi-period stochastic VRPP via Temporal Benders Decomposition.
 
-        Required kwargs:
-            dist_matrix (np.ndarray): Distance matrix, shape (n_bins+1, n_bins+1),
-                depot at index 0.  If not provided, raises ``ValueError``.
+        Args:
+            kwargs: Forwarded to per-scenario subproblem solvers.
 
-        Optional kwargs:
-            Any remaining key-value pairs are forwarded to subproblem solvers.
+            Required kwargs:
+                dist_matrix (np.ndarray): Distance matrix, shape (n_bins+1, n_bins+1),
+                    depot at index 0.  If not provided, raises ``ValueError``.
+
+            Optional kwargs:
+                Any remaining key-value pairs are forwarded to subproblem solvers.
 
         Returns:
             raw_plan: ``[day][route_index][node_index]`` covering all horizon days.
@@ -233,7 +254,7 @@ class TemporalBendersCoordinator:
         Args:
             dist_matrix: (n_bins+1 × n_bins+1) distance matrix.
             n_bins: Number of customer bins.
-            **kwargs: Forwarded to per-scenario subproblem solvers.
+            kwargs: Forwarded to per-scenario subproblem solvers.
 
         Returns:
             best_plan, best_profit (see ``solve()``).

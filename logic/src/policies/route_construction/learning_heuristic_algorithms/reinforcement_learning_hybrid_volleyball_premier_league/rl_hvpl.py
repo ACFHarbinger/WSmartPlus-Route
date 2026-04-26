@@ -16,6 +16,19 @@ Reference:
     Volleyball Premier League Algorithm (VPL)
     ACO with Q-Learning for dynamic operator selection
     ALNS with SARSA for adaptive search
+
+Attributes:
+    RLHVPLSolver: RLHVPL solver class.
+
+Examples:
+    >>> rl_hvpl_solver = RLHVPLSolver()
+    >>> routes, profit, cost = rl_hvpl_solver.solve()
+    >>> print(routes)
+    [[1, 2, 3], [4, 5, 6]]
+    >>> print(profit)
+    1000.0
+    >>> print(cost)
+    100.0
 """
 
 import copy
@@ -44,6 +57,19 @@ class RLHVPLSolver:
         - Coaching (ALNS-SARSA): SARSA guides ALNS's destroy/repair operator selection
         - Competition: Best teams survive, weakest are replaced
         - Global Guidance: Pheromone updates based on best solutions
+
+    Attributes:
+        dist_matrix: Distance matrix between nodes (including depot at index 0).
+        wastes: Dictionary mapping node IDs to waste amounts.
+        capacity: Vehicle capacity constraint.
+        R: Revenue per unit waste collected.
+        C: Cost per unit distance traveled.
+        params: RLHVPLParams configuration.
+        mandatory_nodes: Nodes that must be visited (if any).
+        aco_solver: Enhanced ACO with Q-Learning.
+        pheromone: Pheromone matrix for ACO.
+        constructor: ACO constructor.
+        alns_solver: Enhanced ALNS with SARSA.
     """
 
     def __init__(
@@ -272,6 +298,9 @@ class RLHVPLSolver:
             routes: Best routes to reinforce.
             profit: Profit of the best solution.
             cost: Cost of the best solution.
+
+        Returns:
+            None
         """
         if not routes:
             return

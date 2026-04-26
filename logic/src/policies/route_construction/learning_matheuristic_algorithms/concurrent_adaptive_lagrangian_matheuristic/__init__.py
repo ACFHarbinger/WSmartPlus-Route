@@ -22,6 +22,12 @@ Architecture (see design discussion for full derivation):
           per outer iteration.
 
 Entry point: :class:`policy.CALMPolicy`.
+
+Attributes:
+  None
+
+Example:
+  None
 """
 
 from .params import (

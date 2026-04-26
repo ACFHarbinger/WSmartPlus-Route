@@ -1,5 +1,13 @@
 """
 Module documentation.
+
+Attributes:
+    ABPCHGPolicy: The Adaptive Branch-and-Price-and-Cut with Heuristic Guidance policy implementation.
+
+Examples:
+    >>> from logic.src.policies.route_construction.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg import ABPCHGPolicy
+    >>> policy = ABPCHGPolicy()
+    >>> policy.run(problem_context)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type
@@ -114,7 +122,7 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
         ``policy.ml_branching_model = <your model>``
     and will be picked up on the next ``_run_multi_period_solver`` call.
 
-    Attributes
+    Attributes:
     ----------
     params : ABPCHGParams
         Fully resolved configuration instance built from the supplied config.
@@ -126,7 +134,11 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
     """
 
     def __init__(self, config: Optional[ABPCHGConfig] = None):
-        """__init__ docstring."""
+        """Initialize ABPCHGPolicy.
+
+        Args:
+            config: Configuration for the policy.
+        """
         super().__init__(config)
         self.params: ABPCHGParams = ABPCHGParams.from_config(config) if config is not None else ABPCHGParams()
         self.gamma: float = self.params.gamma
@@ -136,9 +148,19 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Type[ABPCHGConfig]:
+        """Return the configuration class for the policy.
+
+        Returns:
+            Type[ABPCHGConfig]: The configuration class for the policy.
+        """
         return ABPCHGConfig
 
     def _get_config_key(self) -> str:
+        """Return the configuration key for the policy.
+
+        Returns:
+            str: The configuration key for the policy.
+        """
         return "abpc_hg"
 
     # ------------------------------------------------------------------ #

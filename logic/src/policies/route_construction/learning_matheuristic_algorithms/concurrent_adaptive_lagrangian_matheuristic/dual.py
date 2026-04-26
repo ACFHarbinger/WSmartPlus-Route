@@ -20,6 +20,25 @@ Both strategies expose the same interface:
     - current_dual_bound() -> float
     - suggest_step(current_lambdas, aggregate_subgrad) -> np.ndarray
     - serious_step(lambdas) / null_step() -> informational callbacks
+
+Attributes:
+    DualBoundTracker: Interface for dual-bound tracking.
+    EMADualBoundTracker: EMA-based dual-bound tracker.
+    BundleEntry: Entry in the proximal bundle.
+    ProximalBundleDualBoundTracker: Proximal bundle dual-bound tracker.
+    build_dual_bound_tracker: Builder function for dual-bound trackers.
+
+Example:
+    >>> tracker = EMADualBoundTracker(DualBoundParams(), LagrangianParams(), 1, 1)
+    >>> tracker.submit(0, np.array([1]), np.array([1]), 1, 1)
+    True
+    >>> tracker.current_dual_bound()
+    1.0
+    >>> tracker.suggest_step(np.array([1]), np.array([1]))
+    (array([0.9999]), 0.01)
+    >>> tracker.serious_step(np.array([1]))
+    >>> tracker.null_step()
+
 """
 
 from __future__ import annotations
@@ -57,24 +76,18 @@ class DualBoundTracker(ABC):
         lagrangian_value_contrib: float,
         tour_quality_ratio: float,
     ) -> bool:
-        """
-        Submit a per-period subgradient.
+        """Submit a per-period subgradient.
 
-        Parameters
-        ----------
-        period : int
-        lambdas : (N, T) multipliers AT WHICH the subgradient was evaluated.
-        subgrad : (N,) subgradient for this period (== x^K - x^R column t).
-        lagrangian_value_contrib : float
-            The period's contribution to the Lagrangian objective at `lambdas`.
-        tour_quality_ratio : float in [1, inf)
-            RS tour cost / period incumbent cost.  1.0 = new incumbent.
-            Used to gate EMA updates.
+        Args:
+            period (int): Period index.
+            lambdas (np.ndarray): Multipliers at which the subgradient was evaluated.
+            subgrad (np.ndarray): Subgradient for this period (== x^K - x^R column t).
+            lagrangian_value_contrib (float): The period's contribution to the Lagrangian objective at `lambdas`.
+            tour_quality_ratio (float): RS tour cost / period incumbent cost.  1.0 = new incumbent.
+                Used to gate EMA updates.
 
-        Returns
-        -------
-        accepted : bool
-            True if the submission changed the tracker state.
+        Returns:
+            bool: True if the submission changed the tracker state.
         """
         ...
 
@@ -89,8 +102,14 @@ class DualBoundTracker(ABC):
 
     @abstractmethod
     def suggest_step(self, current_lambdas: np.ndarray, aggregate_subgrad: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Return (new_lambdas, effective_stepsize).
+        """Return (new_lambdas, effective_stepsize).
+
+        Args:
+            current_lambdas (np.ndarray): Current multipliers.
+            aggregate_subgrad (np.ndarray): Aggregate subgradient.
+
+        Returns:
+            Tuple[np.ndarray, float]: New lambda vector and step size.
         """
         ...
 
@@ -205,6 +224,13 @@ class EMADualBoundTracker(DualBoundTracker):
         UB is supplied by the coordinator (best primal).  Here we take it to
         be max(|L_k|, 1) * 2 as a neutral placeholder; the coordinator will
         usually override by calling :meth:`polyak_step` directly.
+
+        Args:
+            current_lambdas (np.ndarray): Current multipliers.
+            aggregate_subgrad (np.ndarray): Aggregate subgradient.
+
+        Returns:
+            Tuple[np.ndarray, float]: New lambda vector and step size.
         """
         g = aggregate_subgrad
         g_norm_sq = float(np.dot(g.ravel(), g.ravel()))
@@ -226,7 +252,17 @@ class EMADualBoundTracker(DualBoundTracker):
         upper_bound: float,
         mu: Optional[float] = None,
     ) -> Tuple[np.ndarray, float]:
-        """Explicit Polyak step using a caller-supplied UB (best primal)."""
+        """Explicit Polyak step using a caller-supplied UB (best primal).
+
+        Args:
+            current_lambdas (np.ndarray): Current multipliers.
+            aggregate_subgrad (np.ndarray): Aggregate subgradient.
+            upper_bound (float): Upper bound (best primal).
+            mu (Optional[float]): Polyak step parameter (default: lag_params.polyak_mu_default).
+
+        Returns:
+            Tuple[np.ndarray, float]: New lambda vector and step size.
+        """
         g = aggregate_subgrad
         g_norm_sq = float(np.dot(g.ravel(), g.ravel()))
         if g_norm_sq < 1e-12:
@@ -339,12 +375,23 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
         lagrangian_value_contrib: float,
         tour_quality_ratio: float,
     ) -> bool:
-        """
-        Append a bundle entry.  Unlike the EMA tracker, the bundle is
-        strictly-valid cutting-plane evidence, so we do NOT gate on tour
-        quality -- every RS return is a legitimate subgradient, just at a
-        higher lambda evaluation.  However we still scale the *contribution*
-        attribution so a bad RS doesn't pretend to be a new best.
+        """Append a bundle entry.
+
+        Unlike the EMA tracker, the bundle is strictly-valid cutting-plane
+        evidence, so we do NOT gate on tour quality -- every RS return is a
+        legitimate subgradient, just at a higher lambda evaluation.  However we
+        still scale the *contribution* attribution so a bad RS doesn't pretend to
+        be a new best.
+
+        Args:
+            period (int): Period index.
+            lambdas (np.ndarray): Lambda values.
+            subgrad (np.ndarray): Subgradient.
+            lagrangian_value_contrib (float): Lagrangian value contribution.
+            tour_quality_ratio (float): Tour quality ratio.
+
+        Returns:
+            bool: Always True, as every RS return is accepted as valid evidence.
         """
         with self._lock:
             full_sub = np.zeros(self.dim, dtype=float)
@@ -404,11 +451,17 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
             return self._best_value if np.isfinite(self._best_value) else float("-inf")
 
     def suggest_step(self, current_lambdas: np.ndarray, aggregate_subgrad: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Solve the proximal bundle QP and return the new lambda.
+        """Solve the proximal bundle QP and return the new lambda.
 
         If the bundle is empty or the QP subsolve fails, fall back to a
         Polyak-like step on the aggregate subgradient.
+
+        Args:
+            current_lambdas (np.ndarray): Current multipliers.
+            aggregate_subgrad (np.ndarray): Aggregate subgradient.
+
+        Returns:
+            Tuple[np.ndarray, float]: New lambda vector and step norm.
         """
         with self._lock:
             if not self._bundle:
@@ -432,7 +485,11 @@ class ProximalBundleDualBoundTracker(DualBoundTracker):
     # ----- Internals -----
 
     def _solve_bundle_qp(self) -> Tuple[np.ndarray, float]:
-        """Solve the proximal bundle QP via Gurobi."""
+        """Solve the proximal bundle QP via Gurobi.
+
+        Returns:
+            Tuple[np.ndarray, float]: New lambda vector and step norm.
+        """
         import gurobipy as gp  # local import to avoid importing at module load
 
         bundle = list(self._bundle)

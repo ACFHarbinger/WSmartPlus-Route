@@ -1,5 +1,13 @@
 """
 Module documentation.
+
+Attributes:
+    RLALNSPolicy: Adapter for the RL-ALNS solver.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms import RLALNSPolicy
+    >>> params = RLALNSPolicy()
+    >>> print(params)
 """
 
 from typing import Any, Dict, List, Tuple
@@ -37,6 +45,9 @@ class RLALNSPolicy(BaseRoutingPolicy):
     Adapter for the RL-ALNS solver.
 
     Bridges the centralized RLConfig structure with the RLALNSSolver.
+
+    Attributes:
+        None
     """
 
     def _run_solver(
@@ -75,7 +86,7 @@ class RLALNSPolicy(BaseRoutingPolicy):
                 RL configurations and ALNS parameters like `start_temp`, `cooling_rate`.
             mandatory_nodes (List[int]): Local indices of bins that MUST be
                 collected in this period.
-            **kwargs: Additional context, including:
+            kwargs: Additional context, including:
                 - search_context (Optional[SearchContext]): Context for tracking
                   recursive solver statistics.
                 - multi_day_context (Optional[MultiDayContext]): Context for

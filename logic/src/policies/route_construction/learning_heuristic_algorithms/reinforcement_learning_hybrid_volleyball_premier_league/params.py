@@ -4,6 +4,21 @@ Hyperparameters for Reinforcement Learning Hybrid Volleyball Premier League (RL-
 This configuration bridges the basic HVPL (ACO + ALNS in population framework)
 and the advanced RL-AHVPL (with HGS, CMAB, GLS), providing RL-enhanced operators
 without the full genetic evolution complexity.
+
+Attributes:
+    RLHVPLParams (RLHVPLParams): RL-HVPL parameters class.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms
+    ...     .reinforcement_learning_hybrid_volleyball_premier_league import (
+    ...         RLHVPLParams
+    ...     )
+    >>> params = RLHVPLParams(time_limit=3600.0)
+    >>> solver = RLHVPLSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+    >>> print(routes)
+    >>> print(profit)
+    >>> print(cost)
 """
 
 from dataclasses import dataclass, field
@@ -24,6 +39,23 @@ class RLHVPLParams:
     - ALNS with SARSA for adaptive destroy/repair operator selection
     - Population-based framework (VPL) for global search
     - NO genetic operators (simpler than RL-AHVPL)
+
+    Attributes:
+        n_teams (int): Population size.
+        max_iterations (int): Number of league seasons.
+        sub_rate (float): Fraction of teams replaced per iteration.
+        time_limit (float): Overall time limit in seconds.
+        seed (Optional[int]): Random seed.
+        vrpp (bool): Whether to use VRPP.
+        profit_aware_operators (bool): Whether to use profit-aware operators.
+        rl_config (RLConfig): RL configuration.
+        aco_params (KSACOParams): ACO parameters.
+        alns_params (ALNSParams): ALNS parameters.
+        pheromone_update_strategy (str): Pheromone update strategy.
+        profit_weight (float): Weight for profit-based pheromone updates.
+        elite_coaching_iterations (int): Number of elite coaching iterations.
+        regular_coaching_iterations (int): Number of regular coaching iterations.
+        elite_size (int): Number of teams receiving elite coaching.
     """
 
     # ===== General Parameters =====
@@ -38,8 +70,15 @@ class RLHVPLParams:
     # ===== RL Configuration (Centralized) =====
     rl_config: RLConfig = field(default_factory=RLConfig)
 
-    def __post_init__(self):
-        """Sync flags across sub-parameters."""
+    def __post_init__(self) -> None:
+        """Sync flags across sub-parameters.
+
+        Args:
+            None.
+
+        Returns:
+            None
+        """
         if self.aco_params:
             self.aco_params.vrpp = self.vrpp
             self.aco_params.profit_aware_operators = self.profit_aware_operators
@@ -93,6 +132,16 @@ class RLHVPLParams:
     # These properties allow existing code to access RL parameters without modification,
     # maintaining consistency with RL-AHVPL interface.
     def _get_val(self, category: str, key: str, default: Any = None) -> Any:
+        """Get value from RL configuration.
+
+        Args:
+            category (str): Category of the parameter.
+            key (str): Key of the parameter.
+            default (Any): Default value.
+
+        Returns:
+            Any: Value of the parameter.
+        """
         # Resolve the category (e.g. td_learning, sarsa)
         if isinstance(self.rl_config, dict):
             cat_obj = self.rl_config.get(category, {})
@@ -108,106 +157,191 @@ class RLHVPLParams:
         return getattr(cat_obj, key, default)
 
     def _get_param(self, key: str, default: Any = None) -> Any:
+        """Get parameter from RL configuration.
+
+        Args:
+            key (str): Key of the parameter.
+            default (Any): Default value.
+
+        Returns:
+            Any: Value of the parameter.
+        """
         if isinstance(self.rl_config, dict):
             return self.rl_config.get("params", {}).get(key, default)
         return self.rl_config.params.get(key, default)
 
     @property
     def qlearning_alpha(self) -> float:
-        """Learning rate for Q-Learning."""
+        """Learning rate for Q-Learning.
+
+        Returns:
+            float: Learning rate for Q-Learning.
+        """
         return float(self._get_val("td_learning", "alpha", 0.1))
 
     @property
     def qlearning_gamma(self) -> float:
-        """Discount factor for Q-Learning."""
+        """Discount factor for Q-Learning.
+
+        Returns:
+            float: Discount factor for Q-Learning.
+        """
         return float(self._get_val("td_learning", "gamma", 0.95))
 
     @property
     def qlearning_epsilon(self) -> float:
-        """Exploration rate for Q-Learning."""
+        """Exploration rate for Q-Learning.
+
+        Returns:
+            float: Exploration rate for Q-Learning.
+        """
         return float(self._get_val("td_learning", "epsilon", 0.1))
 
     @property
     def qlearning_epsilon_decay(self) -> float:
-        """Decay factor for Q-Learning exploration rate."""
+        """Decay factor for Q-Learning exploration rate.
+
+        Returns:
+            float: Decay factor for Q-Learning exploration rate.
+        """
         return float(self._get_val("td_learning", "epsilon_decay", 0.995))
 
     @property
     def qlearning_epsilon_decay_step(self) -> int:
-        """Frequency of Q-Learning exploration rate decay (in iterations)."""
+        """Frequency of Q-Learning exploration rate decay (in iterations).
+
+        Returns:
+            int: Frequency of Q-Learning exploration rate decay (in iterations).
+        """
         return self._get_val("td_learning", "epsilon_decay_step", 20)
 
     @property
     def qlearning_epsilon_min(self) -> float:
-        """Minimum exploration rate for Q-Learning."""
+        """Minimum exploration rate for Q-Learning.
+
+        Returns:
+            float: Minimum exploration rate for Q-Learning.
+        """
         return float(self._get_val("td_learning", "epsilon_min", 0.05))
 
     @property
     def qlearning_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for classifying solution quality improvements in Q-Learning."""
+        """Thresholds for classifying solution quality improvements in Q-Learning.
+
+        Returns:
+            Tuple[float, float]: Thresholds for classifying solution quality improvements in Q-Learning.
+        """
         val = self._get_param("qlearning_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def qlearning_history_size(self) -> int:
-        """Size of the rolling history window for Q-Learning state estimation."""
+        """Size of the rolling history window for Q-Learning state estimation.
+
+        Returns:
+            int: Size of the rolling history window for Q-Learning state estimation.
+        """
         return self._get_param("qlearning_history_size", 50)
 
     @property
     def sarsa_alpha(self) -> float:
-        """Learning rate for SARSA (used in ALNS)."""
+        """Learning rate for SARSA (used in ALNS).
+
+        Returns:
+            float: Learning rate for SARSA (used in ALNS).
+        """
         return float(self._get_val("sarsa", "alpha", 0.1))
 
     @property
     def sarsa_gamma(self) -> float:
-        """Discount factor for SARSA."""
+        """Discount factor for SARSA.
+
+        Returns:
+            float: Discount factor for SARSA.
+        """
         return float(self._get_val("sarsa", "gamma", 0.95))
 
     @property
     def sarsa_epsilon(self) -> float:
-        """Exploration rate for SARSA."""
+        """Exploration rate for SARSA.
+
+        Returns:
+            float: Exploration rate for SARSA.
+        """
         return float(self._get_val("sarsa", "epsilon", 0.1))
 
     @property
     def sarsa_epsilon_decay(self) -> float:
-        """Decay factor for SARSA exploration rate."""
+        """Decay factor for SARSA exploration rate.
+
+        Returns:
+            float: Decay factor for SARSA exploration rate.
+        """
         return float(self._get_val("sarsa", "epsilon_decay", 0.995))
 
     @property
     def sarsa_epsilon_decay_step(self) -> int:
-        """Frequency of SARSA exploration rate decay (in iterations)."""
+        """Frequency of SARSA exploration rate decay (in iterations).
+
+        Returns:
+            int: Frequency of SARSA exploration rate decay (in iterations).
+        """
         return self._get_val("sarsa", "epsilon_decay_step", 20)
 
     @property
     def sarsa_epsilon_min(self) -> float:
-        """Minimum exploration rate for SARSA."""
+        """Minimum exploration rate for SARSA.
+
+        Returns:
+            float: Minimum exploration rate for SARSA.
+        """
         return float(self._get_val("sarsa", "epsilon_min", 0.05))
 
     @property
     def sarsa_diversity_size(self) -> int:
-        """Maximum number of diverse solutions to track for SARSA reward calculation."""
+        """Maximum number of diverse solutions to track for SARSA reward calculation.
+
+        Returns:
+            int: Maximum number of diverse solutions to track for SARSA reward calculation.
+        """
         return self._get_param("sarsa_diversity_size", 50)
 
     @property
     def sarsa_improvement_thresholds(self) -> Tuple[float, float]:
-        """Thresholds for solution quality improvement rewards in SARSA."""
+        """Thresholds for solution quality improvement rewards in SARSA.
+
+        Returns:
+            Tuple[float, float]: Thresholds for solution quality improvement rewards in SARSA.
+        """
         val = self._get_param("sarsa_improvement_thresholds", (1e-4, 1e-2))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_progress_thresholds(self) -> Tuple[float, float]:
-        """Progress-based thresholds for adjusting SARSA rewards."""
+        """Progress-based thresholds for adjusting SARSA rewards.
+
+        Returns:
+            Tuple[float, float]: Progress-based thresholds for adjusting SARSA rewards.
+        """
         val = self._get_param("sarsa_operator_progress_thresholds", (0.3, 0.7))
         return float(val[0]), float(val[1])
 
     @property
     def sarsa_operator_stagnation_thresholds(self) -> Tuple[int, int]:
-        """Stagnation count thresholds for triggering SARSA penalty/reset."""
+        """Stagnation count thresholds for triggering SARSA penalty/reset.
+
+        Returns:
+            Tuple[int, int]: Stagnation count thresholds for triggering SARSA penalty/reset.
+        """
         val = self._get_param("sarsa_operator_stagnation_thresholds", (10, 50))
         return int(val[0]), int(val[1])
 
     @property
     def sarsa_operator_diversity_thresholds(self) -> Tuple[float, float]:
-        """Diversity-based thresholds for adjusting SARSA rewards."""
+        """Diversity-based thresholds for adjusting SARSA rewards.
+
+        Returns:
+            Tuple[float, float]: Diversity-based thresholds for adjusting SARSA rewards.
+        """
         val = self._get_param("sarsa_operator_diversity_thresholds", (0.2, 0.5))
         return float(val[0]), float(val[1])

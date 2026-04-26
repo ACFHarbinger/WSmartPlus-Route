@@ -1,5 +1,13 @@
 """
-Dive-and-Price Primal Heuristic.
+Dive-and-Price Primal Heuristic
+
+Attributes:
+    DiveAndPricePrimalHeuristic: A class that implements the primal heuristic for the Benders decomposition.
+
+Example:
+    >>> from dive_and_price import DiveAndPricePrimalHeuristic
+    >>> heuristic = DiveAndPricePrimalHeuristic()
+    >>> heuristic.execute()
 """
 
 from typing import Any, List, Tuple
@@ -42,7 +50,7 @@ class DiveAndPricePrimalHeuristic:
     The penalised column is then excluded from further consideration in the
     current diving pass.
 
-    Attributes
+    Attributes:
     ----------
     penalty_M : float
         Big-M soft penalty applied to infeasibility-inducing columns.
@@ -60,9 +68,7 @@ class DiveAndPricePrimalHeuristic:
         """
         self.penalty_M = penalty_M
 
-    def evaluate_scenario_consensus(
-        self, route_nodes: List[int], scenario_tree: Any
-    ) -> float:
+    def evaluate_scenario_consensus(self, route_nodes: List[int], scenario_tree: Any) -> float:
         """
         Compute the scenario consensus for route k.
 
@@ -95,11 +101,7 @@ class DiveAndPricePrimalHeuristic:
         for leaf in leaves:
             total_prob += leaf.probability
             # Check if all non-depot bins on the route are near overflow
-            all_near_overflow = all(
-                leaf.wastes[n - 1] > 90.0
-                for n in route_nodes
-                if n != 0
-            )
+            all_near_overflow = all(leaf.wastes[n - 1] > 90.0 for n in route_nodes if n != 0)
             if all_near_overflow:
                 consensus_count += leaf.probability
 

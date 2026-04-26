@@ -9,6 +9,17 @@ This module implements the hyper-heuristic framework described in:
 The solver integrates:
 1. Reinforcement Learning (RL) for online selection of low-level heuristics (LLHs).
 2. Great Deluge (GD) algorithm for deterministic, time-based threshold acceptance.
+
+Attributes:
+    RLGDHHSolver: Solver for VRPP using RL-GD-HH.
+    RLGDHHParams: Parameters for RL-GD-HH.
+    RLGDHHPolicy: Policy for RL-GD-HH.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic import RLGDHHSolver
+    >>> solver = RLGDHHSolver()
+    >>> solution = solver.solve()
+    >>> print(solution)
 """
 
 from .params import RLGDHHParams

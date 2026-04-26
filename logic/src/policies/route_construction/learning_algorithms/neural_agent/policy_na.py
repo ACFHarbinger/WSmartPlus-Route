@@ -50,7 +50,11 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
     """
 
     def __init__(self, config: Optional[Any] = None):
-        """Initialize NeuralPolicy."""
+        """Initialize NeuralPolicy.
+
+        Args:
+            config: Configuration object or dictionary.
+        """
         super().__init__(config)
         self._params_logged = False
 
@@ -66,7 +70,7 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         manager-worker architecture if provided.
 
         Args:
-            **kwargs: Context for neural execution, including:
+            kwargs: Context for neural execution, including:
                 - model_env: The RL environment instance.
                 - model_ls: Local search and profit variable data.
                 - bins: The bin collection state.
@@ -145,7 +149,15 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     def _log_params(self, context: Dict[str, Any], cost_weights: Dict[str, float]) -> None:
-        """Log neural policy parameters to the active tracking run."""
+        """Log neural policy parameters to the active tracking run.
+
+        Args:
+            context: Context for neural execution.
+            cost_weights: Cost weights for the neural policy.
+
+        Returns:
+            None
+        """
         if self._params_logged:
             return
         self._params_logged = True
@@ -287,7 +299,19 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         mandatory_nodes: Any,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        Stub to satisfy BaseRoutingPolicy as NeuralAgentPolicy overrides execute().
+        """Stub to satisfy BaseRoutingPolicy as NeuralAgentPolicy overrides execute().
+
+        Args:
+            sub_dist_matrix: Sub-distance matrix.
+            sub_wastes: Sub-wastes.
+            capacity: Capacity of the vehicle.
+            revenue: Revenue from the route.
+            cost_unit: Cost unit.
+            values: Values for the route.
+            mandatory_nodes: Mandatory nodes for the route.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple of (routes, cost, profit).
         """
         return [[]], 0.0, 0.0
