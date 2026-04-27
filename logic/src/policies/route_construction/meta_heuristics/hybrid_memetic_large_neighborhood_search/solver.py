@@ -1,9 +1,9 @@
 """
-Hybrid Memetic Search (HMS) for VRPP.
+Hybrid Memetic Large Neighborhood Search (HMLNS) for VRPP.
 
 Adaptation of Hybrid Volleyball Premier League (HVPL) for VRPP with rigorous nomenclature.
 
-TERMINOLOGY MAPPING (HVPL → HMS):
+TERMINOLOGY MAPPING (HVPL → HMLNS):
 - "Active Teams" → Active Population
 - "Passive Teams" → Reserve Population
 - "Volleyball Matches" → Evolutionary Operators
@@ -11,7 +11,7 @@ TERMINOLOGY MAPPING (HVPL → HMS):
 - "League Season" → Generation
 
 Algorithm Structure (Sun et al., 2023):
-    Phase 1: ACO-Driven Initialization
+    Phase 1: MACO-Driven Initialization
         - Construct initial active and reserve populations using pheromone guidance
         - Ensures high-quality diverse starting solutions
 
@@ -31,10 +31,10 @@ Reference:
     routing problem."
 
 Attributes:
-    HybridMemeticSearchSolver: Core HMS solver logic.
+    HybridMemeticLargeNeighborhoodSearchSolver: Core HMLNS solver logic.
 
 Example:
-    >>> solver = HybridMemeticSearchSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> solver = HybridMemeticLargeNeighborhoodSearchSolver(dist_matrix, wastes, capacity, R, C, params)
     >>> routes, profit, cost = solver.solve()
 """
 
@@ -47,27 +47,25 @@ import numpy as np
 
 from logic.src.policies.helpers.local_search.local_search_general import GeneralLocalSearch
 from logic.src.policies.helpers.operators import (
+    build_greedy_routes,
     greedy_insertion,
     greedy_profit_insertion,
     random_removal,
-    worst_profit_removal,
-    worst_removal,
 )
-from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import (
     HyperHeuristicACO,
 )
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
     ALNSSolver,
 )
-from logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params import (
-    HybridMemeticSearchParams,
+from logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.params import (
+    HybridMemeticLargeNeighborhoodSearchParams,
 )
 
 
-class HybridMemeticSearchSolver:
+class HybridMemeticLargeNeighborhoodSearchSolver:
     """
-    Hybrid Memetic Search solver for VRPP.
+    Hybrid Memetic Large Neighborhood Search solver for VRPP.
 
     Adaptation of HVPL with rigorous nomenclature.
 
@@ -77,14 +75,14 @@ class HybridMemeticSearchSolver:
         capacity: Maximum vehicle capacity.
         R: Revenue multiplier.
         C: Cost multiplier.
-        params: HMS algorithm parameters.
+        params: HMLNS algorithm parameters.
         mandatory_nodes: List of required nodes.
         n_nodes: Number of nodes excluding depot.
         nodes: List of node indices (1 to n_nodes).
         random: Random number generator.
-        aco_solver: ACO solver for initialization and pheromone management.
+        maco_solver: MACO solver for initialization and pheromone management.
         alns_solver: ALNS solver for refinement phase.
-        ls: ACO-based local search utility.
+        ls: MACO-based local search utility.
     """
 
     def __init__(
@@ -94,10 +92,10 @@ class HybridMemeticSearchSolver:
         capacity: float,
         R: float,
         C: float,
-        params: HybridMemeticSearchParams,
+        params: HybridMemeticLargeNeighborhoodSearchParams,
         mandatory_nodes: Optional[List[int]] = None,
     ):
-        """Initialize HMS solver.
+        """Initialize HMLNS solver.
 
         Args:
             dist_matrix: Distance matrix (n_nodes+1 x n_nodes+1), index 0 = depot.
@@ -105,7 +103,7 @@ class HybridMemeticSearchSolver:
             capacity: Vehicle capacity constraint.
             R: Revenue per unit of waste collected.
             C: Cost per unit of distance traveled.
-            params: HMS algorithm parameters.
+            params: HMLNS algorithm parameters.
             mandatory_nodes: List of nodes that must be visited.
 
         Returns:
@@ -122,8 +120,8 @@ class HybridMemeticSearchSolver:
         self.nodes = list(range(1, self.n_nodes + 1))
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
-        # Initialize ACO solver for population initialization
-        self.aco_solver = HyperHeuristicACO(
+        # Initialize MACO solver for population initialization
+        self.maco_solver = HyperHeuristicACO(
             dist_matrix=dist_matrix,
             wastes=wastes,
             capacity=capacity,
@@ -159,7 +157,7 @@ class HybridMemeticSearchSolver:
     # ------------------------------------------------------------------
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
-        """Run the Hybrid Memetic Search algorithm.
+        """Run the Hybrid Memetic Large Neighborhood Search algorithm.
 
         Args:
             None.
@@ -173,10 +171,10 @@ class HybridMemeticSearchSolver:
         start_time = time.perf_counter()
 
         # ═══════════════════════════════════════════════════════════
-        # PHASE 1: ACO-DRIVEN INITIALIZATION
+        # PHASE 1: MACO-DRIVEN INITIALIZATION
         # ═══════════════════════════════════════════════════════════
-        active_teams = self._aco_initialization()
-        passive_teams = self._aco_initialization()  # Passive reserve pool
+        active_teams = self._maco_initialization()
+        passive_teams = self._maco_initialization()  # Passive reserve pool
 
         # Evaluate active teams
         active_profits = [self._evaluate(team) for team in active_teams]
@@ -232,7 +230,7 @@ class HybridMemeticSearchSolver:
                 best_profit = active_profits[0]
                 best_cost = self._cost(best_routes)
 
-                # Update ACO pheromones with new best
+                # Update MACO pheromones with new best
                 self._update_pheromones(best_routes, best_cost)
 
             # Visualization tracking
@@ -247,13 +245,13 @@ class HybridMemeticSearchSolver:
         return best_routes, best_profit, best_cost
 
     # ------------------------------------------------------------------
-    # Private: Phase 1 - ACO Initialization
+    # Private: Phase 1 - MACO Initialization
     # ------------------------------------------------------------------
 
-    def _aco_initialization(self) -> List[List[List[int]]]:
-        """Initialize population using ACO for intelligent construction.
+    def _maco_initialization(self) -> List[List[List[int]]]:
+        """Initialize population using MACO for intelligent construction.
 
-        Runs truncated ACO to build high-quality diverse solutions using
+        Runs truncated MACO to build high-quality diverse solutions using
         pheromone guidance.
 
         Args:
@@ -264,37 +262,36 @@ class HybridMemeticSearchSolver:
         """
         population = []
 
-        # Run truncated ACO iterations
+        # Run truncated MACO iterations
         for _ in range(self.params.aco_init_iterations):
-            routes = self.aco_solver.construct(self.nodes, self.mandatory_nodes)
+            routes = self.maco_solver.construct(self.nodes, self.mandatory_nodes)
             if routes:
                 population.append(routes)
 
         # If not enough solutions, fill with random constructions
         while len(population) < self.params.population_size:
-            routes = self._random_construction()
+            routes = self._greedy_construction()
             population.append(routes)
 
         # Select N most diverse high-quality solutions
         return self._select_diverse_elite(population, self.params.population_size)
 
-    def _random_construction(self) -> List[List[int]]:
-        """Build a random routing solution.
+    def _greedy_construction(self) -> List[List[int]]:
+        """Build a greedy routing solution.
 
         Args:
             None.
 
         Returns:
-            List[List[int]]: Set of routes.
+            List[List[int]]: A set of routes.
         """
-        return build_nn_routes(
-            nodes=self.nodes,
-            mandatory_nodes=self.mandatory_nodes,
+        return build_greedy_routes(
+            dist_matrix=self.dist_matrix,
             wastes=self.wastes,
             capacity=self.capacity,
-            dist_matrix=self.dist_matrix,
             R=self.R,
             C=self.C,
+            mandatory_nodes=self.mandatory_nodes,
             rng=self.random,
         )
 
@@ -465,47 +462,6 @@ class HybridMemeticSearchSolver:
         except Exception:
             return copy.deepcopy(routes)
 
-    def _perturb(self, routes: List[List[int]]) -> List[List[int]]:
-        """Intra-team perturbation: worst-removal and greedy-insertion.
-
-        Args:
-            routes: Routing solution to perturb.
-
-        Returns:
-            List[List[int]]: Perturbed solution.
-        """
-        n = max(3, self.params.n_removal)
-        use_profit = self.params.profit_aware_operators
-        expand_pool = self.params.vrpp
-        try:
-            if use_profit:
-                partial, removed = worst_profit_removal(routes, n, self.dist_matrix, self.wastes, self.R)
-                repaired = greedy_profit_insertion(
-                    partial,
-                    removed,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            else:
-                partial, removed = worst_removal(routes, n, self.dist_matrix)
-                repaired = greedy_insertion(
-                    partial,
-                    removed,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
-            return self.ls.optimize(repaired)
-        except Exception:
-            return copy.deepcopy(routes)
-
     def _selection(
         self, teams: List[List[List[int]]], profits: List[float]
     ) -> Tuple[List[List[List[int]]], List[float]]:
@@ -581,7 +537,7 @@ class HybridMemeticSearchSolver:
     # ------------------------------------------------------------------
 
     def _update_pheromones(self, routes: List[List[int]], cost: float) -> None:
-        """Update ACO pheromones with global best solution.
+        """Update MACO pheromones with global best solution.
 
         Args:
             routes: Best routing solution.
@@ -594,7 +550,7 @@ class HybridMemeticSearchSolver:
             return
 
         # Evaporate
-        self.aco_solver.evaporate_all()
+        self.maco_solver.evaporate_all()
 
         # Deposit on best solution edges
         delta = 1.0 / cost
@@ -602,12 +558,12 @@ class HybridMemeticSearchSolver:
             if not route:
                 continue
             # Depot to first node
-            self.aco_solver.pheromone.deposit_edge(0, route[0], delta)
+            self.maco_solver.pheromone.deposit_edge(0, route[0], delta)
             # Inter-node edges
             for k in range(len(route) - 1):
-                self.aco_solver.pheromone.deposit_edge(route[k], route[k + 1], delta)
+                self.maco_solver.pheromone.deposit_edge(route[k], route[k + 1], delta)
             # Last node back to depot
-            self.aco_solver.pheromone.deposit_edge(route[-1], 0, delta)
+            self.maco_solver.pheromone.deposit_edge(route[-1], 0, delta)
 
     # ------------------------------------------------------------------
     # Private: Evaluation
