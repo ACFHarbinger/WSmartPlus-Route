@@ -1,7 +1,6 @@
 """Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
 
 Provides modular separation algorithms for VRPP-specific valid inequalities:
-Provides modular separation algorithms for VRPP-specific valid inequalities:
 - RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing
   requirements (Lysgaard et al. 2004). Essential for problems with fractional
   load coverage.
@@ -51,11 +50,11 @@ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.solvers_and_matheuristics import (
+from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
-    VRPPMasterProblem,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 

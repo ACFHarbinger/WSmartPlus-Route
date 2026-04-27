@@ -288,10 +288,20 @@ class TrackingStore:
             run_id: UUID string identifying the run.
             params: Mapping of parameter keys to values.
         """
-        with self._conn() as conn:
-            conn.executemany(
-                self.queries["insert_param"], [(run_id, k, _safe_json_dumps(v)) for k, v in params.items()]
-            )
+        try:
+            with self._conn() as conn:
+                conn.executemany(
+                    self.queries["insert_param"], [(run_id, k, _safe_json_dumps(v)) for k, v in params.items()]
+                )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e):
+                self._apply_schema()
+                with self._conn() as conn:
+                    conn.executemany(
+                        self.queries["insert_param"], [(run_id, k, _safe_json_dumps(v)) for k, v in params.items()]
+                    )
+            else:
+                raise
 
     def get_params(self, run_id: str) -> Dict[str, Any]:
         """Retrieves all configuration parameters associated with a run.
@@ -330,8 +340,18 @@ class TrackingStore:
             metrics: List of (key, value, step) triples to be inserted.
         """
         now = self._now()
-        with self._conn() as conn:
-            conn.executemany(self.queries["insert_metric"], [(run_id, k, float(v), s, now) for k, v, s in metrics])
+        try:
+            with self._conn() as conn:
+                conn.executemany(self.queries["insert_metric"], [(run_id, k, float(v), s, now) for k, v, s in metrics])
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e):
+                self._apply_schema()
+                with self._conn() as conn:
+                    conn.executemany(
+                        self.queries["insert_metric"], [(run_id, k, float(v), s, now) for k, v, s in metrics]
+                    )
+            else:
+                raise
 
     def get_metric_history(self, run_id: str, key: str) -> List[Dict[str, Any]]:
         """Retrieves the full evolution history for a specific metric.

@@ -174,7 +174,7 @@ hvpl:
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     # VRPP Settings
-    - profit_aware_operators: false
+    - profit_aware_operators: true
     - vrpp: true
 
     - mandatory_selection: ["other/ms_lookahead.yaml"]

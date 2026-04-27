@@ -36,7 +36,7 @@ bpc:
     # ---------------------------------------------------------------------
     # VRPP Settings
     # ---------------------------------------------------------------------
-    - profit_aware_operators: false
+    - profit_aware_operators: true
       # Whether to use profit-aware insertion heuristics
       # true = Use farthest_profit_insertion
       # false = Use standard farthest_insertion
@@ -116,7 +116,7 @@ bpc:
       # Maximum iterations for cutting plane loop per CG iteration
     - max_cuts_per_iteration: 5
       # Maximum number of violated cuts to add per iteration
-    - max_routes_per_pricing: 5
+    - max_routes_per_pricing: 20
       # Maximum number of columns to add to master per pricer call
     - max_bb_nodes: 1000
       # Maximum nodes to explore in B&B tree before termination
@@ -124,7 +124,7 @@ bpc:
       # Relative gap (1e-4) to stop when optimal solution proven
     - early_termination_gap: 0.001
       # Relative gap (1e-3) to stop early if solution is "good enough"
-    - cg_at_root_only: false
+    - cg_at_root_only: true
       # Whether to run column generation only at the root B&B node
       # true = Faster pricing, weaker lower bound
       # false = Exact elementarity (O(2^n)), exponentially slow
@@ -145,12 +145,12 @@ bpc:
       # Whether to use ng-route relaxation for elementarity (Baldacci et al. 2011)
       # true = Faster pricing, weaker lower bound
       # false = Exact elementarity (O(2^n)), exponentially slow
-    - ng_neighborhood_size: 8
+    - ng_neighborhood_size: 5
       # Size of memory-set for ng-routes (ignored if use_ng_routes is false)
       # Range: 4-12 (higher = tighter bound, slower pricing)
-    - rcspp_timeout: 30.0
+    - rcspp_timeout: 5.0
       # Safety cap for single pricer call (seconds).
-    - rcspp_max_labels: 1000000
+    - rcspp_max_labels: 2000000
       # Safety cap to prevent OOM in RCSPP.
 
     # ---------------------------------------------------------------------

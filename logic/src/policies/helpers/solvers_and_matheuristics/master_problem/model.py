@@ -649,11 +649,11 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         if self.dual_vehicle_limit > 1e-9:
             node_duals["vehicle_limit"] = self.dual_vehicle_limit
 
-        # rcc_duals: list of (set, dual) tuples consumed by RCSPPSolver.solve()
-        rcc_duals = [(set(s), d) for s, d in self.dual_capacity_cuts.items() if d > 1e-8]
+        # rcc_duals: dict of (set: dual) consumed by RCSPPSolver.solve()
+        rcc_duals = {s: d for s, d in self.dual_capacity_cuts.items() if d > 1e-8}
 
-        # sri_duals: list of (set, dual) tuples
-        sri_duals = [(set(s), d) for s, d in self.dual_sri_cuts.items() if d > 1e-8]
+        # sri_duals: dict of (set: dual)
+        sri_duals = {s: d for s, d in self.dual_sri_cuts.items() if d > 1e-8}
 
         # lci: pass both the dual values AND the node-alpha maps AND the source arcs
         lci_duals = {s: d for s, d in self.dual_lci_cuts.items() if d > 1e-8}

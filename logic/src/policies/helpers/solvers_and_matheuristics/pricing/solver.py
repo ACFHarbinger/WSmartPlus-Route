@@ -309,7 +309,10 @@ class RCSPPSolver:
         self.rf_conflicts = rf_conflicts or {}
 
         # Update timeout if provided by the caller (Branch-and-Price engine)
-        active_timeout = timeout if timeout is not None and timeout > 0 else self.timeout
+        active_timeout = min(
+            timeout if timeout is not None and timeout > 0 else self.timeout,
+            self.timeout,
+        )
         self._current_timeout = active_timeout
 
         # Task 2: Completion Bounds
@@ -342,27 +345,137 @@ class RCSPPSolver:
 
         original_use_ng = self.use_ng_routes
         try:
-            routes = self._label_correcting_algorithm(
-                max_routes=max_routes,
-                forbidden_arcs=forbidden_arcs,
-                required_successors=req_succ,
-                required_predecessors=req_pred,
-                rf_separate=rf_sep,
-                rf_together=rf_tog,
-                rcc_duals=rcc_duals,
-                active_sri_subsets=active_sri_subsets,
-                sri_dual_values=sri_dual_values,
-                node_to_sri=node_to_sri,
-                edge_clique_duals=edge_clique_duals,
-                lci_cover_items=lci_cover_items,
-                multistar_items=multistar_items,
-                exact_mode=exact_mode,
-            )
+            # For large instances (>40 nodes), run heuristic pricing first.
+            # It's fast (~0.1s) and finds good columns. If it finds enough
+            # positive-RC columns, skip the expensive exact DP entirely.
+            # Only fall back to exact DP when heuristic is insufficient.
+            heuristic_routes: List[Route] = []
+            if self.n_nodes > 40:
+                heuristic_routes = self._heuristic_pricing(
+                    max_routes=max_routes,
+                    node_duals=self.dual_values,
+                    rcc_duals=rcc_duals,
+                    forbidden_arcs=forbidden_arcs,
+                )
+
+            if len(heuristic_routes) >= max_routes // 2:
+                # Enough good columns found heuristically — skip exact DP
+                routes = heuristic_routes
+            else:
+                routes = self._label_correcting_algorithm(
+                    max_routes=max_routes,
+                    forbidden_arcs=forbidden_arcs,
+                    required_successors=req_succ,
+                    required_predecessors=req_pred,
+                    rf_separate=rf_sep,
+                    rf_together=rf_tog,
+                    rcc_duals=rcc_duals,
+                    active_sri_subsets=active_sri_subsets,
+                    sri_dual_values=sri_dual_values,
+                    node_to_sri=node_to_sri,
+                    edge_clique_duals=edge_clique_duals,
+                    lci_cover_items=lci_cover_items,
+                    multistar_items=multistar_items,
+                    exact_mode=exact_mode,
+                )
+                # Merge: keep best unique routes from both
+                seen: set = {frozenset(r.nodes) for r in routes}
+                for r in heuristic_routes:
+                    if frozenset(r.nodes) not in seen:
+                        routes.append(r)
+                        seen.add(frozenset(r.nodes))
         finally:
             self.use_ng_routes = original_use_ng
 
         routes.sort(key=lambda x: x.reduced_cost, reverse=True)  # type: ignore[arg-type,return-value]
         return routes[:max_routes]
+
+    def _heuristic_pricing(
+        self,
+        max_routes: int,
+        node_duals: Dict[int, float],
+        rcc_duals: Dict,
+        forbidden_arcs: FrozenSet,
+    ) -> List[Route]:
+        """Fast heuristic column generator for large instances.
+
+        Uses savings-based construction + greedy augmentation to find
+        profitable routes quickly. Runs in O(n²) vs O(n × 2^k) for exact DP.
+
+        Constructs routes by:
+        1. Sorting nodes by reduced cost (revenue - dual) descending
+        2. Greedily building routes using nearest-neighbor with capacity check
+        3. Only returning routes with positive reduced cost
+        """
+        if self.is_farkas:
+            return []  # heuristic doesn't handle Farkas pricing
+
+        # Reduced cost per node: R*waste - dual
+        node_rc: Dict[int, float] = {}
+        for n in range(1, self.n_nodes + 1):
+            rev = self.node_prizes.get(n, 0.0) if self.node_prizes is not None else self.wastes.get(n, 0.0) * self.R
+            node_rc[n] = rev - node_duals.get(n, 0.0)
+
+        # Only consider nodes with positive reduced cost
+        candidates = sorted(
+            [n for n in range(1, self.n_nodes + 1) if node_rc[n] > 0],
+            key=lambda n: node_rc[n],
+            reverse=True,
+        )
+        if not candidates:
+            return []
+
+        routes: List[Route] = []
+        seen_sets: set = set()
+
+        # Strategy 1: Savings-based construction (Clarke-Wright)
+        # For each pair of high-value nodes, check if combining into one route is profitable
+        for seed in candidates[: min(20, len(candidates))]:
+            route_nodes = [seed]
+            load = self.wastes.get(seed, 0.0)
+            route_rc = node_rc[seed] - self.cost_matrix[self.depot, seed] * self.C
+
+            # Extend greedily: nearest neighbor with positive marginal RC
+            current = seed
+            visited = {seed}
+            while True:
+                best_next, best_gain = -1, 0.0
+                for v in candidates:
+                    if v in visited or (current, v) in forbidden_arcs:
+                        continue
+                    if load + self.wastes.get(v, 0.0) > self.capacity + 1e-6:
+                        continue
+                    # Marginal gain: RC of v minus detour cost
+                    detour = (
+                        self.cost_matrix[current, v]
+                        + self.cost_matrix[v, self.depot]
+                        - self.cost_matrix[current, self.depot]
+                    )
+                    gain = node_rc[v] - self.C * detour
+                    if gain > best_gain:
+                        best_gain, best_next = gain, v
+                if best_next == -1:
+                    break
+                route_nodes.append(best_next)
+                visited.add(best_next)
+                load += self.wastes.get(best_next, 0.0)
+                route_rc += best_gain
+                current = best_next
+
+            # Complete route: return to depot
+            route_rc -= self.cost_matrix[current, self.depot] * self.C
+
+            # Only add if positive RC and not seen before
+            key = frozenset(route_nodes)
+            if route_rc > 1e-6 and key not in seen_sets:
+                seen_sets.add(key)
+                rt = self._compute_route_details(route_nodes)
+                rt.reduced_cost = route_rc
+                routes.append(rt)
+                if len(routes) >= max_routes:
+                    break
+
+        return routes
 
     def _compute_completion_bounds(self) -> None:  # noqa: C901
         """Compute backward bounds used to aggressively prune DP states.
@@ -527,28 +640,39 @@ class RCSPPSolver:
         completed_routes: List[Label] = []
         global_max_rc = -float("inf")
 
-        start_time = time.monotonic()
+        # Reset timeout flag from previous run
+        self._timed_out = False
+
+        # Adaptive label cap: scale with instance size.
+        # Python processes ~10k labels/sec; cap early so partial results
+        # are returned within the timeout budget.
+        # n=27: cap = min(max_labels, 27^1.5*200) ~ 28k -> ~3s
+        # n=14: cap = min(max_labels, 14^1.5*200) ~ 10k -> ~1s
+        adaptive_max_labels = min(self.max_labels, int(self.n_nodes**1.5 * 200))
+
+        start_time = time.perf_counter()
         while queue:
-            # Emergency termination for state-space explosion
-            if self.labels_generated > self.max_labels:
-                logger.warning(
-                    f"RCSPP explosion: terminated early after {self.max_labels} labels. "
-                    "Consider reducing ng_neighborhood_size or enabling use_swc_tcf_heuristic_pricing."
+            if self.labels_generated > adaptive_max_labels:
+                logger.info(
+                    f"RCSPP label cap: {self.labels_generated} labels "
+                    f"(cap={adaptive_max_labels}, n_nodes={self.n_nodes})."
                 )
+                self._timed_out = True
                 break
 
-            if self._current_timeout > 0 and (time.monotonic() - start_time) > self._current_timeout:
+            if self._current_timeout > 0 and (time.perf_counter() - start_time) > self._current_timeout:
                 logger.warning(
-                    f"RCSPP timeout: terminated early after {self._current_timeout} seconds. "
-                    "Instance may be too large for exact pricing at this node."
+                    f"RCSPP timeout after {self._current_timeout}s: "
+                    f"n_nodes={self.n_nodes}, labels={self.labels_generated}."
                 )
+                self._timed_out = True
                 break
 
             _, _, current = heapq.heappop(queue)
             u = current.node
 
             # Candidate successors
-            neighbor_limit = self.n_nodes if exact_mode else 20
+            neighbor_limit = self.n_nodes if exact_mode else min(20, max(5, self.n_nodes // 3))
             candidates = (
                 [required_successors[u]] if u in required_successors else self._get_neighbors(u, neighbor_limit)
             )
@@ -625,10 +749,17 @@ class RCSPPSolver:
 
         self.last_max_rc = global_max_rc
         routes: List[Route] = []
+        seen_node_sets: set = set()
         for label in sorted(completed_routes, key=lambda x: x.reduced_cost, reverse=True):
             if label.reduced_cost > 1e-6:
                 path = label.reconstruct_path()
                 nodes = [n for n in path if n != self.depot]
+                node_key = frozenset(nodes)
+                # Skip duplicate node sets — different orderings of same nodes
+                # add no LP information
+                if node_key in seen_node_sets:
+                    continue
+                seen_node_sets.add(node_key)
                 rt = self._compute_route_details(nodes)
                 rt.reduced_cost = label.reduced_cost
                 routes.append(rt)
