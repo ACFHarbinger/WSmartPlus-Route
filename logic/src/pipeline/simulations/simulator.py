@@ -53,7 +53,11 @@ from omegaconf import DictConfig
 
 from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.pipeline.simulations.repository import set_repository_from_path
-from logic.src.tracking.logging.log_utils import log_to_json, output_stats
+from logic.src.tracking.logging.log_utils import (
+    display_simulation_summary_table,
+    log_to_json,
+    output_stats,
+)
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.setup_utils import get_pol_name
 
@@ -166,14 +170,15 @@ def display_log_metrics(
         log_std: Dict mapping policy name to std dev metrics list (optional).
         lock: Thread/process lock for safe printing/logging.
     """
+    abs_output_dir = os.path.join(
+        ROOT_DIR,
+        "assets",
+        output_dir,
+        f"{days}_days",
+        f"{area}_{size}",
+    )
+
     if n_samples > 1 and log_std is not None:
-        abs_output_dir = os.path.join(
-            ROOT_DIR,
-            "assets",
-            output_dir,
-            str(days) + "_days",
-            str(area) + "_" + str(size),
-        )
         log_to_json(
             os.path.join(abs_output_dir, f"log_mean_{n_samples}N.json"),
             SIM_METRICS,
@@ -188,19 +193,21 @@ def display_log_metrics(
             sample_id=None,
             lock=lock,
         )
-        for lg, lg_std, pol in zip(log.values(), log_std.values(), log.keys(), strict=False):
-            logm = lg.values() if isinstance(lg, dict) else lg
-            logs = lg_std.values() if isinstance(lg_std, dict) else lg_std
-            tmp_lg = [(str(x), str(y)) for x, y in zip(logm, logs, strict=False)]
-            print(f"\n{pol} log:")
-            for (x, y), key in zip(tmp_lg, SIM_METRICS, strict=False):
-                print(f"- {key} value: {x[: x.find('.') + 3]} +- {y[: y.find('.') + 5]}")
-    else:
-        for pol, lg in log.items():
-            print(f"\n{pol} log:")
-            lg_vals = lg.values() if isinstance(lg, dict) else lg
-            for key, val in zip(SIM_METRICS, lg_vals, strict=False):
-                print(f"- {key}: {val}")
+    elif n_samples == 1:
+        # For single sample, we still save the log_mean for consistency
+        log_to_json(
+            os.path.join(abs_output_dir, f"log_mean_{n_samples}N.json"),
+            SIM_METRICS,
+            log,
+            sample_id=None,
+            lock=lock,
+        )
+
+    display_simulation_summary_table(
+        log,
+        title=f"Final Simulation Summary: [bold cyan]{area}[/] ({n_samples} Samples, {days} Days)",
+        lock=lock,
+    )
 
 
 def single_simulation(

@@ -24,6 +24,9 @@ from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from loguru import logger
+from rich import box
+from rich.console import Console
+from rich.table import Table
 
 import logic.src.constants as udef
 from logic.src.utils.io.files import compose_dirpath, read_json
@@ -185,10 +188,93 @@ def final_simulation_summary(log: Dict[str, Any], policy: str, n_samples: int) -
     if policy not in log:
         logger.warning(f"Policy {policy} not found in log for summary.")
         return
-    stats = log[policy]
-    logger.info(f"=== Simulation Summary: {policy} ({n_samples} samples) ===")
-    for metric in ["overflows", "kg", "km", "kg/km", "profit"]:
-        if metric in stats:
-            val = stats[metric]
-            logger.info(f" - {metric:10}: {val:>10.2f}")
-    logger.info("================================================")
+
+    # Use the pretty table for a single policy if that's all we have,
+    # or if we want to maintain the single-policy logging behavior.
+    display_simulation_summary_table(
+        {policy: log[policy]},
+        title=f"Simulation Summary: [bold cyan]{policy}[/] ({n_samples} samples)",
+    )
+
+
+def display_simulation_summary_table(
+    log: Dict[str, Any],
+    title: str = "Simulation Summary",
+    lock: Optional[Any] = None,
+) -> None:
+    """Display a pretty comparative table of simulation results for multiple policies.
+
+    Args:
+        log: Dictionary mapping policy names to metric dictionaries or lists.
+        title: Title for the table. Defaults to "Simulation Summary".
+        lock: Optional lock for thread-safe printing. Defaults to None.
+    """
+    if not log:
+        return
+
+    console = Console()
+    table = Table(
+        title=title,
+        box=box.DOUBLE_EDGE,
+        header_style="bold magenta",
+        border_style="blue",
+        title_style="bold white on blue",
+        show_header=True,
+        expand=False,
+    )
+
+    # Core metrics to display in the table
+    display_metrics = [
+        ("Profit", "profit"),
+        ("Collected", "kg"),
+        ("Lost", "kg_lost"),
+        ("Col", "ncol"),
+        ("Dist", "km"),
+        ("Eff", "kg/km"),
+        ("Over", "overflows"),
+        ("Days", "days"),
+        ("Time", "time"),
+    ]
+
+    table.add_column("Policy", style="cyan", no_wrap=True)
+    for label, _ in display_metrics:
+        table.add_column(label, justify="right")
+
+    for pol, stats in log.items():
+        row = [pol]
+        for _, key in display_metrics:
+            if isinstance(stats, dict):
+                val = stats.get(key, 0.0)
+            elif isinstance(stats, (list, tuple)):
+                try:
+                    idx = udef.SIM_METRICS.index(key)
+                    val = stats[idx]
+                except (ValueError, IndexError):
+                    val = 0.0
+            else:
+                val = 0.0
+
+            if key == "profit":
+                row.append(f"${val:,.2f}")
+            elif key in ["kg", "kg_lost"]:
+                row.append(f"{val:,.1f}kg")
+            elif key == "km":
+                row.append(f"{val:,.1f}km")
+            elif key == "kg/km":
+                row.append(f"{val:.2f}")
+            elif key in ["overflows", "ncol", "days"]:
+                color = "red" if key == "overflows" and val > 0 else "white"
+                if key == "days":
+                    color = "cyan"
+                row.append(f"[{color}]{int(val)}[/]")
+            elif key == "time":
+                row.append(f"{val:.2f}s")
+            else:
+                row.append(f"{val:.2f}")
+        table.add_row(*row)
+
+    if lock:
+        with lock:
+            console.print(table)
+    else:
+        console.print(table)
