@@ -56,15 +56,27 @@ class POPMUSICState:
 
     Space complexity: O(n) for coords buffer + O(p) for G and route dict.
 
-    Args:
-        n_nodes: Total number of customer nodes (excluding depot). Used to
-            pre-allocate the centroid buffer. MAX_PARTS = n_nodes (worst case:
-            every node is a singleton unvisited part).
-        coord_array: Float64 array of shape (n_nodes+1, 2) with [Lat, Lng]
-            per node index (including depot at 0).
+    Attributes:
+        coords: Pre-allocated stable centroid buffer — slot identity is permanent.
+        route_nodes: Dict mapping slot to list of global node indices (incl. depot sentinels).
+        singleton_slots: Slots that represent unvisited singleton nodes (Issue 3).
+        active: Currently live slot indices.
+        free_slots: Stack of reclaimed positions — O(1) pop/push.
+        G: Adjacency list on slot indices, sorted by d_prox ascending (Issue 2).
+        _coord_array: Raw coordinate lookup for all nodes (depot + customers).
     """
 
     def __init__(self, n_nodes: int, coord_array: np.ndarray) -> None:  # noqa: D107
+        """
+        Initialize the POPMUSICState.
+
+        Args:
+            n_nodes: Total number of customer nodes (excluding depot). Used to
+                pre-allocate the centroid buffer. MAX_PARTS = n_nodes (worst case:
+                every node is a singleton unvisited part).
+            coord_array: Float64 array of shape (n_nodes+1, 2) with [Lat, Lng]
+                per node index (including depot at 0).
+        """
         max_parts = n_nodes + 1  # +1 for safety; depot excluded at runtime
         # Pre-allocated stable centroid buffer — slot identity is permanent.
         self.coords: np.ndarray = np.empty((max_parts, 2), dtype=np.float64)
@@ -87,7 +99,14 @@ class POPMUSICState:
     # ------------------------------------------------------------------
 
     def alloc_slot(self) -> int:
-        """Pop a free slot from the stack. O(1)."""
+        """Pop a free slot from the stack.
+
+        Returns:
+            int: Allocated slot index.
+
+        Raises:
+            RuntimeError: If no free slots are available.
+        """
         if not self.free_slots:
             raise RuntimeError("POPMUSICState: free_slots exhausted. MAX_PARTS underestimated.")
         return self.free_slots.pop()
@@ -135,6 +154,9 @@ class POPMUSICState:
 
         Args:
             slot: Slot index to reclaim.
+
+        Returns:
+            None
         """
         self.active.discard(slot)
         self.singleton_slots.discard(slot)
@@ -143,7 +165,15 @@ class POPMUSICState:
         self.free_slots.append(slot)
 
     def update_coords(self, slot: int, centroid: np.ndarray) -> None:
-        """Update centroid in-place. O(1)."""
+        """Update centroid in-place.
+
+        Args:
+            slot: Slot index.
+            centroid: New centroid for the given slot.
+
+        Returns:
+            None
+        """
         self.coords[slot] = centroid
 
     # ------------------------------------------------------------------
@@ -151,15 +181,30 @@ class POPMUSICState:
     # ------------------------------------------------------------------
 
     def customer_nodes(self, slot: int) -> List[int]:
-        """Return non-depot nodes for a slot."""
+        """Return non-depot nodes for a slot.
+
+        Args:
+            slot: Slot index.
+
+        Returns:
+            List[int]: List of non-depot nodes for the given slot.
+        """
         return [n for n in self.route_nodes.get(slot, []) if n != 0]
 
     @property
     def active_route_slots(self) -> Set[int]:
-        """Live non-singleton slots."""
+        """Live non-singleton slots.
+
+        Returns:
+            Set[int]: Set of active non-singleton slots.
+        """
         return self.active - self.singleton_slots
 
     @property
     def active_singleton_slots(self) -> Set[int]:
-        """Live singleton slots."""
+        """Live singleton slots.
+
+        Returns:
+            Set[int]: Set of active singleton slots.
+        """
         return self.active & self.singleton_slots

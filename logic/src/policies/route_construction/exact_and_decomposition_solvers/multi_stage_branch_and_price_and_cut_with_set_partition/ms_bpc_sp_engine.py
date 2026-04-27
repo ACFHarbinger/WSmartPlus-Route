@@ -1312,6 +1312,8 @@ def _select_nodes_knapsack(
         C: Cost per unit distance.
         mandatory: Nodes that must be included regardless.
         n_nodes: Number of customer nodes.
+        vehicle_limit: Optional vehicle limit.
+        target_reduction: Target reduction in the number of nodes.
         time_limit: MIP time limit in seconds.
         env: Optional Gurobi environment.
 

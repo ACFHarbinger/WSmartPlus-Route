@@ -42,6 +42,14 @@ class LocalSearch(PolicyVizMixin, ABC):
     """
     Abstract base class for Local Search algorithms.
     Provides common infrastructure for neighbor lists and move operators.
+
+    Attributes:
+        d: The distance matrix between nodes.
+        waste: A dictionary mapping node IDs to their waste amounts.
+        Q: The maximum capacity of a vehicle.
+        R: A parameter, likely related to route cost or penalty.
+        C: A parameter, likely related to route cost or penalty.
+        params: An object containing additional parameters for the local search.
     """
 
     def __init__(
@@ -63,6 +71,7 @@ class LocalSearch(PolicyVizMixin, ABC):
             capacity: The maximum capacity of a vehicle.
             R: A parameter, likely related to route cost or penalty.
             C: A parameter, likely related to route cost or penalty.
+            seed: Seed for the random number generator.
             params: An object containing additional parameters for the local search,
                     such as time_limit.
         """
@@ -96,6 +105,12 @@ class LocalSearch(PolicyVizMixin, ABC):
     def optimize(self, solution: Any) -> Any:
         """
         Optimize the given solution.
+
+        Args:
+            solution: The solution to optimize.
+
+        Returns:
+            Any: The optimized solution.
         """
         pass
 
@@ -136,9 +151,27 @@ class LocalSearch(PolicyVizMixin, ABC):
             )
 
     def _calc_load_fresh(self, r: List[int]) -> float:
+        """
+        Calculate the load of a route.
+
+        Args:
+            r: Route.
+
+        Returns:
+            float: The load of the route.
+        """
         return sum(self.waste.get(x, 0) for x in r)
 
     def _process_node(self, u: int) -> bool:  # noqa: C901
+        """
+        Process a node.
+
+        Args:
+            u: Node.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         u_loc = self.node_map.get(u)
         if not u_loc:
             return False
@@ -170,33 +203,145 @@ class LocalSearch(PolicyVizMixin, ABC):
         return False
 
     def _update_map(self, affected_indices: Set[int]):
+        """
+        Update the node map and route loads.
+
+        Args:
+            affected_indices: Set of route indices that were affected by the move.
+        """
         for ri in sorted(affected_indices):
             for pi, node in enumerate(self.routes[ri]):
                 self.node_map[node] = (ri, pi)
             self.route_loads[ri] = self._calc_load_fresh(self.routes[ri])
 
     def _get_load_cached(self, ri: int) -> float:
+        """
+        Get the load of a route.
+
+        Args:
+            ri: Route index.
+
+        Returns:
+            float: The load of the route.
+        """
         return self.route_loads[ri]
 
     def _move_relocate(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """
+        Perform relocate move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_relocate(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_swap(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """
+        Perform swap move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_swap(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_swap_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """
+        Perform swap star move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_swap_star(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_3opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: random.Random) -> bool:
+        """
+        Perform 3-opt intra-route move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+            rng: Random number generator.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_3opt_intra(self, u, v, r_u, p_u, r_v, p_v, rng)
 
     def _move_2opt_star(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """
+        Perform 2-opt star move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_2opt_star(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_2opt_intra(self, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+        """
+        Perform 2-opt intra-route move.
+
+        Args:
+            u: Node to move.
+            v: Node to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+            r_v: Route index of node v.
+            p_v: Position index of node v.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_2opt_intra(self, u, v, r_u, p_u, r_v, p_v)
 
     def _move_or_opt(self, u: int, chain_len: int, r_u: int, p_u: int) -> bool:
+        """
+        Perform or-opt move.
+
+        Args:
+            u: Node to move.
+            chain_len: Length of the chain to move.
+            r_u: Route index of node u.
+            p_u: Position index of node u.
+
+        Returns:
+            bool: Whether the move was successful.
+        """
         return move_or_opt(self, u, chain_len, r_u, p_u)
 
 
@@ -204,6 +349,14 @@ class ACOLocalSearch(LocalSearch):
     """
     Local Search module for K-Sparse ACO.
     Implements 2-opt local search refinement.
+
+    Attributes:
+        None
+
+    Example:
+        >>> from logic.src.policies.local_search import ACOLocalSearch
+        >>> aco_local_search = ACOLocalSearch(dist_matrix, waste, capacity, R, C, params)
+        >>> optimized_routes = aco_local_search.optimize(solution)
     """
 
     def optimize(self, solution: List[List[int]]) -> List[List[int]]:

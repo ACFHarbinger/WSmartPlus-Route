@@ -1,19 +1,19 @@
 r"""TCF → ALNS → BPC → SP-merge pipeline package.
 
-Public API
+Attributes:
 ----------
-PipelinePolicy   Policy adapter (registers as "pipeline" in the solver registry).
-PipelineParams   Configuration dataclass with ``alpha`` quality/speed dial.
-run_pipeline     Low-level orchestrator — can be used as a drop-in replacement
-                 for ``_run_gurobi_optimizer``.
+ExactGuidedHeuristicPolicy   Policy adapter (registers as "exact_guided_heuristic" in the solver registry).
+ExactGuidedHeuristicParams   Configuration dataclass with ``alpha`` quality/speed dial.
+run_pipeline                 Low-level orchestrator — can be used as a drop-in replacement
+                             for ``_run_gurobi_optimizer``.
 
-Quick start
------------
+Example:
+--------
 Drop-in replacement for the bare SWC-TCF solver::
 
-    from <package>.pipeline import run_pipeline, PipelineParams
+    from <package>.exact_guided_heuristic import run_pipeline, ExactGuidedHeuristicParams
 
-    params = PipelineParams(alpha=0.5, time_limit=120)
+    params = ExactGuidedHeuristicParams(alpha=0.5, time_limit=120)
     flat_route, profit, cost = run_pipeline(
         bins, dist_matrix, env, values, binsids, mandatory,
         n_vehicles=2, params=params,
@@ -21,8 +21,8 @@ Drop-in replacement for the bare SWC-TCF solver::
 
 Policy registration (automatic on import)::
 
-    from <package>.pipeline import PipelinePolicy   # registers "pipeline"
-    policy = PipelinePolicy()
+    from <package>.pipeline import ExactGuidedHeuristicPolicy   # registers "exact_guided_heuristic"
+    policy = ExactGuidedHeuristicPolicy()
 """
 
 from .dispatcher import run_pipeline

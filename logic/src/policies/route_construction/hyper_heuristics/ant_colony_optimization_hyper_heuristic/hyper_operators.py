@@ -100,6 +100,7 @@ class HyperOperatorContext:
             rng: Random number generator.
             profit_aware_operators: Whether to use profit-aware heuristics.
             vrpp: Whether to consider all unvisited nodes in insertion.
+            use_cache: Whether to use the cache for operator applications.
         """
         self.routes = routes
         self.d = dist_matrix

@@ -46,6 +46,10 @@ References:
 
 Attributes:
     run_lbbd_stage: Main entry point for Stage 1.
+
+Example:
+    >>> from logic.src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd import run_lbbd_stage
+    >>> routes, _ = run_lbbd_stage(env, wastes, capacity, R, C)
 """
 
 from __future__ import annotations
@@ -74,6 +78,16 @@ def _route_cost_from_nodes(
     dist: np.ndarray,
     C: float,
 ) -> float:
+    """Calculate the cost of a route from a list of nodes.
+
+    Args:
+        nodes: List of local indices to route.
+        dist: Distance matrix.
+        C: Cost per unit distance.
+
+    Returns:
+        Cost of the route.
+    """
     path = [0] + nodes + [0]
     return C * sum(dist[path[i]][path[i + 1]] for i in range(len(path) - 1))
 
@@ -83,6 +97,16 @@ def _route_revenue_from_nodes(
     wastes: Dict[int, float],
     R: float,
 ) -> float:
+    """Calculate the revenue of a route from a list of nodes.
+
+    Args:
+        nodes: List of local indices to route.
+        wastes: {local node → fill_level}.
+        R: Revenue per unit waste.
+
+    Returns:
+        Revenue of the route.
+    """
     return R * sum(wastes.get(n, 0.0) for n in nodes)
 
 
@@ -94,6 +118,19 @@ def _make_vrpp_route(
     C: float,
     source: str,
 ) -> VRPPRoute:
+    """Create a VRPPRoute from a list of nodes.
+
+    Args:
+        nodes: List of local indices to route.
+        dist: Distance matrix.
+        wastes: {local node → fill_level}.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        source: Source of the route.
+
+    Returns:
+        VRPPRoute.
+    """
     cost = _route_cost_from_nodes(nodes, dist, C)
     revenue = _route_revenue_from_nodes(nodes, wastes, R)
     load = sum(wastes.get(n, 0.0) for n in nodes)
@@ -121,7 +158,20 @@ def _solve_sub_greedy(
     C: float,
     mandatory: Set[int],
 ) -> Tuple[List[List[int]], float]:
-    """Greedy nearest-neighbour sub-solver (always fast, used for warm-start)."""
+    """Greedy nearest-neighbour sub-solver (always fast, used for warm-start).
+
+    Args:
+        selected: Set of local indices to route.
+        dist: Distance matrix.
+        wastes: {local node → fill_level}.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        mandatory: Mandatory nodes.
+
+    Returns:
+        Tuple of routes and profit.
+    """
     remaining = list(selected)
     routes: List[List[int]] = []
     while remaining:
@@ -155,7 +205,22 @@ def _solve_sub_alns(
     time_limit: float,
     seed: Optional[int],
 ) -> Tuple[List[List[int]], float]:
-    """ALNS sub-solver — reuses the project's ALNSSolver."""
+    """ALNS sub-solver — reuses the project's ALNSSolver.
+
+    Args:
+        selected: Set of local indices to route.
+        dist: Distance matrix.
+        wastes: {local node → fill_level}.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        mandatory: Mandatory nodes.
+        time_limit: Time limit for the sub-solver.
+        seed: Random seed.
+
+    Returns:
+        Tuple of routes and profit.
+    """
     try:
         from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
             ALNSSolver,
@@ -195,7 +260,24 @@ def _solve_sub_bpc(
     vehicle_limit: Optional[int],
     env: Any,
 ) -> Tuple[List[List[int]], float]:
-    """BPC sub-solver — uses run_bpc for exact routing."""
+    """BPC sub-solver — uses run_bpc for exact routing.
+
+    Args:
+        selected: Set of local indices to route.
+        dist: Distance matrix.
+        wastes: {local node → fill_level}.
+        capacity: Vehicle capacity.
+        R: Revenue per unit waste.
+        C: Cost per unit distance.
+        mandatory: Mandatory nodes.
+        time_limit: Time limit for the sub-solver.
+        seed: Random seed.
+        vehicle_limit: Maximum number of vehicles.
+        env: Gurobi environment.
+
+    Returns:
+        Tuple of routes and profit.
+    """
     try:
         from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
             run_bpc,
@@ -236,6 +318,19 @@ class _LBBDMaster:
         θ  ≥ 0       — routing-cost proxy (receives Benders cuts).
 
     Objective: max  Σ R·w_i·y_i  −  θ
+
+    Attributes:
+        n_nodes: Number of nodes.
+        wastes: {local node → fill_level}.
+        R: Revenue per unit waste.
+        mandatory: Local indices of mandatory customers.
+        env: Gurobi environment.
+        seed: Random seed.
+        mdl: Gurobi model.
+        y: Decision variables for visit.
+        theta: Routing cost proxy.
+        _big_m: Big M constant.
+        _cut_count: Number of cuts added.
     """
 
     def __init__(
@@ -249,6 +344,20 @@ class _LBBDMaster:
         env: Any,
         seed: int,
     ) -> None:
+        """
+        Args:
+            n_nodes: Number of nodes.
+            wastes: {local node → fill_level}.
+            R: Revenue per unit waste.
+            mandatory: Local indices of mandatory customers.
+            min_cover_ratio: Minimum coverage ratio.
+            vehicle_limit: Maximum number of vehicles.
+            env: Gurobi environment.
+            seed: Random seed.
+
+        Returns:
+            None
+        """
         self.n_nodes = n_nodes
         self.wastes = wastes
         self.R = R
@@ -284,7 +393,14 @@ class _LBBDMaster:
         self._cut_count = 0
 
     def solve(self, time_limit: float) -> Optional[Set[int]]:
-        """Solve master and return selected node set, or None if infeasible."""
+        """Solve master and return selected node set, or None if infeasible.
+
+        Args:
+            time_limit: Time limit.
+
+        Returns:
+            Set of selected nodes.
+        """
         self.mdl.Params.TimeLimit = max(1.0, time_limit)
         self.mdl.optimize()
         if self.mdl.SolCount == 0:
@@ -292,21 +408,43 @@ class _LBBDMaster:
         return {i for i in range(1, self.n_nodes + 1) if self.y[i].X > 0.5}
 
     def get_lp_bound(self) -> float:
-        """LP relaxation upper bound after last solve."""
+        """LP relaxation upper bound after last solve.
+
+        Args:
+            None
+
+        Returns:
+            LP relaxation upper bound.
+        """
         try:
             return float(self.mdl.ObjBound)
         except Exception:
             return float("inf")
 
     def add_nogood_cut(self, Y: Set[int]) -> None:
-        """Forbid the exact selection Y."""
+        """Forbid the exact selection Y.
+
+        Args:
+            Y: Set of nodes.
+
+        Returns:
+            None
+        """
         expr = quicksum(self.y[i] for i in Y)
         self.mdl.addConstr(expr <= len(Y) - 1, name=f"nogood_{self._cut_count}")
         self._cut_count += 1
         self.mdl.update()
 
     def add_optimality_cut(self, Y: Set[int], sub_cost: float) -> None:
-        """Add: θ ≥ sub_cost − M · (|Y| − Σ_{i∈Y} y_i)."""
+        """Add: θ ≥ sub_cost − M · (|Y| − Σ_{i∈Y} y_i).
+
+        Args:
+            Y: Set of nodes.
+            sub_cost: Subproblem cost.
+
+        Returns:
+            None
+        """
         lhs = quicksum(self.y[i] for i in Y)
         self.mdl.addConstr(
             self.theta >= sub_cost - self._big_m * (len(Y) - lhs),
@@ -316,7 +454,16 @@ class _LBBDMaster:
         self.mdl.update()
 
     def add_pareto_cut(self, Y: Set[int], sub_cost: float, primal_bound: float) -> None:
-        """Magnanti-Wang Pareto-optimal strengthening of the optimality cut."""
+        """Magnanti-Wang Pareto-optimal strengthening of the optimality cut.
+
+        Args:
+            Y: Set of nodes.
+            sub_cost: Subproblem cost.
+            primal_bound: Primal bound.
+
+        Returns:
+            None
+        """
         gap = sub_cost - primal_bound
         if gap <= 1e-8:
             return
@@ -329,7 +476,15 @@ class _LBBDMaster:
         self.mdl.update()
 
     def add_combinatorial_cut(self, Y: Set[int], sub_cost: float) -> None:
-        """Coverage-strengthening cut: every subset of Y needs the same routing."""
+        """Coverage-strengthening cut: every subset of Y needs the same routing.
+
+        Args:
+            Y: Set of nodes.
+            sub_cost: Subproblem cost.
+
+        Returns:
+            None
+        """
         # For any T ⊆ Y, cost(T) ≥ cost(Y) − Σ_{i∉T, i∈Y} R·w_i
         # Approximated as: θ ≥ sub_cost − Σ_{i∈Y} R·w_i · (1 − y_i)
         penalty = quicksum(self.R * self.wastes.get(i, 0.0) * (1 - self.y[i]) for i in Y)
@@ -342,6 +497,11 @@ class _LBBDMaster:
 
     @property
     def n_cuts(self) -> int:
+        """Return the number of cuts added to the master problem.
+
+        Returns:
+            Number of cuts added.
+        """
         return self._cut_count
 
 

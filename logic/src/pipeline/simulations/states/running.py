@@ -68,7 +68,7 @@ class RunningState(SimState):
                 iterator = range(ctx.start_day, sim.days + 1)
                 self._run_simulation_days(ctx, iterator, hook, realtime_log_path)
 
-            logger.info(f"Simulation loop complete. Processed {sim.days} days.")
+            logger.info(f"Simulation loop for policy {ctx.pol_name} complete. Processed {sim.days} days.")
             ctx.transition_to(FinishingState())
         except CheckpointError as e:
             ctx.result = e.error_result

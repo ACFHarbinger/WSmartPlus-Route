@@ -73,9 +73,19 @@ class LASMPolicy(BaseRoutingPolicy):
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
+        """Return the configuration class for this policy.
+
+        Returns:
+            Optional[Type]: The configuration class.
+        """
         return LASMPipelineConfig
 
     def _get_config_key(self) -> str:
+        """Return the configuration key for this policy.
+
+        Returns:
+            str: The configuration key.
+        """
         return "lasm"
 
     def _run_solver(

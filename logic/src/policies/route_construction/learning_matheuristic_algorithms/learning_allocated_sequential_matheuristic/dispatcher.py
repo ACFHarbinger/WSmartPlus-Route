@@ -30,7 +30,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple
+from dataclasses import dataclass as _dc
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 import numpy as np
 from numpy.typing import NDArray
@@ -51,12 +52,24 @@ _GLOBAL_RL: Optional[RLController] = None
 
 
 def reset_rl_controller() -> None:
-    """Force re-initialisation of the global RL controller on the next call."""
+    """Force re-initialisation of the global RL controller on the next call.
+
+    Returns:
+        None
+    """
     global _GLOBAL_RL
     _GLOBAL_RL = None
 
 
 def _get_rl_controller(params: LASMPipelineParams) -> RLController:
+    """Get the global RL controller (singleton).
+
+    Args:
+        params: Parameters for the RL controller.
+
+    Returns:
+        RLController: The global RL controller.
+    """
     global _GLOBAL_RL
     if _GLOBAL_RL is None:
         _GLOBAL_RL = RLController(params)
@@ -69,7 +82,12 @@ def _get_rl_controller(params: LASMPipelineParams) -> RLController:
 # ---------------------------------------------------------------------------
 
 
-def _import_alns_stage():
+def _import_alns_stage() -> Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]:
+    """Import ALNS stage with fallback.
+
+    Returns:
+        Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]: The ALNS stage function.
+    """
     try:
         from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns import run_alns_stage
 
@@ -78,7 +96,12 @@ def _import_alns_stage():
         return None
 
 
-def _import_bpc_stage():
+def _import_bpc_stage() -> Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]:
+    """Import BPC stage with fallback.
+
+    Returns:
+        Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]: The BPC stage function.
+    """
     try:
         from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_bpc import run_bpc_stage
 
@@ -87,7 +110,12 @@ def _import_bpc_stage():
         return None
 
 
-def _import_sp_stage():
+def _import_sp_stage() -> Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]:
+    """Import SP stage with fallback.
+
+    Returns:
+        Optional[Callable[[Any, Any, Any, Any, Any, Any, Any, Any], Optional[Any]]]: The SP stage function.
+    """
     try:
         from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp import run_sp_stage
 
@@ -106,7 +134,12 @@ def _import_sp_stage():
         return _fallback_sp
 
 
-def _import_alns_params():
+def _import_alns_params() -> Optional[Type[Any]]:
+    """Import ALNS parameters with fallback.
+
+    Returns:
+        Optional[Type[Any]]: The ALNS parameters class.
+    """
     try:
         from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import (
             ALNSParams,
@@ -128,6 +161,17 @@ def _mandatory_local_set(
     mandatory: List[int],
     psi: float,
 ) -> Set[int]:
+    """Compute the set of mandatory local bin indices.
+
+    Args:
+        bins: Fill levels of the bins.
+        binsids: Global identifiers of the bins.
+        mandatory: Global identifiers of the mandatory bins.
+        psi: The threshold for mandatory bins.
+
+    Returns:
+        Set[int]: The set of mandatory local bin indices.
+    """
     n_bins = len(bins)
     pure = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     result: Set[int] = set()
@@ -296,9 +340,8 @@ def run_lasm_pipeline(
 
     if run_bpc_stage is not None and not p.skip_bpc and tau_bpc > 5.0:
         logger.info("[LBBDPipeline] Stage 3 BPC   budget=%.1fs", tau_bpc)
-        # Build a minimal PipelineParams-compatible object for the shared stage
-        from dataclasses import dataclass as _dc
 
+        # Build a minimal PipelineParams-compatible object for the shared stage
         @_dc
         class _BPCProxy:
             bpc_ng_size_min: int = p.bpc_ng_size_min
