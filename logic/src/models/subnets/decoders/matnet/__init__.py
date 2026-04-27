@@ -12,3 +12,7 @@ Example:
 """
 
 from .decoder import MatNetDecoder as MatNetDecoder
+
+__all__ = [
+    "MatNetDecoder",
+]

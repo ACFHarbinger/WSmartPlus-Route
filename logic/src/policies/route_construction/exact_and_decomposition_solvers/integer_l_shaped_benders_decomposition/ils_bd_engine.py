@@ -46,13 +46,12 @@ import numpy as np
 
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 
-from .master_problem import InventoryMasterProblem, MasterProblem
 from .params import ILSBDParams
 from .scenario import ScenarioGenerator
 from .subproblem import RecourseEvaluator
 
 try:
-    import gurobipy  # noqa: F401
+    from .master_problem import InventoryMasterProblem, MasterProblem
 
     GUROBI_AVAILABLE = True
 except ImportError:

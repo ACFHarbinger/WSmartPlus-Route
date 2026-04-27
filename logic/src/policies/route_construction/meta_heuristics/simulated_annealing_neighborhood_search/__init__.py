@@ -34,3 +34,14 @@ from .heuristics.sans import (
 from .refinement.route_search import (
     find_solutions as find_solutions,
 )
+
+__all__ = [
+    "create_points",
+    "compute_initial_solution",
+    "add_bins_to_collect",
+    "get_next_collection_day",
+    "should_bin_be_collected",
+    "update_fill_levels_after_first_collection",
+    "improved_simulated_annealing",
+    "find_solutions",
+]

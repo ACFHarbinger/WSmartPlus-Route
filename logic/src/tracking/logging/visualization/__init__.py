@@ -21,7 +21,7 @@ Example:
 
 import argparse
 import os
-from typing import Any, List, Optional, Union
+from typing import Any, List, Union
 
 import torch
 from omegaconf import DictConfig
@@ -44,6 +44,25 @@ from . import embeddings as embeddings
 from . import heatmaps as heatmaps
 from . import helpers as helpers
 from . import landscape as landscape
+
+__all__ = [
+    "visualize_epoch",
+    "log_weight_distributions",
+    "plot_weight_trajectories",
+    "project_node_embeddings",
+    "plot_attention_heatmaps",
+    "plot_logit_lens",
+    "plot_loss_landscape",
+    "imitation_loss_fn",
+    "rl_loss_fn",
+    "MyModelWrapper",
+    "get_batch",
+    "load_model_instance",
+    "embeddings",
+    "heatmaps",
+    "helpers",
+    "landscape",
+]
 
 
 def visualize_epoch(

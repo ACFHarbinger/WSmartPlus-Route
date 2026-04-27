@@ -13,3 +13,7 @@ Example:
 """
 
 from .generators.datasets import generate_datasets as generate_datasets
+
+__all__ = [
+    "generate_datasets",
+]

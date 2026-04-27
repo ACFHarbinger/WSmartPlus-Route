@@ -138,6 +138,27 @@ class BPCParams:
     -1 means apply at every depth. Set to 0 to restrict to root only.
     Useful because LR bounds weaken at deep nodes due to many forced-in/out fixings."""
 
+    # ── Tier 1 + Selection-Routing Duality Parameters ──────────────────────
+    enable_node_visitation_branching: bool = True
+    """Enable hierarchical node-visitation (y_v) branching before arc/RF branching.
+    Directly resolves the VRPP profit-selection × routing duality by branching
+    on which nodes to visit (Boussier, Feillet, Gendreau 2007; Pessoa et al. 2020)."""
+
+    enable_dssr: bool = True
+    """Enable Decremental State-Space Relaxation in pricing (Righini, Salani 2008).
+    Iteratively adds cycled vertices to ng-memory until returned paths are elementary."""
+
+    dssr_max_iters: int = 8
+    """Maximum DSSR refinement iterations per pricing call."""
+
+    enable_reduced_cost_arc_fixing: bool = True
+    """Enable reduced-cost arc elimination from pricing graph (Irnich et al. 2010).
+    Arcs whose min reduced cost exceeds the LP-incumbent gap are pruned."""
+
+    route_budget: float = float("inf")
+    """Maximum route cost/distance budget for conflict-cut and path-elimination separation.
+    Set to vehicle travel-time limit if applicable."""
+
     lr_warm_start_cg: bool = False
     """If True, use λ* from subgradient to seed initial columns before CG starts.
     Calls solve_uncapacitated_op at λ* and adds the resulting route to the column

@@ -278,3 +278,128 @@ def display_simulation_summary_table(  # noqa: C901
             console.print(table)
     else:
         console.print(table)
+
+
+def display_per_policy_simulation_summary(  # noqa: C901
+    pol_name: str,
+    sample_id: int,
+    aggregate_metrics: List[float],
+    daily_log: Dict[str, List[Any]],
+    title_prefix: str = "Results for",
+    lock: Optional[Any] = None,
+) -> None:
+    """Display detailed results for a single policy simulation run.
+
+    Args:
+        pol_name: Name of the policy.
+        sample_id: ID of the sample/seed.
+        aggregate_metrics: List of aggregate metrics for the entire run.
+        daily_log: Dictionary of daily metrics.
+        title_prefix: Prefix for the table titles.
+        lock: Optional lock for thread-safe printing.
+    """
+    console = Console()
+
+    # 1. STATISTICS SUMMARY TABLE
+    summary_title = f"{title_prefix} [bold cyan]{pol_name}[/] (Sample #{sample_id}) - [yellow]Stats Summary[/]"
+
+    def _print_tables():  # noqa: C901
+        try:
+            # Using rule for better separation
+            console.rule(f"[bold white on blue] {summary_title} [/]")
+            display_simulation_summary_table({pol_name: aggregate_metrics}, title=None, lock=None)
+
+            # 2. DAILY PERFORMANCE TABLE (Filtered)
+            daily_title = f"{title_prefix} [bold cyan]{pol_name}[/] (Sample #{sample_id}) - [green]Daily Routes[/]"
+
+            table = Table(
+                box=box.MINIMAL_DOUBLE_HEAD,
+                header_style="bold magenta",
+                border_style="green",
+                show_header=True,
+                expand=False,
+            )
+
+            # Define columns
+            columns = [
+                ("Day", "day", "cyan"),
+                ("Tour", "tour", "white"),
+                ("Profit", "profit", "green"),
+                ("KG", "kg", "white"),
+                ("Lost", "kg_lost", "red"),
+                ("Col", "ncol", "white"),
+                ("Dist", "km", "white"),
+                ("Eff", "kg/km", "yellow"),
+                ("Over", "overflows", "red"),
+            ]
+
+            for label, _, style in columns:
+                table.add_column(label, style=style, justify="right" if label != "Tour" else "left")
+
+            # Filter and add rows
+            days = daily_log.get("day", [])
+            kms = daily_log.get("km", [])
+
+            has_active_days = False
+            for i in range(len(days)):
+                # Only show days where a route was performed (km > 0)
+                # Robust check for list index and value
+                km_val = kms[i] if i < len(kms) else 0.0
+                if km_val > 0:
+                    has_active_days = True
+                    row = []
+                    for _, key, _ in columns:
+                        vals = daily_log.get(key, [])
+                        val = vals[i] if i < len(vals) else None
+
+                        if key == "day":
+                            row.append(f"{int(val)}" if val is not None else "-")
+                        elif key == "tour":
+                            # Truncate tour if too long
+                            tour_str = str(val) if val is not None else "[]"
+                            if len(tour_str) > 50:
+                                tour_str = tour_str[:47] + "..."
+                            row.append(tour_str)
+                        elif key == "profit":
+                            if val is not None:
+                                color = "green" if val > 0 else "red"
+                                row.append(f"[{color}]${val:,.2f}[/]")
+                            else:
+                                row.append("-")
+                        elif key in ["kg", "kg_lost"]:
+                            row.append(f"{val:,.1f}kg" if val is not None else "0.0kg")
+                        elif key == "km":
+                            row.append(f"{val:,.1f}km" if val is not None else "0.0km")
+                        elif key == "kg/km":
+                            row.append(f"{val:.2f}" if val is not None else "0.00")
+                        elif key == "overflows":
+                            if val is not None:
+                                color = "red" if val > 0 else "white"
+                                row.append(f"[{color}]{int(val)}[/]")
+                            else:
+                                row.append("0")
+                        elif key == "ncol":
+                            row.append(f"{int(val)}" if val is not None else "0")
+                        else:
+                            row.append(str(val))
+                    table.add_row(*row)
+
+            if has_active_days:
+                console.print("\n")
+                console.rule(f"[bold white on green] {daily_title} [/]")
+                console.print(table)
+            else:
+                console.print("\n[yellow]No routes performed during this simulation run (all KM=0).[/]")
+
+            console.print("\n")
+        except Exception as e:
+            print(f"\n[ERROR] Failed to display simulation summary: {e}")
+            import traceback
+
+            traceback.print_exc()
+
+    if lock:
+        with lock:
+            _print_tables()
+    else:
+        _print_tables()

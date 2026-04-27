@@ -41,6 +41,33 @@ from logic.src.tracking.logging.log_utils import (
 )
 from logic.src.tracking.logging.logger_writer import LoggerWriter, setup_logger_redirection
 
+__all__ = [
+    "simulator_testing",
+    "LoggerWriter",
+    "setup_logger_redirection",
+    "runs_per_policy",
+    "output_stats",
+    "send_final_output_to_gui",
+    "display_log_metrics",
+    "sequential_simulations",
+    "load_indices",
+    "run_parallel_simulations",
+    "Config",
+    "udef",
+    "wst",
+    "PolicySummaryCallback",
+    "run_parallel_simulations",
+    "load_indices",
+    "display_log_metrics",
+    "sequential_simulations",
+    "output_stats",
+    "runs_per_policy",
+    "send_final_output_to_gui",
+    "LoggerWriter",
+    "setup_logger_redirection",
+    "logger",
+]
+
 
 def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     """
@@ -66,8 +93,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         original_stderr = original_stderr.terminal
 
     # Display policy summary
-    if not cfg.tracking.no_progress_bar:
-        PolicySummaryCallback().display(cfg)
+    PolicySummaryCallback().display(cfg)
 
     # Register immediate shutdown handler for CTRL+C
     def _shutdown_handler(sig: int, frame: Any) -> None:
@@ -156,15 +182,14 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
     )
     send_final_output_to_gui(log, log_std, sim.n_samples, policies, realtime_log_path)
 
-    if not cfg.tracking.no_progress_bar:
-        display_log_metrics(
-            sim.output_dir,
-            sim.graph.num_loc,
-            sim.n_samples,
-            sim.days,
-            sim.graph.area,
-            policies,
-            log,
-            log_std,
-            lock,
-        )
+    display_log_metrics(
+        sim.output_dir,
+        sim.graph.num_loc,
+        sim.n_samples,
+        sim.days,
+        sim.graph.area,
+        policies,
+        log,
+        log_std,
+        lock,
+    )

@@ -26,6 +26,7 @@ Example:
 """
 
 from .modules.analysis import (
+    display_per_policy_simulation_summary,
     display_simulation_summary_table,
     final_simulation_summary,
     load_log_dict,
@@ -58,6 +59,7 @@ __all__ = [
     "runs_per_policy",
     "final_simulation_summary",
     "display_simulation_summary_table",
+    "display_per_policy_simulation_summary",
     "send_daily_output_to_gui",
     "send_final_output_to_gui",
 ]
