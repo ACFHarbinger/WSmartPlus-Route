@@ -1,12 +1,12 @@
-"""Configuration parameters for the Branch-and-Price-and-Cut (BPC) solver.
+"""Configuration parameters for the Multi-Stage Branch-and-Price-and-Cut with Set Partitioning (MSBPCSP) solver.
 
-Based on Barnhart et al. (1998, 2000) and standard exact VRPP protocols.
+Based on the work of Barnhart et al. (1998, 2000) and standard exact VRPP protocols.
 
 Attributes:
-    BPCParams (class): Data container for solver settings.
+    MSBPCSPParams (class): Data container for solver settings.
 
 Example:
-    >>> params = BPCParams(time_limit=120.0, optimality_gap=1e-6)
+    >>> params = MSBPCSPParams(time_limit=120.0, optimality_gap=1e-6)
     >>> dict_params = params.to_dict()
 """
 
@@ -17,8 +17,8 @@ from typing import Any, Dict, Optional
 
 
 @dataclass
-class BPCParams:
-    """Configuration parameters for the Branch-and-Price-and-Cut solver.
+class MSBPCSPParams:
+    """Configuration parameters for the Multi-Stage Branch-and-Price-and-Cut with Set Partitioning solver.
 
     Attributes:
         time_limit (float): Max wall-clock time in seconds.
@@ -56,13 +56,11 @@ class BPCParams:
         lr_op_time_limit (float): Time limit for OP solver in LR.
         lr_pre_pruning_depth_limit (int): Max depth for LR.
         lr_warm_start_cg (bool): Seed CG with LR result.
-        knapsack_proc_selection (bool): Process mandatory node selection with knapsack problem.
     """
 
     time_limit: float = 60.0
     profit_aware_operators: bool = False
     vrpp: bool = True
-    knapsack_proc_selection: bool = True
     seed: Optional[int] = None
     search_strategy: str = "depth_first"
     # Bug #1 fix: paper §4 uses Lifted Cover Inequalities on saturated arcs as its
@@ -145,7 +143,7 @@ class BPCParams:
     Only meaningful when lr_pre_pruning is also True (shares the λ* already computed)."""
 
     @classmethod
-    def from_config(cls, config: Any) -> BPCParams:
+    def from_config(cls, config: Any) -> MSBPCSPParams:
         """Create BPCParams from a configuration object or dictionary.
 
         Performs explicit type casting for numeric fields to ensure compatibility
@@ -155,7 +153,7 @@ class BPCParams:
             config: Configuration source (dict or Hydra config).
 
         Returns:
-            BPCParams: Initialized parameter object.
+            MSBPCSPParams: Initialized parameter object.
         """
         if config is None:
             return cls()

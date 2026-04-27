@@ -11,6 +11,10 @@ Example:
 
 from typing import Any, Dict
 
+from rich import box
+from rich.console import Console
+from rich.table import Table
+
 from logic.src.pipeline.simulations.actions.base import SimulationAction
 from logic.src.pipeline.simulations.day_context import get_daily_results
 from logic.src.tracking.integrations.simulation import get_sim_tracker
@@ -42,7 +46,6 @@ class LogAction(SimulationAction):
         day = context["day"]
         sum_lost = context["sum_lost"]
         time = context["time"]
-        day = context["day"]
 
         dlog = get_daily_results(
             total_collected,
@@ -59,7 +62,57 @@ class LogAction(SimulationAction):
 
         context["daily_log"] = dlog
         policy_name = context["policy_name"]
-        print(f"\n[INFO] Logging day {day} results for {policy_name} policy.")
+
+        # Pretty terminal output
+        console = Console()
+        table = Table(
+            title=f"Day {day} Results: [bold cyan]{policy_name}[/]",
+            box=box.ROUNDED,
+            header_style="bold magenta",
+            border_style="blue",
+            title_style="bold white on blue",
+            expand=False,
+        )
+
+        table.add_column("Metric", style="cyan", no_wrap=True)
+        table.add_column("Value", justify="right", style="bold green")
+
+        table.add_row("Profit", f"${profit:,.2f}")
+        table.add_row("Collected", f"{total_collected:,.2f} kg")
+        table.add_row("Bins Collected", str(ncol))
+        table.add_row("Mandatory Bins", str(len(context.get("mandatory", [])) if context.get("mandatory") else 0))
+        table.add_row("Distance", f"{km:.2f} km")
+        table.add_row("Efficiency", f"{dlog.get('kg/km', 0):.2f} kg/km")
+        table.add_row("Overflows", f"[bold red]{new_overflows}[/]")
+        table.add_row("Waste Lost", f"[bold red]{sum_lost:.2f} kg")
+        table.add_row("Reward", f"{dlog.get('reward', 0):.2f}")
+        table.add_row("Policy Time", f"[bold red]{time:.4f} s")
+
+        # Display the full tour as bin IDs
+        # node 0 is the depot, others are bins at their respective iloc positions in coords
+        tour_ids_mapped = []
+        for node_idx in tour:
+            if node_idx == 0:
+                tour_ids_mapped.append("[blue]0[/]")
+            else:
+                try:
+                    # Using iloc as node_idx corresponds to the row position in the coordinates DataFrame
+                    bin_id = int(coords.iloc[node_idx]["ID"])
+                    tour_ids_mapped.append(f"[blue]{bin_id}[/]")
+                except (IndexError, KeyError):
+                    tour_ids_mapped.append(f"[blue]{node_idx}[/]")
+
+        tour_str = " - ".join(tour_ids_mapped)
+        table.add_row("Tour", tour_str)
+
+        # Sync print with lock if available to prevent interleaved output
+        lock = context.get("lock")
+        if lock:
+            with lock:
+                console.print(table)
+        else:
+            console.print(table)
+
         send_daily_output_to_gui(
             dlog,
             policy_name,

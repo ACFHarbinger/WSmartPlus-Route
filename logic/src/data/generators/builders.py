@@ -24,6 +24,7 @@ Example:
 from typing import Optional
 
 import numpy as np
+import pandas as pd
 import torch
 from tensordict import TensorDict
 
@@ -370,7 +371,7 @@ class VRPInstanceBuilder:
         if self._focus_graph is not None:
             if self._focus_size <= 0:
                 self._focus_size = self._dataset_size
-            depot, loc, mm_arr, idx = load_focus_coords(
+            depot, loc, mm_arr, idx, node_ids = load_focus_coords(
                 self._problem_size,
                 self._method,
                 self._area,
@@ -395,7 +396,8 @@ class VRPInstanceBuilder:
         else:
             grid = None
             idx = np.array(range(self._problem_size))
+            node_ids = pd.Series(idx)
             coord_size = 2 if self._method != "triple" else 3
             depot = self.np_rng.uniform(size=(self._dataset_size, coord_size))
             loc = self.np_rng.uniform(size=(self._dataset_size, self._problem_size, coord_size))
-        return depot, loc, grid, idx
+        return depot, loc, grid, idx, node_ids

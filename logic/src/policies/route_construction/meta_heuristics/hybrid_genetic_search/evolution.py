@@ -157,13 +157,13 @@ def update_biased_fitness(
 
 def evaluate(ind: Individual, split_manager: LinearSplit, penalty_capacity: float = 1.0):
     """
-    Decode giant tour and calculate metrics, including feasibility and penalties.
+    Decode the ACTIVE sequence and calculate metrics, including feasibility and penalties.
 
-    This function transforms the genotype (giant_tour) into the phenotype (routes)
+    This function transforms the genotype (active_sequence) into the phenotype (routes)
     using the Split algorithm. For VRPP, the Split algorithm may skip unprofitable nodes,
-    resulting in routes that contain a subset of the nodes in giant_tour.
+    resulting in routes that contain a subset of the nodes in active_sequence.
 
-    The giant_tour is preserved unchanged to maintain genetic material for crossover.
+    The active_sequence is preserved unchanged to maintain genetic material for crossover.
     Nodes not in routes are considered "unvisited" and remain available for future
     insertion by local search operators.
 
@@ -175,7 +175,24 @@ def evaluate(ind: Individual, split_manager: LinearSplit, penalty_capacity: floa
     Returns:
         None.
     """
-    routes, profit = split_manager.split(ind.giant_tour)
+    # 1. Isolate the active sequence
+    if ind.routes:
+        # If routes exist (e.g., from RP-GPX), extract only the active nodes in sequence order
+        active_set = {n for route in ind.routes for n in route}
+        active_sequence = [n for n in ind.giant_tour if n in active_set]
+    else:
+        # Fallback for initialization or pure OX crossover:
+        # Pre-filter the giant_tour using a standalone break-even hurdle.
+        # If revenue doesn't cover the baseline to/from depot cost, exclude it from the Split DP.
+        active_sequence = []
+        for n in ind.giant_tour:
+            rev = split_manager.wastes.get(n, 0) * split_manager.R
+            cost = (split_manager.dist_matrix[0, n] + split_manager.dist_matrix[n, 0]) * split_manager.C
+            if rev >= cost or n in split_manager.mandatory_nodes:
+                active_sequence.append(n)
+
+    # 2. Feed ONLY the active sequence to the hostage-prone Split DP
+    routes, profit = split_manager.split(active_sequence)
     ind.routes = routes
     ind.profit_score = profit
 

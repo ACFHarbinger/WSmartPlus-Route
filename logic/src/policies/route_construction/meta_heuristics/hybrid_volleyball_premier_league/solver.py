@@ -243,7 +243,7 @@ class HVPLSolver:
 
         # Run truncated ACO iterations
         for _ in range(self.params.aco_init_iterations):
-            routes = self.aco_solver.construct([0] + self.nodes, self.mandatory_nodes)
+            routes = self.aco_solver.construct(self.nodes, self.mandatory_nodes)
             if routes:
                 population.append(routes)
 

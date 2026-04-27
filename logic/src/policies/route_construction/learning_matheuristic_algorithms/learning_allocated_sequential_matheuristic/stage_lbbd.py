@@ -59,7 +59,7 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB, quicksum
 
-from .route_pool import RoutePool, VRPPRoute
+from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool import RoutePool, VRPPRoute
 
 logger = logging.getLogger(__name__)
 
@@ -398,7 +398,7 @@ def run_lbbd_stage(
         (best_routes, best_profit, lp_upper_bound)
     """
     n_nodes = len(dist_matrix) - 1
-    t_start = time.monotonic()
+    t_start = time.perf_counter()
     per_iter = max(2.0, time_limit / max(1, max_iterations))
 
     # Resolve sub-problem oracle
@@ -429,7 +429,7 @@ def run_lbbd_stage(
     visited: Set[frozenset] = set()
 
     for iteration in range(max_iterations):
-        elapsed = time.monotonic() - t_start
+        elapsed = time.perf_counter() - t_start
         if elapsed >= time_limit:
             break
 

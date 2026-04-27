@@ -6,7 +6,7 @@ from gurobipy import GRB
 from logic.src.policies.helpers.solvers_and_matheuristics import VRPPMasterProblem, Route
 from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import _column_generation_loop, BPCPruningException
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import CuttingPlaneEngine
+from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import CuttingPlaneEngine
 
 def test_set_partitioning_enforcement():
     """Verify that mandatory nodes use == 1.0 and duals are unrestricted."""

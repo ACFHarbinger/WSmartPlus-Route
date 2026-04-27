@@ -59,7 +59,7 @@ def load_focus_coords(
     waste_type: str,
     focus_graph: str,
     focus_size: int = 1,
-) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], List[int]]:
+) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], List[int], pd.Series]:
     """
     Loads coordinates and depot information from simulator data.
 
@@ -100,9 +100,10 @@ def load_focus_coords(
             np.tile(loc, (focus_size, 1, 1)),
             mm_arr.T,
             idx,
+            coords["ID"],
         )
     else:
-        ret_val = (depot, loc, None, idx)  # type: ignore
+        ret_val = (depot, loc, None, idx, coords["ID"])  # type: ignore
     return ret_val  # type: ignore
 
 

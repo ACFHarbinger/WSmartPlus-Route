@@ -21,6 +21,7 @@ defaults:
   - /policies@p.bc: policy_bc
   - /policies@p.bp: policy_bp
   - /policies@p.bpc: policy_bpc
+  - /policies@p.ms_bpc_sp: policy_ms_bpc_sp
   - /policies@p.cgh: policy_cgh
   - /policies@p.cf_rs: policy_cf_rs
   - /policies@p.cp_sat: policy_cp_sat
@@ -140,6 +141,7 @@ sim:
     - bc: ${p.bc.bc}
     - bp: ${p.bp.bp}
     - bpc: ${p.bpc.bpc}
+    - ms_bpc_sp: ${p.ms_bpc_sp.ms_bpc_sp}
     - cgh: ${p.cgh.cgh}
     - cf_rs: ${p.cf_rs.cf_rs}
     - cp_sat: ${p.cp_sat.cp_sat}

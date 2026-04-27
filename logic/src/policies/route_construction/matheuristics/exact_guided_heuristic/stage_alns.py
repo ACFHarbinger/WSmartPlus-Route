@@ -158,7 +158,7 @@ def run_alns_stage(
             best_routes — list of VRPPRoute from the best solution found.
             best_profit — net profit of the best solution.
     """
-    t0 = time.monotonic()
+    t0 = time.perf_counter()
 
     # Patch time_limit into params (avoids mutating the shared PipelineParams)
     patched_params = ALNSParams(
@@ -234,7 +234,7 @@ def run_alns_stage(
             )
         )
 
-    elapsed = time.monotonic() - t0
+    elapsed = time.perf_counter() - t0
     logger.info(
         "[ALNS] elapsed=%.1fs  profit=%.4f  pool_size=%d",
         elapsed,

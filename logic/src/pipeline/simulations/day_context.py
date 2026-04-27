@@ -329,7 +329,8 @@ def get_daily_results(
         dlog["reward"] = reward
         dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
-        dlog["tour"] = [0] + coordinates.loc[ids, "ID"].tolist() + [0]
+        # Use iloc as node indices from the environment correspond to row positions in the coordinates DataFrame
+        dlog["tour"] = [0] + coordinates.iloc[ids]["ID"].tolist() + [0]
     else:
         dlog["kg"] = 0
         dlog["ncol"] = 0

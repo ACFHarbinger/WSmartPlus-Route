@@ -35,9 +35,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
+from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool import RoutePool
+
 from .params import LASMPipelineParams
 from .rl_controller import RLController
-from .route_pool import RoutePool
 from .stage_lbbd import run_lbbd_stage
 
 logger = logging.getLogger(__name__)
@@ -70,7 +71,7 @@ def _get_rl_controller(params: LASMPipelineParams) -> RLController:
 
 def _import_alns_stage():
     try:
-        from logic.src.policies.route_construction.pipelines.pipeline_policy.stage_alns import run_alns_stage
+        from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns import run_alns_stage
 
         return run_alns_stage
     except ImportError:
@@ -79,7 +80,7 @@ def _import_alns_stage():
 
 def _import_bpc_stage():
     try:
-        from logic.src.policies.route_construction.pipelines.pipeline_policy.stage_bpc import run_bpc_stage
+        from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_bpc import run_bpc_stage
 
         return run_bpc_stage
     except ImportError:
@@ -88,7 +89,7 @@ def _import_bpc_stage():
 
 def _import_sp_stage():
     try:
-        from logic.src.policies.route_construction.pipelines.pipeline_policy.stage_sp import run_sp_stage
+        from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp import run_sp_stage
 
         return run_sp_stage
     except ImportError:
@@ -175,7 +176,7 @@ def run_lasm_pipeline(
             total_cost — total travel cost.
     """
     p = params or LASMPipelineParams()
-    t_start = time.monotonic()
+    t_start = time.perf_counter()
 
     n_bins = len(bins)
     Q = values["Q"]
@@ -340,7 +341,7 @@ def run_lasm_pipeline(
     # ── Stage 4: RL update ────────────────────────────────────────────────
     profit_before_lbbd = 0.0  # base before this call
     delta_profit = max(0.0, best_profit - profit_before_lbbd)
-    delta_time = time.monotonic() - t_start
+    delta_time = time.perf_counter() - t_start
 
     if action_levels:
         # Update RL context with post-LBBD+ALNS+BPC information
@@ -351,7 +352,7 @@ def run_lasm_pipeline(
             lp_ub=lp_ub,
             best_profit=best_profit,
             pool_size=len(pool),
-            time_remaining=max(0.0, tau_sp - (time.monotonic() - t_start - delta_time)),
+            time_remaining=max(0.0, tau_sp - (time.perf_counter() - t_start - delta_time)),
             time_total=p.time_limit,
         )
         rl_ctrl.update(rl_ctx_post, action_levels, delta_profit, delta_time, best_profit)
@@ -390,7 +391,7 @@ def run_lasm_pipeline(
         flat_route.append(0)
         total_cost += r.cost
 
-    elapsed = time.monotonic() - t_start
+    elapsed = time.perf_counter() - t_start
     logger.info(
         "[LBBDPipeline] DONE  elapsed=%.1fs  profit=%.4f  cost=%.4f  nodes=%d",
         elapsed,

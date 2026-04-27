@@ -1,6 +1,6 @@
 import numpy as np
 from logic.src.policies.helpers.solvers_and_matheuristics import MultiEdgePartitionBranching
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import (
+from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
     EdgeCliqueCutEngine,
     SubsetRowCutEngine,
     create_cutting_plane_engine,
