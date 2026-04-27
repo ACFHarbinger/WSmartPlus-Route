@@ -94,7 +94,7 @@ def run_parallel_simulations(
     pool = Pool(
         processes=n_cores,
         initializer=init_single_sim_worker,
-        initargs=(lock, counter, shared_metrics, log_file, cfg, tracking_uri, tracking_run_id),
+        initargs=(lock, counter, shared_metrics, log_file, cfg, tracking_uri, tracking_run_id, task_count),
     )
 
     try:

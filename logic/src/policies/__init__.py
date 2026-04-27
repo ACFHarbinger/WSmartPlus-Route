@@ -11,7 +11,7 @@ Rigorous Implementations (Metaphor-Free):
     - MuPlusLambdaESSolver: (μ+λ) Evolution Strategy (replaces Harmony Search)
     - DistancePSOSolver: Distance-Based PSO (replaces Firefly Algorithm)
     - DifferentialEvolutionSolver: Differential Evolution (replaces Artificial Bee Colony)
-    - HybridMemeticSearchSolver: Hybrid Memetic Search (replaces HMS/HVPL)
+    - HybridMemeticLargeNeighborhoodSearchSolver: Hybrid Memetic Large Neighborhood Search (replaces HMS/HMLNS/HVPL)
     - MemeticAlgorithmIslandModelSolver: Memetic Algorithm with Island Model (replaces MA-IM/SLC)
     - MemeticAlgorithmToleranceBasedSelectionSolver: Memetic Algorithm with Tolerance-Based Selection (replaces MA-TB/LCA)
     - MemeticAlgorithmDualPopulationSolver: Memetic Algorithm with Dual Population (replaces MA-DP/VPL)
@@ -55,11 +55,11 @@ from .route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_rec
     HGSRRParams,
     HGSRRSolver,
 )
-from .route_construction.meta_heuristics.hybrid_memetic_search.params import (
-    HybridMemeticSearchParams,
+from .route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.params import (
+    HybridMemeticLargeNeighborhoodSearchParams,
 )
-from .route_construction.meta_heuristics.hybrid_memetic_search.solver import (
-    HybridMemeticSearchSolver,
+from .route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.solver import (
+    HybridMemeticLargeNeighborhoodSearchSolver,
 )
 from .route_construction.meta_heuristics.memetic_algorithm_dual_population.params import (
     MemeticAlgorithmDualPopulationParams,
@@ -120,8 +120,8 @@ __all__ = [
     "DEParams",
     "MuCommaLambdaESSolver",
     "MuCommaLambdaESParams",
-    "HybridMemeticSearchSolver",
-    "HybridMemeticSearchParams",
+    "HybridMemeticLargeNeighborhoodSearchSolver",
+    "HybridMemeticLargeNeighborhoodSearchParams",
     "MemeticAlgorithmIslandModelSolver",
     "MemeticAlgorithmIslandModelParams",
     "MemeticAlgorithmToleranceBasedSelectionSolver",

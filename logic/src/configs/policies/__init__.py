@@ -38,7 +38,7 @@ Attributes:
     HGSALNSConfig: HGS-ALNS policy configuration.
     HGSRRConfig: HGS-RR policy configuration.
     HMMGDHHConfig: HMM-GD-HH policy configuration.
-    HybridMemeticSearchConfig: Hybrid memetic search policy configuration.
+    HybridMemeticLargeNeighborhoodSearchConfig: Hybrid memetic large neighborhood search policy configuration.
     HNAPolicyConfig: HNA policy configuration.
     HSConfig: HS policy configuration.
     HULKConfig: HULK policy configuration.
@@ -97,6 +97,7 @@ Attributes:
     VNSConfig: VNS policy configuration.
     VPLConfig: VPL policy configuration.
     ExactGuidedHeuristicConfig: Exact Guided Heuristic policy configuration.
+    PGCLNSConfig: PG-CLNS policy configuration.
 
 Example:
     >>> from logic.src.configs.policies import ARCOConfig
@@ -141,8 +142,8 @@ from .hgs import HGSConfig
 from .hgs_adc import HGSADCConfig
 from .hgs_alns import HGSALNSConfig
 from .hgs_rr import HGSRRConfig
+from .hmlns import HybridMemeticLargeNeighborhoodSearchConfig
 from .hmm_gd_hh import HMMGDHHConfig
-from .hms import HybridMemeticSearchConfig
 from .hna import HNAPolicyConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
@@ -174,6 +175,7 @@ from .ms_bpc_sp import MSBPCSPConfig
 from .na import NeuralAgentConfig
 from .nds_brkga import NDSBRKGAConfig
 from .other import MandatorySelectionConfig, RouteImprovingConfig
+from .pg_clns import PGCLNSConfig
 from .ph import PHConfig
 from .phh import PHHConfig
 from .popmusic import POPMUSICConfig
@@ -247,7 +249,7 @@ __all__ = [
     "HULKConfig",
     "QDEConfig",
     "PSOMAConfig",
-    "HybridMemeticSearchConfig",
+    "HybridMemeticLargeNeighborhoodSearchConfig",
     "KernelSearchConfig",
     "ABCConfig",
     "FAConfig",
@@ -300,4 +302,5 @@ __all__ = [
     "JointSAConfig",
     "JointGreedyConfig",
     "ExactGuidedHeuristicConfig",
+    "PGCLNSConfig",
 ]

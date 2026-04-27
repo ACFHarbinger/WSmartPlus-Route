@@ -79,6 +79,7 @@ if TYPE_CHECKING:
 _lock: Optional[Any] = None
 _counter: Optional[Any] = None
 _shared_metrics: Optional[Any] = None
+_task_count: int = 0
 
 
 def init_single_sim_worker(
@@ -89,6 +90,7 @@ def init_single_sim_worker(
     cfg: Optional[Config] = None,
     tracking_uri: Optional[str] = None,
     tracking_run_id: Optional[str] = None,
+    task_count: int = 0,
 ) -> None:
     """
     Initializes global shared resources for parallel simulation workers.
@@ -109,9 +111,11 @@ def init_single_sim_worker(
     global _lock
     global _counter
     global _shared_metrics
+    global _task_count
     _lock = lock_from_main
     _counter = counter_from_main
     _shared_metrics = shared_metrics_from_main
+    _task_count = task_count
     # Seeding for reproducibility in parallel workers
     if cfg is not None:
         seed = cfg.sim.seed
@@ -251,6 +255,7 @@ def single_simulation(
             "lock": _lock,
             "counter": _counter,
             "shared_metrics": _shared_metrics,
+            "task_count": _task_count,
             "tqdm_pos": os.getpid() % n_cores,
         }
 
@@ -399,6 +404,7 @@ def sequential_simulations(  # noqa: C901
     model_weights_path: str,
     lock: Optional[Any],
     shared_metrics: Optional[Any] = None,
+    task_count: int = 0,
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Executes multiple simulation runs sequentially with aggregation.
@@ -462,6 +468,7 @@ def sequential_simulations(  # noqa: C901
                     "lock": lock,
                     "overall_progress": overall_progress,
                     "shared_metrics": shared_metrics,
+                    "task_count": task_count,
                 }
 
                 context = SimulationContext(

@@ -143,7 +143,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         )
     else:
         log, log_std, _failed_log = sequential_simulations(
-            cfg, device, indices, sample_idx_ls, weights_path, lock, shared_metrics
+            cfg, device, indices, sample_idx_ls, weights_path, lock, shared_metrics, task_count
         )
 
     realtime_log_path = os.path.join(

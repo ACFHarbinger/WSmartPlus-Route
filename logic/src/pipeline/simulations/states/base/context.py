@@ -109,6 +109,7 @@ class SimulationContext:
         self.sample_id = sample_id
         self.pol_id = pol_id
         self.model_weights_path = model_weights_path
+        self.variables_dict = variables_dict
 
         self.lock = variables_dict.get("lock")
         self.counter = variables_dict.get("counter")
