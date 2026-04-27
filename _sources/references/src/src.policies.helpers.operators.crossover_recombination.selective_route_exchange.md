@@ -50,7 +50,7 @@
 ```
 ````
 
-````{py:function} _select_initial_child_routes(p1: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, rng: random.Random) -> typing.Tuple[typing.List[typing.List[int]], typing.Set[int]]
+````{py:function} _select_initial_child_routes(p1: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, rng: random.Random, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], R: float, C: float) -> typing.Tuple[typing.List[typing.List[int]], typing.Set[int]]
 :canonical: src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes
 
 ```{autodoc2-docstring} src.policies.helpers.operators.crossover_recombination.selective_route_exchange._select_initial_child_routes

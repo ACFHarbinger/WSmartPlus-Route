@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance
+src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic
 src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic
 ```
 

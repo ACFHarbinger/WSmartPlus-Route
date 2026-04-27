@@ -49,7 +49,7 @@
 ```
 ````
 
-````{py:function} update_biased_fitness(population: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], nb_elite: int, neighbor_size: int = 5, distance_cache: typing.Optional[dict] = None)
+````{py:function} update_biased_fitness(population: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], nb_elite: int, neighbor_size: int = 5, distance_cache: typing.Optional[dict] = None, inv: typing.Optional[dict] = None)
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution.update_biased_fitness
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution.update_biased_fitness

@@ -89,6 +89,7 @@ src.configs.policies.rens
 src.configs.policies.rl_alns
 src.configs.policies.cgh
 src.configs.policies.rts
+src.configs.policies.lasm
 src.configs.policies.ts
 src.configs.policies.alns
 src.configs.policies.vns
@@ -109,6 +110,7 @@ src.configs.policies.jgo
 src.configs.policies.ma
 src.configs.policies.hgs_alns
 src.configs.policies.amphh
+src.configs.policies.egh
 src.configs.policies.de
 src.configs.policies.ks
 src.configs.policies.cvrp

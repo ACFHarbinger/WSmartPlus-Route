@@ -630,14 +630,16 @@ y_coords: Optional y-coordinates for SWAP* polar sector pruning.</p>
 None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache">
-<span class="sig-name descname"><span class="pre">_evict_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_evict_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache" title="Link to this definition">#</a></dt>
 <dd><p>Remove all diversity distance entries that involve a specific individual.</p>
-<p>Called immediately before removing an individual from a subpopulation
+<p>Uses an inverse index for O(P) eviction instead of O(P²) full cache scan.
+Called immediately before removing an individual from a subpopulation
 so that the object-ID key can never produce a stale cache hit (Python
 may reuse the id() of a garbage-collected object for a new individual).</p>
 <p>Args:
 ind: Individual about to be removed.
-cache: Distance cache to purge (modified in-place).</p>
+cache: Distance cache to purge (modified in-place).
+inv: Inverse index mapping id(ind) -&gt; set of cache keys (modified in-place).</p>
 <p>Returns:
 None.</p>
 </dd></dl>
@@ -645,10 +647,15 @@ None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._insert_into_pop">
 <span class="sig-name descname"><span class="pre">_insert_into_pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_feasible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_infeasible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._insert_into_pop" title="Link to this definition">#</a></dt>
-<dd><p>Insert an individual into its respective subpopulation and immediately
-update biased fitness for that subpopulation.</p>
-<p>This is the single point of population modification during the main loop,
-ensuring the fitness-current invariant is maintained after every insertion.</p>
+<dd><p>Insert an individual into its respective subpopulation.</p>
+<p>Fitness is intentionally NOT updated here. The biased fitness update is
+deferred to _trim_pop, where it is computed once over the full population
+at peak size (μ+λ), amortising the O(P²) cost over λ insertions rather
+than paying it on every single insertion.</p>
+<p>Tournament selection operates on potentially stale fitness values between
+trim cycles. This is acceptable: binary tournament is robust to slightly
+stale ranks, and Vidal (2022) does not require fresh fitness before every
+selection — only before survivor eviction decisions.</p>
 <p>Args:
 ind: Individual to insert.
 pop_feasible: Feasible subpopulation (modified in-place).
@@ -673,18 +680,19 @@ Tuple[List[Individual], List[Individual]]: (feasible pop, infeasible pop).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop">
-<span class="sig-name descname"><span class="pre">_trim_pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">_trim_pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop" title="Link to this definition">#</a></dt>
 <dd><p>Trim a subpopulation from μ+λ down to μ, removing clones first then
 worst-fitness individuals.</p>
 <p>Following Vidal (2022) Section 2: “iteratively removing a clone solution
 (i.e., identical to another one) if such a solution exists, or otherwise
 the worst solution in terms of fitness according to Eq. (1).”</p>
-<p>Cache entries for evicted individuals are removed precisely (not via a
-full clear), so valid pairwise distances for surviving individuals are
-reused in subsequent fitness updates.</p>
+<p>Fitness is computed once at the start of trim (the only point where accurate
+ranks are needed for eviction decisions), then re-ranked cheaply after each
+removal using the cached pairwise distances — no O(P²) recompute per removal.</p>
 <p>Args:
 pop: Subpopulation to trim (modified in-place).
-cache: Per-subpopulation distance cache (modified in-place).</p>
+cache: Per-subpopulation distance cache (modified in-place).
+inv: Inverse index for O(P) cache eviction (modified in-place).</p>
 <p>Returns:
 None.</p>
 </dd></dl>
@@ -708,9 +716,11 @@ Optional[int]: Index of a clone, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents">
 <span class="sig-name descname"><span class="pre">_select_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_feasible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_infeasible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._select_parents" title="Link to this definition">#</a></dt>
-<dd><p>Binary tournament selection from both subpopulations.</p>
-<p>Fitness is assumed to be current (maintained by _insert_into_pop and
-_initialize_population — no recomputation is performed here).</p>
+<dd><p>Binary tournament selection from the combined population.</p>
+<p>Operates directly on both subpopulation lists without allocating a merged
+list, eliminating O(P) allocation per call. Fitness may be slightly stale
+between trim cycles; this is intentional and acceptable for tournament
+selection (see _insert_into_pop docstring).</p>
 <p>Args:
 pop_feasible: Feasible subpopulation.
 pop_infeasible: Infeasible subpopulation.</p>
@@ -740,12 +750,13 @@ Individual: Educated offspring.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._record_offspring_signals">
 <span class="sig-name descname"><span class="pre">_record_offspring_signals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual" title="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._record_offspring_signals" title="Link to this definition">#</a></dt>
-<dd><p>Record coverage and profitability margin signals from the latest
-offspring to support VRPP penalty adaptation.</p>
+<dd><p>Record coverage and profitability margin signals from the latest offspring
+to support VRPP penalty adaptation.</p>
+<p>Reuses cost/revenue already computed by evaluate() — no route re-traversal.</p>
 <p>Args:
 ind: Recently generated offspring (post-crossover and local search).</p>
 <p>Returns:
-None</p>
+None.</p>
 </dd></dl>
 
 <dl class="py method">

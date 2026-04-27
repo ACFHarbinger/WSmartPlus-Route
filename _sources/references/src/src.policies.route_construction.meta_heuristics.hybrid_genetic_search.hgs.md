@@ -113,7 +113,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver.__init__
 ```
 
-````{py:method} _evict_cache(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, cache: dict) -> None
+````{py:method} _evict_cache(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, cache: dict, inv: typing.Dict[int, set]) -> None
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._evict_cache
@@ -137,7 +137,7 @@
 
 ````
 
-````{py:method} _trim_pop(pop: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], cache: dict) -> None
+````{py:method} _trim_pop(pop: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual], cache: dict, inv: typing.Dict[int, set]) -> None
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.HGSSolver._trim_pop

@@ -1,0 +1,1012 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.policies.route_construction.matheuristics.exact_guided_heuristic.params &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction.matheuristics.exact_guided_heuristic.params';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.policies.route_construction.matheuristics.exact_guided_heuristic.policy_egh" href="src.policies.route_construction.matheuristics.exact_guided_heuristic.policy_egh.html" />
+    <link rel="prev" title="src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp" href="src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.enums.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.trainer_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.trainer_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.policy_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.policy_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.model_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.model_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.operator_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.operator_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.environment_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.environment_tags</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.policies.route_construction.matheuristics.exact_guided_heuristic.params.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.policies.route_construction.matheuristics.exact_guided_heuristic.params</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alpha"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.time_limit"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.seed"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_max_iterations"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_segment_size"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_segment_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_reaction_factor"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_reaction_factor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_cooling_rate"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_cooling_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_start_temp_control"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_start_temp_control</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_1"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_1</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_2"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_2</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_3"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_3</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_xi"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_xi</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_min_removal"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_min_removal</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_noise_factor"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_noise_factor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_worst_removal_randomness"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_worst_removal_randomness</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_shaw_randomization"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_shaw_randomization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_regret_pool"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_regret_pool</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_extended_operators"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_extended_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_vrpp"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_engine"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_min"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_max"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_min"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_max"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_cutting_planes"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_cutting_planes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_branching_strategy"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.skip_bpc"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.skip_bpc</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_pool_cap"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.sp_pool_cap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_mip_gap"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.sp_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.stage_budgets"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.stage_budgets()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_iterations()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.as_alns_values_dict"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.as_alns_values_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.from_config"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.to_dict"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction.matheuristics.exact_guided_heuristic.params">
+<span id="src-policies-route-construction-matheuristics-exact-guided-heuristic-params"></span><h1><a class="reference internal" href="#module-src.policies.route_construction.matheuristics.exact_guided_heuristic.params" title="src.policies.route_construction.matheuristics.exact_guided_heuristic.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.exact_guided_heuristic.params</span></code></a><a class="headerlink" href="#module-src.policies.route_construction.matheuristics.exact_guided_heuristic.params" title="Link to this heading">#</a></h1>
+<p>Configuration parameters for the TCF → ALNS → BPC → SP-merge pipeline.</p>
+<p>The pipeline is controlled by a single quality/speed dial <code class="docutils literal notranslate"><span class="pre">alpha</span> <span class="pre">∈</span> <span class="pre">[0,</span> <span class="pre">1]</span></code>
+that proportionally allocates the total time budget across the four stages:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>alpha = 0.0  →  TCF + tiny ALNS only  (fastest, no BPC)
+alpha = 0.5  →  balanced              (default)
+alpha = 1.0  →  full BPC + large ALNS (highest quality, slowest)
+</pre></div>
+</div>
+<p>Stage budgets are computed as:
+τ_TCF  = T * max(0.05, 0.15 − 0.10 * α)
+τ_ALNS = T * (0.20  + 0.15 * α)
+τ_BPC  = T * (0.00  + 0.65 * α)
+τ_SP   = min(30, T * 0.05)              # always small</p>
+<p>All four values are then renormalized to sum to T.</p>
+<p>Attributes:
+PipelineParams: Dataclass for pipeline solver configuration.</p>
+<p>Example:
+&gt;&gt;&gt; params = PipelineParams(alpha=0.5, time_limit=120.0)
+&gt;&gt;&gt; budgets = params.stage_budgets()   # (τ_tcf, τ_alns, τ_bpc, τ_sp)</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams" title="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams</span></code></a></p></td>
+<td><p>Configuration parameters for the TCF → ALNS → BPC → SP-merge pipeline.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.matheuristics.exact_guided_heuristic.params.</span></span><span class="sig-name descname"><span class="pre">ExactGuidedHeuristicParams</span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams" title="Link to this definition">#</a></dt>
+<dd><p>Configuration parameters for the TCF → ALNS → BPC → SP-merge pipeline.</p>
+<p>Attributes:
+alpha: Quality/speed dial ∈ [0, 1].
+0.0 = TCF + tiny ALNS only (no BPC stage).
+0.5 = balanced (default).
+1.0 = full BPC + large ALNS (highest quality, slowest).
+time_limit: Total wall-clock budget in seconds.
+seed: Global RNG seed for reproducibility.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># ── ALNS overrides ─────────────────────────────────────────────────
+alns_max_iterations: Hard iteration cap for ALNS (overrides the
+    alpha-derived default when set to a positive integer).
+    Default 0 = derive from alpha: max(500, 2000 + 18000 * alpha).
+alns_segment_size: Weight-update segment size (Ropke &amp; Pisinger 2006).
+alns_reaction_factor: Learning rate r for weight updates.
+alns_cooling_rate: SA temperature decay factor per iteration.
+alns_start_temp_control: &#39;w&#39; parameter — accept a solution &#39;w*100 %&#39;
+    worse than current with probability 0.5 at start temperature.
+alns_sigma_1: Score awarded for a new global-best solution.
+alns_sigma_2: Score awarded for a better-than-current new solution.
+alns_sigma_3: Score awarded for an accepted worse new solution.
+alns_xi: Fraction of n for the removal upper-bound cap.
+alns_min_removal: Minimum nodes removed per destroy step.
+alns_noise_factor: Noise amplitude η for noisy repair operators.
+alns_worst_removal_randomness: Randomness exponent p ≥ 1 for worst removal.
+alns_shaw_randomization: Shaw randomisation factor p_shaw.
+alns_regret_pool: Which regret variants to use
+    (&#39;regret2&#39;, &#39;regret234&#39;, &#39;regretAll&#39;).
+alns_extended_operators: If True, add string/cluster/neighbor destroy
+    operators (3 → 6 operators).
+alns_profit_aware_operators: If True, use profit-aware operator variants.
+alns_vrpp: If True, allow ALNS repair operators to insert nodes from the
+    full candidate pool (not only the just-removed set).
+alns_engine: Which ALNS backend to use (&#39;custom&#39;, &#39;package&#39;, &#39;ortools&#39;).
+
+# ── BPC overrides ──────────────────────────────────────────────────
+bpc_ng_size_min: Minimum ng-neighborhood size (used when alpha=0).
+bpc_ng_size_max: Maximum ng-neighborhood size (used when alpha=1).
+    Effective ng_size = bpc_ng_size_min + int(alpha *
+        (bpc_ng_size_max − bpc_ng_size_min)).
+bpc_max_bb_nodes_min: Minimum B&amp;B node cap (alpha=0).
+bpc_max_bb_nodes_max: Maximum B&amp;B node cap (alpha=1).
+bpc_cutting_planes: Cut family for BPC (&#39;rcc&#39;, &#39;saturated_arc_lci&#39;,
+    &#39;all&#39;, etc.).
+bpc_branching_strategy: Branching rule (&#39;divergence&#39;, &#39;ryan_foster&#39;,
+    &#39;edge&#39;).
+skip_bpc: Force-skip the BPC stage regardless of alpha or time budget.
+    Useful for very large instances or pure-heuristic runs.
+
+# ── SP-merge overrides ─────────────────────────────────────────────
+sp_pool_cap: Maximum number of routes kept in the SP-merge MIP.
+    If the collected pool exceeds this cap, the top-half by profit and
+    a random sample of the rest are retained.
+sp_mip_gap: Relative gap at which the SP MIP is considered solved.
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alpha" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>120.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_max_iterations">
+<span class="sig-name descname"><span class="pre">alns_max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_max_iterations" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_segment_size">
+<span class="sig-name descname"><span class="pre">alns_segment_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_segment_size" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_reaction_factor">
+<span class="sig-name descname"><span class="pre">alns_reaction_factor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_reaction_factor" title="Link to this definition">#</a></dt>
+<dd><p>0.1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_cooling_rate">
+<span class="sig-name descname"><span class="pre">alns_cooling_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_cooling_rate" title="Link to this definition">#</a></dt>
+<dd><p>0.995</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_start_temp_control">
+<span class="sig-name descname"><span class="pre">alns_start_temp_control</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_start_temp_control" title="Link to this definition">#</a></dt>
+<dd><p>0.05</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_1">
+<span class="sig-name descname"><span class="pre">alns_sigma_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_1" title="Link to this definition">#</a></dt>
+<dd><p>33.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_2">
+<span class="sig-name descname"><span class="pre">alns_sigma_2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_2" title="Link to this definition">#</a></dt>
+<dd><p>9.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_3">
+<span class="sig-name descname"><span class="pre">alns_sigma_3</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_3" title="Link to this definition">#</a></dt>
+<dd><p>13.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_xi">
+<span class="sig-name descname"><span class="pre">alns_xi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_xi" title="Link to this definition">#</a></dt>
+<dd><p>0.4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_min_removal">
+<span class="sig-name descname"><span class="pre">alns_min_removal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_min_removal" title="Link to this definition">#</a></dt>
+<dd><p>4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_noise_factor">
+<span class="sig-name descname"><span class="pre">alns_noise_factor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_noise_factor" title="Link to this definition">#</a></dt>
+<dd><p>0.025</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_worst_removal_randomness">
+<span class="sig-name descname"><span class="pre">alns_worst_removal_randomness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_worst_removal_randomness" title="Link to this definition">#</a></dt>
+<dd><p>3.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_shaw_randomization">
+<span class="sig-name descname"><span class="pre">alns_shaw_randomization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_shaw_randomization" title="Link to this definition">#</a></dt>
+<dd><p>6.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_regret_pool">
+<span class="sig-name descname"><span class="pre">alns_regret_pool</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_regret_pool" title="Link to this definition">#</a></dt>
+<dd><p>‘regret234’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_extended_operators">
+<span class="sig-name descname"><span class="pre">alns_extended_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_extended_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_profit_aware_operators">
+<span class="sig-name descname"><span class="pre">alns_profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_vrpp">
+<span class="sig-name descname"><span class="pre">alns_vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_engine">
+<span class="sig-name descname"><span class="pre">alns_engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_engine" title="Link to this definition">#</a></dt>
+<dd><p>‘custom’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_min">
+<span class="sig-name descname"><span class="pre">bpc_ng_size_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_min" title="Link to this definition">#</a></dt>
+<dd><p>8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_max">
+<span class="sig-name descname"><span class="pre">bpc_ng_size_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_max" title="Link to this definition">#</a></dt>
+<dd><p>16</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_min">
+<span class="sig-name descname"><span class="pre">bpc_max_bb_nodes_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_min" title="Link to this definition">#</a></dt>
+<dd><p>200</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_max">
+<span class="sig-name descname"><span class="pre">bpc_max_bb_nodes_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_max" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_cutting_planes">
+<span class="sig-name descname"><span class="pre">bpc_cutting_planes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_cutting_planes" title="Link to this definition">#</a></dt>
+<dd><p>‘rcc’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_branching_strategy">
+<span class="sig-name descname"><span class="pre">bpc_branching_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_branching_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘divergence’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.skip_bpc">
+<span class="sig-name descname"><span class="pre">skip_bpc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.skip_bpc" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_pool_cap">
+<span class="sig-name descname"><span class="pre">sp_pool_cap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_pool_cap" title="Link to this definition">#</a></dt>
+<dd><p>50000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_mip_gap">
+<span class="sig-name descname"><span class="pre">sp_mip_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_mip_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.stage_budgets">
+<span class="sig-name descname"><span class="pre">stage_budgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.stage_budgets" title="Link to this definition">#</a></dt>
+<dd><p>Compute per-stage time budgets from alpha and total time_limit.</p>
+<p>Returns:
+(tau_tcf, tau_alns, tau_bpc, tau_sp) — guaranteed to sum to
+self.time_limit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_iterations">
+<span class="sig-name descname"><span class="pre">alns_iterations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_iterations" title="Link to this definition">#</a></dt>
+<dd><p>Effective ALNS iteration count (respects explicit override).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size">
+<span class="sig-name descname"><span class="pre">bpc_ng_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size" title="Link to this definition">#</a></dt>
+<dd><p>Effective ng-neighborhood size, linearly interpolated by alpha.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes">
+<span class="sig-name descname"><span class="pre">bpc_max_bb_nodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes" title="Link to this definition">#</a></dt>
+<dd><p>Effective B&amp;B node cap, linearly interpolated by alpha.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.as_alns_values_dict">
+<span class="sig-name descname"><span class="pre">as_alns_values_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.as_alns_values_dict" title="Link to this definition">#</a></dt>
+<dd><p>Build the <code class="docutils literal notranslate"><span class="pre">values</span></code> dict expected by the existing ALNS dispatcher.</p>
+<p>The ALNS dispatcher (<code class="docutils literal notranslate"><span class="pre">run_alns</span></code>) accepts a flat dict whose keys mirror
+<code class="docutils literal notranslate"><span class="pre">ALNSParams</span></code> field names.  This method projects the pipeline params
+onto that dict so the existing ALNS code can be called without changes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams" title="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams"><span class="pre">src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create ExactGuidedHeuristicParams from a dict or config object.</p>
+<p>Silently ignores unknown keys so the YAML can contain extra fields
+without causing hard failures.</p>
+<p>Args:
+config: dict or any object whose attributes mirror ExactGuidedHeuristicParams
+field names.</p>
+<p>Returns:
+ExactGuidedHeuristicParams: Initialized parameter object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Serialize all fields to a plain dict.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of field names to their current values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.policies.route_construction.matheuristics.exact_guided_heuristic.policy_egh.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.exact_guided_heuristic.policy_egh</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alpha"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.time_limit"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.seed"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_max_iterations"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_max_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_segment_size"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_segment_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_reaction_factor"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_reaction_factor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_cooling_rate"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_cooling_rate</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_start_temp_control"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_start_temp_control</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_1"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_1</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_2"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_2</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_sigma_3"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_sigma_3</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_xi"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_xi</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_min_removal"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_min_removal</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_noise_factor"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_noise_factor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_worst_removal_randomness"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_worst_removal_randomness</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_shaw_randomization"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_shaw_randomization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_regret_pool"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_regret_pool</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_extended_operators"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_extended_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_vrpp"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_engine"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_min"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size_max"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_min"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes_min</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes_max"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes_max</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_cutting_planes"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_cutting_planes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_branching_strategy"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.skip_bpc"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.skip_bpc</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_pool_cap"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.sp_pool_cap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.sp_mip_gap"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.sp_mip_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.stage_budgets"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.stage_budgets()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.alns_iterations"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.alns_iterations()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_ng_size"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_ng_size()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.bpc_max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.bpc_max_bb_nodes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.as_alns_values_dict"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.as_alns_values_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.from_config"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams.to_dict"><code class="docutils literal notranslate"><span class="pre">ExactGuidedHeuristicParams.to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
