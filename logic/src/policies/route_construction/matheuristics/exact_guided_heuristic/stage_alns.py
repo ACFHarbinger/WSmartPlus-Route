@@ -57,6 +57,9 @@ class _PoolHarvestingALNS(ALNSSolver):
     routes are converted to ``VRPPRoute`` objects and added to the pool.
     Only the ``_update_weights`` hook is overridden — all ALNS logic is
     inherited unchanged from the parent.
+
+    Attributes:
+        _harvest_pool: Route pool.
     """
 
     def __init__(
@@ -65,6 +68,17 @@ class _PoolHarvestingALNS(ALNSSolver):
         pool: RoutePool,
         **kwargs,
     ) -> None:
+        """
+        Initialize the PoolHarvestingALNS.
+
+        Args:
+            pool: Route pool.
+            args: Positional arguments to pass to the parent constructor.
+            kwargs: Keyword arguments to pass to the parent constructor.
+
+        Returns:
+            None
+        """
         super().__init__(*args, **kwargs)
         self._harvest_pool = pool
 
@@ -110,6 +124,14 @@ class _PoolHarvestingALNS(ALNSSolver):
 
     # Override the operator application to harvest candidate routes
     def _select_and_apply_operators(self, current_routes: List[List[int]]) -> Tuple[List[List[int]], int, int]:
+        """Select and apply operators.
+
+        Args:
+            current_routes: Current routes.
+
+        Returns:
+            Tuple of (new_routes, d_idx, r_idx).
+        """
         new_routes, d_idx, r_idx = super()._select_and_apply_operators(current_routes)
         self._record_routes(new_routes)
         return new_routes, d_idx, r_idx

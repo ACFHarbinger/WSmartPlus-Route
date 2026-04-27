@@ -32,6 +32,23 @@ class ACOSolver(PolicyVizMixin):
     Ant Colony System solver for CVRP/VRPP.
 
     Implements ACS with pheromone storage.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix.
+        wastes (Dict[int, float]): Dictionary of node wastes {node_idx: waste}.
+        capacity (float): Maximum vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        params (ACOParams): ACO hyperparameters.
+        mandatory_nodes (Optional[List[int]]): List of mandatory node indices.
+        n_nodes (int): Number of nodes.
+        nodes (List[int]): List of node indices.
+        eta (np.ndarray): Heuristic values (1/distance).
+        tau_0 (float): Initial pheromone value.
+        pheromone (PheromoneTau): Pheromone matrix.
+        ls (ACOLocalSearch): Local search instance.
+        constructor (SolutionConstructor): Solution constructor instance.
+        candidate_lists (Dict[int, List[int]]): Candidate lists.
     """
 
     def __init__(
@@ -114,7 +131,14 @@ class ACOSolver(PolicyVizMixin):
         )
 
     def _nearest_neighbor_cost(self) -> float:
-        """Compute cost of nearest neighbor tour for tau_0 initialization."""
+        """Compute cost of nearest neighbor tour for tau_0 initialization.
+
+        Args:
+            dist_matrix: Distance matrix.
+
+        Returns:
+            float: Cost of nearest neighbor tour.
+        """
         visited = set([0])
         current = 0
         cost = 0.0
@@ -135,7 +159,15 @@ class ACOSolver(PolicyVizMixin):
         return cost
 
     def _build_candidate_lists(self) -> Dict[int, List[int]]:
-        """Build k-nearest neighbor candidate lists for each node."""
+        """Build k-nearest neighbor candidate lists for each node.
+
+        Args:
+            dist_matrix: Distance matrix.
+            k: Number of nearest neighbors to consider.
+
+        Returns:
+            Dict[int, List[int]]: Dictionary mapping each node to its k-nearest neighbors.
+        """
         candidates: Dict[int, List[int]] = {}
         k = min(self.params.k_sparse, len(self.nodes))
 
@@ -207,6 +239,13 @@ class ACOSolver(PolicyVizMixin):
         Apply ACS global pheromone update on best-so-far solution.
 
         Only edges in the best solution receive pheromone deposit.
+
+        Args:
+            best_routes: List of routes in the best solution.
+            best_cost: Cost of the best solution.
+
+        Returns:
+            None
         """
         if not best_routes or best_cost <= 0:
             return
@@ -232,7 +271,14 @@ class ACOSolver(PolicyVizMixin):
             self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing cost."""
+        """Calculate total routing cost.
+
+        Args:
+            routes: List of routes, where each route is a list of node indices.
+
+        Returns:
+            float: Total routing cost.
+        """
         total = 0.0
         for route in routes:
             if not route:

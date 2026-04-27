@@ -44,6 +44,7 @@ def regret_2_insertion(
         capacity: Vehicle capacity.
         R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
+        cost_unit: Cost unit (Optional).
 
     Returns:
         List[List[int]]: New routes after insertion.
@@ -88,6 +89,7 @@ def regret_k_insertion(  # noqa: C901
         k: Regret degree (2, 3, etc.).
         R: Revenue multiplier (Optional).
         mandatory_nodes: Optional list of mandatory node indices.
+        cost_unit: Cost unit (Optional).
 
     Returns:
         List[List[int]]: New routes after insertion.

@@ -44,6 +44,7 @@ def greedy_insertion(
         R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
         mandatory_nodes: List of mandatory node indices.
         cost_unit: Cost per distance unit.
+        expand_pool: Whether to expand the pool of candidates to all unvisited nodes.
 
     Returns:
         List[List[int]]: New routes after insertion.

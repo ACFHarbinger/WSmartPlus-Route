@@ -143,7 +143,14 @@ def _action_to_budget_fracs(action: np.ndarray) -> Dict[str, float]:
 
 
 def _action_to_operator_multipliers(action: np.ndarray) -> np.ndarray:
-    """Convert a raw 3-dim action vector to operator weight multipliers."""
+    """Convert a raw 3-dim action vector to operator weight multipliers.
+
+    Args:
+        action: Values in [0, 1], one per operator type.
+
+    Returns:
+        Array of operator multipliers.
+    """
     return np.clip(action[:3], 0.5, 2.0)
 
 
@@ -165,29 +172,75 @@ class _LinUCBArm:
     """
 
     def __init__(self, d: int, lam: float = 1.0) -> None:
+        """Initialize LinUCB arm.
+
+        Args:
+            d: Dimension.
+            lam: Regularisation term.
+
+        Returns:
+            None
+        """
         self.A_diag = np.ones(d) * lam
         self.b = np.zeros(d)
         self._lam = lam
         self._count = 0
 
     def theta(self) -> np.ndarray:
+        """Compute parameter estimate θ = A⁻¹ b.
+
+        Returns:
+            Parameter estimate.
+        """
         return self.b / self.A_diag
 
     def ucb(self, x: np.ndarray, alpha: float) -> float:
+        """Compute upper confidence bound.
+
+        Args:
+            x: Feature vector.
+            alpha: Confidence parameter.
+
+        Returns:
+            Upper confidence bound.
+        """
         th = self.theta()
         var = x / self.A_diag  # diagonal A^{-1} x
         return float(th @ x) + alpha * float(np.sqrt(x @ var))
 
     def update(self, x: np.ndarray, reward: float) -> None:
+        """Update the arm with new data.
+
+        Args:
+            x: Feature vector.
+            reward: Reward value.
+
+        Returns:
+            None
+        """
         self.A_diag += x**2
         self.b += reward * x
         self._count += 1
 
     def to_dict(self) -> Dict:
+        """Convert to dict for persistence.
+
+        Returns:
+            Dict with arm data.
+        """
         return {"A_diag": self.A_diag.tolist(), "b": self.b.tolist(), "lam": self._lam, "count": self._count}
 
     @classmethod
     def from_dict(cls, d: int, data: Dict) -> "_LinUCBArm":
+        """Convert from dict to arm.
+
+        Args:
+            d: Dimension.
+            data: Arm data.
+
+        Returns:
+            _LinUCBArm.
+        """
         arm = cls(d, data["lam"])
         arm.A_diag = np.array(data["A_diag"])
         arm.b = np.array(data["b"])
@@ -198,21 +251,49 @@ class _LinUCBArm:
 class _SlidingWindowStats:
     """Tracks per-arm sliding-window mean reward for non-stationarity detection.
 
-    Args:
-        window: Window length (0 = infinite / stationary).
+    Attributes:
+        _win: Window length (0 = infinite / stationary).
+        _buf: Buffer to store rewards.
+        _n: Number of arms.
     """
 
     def __init__(self, n_arms: int, window: int) -> None:
+        """Initialize sliding window with rewards.
+
+        Args:
+            n_arms: Number of arms.
+            window: Window length.
+
+        Returns:
+            None
+        """
         self._n = n_arms
         self._win = window
         self._buf: List[List[Tuple[int, float]]] = [[] for _ in range(n_arms)]
 
     def update(self, arm: int, reward: float) -> None:
+        """Update sliding window with reward.
+
+        Args:
+            arm: Arm index.
+            reward: Reward to add.
+
+        Returns:
+            None
+        """
         self._buf[arm].append((time.perf_counter(), reward))
         if self._win > 0:
             self._buf[arm] = self._buf[arm][-self._win :]
 
     def mean(self, arm: int) -> float:
+        """Get mean reward for an arm.
+
+        Args:
+            arm: Arm index.
+
+        Returns:
+            Mean reward.
+        """
         buf = self._buf[arm]
         if not buf:
             return 0.0
@@ -453,7 +534,14 @@ class RLController:
             return delta_profit
 
     def _default_action(self, alpha_defaults: Optional[Dict[str, float]]) -> Dict[str, Any]:
-        """Return alpha-derived defaults as the action."""
+        """Return alpha-derived defaults as the action.
+
+        Args:
+            alpha_defaults: Pre-computed alpha-derived defaults.
+
+        Returns:
+            Default action.
+        """
         return {
             "budget_fracs": alpha_defaults or {},
             "operator_mults": np.ones(3),

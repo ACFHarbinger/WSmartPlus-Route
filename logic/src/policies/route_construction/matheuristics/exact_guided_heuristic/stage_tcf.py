@@ -51,7 +51,19 @@ def _build_route(
     C: float,
     source: str = "tcf",
 ) -> VRPPRoute:
-    """Construct a VRPPRoute from a local customer-node list."""
+    """Construct a VRPPRoute from a local customer-node list.
+
+    Args:
+        nodes: List of nodes.
+        dist: Distance matrix.
+        S: Dictionary of wastes.
+        R: Revenue factor.
+        C: Profit factor.
+        source: Source string.
+
+    Returns:
+        VRPPRoute: Route object.
+    """
     path = [0] + nodes + [0]
     cost = C * sum(dist[path[i]][path[i + 1]] for i in range(len(path) - 1))
     revenue = R * sum(S.get(n, 0.0) for n in nodes)
@@ -66,7 +78,18 @@ def _decompose_arcs(
     R: float,
     C: float,
 ) -> List[VRPPRoute]:
-    """Decompose an active arc set into depot-rooted tours via greedy DFS."""
+    """Decompose an active arc set into depot-rooted tours via greedy DFS.
+
+    Args:
+        arcs: List of arcs.
+        dist: Distance matrix.
+        S: Dictionary of wastes.
+        R: Revenue factor.
+        C: Profit factor.
+
+    Returns:
+        List of VRPPRoute.
+    """
     routes: List[VRPPRoute] = []
     visited: set = set()
 

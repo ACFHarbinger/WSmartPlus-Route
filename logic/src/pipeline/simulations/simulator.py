@@ -107,6 +107,7 @@ def init_single_sim_worker(
         cfg: Root configuration (used to initialize the repository).
         tracking_uri: WSTracker database directory from the parent process.
         tracking_run_id: UUID of the parent run to attach to.
+        task_count: Total number of tasks.
     """
     global _lock
     global _counter
@@ -417,6 +418,7 @@ def sequential_simulations(  # noqa: C901
         model_weights_path: Path to pretrained model weights.
         lock: Threading lock for file I/O synchronization.
         shared_metrics: Optional shared dict for real-time metrics.
+        task_count: Total number of tasks.
 
     Returns:
         Tuple containing:

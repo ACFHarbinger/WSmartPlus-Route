@@ -7,6 +7,13 @@ dispatching to specialized implementations based on configuration.
 Reference:
     Pisinger, D., & Ropke, S. (2007). A general heuristic for vehicle routing problems.
     Computers & Operations Research, 34(8), 2403-2435.
+
+Attributes:
+    LNSSolver: Implementation of Large Neighborhood Search for VRP variants.
+
+Examples:
+    >>> solver = LNSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes = solver.solve()
 """
 
 import copy
@@ -26,6 +33,28 @@ from .params import LNSParams
 class LNSSolver(PolicyVizMixin):
     """
     Custom implementation of Large Neighborhood Search for VRP variants.
+
+    Attributes:
+        dist_matrix (np.ndarray): NxN distance matrix.
+        wastes (Dict[int, float]): Dictionary of node wastes.
+        capacity (float): Maximum vehicle capacity.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        params (LNSParams): Detailed LNS parameters.
+        mandatory_nodes (Optional[List[int]]): List of mandatory node indices.
+        random (random.Random): Random number generator.
+        destroy_ops (List[Callable]): List of destroy operators.
+        repair_ops (List[Callable]): List of repair operators.
+        destroy_weights (List[float]): Weights for destroy operators.
+        repair_weights (List[float]): Weights for repair operators.
+        best_routes (List[List[int]]): Best routes found so far.
+        best_cost (float): Cost of the best solution found so far.
+        best_profit (float): Profit of the best solution found so far.
+        current_routes (List[List[int]]): Current routes.
+        current_cost (float): Cost of the current solution.
+        current_profit (float): Profit of the current solution.
+        n_nodes (int): Number of nodes.
+        nodes (List[int]): List of nodes.
     """
 
     def __init__(
@@ -96,8 +125,17 @@ class LNSSolver(PolicyVizMixin):
         self.destroy_weights = [1.0] * len(self.destroy_ops)
         self.repair_weights = [1.0] * len(self.repair_ops)
 
-    def _initialize_solve(self, initial_solution: Optional[List[List[int]]]):
-        """Initialize the solution and metrics for the solve process."""
+    def _initialize_solve(
+        self, initial_solution: Optional[List[List[int]]]
+    ) -> Tuple[List[List[int]], List[List[int]], float, float]:
+        """Initialize the solution and metrics for the solve process.
+
+        Args:
+            initial_solution: Optional starting solution. If None, a constructive heuristic is used.
+
+        Returns:
+            Tuple[List[List[int]], List[List[int]], float, float]: Current routes, best routes, best profit, and best cost.
+        """
         current_routes = initial_solution or self.build_initial_solution()
         best_routes = copy.deepcopy(current_routes)
 
@@ -108,8 +146,15 @@ class LNSSolver(PolicyVizMixin):
 
         return current_routes, best_routes, best_profit, best_cost
 
-    def _select_and_apply_operators(self, current_routes):
-        """Select destroy/repair operators and generate a new solution."""
+    def _select_and_apply_operators(self, current_routes: List[List[int]]) -> Tuple[List[List[int]], int, int]:
+        """Select destroy/repair operators and generate a new solution.
+
+        Args:
+            current_routes: Current routes.
+
+        Returns:
+            Tuple[List[List[int]], int, int]: New routes, destroy operator index, repair operator index.
+        """
         d_idx = self.select_operator(self.destroy_weights)
         r_idx = self.select_operator(self.repair_weights)
 
@@ -134,8 +179,17 @@ class LNSSolver(PolicyVizMixin):
 
         return new_routes, d_idx, r_idx
 
-    def _accept_solution(self, current_profit, new_profit, T):
-        """Determine whether to accept the new solution based on SA criteria."""
+    def _accept_solution(self, current_profit: float, new_profit: float, T: float) -> bool:
+        """Determine whether to accept the new solution based on SA criteria.
+
+        Args:
+            current_profit: Profit of the current solution.
+            new_profit: Profit of the new solution.
+            T: Temperature parameter.
+
+        Returns:
+            True if the new solution is accepted, False otherwise.
+        """
         delta = current_profit - new_profit
         if delta < -1e-6:
             return True
@@ -143,8 +197,17 @@ class LNSSolver(PolicyVizMixin):
             prob = math.exp(-delta / T) if T > 0 else 0
             return self.random.random() < prob
 
-    def _update_weights(self, d_idx, r_idx, score):
-        """Update the weights of the used operators."""
+    def _update_weights(self, d_idx: int, r_idx: int, score: float) -> None:
+        """Update the weights of the used operators.
+
+        Args:
+            d_idx: Index of the destroy operator used.
+            r_idx: Index of the repair operator used.
+            score: Score of the repair operator (profit improvement).
+
+        Returns:
+            None
+        """
         lambda_decay = 0.8
         self.destroy_weights[d_idx] = lambda_decay * self.destroy_weights[d_idx] + (1 - lambda_decay) * max(0.1, score)
         self.repair_weights[r_idx] = lambda_decay * self.repair_weights[r_idx] + (1 - lambda_decay) * max(0.1, score)

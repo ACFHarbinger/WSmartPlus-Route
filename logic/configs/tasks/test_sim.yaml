@@ -43,7 +43,7 @@ defaults:
   - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hgs_rr: policy_hgs_rr
   - /policies@p.hmm_gd_hh: policy_hmm_gd_hh
-  - /policies@p.hms: policy_hms
+  - /policies@p.hmlns: policy_hmlns
   - /policies@p.hna: policy_hna
   - /policies@p.hs: policy_hs
   - /policies@p.hulk: policy_hulk
@@ -68,6 +68,7 @@ defaults:
   - /policies@p.mp_ils: policy_mp_ils
   - /policies@p.mp_pso: policy_mp_pso
   - /policies@p.na: policy_na
+  - /policies@p.pg_clns: policy_pg_clns
   - /policies@p.ph: policy_ph
   - /policies@p.phh: policy_phh
   - /policies@p.popmusic: policy_popmusic
@@ -163,7 +164,7 @@ sim:
     - hgs_alns: ${p.hgs_alns.hgs_alns}
     - hgs_rr: ${p.hgs_rr.hgs_rr}
     - hmm_gd_hh: ${p.hmm_gd_hh.hmm_gd_hh}
-    - hms: ${p.hms.hms}
+    - hmlns: ${p.hmlns.hmlns}
     - hna: ${p.hna.hna}
     - hs: ${p.hs.hs}
     - hulk: ${p.hulk.hulk}
@@ -194,6 +195,7 @@ sim:
     - pso: ${p.pso.pso}
     - psoda: ${p.psoda.psoda}
     - psoma: ${p.psoma.psoma}
+    - pg_clns: ${p.pg_clns.pg_clns}
     - qde: ${p.qde.qde}
     - rens: ${p.rens.rens}
     - rfo: ${p.rfo.rfo}

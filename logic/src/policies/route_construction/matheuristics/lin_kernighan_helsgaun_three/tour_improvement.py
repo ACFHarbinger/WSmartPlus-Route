@@ -1013,6 +1013,15 @@ def check_acceptance(
     """
     Rigorous acceptance criterion merging Lexicographic bounds with a modular
     Acceptance Criterion (Boltzmann/Metropolis).
+
+    Args:
+        delta_p: Change in penalty.
+        delta_c: Change in cost.
+        curr_cost: Current cost.
+        acceptance_criterion: Acceptance criterion.
+
+    Returns:
+        bool: True if move is accepted, False otherwise.
     """
     # 1. Strict Penalty Improvement: Always accept if we significantly reduce capacity violations.
     if delta_p < -1e-6:

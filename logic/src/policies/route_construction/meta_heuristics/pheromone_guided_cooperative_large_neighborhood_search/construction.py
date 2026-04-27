@@ -6,10 +6,11 @@ Ants construct solutions by probabilistically selecting edges based on pheromone
 levels and heuristic information.
 
 Attributes:
-    None
+    SolutionConstructor: Class that constructs a single solution for an ant
+        using the k-sparse pheromone matrix and heuristic values.
 
 Example:
-    >>> from logic.src.policies.route_construction.meta_heuristics.hybrid_large_neighborhood_search.construction import SolutionConstructor
+    >>> from logic.src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.construction import SolutionConstructor
     >>> constructor = SolutionConstructor(...)
     >>> routes = constructor.construct()
 """
@@ -27,6 +28,21 @@ class SolutionConstructor:
     """
     Constructs a single solution (route set) for an ant using the
     k-sparse pheromone matrix and heuristic values.
+
+    Attributes:
+        dist_matrix (np.ndarray): Distance matrix between nodes.
+        wastes (Dict[int, float]): Dictionary of node wastes.
+        capacity (float): Vehicle capacity.
+        pheromone (PheromoneTau): Sparse pheromone matrix.
+        eta (np.ndarray): Heuristic information matrix (inverse of distances).
+        candidate_lists (Dict[int, List[int]]): Precomputed candidate lists for each node.
+        nodes (List[int]): List of all nodes (excluding depot).
+        params (ACOParams): ACO parameters.
+        tau_0 (float): Initial pheromone value.
+        R (float): Revenue multiplier.
+        C (float): Cost multiplier.
+        mandatory_nodes (set): Set of mandatory node indices.
+        random (random.Random): Random number generator.
     """
 
     def __init__(
@@ -155,6 +171,13 @@ class SolutionConstructor:
 
         With probability q0, select best node (exploitation).
         Otherwise, use roulette wheel selection (exploration).
+
+        Args:
+            current: Current node.
+            feasible: List of feasible nodes.
+
+        Returns:
+            Selected next node.
         """
         if self.random.random() < self.params.q0:
             # Exploitation: select best
@@ -195,6 +218,13 @@ class SolutionConstructor:
         Apply ACS local pheromone update rule.
 
         tau(i,j) = (1 - rho) * tau(i,j) + rho * tau_0
+
+        Args:
+            i: Current node.
+            j: Next node.
+
+        Returns:
+            None
         """
         rho = self.params.rho
         current = self.pheromone.get(i, j)

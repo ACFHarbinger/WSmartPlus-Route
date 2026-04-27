@@ -1085,7 +1085,23 @@ def _optimize_with_fast_tsp(
     seed: int,
     vrpp: bool = False,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using FastTSP + LinearSplit."""
+    """Optimize subproblem using FastTSP + LinearSplit.
+
+    Args:
+        subproblem_nodes: Subproblem nodes.
+        distance_matrix: Distance matrix.
+        wastes_dict: Wastes dictionary.
+        capacity: Vehicle capacity.
+        R: Revenue factor.
+        C: Profit factor.
+        config: FastTSP configuration.
+        time_limit: Time limit.
+        seed: Random seed.
+        vrpp: VRPP mode flag.
+
+    Returns:
+        Tuple of (new_routes, new_profit).
+    """
     actual_time_limit = time_limit
     if config and hasattr(config, "time_limit"):
         actual_time_limit = config.time_limit
@@ -1121,7 +1137,26 @@ def _optimize_with_hgs(
     profit_aware_operators: bool = False,
     subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using Hybrid Genetic Search (HGS)."""
+    """Optimize subproblem using Hybrid Genetic Search (HGS).
+
+    Args:
+        distance_matrix: Distance matrix.
+        wastes_dict: Wastes dictionary.
+        capacity: Vehicle capacity.
+        R: Revenue factor.
+        C: Profit factor.
+        neighborhood_indices: Neighborhood indices.
+        mandatory: Mandatory nodes.
+        config: HGS configuration.
+        time_limit: Time limit.
+        seed: Random seed.
+        vrpp: VRPP mode flag.
+        profit_aware_operators: Profit-aware operator flag.
+        subproblem_nodes: Subproblem nodes.
+
+    Returns:
+        Tuple of (new_routes, new_profit).
+    """
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for HGS optimization.")
 
@@ -1183,7 +1218,25 @@ def _optimize_with_alns(
     profit_aware_operators: bool = False,
     subproblem_nodes: Optional[List[int]] = None,
 ) -> Tuple[List[List[int]], float]:
-    """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS)."""
+    """Optimize subproblem using Adaptive Large Neighborhood Search (ALNS).
+
+    Args:
+        distance_matrix: Distance matrix.
+        wastes_dict: Wastes dictionary.
+        capacity: Vehicle capacity.
+        R: Revenue factor.
+        C: Profit factor.
+        mandatory: Mandatory nodes.
+        config: ALNS configuration.
+        time_limit: Time limit.
+        seed: Random seed.
+        vrpp: VRPP mode flag.
+        profit_aware_operators: Profit-aware operator flag.
+        subproblem_nodes: Subproblem nodes.
+
+    Returns:
+        Tuple of (new_routes, new_profit).
+    """
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for ALNS optimization.")
 
