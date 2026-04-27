@@ -4,6 +4,16 @@ Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS) Solver.
 Combines Ant Colony Optimization (ACO) for construction and global guidance
 with Large Neighborhood Search (LNS) for local improvement (Coaching),
 within a population-based framework guided by pheromones.
+
+Attributes:
+    PGCLNSSolver: Solver for PG-CLNS algorithm.
+
+
+Example:
+    >>> from logic.src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.pg_clns import PGCLNSSolver
+    >>> solver = PGCLNSSolver(dist_matrix, wastes, capacity, R, C, params)
+    >>> routes, profit, cost = solver.solve()
+    >>> print(routes, profit, cost)
 """
 
 import copy
@@ -21,7 +31,21 @@ from .params import PGCLNSParams
 
 class PGCLNSSolver(PolicyVizMixin):
     """
-    Pheromone-Guided Cooperative Large Neighborhood Search solver for VRP variants.
+    Pheromone-Guided Cooperative Large Neighborhood Search solver for VRP variants
+
+    Attributes:
+        dist_matrix: Distance matrix.
+        wastes: Dictionary of wastes.
+        capacity: Vehicle capacity.
+        R: Revenue per unit of waste.
+        C: Cost per unit of distance.
+        params: PGCLNS parameters.
+        mandatory_nodes: List of mandatory nodes.
+        seed: Random seed.
+        aco_internal: Internal ACO solver.
+        pheromone: Pheromone matrix.
+        constructor: ACO constructor.
+        coaching_solver: LNS solver.
     """
 
     def __init__(
@@ -35,6 +59,21 @@ class PGCLNSSolver(PolicyVizMixin):
         mandatory_nodes: Optional[List[int]] = None,
         seed: Optional[int] = None,
     ):
+        """
+        Initialize the solver.
+
+        Args:
+            dist_matrix: Distance matrix.
+            wastes: Dictionary of wastes.
+            capacity: Vehicle capacity.
+            R: Revenue per unit of waste.
+            C: Cost per unit of distance.
+            params: PGCLNS parameters.
+            mandatory_nodes: List of mandatory nodes.
+            seed: Random seed.
+        """
+        super().__init__()
+
         self.dist_matrix = dist_matrix
         self.wastes = wastes
         self.capacity = capacity
@@ -54,7 +93,10 @@ class PGCLNSSolver(PolicyVizMixin):
 
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
-        Run the HVPL algorithm.
+        Run the HVPL algorithm
+
+        Returns:
+            Tuple of (routes, profit, cost).
         """
         start_time = time.process_time()
 
@@ -121,21 +163,53 @@ class PGCLNSSolver(PolicyVizMixin):
         return best_routes, best_profit, best_cost
 
     def _canonicalize_routes(self, routes: List[List[int]]) -> List[List[int]]:
-        """Sort routes by their first node to ensure consistent ordering."""
+        """
+        Sort routes by their first node to ensure consistent ordering.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            List of routes sorted by their first node.
+        """
         return sorted([r for r in routes if r], key=lambda x: x[0] if x else 0)
 
     def _hash_routes(self, routes: List[List[int]]) -> str:
+        """
+        Generate a hash of the routes for deterministic tie-breaking.
+
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Hash of the routes.
+        """
         # Sort routes by their first node to ensure consistent ordering for hashing
         sorted_routes = sorted([r for r in routes if r], key=lambda x: x[0] if x else 0)
         return "|".join(",".join(map(str, r)) for r in sorted_routes)
 
     def _get_best(self, population: List[Tuple[List[List[int]], float, float]]) -> Tuple[List[List[int]], float, float]:
-        """Get the highest-profit solution from the population with deterministic tie-break."""
+        """Get the highest-profit solution from the population with deterministic tie-break
+
+        Args:
+            population: List of solutions, each being a tuple of (routes, profit, cost).
+
+        Returns:
+            The highest-profit solution from the population.
+        """
         # Use (profit, negative_cost, hash) for deterministic tie-breaking.
         return max(population, key=lambda x: (x[1], -x[2], self._hash_routes(x[0])))
 
     def _update_pheromones(self, routes: List[List[int]], cost: float) -> None:
-        """ACS style global pheromone update."""
+        """ACS style global pheromone update
+
+        Args:
+            routes: List of routes.
+            cost: Total routing distance.
+
+        Returns:
+            None
+        """
         if not routes or cost <= 0:
             return
 
@@ -153,7 +227,13 @@ class PGCLNSSolver(PolicyVizMixin):
             self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
-        """Calculate total routing distance."""
+        """Calculate total routing distance.
+        Args:
+            routes: List of routes.
+
+        Returns:
+            Total routing distance.
+        """
         total = 0.0
         for route in routes:
             if not route:

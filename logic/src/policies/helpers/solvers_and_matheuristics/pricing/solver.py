@@ -406,6 +406,15 @@ class RCSPPSolver:
         1. Sorting nodes by reduced cost (revenue - dual) descending
         2. Greedily building routes using nearest-neighbor with capacity check
         3. Only returning routes with positive reduced cost
+
+        Args:
+            max_routes: Maximum number of routes to generate.
+            node_duals: Dual values for nodes.
+            rcc_duals: Dual values for route-covering constraints.
+            forbidden_arcs: Set of forbidden arcs.
+
+        Returns:
+            List of routes with positive reduced cost.
         """
         if self.is_farkas:
             return []  # heuristic doesn't handle Farkas pricing

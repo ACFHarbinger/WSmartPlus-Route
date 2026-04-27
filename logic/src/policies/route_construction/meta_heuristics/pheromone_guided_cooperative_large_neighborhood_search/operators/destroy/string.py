@@ -117,6 +117,14 @@ def _propagate_string_removal(
     After removing a string, look at the spatial neighbors of the removed nodes
     and remove strings from their routes as well. This creates a concentrated
     "disaster zone" across multiple routes.
+
+    Args:
+        routes: Partial routes.
+        removed: List of removed node IDs.
+        dist_matrix: Distance matrix.
+        seed_nodes: Seed nodes for string removal.
+        n_remove: Target number of removals.
+        max_string_len: Maximum length of a string to remove.
     """
     # Find neighbors of removed string
     neighbor_candidates = []

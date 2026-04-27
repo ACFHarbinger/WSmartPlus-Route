@@ -52,13 +52,14 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import (
-    HyperHeuristicACO,
-)
-from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
+
+from .alns import (
     ALNSSolver,
 )
-from logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.params import (
+from .maco import (
+    MemeticACOSolver,
+)
+from .params import (
     HybridMemeticLargeNeighborhoodSearchParams,
 )
 
@@ -121,7 +122,7 @@ class HybridMemeticLargeNeighborhoodSearchSolver:
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # Initialize MACO solver for population initialization
-        self.maco_solver = HyperHeuristicACO(
+        self.maco_solver = MemeticACOSolver(
             dist_matrix=dist_matrix,
             wastes=wastes,
             capacity=capacity,
@@ -264,7 +265,7 @@ class HybridMemeticLargeNeighborhoodSearchSolver:
 
         # Run truncated MACO iterations
         for _ in range(self.params.aco_init_iterations):
-            routes = self.maco_solver.construct(self.nodes, self.mandatory_nodes)
+            routes = self.maco_solver.constructor.construct()
             if routes:
                 population.append(routes)
 
@@ -550,7 +551,7 @@ class HybridMemeticLargeNeighborhoodSearchSolver:
             return
 
         # Evaporate
-        self.maco_solver.evaporate_all()
+        self.maco_solver.pheromone.evaporate_all(self.params.aco_params.rho)
 
         # Deposit on best solution edges
         delta = 1.0 / cost

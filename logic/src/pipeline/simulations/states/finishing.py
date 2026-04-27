@@ -181,7 +181,6 @@ class FinishingState(SimState):
                         display_simulation_summary_table(
                             all_aggregated_results,
                             title=f"Simulation Summary: [bold cyan]{sim.graph.area}[/] ({sim.n_samples} Samples, {sim.days} Days)",
-                            lock=lock,
                         )
 
         # Forward final aggregated metrics to the centralised tracker (no-op if no run active)

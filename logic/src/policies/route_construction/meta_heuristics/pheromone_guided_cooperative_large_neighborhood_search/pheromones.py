@@ -22,6 +22,14 @@ class PheromoneTau:
 
     For each node, maintains a heap of the k highest pheromone values
     to its neighbors. Unrepresented edges default to tau_0.
+
+    Attributes:
+        n_nodes: Total number of nodes (including depot).
+        k: Maximum edges to store per node.
+        tau_0: Default pheromone value for unrepresented edges.
+        tau_min: Minimum pheromone bound.
+        tau_max: Maximum pheromone bound.
+        _pheromone: Sparse storage of pheromone values.
     """
 
     def __init__(self, n_nodes: int, k: int, tau_0: float, tau_min: float, tau_max: float):
@@ -45,7 +53,16 @@ class PheromoneTau:
         self._pheromone: Dict[int, Dict[int, float]] = defaultdict(dict)
 
     def get(self, i: int, j: int) -> float:
-        """Get pheromone value for edge (i, j)."""
+        """
+        Get pheromone value for edge (i, j).
+
+        Args:
+            i: Source node.
+            j: Destination node.
+
+        Returns:
+            Pheromone value for edge (i, j).
+        """
         if j in self._pheromone[i]:
             return self._pheromone[i][j]
         return self.tau_0
@@ -55,6 +72,14 @@ class PheromoneTau:
         Set pheromone value for edge (i, j).
 
         If storage for node i exceeds k, evict the lowest value.
+
+        Args:
+            i: Source node.
+            j: Destination node.
+            value: Pheromone value to set.
+
+        Returns:
+            None
         """
         value = max(self.tau_min, min(self.tau_max, value))
 
@@ -86,7 +111,15 @@ class PheromoneTau:
         self.set(i, j, new_value)
 
     def evaporate_all(self, rho: float) -> None:
-        """Apply global evaporation to all stored pheromones."""
+        """
+        Apply global evaporation to all stored pheromones.
+
+        Args:
+            rho: Evaporation rate.
+
+        Returns:
+            None
+        """
         for i in self._pheromone:
             for j in list(self._pheromone[i].keys()):
                 self._pheromone[i][j] *= 1 - rho

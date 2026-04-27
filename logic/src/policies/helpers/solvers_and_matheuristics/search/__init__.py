@@ -4,7 +4,7 @@ This package provides components for tree exploration strategies and
 valid inequality separation (cutting planes) used in exact and
 decomposition-based solvers.
 
-Exposes:
+Attributes:
     CuttingPlaneEngine (class): Abstract base class for cut separation.
     RoundedCapacityCutEngine (class): Standard VRP capacity cuts.
     SubsetRowCutEngine (class): Three-row subset row cuts for Set Partitioning.
@@ -17,12 +17,19 @@ Exposes:
     CompositeCuttingPlaneEngine (class): Orchestrator for multiple engines.
     create_cutting_plane_engine (function): Factory for cutting plane engines.
 
-
     NodeSelectionStrategy (class): Abstract base class for B&B tree search.
     BestFirstSearch (class): BFS strategy.
     DepthFirstSearch (class): DFS strategy.
     HybridSearchStrategy (class): Combined DFS/BFS strategy.
     create_search_strategy (function): Factory for search strategies.
+
+Example:
+    >>> from logic.src.policies.helpers.solvers_and_matheuristics.search import (
+    >>>     BestFirstSearch,
+    >>>     create_search_strategy,
+    >>> )
+    >>> search = create_search_strategy("best_first")
+    >>> search = BestFirstSearch()
 """
 
 from .cutting_planes import (

@@ -153,18 +153,39 @@ class ExactGuidedHeuristicParams:
         )
 
     def alns_iterations(self) -> int:
-        """Effective ALNS iteration count (respects explicit override)."""
+        """Effective ALNS iteration count (respects explicit override).
+
+        Args:
+            None
+
+        Returns:
+            Effective ALNS iteration count.
+        """
         if self.alns_max_iterations > 0:
             return self.alns_max_iterations
         return max(500, int(2_000 + 18_000 * max(0.0, min(1.0, self.alpha))))
 
     def bpc_ng_size(self) -> int:
-        """Effective ng-neighborhood size, linearly interpolated by alpha."""
+        """Effective ng-neighborhood size, linearly interpolated by alpha.
+
+        Args:
+            None
+
+        Returns:
+            Effective ng-neighborhood size.
+        """
         a = max(0.0, min(1.0, self.alpha))
         return self.bpc_ng_size_min + int(a * (self.bpc_ng_size_max - self.bpc_ng_size_min))
 
     def bpc_max_bb_nodes(self) -> int:
-        """Effective B&B node cap, linearly interpolated by alpha."""
+        """Effective B&B node cap, linearly interpolated by alpha.
+
+        Args:
+            None
+
+        Returns:
+            Effective B&B node cap.
+        """
         a = max(0.0, min(1.0, self.alpha))
         return self.bpc_max_bb_nodes_min + int(a * (self.bpc_max_bb_nodes_max - self.bpc_max_bb_nodes_min))
 
@@ -174,6 +195,12 @@ class ExactGuidedHeuristicParams:
         The ALNS dispatcher (``run_alns``) accepts a flat dict whose keys mirror
         ``ALNSParams`` field names.  This method projects the pipeline params
         onto that dict so the existing ALNS code can be called without changes.
+
+        Args:
+            None
+
+        Returns:
+            Dict with ALNS parameters.
         """
         return {
             "engine": self.alns_engine,

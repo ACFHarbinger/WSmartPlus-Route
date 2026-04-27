@@ -78,6 +78,14 @@ class HyperACOParams:
     seed: Optional[int] = None
 
     def __post_init__(self) -> None:
+        """Validate parameters.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If any parameter is invalid.
+        """
         if not (0 < self.rho < 1):
             raise ValueError(f"Evaporation rate rho must be in (0, 1), got {self.rho}")
         if self.Q < 0:
@@ -87,6 +95,14 @@ class HyperACOParams:
 
     @classmethod
     def from_config(cls, config: Any) -> HyperACOParams:
+        """Create HyperACOParams from a configuration object.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            HyperACOParams: The parameters for the HyperACO algorithm.
+        """
         return cls(
             n_ants=getattr(config, "n_ants", 10),
             alpha=getattr(config, "alpha", 1.0),

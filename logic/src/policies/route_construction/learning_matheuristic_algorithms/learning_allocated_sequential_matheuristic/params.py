@@ -45,8 +45,8 @@ from typing import Any, Dict, List, Optional, Tuple
 class LASMPipelineParams:
     """Configuration for the LBBD → ALNS → BPC → RL → SP pipeline.
 
-    Attributes
-    ----------
+    Attributes:
+    -----------
     alpha : float
         Quality/speed dial ∈ [0, 1].
     time_limit : float
@@ -224,6 +224,16 @@ class LASMPipelineParams:
     sp_mip_gap: float = 1e-4
 
     def __post_init__(self) -> None:
+        """Post-initialization hook.
+
+        Sets default values for optional parameters.
+
+        Args:
+            self: The configuration object.
+
+        Returns:
+            None
+        """
         if self.lbbd_cut_families is None:
             self.lbbd_cut_families = ["nogood", "optimality", "pareto"]
         if self.rl_state_features is None:
@@ -287,21 +297,39 @@ class LASMPipelineParams:
         )
 
     def alns_iterations(self) -> int:
-        """Effective ALNS iteration count."""
+        """Effective ALNS iteration count.
+
+        Returns:
+            int: The number of ALNS iterations.
+        """
         if self.alns_max_iterations > 0:
             return self.alns_max_iterations
         return max(500, int(2_000 + 18_000 * max(0.0, min(1.0, self.alpha))))
 
     def bpc_ng_size(self) -> int:
+        """Compute B&B node generation pool size.
+
+        Returns:
+            int: The B&B node generation pool size.
+        """
         a = max(0.0, min(1.0, self.alpha))
         return self.bpc_ng_size_min + int(a * (self.bpc_ng_size_max - self.bpc_ng_size_min))
 
     def bpc_max_bb_nodes(self) -> int:
+        """Compute B&B maximum number of nodes.
+
+        Returns:
+            int: The B&B maximum number of nodes.
+        """
         a = max(0.0, min(1.0, self.alpha))
         return self.bpc_max_bb_nodes_min + int(a * (self.bpc_max_bb_nodes_max - self.bpc_max_bb_nodes_min))
 
     def as_alns_values_dict(self) -> Dict[str, Any]:
-        """Build the flat dict expected by the existing ALNSParams.from_config."""
+        """Build the flat dict expected by the existing ALNSParams.from_config.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation of the ALNS parameters.
+        """
         return {
             "engine": self.alns_engine,
             "time_limit": 0.0,
@@ -335,7 +363,11 @@ class LASMPipelineParams:
     def from_config(cls, config: Any) -> "LASMPipelineParams":
         """Construct from a dict or attribute-bearing object.
 
-        Unknown keys are silently ignored.
+        Args:
+            config: The configuration object.
+
+        Returns:
+            LASMPipelineParams: The configuration object.
         """
         if config is None:
             return cls()
@@ -350,4 +382,9 @@ class LASMPipelineParams:
         return cls(**raw)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a dictionary representation of the parameters.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation.
+        """
         return {f.name: getattr(self, f.name) for f in fields(self)}

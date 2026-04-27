@@ -539,6 +539,7 @@ def solve_lkh3(  # noqa: C901
         dynamic_topology_discovery: Whether to discover k-opt topologies dynamically.
         native_prize_collecting: Whether to use native prize collecting algorithm.
         subgradient_iterations: Number of subgradient optimization iterations.
+        sa_max_trials: Number of simulated annealing trials.
 
     Returns:
         Tuple[List[List[int]], float, float]: Best routes, travel cost, and penalty.

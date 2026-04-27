@@ -53,10 +53,24 @@ class VRPPRoute:
 
         Two routes visiting the same customers in any order share a key.
         Within the pool, the higher-profit route is retained on collision.
+
+        Args:
+            None
+
+        Returns:
+            Canonical key.
         """
         return frozenset(self.nodes)
 
     def __repr__(self) -> str:
+        """Return a string representation of the route.
+
+        Args:
+            None
+
+        Returns:
+            String representation of the route.
+        """
         return (
             f"VRPPRoute(nodes={self.nodes!r}, profit={self.profit:.4f}, load={self.load:.2f}, source={self.source!r})"
         )
@@ -81,6 +95,11 @@ class RoutePool:
     """
 
     def __init__(self) -> None:
+        """Initialize the route pool.
+
+        Returns:
+            None
+        """
         self._lock: threading.Lock = threading.Lock()
         self._pool: Dict[FrozenSet[int], VRPPRoute] = {}
 
@@ -124,6 +143,9 @@ class RoutePool:
 
         Args:
             capacity: Vehicle capacity Q.
+
+        Returns:
+            None
         """
         with self._lock:
             self._pool = {k: r for k, r in self._pool.items() if r.load <= capacity + 1e-6}
@@ -151,11 +173,26 @@ class RoutePool:
         return max(routes, key=lambda r: r.profit) if routes else None
 
     def __len__(self) -> int:
+        """Return the number of routes in the pool.
+
+        Returns:
+            Number of routes in the pool.
+        """
         with self._lock:
             return len(self._pool)
 
     def __iter__(self) -> Iterator[VRPPRoute]:
+        """Return an iterator over the routes in the pool.
+
+        Returns:
+            Iterator over the routes in the pool.
+        """
         return iter(self.routes())
 
     def __repr__(self) -> str:
+        """Return a string representation of the route pool.
+
+        Returns:
+            String representation of the route pool.
+        """
         return f"RoutePool(n={len(self)})"

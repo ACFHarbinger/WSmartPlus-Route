@@ -20,9 +20,10 @@ Example:
 from __future__ import annotations
 
 from dataclasses import MISSING, dataclass, field, fields
-from typing import Any, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+if TYPE_CHECKING:
+    from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 # ---------------------------------------------------------------------------
 # MACO (Memetic Ant Colony Optimization)
@@ -146,7 +147,14 @@ class MACOParams:
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     def __post_init__(self) -> None:
-        """Validate parameters."""
+        """Validate parameters.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If any parameter is invalid.
+        """
         if not (0 < self.rho < 1):
             raise ValueError(f"Evaporation rate rho must be in (0, 1), got {self.rho}")
         if self.scale < 0:
@@ -161,7 +169,14 @@ class MACOParams:
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> MACOParams:
-        """Create MACOParams from a configuration object."""
+        """Create MACOParams from a configuration object.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            MACOParams: The parameters for the MACO algorithm.
+        """
         if config is None:
             return cls()
 
@@ -169,14 +184,11 @@ class MACOParams:
         if isinstance(config, dict):
             raw_data = config
         else:
-            from dataclasses import fields
-
             for f in fields(cls):
                 if hasattr(config, f.name):
                     raw_data[f.name] = getattr(config, f.name)
 
         kwargs: Dict[str, Any] = {}
-        from dataclasses import fields
 
         for f in fields(cls):
             if f.name == "acceptance_criterion":
@@ -280,13 +292,18 @@ class ALNSParams:
 
     @classmethod
     def from_config(cls, config: Any) -> ALNSParams:
-        """Create ALNSParams from an ALNSConfig dataclass or dict."""
+        """Create ALNSParams from an ALNSConfig dataclass or dict.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            ALNSParams: The parameters for the ALNS algorithm.
+        """
         if config is None:
             return cls()
 
         if isinstance(config, dict):
-            from dataclasses import fields
-
             params = cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
         else:
             params = cls(
@@ -397,6 +414,12 @@ class HybridMemeticLargeNeighborhoodSearchParams:
         Build params from an OmegaConf / dataclass-like config object.
 
         Follows the CALM pattern for hydrating nested subsystems.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            HybridMemeticLargeNeighborhoodSearchParams: The parameters for the HMLNS algorithm.
         """
 
         def _hydrate(sub_cls: Type, sub_cfg: Any) -> Any:
@@ -431,5 +454,9 @@ class HybridMemeticLargeNeighborhoodSearchParams:
 
     @property
     def max_iterations(self) -> int:
-        """Alias for max_generations for legacy compatibility."""
+        """Alias for max_generations for legacy compatibility.
+
+        Returns:
+            int: The maximum number of iterations.
+        """
         return self.max_generations

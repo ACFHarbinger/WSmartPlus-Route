@@ -173,6 +173,14 @@ class SolutionConstructor:
         return np.linalg.norm(self.node_coords[i] - self.node_coords[j])
 
     def _any_profitable_nodes(self, unvisited: Set[int]) -> bool:
+        """Check if there are any profitable nodes remaining.
+
+        Args:
+            unvisited: Set of unvisited nodes.
+
+        Returns:
+            bool: True if there are profitable nodes, False otherwise.
+        """
         if not self.params.vrpp:
             return True
 
@@ -186,6 +194,17 @@ class SolutionConstructor:
     def _get_feasible_nodes(
         self, unvisited: Set[int], mandatory_unvisited: Set[int], load: float, current: int
     ) -> List[int]:
+        """Get a list of feasible nodes that can be added to the current route.
+
+        Args:
+            unvisited: Set of unvisited nodes.
+            mandatory_unvisited: Set of mandatory unvisited nodes.
+            load: Current load of the vehicle.
+            current: Current node.
+
+        Returns:
+            List of feasible nodes.
+        """
         feasible = []
         use_profit_check = self.params.vrpp and self.params.profit_aware_operators
         for j in sorted(unvisited):

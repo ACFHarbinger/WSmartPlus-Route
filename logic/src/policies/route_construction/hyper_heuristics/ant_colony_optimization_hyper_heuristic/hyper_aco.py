@@ -834,6 +834,7 @@ class HyperHeuristicACO:
         Args:
             routes: Current routes (will be deep-copied inside).
             effective_capacity: Capacity to enforce (may be inf during oscillation).
+            use_cache: Whether to use the cache for operator applications.
 
         Returns:
             HyperOperatorContext ready for operator application.
