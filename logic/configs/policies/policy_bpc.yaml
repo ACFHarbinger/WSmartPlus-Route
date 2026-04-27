@@ -1,136 +1,61 @@
-# Policy Configuration
-
-# =============================================================================
-# BPC (Branch-and-Price-and-Cut) Exact Solver Configuration
-# =============================================================================
-# PURPOSE:
-#   Exact optimization using column generation and branch-and-bound.
-#   Guarantees optimal solutions for small instances (≤50 nodes) but may
-#   timeout on larger problems.
-#
-# ALGORITHM:
-#   1. Column Generation: Iteratively generate new routes via pricing problem
-#   2. Cutting Planes: Add valid inequalities to strengthen LP relaxation
-#   3. Branch-and-Bound: Solve to integer optimality
-#
-# BACKEND:
-#   Uses OR-Tools VRP solver with exact mode enabled
-#
-# TYPICAL USE CASES:
-#   - Small instances (20-50 nodes) where optimality proof is required
-#   - Benchmark baseline for neural/metaheuristic comparison
-#   - Academic research requiring provably optimal solutions
-#
-# PERFORMANCE EXPECTATIONS:
-#   - 20 nodes: Optimal in <5 seconds
-#   - 50 nodes: Optimal in 30-300 seconds (highly variable)
-#   - 100+ nodes: Likely timeout (use HGS or ALNS instead)
-#
-# WARNING:
-#   This policy may consume significant memory (>4GB) on large instances.
-#   Monitor RAM usage if running on resource-constrained systems.
-# =============================================================================
-
 bpc:
   custom:
     # ---------------------------------------------------------------------
     # VRPP Settings
     # ---------------------------------------------------------------------
     - profit_aware_operators: true
-      # Whether to use profit-aware insertion heuristics
-      # true = Use farthest_profit_insertion
-      # false = Use standard farthest_insertion
-
     - vrpp: true
-      # Whether to use VRPP-specific pool expansion
-      # true = Set expand_pool=true (consider all nodes)
-      # false = Set expand_pool=false (consider only unassigned)
 
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     - mandatory_selection: ["other/ms_lookahead.yaml"]
-      # Node selection strategy for waste collection problems
-      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
-      # See: docs/MUST_GO_STRATEGIES.md
-
     - time_limit: 60.0
-      # Maximum wall-clock seconds before termination
-      # Range: 30-3600 (30s = quick test, 3600s = thorough search)
-      # Note: BPC may find optimal solution early and stop before time_limit
-
     - route_improvement: []
-      # Route refinement heuristics (not needed for exact solutions)
-      # Always empty for BPC since solutions are already optimal
 
     # ---------------------------------------------------------------------
     # Branch-and-Bound Search Strategy
     # ---------------------------------------------------------------------
     - search_strategy: "depth_first"
-      # Node selection strategy for exploring the B&B tree
-      # Options:
-      #   - "best_first": Selects node with highest LP bound
-      #   - "depth_first": Selects deepest node in tree (Barnhart 1998) - DEFAULT
-      #     * Excellent LP basis warmstart reuse
-      #     * Required for exactness with spatial branching
 
     # ---------------------------------------------------------------------
     # Cutting Plane Strategy
     # ---------------------------------------------------------------------
     - cutting_planes: "rcc"
-      # Valid inequality family for strengthening LP relaxation
-      # Options:
-      #   - "rcc": Rounded Capacity Cuts (Lysgaard 2004) - DEFAULT
-      #     * Standard for CVRP and VRPP
-      #     * Enforces: ∑_{e ∈ δ(S)} x_e ≥ 2⌈demand(S)/Q⌉
-      #   - "sri": Subset-Row Inequalities (Jepsen et al. 2008)
-      #     * Standard for 3-node subsets (3-SRI)
-      #     * Strengthens the Set Partitioning relaxation
-      #   - "fleet_cover": Fleet Cover Inequalities (Barnhart 2000)
-      #     * For knapsack capacity constraints (Σλₖ ≤ K)
-      #   - "all": Composite engine
-      #     * Enables all supported cut families (RCC, SRI, fleet_cover)
+      # RCC only — SRI and fleet_cover add separation overhead that
+      # burns CG budget without enough bound improvement at 100 nodes.
 
     # ---------------------------------------------------------------------
     # Branching Strategy
     # ---------------------------------------------------------------------
     - branching_strategy: "divergence"
-      # Branching rule for creating child B&B nodes
-      # Options:
-      #   - "ryan_foster": Node-pair branching (Ryan & Foster 1981)
-      #     * Standard for Set Partitioning formulations
-      #     * Branches on whether nodes r,s appear together in route
-      #   - "edge": Arc-based branching
-      #     * Branches on whether arc (u,v) is used
-      #   - "divergence": Spatial Divergence Branching (Barnhart 1998) - DEFAULT
-      #     * Uses polar-angle partitioning for arc sets
-      #     * Leverages node coordinates for balanced spatial splits
-      #     * Required for multicommodity flow consistency
 
     # ---------------------------------------------------------------------
     # Solver Hyperparameters
     # ---------------------------------------------------------------------
     - max_cg_iterations: 50
-      # Maximum iterations for column generation loop per node
     - max_cut_iterations: 5
-      # Maximum iterations for cutting plane loop per CG iteration
     - max_cuts_per_iteration: 5
-      # Maximum number of violated cuts to add per iteration
-    - max_routes_per_pricing: 20
-      # Maximum number of columns to add to master per pricer call
-    - max_bb_nodes: 1000
-      # Maximum nodes to explore in B&B tree before termination
-    - optimality_gap: 0.0001
-      # Relative gap (1e-4) to stop when optimal solution proven
-    - early_termination_gap: 0.001
-      # Relative gap (1e-3) to stop early if solution is "good enough"
+    - max_routes_per_pricing: 50
+      # High column count per call — heuristic pricing finds many good
+      # routes fast; more columns = better LP signal per iteration.
+    - max_bb_nodes: 500
+      # Tight B&B node cap. At 100 nodes BPC won't prove optimality
+      # anyway; spending budget on B&B instead of CG is wasteful.
+    - optimality_gap: 0.02
+      # Accept 2% gap — stops B&B early once bound is tight enough.
+    - early_termination_gap: 0.05
+      # Heuristic stop at 5% gap. In practice CG converges to near-
+      # optimal LP quickly; the last 5% costs disproportionate time.
     - cg_at_root_only: true
-      # Whether to run column generation only at the root B&B node
-      # true = Faster pricing, weaker lower bound
-      # false = Exact elementarity (O(2^n)), exponentially slow
+      # Run full CG once at the root to build a rich column pool,
+      # then reuse it at all B&B nodes. At 100 nodes this is the only
+      # way to get meaningful B&B exploration within 60s.
 
     # --- Lagrangian pre-pruning ---
     - lr_pre_pruning: false
+      # Disabled — subgradient + UOP adds 3-10s per node and the LR
+      # bound is weaker than the ng-route LP bound anyway at depth > 0.
     - lr_lambda_init: 0.0
     - lr_max_subgradient_iters: 30
     - lr_subgradient_theta: 1.0
@@ -142,62 +67,36 @@ bpc:
     # RCSPP Pricing Relaxation
     # ---------------------------------------------------------------------
     - use_ng_routes: true
-      # Whether to use ng-route relaxation for elementarity (Baldacci et al. 2011)
-      # true = Faster pricing, weaker lower bound
-      # false = Exact elementarity (O(2^n)), exponentially slow
-    - ng_neighborhood_size: 5
-      # Size of memory-set for ng-routes (ignored if use_ng_routes is false)
-      # Range: 4-12 (higher = tighter bound, slower pricing)
+    - ng_neighborhood_size: 8
+      # 8 balances label count vs bound quality at 100 nodes.
+      # 12 explodes the label space; 5 weakens the relaxation too much.
     - rcspp_timeout: 5.0
-      # Safety cap for single pricer call (seconds).
-    - rcspp_max_labels: 2000000
-      # Safety cap to prevent OOM in RCSPP.
+      # 5s per pricing call. Heuristic pricing handles most columns;
+      # exact DP runs within this budget on the partial label cap.
+    - rcspp_max_labels: 500000
+      # 500k labels ≈ 50s at Python speed — timeout fires first anyway.
+      # High enough to not be a secondary bottleneck.
 
     # ---------------------------------------------------------------------
     # Advanced Cutting Plane Strategy
     # ---------------------------------------------------------------------
     - enable_heuristic_rcc_separation: true
-      # Whether to enable (heuristic) separation of fractional capacity cuts
-      # true = Tighter bounds via CC-based separation
     - enable_comb_cuts: false
-      # Whether to enable heuristic separation of comb inequalities
-      # false = Standard (RCC+FleetCover only)
+      # Comb separation is O(n³) per round — too expensive at 100 nodes.
     - cut_orthogonality_threshold: 0.8
-      # Cosine similarity ceiling for cut filtering.
-      # Range: 0.5-0.95 (lower = fewer, more distinct cuts)
 
     # ---------------------------------------------------------------------
     # B&B Search & Branching
     # ---------------------------------------------------------------------
     - use_spatial_partitioning: false
-      # Whether to use spatial partitioning for divergence branching
-      # true = Leverages node coordinates for balanced branches (Barnhart 1998)
-    - enable_strong_branching_heuristic: true
-      # Heuristic proxy for looking ahead (returns top pre-sorted candidate).
-      # Full LP-based strong branching is deferred.
+    - enable_strong_branching_heuristic: false
     - enable_column_pool_deduplication: true
-      # Whether to enable column pool deduplication to keep MP size manageable.
     - enable_hybrid_search: false
-      # Whether to enable hybrid DFS/BFS search.
     - rc_tolerance: 1e-5
-      # Minimum reduced cost to accept a new column.
+      # 1e-8 accepts nearly-zero columns that waste master LP solves.
+      # 1e-5 is the practical threshold for meaningful new columns.
     - exact_mode: false
-      # Whether to enable strict exact management (bypasses dual smoothing).
-      # true = Mandatory exact Lagrangian bounds, slower convergence.
+      # Dual smoothing (Wentges 1997) dramatically accelerates CG
+      # convergence at the root — essential when cg_at_root_only=true
+      # and you need a rich column pool built in < 40s.
     - strong_branching_size: 5
-      # Number of top candidates to evaluate via LP lookahead.
-      # Higher = stronger branching decisions, but significantly slower.
-
-    # ---------------------------------------------------------------------
-    # Solver Parameters (Implicit)
-    # ---------------------------------------------------------------------
-    # BPC parameters are configured in:
-    #   logic/src/policies/branch_cut_and_price.py
-    #
-    # Key implicit settings:
-    #   - First solution strategy: PATH_CHEAPEST_ARC
-    #   - Local search metaheuristic: GUIDED_LOCAL_SEARCH
-    #   - Solution limit: 1 (stop after first proven optimal)
-    #   - Branching strategy: AUTOMATIC (OR-Tools selects best)
-    #   - Cut generation: Enabled (capacity, subtour elimination)
-# =============================================================================

@@ -26,6 +26,7 @@ Example:
 """
 
 from .modules.analysis import (
+    display_simulation_summary_table,
     final_simulation_summary,
     load_log_dict,
     output_stats,
@@ -56,6 +57,7 @@ __all__ = [
     "output_stats",
     "runs_per_policy",
     "final_simulation_summary",
+    "display_simulation_summary_table",
     "send_daily_output_to_gui",
     "send_final_output_to_gui",
 ]
