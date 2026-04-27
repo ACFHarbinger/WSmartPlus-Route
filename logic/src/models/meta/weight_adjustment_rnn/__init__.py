@@ -11,3 +11,7 @@ Example:
 """
 
 from .model import WeightAdjustmentRNN as WeightAdjustmentRNN
+
+__all__ = [
+    "WeightAdjustmentRNN",
+]

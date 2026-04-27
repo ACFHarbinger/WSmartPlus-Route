@@ -24,7 +24,11 @@ import numpy as np
 
 from logic.src.constants import DAY_METRICS, SIM_METRICS
 from logic.src.data.processor import save_matrix_to_excel
-from logic.src.tracking.logging.log_utils import display_simulation_summary_table, log_to_json
+from logic.src.tracking.logging.log_utils import (
+    display_per_policy_simulation_summary,
+    display_simulation_summary_table,
+    log_to_json,
+)
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -143,6 +147,16 @@ class FinishingState(SimState):
             ctx.checkpoint.clear()
 
         ctx.result = {ctx.pol_name: lg, "success": True}
+
+        # Detailed per-policy result table (aggregate + daily)
+        if ctx.daily_log is not None:
+            display_per_policy_simulation_summary(
+                ctx.pol_name,
+                ctx.sample_id,
+                lg,
+                ctx.daily_log,
+                lock=ctx.lock,
+            )
 
         # Aggregate results into shared_metrics and display summary table if all tasks are finished
         lock = ctx.lock

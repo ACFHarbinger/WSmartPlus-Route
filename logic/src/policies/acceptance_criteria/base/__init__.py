@@ -14,3 +14,8 @@ Example:
 
 from .factory import AcceptanceCriterionFactory
 from .registry import AcceptanceCriterionRegistry
+
+__all__ = [
+    "AcceptanceCriterionFactory",
+    "AcceptanceCriterionRegistry",
+]

@@ -215,6 +215,10 @@ dependency-graph target_file="logic/src/utils/helpers/wrappers.py" target_name="
 check-embedded-languages:
     uv run python logic/src/utils/validation/check_embedded_languages.py logic/src
 
+# Check for unused imports in the Python source code
+check-unused-imports:
+    uv run python logic/src/utils/validation/check_unused_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories
+
 # --- Advanced Testing & Benchmarks ---
 
 # Run mutation tests using mutmut

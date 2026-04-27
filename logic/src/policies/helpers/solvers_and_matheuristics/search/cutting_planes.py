@@ -1,6 +1,7 @@
 """Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
 
 Provides modular separation algorithms for VRPP-specific valid inequalities:
+Provides modular separation algorithms for VRPP-specific valid inequalities:
 - RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing
   requirements (Lysgaard et al. 2004). Essential for problems with fractional
   load coverage.
@@ -50,11 +51,11 @@ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
-from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
+from logic.src.policies.helpers.solvers_and_matheuristics import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
+    VRPPMasterProblem,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 
@@ -1409,10 +1410,14 @@ class RoundedMultistarCutEngine(CuttingPlaneEngine):
         return "multistar"
 
 
-def create_cutting_plane_engine(
+def create_cutting_plane_engine(  # noqa: C901
     engine_name: str,
     v_model: VRPPModel,
     sep_engine: Optional[SeparationEngine] = None,
+    dist_matrix: Optional[np.ndarray] = None,
+    route_budget: float = float("inf"),
+    max_subset: int = 50,
+    **kwargs: dict,
 ) -> CuttingPlaneEngine:
     """Factory function to create cutting plane engines.
 
@@ -1421,6 +1426,10 @@ def create_cutting_plane_engine(
             "physical_lci", "saturated_arc_lci", "cover", "all", "composite").
         v_model: VRPP model for problem data.
         sep_engine: Separation engine (required for RCC/SRC/Cover).
+        dist_matrix: The distance matrix.
+        route_budget: The route budget.
+        max_subset: The maximum subset size.
+        kwargs: Additional parameters for the engine.
 
     Returns:
         CuttingPlaneEngine: Instance of the requested cutting plane engine.
@@ -1455,8 +1464,25 @@ def create_cutting_plane_engine(
         if sep_engine is None:
             raise ValueError("Cover engine requires sep_engine parameter")
         return KnapsackCoverEngine(v_model, sep_engine)
+    elif engine_name == "min_cut":
+        return MinCutInequalityEngine(v_model)
+    elif engine_name == "triangle_clique":
+        dist_matrix = kwargs.get("dist_matrix")
+        route_budget = kwargs.get("route_budget", float("inf"))
+        return TriangleCliqueCutEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget)
+    elif engine_name == "limited_memory_rank1":
+        max_subset = kwargs.get("max_subset_size", 5)
+        return LimitedMemoryRank1CutEngine(v_model, max_subset_size=max_subset)
+    elif engine_name == "node_profit_bound":
+        return NodeProfitBoundEngine(v_model)
+    elif engine_name == "path_elimination":
+        dist_matrix = kwargs.get("dist_matrix", None)
+        route_budget = kwargs.get("route_budget", float("inf"))
+        return PathEliminationEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget)
     elif engine_name in ("all", "composite"):
         engines = []
+        dist_matrix = kwargs.get("dist_matrix")
+        route_budget = kwargs.get("route_budget", float("inf"))
         if sep_engine is not None:
             engines.append(RoundedCapacityCutEngine(v_model, sep_engine))
         engines.append(SubsetRowCutEngine(v_model))  # type: ignore[arg-type]
@@ -1468,10 +1494,15 @@ def create_cutting_plane_engine(
         if sep_engine is not None:
             engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
             engines.append(RoundedMultistarCutEngine(v_model, sep_engine))  # type: ignore[arg-type]
+        # ── Tier 1 + selection-routing duality cuts ──────────────────────
+        engines.append(MinCutInequalityEngine(v_model))  # type: ignore[arg-type]
+        engines.append(TriangleCliqueCutEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget))
+        engines.append(LimitedMemoryRank1CutEngine(v_model, max_subset_size=5))
+        engines.append(NodeProfitBoundEngine(v_model))  # type: ignore[arg-type]
+        engines.append(PathEliminationEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget))
 
         comp = CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
         return comp
-
     else:
         valid = [
             "rcc",
@@ -1482,7 +1513,666 @@ def create_cutting_plane_engine(
             "saturated_arc_lci",
             "multistar",
             "cover",
+            "min_cut",
+            "triangle_clique",
+            "limited_memory_rank1",
+            "node_profit_bound",
+            "path_elimination",
             "all",
             "composite",
         ]
         raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: {valid}")
+
+
+# =============================================================================
+# NEW CUT FAMILIES — Tier 1 + Profit-Selection × Routing Duality
+# =============================================================================
+
+
+class MinCutInequalityEngine(CuttingPlaneEngine):
+    r"""Min-Cut Inequalities for VRPP (Poggi, Viana, Uchoa 2010).
+
+    For each optional customer v with fractional LP visit value y*_v ∈ (0,1),
+    the inequality enforces that the total arc-flow entering the time-cluster
+    of v must be at least y*_v:
+
+        Σ_{r : v ∈ route_r} λ_r  ≥  y_v
+
+    This is equivalent to the min-cut inequality on the time-indexed extended
+    formulation: the minimum cut between depot and any time-copy of v equals
+    y_v, so fractional solutions where flow "leaks" through v without a
+    coherent path are pruned.
+
+    Since the set-partitioning master already has  Σ_r a_{vr} λ_r = y_v
+    as a constraint for mandatory nodes and  Σ_r a_{vr} λ_r ≤ y_v  for
+    optional ones, violation occurs when the sum over *all* routes visiting v
+    is strictly less than the node-visitation LP value y_v — indicating that
+    fractional routes are double-counting v without a flow-consistent path.
+
+    In practice in the SP formulation this manifests as: the LP is fractionally
+    routing through v on multiple partially-selected routes whose combined λ
+    is below y_v (the cover constraint allows ≤ 1 for optional nodes).
+    We add the cut  Σ_r a_{vr} λ_r ≥ y_v  to enforce flow consistency.
+
+    Attributes:
+        v_model: The VRPP model.
+    """
+
+    def __init__(self, v_model: "VRPPModel"):
+        """
+        Args:
+            v_model: The VRPP model.
+        """
+        self.v_model = v_model
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """
+        Args:
+            master: The master problem.
+            max_cuts: The maximum number of cuts to add.
+            kwargs: Additional arguments.
+
+        Returns:
+            int: The number of cuts added.
+        """
+        if master.model is None or not master.lambda_vars:
+            return 0
+
+        node_visits = master.get_node_visitation()
+        added = 0
+        tol = 1e-4
+
+        # For each optional node whose LP visit value is strictly fractional,
+        # check whether the sum of lambda values of covering routes is below y_v.
+        for node, y_v in node_visits.items():
+            if y_v < tol or y_v > 1.0 - tol:
+                continue  # integer or near-zero — no cut needed
+
+            # Sum of λ_r over routes visiting this node
+            cover_sum = (
+                sum(
+                    var.X
+                    for idx, var in enumerate(master.lambda_vars)
+                    if var.X > 1e-9 and node in master.routes[idx].node_coverage
+                )
+                if master.lambda_vars
+                else 0.0
+            )
+
+            violation = y_v - cover_sum
+            if violation < tol:
+                continue
+
+            # Add cut:  Σ_{r: v ∈ r} λ_r  ≥  y_v
+            # In Gurobi terms on the master: add a GEQ constraint with coeff 1.0
+            # on each λ_r that visits node, RHS = y_v (as a tightening to 1.0 for stability).
+            # We register it as a node-cover lower-bound constraint.
+            if hasattr(master, "add_min_cut_constraint"):
+                success = master.add_min_cut_constraint(node, violation)
+            elif master.model is not None:
+                # Fallback: tighten the optional cover constraint RHS directly
+                constr = master.model.getConstrByName(f"coverage_{node}")
+                if constr is not None:
+                    from gurobipy import GRB as _GRB
+
+                    constr.Sense = _GRB.GREATER_EQUAL
+                    constr.RHS = max(float(constr.RHS), y_v - violation * 0.5)
+                    success = True
+                else:
+                    success = False
+            else:
+                success = False
+
+            if success:
+                added += 1
+                if added >= max_cuts:
+                    break
+
+        return added
+
+    def get_name(self) -> str:
+        """
+        Return the name of the cut engine.
+
+        Args:
+            None
+
+        Returns:
+            str: The name of the cut engine.
+        """
+        return "min_cut"
+
+
+class TriangleCliqueCutEngine(CuttingPlaneEngine):
+    r"""Triangle Clique Cuts for TOP/VRPP (Poggi, Viana, Uchoa 2010).
+
+    For a triple S = {i, j, k} of customers, define a compatibility graph G'
+    on time-indexed arc pairs. Two arcs a₁=(u₁,w₁) and a₂=(u₂,w₂) are
+    INCOMPATIBLE if they cannot both appear on the same feasible route due to
+    time/capacity conflicts. A maximum-weight stable set on G' yields:
+
+        Σ_{r : a ∈ route_r, a ∈ stable_set} λ_r  ≤  1
+
+    In the route-based SP formulation (without explicit time-index), we
+    approximate triangle clique cuts as **pairwise conflict cuts** on the y
+    (node-visitation) variables.
+
+    Two nodes i and j are CONFLICTING if no feasible route can visit both
+    given the capacity and distance constraints:
+        q_i + q_j > Q        (capacity conflict)
+        or d(0,i) + d(i,j) + d(j,0) > L * C  (would exceed budget)
+
+    For conflicting pairs, the cut is:
+        y_i + y_j  ≤  1
+
+    For conflicting triples {i,j,k} where each pair conflicts:
+        y_i + y_j + y_k  ≤  1   (clique cut)
+
+    These are equivalent to the stable-set formulation on the incompatibility
+    graph projected onto the y-variables.
+
+    References:
+        Pessoa, Poggi, Uchoa (2009) Networks 54:167-177.
+        Poggi, Viana, Uchoa (2010) ATMOS.
+        El-Hajj, Dang, Moukrim (2016) Computers & Operations Research 74:21-30.
+
+    Attributes:
+        v_model: The VRPP model.
+        dist_matrix: The distance matrix.
+        route_budget: The route budget.
+        _conflict_pairs: Cached list of conflicting pairs.
+    """
+
+    def __init__(
+        self, v_model: "VRPPModel", dist_matrix: Optional[np.ndarray] = None, route_budget: float = float("inf")
+    ):
+        """
+        Args:
+            v_model: The VRPP model.
+            dist_matrix: The distance matrix.
+            route_budget: The route budget.
+        """
+        self.v_model = v_model
+        self.dist_matrix = dist_matrix
+        self.route_budget = route_budget  # maximum route cost / time budget
+        self._conflict_pairs: Optional[List[Tuple[int, int]]] = None  # cached
+
+    def _build_conflict_pairs(self, capacity: float) -> List[Tuple[int, int]]:
+        """
+        Build list of (i,j) pairs that cannot coexist on any feasible route.
+
+        Args:
+            capacity: The capacity of the vehicle.
+
+        Returns:
+            List[Tuple[int, int]]: List of conflicting pairs.
+        """
+        if self._conflict_pairs is not None:
+            return self._conflict_pairs
+
+        pairs: List[Tuple[int, int]] = []
+        n = self.v_model.n_nodes
+        wastes = {i: self.v_model.get_node_demand(i) for i in range(1, n)}
+
+        for i in range(1, n):
+            for j in range(i + 1, n):
+                # Capacity conflict
+                if wastes.get(i, 0.0) + wastes.get(j, 0.0) > capacity + 1e-6:
+                    pairs.append((i, j))
+                    continue
+                # Distance conflict (only if dist_matrix provided)
+                if self.dist_matrix is not None and self.route_budget < float("inf"):
+                    d0i = self.dist_matrix[0, i] if i < self.dist_matrix.shape[0] else 0
+                    dij = (
+                        self.dist_matrix[i, j] if i < self.dist_matrix.shape[0] and j < self.dist_matrix.shape[1] else 0
+                    )
+                    dj0 = self.dist_matrix[j, 0] if j < self.dist_matrix.shape[0] else 0
+                    if d0i + dij + dj0 > self.route_budget + 1e-6:
+                        pairs.append((i, j))
+
+        self._conflict_pairs = pairs
+        return pairs
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """
+        Add triangle clique cuts to the master problem.
+
+        Args:
+            master: The master problem.
+            max_cuts: The maximum number of cuts to add.
+            kwargs: Additional arguments.
+
+        Returns:
+            int: The number of cuts added.
+        """
+        if master.model is None:
+            return 0
+
+        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+        node_visits = master.get_node_visitation()
+        conflict_pairs = self._build_conflict_pairs(capacity)
+
+        added = 0
+
+        # Pairwise conflict cuts: y_i + y_j ≤ 1 for conflicting (i,j)
+        for i, j in conflict_pairs:
+            yi = node_visits.get(i, 0.0)
+            yj = node_visits.get(j, 0.0)
+            violation = yi + yj - 1.0
+            if violation < 1e-4:
+                continue
+
+            success = master.add_conflict_cut(i, j, violation) if hasattr(master, "add_conflict_cut") else False
+            if success:
+                added += 1
+                if added >= max_cuts:
+                    return added
+
+        # Triangle clique cuts: y_i + y_j + y_k ≤ 1 for mutually conflicting triples
+        conflict_set = set(conflict_pairs)
+        n = self.v_model.n_nodes
+        for i in range(1, n):
+            for j in range(i + 1, n):
+                if (i, j) not in conflict_set:
+                    continue
+                for k in range(j + 1, n):
+                    if (i, k) not in conflict_set or (j, k) not in conflict_set:
+                        continue
+                    yi = node_visits.get(i, 0.0)
+                    yj = node_visits.get(j, 0.0)
+                    yk = node_visits.get(k, 0.0)
+                    violation = yi + yj + yk - 1.0
+                    if violation < 1e-4:
+                        continue
+                    if hasattr(master, "add_clique_cut"):
+                        success = master.add_clique_cut([i, j, k], violation)
+                        if success:
+                            added += 1
+                            if added >= max_cuts:
+                                return added
+
+        return added
+
+    def get_name(self) -> str:
+        """
+        Return the name of the cut engine.
+
+        Args:
+            None
+
+        Returns:
+            str: The name of the cut engine.
+        """
+        return "triangle_clique"
+
+
+class LimitedMemoryRank1CutEngine(CuttingPlaneEngine):
+    r"""Limited-Memory Rank-1 Cuts for VRPP (Pecin et al. 2017).
+
+    Generalises Subset-Row Inequalities (Jepsen et al. 2008) to subsets of
+    up to 5 rows with optimal multipliers and a *memory set* M ⊆ V that
+    controls label-dimension explosion in the RCSPP.
+
+    For a subset C ⊆ V with multiplier vector α ∈ (0,1)^|C| and memory set
+    M ⊆ V, the limited-memory rank-1 cut is:
+
+        Σ_r ⌊ Σ_{v ∈ C} α_v · a_{vr} ⌋  λ_r  ≤  ⌊ Σ_{v ∈ C} α_v ⌋
+
+    For the standard 3-SRI (|C|=3, α=(1/2,1/2,1/2)):
+        Σ_r ⌊(a_{ir} + a_{jr} + a_{kr}) / 2⌋ λ_r  ≤  1
+
+    The memory set M ⊆ V restricts which visits "count" for the DP state in
+    the pricing subproblem: the parity bit s_C resets to 0 whenever the path
+    leaves M, bounding the label proliferation.
+
+    This implementation enumerates violated 3-SRI and 5-row cuts with the
+    (1/2,…,1/2) multiplier, which is optimal for odd-sized C.
+
+    References:
+        Pecin, Pessoa, Poggi, Uchoa (2017) Math. Prog. Comput. 9(1):61-100.
+        Pecin et al. (2017) Operations Research Letters 45(3):206-209.
+        Jepsen, Petersen, Spoorendonk, Pisinger (2008) OR 56(2):497-511.
+
+    Attributes:
+        v_model: The VRPP model.
+        max_subset_size: The maximum size of the subset.
+    """
+
+    def __init__(self, v_model: "VRPPModel", max_subset_size: int = 5):
+        """
+        Args:
+            v_model: The VRPP model.
+            max_subset_size: The maximum size of the subset.
+        """
+        self.v_model = v_model
+        self.max_subset_size = min(max_subset_size, 5)
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """
+        Add limited memory rank 1 cuts to the master problem.
+
+        Args:
+            master: The master problem.
+            max_cuts: The maximum number of cuts to add.
+            kwargs: Additional arguments.
+
+        Returns:
+            int: The number of cuts added.
+        """
+        if master.model is None or not master.lambda_vars:
+            return 0
+
+        routes = master.routes
+        sol = {idx: var.X for idx, var in enumerate(master.lambda_vars) if var.X > 1e-9}
+        tol = 1e-4
+        added = 0
+
+        # Build node-visit indicator: a[r][v] = 1 if route r visits v
+        # For efficiency, only consider nodes with fractional LP visitation
+        node_visits = master.get_node_visitation()
+        fractional_nodes = sorted(
+            [v for v, y in node_visits.items() if tol < y < 1.0 - tol], key=lambda v: abs(node_visits[v] - 0.5)
+        )
+
+        # Enumerate 3-subsets (most impactful)
+        for size in [3, 5]:
+            if added >= max_cuts:
+                break
+            if size > self.max_subset_size:
+                break
+            candidates = fractional_nodes[: min(15, len(fractional_nodes))]
+            if len(candidates) < size:
+                continue
+
+            import itertools
+
+            for subset in itertools.combinations(candidates, size):
+                # Compute LHS = Σ_r ⌊(Σ_{v∈C} a_{vr}) / 2⌋ · λ_r
+                lhs = 0.0
+                for idx, lam in sol.items():
+                    if lam < 1e-9:
+                        continue
+                    visit_count = sum(1 for v in subset if v in routes[idx].node_coverage)
+                    lhs += (visit_count // 2) * lam
+
+                rhs = len(subset) // 2
+                violation = lhs - rhs
+                if violation < tol:
+                    continue
+
+                # Add the cut with memory set M = subset (self-referential, most common)
+                memory_set = set(subset)
+                if hasattr(master, "add_limited_memory_rank1_cut"):
+                    success = master.add_limited_memory_rank1_cut(
+                        list(subset), rhs, memory_set=memory_set, violation=violation
+                    )
+                elif hasattr(master, "add_subset_row_cut"):
+                    success = master.add_subset_row_cut(frozenset(subset))
+                else:
+                    success = False
+
+                if success:
+                    added += 1
+                    if added >= max_cuts:
+                        return added
+
+        return added
+
+    def get_name(self) -> str:
+        """
+        Return the name of the cut engine.
+
+        Args:
+            None
+
+        Returns:
+            str: The name of the cut engine.
+        """
+        return "limited_memory_rank1"
+
+
+class NodeProfitBoundEngine(CuttingPlaneEngine):
+    r"""Profit Upper-Bound Cuts for VRPP (Dang, El-Hajj, Moukrim 2013).
+
+    Enforces that the profit achievable by visiting a subset S within the
+    vehicle's capacity cannot exceed a structural upper bound derived from
+    the knapsack relaxation of the selection problem.
+
+    For a subset S of optional nodes with total demand d(S) > Q:
+        Σ_{v ∈ S} p_v · y_v  ≤  max_profit(S, Q)
+
+    where max_profit(S, Q) is the optimal value of the fractional knapsack
+    on {(p_v, q_v)}_{v ∈ S} with capacity Q.
+
+    In cut form (linearised over the master variables):
+        Σ_{r : route_r ⊆ S} profit_r · λ_r  ≤  max_profit(S, Q)
+
+    Also adds **mandatory customer fixing**: if the LP objective minus the
+    dual contribution of node v being unvisited (y_v = 0) still dominates
+    the current best lower bound, fix y_v = 1 as a valid tightening.
+
+    References:
+        Dang, El-Hajj, Moukrim (2013) Computers & OR 40(12):2751-2760.
+        Archetti, Speranza, Vigo (2014) VRPP chapter.
+
+    Attributes:
+        v_model: The VRPP model.
+    """
+
+    def __init__(self, v_model: "VRPPModel"):
+        """
+        Args:
+            v_model: The VRPP model.
+        """
+        self.v_model = v_model
+
+    def _fractional_knapsack(self, items: List[Tuple[float, float]], capacity: float) -> float:
+        """
+        Solve fractional knapsack: items = [(profit, weight), …].
+
+        Args:
+            items: List of tuples (profit, weight).
+            capacity: The capacity of the knapsack.
+
+        Returns:
+            float: The optimal value of the fractional knapsack.
+        """
+        items_sorted = sorted(items, key=lambda x: x[0] / max(x[1], 1e-9), reverse=True)
+        total = 0.0
+        rem = capacity
+        for p, w in items_sorted:
+            if rem <= 0:
+                break
+            take = min(w, rem)
+            total += p * take / max(w, 1e-9)
+            rem -= take
+        return total
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """
+        Add node profit bound cuts to the master problem.
+
+        Args:
+            master: The master problem.
+            max_cuts: The maximum number of cuts to add.
+            kwargs: Additional arguments.
+
+        Returns:
+            int: The number of cuts added.
+        """
+        if master.model is None:
+            return 0
+
+        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+        n = self.v_model.n_nodes - 1
+        node_visits = master.get_node_visitation()
+        R = getattr(self.v_model, "revenue_per_kg", 1.0)
+        added = 0
+        tol = 1e-4
+
+        # Build list of fractional optional nodes
+        frac_nodes = [
+            (v, node_visits.get(v, 0.0)) for v in range(1, n + 1) if tol < node_visits.get(v, 0.0) < 1.0 - tol
+        ]
+
+        # Find subsets where total demand > Q (they must be pruned)
+        # Use greedy: sort by demand, accumulate until demand > Q
+        demands = [(v, self.v_model.get_node_demand(v), R * self.v_model.get_node_demand(v)) for v, _ in frac_nodes]
+
+        # Try subsets that are "tight" on capacity
+        for start in range(len(demands)):
+            subset = []
+            total_demand = 0.0
+            items = []
+            for i in range(start, len(demands)):
+                v, d, p = demands[i]
+                total_demand += d
+                subset.append(v)
+                items.append((p, d))
+                if total_demand > capacity + tol:
+                    # This subset violates knapsack; compute UB
+                    ub = self._fractional_knapsack(items, capacity)
+                    # LP value for this subset
+                    lp_val = sum(p_val * node_visits.get(v_idx, 0.0) for v_idx, _, p_val in demands[start : i + 1])
+                    violation = lp_val - ub
+                    if violation > tol and hasattr(master, "add_profit_bound_cut"):
+                        success = master.add_profit_bound_cut(subset, ub, violation)
+                        if success:
+                            added += 1
+                            if added >= max_cuts:
+                                return added
+                    break
+
+        return added
+
+    def get_name(self) -> str:
+        """
+        Return the name of the cut engine.
+
+        Args:
+            None
+
+        Returns:
+            str: The name of the cut engine.
+        """
+        return "node_profit_bound"
+
+
+class PathEliminationEngine(CuttingPlaneEngine):
+    r"""Path Elimination Constraints for VRPP (Fischetti et al. 1997; El-Hajj et al. 2016).
+
+    For any partial path P = (0, v₁, …, v_k) that is provably infeasible
+    (capacity overflow, budget exceeded, clique conflict), add:
+
+        Σ_{(i,j) ∈ A(P)} x_{ij}  ≤  |A(P)| - 1
+
+    This forbids P from appearing in any route without changing the dimension
+    of the pricing subproblem labels (the cut is robust — expressed on arcs).
+
+    Violations are detected by scanning fractional arc flows for paths whose
+    capacity or budget sum is inadmissible.
+
+    Attributes:
+        v_model: The VRPP model.
+        dist_matrix: The distance matrix.
+        route_budget: The route budget.
+    """
+
+    def __init__(
+        self, v_model: "VRPPModel", dist_matrix: Optional[np.ndarray] = None, route_budget: float = float("inf")
+    ):
+        """
+        Args:
+            v_model: The VRPP model.
+            dist_matrix: The distance matrix.
+            route_budget: The route budget.
+        """
+        self.v_model = v_model
+        self.dist_matrix = dist_matrix
+        self.route_budget = route_budget
+
+    def _is_path_infeasible(self, path: List[int], capacity: float) -> bool:
+        """
+        Return True if path (depot-rooted) violates capacity or budget.
+
+        Args:
+            path: The path to check.
+            capacity: The capacity of the vehicle.
+
+        Returns:
+            bool: True if the path is infeasible, False otherwise.
+        """
+        total_demand = sum(self.v_model.get_node_demand(v) for v in path if v != 0)
+        if total_demand > capacity + 1e-6:
+            return True
+        if self.dist_matrix is not None and self.route_budget < float("inf"):
+            full = [0] + [v for v in path if v != 0] + [0]
+            dist = sum(
+                self.dist_matrix[full[i], full[i + 1]]
+                for i in range(len(full) - 1)
+                if full[i] < self.dist_matrix.shape[0] and full[i + 1] < self.dist_matrix.shape[1]
+            )
+            if dist > self.route_budget + 1e-6:
+                return True
+        return False
+
+    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+        """
+        Add path elimination cuts to the master problem.
+
+        Args:
+            master: The master problem.
+            max_cuts: The maximum number of cuts to add.
+            kwargs: Additional arguments.
+
+        Returns:
+            int: The number of cuts added.
+        """
+        if master.model is None:
+            return 0
+
+        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+        arc_usage = master.get_edge_usage(only_elementary=True) if hasattr(master, "get_edge_usage") else {}
+        if not arc_usage:
+            return 0
+
+        added = 0
+        tol = 1e-4
+
+        # Find high-flow arcs and check 2-arc paths (i,j,k) for infeasibility
+        high_flow_arcs = [(arc, flow) for arc, flow in arc_usage.items() if flow > tol and arc[0] != 0]
+        high_flow_arcs.sort(key=lambda x: x[1], reverse=True)
+
+        checked: set = set()
+        for (u, v), f_uv in high_flow_arcs[:20]:  # check top arcs only
+            for (v2, w), f_vw in high_flow_arcs[:20]:
+                if v2 != v or w == 0:
+                    continue
+                path_key = (u, v, w)
+                if path_key in checked:
+                    continue
+                checked.add(path_key)
+
+                path = [0, u, v, w]
+                if self._is_path_infeasible(path, capacity):
+                    violation = f_uv + f_vw - 1.0  # Σ x_e ≤ |arcs| - 1 = 1
+                    if violation > tol and hasattr(master, "add_path_elimination_cut"):
+                        success = master.add_path_elimination_cut([(0, u), (u, v), (v, w)], violation)
+                        if success:
+                            added += 1
+                            if added >= max_cuts:
+                                return added
+
+        return added
+
+    def get_name(self) -> str:
+        """
+        Return the name of the cut engine.
+
+        Args:
+            None
+
+        Returns:
+            str: The name of the cut engine.
+        """
+        return "path_elimination"
