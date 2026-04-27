@@ -170,6 +170,7 @@ from .mp_aco import MP_ACO_Config
 from .mp_ils import MP_ILS_Config
 from .mp_pso import MP_PSO_Config
 from .mp_sa import MP_SA_Config
+from .ms_bpc_sp import MSBPCSPConfig
 from .na import NeuralAgentConfig
 from .nds_brkga import NDSBRKGAConfig
 from .other import MandatorySelectionConfig, RouteImprovingConfig
@@ -231,6 +232,7 @@ __all__ = [
     "KGLSConfig",
     "LASMPipelineConfig",
     "LKH3Config",
+    "MSBPCSPConfig",
     "NeuralAgentConfig",
     "RLALNSConfig",
     "RLGDHHConfig",

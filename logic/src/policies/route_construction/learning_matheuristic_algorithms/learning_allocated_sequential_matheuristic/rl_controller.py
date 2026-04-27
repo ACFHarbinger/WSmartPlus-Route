@@ -208,7 +208,7 @@ class _SlidingWindowStats:
         self._buf: List[List[Tuple[int, float]]] = [[] for _ in range(n_arms)]
 
     def update(self, arm: int, reward: float) -> None:
-        self._buf[arm].append((time.monotonic_ns(), reward))
+        self._buf[arm].append((time.perf_counter(), reward))
         if self._win > 0:
             self._buf[arm] = self._buf[arm][-self._win :]
 
@@ -273,7 +273,7 @@ class RLController:
         self._sw = _SlidingWindowStats(self._n_dims * self._n_levels, self._window)
         self._last_context: Optional[np.ndarray] = None
         self._last_actions: Optional[List[int]] = None  # chosen level per dim
-        self._last_t: float = time.monotonic()
+        self._last_t: float = time.perf_counter()
 
         # Load offline policy if available
         if self._mode in ("offline", "hybrid") and self._policy_path:
@@ -372,7 +372,7 @@ class RLController:
                 action_raw[dim] = _OPERATOR_GRID[best_lvl % self._n_levels]
 
         self._last_actions = chosen_levels
-        self._last_t = time.monotonic()
+        self._last_t = time.perf_counter()
 
         if self._action_space == "budgets":
             fracs = _action_to_budget_fracs(action_raw)

@@ -24,7 +24,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.helpers.local_search.local_search_hgs import HGSLocalSearch
-from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
+from logic.src.policies.helpers.operators.crossover_recombination import route_profit_gpx_crossover
 
 from .evolution import _extract_edges, evaluate, update_biased_fitness
 from .individual import Individual
@@ -399,7 +399,17 @@ class HGSSolver:
         p1, p2 = self._select_parents(pop_feasible, pop_infeasible)
 
         if self.random.random() < self.params.crossover_rate:
-            child = ordered_crossover(p1, p2, rng=self.random)
+            child = route_profit_gpx_crossover(
+                p1,
+                p2,
+                self.d,
+                self.wastes,
+                self.Q,
+                self.R,
+                self.C,
+                rng=self.random,
+                mandatory_nodes=self.mandatory_nodes,
+            )
         else:
             # No crossover: clone p1 so local search education still occurs.
             child = Individual(p1.giant_tour[:], expand_pool=p1.expand_pool)

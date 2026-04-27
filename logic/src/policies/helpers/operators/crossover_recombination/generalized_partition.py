@@ -106,7 +106,7 @@ def generalized_partition_crossover(
     Generalized Partition Crossover (GPX): Graph-based recombination.
 
     Redirects to route_profit_gpx_crossover if routes are available,
-    otherwise falls back to ordered_crossover (Fix 16).
+    otherwise falls back to ordered_crossover.
 
     Args:
         p1: First parent individual.
@@ -384,7 +384,7 @@ def route_profit_gpx_crossover(
     mandatory_nodes: Optional[List[int]] = None,
 ) -> Individual:
     """
-    Route-based Profit Generalized Partition Crossover (RP-GPX).
+    Route-based Profit-aware Generalized Partition Crossover (RP-GPX).
     Adapts the classical GPX for VRPP by operating on decoded routes
     rather than the giant tour.
 
@@ -430,12 +430,29 @@ def route_profit_gpx_crossover(
     if mandatory_nodes:
         _enforce_mandatory_nodes(child_routes, mandatory_nodes, wastes, capacity, loads)
 
-    # Reconstruct a full giant tour: visited nodes first, then unvisited.
-    # Fix 17: Shuffle unvisited suffix to remove Split evaluation bias.
+    # Rigorous Genotype Reconstruction:
+    # We iterate through the *original* giant tour structure of Parent 1.
+    # This perfectly preserves the spatial entropy of unvisited nodes while
+    # injecting the newly optimized active routes in place.
     visited_set = {node for route in child_routes for node in route}
     route_nodes = [node for route in child_routes for node in route]
-    unvisited = [n for n in p1.giant_tour if n not in visited_set]
-    rng.shuffle(unvisited)
-    child_gt = route_nodes + unvisited
+
+    child_gt = []
+    active_idx = 0
+
+    for orig_node in p1.giant_tour:
+        if orig_node in visited_set:
+            # Slot originally held an active node; place the next optimized active node
+            if active_idx < len(route_nodes):
+                child_gt.append(route_nodes[active_idx])
+                active_idx += 1
+        else:
+            # Slot originally held an unvisited node; preserve its relative position
+            child_gt.append(orig_node)
+
+    # Safety fallback (invariant safeguard in case of length mismatch)
+    while active_idx < len(route_nodes):
+        child_gt.append(route_nodes[active_idx])
+        active_idx += 1
 
     return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)

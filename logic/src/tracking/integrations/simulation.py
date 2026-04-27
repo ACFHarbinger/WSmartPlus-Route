@@ -50,7 +50,7 @@ class SimulationRunTracker:
         self._run = run
         self.policy_name = policy_name
         self.sample_id = sample_id
-        self._start_wall = time.monotonic()
+        self._start_wall = time.perf_counter()
         self._prefix = f"{policy_name}/s{sample_id}"
 
     # ------------------------------------------------------------------
@@ -87,7 +87,7 @@ class SimulationRunTracker:
             with contextlib.suppress(TypeError, ValueError):
                 self._run.log_metric(f"{prefix}/{key}", float(val), step=self.sample_id)
 
-        elapsed = time.monotonic() - self._start_wall
+        elapsed = time.perf_counter() - self._start_wall
         self._run.log_metric(f"{prefix}/wall_time_s", elapsed, step=self.sample_id)
         self._run.flush()
 

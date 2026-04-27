@@ -31,6 +31,24 @@ from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
 from logic.src.policies.helpers.solvers_and_matheuristics.common import BranchNode, Route
 from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import GlobalCutPool, VRPPMasterProblem
 from logic.src.policies.helpers.solvers_and_matheuristics.pricing import Label, RCSPPSolver
+from logic.src.policies.helpers.solvers_and_matheuristics.search import (
+    BasicFleetCoverEngine,
+    BestFirstSearch,
+    CompositeCuttingPlaneEngine,
+    CuttingPlaneEngine,
+    DepthFirstSearch,
+    EdgeCliqueCutEngine,
+    HybridSearchStrategy,
+    KnapsackCoverEngine,
+    NodeSelectionStrategy,
+    PhysicalCapacityLCIEngine,
+    RoundedCapacityCutEngine,
+    RoundedMultistarCutEngine,
+    SaturatedArcLCIEngine,
+    SubsetRowCutEngine,
+    create_cutting_plane_engine,
+    create_search_strategy,
+)
 from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     CapacityCut,
     CombInequality,
@@ -65,4 +83,20 @@ __all__ = [
     "run_subgradient",
     "_nearest_neighbour_tour_cost",
     "solve_uncapacitated_op",
+    "BasicFleetCoverEngine",
+    "CompositeCuttingPlaneEngine",
+    "CuttingPlaneEngine",
+    "EdgeCliqueCutEngine",
+    "KnapsackCoverEngine",
+    "PhysicalCapacityLCIEngine",
+    "RoundedCapacityCutEngine",
+    "RoundedMultistarCutEngine",
+    "SaturatedArcLCIEngine",
+    "SubsetRowCutEngine",
+    "create_cutting_plane_engine",
+    "BestFirstSearch",
+    "DepthFirstSearch",
+    "HybridSearchStrategy",
+    "NodeSelectionStrategy",
+    "create_search_strategy",
 ]

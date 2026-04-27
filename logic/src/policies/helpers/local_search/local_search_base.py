@@ -439,6 +439,20 @@ class LocalSearch(ABC):
         if not u_loc and not v_loc:
             return False
 
+        # --- NEW VRPP LOGIC: Try Drop Operator ---
+        if self._should_try_operator("drop"):
+            # Try dropping u if it's currently routed
+            if u_loc and self._move_drop(u, u_loc[0], u_loc[1]):
+                return True
+
+            # Re-fetch v_loc in case dropping u shifted indices
+            v_loc = self.node_map.get(v)
+            # Try dropping v if it's currently routed
+            if v_loc and self._move_drop(v, v_loc[0], v_loc[1]):
+                return True
+        # -----------------------------------------
+
+        # Rest of your original logic remains exactly the same
         if not u_loc and v_loc:
             r_v, p_v = v_loc
             return self._should_try_operator("unrouted_insert") and self._move_unrouted_insert(u, r_v, p_v)
@@ -538,7 +552,14 @@ class LocalSearch(ABC):
         Args:
             affected_indices: Set of route indices that were modified.
         """
-        # Rebuild node_map for affected routes first, so the routed set is current
+        # 1. Clean up stale mappings for these routes first.
+        # If we don't do this, nodes that were removed/dropped from these routes
+        # will still appear as "routed" in node_map at their old (now invalid) positions.
+        for node, loc in list(self.node_map.items()):
+            if loc[0] in affected_indices:
+                del self.node_map[node]
+
+        # 2. Rebuild node_map for affected routes, so the routed set is current
         # before _compute_top_insertions uses it for O(1) skip checks.
         for ri in sorted(affected_indices):
             for pi, node in enumerate(self.routes[ri]):
@@ -911,6 +932,60 @@ class LocalSearch(ABC):
                 self.routes[route_idx] = [node]
             else:
                 self.routes[route_idx].insert(best_pos, node)
+            self._update_map({route_idx})
+            return True
+
+        return False
+
+    def _move_drop(self, node: int, route_idx: int, pos: int) -> bool:
+        """
+        Try dropping a routed node in O(1) time (VRPP operator).
+
+        Evaluates removing 'node' from 'route_idx' at 'pos'.
+        Uses penalized search: considers both profit loss and capacity penalty reduction.
+
+        Args:
+            node (int): Routed node to potentially drop.
+            route_idx (int): Route to drop from.
+            pos (int): Position of the node in the route.
+
+        Returns:
+            bool: True if dropping improves penalized profit.
+        """
+        route = self.routes[route_idx]
+
+        # Validation
+        if pos < 0 or pos >= len(route) or route[pos] != node:
+            return False
+
+        prev = route[pos - 1] if pos > 0 else 0
+        nxt = route[pos + 1] if pos < len(route) - 1 else 0
+
+        # 1. Cost & Profit Deltas
+        # Cost saving is negative delta (we save distance by bypassing the node)
+        delta_dist = self.get_dist(prev, nxt) - (self.get_dist(prev, node) + self.get_dist(node, nxt))
+        cost_delta = delta_dist * self.C  # Guaranteed to be <= 0 by triangle inequality
+
+        # Profit loss is negative delta
+        profit_delta = -self.waste.get(node, 0) * self.R
+        load_delta = -self.waste.get(node, 0)
+
+        # 2. Penalties (Standard HGS logic)
+        penalty_weight = getattr(self, "penalty_capacity", 1.0)
+        current_load = self._get_load_cached(route_idx)
+        new_load = current_load + load_delta
+
+        old_penalty = penalty_weight * max(0.0, current_load - self.Q)
+        new_penalty = penalty_weight * max(0.0, new_load - self.Q)
+        penalty_delta = new_penalty - old_penalty
+
+        # Total change in objective: profit gain - cost increase - penalty increase
+        total_change = profit_delta - cost_delta - penalty_delta
+
+        # 3. Acceptance
+        # Accept if dropping the node strictly improves the penalized objective
+        if total_change > 1e-4:
+            route.pop(pos)
             self._update_map({route_idx})
             return True
 

@@ -139,7 +139,7 @@ def run_pipeline(
     """
     p = params or PipelineParams()
     tau_tcf, tau_alns, tau_bpc, tau_sp = p.stage_budgets()
-    t_start = time.monotonic()
+    t_start = time.perf_counter()
 
     n_bins = len(bins)
     Q = values["Q"]
@@ -249,7 +249,7 @@ def run_pipeline(
         flat_route.append(0)  # depot return between routes
         total_cost += r.cost
 
-    elapsed = time.monotonic() - t_start
+    elapsed = time.perf_counter() - t_start
     logger.info(
         "[Pipeline] DONE elapsed=%.1fs profit=%.4f cost=%.4f nodes=%d",
         elapsed,

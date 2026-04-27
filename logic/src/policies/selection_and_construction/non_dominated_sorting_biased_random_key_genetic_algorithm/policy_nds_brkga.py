@@ -163,7 +163,7 @@ class NDSBRKGAPolicy(BaseJointPolicy):
             return [], [], 0.0, 0.0
 
         rng = np.random.default_rng(params.seed)
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
 
         # ----------------------------------------------------------------
         # Phase 0: Pre-computation (Risk & Adaptive Thresholds)
@@ -215,7 +215,7 @@ class NDSBRKGAPolicy(BaseJointPolicy):
         # Phase 2: Generational loop
         # ----------------------------------------------------------------
         for _gen in range(params.max_generations):
-            elapsed = time.monotonic() - start_time
+            elapsed = time.perf_counter() - start_time
             if params.time_limit > 0 and elapsed >= params.time_limit:
                 break
 
