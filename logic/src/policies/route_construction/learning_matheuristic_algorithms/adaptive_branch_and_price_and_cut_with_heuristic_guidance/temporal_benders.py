@@ -18,8 +18,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 try:
-    import gurobipy as gp  # noqa: F401  (imported for availability check only)
-
     from .gurobi_master import GurobiMasterProblem
     from .gurobi_subproblem import GurobiVRPSubproblem
 

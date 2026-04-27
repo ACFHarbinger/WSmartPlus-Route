@@ -116,4 +116,5 @@ __all__ = [
     "policy_mp_ils",
     "policy_mp_pso",
     "policy_mp_sa",
+    "policy_pg_clns",
 ]

@@ -12,3 +12,7 @@ Example:
 """
 
 from .decoder import SimpleNARDecoder as SimpleNARDecoder
+
+__all__ = [
+    "SimpleNARDecoder",
+]

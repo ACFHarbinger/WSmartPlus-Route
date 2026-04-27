@@ -60,4 +60,10 @@ __all__ = [
     "EfficiencyOptimizer",
     "decode_routes",
     "calculate_efficiency",
+    "base",
+    "baselines",
+    "reward_scaler",
+    "reward_scaler_batch",
+    "route_improvement",
+    "trainer",
 ]

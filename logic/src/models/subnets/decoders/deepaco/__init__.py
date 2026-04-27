@@ -12,3 +12,7 @@ Example:
 """
 
 from .decoder import ACODecoder as ACODecoder
+
+__all__ = [
+    "ACODecoder",
+]

@@ -11,3 +11,7 @@ Example:
 """
 
 from .model import MandatoryManager as MandatoryManager
+
+__all__ = [
+    "MandatoryManager",
+]

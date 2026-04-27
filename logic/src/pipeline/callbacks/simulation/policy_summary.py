@@ -62,6 +62,7 @@ class PolicySummaryCallback:
         table.add_column("Engine", style="green")
         table.add_column("Selection Strategy", style="yellow")
         table.add_column("Route Improvement", style="blue")
+        table.add_column("Acceptance", style="red")
 
         policies: List[str] = cfg.sim.full_policies or []
         config_paths: Dict[str, Any] = dict(cfg.sim.config_path) if cfg.sim.config_path else {}
@@ -79,14 +80,15 @@ class PolicySummaryCallback:
             engine = self._extract_engine(policy_name, config)
             selection = self._extract_selection(config)
             route_imp = self._extract_route_improvement(config)
+            acceptance = self._extract_acceptance_criterion(config)
 
-            table.add_row(str(idx + 1), policy_name, engine, selection, route_imp)
+            table.add_row(str(idx + 1), policy_name, engine, selection, route_imp, acceptance)
 
         console.print(table)
         console.print("\n")
 
     def _extract_engine(self, policy_name: str, config: Dict[str, Any]) -> str:
-        """Extract the engine name.
+        """Extract the engine name dynamically.
 
         Args:
             policy_name: Name of the policy.
@@ -97,33 +99,28 @@ class PolicySummaryCallback:
         """
         raw_cfg = config
         solver_key = None
-        known_policy_keys = ["vrpp", "cvrp", "tsp", "hgs", "alns", "bpc", "sans", "na"]
 
-        # 1. Check top-level keys
-        for key in known_policy_keys:
-            if key in raw_cfg:
-                solver_key = key
-                break
-
+        # 1. Try to find engine in 'policy' sub-config
         flat_cfg = _flatten_config(raw_cfg)
         policy_cfg = flat_cfg.get("policy", {})
+        if isinstance(policy_cfg, ITraversable):
+            solver_key = policy_cfg.get("type") or policy_cfg.get("solver") or policy_cfg.get("engine")
+        elif isinstance(policy_cfg, str):
+            solver_key = policy_cfg
 
-        # 2. Check 'policy' sub-config
+        # 2. Check top-level keys, skipping known non-engine keys
         if not solver_key:
-            policy_cfg_obj: object = policy_cfg
-            if isinstance(policy_cfg_obj, ITraversable):
-                solver_key = policy_cfg_obj.get("type") or policy_cfg_obj.get("solver") or policy_cfg_obj.get("engine")
-            elif isinstance(policy_cfg, str):
-                solver_key = policy_cfg
-
-        # 3. Fallback to name inference
-        if not solver_key:
-            for key in known_policy_keys:
-                if key in policy_name:
+            non_engine_keys = {"mandatory_selection", "route_improvement", "acceptance_criterion", "p", "setup"}
+            for key in raw_cfg.keys():
+                if key not in non_engine_keys:
                     solver_key = key
                     break
 
-        return str(solver_key).upper() if solver_key else "Unknown"
+        # 3. Fallback to name inference from policy_name
+        if not solver_key:
+            solver_key = policy_name.split("_")[0]
+
+        return str(solver_key).replace("_", "-").upper() if solver_key else "Unknown"
 
     def _extract_selection(self, config: Dict[str, Any]) -> str:
         """Extract selection strategy details.
@@ -136,7 +133,7 @@ class PolicySummaryCallback:
         """
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
-        config_mandatory = flat_cfg.get("mandatory")
+        config_mandatory = flat_cfg.get("mandatory_selection")
 
         strategies = []
 
@@ -153,7 +150,7 @@ class PolicySummaryCallback:
 
         for item in items:
             name, params = self._parse_selection_item(item)
-            strategies.append(f"{name}{params}")
+            strategies.append("{}{}".format(name.title(), ":" + params if params else ""))
 
         return ", ".join(strategies) if strategies else "None"
 
@@ -188,6 +185,13 @@ class PolicySummaryCallback:
 
         elif isinstance(item_obj, str):
             name = item_obj
+            # Strip 'other/ms_', 'other/ri_' and '.yaml'
+            if name.startswith("other/ms_"):
+                name = name[len("other/ms_") :]
+            if name.startswith("other/ri_"):
+                name = name[len("other/ri_") :]
+            if name.endswith(".yaml"):
+                name = name[: -len(".yaml")]
 
         return name, params
 
@@ -273,3 +277,25 @@ class PolicySummaryCallback:
                 steps.append(list(item_obj.keys())[0])
 
         return ", ".join(steps)
+
+    def _extract_acceptance_criterion(self, config: Dict[str, Any]) -> str:
+        """Extract the acceptance criterion method.
+
+        Args:
+            config: Configuration of the policy.
+
+        Returns:
+            The acceptance criterion method.
+        """
+        raw_cfg = config
+        flat_cfg = _flatten_config(raw_cfg)
+        ac = flat_cfg.get("acceptance_criterion")
+
+        if not ac:
+            return "None"
+
+        if isinstance(ac, dict):
+            return str(ac.get("method", "Unknown")).upper()
+        if isinstance(ac, ITraversable):
+            return str(ac.get("method") or "Unknown").upper()
+        return str(ac).upper()
