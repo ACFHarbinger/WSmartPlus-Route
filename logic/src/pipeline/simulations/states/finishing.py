@@ -24,7 +24,7 @@ import numpy as np
 
 from logic.src.constants import DAY_METRICS, SIM_METRICS
 from logic.src.data.processor import save_matrix_to_excel
-from logic.src.tracking.logging.log_utils import final_simulation_summary, log_to_json
+from logic.src.tracking.logging.log_utils import display_simulation_summary_table, log_to_json
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -144,7 +144,45 @@ class FinishingState(SimState):
 
         ctx.result = {ctx.pol_name: lg, "success": True}
 
-        final_simulation_summary({ctx.pol_name: lg}, ctx.pol_name, sim.n_samples)
+        # Aggregate results into shared_metrics and display summary table if all tasks are finished
+        lock = ctx.lock
+        shared_metrics = ctx.shared_metrics
+        task_count = ctx.variables_dict.get("task_count", 0)
+
+        if shared_metrics is not None and lock is not None:
+            with lock:
+                # Store result with a unique key per policy and sample
+                shared_metrics[f"res_{ctx.pol_name}_{ctx.sample_id}"] = lg
+                finished = shared_metrics.get("finished_tasks", 0) + 1
+                shared_metrics["finished_tasks"] = finished
+
+                # If this is the last task, aggregate everything and print the comparative table
+                if finished == task_count and task_count > 0:
+                    from logic.src.utils.configs.setup_utils import get_pol_name
+
+                    all_aggregated_results = {}
+                    policies = sim.full_policies
+
+                    for policy in policies:
+                        p_name = get_pol_name(policy)
+                        pol_results = []
+                        # Collect all samples for this policy
+                        for s_id in range(sim.n_samples):
+                            res_key = f"res_{p_name}_{s_id}"
+                            if res_key in shared_metrics:
+                                pol_results.append(shared_metrics[res_key])
+
+                        if pol_results:
+                            # Compute mean across samples for each metric
+                            mean_metrics = [float(np.mean(m)) for m in zip(*pol_results, strict=False)]
+                            all_aggregated_results[p_name] = mean_metrics
+
+                    if all_aggregated_results:
+                        display_simulation_summary_table(
+                            all_aggregated_results,
+                            title=f"Simulation Summary: [bold cyan]{sim.graph.area}[/] ({sim.n_samples} Samples, {sim.days} Days)",
+                            lock=lock,
+                        )
 
         # Forward final aggregated metrics to the centralised tracker (no-op if no run active)
         if get_sim_tracker is not None:

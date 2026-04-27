@@ -4,16 +4,16 @@ Memetic Island Model GA configuration.
 Replaces HVPL with rigorous GA terminology.
 
 Attributes:
-    HybridMemeticSearchConfig: Configuration for the HMS (Hybrid Memetic Search) policy.
+    HybridMemeticLargeNeighborhoodSearchConfig: Configuration for the HMLNS (Hybrid Memetic Large Neighborhood Search) policy.
 
 Example:
-    >>> from configs.policies.hms import HybridMemeticSearchConfig
-    >>> config = HybridMemeticSearchConfig()
+    >>> from configs.policies.hmlns import HybridMemeticLargeNeighborhoodSearchConfig
+    >>> config = HybridMemeticLargeNeighborhoodSearchConfig()
     >>> config.time_limit
     300.0
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .other.mandatory_selection import MandatorySelectionConfig
@@ -21,13 +21,12 @@ from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
-class HybridMemeticSearchConfig:
-    """Configuration for Hybrid Memetic Search (HMS) policy.
+class HybridMemeticLargeNeighborhoodSearchConfig:
+    """Configuration for Hybrid Memetic Large Neighborhood Search (HMLNS) policy.
 
     Functionally equivalent to HVPL.
 
     Attributes:
-        n_removal (int): Number of routes to remove.
         population_size (int): Population size for GA.
         max_generations (int): Maximum number of generations.
         substitution_rate (float): Rate of substitution operator.
@@ -39,11 +38,12 @@ class HybridMemeticSearchConfig:
         vrpp (bool): Whether the problem is a VRRP.
         profit_aware_operators (bool): Whether to use profit-aware operators.
         seed (Optional[int]): Seed for the random number generator.
+        alns (dict): ALNS parameters.
+        maco (dict): MACO parameters.
         mandatory_selection (Optional[List[MandatorySelectionConfig]]): Mandatory selection configurations.
         route_improvement (Optional[List[RouteImprovingConfig]]): Route improvement configurations.
     """
 
-    n_removal: int = 3
     population_size: int = 30
     max_generations: int = 50
     substitution_rate: float = 0.2
@@ -55,5 +55,7 @@ class HybridMemeticSearchConfig:
     vrpp: bool = True
     profit_aware_operators: bool = False
     seed: Optional[int] = None
+    alns: dict = field(default_factory=dict)
+    maco: dict = field(default_factory=dict)
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None

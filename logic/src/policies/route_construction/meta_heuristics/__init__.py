@@ -41,7 +41,7 @@ from .hybrid_genetic_search import policy_hgs as policy_hgs
 from .hybrid_genetic_search_with_adaptive_diversity_control import policy_hgs_adc as policy_hgs_adc
 from .hybrid_genetic_search_with_adaptive_large_neighborhood_search import policy_hgs_alns as policy_hgs_alns
 from .hybrid_genetic_search_with_ruin_and_recreate import policy_hgs_rr as policy_hgs_rr
-from .hybrid_memetic_search import policy_hms as policy_hms
+from .hybrid_memetic_large_neighborhood_search import policy_hmlns as policy_hmlns
 from .hybrid_volleyball_premier_league import policy_hvpl as policy_hvpl
 from .iterated_local_search import policy_ils as policy_ils
 from .knowledge_guided_local_search import policy_kgls as policy_kgls
@@ -57,6 +57,9 @@ from .multi_period_simulated_annealing import policy_mp_sa as policy_mp_sa
 from .particle_swarm_optimization import policy_pso as policy_pso
 from .particle_swarm_optimization_distance_based_algorithm import policy_psoda as policy_psoda
 from .particle_swarm_optimization_memetic_algorithm import policy_psoma as policy_psoma
+from .pheromone_guided_cooperative_large_neighborhood_search import (
+    policy_pg_clns as policy_pg_clns,
+)
 from .quantum_differential_evolution import policy_qde as policy_qde
 from .reactive_tabu_search import policy_rts as policy_rts
 from .simulated_annealing import policy_sa as policy_sa
@@ -87,7 +90,7 @@ __all__ = [
     "policy_hgs_alns",
     "policy_hgs_rr",
     "policy_hgs_adc",
-    "policy_hms",
+    "policy_hmlns",
     "policy_hvpl",
     "policy_ils",
     "policy_kgls",
