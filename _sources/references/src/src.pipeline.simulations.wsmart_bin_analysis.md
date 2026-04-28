@@ -25,3 +25,29 @@ src.pipeline.simulations.wsmart_bin_analysis.Deliverables
 
 src.pipeline.simulations.wsmart_bin_analysis.sample_gen
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.pipeline.simulations.wsmart_bin_analysis.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.pipeline.simulations.wsmart_bin_analysis.__all__
+:value: >
+   ['GridBase', 'Simulation', 'OldGridBase']
+
+```{autodoc2-docstring} src.pipeline.simulations.wsmart_bin_analysis.__all__
+```
+
+````

@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.n2s.decoder
-src.models.core.n2s.policy
-src.models.core.n2s.model
 src.models.core.n2s.encoder
+src.models.core.n2s.decoder
+src.models.core.n2s.model
+src.models.core.n2s.policy
 ```
 
 ## Package Contents

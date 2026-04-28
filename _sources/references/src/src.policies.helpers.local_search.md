@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.helpers.local_search.local_search_hgs
+src.policies.helpers.local_search.local_search_general
 src.policies.helpers.local_search.local_search_filo
 src.policies.helpers.local_search.local_search_manager
-src.policies.helpers.local_search.local_search_general
 src.policies.helpers.local_search.local_search_base
-src.policies.helpers.local_search.local_search_hgs
 src.policies.helpers.local_search.local_search_aco
 ```
 

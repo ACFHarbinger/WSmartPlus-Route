@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.reactive_tabu_search.params
 src.policies.route_construction.meta_heuristics.reactive_tabu_search.policy_rts
+src.policies.route_construction.meta_heuristics.reactive_tabu_search.params
 src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver
 ```
 

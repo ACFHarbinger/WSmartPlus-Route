@@ -326,4 +326,12 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
+````{py:method} _move_drop(node: int, route_idx: int, pos: int) -> bool
+:canonical: src.policies.helpers.local_search.local_search_base.LocalSearch._move_drop
+
+```{autodoc2-docstring} src.policies.helpers.local_search.local_search_base.LocalSearch._move_drop
+```
+
+````
+
 `````

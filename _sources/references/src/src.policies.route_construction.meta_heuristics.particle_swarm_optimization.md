@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso
 src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params
 src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver
+src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso
 ```
 
 ## Package Contents

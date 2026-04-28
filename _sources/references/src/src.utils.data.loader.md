@@ -66,7 +66,7 @@
 ```
 ````
 
-````{py:function} load_focus_coords(graph_size: int, method: typing.Optional[str], area: str, waste_type: str, focus_graph: str, focus_size: int = 1) -> typing.Tuple[numpy.ndarray, numpy.ndarray, typing.Optional[numpy.ndarray], typing.List[int]]
+````{py:function} load_focus_coords(graph_size: int, method: typing.Optional[str], area: str, waste_type: str, focus_graph: str, focus_size: int = 1) -> typing.Tuple[numpy.ndarray, numpy.ndarray, typing.Optional[numpy.ndarray], typing.List[int], pandas.Series]
 :canonical: src.utils.data.loader.load_focus_coords
 
 ```{autodoc2-docstring} src.utils.data.loader.load_focus_coords

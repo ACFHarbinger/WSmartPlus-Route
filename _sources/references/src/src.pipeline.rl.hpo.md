@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.rl.hpo.hyp_rl
-src.pipeline.rl.hpo.base
-src.pipeline.rl.hpo.zenml_hpo_pipeline
 src.pipeline.rl.hpo.hyp_rl_pol
-src.pipeline.rl.hpo.dehb
 src.pipeline.rl.hpo.optuna_hpo
-src.pipeline.rl.hpo.hyp_rl_enc
 src.pipeline.rl.hpo.ray_tune_hpo
+src.pipeline.rl.hpo.base
+src.pipeline.rl.hpo.hyp_rl
+src.pipeline.rl.hpo.dehb
+src.pipeline.rl.hpo.zenml_hpo_pipeline
+src.pipeline.rl.hpo.hyp_rl_enc
 ```
 
 ## Package Contents

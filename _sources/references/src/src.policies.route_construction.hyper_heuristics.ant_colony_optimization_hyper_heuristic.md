@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params
-src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco
 src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators
 src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh
+src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params
+src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco
 ```
 
 ## Package Contents

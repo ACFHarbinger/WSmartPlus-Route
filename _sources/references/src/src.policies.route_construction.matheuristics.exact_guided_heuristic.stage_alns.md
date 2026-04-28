@@ -90,6 +90,9 @@ Bases: {py:obj}`logic.src.policies.route_construction.meta_heuristics.adaptive_l
 ````{py:method} _select_and_apply_operators(current_routes: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], int, int]
 :canonical: src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns._PoolHarvestingALNS._select_and_apply_operators
 
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns._PoolHarvestingALNS._select_and_apply_operators
+```
+
 ````
 
 `````

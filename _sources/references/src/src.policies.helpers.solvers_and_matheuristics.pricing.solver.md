@@ -141,6 +141,14 @@
 
 ````
 
+````{py:method} _heuristic_pricing(max_routes: int, node_duals: typing.Dict[int, float], rcc_duals: typing.Dict, forbidden_arcs: typing.FrozenSet) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._heuristic_pricing
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._heuristic_pricing
+```
+
+````
+
 ````{py:method} _compute_completion_bounds() -> None
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver._compute_completion_bounds
 

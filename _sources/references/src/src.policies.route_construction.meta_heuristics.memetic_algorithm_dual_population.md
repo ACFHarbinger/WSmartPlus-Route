@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.policy_ma_dp
 src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params
 src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver
+src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.policy_ma_dp
 ```
 
 ## Package Contents

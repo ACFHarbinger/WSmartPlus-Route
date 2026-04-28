@@ -13,8 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.pricing.labels
 src.policies.helpers.solvers_and_matheuristics.pricing.solver
+src.policies.helpers.solvers_and_matheuristics.pricing.smoothing
+src.policies.helpers.solvers_and_matheuristics.pricing.labels
 ```
 
 ## Package Contents

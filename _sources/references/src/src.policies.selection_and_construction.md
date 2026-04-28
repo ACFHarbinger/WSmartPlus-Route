@@ -14,9 +14,9 @@
 :maxdepth: 3
 
 src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm
-src.policies.selection_and_construction.base
-src.policies.selection_and_construction.joint_greedy_orienteering
 src.policies.selection_and_construction.joint_simulated_annealing
+src.policies.selection_and_construction.joint_greedy_orienteering
+src.policies.selection_and_construction.base
 ```
 
 ## Package Contents

@@ -95,7 +95,7 @@
 ```
 ````
 
-````{py:function} _make_vrpp_route(nodes: typing.List[int], dist: numpy.ndarray, wastes: typing.Dict[int, float], R: float, C: float, source: str) -> src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.route_pool.VRPPRoute
+````{py:function} _make_vrpp_route(nodes: typing.List[int], dist: numpy.ndarray, wastes: typing.Dict[int, float], R: float, C: float, source: str) -> logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.VRPPRoute
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd._make_vrpp_route
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd._make_vrpp_route
@@ -194,7 +194,7 @@
 
 `````
 
-````{py:function} run_lbbd_stage(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory: typing.Set[int], n_vehicles: int, time_limit: float, max_iterations: int, sub_solver: str, cut_families: typing.List[str], pareto_eps: float, min_cover_ratio: float, master_time_frac: float, sub_time_frac: float, pool: typing.Optional[src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.route_pool.RoutePool], seed: int, env: typing.Any, incumbent: float = 0.0) -> typing.Tuple[typing.List[src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.route_pool.VRPPRoute], float, float]
+````{py:function} run_lbbd_stage(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory: typing.Set[int], n_vehicles: int, time_limit: float, max_iterations: int, sub_solver: str, cut_families: typing.List[str], pareto_eps: float, min_cover_ratio: float, master_time_frac: float, sub_time_frac: float, pool: typing.Optional[logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.RoutePool], seed: int, env: typing.Any, incumbent: float = 0.0) -> typing.Tuple[typing.List[logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.VRPPRoute], float, float]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd.run_lbbd_stage
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd.run_lbbd_stage

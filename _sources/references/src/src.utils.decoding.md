@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.decoding.base
-src.utils.decoding.sampling
+src.utils.decoding.evaluate
+src.utils.decoding.decoding_utils
 src.utils.decoding.beam_search
 src.utils.decoding.batch_beam
+src.utils.decoding.base
+src.utils.decoding.sampling
 src.utils.decoding.factory
-src.utils.decoding.evaluate
 src.utils.decoding.greedy
-src.utils.decoding.decoding_utils
 ```
 
 ## Package Contents

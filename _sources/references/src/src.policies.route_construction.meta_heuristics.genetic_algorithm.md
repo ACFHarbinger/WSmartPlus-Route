@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.genetic_algorithm.params
-src.policies.route_construction.meta_heuristics.genetic_algorithm.policy_ga
 src.policies.route_construction.meta_heuristics.genetic_algorithm.solver
+src.policies.route_construction.meta_heuristics.genetic_algorithm.policy_ga
 ```
 
 ## Package Contents

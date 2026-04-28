@@ -110,6 +110,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.VRPPRoute.__repr__
 
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.VRPPRoute.__repr__
+```
+
 ````
 
 `````
@@ -184,6 +187,9 @@
 
 ````{py:method} __repr__() -> str
 :canonical: src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.RoutePool.__repr__
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool.RoutePool.__repr__
+```
 
 ````
 

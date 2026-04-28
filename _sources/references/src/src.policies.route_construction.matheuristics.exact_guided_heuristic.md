@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_bpc
-src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp
 src.policies.route_construction.matheuristics.exact_guided_heuristic.params
 src.policies.route_construction.matheuristics.exact_guided_heuristic.policy_egh
 src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_tcf
+src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_bpc
 src.policies.route_construction.matheuristics.exact_guided_heuristic.dispatcher
-src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns
+src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_sp
 src.policies.route_construction.matheuristics.exact_guided_heuristic.route_pool
+src.policies.route_construction.matheuristics.exact_guided_heuristic.stage_alns
 ```
 
 ## Package Contents

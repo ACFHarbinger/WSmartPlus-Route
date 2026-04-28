@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.evolutionary_mutation.scramble
 src.policies.helpers.operators.evolutionary_mutation.random_2opt
+src.policies.helpers.operators.evolutionary_mutation.scramble
 src.policies.helpers.operators.evolutionary_mutation.differential_evolution
 src.policies.helpers.operators.evolutionary_mutation.inversion
 src.policies.helpers.operators.evolutionary_mutation.swap

@@ -71,6 +71,10 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.simulator._shared_metrics
     :summary:
     ```
+* - {py:obj}`_task_count <src.pipeline.simulations.simulator._task_count>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.simulator._task_count
+    :summary:
+    ```
 ````
 
 ### API
@@ -108,7 +112,18 @@
 
 ````
 
-````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any, shared_metrics_from_main: typing.Any = None, log_file: typing.Optional[str] = None, cfg: typing.Optional[logic.src.configs.Config] = None, tracking_uri: typing.Optional[str] = None, tracking_run_id: typing.Optional[str] = None) -> None
+````{py:data} _task_count
+:canonical: src.pipeline.simulations.simulator._task_count
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.pipeline.simulations.simulator._task_count
+```
+
+````
+
+````{py:function} init_single_sim_worker(lock_from_main: typing.Any, counter_from_main: typing.Any, shared_metrics_from_main: typing.Any = None, log_file: typing.Optional[str] = None, cfg: typing.Optional[logic.src.configs.Config] = None, tracking_uri: typing.Optional[str] = None, tracking_run_id: typing.Optional[str] = None, task_count: int = 0) -> None
 :canonical: src.pipeline.simulations.simulator.init_single_sim_worker
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.init_single_sim_worker
@@ -188,7 +203,7 @@
 
 `````
 
-````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
+````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None, task_count: int = 0) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.simulations.simulator.sequential_simulations
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.sequential_simulations

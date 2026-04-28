@@ -85,4 +85,12 @@
 
 ````
 
+````{py:method} _extract_acceptance_criterion(config: typing.Dict[str, typing.Any]) -> str
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_acceptance_criterion
+
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_acceptance_criterion
+```
+
+````
+
 `````

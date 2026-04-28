@@ -13,21 +13,21 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.tasks.cwcvrp
-src.envs.tasks.thop
-src.envs.tasks.base
-src.envs.tasks.atsp
-src.envs.tasks.pctsp
-src.envs.tasks.tsp
-src.envs.tasks.vrpp
 src.envs.tasks.cvrpp
-src.envs.tasks.wcvrp
-src.envs.tasks.irp
+src.envs.tasks.atsp
+src.envs.tasks.thop
+src.envs.tasks.tsp
 src.envs.tasks.scwcvrp
-src.envs.tasks.spctsp
+src.envs.tasks.wcvrp
 src.envs.tasks.op
-src.envs.tasks.cvrp
+src.envs.tasks.irp
+src.envs.tasks.base
 src.envs.tasks.pdp
+src.envs.tasks.cwcvrp
+src.envs.tasks.pctsp
+src.envs.tasks.spctsp
+src.envs.tasks.vrpp
+src.envs.tasks.cvrp
 ```
 
 ## Package Contents

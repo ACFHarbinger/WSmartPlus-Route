@@ -16,6 +16,6 @@
 src.models.policies.operators.destroy.random_removal
 src.models.policies.operators.destroy.worst_removal
 src.models.policies.operators.destroy.string_removal
-src.models.policies.operators.destroy.shaw_removal
 src.models.policies.operators.destroy.cluster_removal
+src.models.policies.operators.destroy.shaw_removal
 ```

@@ -13,15 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_bpc
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_sp
 src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.params
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_alns
-src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.route_pool
 src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.policy_lasm
 src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller
+src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher
+src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.stage_lbbd
 ```
 
 ## Package Contents
@@ -43,7 +39,7 @@ src.policies.route_construction.learning_matheuristic_algorithms.learning_alloca
 ````{py:data} __all__
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.__all__
 :value: >
-   ['LASMPipelinePolicy', 'LASMPipelineParams', 'RLController', 'run_lasm_pipeline', 'reset_rl_controll...
+   ['LASMPolicy', 'LASMPipelineParams', 'RLController', 'run_lasm_pipeline', 'reset_rl_controller']
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.__all__
 ```

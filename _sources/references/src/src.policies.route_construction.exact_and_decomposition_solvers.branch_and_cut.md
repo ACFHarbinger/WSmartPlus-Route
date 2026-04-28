@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.policy_bc
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc
 ```
 
 ## Package Contents

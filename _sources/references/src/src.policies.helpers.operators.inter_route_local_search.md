@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.inter_route_local_search.swap_star
 src.policies.helpers.operators.inter_route_local_search.inter_day_shift
 src.policies.helpers.operators.inter_route_local_search.cross_exchange
-src.policies.helpers.operators.inter_route_local_search.ejection_chain
-src.policies.helpers.operators.inter_route_local_search.k_opt_star
 src.policies.helpers.operators.inter_route_local_search.exchange_chain
+src.policies.helpers.operators.inter_route_local_search.k_opt_star
 src.policies.helpers.operators.inter_route_local_search.cyclic_transfer
+src.policies.helpers.operators.inter_route_local_search.swap_star
 src.policies.helpers.operators.inter_route_local_search.subramanian_neighborhoods
+src.policies.helpers.operators.inter_route_local_search.ejection_chain
 ```
 
 ## Package Contents

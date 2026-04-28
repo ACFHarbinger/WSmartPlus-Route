@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.policy_hgs_rr
 src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.params
-src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate
+src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.policy_hgs_rr
 src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.hgs_rr
+src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.ruin_recreate
 ```
 
 ## Package Contents

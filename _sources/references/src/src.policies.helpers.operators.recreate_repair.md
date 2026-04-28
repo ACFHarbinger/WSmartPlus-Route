@@ -13,17 +13,17 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.recreate_repair.deep
-src.policies.helpers.operators.recreate_repair.savings
 src.policies.helpers.operators.recreate_repair.geni
-src.policies.helpers.operators.recreate_repair.forward_looking
 src.policies.helpers.operators.recreate_repair.nearest
-src.policies.helpers.operators.recreate_repair.greedy_blink
-src.policies.helpers.operators.recreate_repair.greedy
-src.policies.helpers.operators.recreate_repair.farthest
-src.policies.helpers.operators.recreate_repair.multi_period
-src.policies.helpers.operators.recreate_repair.regret
+src.policies.helpers.operators.recreate_repair.forward_looking
+src.policies.helpers.operators.recreate_repair.savings
 src.policies.helpers.operators.recreate_repair.branch_and_bound
+src.policies.helpers.operators.recreate_repair.deep
+src.policies.helpers.operators.recreate_repair.regret
+src.policies.helpers.operators.recreate_repair.multi_period
+src.policies.helpers.operators.recreate_repair.greedy_blink
+src.policies.helpers.operators.recreate_repair.farthest
+src.policies.helpers.operators.recreate_repair.greedy
 ```
 
 ## Package Contents

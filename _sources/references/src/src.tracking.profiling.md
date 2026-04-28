@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.tracking.profiling.report
 src.tracking.profiling.throughput
+src.tracking.profiling.memory
 src.tracking.profiling.profiler
 src.tracking.profiling.timer
-src.tracking.profiling.memory
-src.tracking.profiling.report
 ```
 
 ## Package Contents

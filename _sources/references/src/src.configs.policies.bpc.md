@@ -458,4 +458,59 @@
 
 ````
 
+````{py:attribute} enable_node_visitation_branching
+:canonical: src.configs.policies.bpc.BPCConfig.enable_node_visitation_branching
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_node_visitation_branching
+```
+
+````
+
+````{py:attribute} enable_dssr
+:canonical: src.configs.policies.bpc.BPCConfig.enable_dssr
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_dssr
+```
+
+````
+
+````{py:attribute} dssr_max_iters
+:canonical: src.configs.policies.bpc.BPCConfig.dssr_max_iters
+:type: int
+:value: >
+   8
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.dssr_max_iters
+```
+
+````
+
+````{py:attribute} enable_reduced_cost_arc_fixing
+:canonical: src.configs.policies.bpc.BPCConfig.enable_reduced_cost_arc_fixing
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_reduced_cost_arc_fixing
+```
+
+````
+
+````{py:attribute} route_budget
+:canonical: src.configs.policies.bpc.BPCConfig.route_budget
+:type: float
+:value: >
+   'float(...)'
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.route_budget
+```
+
+````
+
 `````

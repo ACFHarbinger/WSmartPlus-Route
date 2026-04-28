@@ -22,8 +22,8 @@ src.policies.helpers.reinforcement_learning.agents.contextual
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.reinforcement_learning.agents.base
 src.policies.helpers.reinforcement_learning.agents.contextual_bandits
 src.policies.helpers.reinforcement_learning.agents.bandits
+src.policies.helpers.reinforcement_learning.agents.base
 src.policies.helpers.reinforcement_learning.agents.td_learning
 ```

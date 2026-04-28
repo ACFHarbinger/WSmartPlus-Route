@@ -31,6 +31,14 @@
   - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.final_simulation_summary
     :summary:
     ```
+* - {py:obj}`display_simulation_summary_table <src.tracking.logging.modules.analysis.display_simulation_summary_table>`
+  - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_simulation_summary_table
+    :summary:
+    ```
+* - {py:obj}`display_per_policy_simulation_summary <src.tracking.logging.modules.analysis.display_per_policy_simulation_summary>`
+  - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_per_policy_simulation_summary
+    :summary:
+    ```
 ````
 
 ### API
@@ -60,5 +68,19 @@
 :canonical: src.tracking.logging.modules.analysis.final_simulation_summary
 
 ```{autodoc2-docstring} src.tracking.logging.modules.analysis.final_simulation_summary
+```
+````
+
+````{py:function} display_simulation_summary_table(log: typing.Dict[str, typing.Any], title: str = 'Simulation Summary', lock: typing.Optional[typing.Any] = None) -> None
+:canonical: src.tracking.logging.modules.analysis.display_simulation_summary_table
+
+```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_simulation_summary_table
+```
+````
+
+````{py:function} display_per_policy_simulation_summary(pol_name: str, sample_id: int, aggregate_metrics: typing.List[float], daily_log: typing.Dict[str, typing.List[typing.Any]], title_prefix: str = 'Results for', lock: typing.Optional[typing.Any] = None) -> None
+:canonical: src.tracking.logging.modules.analysis.display_per_policy_simulation_summary
+
+```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_per_policy_simulation_summary
 ```
 ````

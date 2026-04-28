@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.policies.other.acceptance_criteria
 src.configs.policies.other.route_improvement
 src.configs.policies.other.mandatory_selection
 src.configs.policies.other.reinforcement_learning
+src.configs.policies.other.acceptance_criteria
 ```
 
 ## Package Contents

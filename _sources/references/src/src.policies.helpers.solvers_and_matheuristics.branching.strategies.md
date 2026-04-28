@@ -35,6 +35,10 @@
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.NodeVisitationBranching
     :summary:
     ```
+* - {py:obj}`HierarchicalStrongBranching <src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching>`
+  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching
+    :summary:
+    ```
 ````
 
 ### API
@@ -181,6 +185,32 @@
 :staticmethod:
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.NodeVisitationBranching.create_child_nodes
+```
+
+````
+
+`````
+
+`````{py:class} HierarchicalStrongBranching
+:canonical: src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching
+```
+
+````{py:method} find_best_y_branching(routes: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route], route_values: typing.Dict[int, float], optional_nodes: typing.Set[int], master: typing.Optional[typing.Any] = None, phase1_size: int = 8, phase2_size: int = 4, tol: float = 0.0001) -> typing.Optional[typing.Tuple[int, float]]
+:canonical: src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching.find_best_y_branching
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching.find_best_y_branching
+```
+
+````
+
+````{py:method} create_child_nodes(parent: logic.src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode, node: int, y_value: float) -> Tuple[BranchNode, BranchNode]
+:canonical: src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching.create_child_nodes
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.branching.strategies.HierarchicalStrongBranching.create_child_nodes
 ```
 
 ````

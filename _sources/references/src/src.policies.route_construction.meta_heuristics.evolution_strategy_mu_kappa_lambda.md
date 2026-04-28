@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params
-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver
 ```
 

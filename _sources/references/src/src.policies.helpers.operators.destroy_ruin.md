@@ -13,18 +13,18 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.destroy_ruin.guided
-src.policies.helpers.operators.destroy_ruin.string
-src.policies.helpers.operators.destroy_ruin.random
+src.policies.helpers.operators.destroy_ruin.historical
 src.policies.helpers.operators.destroy_ruin.cluster
-src.policies.helpers.operators.destroy_ruin.neighbor
-src.policies.helpers.operators.destroy_ruin.worst
+src.policies.helpers.operators.destroy_ruin.random
 src.policies.helpers.operators.destroy_ruin.sector
 src.policies.helpers.operators.destroy_ruin.shaw
 src.policies.helpers.operators.destroy_ruin.route
-src.policies.helpers.operators.destroy_ruin.historical
-src.policies.helpers.operators.destroy_ruin.multi_period
 src.policies.helpers.operators.destroy_ruin.branch_and_bound
+src.policies.helpers.operators.destroy_ruin.worst
+src.policies.helpers.operators.destroy_ruin.neighbor
+src.policies.helpers.operators.destroy_ruin.multi_period
+src.policies.helpers.operators.destroy_ruin.string
+src.policies.helpers.operators.destroy_ruin.guided
 ```
 
 ## Package Contents

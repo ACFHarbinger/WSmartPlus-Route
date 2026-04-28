@@ -14,12 +14,12 @@
 :maxdepth: 3
 
 src.tracking.database
-src.tracking.core
-src.tracking.profiling
-src.tracking.helpers
 src.tracking.validation
+src.tracking.profiling
 src.tracking.logging
+src.tracking.core
 src.tracking.hooks
+src.tracking.helpers
 src.tracking.integrations
 ```
 

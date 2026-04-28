@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy
-src.models.core.hybrid_attention_model.improvement_step_decoder
 src.models.core.hybrid_attention_model.hybrid_two_step_policy
+src.models.core.hybrid_attention_model.improvement_step_decoder
+src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy
 ```
 
 ## Package Contents

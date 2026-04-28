@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.policy_es_mpl
+src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver
 ```
 

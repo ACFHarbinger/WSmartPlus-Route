@@ -102,28 +102,28 @@
 ```
 ````
 
-````{py:function} _import_alns_stage()
+````{py:function} _import_alns_stage() -> typing.Optional[typing.Callable[[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any], typing.Optional[typing.Any]]]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_alns_stage
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_alns_stage
 ```
 ````
 
-````{py:function} _import_bpc_stage()
+````{py:function} _import_bpc_stage() -> typing.Optional[typing.Callable[[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any], typing.Optional[typing.Any]]]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_bpc_stage
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_bpc_stage
 ```
 ````
 
-````{py:function} _import_sp_stage()
+````{py:function} _import_sp_stage() -> typing.Optional[typing.Callable[[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any], typing.Optional[typing.Any]]]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_sp_stage
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_sp_stage
 ```
 ````
 
-````{py:function} _import_alns_params()
+````{py:function} _import_alns_params() -> typing.Optional[typing.Type[typing.Any]]
 :canonical: src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_alns_params
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.dispatcher._import_alns_params

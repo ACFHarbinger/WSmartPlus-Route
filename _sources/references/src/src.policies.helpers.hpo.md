@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.hpo.base
 src.policies.helpers.hpo.search_spaces
+src.policies.helpers.hpo.base
 src.policies.helpers.hpo.hpo_handler
 ```

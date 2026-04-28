@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.rl.policies.hgs
-src.configs.rl.policies.hvpl
-src.configs.rl.policies.aco
 src.configs.rl.policies.ils
 src.configs.rl.policies.rls
-src.configs.rl.policies.alns
 src.configs.rl.policies.hgs_alns
+src.configs.rl.policies.hgs
+src.configs.rl.policies.alns
+src.configs.rl.policies.aco
+src.configs.rl.policies.hvpl
 ```
 
 ## Package Contents

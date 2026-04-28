@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.common.critic_network.policy
 src.models.common.critic_network.model
+src.models.common.critic_network.policy
 ```
 
 ## Package Contents

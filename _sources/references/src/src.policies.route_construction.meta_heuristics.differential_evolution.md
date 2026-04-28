@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.meta_heuristics.differential_evolution.policy_de
 src.policies.route_construction.meta_heuristics.differential_evolution.params
 src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy
 src.policies.route_construction.meta_heuristics.differential_evolution.solver
-src.policies.route_construction.meta_heuristics.differential_evolution.policy_de
 ```
 
 ## Package Contents
