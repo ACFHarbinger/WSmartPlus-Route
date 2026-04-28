@@ -1,0 +1,58 @@
+{
+    "initial_temperature": {
+        "type": "float",
+        "default": 100.0
+    },
+    "cooling_rate": {
+        "type": "float",
+        "default": 0.95
+    },
+    "min_temperature": {
+        "type": "float",
+        "default": 0.01
+    },
+    "iterations_per_temp": {
+        "type": "int",
+        "default": 100
+    },
+    "nb_granular": {
+        "type": "int",
+        "default": 20
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "AcceptanceConfig(method='bmc', params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.95, seed=42))"
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "n_ants": {
+        "type": "int",
+        "default": 20
+    },
+    "alpha": {
+        "type": "float",
+        "default": 1.0
+    },
+    "beta": {
+        "type": "float",
+        "default": 2.0
+    },
+    "rho": {
+        "type": "float",
+        "default": 0.1
+    },
+    "tau_0": {
+        "type": "float",
+        "default": 1.0
+    },
+    "tau_min": {
+        "type": "float",
+        "default": 0.01
+    },
+    "tau_max": {
+        "type": "float",
+        "default": 10.0
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "scale": {
+        "type": "float",
+        "default": 5.0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "k_sparse": {
+        "type": "int",
+        "default": 15
+    },
+    "local_search": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "elitist_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "AcceptanceConfig(method='oi', params=OnlyImprovingConfig())"
+    }
+}

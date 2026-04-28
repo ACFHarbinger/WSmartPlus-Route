@@ -1,0 +1,38 @@
+{
+    "k_best": {
+        "type": "int",
+        "default": 3
+    },
+    "n_starts": {
+        "type": "int",
+        "default": 10
+    },
+    "distance_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

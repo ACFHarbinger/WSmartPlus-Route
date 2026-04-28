@@ -1,0 +1,62 @@
+{
+    "lambda_param": {
+        "type": "float",
+        "default": 1.0
+    },
+    "alpha_param": {
+        "type": "float",
+        "default": 0.3
+    },
+    "penalty_cycles": {
+        "type": "int",
+        "default": 1000
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "n_llh": {
+        "type": "int",
+        "default": 6
+    },
+    "inner_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "fls_coupling_prob": {
+        "type": "float",
+        "default": 0.8
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

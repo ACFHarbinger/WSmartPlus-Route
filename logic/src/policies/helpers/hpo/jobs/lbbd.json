@@ -1,0 +1,74 @@
+{
+    "num_days": {
+        "type": "int",
+        "default": 3
+    },
+    "stochastic_master": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mean_increment": {
+        "type": "float",
+        "default": 0.2
+    },
+    "num_scenarios": {
+        "type": "int",
+        "default": 5
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 20
+    },
+    "benders_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "subproblem_timeout": {
+        "type": "float",
+        "default": 20.0
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.05
+    },
+    "waste_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "cost_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 10.0
+    },
+    "use_nogood_cuts": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "use_optimality_cuts": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

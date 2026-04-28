@@ -1,0 +1,59 @@
+{
+    "population_size": {
+        "type": "int",
+        "default": 30
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "diversity_injection_rate": {
+        "type": "float",
+        "default": 0.2
+    },
+    "elite_learning_weights": {
+        "type": "float",
+        "default": null
+    },
+    "elite_count": {
+        "type": "int",
+        "default": 3
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

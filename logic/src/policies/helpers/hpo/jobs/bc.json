@@ -1,0 +1,78 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.0
+    },
+    "use_heuristics": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "use_exact_separation": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "max_cuts_per_round": {
+        "type": "int",
+        "default": 50
+    },
+    "enable_fractional_capacity_cuts": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "use_saa": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "num_scenarios": {
+        "type": "int",
+        "default": 10
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    }
+}

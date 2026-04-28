@@ -1,0 +1,52 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "lp_time_limit": {
+        "type": "float",
+        "default": 10.0
+    },
+    "mip_limit_nodes": {
+        "type": "int",
+        "default": 1000
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "swarm_size": {
+        "type": "int",
+        "default": 20
+    },
+    "iters": {
+        "type": "int",
+        "default": 50
+    },
+    "w": {
+        "type": "float",
+        "default": 0.8
+    },
+    "c1": {
+        "type": "float",
+        "default": 2.0
+    },
+    "c2": {
+        "type": "float",
+        "default": 2.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

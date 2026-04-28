@@ -1,0 +1,22 @@
+{
+    "initial_level": {
+        "type": "float",
+        "default": 100.0
+    },
+    "beta": {
+        "type": "float",
+        "default": 0.01
+    },
+    "t_max": {
+        "type": "int",
+        "default": 1000
+    },
+    "maximization": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "num_days": {
+        "type": "int",
+        "default": 3
+    },
+    "num_realizations": {
+        "type": "int",
+        "default": 3
+    },
+    "mean_increment": {
+        "type": "float",
+        "default": 0.2
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.05
+    },
+    "waste_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "cost_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 10.0
+    },
+    "discount_factor": {
+        "type": "float",
+        "default": 0.95
+    },
+    "use_mtz": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

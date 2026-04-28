@@ -1,0 +1,14 @@
+{
+    "step_limit": {
+        "type": "int",
+        "default": 100
+    },
+    "maximization": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}

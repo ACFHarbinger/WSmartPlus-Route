@@ -1,0 +1,145 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 0.0
+    },
+    "restart_timer": {
+        "type": "float",
+        "default": 0.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mu": {
+        "type": "int",
+        "default": 25
+    },
+    "n_offspring": {
+        "type": "int",
+        "default": 40
+    },
+    "nb_elite": {
+        "type": "int",
+        "default": 4
+    },
+    "nb_close": {
+        "type": "int",
+        "default": 5
+    },
+    "nb_granular": {
+        "type": "int",
+        "default": 20
+    },
+    "target_feasible": {
+        "type": "float",
+        "default": 0.2
+    },
+    "n_iterations_no_improvement": {
+        "type": "int",
+        "default": 20000
+    },
+    "mutation_rate": {
+        "type": "float",
+        "default": 1.0
+    },
+    "repair_probability": {
+        "type": "float",
+        "default": 0.5
+    },
+    "crossover_rate": {
+        "type": "float",
+        "default": 1.0
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "max_vehicles": {
+        "type": "int",
+        "default": 0
+    },
+    "use_cross_exchange": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "use_lambda_interchange": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "lambda_max": {
+        "type": "int",
+        "default": 0
+    },
+    "use_ejection_chains": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "use_3opt": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "initial_penalty_capacity": {
+        "type": "float",
+        "default": 1.0
+    },
+    "penalty_increase": {
+        "type": "float",
+        "default": 1.2
+    },
+    "penalty_decrease": {
+        "type": "float",
+        "default": 0.85
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "custom"
+        ],
+        "default": "custom"
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "AcceptanceConfig(method='oi', params=OnlyImprovingConfig())"
+    }
+}

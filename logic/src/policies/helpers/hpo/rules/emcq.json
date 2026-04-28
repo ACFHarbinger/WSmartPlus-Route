@@ -1,0 +1,18 @@
+{
+    "p": {
+        "type": "float",
+        "default": 0.1
+    },
+    "p_boost": {
+        "type": "float",
+        "default": 0.5
+    },
+    "q_threshold": {
+        "type": "int",
+        "default": 50
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

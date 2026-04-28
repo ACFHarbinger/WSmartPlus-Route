@@ -1,0 +1,82 @@
+{
+    "n_teams": {
+        "type": "int",
+        "default": 10
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "elite_coaching_iterations": {
+        "type": "int",
+        "default": 300
+    },
+    "regular_coaching_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "elite_size": {
+        "type": "int",
+        "default": 3
+    },
+    "sub_rate": {
+        "type": "float",
+        "default": 0.2
+    },
+    "pheromone_update_strategy": {
+        "type": "categorical",
+        "choices": [
+            "profit"
+        ],
+        "default": "profit"
+    },
+    "profit_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "aco": {
+        "type": "object",
+        "default": "factory"
+    },
+    "alns": {
+        "type": "object",
+        "default": "factory"
+    },
+    "rl_config": {
+        "type": "object",
+        "default": "factory"
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

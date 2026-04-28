@@ -1,0 +1,64 @@
+{
+    "rho": {
+        "type": "float",
+        "default": 1.0
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "convergence_tol": {
+        "type": "float",
+        "default": 0.01
+    },
+    "sub_solver": {
+        "type": "categorical",
+        "choices": [
+            "bc"
+        ],
+        "default": "bc"
+    },
+    "num_scenarios": {
+        "type": "int",
+        "default": 10
+    },
+    "horizon": {
+        "type": "int",
+        "default": 7
+    },
+    "consensus_scope": {
+        "type": "categorical",
+        "choices": [
+            "day_0"
+        ],
+        "default": "day_0"
+    },
+    "stockout_penalty": {
+        "type": "float",
+        "default": 500.0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "verbose": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    }
+}

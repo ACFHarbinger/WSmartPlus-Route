@@ -1,0 +1,30 @@
+{
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    },
+    "lns_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "ruin_fraction": {
+        "type": "float",
+        "default": 0.2
+    },
+    "repair_k": {
+        "type": "int",
+        "default": 2
+    },
+    "cost_per_km": {
+        "type": "float",
+        "default": 0.0
+    },
+    "revenue_kg": {
+        "type": "float",
+        "default": 0.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

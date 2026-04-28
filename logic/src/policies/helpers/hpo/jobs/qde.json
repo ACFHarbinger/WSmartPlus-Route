@@ -1,0 +1,46 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 20
+    },
+    "F": {
+        "type": "float",
+        "default": 0.5
+    },
+    "CR": {
+        "type": "float",
+        "default": 0.7
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

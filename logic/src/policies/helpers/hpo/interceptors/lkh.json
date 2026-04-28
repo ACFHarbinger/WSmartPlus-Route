@@ -1,0 +1,14 @@
+{
+    "max_iterations": {
+        "type": "int",
+        "default": 1000
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

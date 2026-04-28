@@ -1,0 +1,6 @@
+{
+    "confidence_factor": {
+        "type": "float",
+        "default": 1.0
+    }
+}

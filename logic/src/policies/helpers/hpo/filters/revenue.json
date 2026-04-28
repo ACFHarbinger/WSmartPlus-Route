@@ -1,0 +1,14 @@
+{
+    "revenue_kg": {
+        "type": "float",
+        "default": 1.0
+    },
+    "bin_capacity": {
+        "type": "float",
+        "default": 1.0
+    },
+    "revenue_threshold": {
+        "type": "float",
+        "default": 0.0
+    }
+}

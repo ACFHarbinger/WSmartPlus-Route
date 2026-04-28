@@ -1,0 +1,18 @@
+{
+    "initial_threshold": {
+        "type": "float",
+        "default": 100.0
+    },
+    "decay_rate": {
+        "type": "float",
+        "default": 0.95
+    },
+    "maximization": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}

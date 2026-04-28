@@ -1,0 +1,10 @@
+{
+    "threshold": {
+        "type": "float",
+        "default": 0.0
+    },
+    "revenue_kg": {
+        "type": "float",
+        "default": 1.0
+    }
+}

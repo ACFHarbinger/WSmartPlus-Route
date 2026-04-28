@@ -1,0 +1,14 @@
+{
+    "route_pool": {
+        "type": "int",
+        "default": null
+    },
+    "sp_time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

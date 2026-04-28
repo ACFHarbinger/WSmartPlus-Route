@@ -1,0 +1,6 @@
+{
+    "savings_min_fill_ratio": {
+        "type": "float",
+        "default": 0.5
+    }
+}

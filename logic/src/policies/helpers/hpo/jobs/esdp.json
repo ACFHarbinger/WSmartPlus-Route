@@ -1,0 +1,38 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 3600.0
+    },
+    "num_days": {
+        "type": "int",
+        "default": 5
+    },
+    "discrete_levels": {
+        "type": "int",
+        "default": 4
+    },
+    "max_fill_rate": {
+        "type": "float",
+        "default": 0.3
+    },
+    "max_nodes": {
+        "type": "int",
+        "default": 8
+    },
+    "discount_factor": {
+        "type": "float",
+        "default": 0.99
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 100.0
+    },
+    "cost_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "waste_weight": {
+        "type": "float",
+        "default": 10.0
+    }
+}

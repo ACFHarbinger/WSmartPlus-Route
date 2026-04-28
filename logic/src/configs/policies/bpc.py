@@ -67,6 +67,11 @@ class BPCConfig:
         lr_pre_pruning_depth_limit: Depth limit for LR pre-pruning.
         lr_warm_start_cg: Whether to warm-start column generation with LR solutions.
         prefer_shorter_path_dfs: Whether to prefer the child where the shorter path is still allowed.
+        enable_node_visitation_branching: Whether to enable hierarchical node-visitation (y_v) branching before arc/RF branching.
+        enable_dssr: Whether to enable Decremental State-Space Relaxation in pricing (Righini, Salani 2008).
+        dssr_max_iters: Maximum DSSR refinement iterations per pricing call.
+        enable_reduced_cost_arc_fixing: Whether to enable reduced-cost arc elimination from pricing graph (Irnich et al. 2010).
+        route_budget: Maximum route cost/distance budget for conflict-cut and path-elimination separation.
     """
 
     time_limit: float = 60.0
@@ -108,3 +113,23 @@ class BPCConfig:
     rcspp_timeout: float = 30.0  # Safety cap for single pricer call
     rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
     prefer_shorter_path_dfs: bool = True
+    # ── Tier 1 + Selection-Routing Duality Parameters ──────────────────────
+    enable_node_visitation_branching: bool = True
+    """Enable hierarchical node-visitation (y_v) branching before arc/RF branching.
+    Directly resolves the VRPP profit-selection × routing duality by branching
+    on which nodes to visit (Boussier, Feillet, Gendreau 2007; Pessoa et al. 2020)."""
+
+    enable_dssr: bool = True
+    """Enable Decremental State-Space Relaxation in pricing (Righini, Salani 2008).
+    Iteratively adds cycled vertices to ng-memory until returned paths are elementary."""
+
+    dssr_max_iters: int = 8
+    """Maximum DSSR refinement iterations per pricing call."""
+
+    enable_reduced_cost_arc_fixing: bool = True
+    """Enable reduced-cost arc elimination from pricing graph (Irnich et al. 2010).
+    Arcs whose min reduced cost exceeds the LP-incumbent gap are pruned."""
+
+    route_budget: float = float("inf")
+    """Maximum route cost/distance budget for conflict-cut and path-elimination separation.
+    Set to vehicle travel-time limit if applicable."""
