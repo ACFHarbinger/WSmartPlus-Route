@@ -17,6 +17,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
 import optuna
+import torch
+from optuna.integration import BoTorchSampler
 
 from logic.src.configs import Config
 
@@ -31,30 +33,56 @@ class PolicyHPOBase(ABC):
         best_values (Optional[List[float]]): Best objective values achieved (multi-objective mode).
     """
 
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, search_space: Optional[Dict[str, Any]] = None):
         """Initialize PolicyHPO.
 
         Args:
             cfg (Config): Root application configuration.
+            search_space (Optional[Dict[str, Any]]): Search space for this policy.
         """
         self.cfg = cfg
+        self.search_space = search_space or {}
         self.best_params: Optional[Dict[str, Any]] = None
         self.best_value: float = float("-inf")
         self.best_values: Optional[List[float]] = None
 
     @abstractmethod
-    def run(self, n_trials: int = 20) -> Union[float, List[float]]:
-        """Run the HPO process.
+    def run(self, cfg: Config) -> Union[float, List[float]]:
+        """Run a full simulation trial.
 
         Args:
-            n_trials (int): Number of optimization trials to perform.
+            cfg (Config): Config object with sampled parameters already applied.
 
         Returns:
-            Union[float, List[float]]: The best metric value(s) found across all
-                trials. Returns a single float in single-objective mode, or a list
-                of floats representing the Pareto-optimal point(s) in multi-objective mode.
+            Union[float, List[float]]: Metric value(s).
         """
         pass
+
+    def run_iterative(self, cfg: Config, max_steps: int) -> Any:
+        """Generator for multi-fidelity simulation reporting.
+
+        Yields intermediate metrics after each step (e.g. after each simulation day).
+        By default, this simply runs the full simulation and yields the final result.
+
+        Args:
+            cfg (Config): Config with sampled parameters.
+            max_steps (int): Maximum resource budget.
+
+        Yields:
+            Union[float, List[float]]: Intermediate metrics.
+        """
+        yield self.run(cfg)
+
+    def suggest_params(self, trial: optuna.Trial) -> Dict[str, Any]:
+        """Suggest all parameters in the search space for a trial.
+
+        Args:
+            trial (optuna.Trial): The Optuna trial object.
+
+        Returns:
+            Dict[str, Any]: Mapping of (possibly dot-separated) config paths to values.
+        """
+        return {name: self.suggest_param(trial, name, spec) for name, spec in self.search_space.items()}
 
     def _apply_params(self, cfg: Config, params: Dict[str, Any]) -> None:
         """Apply sampled parameters to the config.
@@ -246,9 +274,13 @@ class PolicyHPOBase(ABC):
 
         if method == "botorch":
             try:
-                from optuna.integration import BoTorchSampler  # type: ignore[import]
-
-                return BoTorchSampler(seed=seed)
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                return BoTorchSampler(
+                    seed=seed,
+                    n_startup_trials=20,  # Burn-in phase (LHS)
+                    n_ei_candidates=24,  # Candidates for acquisition maximization
+                    device=device,
+                )
             except ImportError as exc:
                 raise ImportError(
                     "method='botorch' requires the 'optuna-integration[botorch]' package. "

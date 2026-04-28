@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 import threading
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -59,12 +59,14 @@ class SimulationContext:
         result: Dictionary containing the final simulation results.
         data_dir: Path to the simulator data directory.
         results_dir: Path to the simulation results assets directory.
+        callback: Optional callback called after each simulation day: (day, metrics) -> None.
     """
 
     lock: Optional[threading.Lock]
     counter: Optional[Any]
     overall_progress: Optional[Any]
     shared_metrics: Any = None
+    callback: Optional[Callable[[int, Dict[str, Any], int], None]] = None
     exec_time: Optional[float] = None
     start_time: Optional[float] = None
     end_time: Optional[float] = None
@@ -110,6 +112,7 @@ class SimulationContext:
         self.pol_id = pol_id
         self.model_weights_path = model_weights_path
         self.variables_dict = variables_dict
+        self.callback = variables_dict.get("callback")
 
         self.lock = variables_dict.get("lock")
         self.counter = variables_dict.get("counter")

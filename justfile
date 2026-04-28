@@ -33,6 +33,12 @@ hpo_workers := "1"
 hpo_selection := ""
 hpo_acceptance := ""
 hpo_improver := ""
+hpo_trials := "10"
+hpo_samples := "5"
+hpo_policy_kw := "max_cg_iterations"
+hpo_selection_kw := ""
+hpo_acceptance_kw := ""
+hpo_improver_kw := ""
 
 #policies := "alns,hgs,sans,aco_hh,hvpl,psoma,swc_tcf,bpc"
 
@@ -128,10 +134,9 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
         sim.cpu_cores={{ n_cores }}
 
 # Run policy HPO for simulation
+
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
-hpo-sim policy=hpo_policy trials=n_trials method=hpo_method workers=hpo_workers \
-        selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver \
-        days=days area=area size=size samples=samples problem=problem:
+hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw days=days area=area size=size samples=hpo_samples problem=problem:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -142,10 +147,14 @@ hpo-sim policy=hpo_policy trials=n_trials method=hpo_method workers=hpo_workers 
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection:" "{{ selection }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:" "{{ acceptance }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy KW:" "{{ policy_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection KW:" "{{ selection_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance KW:" "{{ acceptance_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver KW:" "{{ improver_kw }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }} ({{ size }} nodes)"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Horizon:" "{{ days }} days"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
-    uv run python main.py task=hpo_sim \
+    uv run python main.py hpo_sim \
         hpo_sim.policy_name={{ policy }} \
         hpo_sim.n_trials={{ trials }} \
         hpo_sim.method={{ method }} \
@@ -153,6 +162,10 @@ hpo-sim policy=hpo_policy trials=n_trials method=hpo_method workers=hpo_workers 
         hpo_sim.selection_name={{ selection }} \
         hpo_sim.acceptance_name={{ acceptance }} \
         hpo_sim.improver_name={{ improver }} \
+        hpo_sim.policy_keywords={{ policy_kw }} \
+        hpo_sim.selection_keywords={{ selection_kw }} \
+        hpo_sim.acceptance_keywords={{ acceptance_kw }} \
+        hpo_sim.improver_keywords={{ improver_kw }} \
         hpo_sim.graph.n_days={{ days }} \
         hpo_sim.graph.area={{ area }} \
         hpo_sim.graph.num_loc={{ size }} \

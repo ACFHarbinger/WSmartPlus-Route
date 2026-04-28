@@ -35,13 +35,18 @@ Example:
     >>> # print(f"Best metric: {best_metric}")
 """
 
+import logging
 import multiprocessing as mp
 import os
-from typing import Any, Dict, List, Optional, Tuple, Union
+import warnings
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import optuna
 import torch
 from omegaconf import OmegaConf
+from optuna.importance import FanovaImportanceEvaluator
+from optuna.pruners import HyperbandPruner
+from optuna.trial import FrozenTrial
 
 from logic.src import tracking as wst
 from logic.src.configs import Config
@@ -57,7 +62,17 @@ from logic.src.pipeline.simulations.repository import (
 from logic.src.pipeline.simulations.simulator import sequential_simulations
 from logic.src.tracking.logging.pylogger import get_pylogger
 
-logger = get_pylogger(__name__)
+# Suppress verbose warnings from BoTorch for cleaner logs
+warnings.filterwarnings("ignore", category=UserWarning)
+
+logger = logging.getLogger("HPO_Handler")
+if not logger.handlers:
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s] - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+logger.setLevel(logging.INFO)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -69,6 +84,165 @@ MIN_RECOMMENDED_SAMPLES = 5
 
 # Metrics that are minimised (lower is better); all others are maximised.
 _MINIMISE_METRICS = {"overflows", "kg_lost", "length"}
+
+
+# ---------------------------------------------------------------------------
+# Handler Class
+# ---------------------------------------------------------------------------
+
+
+class HPOSimulationHandler:
+    """State-of-the-art HPO Engine for routing policies.
+
+    Integrates BoTorch (Gaussian Processes), Hyperband (Pruning), and fANOVA.
+
+    Attributes:
+        cfg (Config): Root application configuration.
+        study_name (str): Name of the Optuna study.
+        storage_url (str): URL of the Optuna storage backend.
+        directions (List[str]): List of optimization directions.
+        metric_names (List[str]): List of metric names.
+        max_budget (int): Maximum budget for the HPO process.
+        sampler (PolicyHPOBase): Sampler for Optuna.
+        pruner (HyperbandPruner): Pruner for Optuna.
+        study (optuna.study.Study): Optuna study object.
+    """
+
+    def __init__(
+        self,
+        cfg: Config,
+        study_name: str,
+        storage_url: str,
+        directions: List[str],
+        metric_names: Optional[List[str]] = None,
+        max_budget: int = 100,
+    ):
+        """Initialize HPOSimulationHandler.
+
+        Args:
+            cfg (Config): Root application configuration.
+            study_name (str): Name of the Optuna study.
+            storage_url (str): URL of the Optuna storage backend.
+            directions (List[str]): List of optimization directions.
+            metric_names (Optional[List[str]]): List of metric names.
+            max_budget (int): Maximum budget for the HPO process.
+
+        Returns:
+            None
+        """
+        self.cfg = cfg
+        self.study_name = study_name
+        self.storage_url = storage_url
+        self.directions = directions
+        self.metric_names = metric_names or [f"Obj_{i}" for i in range(len(directions))]
+        self.max_budget = max_budget
+
+        # Advanced Sampler: BoTorch (native covariance modeling)
+        self.sampler = PolicyHPOBase.build_sampler(
+            method=cfg.hpo_sim.method,
+            seed=cfg.seed,
+            search_space=cfg.hpo_sim.search_space,
+        )
+
+        # Multi-Fidelity Pruner: Hyperband
+        self.pruner = HyperbandPruner(
+            min_resource=1,
+            max_resource=self.max_budget,
+            reduction_factor=3,
+        )
+
+        self._init_storage()
+        self.study = optuna.create_study(
+            study_name=self.study_name,
+            storage=self.storage_url,
+            directions=self.directions,
+            sampler=self.sampler,
+            pruner=self.pruner,
+            load_if_exists=True,
+        )
+
+    def _init_storage(self) -> None:
+        """Ensure SQLite storage is ready.
+
+        Args:
+            self (HPOSimulationHandler): HPOSimulationHandler instance.
+
+        Returns:
+            None
+        """
+        if self.storage_url.startswith("sqlite:///"):
+            db_path = self.storage_url.replace("sqlite:///", "")
+            os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+            if not os.path.exists(db_path):
+                with open(db_path, "a"):
+                    pass
+
+    def get_objective(self, lock: Any, data_size: int) -> Callable[[optuna.Trial], Union[float, List[float]]]:
+        """Creates the Optuna objective closure.
+
+        Args:
+            self (HPOSimulationHandler): HPOSimulationHandler instance.
+            lock (Any): Lock for synchronization.
+            data_size (int): Size of the data.
+
+        Returns:
+            Callable[[optuna.Trial], Union[float, List[float]]]: Optuna objective closure.
+        """
+
+        def objective_fn(trial: optuna.Trial) -> Union[float, List[float]]:
+            # Use the existing functional objective but wrapped in the class state.
+            return objective(trial, self.cfg, data_size, lock)
+
+        return objective_fn
+
+    def run_fanova_analysis(self, target_idx: int = 0) -> None:
+        """Execute functional Analysis of Variance (fANOVA).
+
+        Args:
+            self (HPOSimulationHandler): HPOSimulationHandler instance.
+            target_idx (int): Index of the target metric.
+
+        Returns:
+            None
+        """
+        completed = [t for t in self.study.trials if t.state == optuna.trial.TrialState.COMPLETE]
+        if len(completed) < 30:
+            logger.info(f"fANOVA requires ~30 trials (found {len(completed)}). Skipping.")
+            return
+
+        logger.info(f"--- fANOVA Analysis (Target: {self.metric_names[target_idx]}) ---")
+        try:
+            evaluator = FanovaImportanceEvaluator(n_trees=64, max_depth=64)
+
+            def target_fn(t: FrozenTrial) -> float:
+                return float(t.values[target_idx] if t.values else t.value)
+
+            importances = optuna.importance.get_param_importances(self.study, evaluator=evaluator, target=target_fn)
+
+            for param, importance in importances.items():
+                logger.info(f"{param:>30}: {importance:.4f} ({importance * 100:>5.2f}%)")
+        except Exception as e:
+            logger.error(f"fANOVA failed: {e}")
+
+    def log_pareto_front(self) -> None:
+        """Report the Pareto-optimal frontier.
+
+        Args:
+            self (HPOSimulationHandler): HPOSimulationHandler instance.
+
+        Returns:
+            None
+        """
+        try:
+            best_trials = self.study.best_trials
+            logger.info(f"--- Pareto Front ({len(best_trials)} optimal configs) ---")
+            for _i, trial in enumerate(best_trials):
+                metrics_str = " | ".join(f"{n}: {v:.4f}" for n, v in zip(self.metric_names, trial.values, strict=False))
+                logger.info(f"Trial {trial.number} -> {metrics_str}")
+        except Exception:
+            if self.study.best_trial:
+                logger.info(f"Best Value: {self.study.best_value:.4f}")
+                logger.info(f"Best Params: {self.study.best_params}")
 
 
 def _metric_direction(metric_name: str) -> str:
@@ -148,6 +322,7 @@ def objective(  # noqa: C901
 
     # Resolve metric list (backwards-compatible with scalar 'metric' field).
     metrics: List[str] = list(getattr(hpo_sim, "metrics", None) or [getattr(hpo_sim, "metric", "profit")])
+    is_multi_objective = len(metrics) > 1
     search_space: Dict[str, Any] = dict(hpo_sim.search_space)
 
     # -----------------------------------------------------------------
@@ -207,7 +382,7 @@ def objective(  # noqa: C901
     expand_policy_configs(trial_cfg)  # type: ignore[arg-type]
 
     # -----------------------------------------------------------------
-    # 4. Resolve instance indices.
+    # 4. Resolve instance indices and device.
     # -----------------------------------------------------------------
     n_samples = hpo_sim.graph.n_samples
     num_loc = hpo_sim.graph.num_loc
@@ -228,13 +403,30 @@ def objective(  # noqa: C901
     device = torch.device(getattr(trial_cfg, "device", "cpu"))
 
     # -----------------------------------------------------------------
-    # 5. Run simulations.
+    # 5. Execute simulation (iterative or black-box).
     # -----------------------------------------------------------------
-    directions = [_metric_direction(m) for m in metrics]
-    # Fallback values: worst possible for each direction.
-    fallbacks = tuple(float("inf") if d == "minimize" else float("-inf") for d in directions)
-
     try:
+        # Check for iterative support if a specialized handler is available.
+        iterative_callback = None
+        if hpo_sim.method.lower() in ("nsgaii", "tpe", "cmaes") and not is_multi_objective:
+            # Only enable iterative pruning for single-objective for now to avoid complexity
+            def _iterative_callback(day: int, cum_metrics: Dict[str, float], s_id: int) -> None:
+                # To maintain step consistency across trials, we only report for the first sample
+                if s_id != sample_idx_ls[0][0]:
+                    return
+
+                # Report the primary metric
+                val = cum_metrics.get(metrics[0], 0.0)
+                trial.report(val, step=day)
+
+                if trial.should_prune():
+                    raise optuna.TrialPruned()
+
+            iterative_callback = _iterative_callback
+
+        # Standard execution via sequential_simulations.
+        # Note: sequential_simulations is currently a black-box. To support
+        # Hyperband pruning effectively, it would need to yield metrics per day.
         log, _, _ = sequential_simulations(
             cfg=trial_cfg,  # type: ignore[arg-type]
             device=device,
@@ -242,21 +434,24 @@ def objective(  # noqa: C901
             sample_idx_ls=sample_idx_ls,
             model_weights_path="",
             lock=lock,
+            callback=iterative_callback,
         )
 
+        if not log:
+            raise ValueError("Simulation returned no logs.")
+
+        # -----------------------------------------------------------------
+        # 6. Extract results.
+        # -----------------------------------------------------------------
         values = tuple(_extract_metric(log, m) for m in metrics)
 
+        return values[0] if len(values) == 1 else values
+
     except optuna.TrialPruned:
-        raise  # Propagate pruning signal correctly.
-
-    except Exception as exc:
-        logger.error(f"Trial {trial.number} failed: {exc}")
-        values = fallbacks
-
-    # -----------------------------------------------------------------
-    # 6. Return scalar or tuple depending on objective mode.
-    # -----------------------------------------------------------------
-    return values[0] if len(values) == 1 else values
+        raise
+    except Exception as e:
+        logger.error(f"Trial {trial.number} failed: {e}")
+        raise optuna.TrialPruned() from e
 
 
 # ---------------------------------------------------------------------------
@@ -291,14 +486,28 @@ def worker(
     # Silence per-worker Optuna INFO logs to avoid interleaved console noise.
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
+    print(f"[DEBUG] worker: study_name={study_name}, n_trials={n_trials}")
     base_cfg = OmegaConf.create(base_cfg_yaml)
 
     study = optuna.load_study(study_name=study_name, storage=storage_url)
     study.optimize(
-        lambda trial: objective(trial, base_cfg, data_size, lock),
+        lambda trial: objective_debug(trial, base_cfg, data_size, lock),
         n_trials=n_trials,
-        catch=(Exception,),  # Prevent a single bad trial from killing the worker.
     )
+
+
+def objective_debug(trial, base_cfg, data_size, lock):
+    print(f"[DEBUG] objective start: trial={trial.number}")
+    try:
+        res = objective(trial, base_cfg, data_size, lock)
+        print(f"[DEBUG] objective end: trial={trial.number}, res={res}")
+        return res
+    except Exception as e:
+        print(f"[DEBUG] objective error: trial={trial.number}, error={e}")
+        import traceback
+
+        traceback.print_exc()
+        raise
 
 
 # ---------------------------------------------------------------------------
@@ -343,6 +552,10 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
             filter=getattr(hpo_sim, "selection_name", None),
             interceptor=getattr(hpo_sim, "improver_name", None),
             rule=getattr(hpo_sim, "acceptance_name", None),
+            job_keywords=getattr(hpo_sim, "policy_keywords", None),
+            filter_keywords=getattr(hpo_sim, "selection_keywords", None),
+            interceptor_keywords=getattr(hpo_sim, "improver_keywords", None),
+            rule_keywords=getattr(hpo_sim, "acceptance_keywords", None),
         )
 
         if not search_space:
@@ -350,8 +563,12 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
                 f"No search space provided in config and no default found for "
                 f"policy='{hpo_sim.policy_name}'. HPO will perform no parameter changes."
             )
-    else:
-        # Validate the manually provided search space.
+        else:
+            # Save the composed search space back to the config for worker access.
+            hpo_sim.search_space = search_space
+
+    # Validate the final search space.
+    if search_space:
         validate_search_space(search_space, hpo_sim.policy_name)
 
     # Warn if n_samples is too low for reliable HPO.
@@ -397,72 +614,40 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
         except Exception:
             data_size = sim.graph.num_loc
 
-    # -----------------------------------------------------------------
-    # 4. Build sampler and pruner.
-    # -----------------------------------------------------------------
-    sampler = PolicyHPOBase.build_sampler(
-        method=hpo_sim.method,
-        seed=cfg.seed,
-        search_space=search_space,
-    )
-
-    # Hyperband pruner: starts pruning after min_resource steps, scales up
-    # to n_days (each day is a natural evaluation checkpoint for the WCRP).
-    pruner = optuna.pruners.HyperbandPruner(
-        min_resource=1,
-        max_resource=hpo_sim.graph.n_days,
-        reduction_factor=3,
-    )
-
-    # -----------------------------------------------------------------
-    # 5. Create or resume the persistent study.
-    # -----------------------------------------------------------------
     output_dir = getattr(cfg, "output_dir", str(ROOT_DIR))
     os.makedirs(output_dir, exist_ok=True)
-    db_path = os.path.join(output_dir, f"hpo_{hpo_sim.policy_name}.db")
-    storage_url = f"sqlite:///{db_path}"
-    study_name = f"{hpo_sim.policy_name}_seed{cfg.seed}"
-
-    logger.info(f"HPO storage: {db_path}  (study='{study_name}')")
-
-    study = optuna.create_study(
-        study_name=study_name,
-        storage=storage_url,
-        load_if_exists=True,  # Resume if the study already exists.
-        directions=directions,
-        sampler=sampler,
-        pruner=pruner,
-    )
-
-    # -----------------------------------------------------------------
-    # 6. Launch worker processes.
-    # -----------------------------------------------------------------
     n_workers = max(1, hpo_sim.num_workers)
     n_trials = hpo_sim.n_trials
-    trials_per_worker = max(1, n_trials // n_workers)
-    # The last worker picks up any remainder from integer division.
-    trials_last_worker = n_trials - trials_per_worker * (n_workers - 1)
+
+    handler = HPOSimulationHandler(
+        cfg=cfg,
+        study_name=f"{hpo_sim.policy_name}_seed{cfg.seed}",
+        storage_url=f"sqlite:///{os.path.join(output_dir, f'hpo_{hpo_sim.policy_name}.db')}",
+        directions=directions,
+        metric_names=metrics,
+        max_budget=hpo_sim.graph.n_days,
+    )
 
     logger.info(
         f"Starting HPO  policy={hpo_sim.policy_name}  method={hpo_sim.method}  trials={n_trials}  workers={n_workers}"
     )
 
-    # Serialise the config to YAML for safe inter-process transmission.
     base_cfg_yaml = OmegaConf.to_yaml(cfg, resolve=True)
-
     manager = mp.Manager()
     lock = manager.Lock()
 
     if n_workers == 1:
-        # Single-worker: run in-process to keep the stack trace readable.
-        worker(study_name, storage_url, base_cfg_yaml, data_size, n_trials, lock)
+        worker(handler.study_name, handler.storage_url, base_cfg_yaml, data_size, n_trials, lock)
     else:
         processes = []
+        trials_per_worker = max(1, n_trials // n_workers)
+        trials_last_worker = n_trials - trials_per_worker * (n_workers - 1)
+
         for i in range(n_workers):
             worker_trials = trials_last_worker if i == n_workers - 1 else trials_per_worker
             p = mp.Process(
                 target=worker,
-                args=(study_name, storage_url, base_cfg_yaml, data_size, worker_trials, lock),
+                args=(handler.study_name, handler.storage_url, base_cfg_yaml, data_size, worker_trials, lock),
                 daemon=False,
             )
             p.start()
@@ -471,16 +656,16 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
         for p in processes:
             p.join()
 
-    # Reload study from storage to get updated trials from all workers.
-    study = optuna.load_study(study_name=study_name, storage=storage_url)
+    # -----------------------------------------------------------------
+    # 6. Post-optimization analysis.
+    # -----------------------------------------------------------------
+    handler.log_pareto_front()
+    handler.run_fanova_analysis()
 
-    # -----------------------------------------------------------------
-    # 7. Extract best result(s) and log to tracker.
-    # -----------------------------------------------------------------
     run = wst.get_active_run()
 
     if is_multi_objective:
-        pareto_trials = study.best_trials
+        pareto_trials = handler.study.best_trials
         logger.info(f"HPO complete. Pareto front size: {len(pareto_trials)}")
 
         # Report the trial closest to the ideal point (normalised L1 distance).
@@ -499,7 +684,7 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
         return best_values
 
     else:
-        best_trial = study.best_trial
+        best_trial = handler.study.best_trial
         best_value = best_trial.value if best_trial else float("-inf")
 
         logger.info(f"HPO complete. Best {metrics[0]}: {best_value}")

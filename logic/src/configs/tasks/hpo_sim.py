@@ -36,17 +36,25 @@ class SimHPOConfig:
         selection_name: Optional name of the selection strategy (from filters/).
         acceptance_name: Optional name of the acceptance criterion (from rules/).
         improver_name: Optional name of the route improver (from interceptors/).
+        policy_keywords: Optional keywords to filter policy parameters.
+        selection_keywords: Optional keywords to filter selection parameters.
+        acceptance_keywords: Optional keywords to filter acceptance parameters.
+        improver_keywords: Optional keywords to filter improver parameters.
         graph: Graph configuration for simulation trials.
     """
 
     method: str = "tpe"
     metric: str = "profit"
     metrics: List[str] = field(default_factory=list)
-    n_trials: int = 20
+    n_trials: int = 10
     num_workers: int = 1
     search_space: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     policy_name: str = "alns"
     selection_name: Optional[str] = None
     acceptance_name: Optional[str] = None
     improver_name: Optional[str] = None
-    graph: GraphConfig = field(default_factory=GraphConfig)
+    policy_keywords: Optional[str] = None
+    selection_keywords: Optional[str] = None
+    acceptance_keywords: Optional[str] = None
+    improver_keywords: Optional[str] = None
+    graph: GraphConfig = field(default_factory=lambda: GraphConfig(n_samples=5))
