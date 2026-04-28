@@ -1,0 +1,21 @@
+{
+  "max_iterations": {
+    "type": "int",
+    "low": 1000,
+    "high": 10000,
+    "description": "Route constructor parameter."
+  },
+  "route_improvement.0.time_limit": {
+    "type": "float",
+    "low": 0.5,
+    "high": 5.0,
+    "description": "Route improver parameter (nested in list). Targets the time limit of the first refinement strategy."
+  },
+  "route_improvement.0.max_iterations": {
+    "type": "int",
+    "low": 10,
+    "high": 100,
+    "step": 10,
+    "description": "Internal iteration limit for the improver."
+  }
+}

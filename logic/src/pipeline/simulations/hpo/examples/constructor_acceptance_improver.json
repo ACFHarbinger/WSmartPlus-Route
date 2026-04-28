@@ -1,0 +1,30 @@
+{
+  "max_iterations": {
+    "type": "int",
+    "low": 500,
+    "high": 5000,
+    "description": "Route constructor parameter."
+  },
+  "acceptance_criterion.params.initial_temp": {
+    "type": "float",
+    "low": 10.0,
+    "high": 100.0,
+    "log": true,
+    "description": "Acceptance criteria parameter."
+  },
+  "route_improvement.0.time_limit": {
+    "type": "float",
+    "low": 1.0,
+    "high": 10.0,
+    "description": "Route improver parameter."
+  },
+  "route_improvement.0.engine": {
+    "type": "categorical",
+    "choices": [
+      "hgs",
+      "fasttsp",
+      "or_tools"
+    ],
+    "description": "Categorical choice for the improvement engine to use."
+  }
+}

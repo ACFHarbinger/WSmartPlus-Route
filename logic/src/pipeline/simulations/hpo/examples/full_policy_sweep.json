@@ -1,0 +1,40 @@
+{
+  "max_iterations": {
+    "type": "int",
+    "low": 1000,
+    "high": 5000,
+    "description": "Route constructor parameter (main policy config)."
+  },
+  "cooling_rate": {
+    "type": "float",
+    "low": 0.95,
+    "high": 0.99,
+    "description": "Another constructor parameter."
+  },
+  "mandatory_selection.0.max_fill": {
+    "type": "float",
+    "low": 0.7,
+    "high": 1.0,
+    "description": "Mandatory node selection parameter (nested)."
+  },
+  "acceptance_criterion.params.initial_temp": {
+    "type": "float",
+    "low": 10.0,
+    "high": 200.0,
+    "log": true,
+    "description": "Move acceptance criteria parameter (deeply nested)."
+  },
+  "route_improvement.0.time_limit": {
+    "type": "float",
+    "low": 1.0,
+    "high": 10.0,
+    "description": "Route improver parameter (nested in list)."
+  },
+  "sim.days": {
+    "type": "int",
+    "low": 7,
+    "high": 31,
+    "step": 1,
+    "description": "Absolute parameter path reaching outside the policy config into the root simulation config."
+  }
+}

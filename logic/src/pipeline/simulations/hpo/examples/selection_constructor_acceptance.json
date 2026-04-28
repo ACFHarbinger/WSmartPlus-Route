@@ -1,0 +1,31 @@
+{
+  "max_iterations": {
+    "type": "int",
+    "low": 2000,
+    "high": 8000,
+    "description": "Route constructor parameter."
+  },
+  "mandatory_selection.0.max_fill": {
+    "type": "float",
+    "low": 0.6,
+    "high": 1.0,
+    "step": 0.05,
+    "description": "Mandatory selection parameter (nested)."
+  },
+  "acceptance_criterion.params.initial_temp": {
+    "type": "float",
+    "low": 100.0,
+    "high": 1000.0,
+    "log": true,
+    "description": "Acceptance criteria parameter."
+  },
+  "acceptance_criterion.params.seed": {
+    "type": "categorical",
+    "choices": [
+      42,
+      123,
+      777
+    ],
+    "description": "Example of categorical sampling for specific seeds."
+  }
+}
