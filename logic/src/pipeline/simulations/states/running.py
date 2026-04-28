@@ -103,13 +103,16 @@ class RunningState(SimState):
             ctx.execution_time = time.perf_counter() - ctx.tic
 
             self._update_ctx_from_day_context(ctx, day_context)
-            self._update_metrics(ctx, day, day_context.output_dict, day_context.daily_log)
+            cum_metrics = self._update_metrics(ctx, day, day_context.output_dict, day_context.daily_log)
             if lineage:
                 lineage.on_step_end(day_context, day)
 
             hook.after_day(ctx.execution_time)
             if ctx.overall_progress:
                 ctx.overall_progress.update(1)
+
+            if ctx.callback:
+                ctx.callback(day, cum_metrics, ctx.sample_id)
 
     def _get_current_policy_config(self, ctx):
         """Standardizes policy config resolution from structured context.
@@ -207,7 +210,7 @@ class RunningState(SimState):
             with ctx.counter.get_lock():
                 ctx.counter.value += 1
 
-    def _update_metrics(self, ctx, day, output_dict, dlog):
+    def _update_metrics(self, ctx, day, output_dict, dlog) -> Dict[str, float]:
         """
         Args:
             ctx: The simulation context object.
@@ -230,3 +233,5 @@ class RunningState(SimState):
                     "policy": ctx.pol_name,
                     "sample_id": ctx.sample_id,
                 }
+                return cumulative_metrics
+        return {}

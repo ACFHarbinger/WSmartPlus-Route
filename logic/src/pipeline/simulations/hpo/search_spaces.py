@@ -42,7 +42,7 @@ import inspect
 import json
 import os
 import pkgutil
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 # ---------------------------------------------------------------------------
 # Directory constants
@@ -88,6 +88,14 @@ def validate_search_space(space: Dict[str, Any], policy_name: str) -> List[str]:
     """
     errors: List[str] = []
     for name, spec in space.items():
+        # Skip comments or metadata keys starting with an underscore
+        if name.startswith("_"):
+            continue
+
+        if not isinstance(spec, dict):
+            errors.append(f"[{policy_name}] '{name}': spec must be a dictionary, got {type(spec).__name__}.")
+            continue
+
         p_type = spec.get("type")
         if p_type not in _VALID_TYPES:
             errors.append(f"[{policy_name}] '{name}': unknown type '{p_type}'. Must be one of {sorted(_VALID_TYPES)}.")
@@ -176,7 +184,11 @@ POLICY_SEARCH_SPACES = JOB_SPACES
 
 
 def get_component_search_space(
-    component_type: str, name: str, raise_on_invalid: bool = True
+    component_type: str,
+    name: str,
+    raise_on_invalid: bool = True,
+    keywords: Optional[str] = None,
+    index: Optional[int] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """Retrieve search space for a specific component with its config path prefix.
 
@@ -195,8 +207,8 @@ def get_component_search_space(
         Dict[str, Dict[str, Any]]: Mapping of prefixed config paths to HPO specs.
     """
     registry_map = {
-        "filter": (FILTER_SPACES, "mandatory_selection.0."),
-        "interceptor": (INTERCEPTOR_SPACES, "route_improvement.0."),
+        "filter": (FILTER_SPACES, "mandatory_selection.{idx}."),
+        "interceptor": (INTERCEPTOR_SPACES, "route_improvement.{idx}."),
         "rule": (RULE_SPACES, "acceptance_criterion.params."),
         "job": (JOB_SPACES, ""),
     }
@@ -204,8 +216,26 @@ def get_component_search_space(
     if component_type not in registry_map:
         raise ValueError(f"Unknown component type: {component_type}. Use one of {list(registry_map.keys())}")
 
-    registry, prefix = registry_map[component_type]
+    registry, prefix_template = registry_map[component_type]
+
+    # Apply index if provided, otherwise use .0. as default for compatibility
+    if index is not None and "{idx}" in prefix_template:
+        prefix = prefix_template.format(idx=index)
+    elif "{idx}" in prefix_template:
+        prefix = prefix_template.format(idx=0)
+    else:
+        prefix = prefix_template
+
     space = registry.get(name.lower(), {})
+
+    if not space:
+        return {}
+
+    # Apply keyword filtering if requested.
+    if keywords:
+        kw_list = [k.strip().lower() for k in keywords.split(",") if k.strip()]
+        if kw_list:
+            space = {k: v for k, v in space.items() if any(kw in k.lower() for kw in kw_list)}
 
     if not space:
         return {}
@@ -221,9 +251,13 @@ def get_component_search_space(
 
 def compose_search_space(
     job: Optional[str] = None,
-    filter: Optional[str] = None,
-    interceptor: Optional[str] = None,
-    rule: Optional[str] = None,
+    filter: Optional[Union[str, List[str]]] = None,
+    interceptor: Optional[Union[str, List[str]]] = None,
+    rule: Optional[Union[str, List[str]]] = None,
+    job_keywords: Optional[str] = None,
+    filter_keywords: Optional[str] = None,
+    interceptor_keywords: Optional[str] = None,
+    rule_keywords: Optional[str] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """Compose a full search space from multiple components.
 
@@ -239,13 +273,25 @@ def compose_search_space(
     composed: Dict[str, Dict[str, Any]] = {}
 
     if job:
-        composed.update(get_component_search_space("job", job))
+        composed.update(get_component_search_space("job", job, keywords=job_keywords))
+
+    # Handle multiple filters (mandatory selectors)
     if filter:
-        composed.update(get_component_search_space("filter", filter))
+        filters = [filter] if isinstance(filter, str) else filter
+        for idx, f_name in enumerate(filters):
+            composed.update(get_component_search_space("filter", f_name, keywords=filter_keywords, index=idx))
+
+    # Handle multiple interceptors (route improvers)
     if interceptor:
-        composed.update(get_component_search_space("interceptor", interceptor))
+        interceptors = [interceptor] if isinstance(interceptor, str) else interceptor
+        for idx, i_name in enumerate(interceptors):
+            composed.update(get_component_search_space("interceptor", i_name, keywords=interceptor_keywords, index=idx))
+
+    # Acceptance criteria (rule) - usually single, but keep consistent
     if rule:
-        composed.update(get_component_search_space("rule", rule))
+        rules = [rule] if isinstance(rule, str) else rule
+        for r_name in rules:
+            composed.update(get_component_search_space("rule", r_name, keywords=rule_keywords))
 
     return composed
 

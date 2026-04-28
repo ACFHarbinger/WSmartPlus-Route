@@ -20,6 +20,7 @@ import json
 import os
 import statistics
 import threading
+import traceback
 from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple, cast
 
@@ -394,8 +395,6 @@ def display_per_policy_simulation_summary(  # noqa: C901
             console.print("\n")
         except Exception as e:
             print(f"\n[ERROR] Failed to display simulation summary: {e}")
-            import traceback
-
             traceback.print_exc()
 
     if lock:

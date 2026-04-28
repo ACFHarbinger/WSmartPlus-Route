@@ -50,6 +50,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
+import gurobipy as gp
+from gurobipy import GRB as _GRB
 
 from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
 from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
@@ -410,7 +412,7 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         for idx, route in enumerate(master.routes):
             try:
                 lam = master.lambda_vars[idx].X
-            except Exception:
+            except (AttributeError, gp.GurobiError):
                 continue
 
             if lam < 1e-6:
@@ -550,7 +552,10 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
         # capacity structure, not on branching decisions. Safe for GlobalCutPool.
 
         # 1. Aggregate edge flow: x_e = Σ_{k} w_{ek} λ_k
-        route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        try:
+            route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        except (AttributeError, gp.GurobiError):
+            return 0
         edge_to_routes: Dict[Tuple[int, int], List[Tuple[int, int]]] = {}  # arc -> list of (route_idx, weight)
 
         for ridx in route_values:
@@ -574,7 +579,10 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
         # 2. Identify saturated edges
         saturated_edges = []
         for e, routes_info in edge_to_routes.items():
-            flow = sum(master.lambda_vars[ridx].X * w for ridx, w in routes_info)
+            try:
+                flow = sum(master.lambda_vars[ridx].X * w for ridx, w in routes_info)
+            except (AttributeError, gp.GurobiError):
+                flow = 0.0
             if flow > self.capacity + self.epsilon:
                 saturated_edges.append((e, routes_info, flow))
 
@@ -588,7 +596,10 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
 
             # 3. Find minimal cover C
             # Sort routes by λ_k descending
-            routes_info.sort(key=lambda x: master.lambda_vars[x[0]].X, reverse=True)
+            try:
+                routes_info.sort(key=lambda x: master.lambda_vars[x[0]].X, reverse=True)
+            except (AttributeError, gp.GurobiError):
+                continue
 
             cover_indices = []
             weight_sum = 0
@@ -691,7 +702,10 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
 
         # Strategy: find routes with largest fractional values.
         # If the sum of the top K+1 λ_k values exceeds K, we have a violation.
-        route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        try:
+            route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
+        except (AttributeError, gp.GurobiError):
+            return 0
         if len(route_values) <= master.vehicle_limit:
             return 0
 
@@ -1613,8 +1627,6 @@ class MinCutInequalityEngine(CuttingPlaneEngine):
                 # Fallback: tighten the optional cover constraint RHS directly
                 constr = master.model.getConstrByName(f"coverage_{node}")
                 if constr is not None:
-                    from gurobipy import GRB as _GRB
-
                     constr.Sense = _GRB.GREATER_EQUAL
                     constr.RHS = max(float(constr.RHS), y_v - violation * 0.5)
                     success = True
@@ -1883,8 +1895,6 @@ class LimitedMemoryRank1CutEngine(CuttingPlaneEngine):
             candidates = fractional_nodes[: min(15, len(fractional_nodes))]
             if len(candidates) < size:
                 continue
-
-            import itertools
 
             for subset in itertools.combinations(candidates, size):
                 # Compute LHS = Σ_r ⌊(Σ_{v∈C} a_{vr}) / 2⌋ · λ_r
