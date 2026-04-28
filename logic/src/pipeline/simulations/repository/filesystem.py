@@ -166,7 +166,7 @@ class FileSystemRepository(SimulationRepository):
         """
         d_dir = self._get_data_dir(data_dir)
         src_area = area.translate(str.maketrans("", "", "-_ ")).lower()
-        wtype = waste_type if waste_type is None else udef.WASTE_TYPES[waste_type]
+        wtype = udef.WASTE_TYPES[waste_type] if waste_type and waste_type in udef.WASTE_TYPES else None
 
         if lock is not None:
             lock.acquire(timeout=udef.LOCK_TIMEOUT)

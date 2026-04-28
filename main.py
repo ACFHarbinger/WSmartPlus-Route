@@ -87,13 +87,17 @@ def main() -> None:
     # overrides (e.g., 'eval' -> 'task=eval').
     # ========================================================================
     HYDRA_TASKS = {"train", "evaluation", "eval", "test_sim", "gen_data", "hpo", "meta_train", "hpo_sim", "sim_hpo"}
-    if len(sys.argv) > 1 and sys.argv[1] in HYDRA_TASKS:
-        task = sys.argv.pop(1)
-        sys.argv.append(f"tasks={task}")
-        sys.argv.append(f"task={task}")
-        hydra_entry_point()
-    else:
-        parser_entry_point(parse_params())
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1]
+        if first_arg in HYDRA_TASKS or first_arg.startswith("task=") or first_arg.startswith("tasks="):
+            if first_arg in HYDRA_TASKS:
+                task = sys.argv.pop(1)
+                sys.argv.append(f"tasks={task}")
+                sys.argv.append(f"task={task}")
+            hydra_entry_point()
+            return
+
+    parser_entry_point(parse_params())
 
 
 if __name__ == "__main__":

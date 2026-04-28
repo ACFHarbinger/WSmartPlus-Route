@@ -406,6 +406,7 @@ def sequential_simulations(  # noqa: C901
     lock: Optional[Any],
     shared_metrics: Optional[Any] = None,
     task_count: int = 0,
+    callback: Optional[Callable[[int, Dict[str, Any]], None]] = None,
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Executes multiple simulation runs sequentially with aggregation.
@@ -419,6 +420,7 @@ def sequential_simulations(  # noqa: C901
         lock: Threading lock for file I/O synchronization.
         shared_metrics: Optional shared dict for real-time metrics.
         task_count: Total number of tasks.
+        callback: Optional callback called after each simulation day: (day, metrics) -> None.
 
     Returns:
         Tuple containing:
@@ -471,6 +473,7 @@ def sequential_simulations(  # noqa: C901
                     "overall_progress": overall_progress,
                     "shared_metrics": shared_metrics,
                     "task_count": task_count,
+                    "callback": callback,
                 }
 
                 context = SimulationContext(
@@ -502,6 +505,13 @@ def sequential_simulations(  # noqa: C901
                     overall_progress.update()
 
             except BaseException as e:
+                # If it's an Optuna pruning signal, re-raise it immediately
+                if "optuna" in sys.modules:
+                    import optuna
+
+                    if isinstance(e, optuna.TrialPruned):
+                        raise
+
                 # Report to redirected stderr so it's captured in simulation log files
                 print(
                     f"\n[CRITICAL ERROR] in sequential_simulations (Sample {sample_id}, Policy {pol_id}): {e}",

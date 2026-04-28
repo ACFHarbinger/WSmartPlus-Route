@@ -1,224 +1,79 @@
 {
-    "time_limit": {
-        "type": "float",
-        "default": 60.0
-    },
-    "profit_aware_operators": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
-    },
-    "vrpp": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
-    },
-    "seed": {
-        "type": "int",
-        "default": null
-    },
-    "mandatory_selection": {
-        "type": "object",
-        "default": null
-    },
-    "route_improvement": {
-        "type": "object",
-        "default": null
-    },
-    "search_strategy": {
-        "type": "categorical",
-        "choices": [
-            "depth_first"
-        ],
-        "default": "depth_first"
-    },
-    "cutting_planes": {
-        "type": "categorical",
-        "choices": [
-            "rcc"
-        ],
-        "default": "rcc"
-    },
-    "branching_strategy": {
-        "type": "categorical",
-        "choices": [
-            "divergence"
-        ],
-        "default": "divergence"
-    },
+    "_comment_section_1": "=== TIER 1 \u2014 PRIMARY PERFORMANCE LEVERS ===",
+    "_comment_tier1": "These dominate runtime vs. quality. Sweep these first (cheapest to vary).",
     "max_cg_iterations": {
         "type": "int",
-        "default": 50
-    },
-    "max_cut_iterations": {
-        "type": "int",
-        "default": 5
-    },
-    "max_cuts_per_iteration": {
-        "type": "int",
-        "default": 5
+        "low": 30,
+        "high": 200,
+        "step": 10,
+        "log": false,
+        "_comment": "CG iterations per B&B node. Low values risk a loose LP bound; high values overspend on near-root nodes. 50-100 covers most VRPP instances well."
     },
     "max_routes_per_pricing": {
         "type": "int",
-        "default": 5
+        "low": 5,
+        "high": 100,
+        "step": 5,
+        "_comment": "Columns added per pricing call. More columns = richer LP signal, but larger master LP. Beyond ~50 the master LP solve time dominates. Start with 20."
     },
-    "max_bb_nodes": {
+    "max_cuts_per_iteration": {
         "type": "int",
-        "default": 1000
+        "low": 3,
+        "high": 20,
+        "step": 1,
+        "_comment": "Cuts added per separation round. Too few = loose LP; too many = dense master. 5-10 is the empirical sweet spot for VRPP."
     },
-    "optimality_gap": {
-        "type": "float",
-        "default": 0.0001
-    },
-    "early_termination_gap": {
-        "type": "float",
-        "default": 0.001
-    },
-    "use_ng_routes": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
+    "max_cut_iterations": {
+        "type": "int",
+        "low": 3,
+        "high": 15,
+        "step": 1,
+        "_comment": "Separation rounds per CG convergence. More rounds tighten the LP but delay return to pricing. Combined with max_cuts_per_iteration."
     },
     "ng_neighborhood_size": {
         "type": "int",
-        "default": 8
+        "low": 4,
+        "high": 12,
+        "step": 2,
+        "_comment": "Size of ng-route neighborhoods. Larger = tighter relaxation but exponential label growth. 8 is the practical standard; 12 is near-exact for VRPP at 100 nodes. Combined with DSSR."
     },
-    "enable_heuristic_rcc_separation": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
-    },
-    "enable_comb_cuts": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
-    },
-    "cut_orthogonality_threshold": {
+    "optimality_gap": {
         "type": "float",
-        "default": 0.8
+        "low": 0.001,
+        "high": 0.05,
+        "log": true,
+        "_comment": "Relative B&B termination gap. 0.005 (0.5%) is near-optimal for VRPP within 300s. Tightening below 0.001 rarely changes the solution but can double runtime."
     },
-    "use_spatial_partitioning": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
-    },
-    "enable_strong_branching_heuristic": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
-    },
-    "enable_column_pool_deduplication": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
-    },
-    "enable_hybrid_search": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
+    "early_termination_gap": {
+        "type": "float",
+        "low": 0.005,
+        "high": 0.1,
+        "log": true,
+        "_comment": "Heuristic early stop: accepted sub-optimality once a good incumbent is found. Must be >= optimality_gap. Values above 0.05 risk missing near-optimal solutions."
     },
     "rc_tolerance": {
         "type": "float",
-        "default": 1e-05
+        "low": 1e-08,
+        "high": 1e-05,
+        "log": true,
+        "_comment": "Minimum reduced cost to accept a new column. Too loose (>optimality_gap) triggers correctness warning in bpc_engine. Keep well below optimality_gap."
     },
-    "exact_mode": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
+    "cut_orthogonality_threshold": {
+        "type": "float",
+        "low": 0.5,
+        "high": 0.95,
+        "step": 0.05,
+        "_comment": "Cosine-similarity ceiling for cut filtering. Lower = more diverse cuts per round (tighter LP faster) but higher filter overhead. 0.7-0.8 is the empirical sweet spot."
     },
-    "strong_branching_size": {
-        "type": "int",
-        "default": 5
-    },
+    "_comment_section_2": "=== TIER 2 \u2014 BOOLEAN FEATURE FLAGS ===",
+    "_comment_tier2": "Each flag independently enables a mechanism. Sweep these after Tier 1.",
     "cg_at_root_only": {
         "type": "categorical",
         "choices": [
             true,
             false
         ],
-        "default": false
-    },
-    "lr_pre_pruning": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
-    },
-    "lr_lambda_init": {
-        "type": "float",
-        "default": 0.0
-    },
-    "lr_max_subgradient_iters": {
-        "type": "int",
-        "default": 30
-    },
-    "lr_subgradient_theta": {
-        "type": "float",
-        "default": 1.0
-    },
-    "lr_op_time_limit": {
-        "type": "float",
-        "default": 3.0
-    },
-    "lr_pre_pruning_depth_limit": {
-        "type": "int",
-        "default": -1
-    },
-    "lr_warm_start_cg": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": false
-    },
-    "rcspp_timeout": {
-        "type": "float",
-        "default": 30.0
-    },
-    "rcspp_max_labels": {
-        "type": "int",
-        "default": 1000000
-    },
-    "prefer_shorter_path_dfs": {
-        "type": "categorical",
-        "choices": [
-            true,
-            false
-        ],
-        "default": true
+        "_comment": "CRITICAL correctness lever. False = re-price at every B&B node (mandatory for near-optimality). True = heuristic bounds at non-root nodes, may prune incorrectly. Only set True to benchmark root-only vs. full CG speed tradeoff."
     },
     "enable_node_visitation_branching": {
         "type": "categorical",
@@ -226,7 +81,7 @@
             true,
             false
         ],
-        "default": true
+        "_comment": "Hierarchical y_v branching before arc/RF branching (Boussier et al. 2007). Directly resolves VRPP profit-selection x routing duality. Should be True for VRPP; disabling is useful as a baseline only."
     },
     "enable_dssr": {
         "type": "categorical",
@@ -234,11 +89,7 @@
             true,
             false
         ],
-        "default": true
-    },
-    "dssr_max_iters": {
-        "type": "int",
-        "default": 8
+        "_comment": "Decremental State-Space Relaxation (Righini & Salani 2008). Iteratively tightens ng-route relaxation toward elementarity. Decisive for VRPP (Keshtkaran et al. 2016). Disable only to isolate ng-route vs. DSSR contribution."
     },
     "enable_reduced_cost_arc_fixing": {
         "type": "categorical",
@@ -246,10 +97,201 @@
             true,
             false
         ],
-        "default": true
+        "_comment": "Eliminates arcs from pricing graph when their min reduced cost exceeds the LP-incumbent gap (Irnich et al. 2010). Typically removes 20-40% of arcs in later B&B nodes. Almost always beneficial."
+    },
+    "lr_pre_pruning": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "_comment": "Lagrangian pre-pruning via subgradient before CG at each B&B node. Beneficial at >100 nodes within 300s budget. Less impactful at the root (strong LP already). Pairs with lr_warm_start_cg."
+    },
+    "lr_warm_start_cg": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "_comment": "Seed CG column pool with the UOP solution at lambda* from LR. Only meaningful when lr_pre_pruning=True. Provides a stronger CG starting point at the cost of one extra OP solve per node."
+    },
+    "enable_strong_branching_heuristic": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "_comment": "Phase 1/2 LP evaluation of top branching candidates. Reduces B&B node count by 20-40% but costs ~0.5s per candidate LP solve. Beneficial when time_limit >= 120s and max_bb_nodes is large."
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "_comment": "Profit-aware greedy insertion for warm-start routes. Ensures optional nodes have non-zero LP duals from iteration 1, guiding RCSPP toward profitable subsets immediately."
+    },
+    "enable_column_pool_deduplication": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "_comment": "Periodically removes duplicate columns from the master LP. Keeps master LP tractable over long B&B runs. Almost always beneficial at negligible cost."
+    },
+    "_comment_section_3": "=== TIER 3 \u2014 SECONDARY NUMERIC PARAMS ===",
+    "_comment_tier3": "These interact with Tier 1 numerics. Sweep only after Tier 1 and Tier 2 are tuned.",
+    "max_bb_nodes": {
+        "type": "int",
+        "low": 500,
+        "high": 5000,
+        "step": 500,
+        "_comment": "Global B&B node limit. At 300s with DFS, 1000-2000 nodes is a practical ceiling before time_limit fires first. Higher values matter only when individual nodes are fast (<0.1s)."
+    },
+    "rcspp_timeout": {
+        "type": "float",
+        "low": 5.0,
+        "high": 30.0,
+        "step": 5.0,
+        "_comment": "Per-pricing-call time cap. At 300s total and cg_at_root_only=False, 10-15s is appropriate. Heuristic pricing always runs first (<0.1s); exact DP fires only if heuristic is insufficient."
+    },
+    "rcspp_max_labels": {
+        "type": "int",
+        "low": 500000,
+        "high": 3000000,
+        "step": 500000,
+        "_comment": "Max label count in RCSPP DP. Python-speed labeling (~10k labels/s) means the rcspp_timeout fires before this cap at 100 nodes. Exists as an OOM safety guard; sweep only if label density is unexpectedly high."
+    },
+    "strong_branching_size": {
+        "type": "int",
+        "low": 2,
+        "high": 8,
+        "step": 1,
+        "_comment": "Candidates evaluated in Phase 1 strong branching. Only active when enable_strong_branching_heuristic=True. Beyond 5 the marginal node-count reduction rarely justifies the LP solve overhead."
+    },
+    "dssr_max_iters": {
+        "type": "int",
+        "low": 3,
+        "high": 10,
+        "step": 1,
+        "_comment": "DSSR refinement iterations per pricing call. Convergence typically happens in 2-4 iterations; 8 is a safe ceiling. Only active when enable_dssr=True."
+    },
+    "_comment_section_4": "=== TIER 4 \u2014 LR SUBGRADIENT PARAMS ===",
+    "_comment_tier4": "Only sweep when lr_pre_pruning=True is confirmed beneficial in Tier 2.",
+    "lr_max_subgradient_iters": {
+        "type": "int",
+        "low": 15,
+        "high": 60,
+        "step": 5,
+        "_comment": "Polyak iterations per B&B node in the LR subgradient pass. Keep low (20-40): runs at every node. Diminishing returns beyond 40 for warm-started multipliers."
+    },
+    "lr_op_time_limit": {
+        "type": "float",
+        "low": 1.0,
+        "high": 8.0,
+        "step": 1.0,
+        "_comment": "Wall-clock budget per uncapacitated OP solve inside the LR subgradient. The engine caps total LR budget at 5% of remaining wall time regardless of this value."
+    },
+    "lr_subgradient_theta": {
+        "type": "float",
+        "low": 0.5,
+        "high": 2.0,
+        "step": 0.25,
+        "_comment": "Polyak step-size multiplier theta in (0, 2]. Values > 1.5 can cause oscillation near optimality. 1.0 is the standard safe default."
+    },
+    "lr_pre_pruning_depth_limit": {
+        "type": "categorical",
+        "choices": [
+            -1,
+            0,
+            3,
+            5,
+            10
+        ],
+        "_comment": "-1 = apply LR pruning at all depths. 0 = root only. Positive integers restrict to shallow nodes where the LR bound is strongest. Sweeping this isolates where LR earns its overhead."
+    },
+    "_comment_section_5": "=== FIXED PARAMS (single value \u2014 not swept) ===",
+    "_comment_fixed": "These are pinned by correctness constraints or structural requirements. The single choice is applied verbatim to every trial.",
+    "search_strategy": {
+        "type": "categorical",
+        "choices": [
+            "depth_first"
+        ],
+        "_comment": "Fixed: DFS is required for LP basis reuse across parent->child transitions (3-5x speedup on child LP solves). Best-first or BFS would invalidate warm-starting."
+    },
+    "branching_strategy": {
+        "type": "categorical",
+        "choices": [
+            "divergence"
+        ],
+        "_comment": "Fixed: spatial divergence branching (Barnhart et al. 1998) is structurally required for prefer_shorter_path_dfs and node_visitation_branching to function correctly."
+    },
+    "cutting_planes": {
+        "type": "categorical",
+        "choices": [
+            "all"
+        ],
+        "_comment": "Fixed: for near-optimal VRPP the composite cut suite (RCC + SRI + Min-Cut + Triangle Clique + limited-memory rank-1 + NodeProfit + PathElimination) is always superior. Sweeping against rcc-only is an ablation study, not quality optimisation."
+    },
+    "prefer_shorter_path_dfs": {
+        "type": "categorical",
+        "choices": [
+            true
+        ],
+        "_comment": "Fixed: correctness-adjacent setting matching paper \u00a73.2 child ordering. Uniformly beneficial when branching_strategy=divergence."
+    },
+    "enable_heuristic_rcc_separation": {
+        "type": "categorical",
+        "choices": [
+            true
+        ],
+        "_comment": "Fixed: max-flow RCC separation is cheap and finds violated cuts the connected-component heuristic misses. Disabling consistently weakens the LP bound."
+    },
+    "enable_comb_cuts": {
+        "type": "categorical",
+        "choices": [
+            false
+        ],
+        "_comment": "Fixed: comb separation is O(n^3) per round \u2014 ~5s per call at 100 nodes. Min-Cut and Triangle Clique provide better gap closure per second for VRPP."
+    },
+    "use_spatial_partitioning": {
+        "type": "categorical",
+        "choices": [
+            false
+        ],
+        "_comment": "Fixed: the flow-sorted median split is already well-balanced. Coordinate-based partitioning adds overhead without measurable benefit on tested instances."
+    },
+    "enable_hybrid_search": {
+        "type": "categorical",
+        "choices": [
+            false
+        ],
+        "_comment": "Fixed: pure DFS is superior to hybrid DFS/BFS when cg_at_root_only=False because basis reuse requires visiting child nodes immediately after their parent."
+    },
+    "exact_mode": {
+        "type": "categorical",
+        "choices": [
+            false
+        ],
+        "_comment": "Fixed: Wentges dual smoothing (exact_mode=False) is 2-5x faster in practice. Disabling it (exact_mode=True) is theoretically pure but CG convergence degrades severely within any finite time budget."
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true
+        ],
+        "_comment": "Fixed: problem type flag, not a hyperparameter."
+    },
+    "lr_lambda_init": {
+        "type": "float",
+        "low": 0.0,
+        "high": 0.0,
+        "_comment": "Fixed: starting the subgradient from the unpenalised point is universally robust. Non-zero warm-starts risk bias at early nodes where no incumbent yet exists."
     },
     "route_budget": {
         "type": "float",
-        "default": Infinity
+        "low": 1e+308,
+        "high": 1e+308,
+        "_comment": "Fixed: set to infinity (largest finite float). Enables Triangle Clique and Path Elimination cuts; without a finite travel-time bound these cuts reduce to no-ops. Override if vehicle time-window constraints are known."
     }
 }
