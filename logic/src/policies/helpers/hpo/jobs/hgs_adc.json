@@ -1,0 +1,22 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 25
+    },
+    "mu": {
+        "type": "int",
+        "default": 25
+    },
+    "nb_close": {
+        "type": "int",
+        "default": 4
+    },
+    "generations": {
+        "type": "int",
+        "default": 50
+    },
+    "n_vehicles": {
+        "type": "int",
+        "default": 0
+    }
+}

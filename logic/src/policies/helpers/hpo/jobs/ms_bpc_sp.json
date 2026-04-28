@@ -1,0 +1,215 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "search_strategy": {
+        "type": "categorical",
+        "choices": [
+            "depth_first"
+        ],
+        "default": "depth_first"
+    },
+    "cutting_planes": {
+        "type": "categorical",
+        "choices": [
+            "saturated_arc_lci"
+        ],
+        "default": "saturated_arc_lci"
+    },
+    "branching_strategy": {
+        "type": "categorical",
+        "choices": [
+            "divergence"
+        ],
+        "default": "divergence"
+    },
+    "max_cg_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "max_cut_iterations": {
+        "type": "int",
+        "default": 5
+    },
+    "max_cuts_per_iteration": {
+        "type": "int",
+        "default": 5
+    },
+    "max_routes_per_pricing": {
+        "type": "int",
+        "default": 5
+    },
+    "max_bb_nodes": {
+        "type": "int",
+        "default": 1000
+    },
+    "optimality_gap": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "early_termination_gap": {
+        "type": "float",
+        "default": 0.001
+    },
+    "use_ng_routes": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "ng_neighborhood_size": {
+        "type": "int",
+        "default": 8
+    },
+    "enable_heuristic_rcc_separation": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "enable_comb_cuts": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "cut_orthogonality_threshold": {
+        "type": "float",
+        "default": 0.8
+    },
+    "use_spatial_partitioning": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "enable_strong_branching_heuristic": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "enable_column_pool_deduplication": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "rc_tolerance": {
+        "type": "float",
+        "default": 1e-08
+    },
+    "exact_mode": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "strong_branching_size": {
+        "type": "int",
+        "default": 5
+    },
+    "cg_at_root_only": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "rcspp_timeout": {
+        "type": "float",
+        "default": 30.0
+    },
+    "rcspp_max_labels": {
+        "type": "int",
+        "default": 1000000
+    },
+    "prefer_shorter_path_dfs": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "lr_pre_pruning": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "lr_lambda_init": {
+        "type": "float",
+        "default": 0.0
+    },
+    "lr_max_subgradient_iters": {
+        "type": "int",
+        "default": 30
+    },
+    "lr_subgradient_theta": {
+        "type": "float",
+        "default": 1.0
+    },
+    "lr_op_time_limit": {
+        "type": "float",
+        "default": 3.0
+    },
+    "lr_pre_pruning_depth_limit": {
+        "type": "int",
+        "default": -1
+    },
+    "lr_warm_start_cg": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    }
+}

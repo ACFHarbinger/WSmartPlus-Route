@@ -1,0 +1,6 @@
+{
+    "threshold": {
+        "type": "float",
+        "default": 0.5
+    }
+}

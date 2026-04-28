@@ -1,0 +1,25 @@
+{
+    "learned_weights_path": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "learned_max_iter": {
+        "type": "int",
+        "default": 100
+    },
+    "learned_min_improvement": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "learned_neighborhood_size": {
+        "type": "int",
+        "default": 20
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

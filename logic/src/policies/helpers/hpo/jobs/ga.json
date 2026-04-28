@@ -1,0 +1,58 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 30
+    },
+    "max_generations": {
+        "type": "int",
+        "default": 100
+    },
+    "crossover_rate": {
+        "type": "float",
+        "default": 0.8
+    },
+    "mutation_rate": {
+        "type": "float",
+        "default": 0.1
+    },
+    "tournament_size": {
+        "type": "int",
+        "default": 3
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

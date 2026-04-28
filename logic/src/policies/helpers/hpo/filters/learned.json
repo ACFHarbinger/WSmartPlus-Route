@@ -1,0 +1,13 @@
+{
+    "learned_model_path": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "learned_threshold": {
+        "type": "float",
+        "default": 0.5
+    }
+}

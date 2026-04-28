@@ -1,0 +1,101 @@
+{
+    "mu": {
+        "type": "int",
+        "default": 15
+    },
+    "kappa": {
+        "type": "int",
+        "default": 7
+    },
+    "lambda_": {
+        "type": "int",
+        "default": 100
+    },
+    "rho": {
+        "type": "int",
+        "default": 2
+    },
+    "tau_local": {
+        "type": "float",
+        "default": 0.7071067811865475
+    },
+    "tau_global": {
+        "type": "float",
+        "default": 0.35355339059327373
+    },
+    "initial_sigma": {
+        "type": "float",
+        "default": 1.0
+    },
+    "min_sigma": {
+        "type": "float",
+        "default": 1e-10
+    },
+    "max_sigma": {
+        "type": "float",
+        "default": 10.0
+    },
+    "recombination_type": {
+        "type": "categorical",
+        "choices": [
+            "intermediate"
+        ],
+        "default": "intermediate"
+    },
+    "bounds_min": {
+        "type": "float",
+        "default": -5.0
+    },
+    "bounds_max": {
+        "type": "float",
+        "default": 5.0
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 3
+    },
+    "stagnation_limit": {
+        "type": "int",
+        "default": 10
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

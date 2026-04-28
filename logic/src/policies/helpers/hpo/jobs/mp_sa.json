@@ -1,0 +1,34 @@
+{
+    "iters": {
+        "type": "int",
+        "default": 500
+    },
+    "init_temp": {
+        "type": "float",
+        "default": 100.0
+    },
+    "cooling_rate": {
+        "type": "float",
+        "default": 0.95
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "p": {
+        "type": "float",
+        "default": 0.1
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "service_radius": {
+        "type": "float",
+        "default": 5.0
+    },
+    "critical_threshold": {
+        "type": "float",
+        "default": 0.9
+    }
+}

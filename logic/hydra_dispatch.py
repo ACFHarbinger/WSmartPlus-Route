@@ -118,7 +118,7 @@ def _run_task(cfg: Config) -> float:
         run_wsr_simulator_test(cfg)
         return 0.0
 
-    if task == "hpo_sim":
+    if task in ("hpo_sim", "sim_hpo"):
         from logic.src.policies.helpers.hpo.hpo_handler import run_hpo_sim
 
         if cfg.tracking.verbose:

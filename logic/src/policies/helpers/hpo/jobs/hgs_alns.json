@@ -1,0 +1,35 @@
+{
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "hgs": {
+        "type": "object",
+        "default": "factory"
+    },
+    "alns": {
+        "type": "object",
+        "default": "factory"
+    },
+    "mandatory_selection": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

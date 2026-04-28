@@ -1,0 +1,110 @@
+{
+    "runs": {
+        "type": "int",
+        "default": 10
+    },
+    "max_trials": {
+        "type": "int",
+        "default": 1000
+    },
+    "popmusic_subpath_size": {
+        "type": "int",
+        "default": 50
+    },
+    "popmusic_trials": {
+        "type": "int",
+        "default": 50
+    },
+    "popmusic_max_candidates": {
+        "type": "int",
+        "default": 5
+    },
+    "max_k_opt": {
+        "type": "int",
+        "default": 5
+    },
+    "use_ip_merging": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "max_pool_size": {
+        "type": "int",
+        "default": 5
+    },
+    "subgradient_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "alns_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "plateau_limit": {
+        "type": "int",
+        "default": 10
+    },
+    "deep_plateau_limit": {
+        "type": "int",
+        "default": 30
+    },
+    "sa_max_trials": {
+        "type": "int",
+        "default": 10000
+    },
+    "perturb_operator_weights": {
+        "type": "float",
+        "default": "factory"
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "dynamic_topology_discovery": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "native_prize_collecting": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

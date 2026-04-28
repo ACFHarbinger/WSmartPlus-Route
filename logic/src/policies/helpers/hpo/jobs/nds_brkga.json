@@ -1,0 +1,76 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 60
+    },
+    "n_elite": {
+        "type": "int",
+        "default": 15
+    },
+    "n_mutants": {
+        "type": "int",
+        "default": 10
+    },
+    "bias_elite": {
+        "type": "float",
+        "default": 0.7
+    },
+    "max_generations": {
+        "type": "int",
+        "default": 200
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 90.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 10.0
+    },
+    "seed_selection_strategy": {
+        "type": "categorical",
+        "choices": [
+            "fractional_knapsack"
+        ],
+        "default": "fractional_knapsack"
+    },
+    "seed_routing_strategy": {
+        "type": "categorical",
+        "choices": [
+            "greedy"
+        ],
+        "default": "greedy"
+    },
+    "n_seed_solutions": {
+        "type": "int",
+        "default": 5
+    },
+    "selection_threshold_min": {
+        "type": "float",
+        "default": 0.1
+    },
+    "selection_threshold_max": {
+        "type": "float",
+        "default": 0.9
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

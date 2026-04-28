@@ -1,0 +1,52 @@
+{
+    "lookahead": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "lagrangian": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "dual_bound": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "bandit": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "regret": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "tpks": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 600.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "verbose": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "stockout_penalty": {
+        "type": "float",
+        "default": 500.0
+    }
+}

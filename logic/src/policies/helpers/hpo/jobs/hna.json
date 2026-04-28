@@ -1,0 +1,40 @@
+{
+    "checkpoint_path": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "device": {
+        "type": "categorical",
+        "choices": [
+            "cpu"
+        ],
+        "default": "cpu"
+    },
+    "horizon": {
+        "type": "int",
+        "default": 7
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 500.0
+    },
+    "greedy_threshold": {
+        "type": "float",
+        "default": 75.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "verbose": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    }
+}

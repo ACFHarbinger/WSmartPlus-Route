@@ -1,0 +1,66 @@
+{
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "num_clusters": {
+        "type": "int",
+        "default": 0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "assignment_method": {
+        "type": "categorical",
+        "choices": [
+            "greedy"
+        ],
+        "default": "greedy"
+    },
+    "route_optimizer": {
+        "type": "categorical",
+        "choices": [
+            "default"
+        ],
+        "default": "default"
+    },
+    "strict_fleet": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed_criterion": {
+        "type": "categorical",
+        "choices": [
+            "distance"
+        ],
+        "default": "distance"
+    },
+    "mip_objective": {
+        "type": "categorical",
+        "choices": [
+            "minimize_cost"
+        ],
+        "default": "minimize_cost"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "iters": {
+        "type": "int",
+        "default": 50
+    },
+    "perturb_size": {
+        "type": "int",
+        "default": 3
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

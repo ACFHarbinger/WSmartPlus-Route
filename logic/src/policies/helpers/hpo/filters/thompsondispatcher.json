@@ -1,0 +1,27 @@
+{
+    "dispatcher_state_path": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "dispatcher_candidate_strategies": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "dispatcher_exploration": {
+        "type": "float",
+        "default": 1.0
+    },
+    "dispatcher_mode": {
+        "type": "categorical",
+        "choices": [
+            "union"
+        ],
+        "default": "union"
+    }
+}

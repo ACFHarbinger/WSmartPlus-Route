@@ -1,0 +1,10 @@
+{
+    "cvar_alpha": {
+        "type": "float",
+        "default": 0.95
+    },
+    "threshold": {
+        "type": "float",
+        "default": 0.0
+    }
+}

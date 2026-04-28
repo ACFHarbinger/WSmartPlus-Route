@@ -1,0 +1,128 @@
+{
+    "n_sources": {
+        "type": "int",
+        "default": 20
+    },
+    "limit": {
+        "type": "int",
+        "default": 10
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 1
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 120.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "max_restarts": {
+        "type": "int",
+        "default": 10
+    },
+    "max_iter_ils": {
+        "type": "int",
+        "default": 50
+    },
+    "perturbation_strength": {
+        "type": "int",
+        "default": 2
+    },
+    "use_set_partitioning": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mip_time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "sp_mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "N": {
+        "type": "int",
+        "default": 150
+    },
+    "A": {
+        "type": "float",
+        "default": 11.0
+    },
+    "MaxIter_a": {
+        "type": "int",
+        "default": 50
+    },
+    "MaxIter_b": {
+        "type": "int",
+        "default": 100
+    },
+    "MaxIterILS_b": {
+        "type": "int",
+        "default": 2000
+    },
+    "TDev_a": {
+        "type": "float",
+        "default": 0.05
+    },
+    "TDev_b": {
+        "type": "float",
+        "default": 0.005
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    }
+}

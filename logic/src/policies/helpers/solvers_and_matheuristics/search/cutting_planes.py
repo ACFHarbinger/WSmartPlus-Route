@@ -51,11 +51,11 @@ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.solvers_and_matheuristics import (
+from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
-    VRPPMasterProblem,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 
@@ -1476,7 +1476,7 @@ def create_cutting_plane_engine(  # noqa: C901
     elif engine_name == "node_profit_bound":
         return NodeProfitBoundEngine(v_model)
     elif engine_name == "path_elimination":
-        dist_matrix = kwargs.get("dist_matrix", None)
+        dist_matrix = kwargs.get("dist_matrix")
         route_budget = kwargs.get("route_budget", float("inf"))
         return PathEliminationEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget)
     elif engine_name in ("all", "composite"):

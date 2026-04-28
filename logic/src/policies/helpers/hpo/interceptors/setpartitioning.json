@@ -1,0 +1,26 @@
+{
+    "sp_n_perturbations": {
+        "type": "int",
+        "default": 20
+    },
+    "sp_include_dp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "sp_time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "ruin_fraction": {
+        "type": "float",
+        "default": 0.2
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

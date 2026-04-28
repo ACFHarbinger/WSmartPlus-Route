@@ -1,0 +1,72 @@
+{
+    "n_sources": {
+        "type": "int",
+        "default": 20
+    },
+    "limit": {
+        "type": "int",
+        "default": 10
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 1
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "num_perturbations": {
+        "type": "int",
+        "default": 3
+    },
+    "neighborhood_size": {
+        "type": "int",
+        "default": 20
+    },
+    "moves": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "penalization_cycle": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    }
+}

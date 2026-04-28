@@ -1,0 +1,30 @@
+{
+    "initial_credit": {
+        "type": "float",
+        "default": 0.0
+    },
+    "is_stochastic": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "max_demon_credit": {
+        "type": "float",
+        "default": null
+    },
+    "maximization": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

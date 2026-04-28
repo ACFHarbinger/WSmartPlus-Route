@@ -1,0 +1,10 @@
+{
+    "modular_alpha": {
+        "type": "float",
+        "default": 1.0
+    },
+    "modular_budget": {
+        "type": "int",
+        "default": 0
+    }
+}

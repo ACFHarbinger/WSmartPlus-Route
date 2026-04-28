@@ -1,0 +1,53 @@
+{
+    "horizon": {
+        "type": "int",
+        "default": 7
+    },
+    "look_ahead_days": {
+        "type": "int",
+        "default": 3
+    },
+    "n_scenarios": {
+        "type": "int",
+        "default": 10
+    },
+    "fill_threshold": {
+        "type": "float",
+        "default": 60.0
+    },
+    "candidate_strategy": {
+        "type": "categorical",
+        "choices": [
+            "threshold"
+        ],
+        "default": "threshold"
+    },
+    "max_candidate_sets": {
+        "type": "int",
+        "default": 20
+    },
+    "top_k": {
+        "type": "int",
+        "default": 10
+    },
+    "stockout_penalty": {
+        "type": "float",
+        "default": 500.0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "verbose": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    }
+}

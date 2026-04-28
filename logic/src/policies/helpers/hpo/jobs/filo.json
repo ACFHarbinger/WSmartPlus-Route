@@ -1,0 +1,106 @@
+{
+    "n_sources": {
+        "type": "int",
+        "default": 20
+    },
+    "limit": {
+        "type": "int",
+        "default": 10
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 50000
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 1
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "initial_temperature_factor": {
+        "type": "float",
+        "default": 10.0
+    },
+    "final_temperature_factor": {
+        "type": "float",
+        "default": 100.0
+    },
+    "shaking_lb_factor": {
+        "type": "float",
+        "default": 0.5
+    },
+    "shaking_ub_factor": {
+        "type": "float",
+        "default": 2.0
+    },
+    "shaking_lb_intensity": {
+        "type": "float",
+        "default": 0.5
+    },
+    "shaking_ub_intensity": {
+        "type": "float",
+        "default": 1.5
+    },
+    "omega_alpha": {
+        "type": "float",
+        "default": 0.5
+    },
+    "omega_base_multiplier": {
+        "type": "float",
+        "default": 1.0
+    },
+    "delta_gamma": {
+        "type": "float",
+        "default": 0.25
+    },
+    "gamma_base": {
+        "type": "float",
+        "default": 1.0
+    },
+    "gamma_lambda": {
+        "type": "float",
+        "default": 2.0
+    },
+    "svc_size": {
+        "type": "int",
+        "default": 50
+    },
+    "n_cw": {
+        "type": "int",
+        "default": 100
+    }
+}

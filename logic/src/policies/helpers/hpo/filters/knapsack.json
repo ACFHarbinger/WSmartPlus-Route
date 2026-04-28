@@ -1,0 +1,26 @@
+{
+    "n_vehicles": {
+        "type": "int",
+        "default": 1
+    },
+    "cost_per_km": {
+        "type": "float",
+        "default": 0.1
+    },
+    "use_eoq_threshold": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "holding_cost_per_kg_day": {
+        "type": "float",
+        "default": 0.0
+    },
+    "ordering_cost_per_visit": {
+        "type": "float",
+        "default": 0.0
+    }
+}

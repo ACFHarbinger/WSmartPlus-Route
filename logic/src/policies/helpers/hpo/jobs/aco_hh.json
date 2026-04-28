@@ -1,0 +1,107 @@
+{
+    "n_ants": {
+        "type": "int",
+        "default": 20
+    },
+    "alpha": {
+        "type": "float",
+        "default": 1.0
+    },
+    "beta": {
+        "type": "float",
+        "default": 2.0
+    },
+    "rho": {
+        "type": "float",
+        "default": 0.1
+    },
+    "tau_0": {
+        "type": "float",
+        "default": 1.0
+    },
+    "Q": {
+        "type": "float",
+        "default": 1.0
+    },
+    "lambda_val": {
+        "type": "float",
+        "default": 1.0001
+    },
+    "use_dynamic_lambda": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "elitism_ratio": {
+        "type": "float",
+        "default": 0.5
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "stagnation_limit": {
+        "type": "int",
+        "default": 10
+    },
+    "sequence_length": {
+        "type": "int",
+        "default": 5
+    },
+    "local_search": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "elitist_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

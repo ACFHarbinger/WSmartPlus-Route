@@ -1,0 +1,14 @@
+{
+    "history_length": {
+        "type": "int",
+        "default": 50
+    },
+    "maximization": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}

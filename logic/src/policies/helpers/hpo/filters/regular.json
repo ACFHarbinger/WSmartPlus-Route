@@ -1,0 +1,6 @@
+{
+    "frequency": {
+        "type": "int",
+        "default": 3
+    }
+}

@@ -128,45 +128,43 @@ import numpy as np
 from gurobipy import GRB
 
 from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_insertion, greedy_profit_insertion
-from logic.src.policies.helpers.solvers_and_matheuristics import (
-    BranchAndBoundTree,
-    RCSPPSolver,
-    SeparationEngine,
-    VRPPMasterProblem,
+from logic.src.policies.helpers.solvers_and_matheuristics.branching import BranchAndBoundTree
+from logic.src.policies.helpers.solvers_and_matheuristics.branching.pruning import (
+    BPCPruningException,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.branching.pruning import (
+    apply_branching_to_master as _apply_branching_to_master,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.branching.pruning import (
+    extract_forced_sets_from_constraints as _extract_forced_sets_from_constraints,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.branching.pruning import (
+    perform_strong_branching as _perform_strong_branching,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.pre_pruning import (
+    compute_lr_bound_at_node as _compute_lr_bound_at_node,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing import RCSPPSolver
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing import (
+    apply_reduced_cost_edge_fixing as _apply_reduced_cost_edge_fixing,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing import (
+    is_solution_integer as _is_solution_integer,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing import (
+    reduced_cost_arc_fixing as _reduced_cost_arc_fixing,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.search.column_generation import (
+    column_generation_loop as _column_generation_loop,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
     create_cutting_plane_engine,
 )
+from logic.src.policies.helpers.solvers_and_matheuristics.separation import SeparationEngine
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from .bpc_utils import (
-    BPCPruningException,
-)
-from .bpc_utils import (
-    apply_branching_to_master as _apply_branching_to_master,
-)
-from .bpc_utils import (
-    apply_reduced_cost_edge_fixing as _apply_reduced_cost_edge_fixing,
-)
-from .bpc_utils import (
-    column_generation_loop as _column_generation_loop,
-)
-from .bpc_utils import (
-    compute_lr_bound_at_node as _compute_lr_bound_at_node,
-)
-from .bpc_utils import (
-    extract_forced_sets_from_constraints as _extract_forced_sets_from_constraints,
-)
-from .bpc_utils import (
-    is_solution_integer as _is_solution_integer,
-)
-from .bpc_utils import (
-    perform_strong_branching as _perform_strong_branching,
-)
-from .bpc_utils import (
-    reduced_cost_arc_fixing as _reduced_cost_arc_fixing,
-)
 from .params import BPCParams
 
 logger = logging.getLogger(__name__)
@@ -544,7 +542,7 @@ def run_bpc(  # noqa: C901
     # ── Tier 1 + selection-routing duality supplemental cut engines ──────
     # These are always active regardless of cutting_planes_name, since they
     # specifically address the VRPP profit-selection × routing duality.
-    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
         CompositeCuttingPlaneEngine,
         LimitedMemoryRank1CutEngine,
         MinCutInequalityEngine,

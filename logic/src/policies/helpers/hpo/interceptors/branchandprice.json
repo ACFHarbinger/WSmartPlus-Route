@@ -1,0 +1,92 @@
+{
+    "bp_max_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "bp_max_routes_per_iteration": {
+        "type": "int",
+        "default": 10
+    },
+    "bp_optimality_gap": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "bp_branching_strategy": {
+        "type": "categorical",
+        "choices": [
+            "edge"
+        ],
+        "default": "edge"
+    },
+    "bp_max_branch_nodes": {
+        "type": "int",
+        "default": 1000
+    },
+    "bp_use_exact_pricing": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "bp_use_ng_routes": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "bp_ng_neighborhood_size": {
+        "type": "int",
+        "default": 8
+    },
+    "bp_tree_search_strategy": {
+        "type": "categorical",
+        "choices": [
+            "best_first"
+        ],
+        "default": "best_first"
+    },
+    "bp_vehicle_limit": {
+        "type": "int",
+        "default": null
+    },
+    "bp_cleanup_frequency": {
+        "type": "int",
+        "default": 20
+    },
+    "bp_cleanup_threshold": {
+        "type": "float",
+        "default": -100.0
+    },
+    "bp_early_termination_gap": {
+        "type": "float",
+        "default": 0.001
+    },
+    "bp_allow_heuristic_ryan_foster": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "bp_time_limit": {
+        "type": "float",
+        "default": 120.0
+    },
+    "bp_use_cspy": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "iterations": {
+        "type": "int",
+        "default": 1000
+    },
+    "params": {
+        "type": "float",
+        "default": "factory"
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

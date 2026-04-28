@@ -1,0 +1,6 @@
+{
+    "n_sectors": {
+        "type": "int",
+        "default": 5
+    }
+}

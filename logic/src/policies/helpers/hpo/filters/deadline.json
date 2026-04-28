@@ -1,0 +1,10 @@
+{
+    "horizon_days": {
+        "type": "int",
+        "default": 3
+    },
+    "threshold": {
+        "type": "float",
+        "default": 0.9
+    }
+}

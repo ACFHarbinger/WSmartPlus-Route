@@ -1,0 +1,68 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "k_min": {
+        "type": "int",
+        "default": 10
+    },
+    "k_max": {
+        "type": "int",
+        "default": 60
+    },
+    "k_step": {
+        "type": "int",
+        "default": 10
+    },
+    "time_limit_per_lb": {
+        "type": "float",
+        "default": 30.0
+    },
+    "max_lb_iterations": {
+        "type": "int",
+        "default": 15
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    }
+}

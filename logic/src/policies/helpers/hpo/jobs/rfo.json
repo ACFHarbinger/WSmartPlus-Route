@@ -1,0 +1,34 @@
+{
+    "window_size": {
+        "type": "int",
+        "default": 3
+    },
+    "step_size": {
+        "type": "int",
+        "default": 2
+    },
+    "mip_time": {
+        "type": "float",
+        "default": 60.0
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}
