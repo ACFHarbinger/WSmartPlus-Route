@@ -1,0 +1,42 @@
+{
+    "n_ants": {
+        "type": "int",
+        "default": 10
+    },
+    "iters": {
+        "type": "int",
+        "default": 50
+    },
+    "alpha": {
+        "type": "float",
+        "default": 1.0
+    },
+    "beta": {
+        "type": "float",
+        "default": 2.0
+    },
+    "rho": {
+        "type": "float",
+        "default": 0.1
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

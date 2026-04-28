@@ -1,0 +1,50 @@
+{
+    "n_teams": {
+        "type": "int",
+        "default": 5
+    },
+    "team_size": {
+        "type": "int",
+        "default": 4
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "stagnation_limit": {
+        "type": "int",
+        "default": 5
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 1
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

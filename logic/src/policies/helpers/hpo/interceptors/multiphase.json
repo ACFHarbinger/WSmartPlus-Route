@@ -1,0 +1,11 @@
+{
+    "phases": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

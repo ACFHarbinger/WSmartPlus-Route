@@ -1,0 +1,50 @@
+{
+    "num_days": {
+        "type": "int",
+        "default": 3
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "search_workers": {
+        "type": "int",
+        "default": 8
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "scaling_factor": {
+        "type": "int",
+        "default": 1000
+    },
+    "waste_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "cost_weight": {
+        "type": "float",
+        "default": 1.0
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 10.0
+    },
+    "mean_increment": {
+        "type": "float",
+        "default": 0.2
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

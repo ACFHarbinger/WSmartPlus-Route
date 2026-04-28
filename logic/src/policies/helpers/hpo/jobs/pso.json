@@ -1,0 +1,70 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 30
+    },
+    "inertia_weight_start": {
+        "type": "float",
+        "default": 0.9
+    },
+    "inertia_weight_end": {
+        "type": "float",
+        "default": 0.4
+    },
+    "cognitive_coef": {
+        "type": "float",
+        "default": 2.0
+    },
+    "social_coef": {
+        "type": "float",
+        "default": 2.0
+    },
+    "position_min": {
+        "type": "float",
+        "default": -1.0
+    },
+    "position_max": {
+        "type": "float",
+        "default": 1.0
+    },
+    "velocity_max": {
+        "type": "float",
+        "default": 0.5
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

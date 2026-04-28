@@ -1,0 +1,62 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 10.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 1000
+    },
+    "start_temp": {
+        "type": "float",
+        "default": 100.0
+    },
+    "cooling_rate": {
+        "type": "float",
+        "default": 0.995
+    },
+    "max_string_len": {
+        "type": "int",
+        "default": 10
+    },
+    "avg_string_len": {
+        "type": "float",
+        "default": 3.0
+    },
+    "blink_rate": {
+        "type": "float",
+        "default": 0.01
+    },
+    "destroy_ratio": {
+        "type": "float",
+        "default": 0.2
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

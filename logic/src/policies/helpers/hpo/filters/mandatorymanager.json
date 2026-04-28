@@ -1,0 +1,32 @@
+{
+    "hidden_dim": {
+        "type": "int",
+        "default": 128
+    },
+    "lstm_hidden": {
+        "type": "int",
+        "default": 64
+    },
+    "history_length": {
+        "type": "int",
+        "default": 10
+    },
+    "manager_critical_threshold": {
+        "type": "float",
+        "default": 0.9
+    },
+    "manager_weights": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "device": {
+        "type": "categorical",
+        "choices": [
+            "cuda"
+        ],
+        "default": "cuda"
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "population_size": {
+        "type": "int",
+        "default": 30
+    },
+    "max_generations": {
+        "type": "int",
+        "default": 50
+    },
+    "substitution_rate": {
+        "type": "float",
+        "default": 0.2
+    },
+    "crossover_rate": {
+        "type": "float",
+        "default": 0.8
+    },
+    "mutation_rate": {
+        "type": "float",
+        "default": 0.1
+    },
+    "elitism_count": {
+        "type": "int",
+        "default": 3
+    },
+    "aco_init_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "alns": {
+        "type": "object",
+        "default": "factory"
+    },
+    "maco": {
+        "type": "object",
+        "default": "factory"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

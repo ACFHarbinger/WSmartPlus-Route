@@ -1,0 +1,150 @@
+{
+    "alpha": {
+        "type": "float",
+        "default": 0.5
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 120.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "alns_max_iterations": {
+        "type": "int",
+        "default": 0
+    },
+    "alns_segment_size": {
+        "type": "int",
+        "default": 100
+    },
+    "alns_reaction_factor": {
+        "type": "float",
+        "default": 0.1
+    },
+    "alns_cooling_rate": {
+        "type": "float",
+        "default": 0.995
+    },
+    "alns_start_temp_control": {
+        "type": "float",
+        "default": 0.05
+    },
+    "alns_sigma_1": {
+        "type": "float",
+        "default": 33.0
+    },
+    "alns_sigma_2": {
+        "type": "float",
+        "default": 9.0
+    },
+    "alns_sigma_3": {
+        "type": "float",
+        "default": 13.0
+    },
+    "alns_xi": {
+        "type": "float",
+        "default": 0.4
+    },
+    "alns_min_removal": {
+        "type": "int",
+        "default": 4
+    },
+    "alns_noise_factor": {
+        "type": "float",
+        "default": 0.025
+    },
+    "alns_worst_removal_randomness": {
+        "type": "float",
+        "default": 3.0
+    },
+    "alns_shaw_randomization": {
+        "type": "float",
+        "default": 6.0
+    },
+    "alns_regret_pool": {
+        "type": "categorical",
+        "choices": [
+            "regret234"
+        ],
+        "default": "regret234"
+    },
+    "alns_extended_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "alns_profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "alns_vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "alns_engine": {
+        "type": "categorical",
+        "choices": [
+            "custom"
+        ],
+        "default": "custom"
+    },
+    "bpc_ng_size_min": {
+        "type": "int",
+        "default": 8
+    },
+    "bpc_ng_size_max": {
+        "type": "int",
+        "default": 16
+    },
+    "bpc_max_bb_nodes_min": {
+        "type": "int",
+        "default": 200
+    },
+    "bpc_max_bb_nodes_max": {
+        "type": "int",
+        "default": 1000
+    },
+    "bpc_cutting_planes": {
+        "type": "categorical",
+        "choices": [
+            "rcc"
+        ],
+        "default": "rcc"
+    },
+    "bpc_branching_strategy": {
+        "type": "categorical",
+        "choices": [
+            "divergence"
+        ],
+        "default": "divergence"
+    },
+    "skip_bpc": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "sp_pool_cap": {
+        "type": "int",
+        "default": 50000
+    },
+    "sp_mip_gap": {
+        "type": "float",
+        "default": 0.0001
+    }
+}

@@ -1,0 +1,78 @@
+{
+    "subproblem_size": {
+        "type": "int",
+        "default": 3
+    },
+    "k_prox": {
+        "type": "int",
+        "default": 10
+    },
+    "seed_strategy": {
+        "type": "categorical",
+        "choices": [
+            "lifo"
+        ],
+        "default": "lifo"
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": null
+    },
+    "base_solver": {
+        "type": "categorical",
+        "choices": [
+            "alns"
+        ],
+        "default": "alns"
+    },
+    "base_solver_config": {
+        "type": "object",
+        "default": "factory"
+    },
+    "cluster_solver": {
+        "type": "categorical",
+        "choices": [
+            "fast_tsp"
+        ],
+        "default": "fast_tsp"
+    },
+    "cluster_solver_config": {
+        "type": "object",
+        "default": "factory"
+    },
+    "initial_solver": {
+        "type": "categorical",
+        "choices": [
+            "pmedian"
+        ],
+        "default": "pmedian"
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "initial_tenure": {
+        "type": "int",
+        "default": 7
+    },
+    "min_tenure": {
+        "type": "int",
+        "default": 3
+    },
+    "max_tenure": {
+        "type": "int",
+        "default": 20
+    },
+    "tenure_increase": {
+        "type": "float",
+        "default": 1.5
+    },
+    "tenure_decrease": {
+        "type": "float",
+        "default": 0.9
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "n_llh": {
+        "type": "int",
+        "default": 5
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "AcceptanceConfig(method='ac', params=AspirationConfig())"
+    }
+}

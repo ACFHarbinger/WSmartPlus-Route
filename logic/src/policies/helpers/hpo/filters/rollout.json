@@ -1,0 +1,21 @@
+{
+    "rollout_horizon": {
+        "type": "int",
+        "default": 5
+    },
+    "rollout_base_policy": {
+        "type": "categorical",
+        "choices": [
+            "last_minute"
+        ],
+        "default": "last_minute"
+    },
+    "rollout_n_scenarios": {
+        "type": "int",
+        "default": 1
+    },
+    "rollout_discount": {
+        "type": "float",
+        "default": 0.95
+    }
+}

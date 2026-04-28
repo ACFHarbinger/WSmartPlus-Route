@@ -1,0 +1,18 @@
+{
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    },
+    "iterations": {
+        "type": "int",
+        "default": 2000
+    },
+    "params": {
+        "type": "float",
+        "default": "factory"
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

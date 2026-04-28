@@ -1,0 +1,16 @@
+{
+    "strategies": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "logic": {
+        "type": "categorical",
+        "choices": [
+            "or"
+        ],
+        "default": "or"
+    }
+}

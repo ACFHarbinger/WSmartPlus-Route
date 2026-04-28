@@ -1,0 +1,46 @@
+{
+    "constructors": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 120.0
+    },
+    "selection_strategy": {
+        "type": "categorical",
+        "choices": [
+            "epsilon_greedy"
+        ],
+        "default": "epsilon_greedy"
+    },
+    "epsilon": {
+        "type": "float",
+        "default": 0.15
+    },
+    "temperature": {
+        "type": "float",
+        "default": 1.0
+    },
+    "alpha_ema": {
+        "type": "float",
+        "default": 0.15
+    },
+    "weight_init": {
+        "type": "float",
+        "default": 1.0
+    },
+    "weight_floor": {
+        "type": "float",
+        "default": 0.01
+    },
+    "decay": {
+        "type": "float",
+        "default": 1.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

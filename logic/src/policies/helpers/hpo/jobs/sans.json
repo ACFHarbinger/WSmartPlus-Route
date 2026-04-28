@@ -1,0 +1,46 @@
+{
+    "engine": {
+        "type": "object",
+        "default": "new"
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "perc_bins_can_overflow": {
+        "type": "float",
+        "default": 0.0
+    },
+    "T_min": {
+        "type": "float",
+        "default": 0.01
+    },
+    "T_init": {
+        "type": "float",
+        "default": 75.0
+    },
+    "iterations_per_T": {
+        "type": "int",
+        "default": 5000
+    },
+    "alpha": {
+        "type": "float",
+        "default": 0.95
+    },
+    "combination": {
+        "type": "object",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

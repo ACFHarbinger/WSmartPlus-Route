@@ -1,0 +1,44 @@
+{
+    "Omega": {
+        "type": "float",
+        "default": 0.1
+    },
+    "delta": {
+        "type": "float",
+        "default": 0.0
+    },
+    "psi": {
+        "type": "float",
+        "default": 1.0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 600.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

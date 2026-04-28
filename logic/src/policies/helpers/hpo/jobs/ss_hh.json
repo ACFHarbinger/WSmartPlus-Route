@@ -1,0 +1,50 @@
+{
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "n_llh": {
+        "type": "int",
+        "default": 5
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "threshold_infeasible": {
+        "type": "float",
+        "default": 0.001
+    },
+    "threshold_feasible_base": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "threshold_decay_rate": {
+        "type": "float",
+        "default": 0.01
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

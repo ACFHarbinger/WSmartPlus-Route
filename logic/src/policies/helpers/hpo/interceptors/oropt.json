@@ -1,0 +1,14 @@
+{
+    "chain_len": {
+        "type": "int",
+        "default": 2
+    },
+    "iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

@@ -1,0 +1,139 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 5000
+    },
+    "start_temp": {
+        "type": "float",
+        "default": 0.0
+    },
+    "cooling_rate": {
+        "type": "float",
+        "default": 0.995
+    },
+    "reaction_factor": {
+        "type": "float",
+        "default": 0.1
+    },
+    "min_removal": {
+        "type": "int",
+        "default": 4
+    },
+    "max_removal_pct": {
+        "type": "float",
+        "default": 0.3
+    },
+    "max_removal_cap": {
+        "type": "int",
+        "default": 100
+    },
+    "segment_size": {
+        "type": "int",
+        "default": 100
+    },
+    "noise_factor": {
+        "type": "float",
+        "default": 0.025
+    },
+    "worst_removal_randomness": {
+        "type": "float",
+        "default": 3.0
+    },
+    "shaw_randomization": {
+        "type": "float",
+        "default": 6.0
+    },
+    "regret_pool": {
+        "type": "categorical",
+        "choices": [
+            "regret234"
+        ],
+        "default": "regret234"
+    },
+    "sigma_1": {
+        "type": "float",
+        "default": 33.0
+    },
+    "sigma_2": {
+        "type": "float",
+        "default": 9.0
+    },
+    "sigma_3": {
+        "type": "float",
+        "default": 13.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "extended_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "custom"
+        ],
+        "default": "custom"
+    },
+    "horizon": {
+        "type": "int",
+        "default": 7
+    },
+    "stockout_penalty": {
+        "type": "float",
+        "default": 500.0
+    },
+    "forward_looking_depth": {
+        "type": "int",
+        "default": 3
+    },
+    "inter_period_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "shift_direction": {
+        "type": "categorical",
+        "choices": [
+            "both"
+        ],
+        "default": "both"
+    },
+    "inventory_lambda": {
+        "type": "float",
+        "default": 1.0
+    },
+    "inter_period_weight": {
+        "type": "float",
+        "default": 1.0
+    }
+}

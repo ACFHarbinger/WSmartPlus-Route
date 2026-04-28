@@ -33,12 +33,10 @@ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.solvers_and_matheuristics import (
-    AnyBranchingConstraint,
-    RCSPPSolver,
-    Route,
-    VRPPMasterProblem,
-)
+from logic.src.policies.helpers.solvers_and_matheuristics.branching import AnyBranchingConstraint
+from logic.src.policies.helpers.solvers_and_matheuristics.common import Route
+from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver import RCSPPSolver
 from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import CuttingPlaneEngine
 
 logger = logging.getLogger(__name__)

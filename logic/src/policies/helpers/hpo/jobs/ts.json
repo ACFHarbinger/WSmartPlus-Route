@@ -1,0 +1,170 @@
+{
+    "tabu_tenure": {
+        "type": "int",
+        "default": 7
+    },
+    "dynamic_tenure": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "min_tenure": {
+        "type": "int",
+        "default": 5
+    },
+    "max_tenure": {
+        "type": "int",
+        "default": 15
+    },
+    "aspiration_enabled": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "intensification_enabled": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "diversification_enabled": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "intensification_interval": {
+        "type": "int",
+        "default": 100
+    },
+    "diversification_interval": {
+        "type": "int",
+        "default": 200
+    },
+    "elite_size": {
+        "type": "int",
+        "default": 5
+    },
+    "frequency_penalty_weight": {
+        "type": "float",
+        "default": 0.1
+    },
+    "candidate_list_enabled": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "candidate_list_size": {
+        "type": "int",
+        "default": 20
+    },
+    "oscillation_enabled": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "feasibility_tolerance": {
+        "type": "float",
+        "default": 0.1
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 5000
+    },
+    "max_iterations_no_improve": {
+        "type": "int",
+        "default": 500
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 3
+    },
+    "n_llh": {
+        "type": "int",
+        "default": 5
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "use_swap": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "use_relocate": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "use_2opt": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "use_insertion": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    }
+}

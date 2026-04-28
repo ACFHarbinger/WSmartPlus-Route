@@ -1,0 +1,54 @@
+{
+    "gp_pop_size": {
+        "type": "int",
+        "default": 20
+    },
+    "max_gp_generations": {
+        "type": "int",
+        "default": 30
+    },
+    "tree_depth": {
+        "type": "int",
+        "default": 3
+    },
+    "tournament_size": {
+        "type": "int",
+        "default": 3
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "parsimony_coefficient": {
+        "type": "float",
+        "default": 0.0
+    },
+    "n_training_instances": {
+        "type": "int",
+        "default": 3
+    },
+    "training_sample_ratio": {
+        "type": "float",
+        "default": 0.5
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

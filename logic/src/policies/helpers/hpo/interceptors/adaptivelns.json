@@ -1,0 +1,47 @@
+{
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    },
+    "alns_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "ruin_fraction": {
+        "type": "float",
+        "default": 0.2
+    },
+    "alns_bandit_warm_start_path": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "alns_ruin_ops": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "alns_repair_ops": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "repair_k": {
+        "type": "int",
+        "default": 2
+    },
+    "cost_per_km": {
+        "type": "float",
+        "default": 0.0
+    },
+    "revenue_kg": {
+        "type": "float",
+        "default": 0.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

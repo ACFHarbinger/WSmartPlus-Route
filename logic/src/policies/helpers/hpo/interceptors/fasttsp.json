@@ -1,0 +1,10 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 2.0
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

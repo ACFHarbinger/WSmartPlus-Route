@@ -1,0 +1,54 @@
+{
+    "mu": {
+        "type": "int",
+        "default": 15
+    },
+    "lambda_": {
+        "type": "int",
+        "default": 100
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 3
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

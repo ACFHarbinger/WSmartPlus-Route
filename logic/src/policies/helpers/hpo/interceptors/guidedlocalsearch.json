@@ -1,0 +1,25 @@
+{
+    "gls_iterations": {
+        "type": "int",
+        "default": 20
+    },
+    "gls_inner_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "gls_lambda_factor": {
+        "type": "float",
+        "default": 0.1
+    },
+    "gls_base_operator": {
+        "type": "categorical",
+        "choices": [
+            "or_opt"
+        ],
+        "default": "or_opt"
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    }
+}

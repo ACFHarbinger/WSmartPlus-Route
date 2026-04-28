@@ -1,0 +1,62 @@
+{
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "flood_margin": {
+        "type": "float",
+        "default": 0.05
+    },
+    "rain_speed": {
+        "type": "float",
+        "default": 0.001
+    },
+    "learning_rate": {
+        "type": "float",
+        "default": 0.1
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 2
+    },
+    "n_llh": {
+        "type": "int",
+        "default": 5
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

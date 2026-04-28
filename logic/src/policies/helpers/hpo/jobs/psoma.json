@@ -1,0 +1,86 @@
+{
+    "pop_size": {
+        "type": "int",
+        "default": 20
+    },
+    "omega": {
+        "type": "float",
+        "default": 1.0
+    },
+    "c1": {
+        "type": "float",
+        "default": 2.0
+    },
+    "c2": {
+        "type": "float",
+        "default": 2.0
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 200
+    },
+    "x_min": {
+        "type": "float",
+        "default": 0.0
+    },
+    "x_max": {
+        "type": "float",
+        "default": 4.0
+    },
+    "v_min": {
+        "type": "float",
+        "default": -4.0
+    },
+    "v_max": {
+        "type": "float",
+        "default": 4.0
+    },
+    "L": {
+        "type": "int",
+        "default": 30
+    },
+    "T0": {
+        "type": "float",
+        "default": 3.0
+    },
+    "lambda_cooling": {
+        "type": "float",
+        "default": 0.9
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    }
+}

@@ -1,0 +1,120 @@
+{
+    "restart_timer": {
+        "type": "float",
+        "default": 0.0
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "population_size": {
+        "type": "int",
+        "default": 50
+    },
+    "elite_size": {
+        "type": "int",
+        "default": 10
+    },
+    "mutation_rate": {
+        "type": "float",
+        "default": 0.3
+    },
+    "crossover_rate": {
+        "type": "float",
+        "default": 0.7
+    },
+    "n_iterations_no_improvement": {
+        "type": "int",
+        "default": 20000
+    },
+    "no_improvement_threshold": {
+        "type": "int",
+        "default": 20
+    },
+    "survivor_threshold": {
+        "type": "float",
+        "default": 2.0
+    },
+    "neighbor_list_size": {
+        "type": "int",
+        "default": 10
+    },
+    "max_vehicles": {
+        "type": "int",
+        "default": 0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "min_removal_pct": {
+        "type": "float",
+        "default": 0.1
+    },
+    "max_removal_pct": {
+        "type": "float",
+        "default": 0.4
+    },
+    "noise_factor": {
+        "type": "float",
+        "default": 0.015
+    },
+    "reaction_factor": {
+        "type": "float",
+        "default": 0.1
+    },
+    "decay_parameter": {
+        "type": "float",
+        "default": 0.95
+    },
+    "destroy_operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "repair_operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "operator_decay_rate": {
+        "type": "float",
+        "default": 0.95
+    },
+    "score_sigma_1": {
+        "type": "float",
+        "default": 33.0
+    },
+    "score_sigma_2": {
+        "type": "float",
+        "default": 9.0
+    },
+    "score_sigma_3": {
+        "type": "float",
+        "default": 3.0
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

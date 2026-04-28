@@ -1,0 +1,62 @@
+{
+    "population_size": {
+        "type": "int",
+        "default": 10
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "tolerance_pct": {
+        "type": "float",
+        "default": 0.05
+    },
+    "recombination_rate": {
+        "type": "float",
+        "default": 0.6
+    },
+    "perturbation_strength": {
+        "type": "int",
+        "default": 2
+    },
+    "n_removal": {
+        "type": "int",
+        "default": 1
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

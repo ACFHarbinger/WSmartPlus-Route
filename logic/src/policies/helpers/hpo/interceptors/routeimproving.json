@@ -1,0 +1,96 @@
+{
+    "methods": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "fast_tsp": {
+        "type": "object",
+        "default": "factory"
+    },
+    "lkh": {
+        "type": "object",
+        "default": "factory"
+    },
+    "local_search": {
+        "type": "object",
+        "default": "factory"
+    },
+    "random_local_search": {
+        "type": "object",
+        "default": "factory"
+    },
+    "path": {
+        "type": "object",
+        "default": "factory"
+    },
+    "or_opt": {
+        "type": "object",
+        "default": "factory"
+    },
+    "cross_exchange": {
+        "type": "object",
+        "default": "factory"
+    },
+    "guided_local_search": {
+        "type": "object",
+        "default": "factory"
+    },
+    "simulated_annealing": {
+        "type": "object",
+        "default": "factory"
+    },
+    "insertion": {
+        "type": "object",
+        "default": "factory"
+    },
+    "ruin_recreate": {
+        "type": "object",
+        "default": "factory"
+    },
+    "adaptive_lns": {
+        "type": "object",
+        "default": "factory"
+    },
+    "multi_phase": {
+        "type": "object",
+        "default": "factory"
+    },
+    "fix_and_optimize": {
+        "type": "object",
+        "default": "factory"
+    },
+    "set_partitioning": {
+        "type": "object",
+        "default": "factory"
+    },
+    "set_partitioning_polish": {
+        "type": "object",
+        "default": "factory"
+    },
+    "branch_and_price": {
+        "type": "object",
+        "default": "factory"
+    },
+    "learned": {
+        "type": "object",
+        "default": "factory"
+    },
+    "max_iter": {
+        "type": "int",
+        "default": 500
+    },
+    "dp_max_nodes": {
+        "type": "int",
+        "default": 20
+    },
+    "chain_lengths": {
+        "type": "int",
+        "default": "factory"
+    },
+    "params": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    }
+}

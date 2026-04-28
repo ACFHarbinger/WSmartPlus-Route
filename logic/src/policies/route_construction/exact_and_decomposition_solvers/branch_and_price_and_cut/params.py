@@ -57,6 +57,11 @@ class BPCParams:
         lr_pre_pruning_depth_limit (int): Max depth for LR.
         lr_warm_start_cg (bool): Seed CG with LR result.
         knapsack_proc_selection (bool): Process mandatory node selection with knapsack problem.
+        enable_node_visitation_branching (bool): Enable hierarchical node-visitation branching.
+        enable_dssr (bool): Enable Decremental State-Space Relaxation in pricing.
+        dssr_max_iters (int): Maximum DSSR refinement iterations per pricing call.
+        enable_reduced_cost_arc_fixing (bool): Enable reduced-cost arc elimination from pricing graph.
+        route_budget (float): Maximum route cost/distance budget for separation.
     """
 
     time_limit: float = 60.0

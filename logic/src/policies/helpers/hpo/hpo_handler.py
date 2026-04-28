@@ -29,6 +29,7 @@ from omegaconf import OmegaConf
 from logic.src import tracking as wst
 from logic.src.configs import Config
 from logic.src.constants import ROOT_DIR, SIM_METRICS
+from logic.src.pipeline.features.test.config import expand_policy_configs
 from logic.src.pipeline.simulations.repository import (
     load_indices,
     load_simulator_data,
@@ -40,7 +41,7 @@ from logic.src.tracking.logging.pylogger import get_pylogger
 logger = get_pylogger(__name__)
 
 
-def objective(trial: optuna.Trial, base_cfg: Config, data_size: int, lock: Any) -> float:
+def objective(trial: optuna.Trial, base_cfg: Config, data_size: int, lock: Any) -> float:  # noqa: C901
     """Optuna objective function for simulation policy HPO.
 
     Samples hyperparameters from the search space, applies them to a copy of the config,
@@ -63,27 +64,34 @@ def objective(trial: optuna.Trial, base_cfg: Config, data_size: int, lock: Any) 
     params = {}
     for name, spec in search_space.items():
         # Map parameters to the policy config path
-        full_name = f"sim.full_policies.0.{policy_name}.{name}"
+        # If the key contains a dot, we treat it as an absolute path in the Hydra config.
+        # Otherwise, we default to the first policy's configuration in the simulation list.
+        full_name = name if "." in name else f"sim.full_policies.0.{policy_name}.{name}"
 
         p_type = spec.get("type")
         if p_type == "float":
             params[full_name] = trial.suggest_float(
                 name,
-                spec["low"],
-                spec["high"],
+                float(spec["low"]),
+                float(spec["high"]),
                 step=spec.get("step"),
                 log=spec.get("log", False),
             )
         elif p_type == "int":
             params[full_name] = trial.suggest_int(
                 name,
-                spec["low"],
-                spec["high"],
+                int(spec["low"]),
+                int(spec["high"]),
                 step=spec.get("step", 1),
                 log=spec.get("log", False),
             )
         elif p_type == "categorical":
-            params[full_name] = trial.suggest_categorical(name, spec["choices"])
+            choices = spec["choices"]
+            # Optuna suggest_categorical requires hashable types.
+            # We convert lists to tuples for sampling and back to lists when applying.
+            hashable_choices = [tuple(c) if isinstance(c, list) else c for c in choices]
+            sampled_val = trial.suggest_categorical(name, hashable_choices)
+            params[full_name] = list(sampled_val) if isinstance(sampled_val, tuple) else sampled_val
 
     # 2. Clone config and apply params
     cfg_dict = OmegaConf.to_container(base_cfg, resolve=True)
@@ -101,7 +109,26 @@ def objective(trial: optuna.Trial, base_cfg: Config, data_size: int, lock: Any) 
     for key, val in params.items():
         OmegaConf.update(trial_cfg, key, val)
 
-    # 3. Preparation for simulations
+    # 3. Synchronize and Validate config
+    # Ensure graph settings match simulation settings for this trial
+    trial_cfg.sim.graph.num_loc = hpo_sim.graph.num_loc
+    trial_cfg.sim.graph.area = hpo_sim.graph.area
+    trial_cfg.sim.graph.waste_type = hpo_sim.graph.waste_type
+    trial_cfg.sim.days = hpo_sim.graph.n_days
+    trial_cfg.sim.n_samples = hpo_sim.graph.n_samples
+
+    # Force numeric edge_threshold to avoid TypeError in network_utils
+    if hasattr(trial_cfg.sim.graph, "edge_threshold"):
+        try:
+            trial_cfg.sim.graph.edge_threshold = int(trial_cfg.sim.graph.edge_threshold)
+        except (ValueError, TypeError):
+            trial_cfg.sim.graph.edge_threshold = 0
+
+    # Expand policy configurations (mandatory for sequential_simulations to find configs)
+    trial_cfg.sim.policies = [policy_name]
+    expand_policy_configs(trial_cfg)  # type: ignore[arg-type]
+
+    # 4. Preparation for simulations
     n_samples = hpo_sim.graph.n_samples
     num_loc = hpo_sim.graph.num_loc
 

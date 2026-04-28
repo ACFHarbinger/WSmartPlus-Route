@@ -1,0 +1,130 @@
+{
+    "strategy": {
+        "type": "categorical",
+        "choices": [
+            null
+        ],
+        "default": null
+    },
+    "max_fill": {
+        "type": "float",
+        "default": 1.0
+    },
+    "last_minute": {
+        "type": "object",
+        "default": "factory"
+    },
+    "regular": {
+        "type": "object",
+        "default": "factory"
+    },
+    "service_level": {
+        "type": "object",
+        "default": "factory"
+    },
+    "revenue": {
+        "type": "object",
+        "default": "factory"
+    },
+    "lookahead": {
+        "type": "object",
+        "default": "factory"
+    },
+    "deadline": {
+        "type": "object",
+        "default": "factory"
+    },
+    "multi_day_prob": {
+        "type": "object",
+        "default": "factory"
+    },
+    "pareto_front": {
+        "type": "object",
+        "default": "factory"
+    },
+    "profit_per_km": {
+        "type": "object",
+        "default": "factory"
+    },
+    "spatial_synergy": {
+        "type": "object",
+        "default": "factory"
+    },
+    "stochastic_regret": {
+        "type": "object",
+        "default": "factory"
+    },
+    "combined": {
+        "type": "object",
+        "default": "factory"
+    },
+    "manager": {
+        "type": "object",
+        "default": "factory"
+    },
+    "mip_knapsack": {
+        "type": "object",
+        "default": "factory"
+    },
+    "fractional_knapsack": {
+        "type": "object",
+        "default": "factory"
+    },
+    "rollout": {
+        "type": "object",
+        "default": "factory"
+    },
+    "whittle": {
+        "type": "object",
+        "default": "factory"
+    },
+    "cvar": {
+        "type": "object",
+        "default": "factory"
+    },
+    "savings": {
+        "type": "object",
+        "default": "factory"
+    },
+    "set_cover": {
+        "type": "object",
+        "default": "factory"
+    },
+    "modular_greedy": {
+        "type": "object",
+        "default": "factory"
+    },
+    "learned": {
+        "type": "object",
+        "default": "factory"
+    },
+    "thompson_dispatcher": {
+        "type": "object",
+        "default": "factory"
+    },
+    "wasserstein": {
+        "type": "object",
+        "default": "factory"
+    },
+    "lagrangian": {
+        "type": "object",
+        "default": "factory"
+    },
+    "bernoulli": {
+        "type": "object",
+        "default": "factory"
+    },
+    "kmeans_sector": {
+        "type": "object",
+        "default": "factory"
+    },
+    "staggered_regular": {
+        "type": "object",
+        "default": "factory"
+    },
+    "params": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    }
+}

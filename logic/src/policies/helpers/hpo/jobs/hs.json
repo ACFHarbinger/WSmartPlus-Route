@@ -1,0 +1,54 @@
+{
+    "hm_size": {
+        "type": "int",
+        "default": 10
+    },
+    "HMCR": {
+        "type": "float",
+        "default": 0.9
+    },
+    "PAR": {
+        "type": "float",
+        "default": 0.3
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 500
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    }
+}

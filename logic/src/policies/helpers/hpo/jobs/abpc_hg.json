@@ -1,0 +1,122 @@
+{
+    "gamma": {
+        "type": "float",
+        "default": 0.95
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 2.0
+    },
+    "ph_base_rho": {
+        "type": "float",
+        "default": 1.0
+    },
+    "ph_max_iterations": {
+        "type": "int",
+        "default": 100
+    },
+    "ph_convergence_tol": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "alns_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "alns_max_routes": {
+        "type": "int",
+        "default": 5
+    },
+    "alns_rc_tolerance": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "alns_remove_fraction": {
+        "type": "float",
+        "default": 0.25
+    },
+    "dive_penalty_M": {
+        "type": "float",
+        "default": 10000.0
+    },
+    "fo_tabu_length": {
+        "type": "int",
+        "default": 10
+    },
+    "fo_max_unfix": {
+        "type": "int",
+        "default": 5
+    },
+    "fo_strategy": {
+        "type": "object",
+        "default": "overflow_urgency"
+    },
+    "fo_max_iterations": {
+        "type": "int",
+        "default": 20
+    },
+    "ml_reliability_c": {
+        "type": "float",
+        "default": 1.0
+    },
+    "ml_pseudocost_ema_alpha": {
+        "type": "float",
+        "default": 0.5
+    },
+    "sc_consensus_threshold": {
+        "type": "float",
+        "default": 0.95
+    },
+    "benders_max_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "benders_convergence_tol": {
+        "type": "float",
+        "default": 0.001
+    },
+    "benders_cut_pool_max": {
+        "type": "int",
+        "default": 500
+    },
+    "max_visits_per_bin": {
+        "type": "int",
+        "default": 1
+    },
+    "theta_upper_bound": {
+        "type": "float",
+        "default": 1000000.0
+    },
+    "gurobi_master_time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "gurobi_sub_time_limit": {
+        "type": "float",
+        "default": 30.0
+    },
+    "gurobi_mip_gap": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "gurobi_output_flag": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "subproblem_relax": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}

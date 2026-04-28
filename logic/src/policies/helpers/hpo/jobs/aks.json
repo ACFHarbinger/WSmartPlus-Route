@@ -1,0 +1,72 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "initial_kernel_size": {
+        "type": "int",
+        "default": 50
+    },
+    "bucket_size": {
+        "type": "int",
+        "default": 20
+    },
+    "max_buckets": {
+        "type": "int",
+        "default": 15
+    },
+    "mip_limit_nodes": {
+        "type": "int",
+        "default": 10000
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "t_easy": {
+        "type": "float",
+        "default": 10.0
+    },
+    "epsilon": {
+        "type": "float",
+        "default": 0.1
+    },
+    "time_limit_stage_1": {
+        "type": "float",
+        "default": 0.2
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

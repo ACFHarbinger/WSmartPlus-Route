@@ -1,0 +1,125 @@
+{
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "max_iterations": {
+        "type": "int",
+        "default": 1000
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "restarts": {
+        "type": "int",
+        "default": 3
+    },
+    "restart_threshold": {
+        "type": "int",
+        "default": 100
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "epsilon": {
+        "type": "float",
+        "default": 0.3
+    },
+    "epsilon_decay": {
+        "type": "float",
+        "default": 0.995
+    },
+    "min_epsilon": {
+        "type": "float",
+        "default": 0.05
+    },
+    "memory_size": {
+        "type": "int",
+        "default": 50
+    },
+    "accept_worse_prob": {
+        "type": "float",
+        "default": 0.1
+    },
+    "acceptance_decay": {
+        "type": "float",
+        "default": 0.99
+    },
+    "start_temp": {
+        "type": "float",
+        "default": 100.0
+    },
+    "cooling_rate": {
+        "type": "float",
+        "default": 0.99
+    },
+    "min_temp": {
+        "type": "float",
+        "default": 0.01
+    },
+    "min_destroy_size": {
+        "type": "int",
+        "default": 2
+    },
+    "max_destroy_pct": {
+        "type": "float",
+        "default": 0.3
+    },
+    "local_search_iterations": {
+        "type": "int",
+        "default": 10
+    },
+    "local_search_operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "unstring_operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "string_operators": {
+        "type": "categorical",
+        "choices": [],
+        "default": "factory"
+    },
+    "score_alpha": {
+        "type": "float",
+        "default": 10.0
+    },
+    "score_beta": {
+        "type": "float",
+        "default": 5.0
+    },
+    "score_gamma": {
+        "type": "float",
+        "default": -1.0
+    },
+    "score_delta": {
+        "type": "float",
+        "default": 20.0
+    },
+    "weight_learning_rate": {
+        "type": "float",
+        "default": 0.1
+    },
+    "weight_decay": {
+        "type": "float",
+        "default": 0.95
+    }
+}

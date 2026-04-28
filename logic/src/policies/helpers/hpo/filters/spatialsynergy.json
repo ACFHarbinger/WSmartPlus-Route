@@ -1,0 +1,14 @@
+{
+    "critical_threshold": {
+        "type": "float",
+        "default": 0.9
+    },
+    "synergy_threshold": {
+        "type": "float",
+        "default": 0.6
+    },
+    "radius": {
+        "type": "float",
+        "default": 10.0
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "vehicle_capacity": {
+        "type": "float",
+        "default": 100.0
+    }
+}

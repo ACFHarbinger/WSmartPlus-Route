@@ -1,0 +1,14 @@
+{
+    "whittle_discount": {
+        "type": "float",
+        "default": 0.95
+    },
+    "whittle_grid_size": {
+        "type": "int",
+        "default": 21
+    },
+    "n_vehicles": {
+        "type": "int",
+        "default": 1
+    }
+}

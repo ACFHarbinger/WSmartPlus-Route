@@ -1,0 +1,65 @@
+{
+    "max_iterations": {
+        "type": "int",
+        "default": 5000
+    },
+    "time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "reward_improvement": {
+        "type": "float",
+        "default": 1.0
+    },
+    "penalty_worsening": {
+        "type": "float",
+        "default": 1.0
+    },
+    "punishment_type": {
+        "type": "categorical",
+        "choices": [
+            "RL1"
+        ],
+        "default": "RL1"
+    },
+    "utility_upper_bound": {
+        "type": "float",
+        "default": 40.0
+    },
+    "min_utility": {
+        "type": "float",
+        "default": 0.0
+    },
+    "initial_utility": {
+        "type": "float",
+        "default": 30.0
+    },
+    "quality_lb": {
+        "type": "float",
+        "default": 0.0
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": "factory"
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": "factory"
+    },
+    "acceptance_criterion": {
+        "type": "object",
+        "default": "factory"
+    }
+}

@@ -1,0 +1,140 @@
+{
+    "time_limit": {
+        "type": "float",
+        "default": 300.0
+    },
+    "master_time_limit": {
+        "type": "float",
+        "default": 60.0
+    },
+    "n_scenarios": {
+        "type": "int",
+        "default": 20
+    },
+    "seed": {
+        "type": "int",
+        "default": 42
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "profit_aware_operators": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "max_benders_iterations": {
+        "type": "int",
+        "default": 50
+    },
+    "benders_gap": {
+        "type": "float",
+        "default": 0.0001
+    },
+    "overflow_penalty": {
+        "type": "float",
+        "default": 100.0
+    },
+    "undervisit_penalty": {
+        "type": "float",
+        "default": 10.0
+    },
+    "collection_threshold": {
+        "type": "float",
+        "default": 70.0
+    },
+    "horizon": {
+        "type": "int",
+        "default": 7
+    },
+    "stockout_penalty": {
+        "type": "float",
+        "default": 500.0
+    },
+    "big_m": {
+        "type": "float",
+        "default": 10000.0
+    },
+    "mean_scenario_only": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "initial_inventory": {
+        "type": "float",
+        "default": 0.0
+    },
+    "fill_rate_cv": {
+        "type": "float",
+        "default": 0.3
+    },
+    "mip_gap": {
+        "type": "float",
+        "default": 0.01
+    },
+    "theta_lower_bound": {
+        "type": "float",
+        "default": 0.0
+    },
+    "verbose": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "max_cuts_per_round": {
+        "type": "int",
+        "default": 50
+    },
+    "enable_heuristic_rcc_separation": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    },
+    "enable_comb_cuts": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": false
+    },
+    "engine": {
+        "type": "categorical",
+        "choices": [
+            "gurobi"
+        ],
+        "default": "gurobi"
+    },
+    "framework": {
+        "type": "categorical",
+        "choices": [
+            "ortools"
+        ],
+        "default": "ortools"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    }
+}

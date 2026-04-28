@@ -1,0 +1,30 @@
+{
+    "model": {
+        "type": "object",
+        "default": "factory"
+    },
+    "reward": {
+        "type": "object",
+        "default": "factory"
+    },
+    "mandatory_selection": {
+        "type": "object",
+        "default": null
+    },
+    "route_improvement": {
+        "type": "object",
+        "default": null
+    },
+    "seed": {
+        "type": "int",
+        "default": null
+    },
+    "vrpp": {
+        "type": "categorical",
+        "choices": [
+            true,
+            false
+        ],
+        "default": true
+    }
+}
