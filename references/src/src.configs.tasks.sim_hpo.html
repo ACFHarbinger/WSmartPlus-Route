@@ -474,10 +474,14 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.method"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metric"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.metric</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metrics"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.metrics</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.n_trials"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.n_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.num_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.search_space"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.search_space</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.policy_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.policy_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.selection_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.selection_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.acceptance_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.improver_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.improver_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.graph</span></code></a></li>
 </ul>
 </li>
@@ -530,12 +534,16 @@ graph=GraphConfig(),
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.tasks.sim_hpo.</span></span><span class="sig-name descname"><span class="pre">SimHPOConfig</span></span><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for simulation policy hyperparameter optimization.</p>
 <p>Attributes:
-method: HPO method (‘tpe’, ‘random’, ‘grid’, ‘hyperband’).
+method: HPO method (‘tpe’, ‘random’, ‘grid’, ‘nsgaii’, etc.).
 metric: Optimization metric to maximize (e.g., ‘profit’).
+metrics: List of metrics for multi-objective optimization.
 n_trials: Number of HPO trials.
 num_workers: Number of parallel workers for HPO.
 search_space: Dictionary defining the search space.
 policy_name: Name of the policy to optimize (e.g., ‘alns’).
+selection_name: Optional name of the selection strategy (from filters/).
+acceptance_name: Optional name of the acceptance criterion (from rules/).
+improver_name: Optional name of the route improver (from interceptors/).
 graph: Graph configuration for simulation trials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.method">
@@ -547,6 +555,12 @@ graph: Graph configuration for simulation trials.</p>
 <dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.metric">
 <span class="sig-name descname"><span class="pre">metric</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metric" title="Link to this definition">#</a></dt>
 <dd><p>‘profit’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.metrics">
+<span class="sig-name descname"><span class="pre">metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metrics" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -571,6 +585,24 @@ graph: Graph configuration for simulation trials.</p>
 <dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.policy_name">
 <span class="sig-name descname"><span class="pre">policy_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.policy_name" title="Link to this definition">#</a></dt>
 <dd><p>‘alns’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.selection_name">
+<span class="sig-name descname"><span class="pre">selection_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.selection_name" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name">
+<span class="sig-name descname"><span class="pre">acceptance_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.tasks.sim_hpo.SimHPOConfig.improver_name">
+<span class="sig-name descname"><span class="pre">improver_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim_hpo.SimHPOConfig.improver_name" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -636,10 +668,14 @@ graph: Graph configuration for simulation trials.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.method"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metric"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.metric</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.metrics"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.metrics</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.n_trials"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.n_trials</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.num_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.search_space"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.search_space</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.policy_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.policy_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.selection_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.selection_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.acceptance_name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.improver_name"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.improver_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim_hpo.SimHPOConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.graph</span></code></a></li>
 </ul>
 </li>

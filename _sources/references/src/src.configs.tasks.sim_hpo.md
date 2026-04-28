@@ -51,6 +51,17 @@
 
 ````
 
+````{py:attribute} metrics
+:canonical: src.configs.tasks.sim_hpo.SimHPOConfig.metrics
+:type: typing.List[str]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.sim_hpo.SimHPOConfig.metrics
+```
+
+````
+
 ````{py:attribute} n_trials
 :canonical: src.configs.tasks.sim_hpo.SimHPOConfig.n_trials
 :type: int
@@ -91,6 +102,39 @@
    'alns'
 
 ```{autodoc2-docstring} src.configs.tasks.sim_hpo.SimHPOConfig.policy_name
+```
+
+````
+
+````{py:attribute} selection_name
+:canonical: src.configs.tasks.sim_hpo.SimHPOConfig.selection_name
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim_hpo.SimHPOConfig.selection_name
+```
+
+````
+
+````{py:attribute} acceptance_name
+:canonical: src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim_hpo.SimHPOConfig.acceptance_name
+```
+
+````
+
+````{py:attribute} improver_name
+:canonical: src.configs.tasks.sim_hpo.SimHPOConfig.improver_name
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim_hpo.SimHPOConfig.improver_name
 ```
 
 ````

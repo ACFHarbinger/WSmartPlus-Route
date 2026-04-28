@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.pipeline.simulations.hpo
 src.pipeline.simulations.wsmart_bin_analysis
 src.pipeline.simulations.repository
 src.pipeline.simulations.bins
