@@ -16,7 +16,7 @@ Example:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from logic.src.configs.envs.graph import GraphConfig
 
@@ -26,19 +26,27 @@ class SimHPOConfig:
     """Configuration for simulation policy hyperparameter optimization.
 
     Attributes:
-        method: HPO method ('tpe', 'random', 'grid', 'hyperband').
+        method: HPO method ('tpe', 'random', 'grid', 'nsgaii', etc.).
         metric: Optimization metric to maximize (e.g., 'profit').
+        metrics: List of metrics for multi-objective optimization.
         n_trials: Number of HPO trials.
         num_workers: Number of parallel workers for HPO.
         search_space: Dictionary defining the search space.
         policy_name: Name of the policy to optimize (e.g., 'alns').
+        selection_name: Optional name of the selection strategy (from filters/).
+        acceptance_name: Optional name of the acceptance criterion (from rules/).
+        improver_name: Optional name of the route improver (from interceptors/).
         graph: Graph configuration for simulation trials.
     """
 
     method: str = "tpe"
     metric: str = "profit"
+    metrics: List[str] = field(default_factory=list)
     n_trials: int = 20
     num_workers: int = 1
     search_space: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     policy_name: str = "alns"
+    selection_name: Optional[str] = None
+    acceptance_name: Optional[str] = None
+    improver_name: Optional[str] = None
     graph: GraphConfig = field(default_factory=GraphConfig)

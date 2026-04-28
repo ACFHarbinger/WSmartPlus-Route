@@ -27,6 +27,12 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "10"
+hpo_policy := "bpc"
+hpo_method := "nsgaii"
+hpo_workers := "1"
+hpo_selection := ""
+hpo_acceptance := ""
+hpo_improver := ""
 
 #policies := "alns,hgs,sans,aco_hh,hvpl,psoma,swc_tcf,bpc"
 
@@ -120,6 +126,38 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
         sim.graph.num_loc={{ size }} \
         sim.problem={{ problem }} \
         sim.cpu_cores={{ n_cores }}
+
+# Run policy HPO for simulation
+# Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
+hpo-sim policy=hpo_policy trials=n_trials method=hpo_method workers=hpo_workers \
+        selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver \
+        days=days area=area size=size samples=samples problem=problem:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy:" "{{ policy }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Method:" "{{ method }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Trials:" "{{ trials }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Workers:" "{{ workers }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection:" "{{ selection }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:" "{{ acceptance }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }} ({{ size }} nodes)"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Horizon:" "{{ days }} days"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py task=hpo_sim \
+        hpo_sim.policy_name={{ policy }} \
+        hpo_sim.n_trials={{ trials }} \
+        hpo_sim.method={{ method }} \
+        hpo_sim.num_workers={{ workers }} \
+        hpo_sim.selection_name={{ selection }} \
+        hpo_sim.acceptance_name={{ acceptance }} \
+        hpo_sim.improver_name={{ improver }} \
+        hpo_sim.graph.n_days={{ days }} \
+        hpo_sim.graph.area={{ area }} \
+        hpo_sim.graph.num_loc={{ size }} \
+        hpo_sim.graph.n_samples={{ samples }} \
+        sim.problem={{ problem }}
 
 # Generate data with Hydra configs
 

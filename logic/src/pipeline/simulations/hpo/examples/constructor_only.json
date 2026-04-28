@@ -1,0 +1,32 @@
+{
+  "max_iterations": {
+    "type": "int",
+    "low": 1000,
+    "high": 10000,
+    "step": 1000,
+    "description": "Integer parameter with step size. If no dot is present, it defaults to the policy's root config."
+  },
+  "cooling_rate": {
+    "type": "float",
+    "low": 0.9,
+    "high": 0.999,
+    "log": true,
+    "description": "Float parameter with logarithmic scale."
+  },
+  "engine": {
+    "type": "categorical",
+    "choices": [
+      "custom",
+      "alns"
+    ],
+    "description": "Categorical parameter with string choices."
+  },
+  "vrpp": {
+    "type": "categorical",
+    "choices": [
+      true,
+      false
+    ],
+    "description": "Categorical parameter with boolean choices."
+  }
+}
