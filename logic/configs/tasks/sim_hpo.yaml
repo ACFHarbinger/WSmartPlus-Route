@@ -1,61 +1,99 @@
 # @package _global_
 # =============================================================================
-# Simulation Policy Hyperparameter Optimization (Sim HPO) Task Configuration
+# Simulation Policy HPO Task Configuration
 # =============================================================================
-# Configuration for automated hyperparameter search for simulation policies.
-# Used by: python main.py hpo_sim tasks=hpo_sim
-# =============================================================================
+# python main.py task=hpo_sim
+# python main.py task=hpo_sim hpo_sim.metrics=[profit,overflows] hpo_sim.method=nsgaii
+# python main.py task=hpo_sim hpo_sim.num_workers=4
 
 defaults:
   - _self_
   - override /tracking: hpo
 
-# =============================================================================
-# General Configuration
-# =============================================================================
 seed: 42
-task: "hpo_sim"
+task: hpo_sim
 
-# =============================================================================
-# Sim HPO Configuration
-# =============================================================================
 hpo_sim:
-  method: "tpe" # tpe, random, grid, hyperband
-  metric: "profit"
-  n_trials: 20
+  # Sampler: tpe | random | grid | cmaes | nsgaii | botorch
+  # cmaes    - best for continuous correlated spaces (ALNS temperatures+weights)
+  # nsgaii   - required for multi-objective (metrics list > 1 entry)
+  # botorch  - GP surrogate, best when sims are very expensive (pip install optuna-integration[botorch])
+  method: tpe
+
+  # Single-objective (backward-compatible):
+  metric: profit
+
+  # Multi-objective mode - uncomment and switch method to nsgaii:
+  # metrics:
+  #   - profit     # maximised automatically
+  #   - overflows  # minimised automatically
+
+  n_trials: 50
+  # Worker processes share a SQLite study backend - no GIL contention.
+  # Set to 1 for in-process execution (easier debugging).
   num_workers: 1
-  policy_name: "alns"
+
+  policy_name: alns
 
   graph:
     num_loc: 20
-    area: "riomaior"
+    area: riomaior
+    waste_type: ""
     n_days: 7
-    n_samples: 1
+    # WARNING: n_samples < 5 gives noisy estimates for stochastic solvers.
+    # Use n_samples >= 10 for publication-quality results.
+    n_samples: 5
 
-  # Search Space (can be overridden from CLI)
-  # ===========================================================================
-  # PATH RESOLUTION RULES:
-  # 1. ABSOLUTE: If a key contains a dot (e.g., "sim.days"), it is treated as a
-  #    direct path within the root Hydra config.
-  # 2. RELATIVE: If a key has no dots (e.g., "max_iterations"), it defaults to:
-  #    sim.full_policies.0.${hpo_sim.policy_name}.[key]
-  # ===========================================================================
+  # Study is persisted to {output_dir}/hpo_{policy_name}.db automatically.
+  # Re-running with the same settings resumes from where it left off.
+
+  # ---------------------------------------------------------------------------
+  # Search Space
+  # ---------------------------------------------------------------------------
+  # RELATIVE key (no dots):  mapped to sim.full_policies.0.<policy>.<key>
+  # ABSOLUTE key (has dots): used as a direct Hydra config path
+  #
+  # type: int | float | categorical
+  # int/float: low (required), high (required), step (optional), log (optional)
+  # categorical: choices (required, non-empty list)
+  # ---------------------------------------------------------------------------
   search_space:
-    # Relative parameter (ALNS max iterations)
+    # ALNS core -- log scale because values span orders of magnitude
     max_iterations:
       type: int
       low: 500
-      high: 5000
+      high: 10000
+      log: true
 
-    # Absolute parameter (Simulation duration)
-    "sim.days":
+    start_temp:
+      type: float
+      low: 0.1
+      high: 1000.0
+      log: true
+
+    cooling_rate:
+      type: float
+      low: 0.9
+      high: 0.9999
+
+    # Absolute paths -- simulation-level knobs
+    sim.days:
       type: int
       low: 1
       high: 14
       step: 1
 
-    # Absolute parameter (Vehicle capacity or count)
-    "sim.n_vehicles":
+    sim.n_vehicles:
       type: int
       low: 1
       high: 5
+
+    # Examples (commented out):
+    # destroy_strategy:
+    #   type: categorical
+    #   choices: [random, worst, shaw]
+    # overflow_penalty:
+    #   type: float
+    #   low: 0.01
+    #   high: 100.0
+    #   log: true
