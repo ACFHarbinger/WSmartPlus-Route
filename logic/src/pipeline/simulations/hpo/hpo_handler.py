@@ -604,10 +604,12 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
     # 3. Resolve data repository and data_size.
     # -----------------------------------------------------------------
     load_ds = getattr(cfg, "load_dataset", None)
-    if load_ds is not None and set_repository_from_path(str(load_ds)):
+    if load_ds is not None and set_repository_from_path(
+        str(load_ds), area=sim.graph.area, waste_type=sim.graph.waste_type
+    ):
         data_size = sim.graph.num_loc
     else:
-        set_repository_from_path(str(ROOT_DIR))
+        set_repository_from_path(str(ROOT_DIR), area=sim.graph.area, waste_type=sim.graph.waste_type)
         try:
             data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)
             data_size = len(data_tmp)

@@ -13,7 +13,7 @@ Example:
     ...     break
 """
 
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 
@@ -64,14 +64,16 @@ class NumpyDictDataset(SimulationDataset):
         return {key: arr[index] for key, arr in self.data.items()}
 
     @staticmethod
-    def load(path: str) -> "NumpyDictDataset":
+    def load(path: str, area: Optional[str] = None, waste_type: Optional[str] = None) -> "NumpyDictDataset":
         """Load a NumpyDictDataset from a .npz file.
 
         Args:
-            path: Description of path.
+            path: Path to the .npz file.
+            area: Ignored.
+            waste_type: Ignored.
 
         Returns:
-            Description of return value.
+            A NumpyDictDataset instance.
         """
         return NumpyDictDataset(dict(np.load(path)))
 
