@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils
 src.policies.route_construction.meta_heuristics.iterated_local_search.params
+src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils
 src.policies.route_construction.meta_heuristics.iterated_local_search.solver
 ```
 

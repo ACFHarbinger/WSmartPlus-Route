@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.other.gru_fill_predictor
 src.models.subnets.other.lstm_fill_predictor
+src.models.subnets.other.gru_fill_predictor
 ```
 
 ## Package Contents

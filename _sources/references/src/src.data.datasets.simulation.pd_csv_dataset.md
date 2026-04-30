@@ -53,7 +53,7 @@ Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`
 
 ````
 
-````{py:method} load(path: str) -> src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset
+````{py:method} load(path: str, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset
 :canonical: src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset.load
 :staticmethod:
 
@@ -62,7 +62,7 @@ Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`
 
 ````
 
-````{py:method} _parse_df(df: pandas.DataFrame) -> typing.Dict[str, typing.Any]
+````{py:method} _parse_df(df: pandas.DataFrame, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> typing.Dict[str, typing.Any]
 :canonical: src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset._parse_df
 :staticmethod:
 

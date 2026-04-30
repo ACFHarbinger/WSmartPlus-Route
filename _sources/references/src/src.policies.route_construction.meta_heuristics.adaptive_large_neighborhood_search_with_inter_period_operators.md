@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo
-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.params
 src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.policy_alns_ipo
+src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.params
+src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.alns_ipo
 ```
 
 ## Package Contents

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr
 src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params
 src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver
-src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr
 ```
 
 ## Package Contents

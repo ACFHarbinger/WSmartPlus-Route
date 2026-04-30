@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.eval.evaluators.multi_start
 src.pipeline.features.eval.evaluators.sampling
-src.pipeline.features.eval.evaluators.combined
+src.pipeline.features.eval.evaluators.multi_start
 src.pipeline.features.eval.evaluators.augmentation
+src.pipeline.features.eval.evaluators.combined
 src.pipeline.features.eval.evaluators.greedy
 ```
 

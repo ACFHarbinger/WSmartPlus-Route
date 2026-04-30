@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks
 src.policies.route_construction.matheuristics.two_phase_kernel_search.params
 src.policies.route_construction.matheuristics.two_phase_kernel_search.solver
-src.policies.route_construction.matheuristics.two_phase_kernel_search.policy_tpks
 ```
 
 ## Package Contents

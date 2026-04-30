@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.utils.data.loader
-src.utils.data.rl_utils
 src.utils.data.td_utils
+src.utils.data.rl_utils
 src.utils.data.td_state_wrapper
 ```
 

@@ -71,7 +71,7 @@ Bases: {py:obj}`logic.src.pipeline.simulations.states.base.base.SimState`
 
 ````
 
-````{py:method} _update_metrics(ctx, day, output_dict, dlog)
+````{py:method} _update_metrics(ctx, day, output_dict, dlog) -> Dict[str, float]
 :canonical: src.pipeline.simulations.states.running.RunningState._update_metrics
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.running.RunningState._update_metrics

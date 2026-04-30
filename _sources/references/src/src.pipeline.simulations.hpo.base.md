@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} PolicyHPOBase(cfg: logic.src.configs.Config)
+`````{py:class} PolicyHPOBase(cfg: logic.src.configs.Config, search_space: typing.Optional[typing.Dict[str, typing.Any]] = None)
 :canonical: src.pipeline.simulations.hpo.base.PolicyHPOBase
 
 Bases: {py:obj}`abc.ABC`
@@ -49,11 +49,27 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.base.PolicyHPOBase.__init__
 ```
 
-````{py:method} run(n_trials: int = 20) -> typing.Union[float, typing.List[float]]
+````{py:method} run(cfg: logic.src.configs.Config) -> typing.Union[float, typing.List[float]]
 :canonical: src.pipeline.simulations.hpo.base.PolicyHPOBase.run
 :abstractmethod:
 
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.base.PolicyHPOBase.run
+```
+
+````
+
+````{py:method} run_iterative(cfg: logic.src.configs.Config, max_steps: int) -> typing.Any
+:canonical: src.pipeline.simulations.hpo.base.PolicyHPOBase.run_iterative
+
+```{autodoc2-docstring} src.pipeline.simulations.hpo.base.PolicyHPOBase.run_iterative
+```
+
+````
+
+````{py:method} suggest_params(trial: optuna.Trial) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.simulations.hpo.base.PolicyHPOBase.suggest_params
+
+```{autodoc2-docstring} src.pipeline.simulations.hpo.base.PolicyHPOBase.suggest_params
 ```
 
 ````

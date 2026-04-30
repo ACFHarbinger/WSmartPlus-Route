@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction
 src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params
-src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones
-src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver
 src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.policy_aco_ks
+src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction
+src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver
+src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones
 ```
 
 ## Package Contents

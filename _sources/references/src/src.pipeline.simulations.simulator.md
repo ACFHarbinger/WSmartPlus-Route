@@ -203,7 +203,7 @@
 
 `````
 
-````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None, task_count: int = 0) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
+````{py:function} sequential_simulations(cfg: logic.src.configs.Config, device: torch.device, indices_ls: typing.List[typing.Any], sample_idx_ls: typing.List[typing.List[int]], model_weights_path: str, lock: typing.Optional[typing.Any], shared_metrics: typing.Optional[typing.Any] = None, task_count: int = 0, callback: typing.Optional[Callable[[int, typing.Dict[str, typing.Any]], None]] = None) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Optional[typing.Dict[str, typing.Any]], typing.List[typing.Dict[str, typing.Any]]]
 :canonical: src.pipeline.simulations.simulator.sequential_simulations
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.sequential_simulations

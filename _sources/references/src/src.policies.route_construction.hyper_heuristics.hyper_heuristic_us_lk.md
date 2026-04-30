@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params
-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk
-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution
-src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk
 src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection
+src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution
 src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators
+src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params
+src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk
+src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk
 ```
 
 ## Package Contents

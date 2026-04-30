@@ -14,6 +14,6 @@
 :maxdepth: 1
 
 src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params
-src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver
 src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh
+src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver
 ```

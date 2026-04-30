@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.selection_and_construction
+src.policies.route_improvement
 src.policies.context
-src.policies.route_construction
+src.policies.helpers
 src.policies.mandatory_selection
 src.policies.acceptance_criteria
-src.policies.route_improvement
-src.policies.helpers
+src.policies.route_construction
+src.policies.selection_and_construction
 ```
 
 ## Package Contents

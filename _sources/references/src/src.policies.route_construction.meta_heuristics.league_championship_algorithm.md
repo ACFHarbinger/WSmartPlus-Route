@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca
 src.policies.route_construction.meta_heuristics.league_championship_algorithm.params
 src.policies.route_construction.meta_heuristics.league_championship_algorithm.solver
-src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca
 ```
 
 ## Package Contents

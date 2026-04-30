@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.pointer_network.model
 src.models.core.pointer_network.policy
+src.models.core.pointer_network.model
 ```
 
 ## Package Contents

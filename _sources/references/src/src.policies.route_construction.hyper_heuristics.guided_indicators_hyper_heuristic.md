@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators
-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params
-src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh
 src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution
+src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params
 src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh
+src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh
 ```
 
 ## Package Contents

@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.helpers.solvers_and_matheuristics.search.cutting_planes
-src.policies.helpers.solvers_and_matheuristics.search.search_strategy
 src.policies.helpers.solvers_and_matheuristics.search.column_generation
+src.policies.helpers.solvers_and_matheuristics.search.search_strategy
 ```
 
 ## Package Contents

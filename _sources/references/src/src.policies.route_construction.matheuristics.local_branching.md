@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.local_branching.lb
 src.policies.route_construction.matheuristics.local_branching.params
 src.policies.route_construction.matheuristics.local_branching.policy_lb
+src.policies.route_construction.matheuristics.local_branching.lb
 ```
 
 ## Package Contents

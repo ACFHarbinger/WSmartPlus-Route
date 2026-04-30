@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics
-src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment
-src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs
-src.policies.route_construction.matheuristics.cluster_first_route_second.params
-src.policies.route_construction.matheuristics.cluster_first_route_second.solver
 src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment
+src.policies.route_construction.matheuristics.cluster_first_route_second.params
+src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment
+src.policies.route_construction.matheuristics.cluster_first_route_second.solver
+src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs
+src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics
 ```
 
 ## Package Contents

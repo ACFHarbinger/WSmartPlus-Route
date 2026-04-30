@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.subgradient_optimization
 src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.uncapacitated_orienteering_problem
+src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.subgradient_optimization
 src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.pre_pruning
 ```
 

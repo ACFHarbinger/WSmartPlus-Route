@@ -14,12 +14,12 @@
 :maxdepth: 1
 
 src.data.processor._logging
-src.data.processor.formatting
-src.data.processor.processing
+src.data.processor.setup
 src.data.processor.transforms
 src.data.processor.mapper
+src.data.processor.processing
+src.data.processor.formatting
 src.data.processor.dataframes
-src.data.processor.setup
 ```
 
 ## Package Contents

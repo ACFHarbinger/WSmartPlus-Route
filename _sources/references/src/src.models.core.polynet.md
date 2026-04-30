@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.polynet.model
 src.models.core.polynet.policy
+src.models.core.polynet.model
 ```
 
 ## Package Contents

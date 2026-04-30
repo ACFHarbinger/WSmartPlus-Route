@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo
 src.policies.selection_and_construction.joint_greedy_orienteering.params
+src.policies.selection_and_construction.joint_greedy_orienteering.policy_jgo
 ```
 
 ## Package Contents

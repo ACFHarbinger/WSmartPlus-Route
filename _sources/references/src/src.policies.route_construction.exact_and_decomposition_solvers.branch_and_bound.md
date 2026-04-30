@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dispatcher
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop
 ```
 
 ## Package Contents

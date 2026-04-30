@@ -225,14 +225,14 @@
 
 ````
 
-````{py:function} get_component_search_space(component_type: str, name: str, raise_on_invalid: bool = True) -> typing.Dict[str, typing.Dict[str, typing.Any]]
+````{py:function} get_component_search_space(component_type: str, name: str, raise_on_invalid: bool = True, keywords: typing.Optional[str] = None, index: typing.Optional[int] = None) -> typing.Dict[str, typing.Dict[str, typing.Any]]
 :canonical: src.pipeline.simulations.hpo.search_spaces.get_component_search_space
 
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.search_spaces.get_component_search_space
 ```
 ````
 
-````{py:function} compose_search_space(job: typing.Optional[str] = None, filter: typing.Optional[str] = None, interceptor: typing.Optional[str] = None, rule: typing.Optional[str] = None) -> typing.Dict[str, typing.Dict[str, typing.Any]]
+````{py:function} compose_search_space(job: typing.Optional[str] = None, filter: typing.Optional[typing.Union[str, typing.List[str]]] = None, interceptor: typing.Optional[typing.Union[str, typing.List[str]]] = None, rule: typing.Optional[typing.Union[str, typing.List[str]]] = None, job_keywords: typing.Optional[str] = None, filter_keywords: typing.Optional[str] = None, interceptor_keywords: typing.Optional[str] = None, rule_keywords: typing.Optional[str] = None) -> typing.Dict[str, typing.Dict[str, typing.Any]]
 :canonical: src.pipeline.simulations.hpo.search_spaces.compose_search_space
 
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.search_spaces.compose_search_space

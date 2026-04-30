@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.artificial_bee_colony.policy_abc
 src.policies.route_construction.meta_heuristics.artificial_bee_colony.params
 src.policies.route_construction.meta_heuristics.artificial_bee_colony.solver
+src.policies.route_construction.meta_heuristics.artificial_bee_colony.policy_abc
 ```

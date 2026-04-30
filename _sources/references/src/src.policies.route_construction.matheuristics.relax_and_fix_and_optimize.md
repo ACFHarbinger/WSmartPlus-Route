@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params
 src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo
+src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params
 ```
 
 ## Package Contents

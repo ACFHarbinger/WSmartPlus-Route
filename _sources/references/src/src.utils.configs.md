@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.configs.config_loader
 src.utils.configs.setup_manager
+src.utils.configs.setup_utils
 src.utils.configs.yaml_to_env
 src.utils.configs.setup_worker
-src.utils.configs.config_loader
-src.utils.configs.setup_utils
 src.utils.configs.setup_env
 ```
 

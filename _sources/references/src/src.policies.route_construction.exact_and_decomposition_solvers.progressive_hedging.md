@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine
 src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params
 src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.policy_ph
-src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine
 ```
 
 ## Package Contents

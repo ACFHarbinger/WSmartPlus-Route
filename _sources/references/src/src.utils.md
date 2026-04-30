@@ -13,21 +13,21 @@
 :titlesonly:
 :maxdepth: 3
 
-src.utils.configs
-src.utils.data
-src.utils.io
+src.utils.output
+src.utils.functions
 src.utils.ui
-src.utils.docs
+src.utils.tasks
 src.utils.decoding
+src.utils.policy
+src.utils.io
+src.utils.docs
 src.utils.graph
 src.utils.validation
-src.utils.output
-src.utils.model
-src.utils.functions
-src.utils.tasks
-src.utils.policy
+src.utils.configs
 src.utils.security
+src.utils.model
 src.utils.ops
+src.utils.data
 ```
 
 ## Submodules

@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.pipeline.simulations.repository.dataset
-src.pipeline.simulations.repository.filesystem
 src.pipeline.simulations.repository.base
+src.pipeline.simulations.repository.filesystem
 ```
 
 ## Package Contents
@@ -87,7 +87,7 @@ src.pipeline.simulations.repository.base
 ```
 ````
 
-````{py:function} set_repository_from_path(path: str, root_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> bool
+````{py:function} set_repository_from_path(path: str, root_dir: typing.Optional[typing.Union[str, os.PathLike]] = None, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> bool
 :canonical: src.pipeline.simulations.repository.set_repository_from_path
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.set_repository_from_path

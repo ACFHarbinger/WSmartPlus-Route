@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.ui.components.maps.heatmap
+src.ui.components.maps.multi_route
 src.ui.components.maps.pydeck_animated
 src.ui.components.maps.simulation
-src.ui.components.maps.multi_route
-src.ui.components.maps.heatmap
 ```
 
 ## Package Contents

@@ -22,17 +22,17 @@ src.interfaces.context
 :titlesonly:
 :maxdepth: 1
 
-src.interfaces.route_improvement
-src.interfaces.route_constructor
-src.interfaces.traversable
-src.interfaces.model
-src.interfaces.mandatory_selection
-src.interfaces.env
-src.interfaces.tensor_dict_like
-src.interfaces.distance_metric
-src.interfaces.bin_container
-src.interfaces.policy
 src.interfaces.acceptance_criterion
+src.interfaces.distance_metric
+src.interfaces.route_improvement
+src.interfaces.mandatory_selection
+src.interfaces.tensor_dict_like
+src.interfaces.policy
+src.interfaces.route_constructor
+src.interfaces.bin_container
+src.interfaces.env
+src.interfaces.model
+src.interfaces.traversable
 ```
 
 ## Package Contents

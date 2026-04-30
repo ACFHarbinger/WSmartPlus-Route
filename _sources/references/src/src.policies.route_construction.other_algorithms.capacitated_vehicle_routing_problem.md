@@ -14,7 +14,7 @@
 :maxdepth: 1
 
 src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params
-src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.clark_wright
 src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp
+src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.clark_wright
 src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp
 ```

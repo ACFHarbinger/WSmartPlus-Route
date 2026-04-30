@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.helpers.solvers_and_matheuristics.common
-src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation
 src.policies.helpers.solvers_and_matheuristics.pricing
-src.policies.helpers.solvers_and_matheuristics.master_problem
-src.policies.helpers.solvers_and_matheuristics.separation
 src.policies.helpers.solvers_and_matheuristics.branching
+src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation
+src.policies.helpers.solvers_and_matheuristics.separation
+src.policies.helpers.solvers_and_matheuristics.common
 src.policies.helpers.solvers_and_matheuristics.search
+src.policies.helpers.solvers_and_matheuristics.master_problem
 ```
 
 ## Submodules

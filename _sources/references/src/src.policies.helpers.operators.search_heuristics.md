@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.search_heuristics._tour_construction
-src.policies.helpers.operators.search_heuristics._tour_improvement
 src.policies.helpers.operators.search_heuristics.lin_kernighan
 src.policies.helpers.operators.search_heuristics.large_neighborhood_search
-src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun
 src.policies.helpers.operators.search_heuristics._tour_adapter
+src.policies.helpers.operators.search_heuristics._tour_construction
+src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun
 src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two
 src.policies.helpers.operators.search_heuristics.guided_ejection_search
+src.policies.helpers.operators.search_heuristics._tour_improvement
 src.policies.helpers.operators.search_heuristics._objective
 ```
 

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.params
 src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.policy_mp_ils
+src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.params
 ```
 
 ## Package Contents

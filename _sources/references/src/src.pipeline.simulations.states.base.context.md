@@ -79,6 +79,17 @@
 
 ````
 
+````{py:attribute} callback
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.callback
+:type: typing.Optional[typing.Callable[[int, typing.Dict[str, typing.Any], int], None]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.callback
+```
+
+````
+
 ````{py:attribute} exec_time
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.exec_time
 :type: typing.Optional[float]

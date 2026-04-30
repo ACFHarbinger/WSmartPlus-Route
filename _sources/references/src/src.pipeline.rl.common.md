@@ -24,10 +24,10 @@ src.pipeline.rl.common.base
 :maxdepth: 1
 
 src.pipeline.rl.common.route_improvement
-src.pipeline.rl.common.epoch
-src.pipeline.rl.common.reward_scaler
-src.pipeline.rl.common.reward_scaler_batch
 src.pipeline.rl.common.trainer
+src.pipeline.rl.common.epoch
+src.pipeline.rl.common.reward_scaler_batch
+src.pipeline.rl.common.reward_scaler
 ```
 
 ## Package Contents

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.cli.base.parser
 src.cli.base.update_function_factory
 src.cli.base.lowercase_action
+src.cli.base.parser
 src.cli.base.store_dict_key
 ```
 

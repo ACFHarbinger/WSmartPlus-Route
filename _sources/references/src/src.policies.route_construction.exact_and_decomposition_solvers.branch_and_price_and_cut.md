@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc
 ```
 

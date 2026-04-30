@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.intra_route_local_search.cross_exchange
 src.policies.helpers.operators.intra_route_local_search.k_permutation
-src.policies.helpers.operators.intra_route_local_search.relocate
+src.policies.helpers.operators.intra_route_local_search.cross_exchange
 src.policies.helpers.operators.intra_route_local_search.k_opt
+src.policies.helpers.operators.intra_route_local_search.relocate
 src.policies.helpers.operators.intra_route_local_search.swap
 ```
 

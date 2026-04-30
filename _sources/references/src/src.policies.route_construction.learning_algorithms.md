@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.route_construction.learning_algorithms.hierarchical_neural_agent
 src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout
 src.policies.route_construction.learning_algorithms.neural_agent
-src.policies.route_construction.learning_algorithms.hierarchical_neural_agent
 ```
 
 ## Package Contents

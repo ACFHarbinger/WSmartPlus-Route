@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover
-src.policies.helpers.operators.crossover_recombination.random_node_inheritance
-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary
-src.policies.helpers.operators.crossover_recombination.edge_recombination
 src.policies.helpers.operators.crossover_recombination.position_independent
-src.policies.helpers.operators.crossover_recombination.ordered
-src.policies.helpers.operators.crossover_recombination.generalized_partition
+src.policies.helpers.operators.crossover_recombination.random_node_inheritance
+src.policies.helpers.operators.crossover_recombination.edge_recombination
 src.policies.helpers.operators.crossover_recombination.selective_route_exchange
+src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover
+src.policies.helpers.operators.crossover_recombination.generalized_partition
+src.policies.helpers.operators.crossover_recombination.ordered
+src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary
 ```
 
 ## Package Contents

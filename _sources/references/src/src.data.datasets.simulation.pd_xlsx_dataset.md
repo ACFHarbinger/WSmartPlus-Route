@@ -53,7 +53,7 @@ Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`
 
 ````
 
-````{py:method} load(path: str) -> src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset
+````{py:method} load(path: str, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset
 :canonical: src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.load
 :staticmethod:
 
@@ -62,7 +62,7 @@ Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`
 
 ````
 
-````{py:method} _parse_sheet(df: pandas.DataFrame) -> typing.Dict[str, numpy.ndarray]
+````{py:method} _parse_sheet(df: pandas.DataFrame, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> typing.Dict[str, numpy.ndarray]
 :canonical: src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset._parse_sheet
 :staticmethod:
 

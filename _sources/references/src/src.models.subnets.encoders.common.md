@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.common.encoder_base
-src.models.subnets.encoders.common.feed_forward_sublayer
 src.models.subnets.encoders.common.multi_head_attention_layer
+src.models.subnets.encoders.common.feed_forward_sublayer
+src.models.subnets.encoders.common.encoder_base
 ```
 
 ## Package Contents

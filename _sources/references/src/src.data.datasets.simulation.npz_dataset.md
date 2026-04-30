@@ -53,7 +53,7 @@ Bases: {py:obj}`src.data.datasets.simulation.sim_dataset.SimulationDataset`
 
 ````
 
-````{py:method} load(path: str) -> src.data.datasets.simulation.npz_dataset.NumpyDictDataset
+````{py:method} load(path: str, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None) -> src.data.datasets.simulation.npz_dataset.NumpyDictDataset
 :canonical: src.data.datasets.simulation.npz_dataset.NumpyDictDataset.load
 :staticmethod:
 
