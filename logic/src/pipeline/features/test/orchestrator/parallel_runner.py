@@ -87,7 +87,9 @@ def run_parallel_simulations(
     print_execution_info(task_count, n_cores)
 
     # Create multiprocessing pool
-    start_method = "fork" if getattr(sim, "no_cuda", False) else "spawn"
+    # Use 'spawn' for CUDA to avoid initialization errors, or 'fork' for CPU if requested
+    is_cuda = "cuda" in str(device)
+    start_method = "spawn" if is_cuda else ("fork" if getattr(sim, "no_cuda", False) else "spawn")
     mp.set_start_method(start_method, force=True)
     from logic.src.pipeline.simulations.simulator import init_single_sim_worker
 

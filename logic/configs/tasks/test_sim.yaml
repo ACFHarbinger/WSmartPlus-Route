@@ -103,20 +103,20 @@ defaults:
 # General Configuration
 task: test_sim
 seed: 42
-load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma3_wsr30_N1_seed42.npz"
+load_dataset: "data/wsr_simulator/daily_waste/april_2024_summary.csv"
 
 # Simulation Configuration
 sim:
   cpu_cores: 0
   n_vehicles: 0
   days: 30
-  no_cuda: true
+  no_cuda: false
   n_samples: 1
   problem: "vrpp"
   output_dir: "output"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  data_distribution: "gamma3"
+  data_distribution: "emp"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
