@@ -255,7 +255,7 @@ class VRPInstanceBuilder:
                 - 'noisy_waste': np.ndarray of same shape as waste (equals waste when not SWCVRP)
                 - 'max_waste': np.ndarray of shape (dataset_size,)
         """
-        depot, loc, grid, idx = self._prepare_coordinates()
+        depot, loc, grid, idx, node_ids = self._prepare_coordinates()
 
         # Generate waste/fill values over days
         fill_values = []
@@ -282,10 +282,14 @@ class VRPInstanceBuilder:
         else:
             noisy_fill_arr = fill_arr.copy()
 
+        # Tile node_ids to match dataset_size (bs, n_nodes) - exclude depot (index 0)
+        node_ids_val = node_ids.values if hasattr(node_ids, "values") else node_ids
+        tiled_node_ids = np.tile(node_ids_val[1:], (self._dataset_size, 1))
+
         return {
             "depot": np.flip(depot, axis=-1) if depot.shape[-1] == 2 else depot,
             "locs": np.flip(loc, axis=-1) if loc.shape[-1] == 2 else loc,
-            "node_ids": np.tile(np.arange(1, self._problem_size + 1), (self._dataset_size, 1)),
+            "node_ids": tiled_node_ids,
             "waste": fill_arr,
             "noisy_waste": noisy_fill_arr,
             "max_waste": np.full(self._dataset_size, MAX_CAPACITY_PERCENT),
@@ -298,7 +302,7 @@ class VRPInstanceBuilder:
         Returns:
             TensorDict: A TensorDict with keys matching environment expectations.
         """
-        depot, loc, grid, idx = self._prepare_coordinates()
+        depot, loc, grid, idx, node_ids = self._prepare_coordinates()
 
         fill_values = []
         coords = (depot, loc)
@@ -352,9 +356,13 @@ class VRPInstanceBuilder:
                 "waste": torch.clamp(waste, 0, MAX_WASTE),
             }
 
-        # Common attributes
+        # Common attributes - exclude depot (index 0) from node_ids to match locs
+        node_ids_val = node_ids.values if hasattr(node_ids, "values") else node_ids
+        node_ids_tensor = torch.tensor(node_ids_val[1:], dtype=torch.float32, device=device).repeat(bs, 1)
+
         td_data.update(
             {
+                "node_ids": node_ids_tensor,
                 "capacity": torch.full((bs,), self.vehicle_cap, device=device),
                 "max_waste": torch.full((bs,), float(MAX_WASTE), device=device),
             }
