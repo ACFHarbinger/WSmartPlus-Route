@@ -208,10 +208,12 @@ def _resolve_data_size(cfg: Config) -> int:
     sim = cfg.sim
     load_ds = cfg.load_dataset
 
-    if load_ds is not None and set_repository_from_path(str(load_ds)):
+    if load_ds is not None and set_repository_from_path(
+        str(load_ds), area=sim.graph.area, waste_type=sim.graph.waste_type
+    ):
         return sim.graph.num_loc
 
-    set_repository_from_path(str(udef.ROOT_DIR))
+    set_repository_from_path(str(udef.ROOT_DIR), area=sim.graph.area, waste_type=sim.graph.waste_type)
 
     try:
         data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)

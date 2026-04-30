@@ -19,7 +19,7 @@ Example:
     ...     break
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -71,34 +71,64 @@ class PandasCsvDataset(SimulationDataset):
         return self._sample
 
     @staticmethod
-    def load(path: str) -> "PandasCsvDataset":
+    def load(path: str, area: Optional[str] = None, waste_type: Optional[str] = None) -> "PandasCsvDataset":
         """Load a PandasCsvDataset from a .csv file.
 
         Args:
-            path: Description of path.
+            path: Path to the CSV file.
+            area: Optional geographic area for coordinate fallback.
+            waste_type: Optional waste type for coordinate fallback.
 
         Returns:
-            Description of return value.
+            A PandasCsvDataset instance.
         """
         df = pd.read_csv(path)
-        sample = PandasCsvDataset._parse_df(df)
+        sample = PandasCsvDataset._parse_df(df, area=area, waste_type=waste_type)
         return PandasCsvDataset(sample)
 
     @staticmethod
-    def _parse_df(df: pd.DataFrame) -> Dict[str, Any]:
+    def _parse_df(df: pd.DataFrame, area: Optional[str] = None, waste_type: Optional[str] = None) -> Dict[str, Any]:
         """Parse a dataframe into a sample dict.
 
         Args:
-            df: Description of df.
+            df: Dataframe to parse.
+            area: Optional area for coordinate fallback.
+            waste_type: Optional waste type for coordinate fallback.
 
         Returns:
-            Description of return value.
+            A dictionary representing the sample.
         """
         # Normalize coordinate column names
         if "Latitude" in df.columns and "Lat" not in df.columns:
             df = df.rename(columns={"Latitude": "Lat"})
         if "Longitude" in df.columns and "Lng" not in df.columns:
             df = df.rename(columns={"Longitude": "Lng"})
+
+        # Fallback to repository coordinates if Lat/Lng are missing
+        if "Lat" not in df.columns and area is not None:
+            from logic.src.constants import ROOT_DIR
+            from logic.src.pipeline.simulations.repository.filesystem import FileSystemRepository
+
+            repo = FileSystemRepository(ROOT_DIR)
+            depot_df = repo.get_depot(area)
+
+            if "ID" in df.columns:
+                # Bins are N-1 rows (excluding depot)
+                _, bins_coords = repo.get_simulator_data(len(df) - 1, area=area, waste_type=waste_type)
+                full_coords = pd.concat(
+                    [depot_df[["ID", "Lat", "Lng"]], bins_coords[["ID", "Lat", "Lng"]]],
+                    axis=0,
+                ).drop_duplicates(subset=["ID"])
+                df = df.merge(full_coords, on="ID", how="left")
+            else:
+                # Row-based fallback
+                df.loc[df.index[0], "Lat"] = depot_df["Lat"].iloc[0]
+                df.loc[df.index[0], "Lng"] = depot_df["Lng"].iloc[0]
+                if len(df) > 1:
+                    _, bins_coords = repo.get_simulator_data(len(df) - 1, area=area, waste_type=waste_type)
+                    n_bins = min(len(df) - 1, len(bins_coords))
+                    df.loc[df.index[1 : n_bins + 1], "Lat"] = bins_coords["Lat"].values[:n_bins]
+                    df.loc[df.index[1 : n_bins + 1], "Lng"] = bins_coords["Lng"].values[:n_bins]
 
         depot = df.iloc[0]
         bins_df = df.iloc[1:]

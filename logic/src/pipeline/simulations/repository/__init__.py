@@ -57,6 +57,8 @@ def set_repository(
 def set_repository_from_path(
     path: str,
     root_dir: Optional[Union[str, os.PathLike]] = None,
+    area: Optional[str] = None,
+    waste_type: Optional[str] = None,
 ) -> bool:
     """Load a dataset file (or directory) and set it as the active repository.
 
@@ -71,6 +73,8 @@ def set_repository_from_path(
               *root_dir*) or absolute.
         root_dir: Base directory for resolving relative paths.
                   Defaults to ``ROOT_DIR``.
+        area: Optional geographic area name for coordinate fallback.
+        waste_type: Optional waste type for coordinate fallback.
 
     Returns:
         ``True`` if the repository was successfully set, ``False`` if the
@@ -102,7 +106,7 @@ def set_repository_from_path(
         ".csv": PandasCsvDataset,
     }
 
-    dataset = loader_map[ext].load(abs_path)  # type: ignore[attr-defined]
+    dataset = loader_map[ext].load(abs_path, area=area, waste_type=waste_type)  # type: ignore[attr-defined]
     set_repository(DatasetRepository(dataset))
     return True
 

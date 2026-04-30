@@ -161,13 +161,13 @@ class Bins:
 
             print(f"\n[INFO] Loading data from '{path}'...")
             if waste_file.endswith(".pkl"):
-                self.waste_dataset = NumpyPickleDataset.load(path)
+                self.waste_dataset = NumpyPickleDataset.load(path, area=area, waste_type=waste_type)
             elif waste_file.endswith(".xlsx"):
-                self.waste_dataset = PandasExcelDataset.load(path)
+                self.waste_dataset = PandasExcelDataset.load(path, area=area, waste_type=waste_type)
             elif waste_file.endswith(".csv"):
-                self.waste_dataset = PandasCsvDataset.load(path)
+                self.waste_dataset = PandasCsvDataset.load(path, area=area, waste_type=waste_type)
             else:
-                self.waste_dataset = NumpyDictDataset.load(path)
+                self.waste_dataset = NumpyDictDataset.load(path, area=area, waste_type=waste_type)
         else:
             print("\n[INFO] Generating data...")
             self.waste_dataset = GenerativeDataset(
