@@ -14,7 +14,7 @@ Example:
 """
 
 import pickle
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -78,14 +78,16 @@ class NumpyPickleDataset(SimulationDataset):
         }
 
     @staticmethod
-    def load(path: str) -> "NumpyPickleDataset":
+    def load(path: str, area: Optional[str] = None, waste_type: Optional[str] = None) -> "NumpyPickleDataset":
         """Load a NumpyPickleDataset from a .pkl file.
 
         Args:
-            path: Description of path.
+            path: Path to the .pkl file.
+            area: Ignored.
+            waste_type: Ignored.
 
         Returns:
-            Description of return value.
+            A NumpyPickleDataset instance.
         """
         with open(path, "rb") as f:
             data = pickle.load(f)  # noqa: S301

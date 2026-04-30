@@ -144,10 +144,12 @@ def _initialize_worker_repository(cfg: Config) -> None:
         cfg: The configuration object.
     """
     load_ds = cfg.load_dataset
-    if load_ds is not None and set_repository_from_path(str(load_ds)):
+    if load_ds is not None and set_repository_from_path(
+        str(load_ds), area=cfg.sim.graph.area, waste_type=cfg.sim.graph.waste_type
+    ):
         return
 
-    set_repository_from_path(str(ROOT_DIR))
+    set_repository_from_path(str(ROOT_DIR), area=cfg.sim.graph.area, waste_type=cfg.sim.graph.waste_type)
 
 
 def display_log_metrics(
