@@ -94,7 +94,12 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
     expand_policy_configs(cfg)
     _ensure_directories(cfg)
 
-    device = torch.device("cpu" if not torch.cuda.is_available() else f"cuda:{torch.cuda.device_count() - 1}")
+    # Determine device: respect sim.no_cuda and cfg.device overrides
+    use_cuda = torch.cuda.is_available() and not getattr(sim, "no_cuda", False)
+    if getattr(cfg, "device", None) == "cpu":
+        use_cuda = False
+
+    device = torch.device("cpu" if not use_cuda else f"cuda:{torch.cuda.device_count() - 1}")
 
     # --- Centralised experiment tracking ---
     experiment_name = f"sim-{sim.graph.area}-{sim.graph.num_loc}bins-{sim.days}days"

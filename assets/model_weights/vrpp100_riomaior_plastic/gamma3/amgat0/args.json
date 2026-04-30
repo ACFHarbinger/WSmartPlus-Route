@@ -1,0 +1,252 @@
+{
+    "optimizer": "rmsprop",
+    "optimizer_kwargs": {
+        "lr": 0.0001,
+        "weight_decay": 0.0
+    },
+    "lr_scheduler": "lambda",
+    "lr_scheduler_kwargs": {},
+    "train_data_size": 12800,
+    "val_data_size": 128,
+    "val_dataset_path": null,
+    "batch_size": 64,
+    "num_workers": 4,
+    "persistent_workers": true,
+    "pin_memory": false,
+    "kwargs": {
+        "algorithm": "reinforce",
+        "bl_warmup_epochs": 0,
+        "gamma": 1.0,
+        "exp_beta": 0.8,
+        "bl_alpha": 0.05,
+        "ppo": {
+            "epochs": 7,
+            "eps_clip": 0.2,
+            "value_loss_weight": 0.5,
+            "mini_batch_size": 0.25
+        },
+        "sapo": {
+            "tau_pos": 0.1,
+            "tau_neg": 1.0
+        },
+        "grpo": {
+            "group_size": 8,
+            "epsilon": 0.2,
+            "epochs": 3
+        },
+        "pomo": {
+            "num_augment": 1,
+            "num_starts": null,
+            "augment_fn": "dihedral8"
+        },
+        "symnco": {
+            "alpha": 0.2,
+            "beta": 1.0
+        },
+        "imitation": {
+            "policy_config": {
+                "_target_": "logic.src.configs.rl.policies.HGSALNSConfig",
+                "time_limit": 30.0,
+                "n_generations": 100,
+                "population_size": 50,
+                "elite_size": 10,
+                "mutation_rate": 0.2,
+                "crossover_rate": 0.7,
+                "alns_education_iterations": 50,
+                "alns_start_temp": 0.5,
+                "alns_cooling_rate": 0.9995,
+                "max_vehicles": 0
+            },
+            "loss_fn": "nll"
+        },
+        "gdpo": {
+            "objective_keys": [
+                "reward_waste",
+                "reward_cost"
+            ],
+            "objective_weights": null,
+            "conditional_key": null,
+            "renormalize": true
+        },
+        "adaptive_imitation": {
+            "il_weight": 1.0,
+            "il_decay": 0.95,
+            "patience": 5,
+            "threshold": 0.0001,
+            "decay_step": 1,
+            "epsilon": 1e-06,
+            "policy_config": {
+                "_target_": "logic.src.configs.rl.policies.HGSALNSConfig",
+                "time_limit": 30.0,
+                "n_generations": 100,
+                "population_size": 50,
+                "elite_size": 10,
+                "mutation_rate": 0.2,
+                "crossover_rate": 0.7,
+                "alns_education_iterations": 50,
+                "alns_start_temp": 0.5,
+                "alns_cooling_rate": 0.9995,
+                "max_vehicles": 0
+            },
+            "loss_fn": "weighted_nll"
+        },
+        "dr_alns": {
+            "max_iterations": 100,
+            "n_destroy_ops": 3,
+            "n_repair_ops": 2,
+            "n_steps_per_epoch": 2048,
+            "batch_size": 64,
+            "n_epochs": 10,
+            "lr": 0.0003,
+            "gamma": 0.99,
+            "gae_lambda": 0.95,
+            "clip_epsilon": 0.2,
+            "value_loss_coef": 0.5,
+            "entropy_coef": 0.01,
+            "max_grad_norm": 0.5
+        },
+        "n_epochs": 31,
+        "data_distribution": "gamma3",
+        "seed": 42,
+        "precision": "16-mixed",
+        "train_time": true,
+        "eval_time_days": 7,
+        "accumulation_steps": 1,
+        "enable_scaler": false,
+        "checkpoint_epochs": 1,
+        "shrink_size": null,
+        "route_improvement_epochs": 0,
+        "lr_route_improvement": 0.001,
+        "efficiency_weight": 0.8,
+        "overflow_weight": 0.2,
+        "epoch_start": 0,
+        "eval_only": false,
+        "checkpoint_encoder": false,
+        "resume": null,
+        "model_weights_path": "model_weights",
+        "final_model_path": "assets/model_weights/vrpp100_riomaior_plastic/gamma3/amgat0/epoch-31.pt",
+        "eval_batch_size": 128,
+        "reload_dataloaders_every_n_epochs": 0,
+        "devices": "auto",
+        "strategy": "auto",
+        "graph": {
+            "area": "riomaior",
+            "num_loc": 50,
+            "waste_type": "plastic",
+            "vertex_method": "mmn",
+            "distance_method": "ogd",
+            "dm_filepath": null,
+            "edge_threshold": "0",
+            "edge_method": null,
+            "focus_graph": null,
+            "focus_size": null,
+            "eval_focus_size": null,
+            "n_samples": 1,
+            "n_days": 1
+        },
+        "reward": {
+            "cost_weight": 1.0,
+            "waste_weight": 1.0,
+            "overflow_penalty": 1.0
+        },
+        "decoding": {
+            "strategy": "greedy",
+            "beam_width": 1,
+            "temperature": 1.0,
+            "top_k": null,
+            "top_p": null,
+            "tanh_clipping": 0.0,
+            "mask_logits": true,
+            "multistart": false,
+            "num_starts": 1,
+            "select_best": false
+        },
+        "callbacks": [
+            {
+                "display": {
+                    "_target_": "logic.src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback",
+                    "metric_keys": [
+                        "train/reward",
+                        "val/reward"
+                    ],
+                    "chart_title": "\ud83d\udcc8 Training Progress",
+                    "history_length": null
+                }
+            }
+        ],
+        "train_dataset_path": "data/datasets/vrpp/vrpp170_gamma1_time31_seed42.td",
+        "encoder": "gat",
+        "decoder": {
+            "type": "glimpse",
+            "embed_dim": 128,
+            "hidden_dim": 512,
+            "n_layers": 2,
+            "n_heads": 8,
+            "normalization": {
+                "norm_type": "instance",
+                "epsilon": 1e-05,
+                "learn_affine": true,
+                "track_stats": false,
+                "momentum": 0.1,
+                "n_groups": 1,
+                "k_lrnorm": 1.0
+            },
+            "activation": {
+                "name": "gelu",
+                "param": 1.0,
+                "threshold": 6.0,
+                "replacement_value": 6.0,
+                "n_params": 3,
+                "range": [
+                    0.125,
+                    0.3333333333333333
+                ]
+            },
+            "decoding": {
+                "strategy": "greedy",
+                "beam_width": 1,
+                "temperature": 1.0,
+                "top_k": null,
+                "top_p": null,
+                "tanh_clipping": 0.0,
+                "mask_logits": true,
+                "multistart": false,
+                "num_starts": 1,
+                "select_best": false
+            },
+            "dropout": 0.1,
+            "mask_logits": true,
+            "connection_type": "residual",
+            "n_predictor_layers": 2,
+            "tanh_clipping": 10.0,
+            "hyper_expansion": 4
+        },
+        "temporal_horizon": 0,
+        "policy_config": null,
+        "load_path": null,
+        "problem": "vrpp",
+        "model": "am",
+        "embed_dim": 128,
+        "n_encode_layers": 3,
+        "n_heads": 8,
+        "n_decode_layers": 2,
+        "hidden_dim": 512,
+        "n_encode_sublayers": 1,
+        "n_predict_layers": 2,
+        "learn_affine": true,
+        "track_stats": false,
+        "epsilon_alpha": 0.1,
+        "momentum_beta": 0.1,
+        "af_param": 0.1,
+        "af_threshold": 0.0,
+        "af_replacement": 0.0,
+        "af_nparams": 1,
+        "af_urange": [
+            0,
+            1
+        ],
+        "aggregation": "max",
+        "aggregation_graph": "mean"
+    },
+    "baseline_type": "rollout"
+}

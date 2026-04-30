@@ -41,7 +41,7 @@ train:
   train_time: true # Enable multi-day temporal training (for WCVRP)
   eval_time_days: 7 # Evaluation horizon in days (temporal problems)
 
-  data_distribution: "gamma1" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
+  data_distribution: "gamma3" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
   seed: 42 # Random seed for dataset generation
 
   n_epochs: 31 # Total training epochs
@@ -49,7 +49,12 @@ train:
   eval_batch_size: 128 # Validation batch size (can be larger than train)
 
   model_weights_path: "model_weights" # Directory for checkpoints
-  final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${env.temporal_horizon}/epoch-${train.n_epochs}.pt"
+  final_model_path: "assets/model_weights/${env.name}${env.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${model.temporal_horizon}/epoch-${train.n_epochs}.pt"
+
+  # Hardware / Performance
+  precision: "16-mixed" # Training precision (32, 16-mixed, bf16-mixed)
+  devices: "auto" # Number of GPUs to use (1, 2, 'auto')
+  strategy: "auto" # Distributed strategy ('auto', 'ddp', 'deepspeed')
 
   # DataLoader optimization
   persistent_workers: true # Keep workers alive between epochs (faster but more memory)
@@ -62,8 +67,11 @@ train:
 optim:
   optimizer: "rmsprop" # Optimizer type. Options: adam, adamw, rmsprop, sgd
   lr: 0.0001 # Learning rate. Typical range: 1e-5 to 1e-3
+  weight_decay: 0.0 # Weight decay (L2 regularization)
   lr_decay: 1.0 # Learning rate decay per epoch (1.0 = no decay)
+  lr_min_value: 0.0 # Minimum learning rate for scheduler
   lr_scheduler: "lambda" # LR scheduler. Options: lambda, step, cosine, exponential
+  lr_scheduler_kwargs: {} # Additional scheduler arguments
 
 # =============================================================================
 # Reinforcement Learning / Algorithm Settings
@@ -138,7 +146,52 @@ rl:
 # Model Settings (Defaults - Override with model=<config>)
 # =============================================================================
 model:
-  name: "am" # Model architecture (overridden by model=<config> CLI arg)
+  name: "am" # Model architecture
+  temporal_horizon: 0 # Temporal lookahead (0 for static, 7+ for WCVRP)
+
+  # Encoder Architecture
+  encoder:
+    type: "gat" # Graph encoder type (gat, gcn, tgc, mlp)
+    embed_dim: 128 # Node embedding dimension
+    hidden_dim: 512 # Feed-forward hidden size
+    n_layers: 3 # Number of encoder transformer layers
+    n_heads: 8 # Number of attention heads
+    n_sublayers: 1 # Sublayers per encoder block
+    dropout: 0.1 # Dropout probability
+    spatial_bias: false # Add learnable spatial distance bias
+    connection_type: "residual" # Skip connection type (residual, dense, hyper)
+    hyper_expansion: 4 # For connection_type="hyper"
+    aggregation_node: "sum" # Feature aggregation (sum, mean, max)
+    aggregation_graph: "avg" # Graph pooling (avg, max, sum)
+
+    # Normalization & Activation
+    normalization:
+      norm_type: "layer" # batch, layer, instance, group
+      learn_affine: true
+      track_stats: false
+      epsilon: 1e-5
+      momentum: 0.1
+      n_groups: 1
+      k_lrnorm: 1.0
+
+    activation:
+      name: "gelu" # relu, gelu, swish, mish, elu
+      param: 1.0
+      threshold: 6.0
+      replacement_value: 6.0
+      n_params: 3
+      range: [0.125, 0.3333333333333333]
+
+  # Decoder Architecture
+  decoder:
+    type: "glimpse" # attention, pointer, glimpse
+    n_layers: 2 # Number of decoder layers
+    n_heads: 8
+    n_predictor_layers: 0 # Depth of GRF predictor (TAM)
+    dropout: 0.1
+    tanh_clipping: 10.0
+    mask_logits: true
+    connection_type: "residual"
 
 # =============================================================================
 # Mandatory Selection Strategy
