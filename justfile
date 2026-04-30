@@ -25,7 +25,7 @@ samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "emp"
+distribution := "gamma3"
 n_cores := "10"
 hpo_policy := "bpc"
 hpo_method := "nsgaii"
@@ -172,7 +172,7 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem distribution=distribution data_type="train_time":
+gen-data problem=problem distribution=distribution data_type="test_simulator":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"

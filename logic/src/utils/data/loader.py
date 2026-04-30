@@ -203,6 +203,7 @@ def save_simulation_dataset(dataset: Dict[str, np.ndarray], filename: str) -> No
         except Exception as e:
             raise Exception("directories to save datasets do not exist and could not be created") from e
 
+    print(f"[INFO] Saving compressed dataset to '{filename}'... (This may take a minute for large datasets)")
     np.savez_compressed(check_extension(filename, ".npz"), **dataset)
 
 
