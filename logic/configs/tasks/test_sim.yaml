@@ -103,7 +103,7 @@ defaults:
 # General Configuration
 task: test_sim
 seed: 42
-load_dataset: "data/wsr_simulator/daily_waste/april_2024_summary.csv"
+load_dataset: "data/wsr_simulator/datasets/riomaior170_gamma3_wsr30_N1_seed42.npz"
 
 # Simulation Configuration
 sim:

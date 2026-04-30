@@ -218,8 +218,10 @@ def _run_gurobi_optimizer(  # noqa: C901
         for rota in rotas:
             contentores_coletados.extend([id_map[j] for (i, j) in rota])
 
-        profit = float(mdl.ObjVal)
+        profit = mdl.ObjVal
         cost = sum([x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis])
-        print(f"[DEBUG][VRPP-Gurobi] Profit: {profit}, Cost: {cost}, Collected: {len(contentores_coletados)}")
+        print(
+            f"[INFO][VRPP-Gurobi] Profit: {profit}, Cost: {cost}, MIPGap: {mdl.Params.MIPGap}, Collected: {len(contentores_coletados)}"
+        )
 
     return [0] + contentores_coletados, profit, cost
