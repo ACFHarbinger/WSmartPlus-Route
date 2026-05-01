@@ -96,6 +96,7 @@ class AttentionModelPolicy(AutoregressivePolicy):
         strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
+        start_nodes: Optional[torch.Tensor] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Executes one-shot or multi-start constructive decoding.
@@ -106,6 +107,11 @@ class AttentionModelPolicy(AutoregressivePolicy):
             strategy: Decoding strategy identifier (e.g., "greedy").
             num_starts: Number of parallel construction starts.
             actions: Optional pre-selected actions.
+            start_nodes: Optional forced first-action indices of shape
+                ``[batch * num_starts]``.  When provided, step 0 uses these
+                node indices as the action (log-prob is still computed from
+                the decoder logits so gradients flow correctly).  Subsequent
+                steps decode normally.  Ignored when ``actions`` is given.
             kwargs: Additional keyword arguments.
 
         Returns:
@@ -167,6 +173,13 @@ class AttentionModelPolicy(AutoregressivePolicy):
                 # Teacher forcing
                 action = actions[:, step_idx]
                 # Compute log_prob of this action
+                probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
+                log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
+            elif step_idx == 0 and start_nodes is not None:
+                # Forced start node (POMO mandatory-only mode): pin first action to
+                # the pre-selected mandatory node while still computing log_p from
+                # the decoder distribution so that gradients flow correctly.
+                action = start_nodes.to(td.device)
                 probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:

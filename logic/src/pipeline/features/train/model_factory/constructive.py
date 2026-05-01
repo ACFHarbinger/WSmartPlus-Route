@@ -34,6 +34,7 @@ def _create_pomo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningMo
         "num_augment": cfg.rl.pomo.num_augment,
         "augment_fn": cfg.rl.pomo.augment_fn,
         "num_starts": cfg.rl.pomo.num_starts,
+        "mandatory_starts_only": cfg.rl.pomo.mandatory_starts_only,
     }
     for k in explicit:
         kw.pop(k, None)
@@ -41,6 +42,7 @@ def _create_pomo(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningMo
         num_augment=int(cast(Any, explicit["num_augment"])),
         augment_fn=explicit["augment_fn"],  # type: ignore
         num_starts=int(cast(Any, explicit["num_starts"])) if explicit["num_starts"] is not None else None,
+        mandatory_starts_only=explicit["mandatory_starts_only"],  # type: ignore[arg-type]
         **kw,
     )
 
