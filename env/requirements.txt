@@ -40,7 +40,7 @@ blessed==1.38.0
 branca==0.8.2
 Brotli==1.2.0
 cachetools==6.2.6
-certifi==2026.2.25
+certifi==2026.4.22
 cffi==2.0.0
 charset-normalizer==3.4.7
 click==8.1.8
@@ -53,7 +53,7 @@ colorlog==6.10.1
 comm==0.2.3
 ConfigSpace==1.2.2
 contourpy==1.3.0
-cryptography==46.0.7
+cryptography==47.0.0
 cycler==0.12.1
 cytoolz==1.1.0
 dask==2024.8.0
@@ -70,7 +70,7 @@ et_xmlfile==2.0.0
 eval_type_backport==0.3.1
 exceptiongroup==1.3.0; python_full_version < '3.11'
 executing==2.2.1
-Farama-Notifications==0.0.4
+Farama-Notifications==0.0.6
 fastapi==0.128.8
 fastapi-cli==0.0.22
 fastjsonschema==2.21.2
@@ -83,10 +83,10 @@ geographiclib==2.1
 geopandas==1.0.1
 geopy==2.4.1
 gitdb==4.0.12
-GitPython==3.1.46
+GitPython==3.1.49
 gmpy2==2.3.0
 google-api-core==2.30.3
-google-auth==2.49.2
+google-auth==2.50.0
 googleapis-common-protos==1.74.0
 googlemaps==4.10.0
 gpustat==1.1.1
@@ -100,7 +100,7 @@ httpcore==1.0.9
 httptools==0.7.1
 httpx==0.28.1
 hyperframe==6.1.0
-idna==3.11
+idna==3.13
 imagecodecs==2024.12.30
 imageio==2.37.2
 importlib_metadata==8.7.0; python_full_version < '3.10'
@@ -122,7 +122,7 @@ kiwisolver==1.4.7
 locket==1.0.0
 loguru==0.7.3
 lz4==4.4.5
-Mako==1.3.11
+Mako==1.3.12
 mapclassify==2.8.1
 Markdown==3.9
 markdown-it-py==3.0.0
@@ -135,8 +135,8 @@ mpmath==1.4.1
 msgpack==1.1.2
 multidict==6.7.1
 munkres==1.1.4
-mypy-protobuf==5.0.0
-narwhals==2.19.0
+mypy-protobuf==5.1.0
+narwhals==2.20.0
 nbformat==5.10.4
 nest_asyncio==1.6.0
 networkx==3.2.1
@@ -148,7 +148,7 @@ openrouteservice==2.3.3
 openpyxl==3.1.5
 optuna==4.8.0
 osmnx==2.0.7
-packaging==26.1
+packaging==26.2
 pandas==2.3.3
 parso==0.8.6
 partd==1.4.2
@@ -172,13 +172,13 @@ pyarrow==21.0.0
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pycparser==2.23
-pydantic==2.13.2
-pydantic_core==2.46.2
+pydantic==2.13.3
+pydantic_core==2.46.3
 Pygments==2.20.0
-pyinstaller==6.19.0
+pyinstaller==6.20.0
 pyinstaller-hooks-contrib==2026.4
 pyogrio==0.11.1
-pyOpenSSL==26.0.0
+pyOpenSSL==26.1.0
 pyparsing==3.3.2
 pyproj==3.6.1
 PySide6==6.10.3
@@ -240,17 +240,17 @@ types-futures==3.3.8
 types-protobuf==6.32.1.20251210
 typing-extensions==4.15.0; python_full_version < '3.11'
 typing-inspection==0.4.2
-tzdata==2026.1
+tzdata==2026.2
 unicodedata2==17.0.1
 urllib3==2.6.3
 uvicorn==0.39.0
-virtualenv==21.2.4
-wandb==0.26.0
+virtualenv==21.3.0
+wandb==0.26.1
 watchfiles==1.1.1
 wcwidth==0.6.0
 websockets==15.0.1
 Werkzeug==3.1.8
-wheel==0.46.3
+wheel==0.47.0
 wrapt==2.1.2
 xyzservices==2026.3.0
 yarl==1.22.0
