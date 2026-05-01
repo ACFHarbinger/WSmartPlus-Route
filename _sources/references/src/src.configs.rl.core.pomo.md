@@ -62,4 +62,15 @@
 
 ````
 
+````{py:attribute} mandatory_starts_only
+:canonical: src.configs.rl.core.pomo.POMOConfig.mandatory_starts_only
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.rl.core.pomo.POMOConfig.mandatory_starts_only
+```
+
+````
+
 `````

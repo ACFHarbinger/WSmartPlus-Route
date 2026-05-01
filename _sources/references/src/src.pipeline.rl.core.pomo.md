@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} POMO(num_augment: int = 8, augment_fn: typing.Union[str, typing.Callable] = 'dihedral8', first_aug_identity: bool = True, num_starts: typing.Optional[int] = None, **kwargs)
+`````{py:class} POMO(num_augment: int = 8, augment_fn: typing.Union[str, typing.Callable] = 'dihedral8', first_aug_identity: bool = True, num_starts: typing.Optional[int] = None, mandatory_starts_only: bool = False, **kwargs)
 :canonical: src.pipeline.rl.core.pomo.POMO
 
 Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`
@@ -36,6 +36,14 @@ Bases: {py:obj}`logic.src.pipeline.rl.core.reinforce.REINFORCE`
 
 ```{autodoc2-docstring} src.pipeline.rl.core.pomo.POMO.__init__
 ```
+
+````{py:method} _resolve_starts(td: tensordict.TensorDict)
+:canonical: src.pipeline.rl.core.pomo.POMO._resolve_starts
+
+```{autodoc2-docstring} src.pipeline.rl.core.pomo.POMO._resolve_starts
+```
+
+````
 
 ````{py:method} shared_step(batch: tensordict.TensorDict, batch_idx: int, phase: str) -> dict
 :canonical: src.pipeline.rl.core.pomo.POMO.shared_step
