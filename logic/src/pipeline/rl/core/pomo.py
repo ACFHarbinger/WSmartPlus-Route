@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Union
 
+import torch
 from tensordict import TensorDict
 
 from logic.src.data.processor.transforms import StateAugmentation
@@ -60,6 +61,7 @@ class POMO(REINFORCE):
         augment_fn: Union[str, Callable] = "dihedral8",
         first_aug_identity: bool = True,
         num_starts: Optional[int] = None,
+        mandatory_starts_only: bool = False,
         **kwargs,
     ):
         """
@@ -70,6 +72,9 @@ class POMO(REINFORCE):
             augment_fn: Function to apply augmentations. Can be a string ('dihedral8') or a callable.
             first_aug_identity: Whether to apply identity augmentation first.
             num_starts: Number of starts to use for multi-start decoding. If None, uses the number of nodes.
+            mandatory_starts_only: If True, restrict starts to mandatory nodes only (requires
+                'mandatory' BoolTensor in TensorDict). Falls back to normal behaviour when no
+                mandatory field is present.
             kwargs: Additional arguments to pass to the parent class.
         """
         # POMO generally uses a shared baseline of rewards across starts
@@ -80,6 +85,7 @@ class POMO(REINFORCE):
         self.num_augment = num_augment
         self.num_starts = num_starts
         self.augment_fn = augment_fn
+        self.mandatory_starts_only = mandatory_starts_only
 
         self.augmentation: Optional[StateAugmentation]
         if self.num_augment > 1:
@@ -90,6 +96,52 @@ class POMO(REINFORCE):
             )
         else:
             self.augmentation = None
+
+    def _resolve_starts(
+        self,
+        td: TensorDict,
+    ):
+        """Determine n_start and optional forced start-node indices.
+
+        When ``mandatory_starts_only`` is True and a ``mandatory`` BoolTensor
+        is present in *td*, each POMO rollout is pinned to a distinct mandatory
+        node.  The j-th copy of instance i starts from the j-th mandatory node
+        of that instance (0-indexed).  Instances with fewer mandatory nodes than
+        the batch-maximum have their last mandatory index repeated as padding.
+
+        Returns:
+            Tuple of:
+            - n_start (int): number of rollout starts to use.
+            - start_nodes (Optional[torch.Tensor]): shape ``[batch * n_start]``
+              with the forced first-action index per trajectory, or ``None`` when
+              normal POMO start-node selection should be used.
+        """
+        if self.mandatory_starts_only:
+            mandatory = td.get("mandatory", None)
+            if mandatory is not None and mandatory.any():
+                # mandatory: [batch, n_nodes] bool
+                mandatory_counts = mandatory.sum(dim=-1)  # [batch]
+                n_start = int(mandatory_counts.max().item())
+                if n_start > 0:
+                    rows = []
+                    for i in range(td.batch_size[0]):
+                        idx = mandatory[i].nonzero(as_tuple=False).squeeze(-1)
+                        if idx.numel() == 0:
+                            # Safety: no mandatory nodes — use node 1 (skip depot at 0)
+                            idx = torch.tensor([1], device=mandatory.device)
+                        if idx.numel() < n_start:
+                            pad = idx[-1:].expand(n_start - idx.numel())
+                            idx = torch.cat([idx, pad])
+                        rows.append(idx[:n_start])
+                    # [batch, n_start] -> [batch * n_start] (matches batchify ordering)
+                    start_nodes = torch.stack(rows, dim=0).reshape(-1)
+                    return n_start, start_nodes
+
+        # Fallback: standard POMO start resolution
+        n_start = self.num_starts
+        if n_start is None:
+            n_start = self.env.get_num_starts(td) if hasattr(self.env, "get_num_starts") else td["locs"].shape[1]
+        return n_start, None
 
     def shared_step(
         self,
@@ -111,12 +163,8 @@ class POMO(REINFORCE):
         td = self.env.reset(batch)
         bs = td.batch_size[0]
 
-        # Determine number of starts (often equals graph size)
-        n_start = self.num_starts
-        if n_start is None:
-            # Typical for POMO: n_start = n_nodes (if possible)
-            # This depends on the environment implementation
-            n_start = self.env.get_num_starts(td) if hasattr(self.env, "get_num_starts") else td["locs"].shape[1]
+        # Determine number of starts and optional forced start nodes
+        n_start, start_nodes = self._resolve_starts(td)
 
         # Augmentation during val/test (usually not during training in basic POMO,
         # but RL4CO allows it. We'll follow RL4CO: training = no aug, unless specified)
@@ -130,6 +178,7 @@ class POMO(REINFORCE):
             self.env,
             strategy="sampling" if phase == "train" else "greedy",
             num_starts=n_start,
+            start_nodes=start_nodes,
         )
 
         # Reshape rewards and log_probs if we have multiple starts/augments
