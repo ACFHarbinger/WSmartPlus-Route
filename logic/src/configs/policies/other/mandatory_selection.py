@@ -103,12 +103,10 @@ class LookaheadSelectionConfig:
     """Configuration for predictive collection within a horizon.
 
     Attributes:
-        horizon_days: Number of days to look ahead.
-        threshold: Threshold for lookahead selection.
+        current_collection_day: Current day in the collection cycle.
     """
 
-    horizon_days: int = 3
-    threshold: float = 0.7
+    current_collection_day: int = 0
 
 
 @dataclass
@@ -445,7 +443,6 @@ class MandatorySelectionConfig:
 
     Attributes:
         strategy: Primary selection strategy name.
-        max_fill: Global overflow threshold (0.0 to 1.0 or 100.0).
         last_minute: Params for LastMinuteSelection.
         regular: Params for RegularSelection.
         service_level: Params for ServiceLevelSelection.
@@ -475,7 +472,6 @@ class MandatorySelectionConfig:
     """
 
     strategy: Optional[str] = None
-    max_fill: float = 1.0
 
     # Strategy-specific sub-configs
     last_minute: LastMinuteSelectionConfig = field(default_factory=LastMinuteSelectionConfig)

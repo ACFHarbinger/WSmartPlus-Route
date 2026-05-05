@@ -73,10 +73,19 @@ class RevenueSelector(VectorizedSelector):
         """
         rev = revenue_kg if revenue_kg is not None else self.revenue_kg
         cap = bin_capacity if bin_capacity is not None else self.bin_capacity
+
+        # If cap is 1.0 (default), check if volume/density are provided
+        if cap == 1.0:
+            vol = kwargs.get("bin_volume", 1.0)
+            dens = kwargs.get("bin_density", 1.0)
+            if vol != 1.0 or dens != 1.0:
+                cap = vol * dens
+
         thresh = threshold if threshold is not None else self.threshold
 
-        # Expected revenue = fill_level * bin_capacity * revenue_per_kg
-        expected_revenue = fill_levels * cap * rev
+        # Expected revenue = fill_ratio * bin_capacity * revenue_per_kg
+        fill_ratios = fill_levels  # fill_levels are already normalized [0, 1] in RL pipeline
+        expected_revenue = fill_ratios * cap * rev
         mandatory = expected_revenue > thresh
 
         # Depot is never a mandatory

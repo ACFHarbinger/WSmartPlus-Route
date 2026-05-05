@@ -40,6 +40,7 @@ class SelectionContext:
         max_fill (float): Maximum possible fill level (typically 100).
         overflow_penalty_frac (float): Fraction of revenue lost on overflow.
         coordinates (Optional[NDArray[np.float64]]): GPS coordinates of bins.
+        current_collection_day (int): Today's day in the collection cycle.
         seed (Optional[int]): Random seed for stochastic strategies.
 
     Example:
@@ -62,6 +63,7 @@ class SelectionContext:
     max_fill: float = 100.0
     overflow_penalty_frac: float = 1.0  # default to 100% of bin waste capacity
     coordinates: Optional[NDArray[np.float64]] = None
+    current_collection_day: int = 0
     seed: Optional[int] = None
 
     # --- New fields for advanced strategies ---
