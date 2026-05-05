@@ -150,15 +150,15 @@ def _get_strategy_params(strategy: str, params: Dict[str, Any]) -> Dict[str, Any
     mappings = {
         "last_minute": {"threshold": params.get("threshold", 0.7)},
         "regular": {"frequency": params.get("frequency", 3)},
-        "lookahead": {"max_fill": params.get("max_fill", 1.0)},
+        "lookahead": {"current_collection_day": params.get("current_collection_day", 0)},
         "revenue": {
             "revenue_kg": params.get("revenue_kg", 1.0),
             "bin_capacity": params.get("bin_capacity", 1.0),
-            "threshold": params.get("revenue_threshold", 0.0),
+            "threshold": params.get("threshold", params.get("revenue_threshold", 0.0)),
         },
         "service_level": {
-            "confidence_factor": params.get("confidence_factor", 1.0),
-            "max_fill": params.get("max_fill", 1.0),
+            "confidence_factor": params.get("confidence_factor", params.get("threshold", 1.0)),
+            "horizon_days": params.get("horizon_days", 1),
         },
     }
     if strategy not in mappings:

@@ -56,7 +56,7 @@ class LastMinuteSelector(VectorizedSelector):
             torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         thresh = threshold if threshold is not None else self.threshold
-        mandatory = fill_levels > thresh
+        mandatory = fill_levels >= thresh
 
         # Depot (index 0) is never mandatory
         mandatory = mandatory.clone()

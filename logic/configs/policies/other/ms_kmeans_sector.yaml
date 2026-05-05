@@ -21,4 +21,3 @@
 
 strategy: kmeans_sector
 n_sectors: 5
-max_fill: 1.0

@@ -159,7 +159,7 @@ model:
     n_sublayers: 1 # Sublayers per encoder block
     dropout: 0.1 # Dropout probability
     spatial_bias: false # Add learnable spatial distance bias
-    connection_type: "residual" # Skip connection type (residual, dense, hyper)
+    connection_type: "residual" # Skip connection type (residual, static_hyper, dynamic_hyper)
     hyper_expansion: 4 # For connection_type="hyper"
     aggregation_node: "sum" # Feature aggregation (sum, mean, max)
     aggregation_graph: "avg" # Graph pooling (avg, max, sum)
@@ -211,11 +211,9 @@ model:
 # =============================================================================
 mandatory_selection:
   strategy: "lookahead" # Default strategy for training
-  max_fill: 1.0 # Overflow threshold (bins at max_fill overflow)
 
   lookahead:
-    threshold: 0.7
-    horizon_days: 3
+    current_collection_day: 0
 
   last_minute:
     threshold: 0.7

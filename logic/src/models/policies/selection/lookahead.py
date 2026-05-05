@@ -8,7 +8,7 @@ Attributes:
     LookaheadSelector: Predictive selection policy looking ahead several days.
 
 Example:
-    >>> selector = LookaheadSelector(max_fill=1.0)
+    >>> selector = LookaheadSelector(current_collection_day=0)
     >>> mask = selector.select(fill_levels, rates)
 """
 
@@ -17,6 +17,8 @@ from __future__ import annotations
 from typing import Any, Optional
 
 import torch
+
+from logic.src.constants import MAX_WASTE
 
 from .base import VectorizedSelector
 
@@ -27,23 +29,25 @@ class LookaheadSelector(VectorizedSelector):
     Selects bins that are predicted to overflow within a dynamic lookahead
     horizon. The horizon is determined by the earliest upcoming overflow among
     the currently full bins.
+
     Attributes:
-        max_fill: Target maximum fill level before overflow.
+        current_collection_day: Reference day for lookahead simulation.
     """
 
-    def __init__(self, max_fill: float = 1.0) -> None:
+    def __init__(self, current_collection_day: int = 0, **kwargs: Any) -> None:
         """Initialize the lookahead selector.
 
         Args:
-            max_fill: Maximum fill level (overflow threshold).
+            current_collection_day: Current day in the collection cycle.
+            kwargs: Additional keyword arguments.
         """
-        self.max_fill = max_fill
+        self.current_collection_day = current_collection_day
 
     def select(
         self,
         fill_levels: torch.Tensor,
         accumulation_rates: Optional[torch.Tensor] = None,
-        max_fill: Optional[float] = None,
+        current_collection_day: Optional[int] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         """Select bins predicted to overflow within dynamic horizon.
@@ -51,41 +55,46 @@ class LookaheadSelector(VectorizedSelector):
         Args:
             fill_levels: Current fill levels [B, N].
             accumulation_rates: Mean daily waste generation per node [B, N].
-            max_fill: Override for overflow limit.
+            current_collection_day: Override for the reference day.
             kwargs: Additional keyword arguments.
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
-        overflow_thresh = max_fill if max_fill is not None else self.max_fill
+        overflow_thresh = MAX_WASTE
+        day = current_collection_day if current_collection_day is not None else self.current_collection_day
+
         if accumulation_rates is None:
-            # Without rates, fall back to threshold-based selection
-            mandatory = fill_levels >= overflow_thresh
+            # Without rates, no prediction possible - select nothing
+            mandatory = torch.zeros_like(fill_levels, dtype=torch.bool)
         else:
-            # 1. Identify bins overflowing today (initial selection)
-            # current + rate >= max_fill
+            # 1. Identify bins that will overflow today after accumulation
             initial_mandatory = (fill_levels + accumulation_rates) >= overflow_thresh
 
             # 2. Simulate collection: collected bins become 0.
-            # Calculate days until next overflow for these bins: ceil(max_fill / rate)
-            # Avoid division by zero
+            # Calculate absolute day of next overflow for these bins
             rates_safe = accumulation_rates.clamp(min=1e-6)
-            days_to_overflow = torch.ceil(overflow_thresh / rates_safe)
+            days_until_overflow = torch.ceil(overflow_thresh / rates_safe)
+
+            # day can be a scalar or [B], ensure it can broadcast with [B, N]
+            day_tensor = day.unsqueeze(1) if isinstance(day, torch.Tensor) and day.dim() > 0 else day
+            abs_overflow_days = day_tensor + days_until_overflow
 
             # Mask: only consider days for initially selected bins
-            LARGE_NUM = 1e6
-            next_overflow_days = torch.where(
+            LARGE_NUM = 1e9  # Use a larger number for absolute days
+            next_abs_overflow_days = torch.where(
                 initial_mandatory,
-                days_to_overflow,
-                torch.tensor(LARGE_NUM, device=fill_levels.device),
+                abs_overflow_days,
+                torch.tensor(LARGE_NUM, device=fill_levels.device, dtype=abs_overflow_days.dtype),
             )
 
-            # 3. Find the minimum next overflow day for each batch
-            horizon = next_overflow_days.min(dim=1).values
+            # 3. Find the minimum next absolute overflow day for each batch
+            next_collection_day = next_abs_overflow_days.min(dim=1).values
 
-            # 4. Check if other bins overflow before this horizon
-            # Effectively, check_days = max(1.0, horizon - 1.0)
-            check_days = (horizon - 1.0).clamp(min=1.0)
+            # 4. Check if other bins overflow before this next collection day
+            # Horizon relative to today: (next_collection_day - today - 1)
+            # day is [B], next_collection_day is [B]
+            check_days = (next_collection_day - day - 1.0).clamp(min=1.0)
 
             # Broadcast check_days to (B, 1) for multiplication
             check_days = check_days.unsqueeze(1)

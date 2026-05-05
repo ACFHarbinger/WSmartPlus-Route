@@ -76,12 +76,12 @@ class RegularSelector(VectorizedSelector):
             if current_day.dim() == 0:
                 current_day = current_day.expand(batch_size)
 
-            # Collection day check: day % (freq + 1) == 1
-            is_collection_day = (current_day % (freq + 1)) == 1  # (batch_size,)
-            is_collection_day = is_collection_day.unsqueeze(-1)  # (batch_size, 1)
+            # Scheduled collection: collect ALL bins on days 1, 1+freq, 1+2*freq, ...
+            # i.e. (current_day - 1) % freq == 0
+            is_collection_day = ((current_day - 1) % freq) == 0  # (B,)
 
-            # If collection day, all bins are mandatory
-            mandatory = is_collection_day.expand(-1, num_nodes)
+            # Broadcast to (B, N)
+            mandatory = is_collection_day.unsqueeze(-1).expand(batch_size, num_nodes)
 
         # Depot is never a mandatory
         mandatory = mandatory.clone()

@@ -27,4 +27,3 @@
 
 strategy: pareto_front
 threshold: 7.0
-max_fill: 100.0

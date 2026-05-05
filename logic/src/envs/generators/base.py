@@ -117,6 +117,13 @@ class Generator(ABC):
             }
         )
 
+        if hasattr(self, "area"):
+            kwargs["area"] = self.area
+        if hasattr(self, "data_dir"):
+            kwargs["data_dir"] = self.data_dir
+        if hasattr(self, "indices"):
+            kwargs["indices"] = self.indices
+
         # For VRPP:
         if hasattr(self, "min_waste"):
             kwargs.update(

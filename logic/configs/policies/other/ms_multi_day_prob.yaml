@@ -28,4 +28,3 @@
 strategy: multi_day_prob
 horizon_days: 3
 threshold: 0.85
-max_fill: 100.0

@@ -23,4 +23,3 @@
 
 strategy: last_minute
 threshold: 70
-max_fill: 100.0

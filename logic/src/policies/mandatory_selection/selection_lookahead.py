@@ -86,6 +86,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         mandatory_bins: List[int],
         current_fill_levels: np.ndarray,
         accumulation_rates: np.ndarray,
+        current_collection_day: int = 0,
     ) -> List[int]:
         """
         Calculate when collected bins would overflow again.
@@ -95,6 +96,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
             mandatory_bins: List of mandatory bins.
             current_fill_levels: Array of current fill levels.
             accumulation_rates: Array of accumulation rates.
+            current_collection_day: Today's day.
 
         Returns:
             List[int]: List of next collection days.
@@ -103,7 +105,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         # Work on a copy to avoid side effects
         temporary_fill_levels = current_fill_levels.copy()
         for i in mandatory_bins:
-            current_day = 0
+            current_day = current_collection_day
             rate = accumulation_rates[i]
             if rate <= 0:
                 continue
@@ -121,6 +123,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         mandatory_bins: List[int],
         current_fill_levels: np.ndarray,
         accumulation_rates: np.ndarray,
+        current_collection_day: int = 0,
     ) -> int:
         """
         Find the earliest overflow day among the currently selected bins.
@@ -130,12 +133,17 @@ class LookaheadSelection(IMandatorySelectionStrategy):
             mandatory_bins: List of mandatory bins.
             current_fill_levels: Array of current fill levels.
             accumulation_rates: Array of accumulation rates.
+            current_collection_day: Today's day.
 
         Returns:
             int: The earliest overflow day.
         """
         next_collection_days = self._calculate_next_collection_days(
-            bin_indices, mandatory_bins, current_fill_levels, accumulation_rates
+            bin_indices,
+            mandatory_bins,
+            current_fill_levels,
+            accumulation_rates,
+            current_collection_day=current_collection_day,
         )
         next_collection_days_array = np.array(next_collection_days)
         # Find minimum non-zero day
@@ -153,6 +161,7 @@ class LookaheadSelection(IMandatorySelectionStrategy):
         mandatory_bins: List[int],
         current_fill_levels: np.ndarray,
         accumulation_rates: np.ndarray,
+        current_collection_day: int = 0,
     ) -> List[int]:
         """
         Add bins that would overflow before the next collection day.
@@ -163,12 +172,11 @@ class LookaheadSelection(IMandatorySelectionStrategy):
             mandatory_bins: List of mandatory bins.
             current_fill_levels: Array of current fill levels.
             accumulation_rates: Array of accumulation rates.
+            current_collection_day: Today's day in the collection cycle.
 
         Returns:
             List[int]: List of bins to collect.
         """
-        # Assuming current_collection_day is 0 (relative start)
-        current_collection_day = 0
         for i in bin_indices:
             if i in mandatory_bins:
                 continue
@@ -211,16 +219,21 @@ class LookaheadSelection(IMandatorySelectionStrategy):
             )
 
             next_collection_day = self._get_next_collection_day(
-                bin_indices, mandatory_bins, simulated_fill_levels, accumulation_rates
+                bin_indices,
+                mandatory_bins,
+                simulated_fill_levels,
+                accumulation_rates,
+                current_collection_day=context.current_collection_day,
             )
 
-            if next_collection_day > 0:
+            if next_collection_day > context.current_collection_day:
                 mandatory_bins = self._add_bins_to_collect(
                     bin_indices,
                     next_collection_day,
                     mandatory_bins,
                     current_fill_levels,  # Original fill levels
                     accumulation_rates,
+                    current_collection_day=context.current_collection_day,
                 )
 
         # Convert back to 1-based IDs
