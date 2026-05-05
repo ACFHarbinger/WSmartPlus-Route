@@ -87,7 +87,7 @@ def _generate_problem_data(problem: str, distributions: Any, data: DataConfig) -
     datadir = (
         os.path.join(ROOT_DIR, "data", data.data_dir, problem)
         if data.dataset_type in ["train_time", "train"]
-        else os.path.join(ROOT_DIR, "data", "wsr_simulator", data.data_dir)
+        else os.path.join(ROOT_DIR, "data", data.data_dir)
     )
     try:
         os.makedirs(datadir, exist_ok=True)

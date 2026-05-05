@@ -22,4 +22,3 @@
 
 strategy: bernoulli_random
 p: 0.5
-max_fill: 1.0

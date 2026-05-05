@@ -18,6 +18,8 @@ from typing import Any, Optional
 
 import torch
 
+from logic.src.constants import MAX_WASTE
+
 from .base import VectorizedSelector
 
 
@@ -30,19 +32,19 @@ class ServiceLevelSelector(VectorizedSelector):
 
     Attributes:
         confidence_factor: Safety factor (z-score) for overflow risk.
-        max_fill: Target maximum fill level before overflow.
     """
 
-    def __init__(self, confidence_factor: float = 1.0, max_fill: float = 1.0) -> None:
+    def __init__(self, confidence_factor: float = 1.0, horizon_days: int = 1, **kwargs: Any) -> None:
         """Initialize the service level selector.
 
         Args:
             confidence_factor: Number of standard deviations for prediction.
                 Higher values lead to more conservative (earlier) collections.
-            max_fill: Maximum fill level (overflow threshold).
+            horizon_days: Number of days to project into the future.
+            kwargs: Additional keyword arguments.
         """
         self.confidence_factor = confidence_factor
-        self.max_fill = max_fill
+        self.horizon_days = horizon_days
 
     def select(
         self,
@@ -50,34 +52,36 @@ class ServiceLevelSelector(VectorizedSelector):
         accumulation_rates: Optional[torch.Tensor] = None,
         std_deviations: Optional[torch.Tensor] = None,
         confidence_factor: Optional[float] = None,
-        max_fill: Optional[float] = None,
+        horizon_days: Optional[int] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         """Select bins statistically likely to overflow.
 
         Prediction Logic:
-            predicted_fill = current + rate + (confidence * std) >= max_fill
+            predicted_fill = current + (horizon * rate) + (horizon * confidence * std) >= MAX_WASTE
 
         Args:
             fill_levels: Current fill levels [B, N].
             accumulation_rates: Mean daily waste generation per node [B, N].
             std_deviations: Standard deviation of daily generation [B, N].
-            confidence_factor: Override for risk-aversion factor.
-            max_fill: Override for overflow limit.
-            kwargs: Additional keyword arguments.
+            confidence_factor: Override for risk-aversion factor (threshold).
+            horizon_days: Override for lookahead horizon.
+            kwargs: Additional keyword arguments (e.g., 'threshold').
 
         Returns:
             torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
-        conf = confidence_factor if confidence_factor is not None else self.confidence_factor
-        overflow_thresh = max_fill if max_fill is not None else self.max_fill
+        # Support both confidence_factor and threshold (from simulation context)
+        conf = confidence_factor if confidence_factor is not None else kwargs.get("threshold", self.confidence_factor)
+        horizon = horizon_days if horizon_days is not None else self.horizon_days
+        overflow_thresh = MAX_WASTE
 
         if accumulation_rates is None or std_deviations is None:
-            # Without statistics, fall back to threshold-based
-            mandatory = fill_levels >= overflow_thresh
+            # Without statistics, no prediction possible - select nothing
+            mandatory = torch.zeros_like(fill_levels, dtype=torch.bool)
         else:
-            # Statistical prediction: current + mean + confidence * std
-            predicted_fill = fill_levels + accumulation_rates + (conf * std_deviations)
+            # Statistical prediction: current + (horizon * mean) + (horizon * confidence * std)
+            predicted_fill = fill_levels + (horizon * accumulation_rates) + (horizon * conf * std_deviations)
             mandatory = predicted_fill >= overflow_thresh
 
         # Depot is never mandatory

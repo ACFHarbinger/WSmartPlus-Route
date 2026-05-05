@@ -21,4 +21,3 @@
 
 strategy: staggered_regular
 period: 3
-max_fill: 1.0

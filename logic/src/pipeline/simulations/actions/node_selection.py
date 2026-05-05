@@ -125,8 +125,6 @@ class MandatorySelectionAction(SimulationAction):
                     if s_params.get("n_points") is not None
                     else s_params.get("frequency")
                     if s_params.get("frequency") is not None
-                    else s_params.get("current_collection_day")
-                    if s_params.get("current_collection_day") is not None
                     else s_params.get("confidence_factor")
                     if s_params.get("confidence_factor") is not None
                     # Fallback for learned strategy
@@ -167,7 +165,7 @@ class MandatorySelectionAction(SimulationAction):
                 revenue_kg=context.get("revenue_kg", 1.0),
                 bin_density=context.get("bin_density", 1.0),
                 bin_volume=context.get("bin_volume", 2.5),
-                max_fill=context.get("max_fill") or context.get("config", {}).get("max_fill") or MAX_CAPACITY_PERCENT,
+                max_fill=MAX_CAPACITY_PERCENT,
                 # New fields for advanced strategies
                 horizon_days=_pi("horizon_days", 3),
                 critical_threshold=_pf("critical_threshold", 0.90),
@@ -202,6 +200,7 @@ class MandatorySelectionAction(SimulationAction):
                 wasserstein_p=_pi("wasserstein_p", 1),
                 overflow_penalty_frac=_pf("overflow_penalty_frac", 1.0),
                 coordinates=bins.get("coords") if isinstance(bins, IBinContainer) else context.get("coordinates"),
+                current_collection_day=_pi("current_collection_day", 0),
                 seed=s_params.get("seed") if hasattr(s_params, "get") else None,
             )
 

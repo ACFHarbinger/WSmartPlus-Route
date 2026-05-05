@@ -29,6 +29,7 @@ import pandas as pd
 import torch
 import torch.utils.data
 from tensordict import TensorDict
+import contextlib
 
 # --- Function Definitions (Top-level for circular import safety) ---
 
@@ -247,18 +248,38 @@ def load_grid_base(
     waste_csv = f"out_rate_crude[{src_area}].csv"
     info_csv = f"out_info[{src_area}].csv"
 
-    # Read info file to map indices to IDs
-    if 0 in indices:
-        info_df = pd.read_csv(os.path.join(data_dir, "coordinates", info_csv))
-        real_ids = info_df.iloc[indices]["ID"].tolist()
+    # Handle nested list of indices (list of lists)
+    if isinstance(indices, list) and len(indices) > 0 and isinstance(indices[0], list):
+        indices = indices[0]
 
-        # Check ID type in waste csv
-        waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
+    # Read info file to map indices to IDs
+    info_path = os.path.join(data_dir, "coordinates", info_csv)
+    if os.path.exists(info_path):
+        info_df = pd.read_csv(info_path)
+        # Heuristic: if all indices are within bounds of info_df, treat them as indices
+        try:
+            if all(isinstance(i, (int, np.integer)) and 0 <= i < len(info_df) for i in indices):
+                real_ids = info_df.iloc[indices]["ID"].tolist()
+            else:
+                real_ids = [str(i) for i in indices]
+        except (TypeError, IndexError, ValueError):
+            # Fallback if indices are not list-like or other issues
+            real_ids = [str(i) for i in indices]
+    else:
+        # Fallback if no info file, treat indices as IDs
+        real_ids = [str(i) for i in indices]
+
+    # Check ID type in waste csv to ensure correct matching
+    waste_path = os.path.join(data_dir, "bins_waste", waste_csv)
+    if os.path.exists(waste_path):
         waste_header = pd.read_csv(waste_path, nrows=0).columns
+        # If waste header uses strings (e.g. "192"), coerce real_ids to strings
         if pd.api.types.is_string_dtype(waste_header):
             real_ids = [str(i) for i in real_ids]
-    else:
-        real_ids = [str(i) for i in indices]
+        # Conversely, if waste header is numeric but real_ids are strings, coerce back
+        elif pd.api.types.is_numeric_dtype(waste_header):
+            with contextlib.suppress(ValueError, TypeError):
+                real_ids = [int(float(i)) for i in real_ids]
 
     return GridBase(
         real_ids,
