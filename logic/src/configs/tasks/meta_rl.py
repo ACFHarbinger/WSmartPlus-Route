@@ -18,10 +18,9 @@ Example:
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, List
 
-from logic.src.configs.envs.graph import GraphConfig
-from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.envs.env import EnvConfig
 
 
 @dataclass
@@ -83,5 +82,4 @@ class MetaRLConfig:
     morl_objectives: List[str] = field(default_factory=lambda: ["waste_efficiency", "overflow_rate"])
     morl_adaptation_rate: float = 0.1
 
-    graph: GraphConfig = field(default_factory=GraphConfig)
-    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
+    env: Any = field(default_factory=EnvConfig)

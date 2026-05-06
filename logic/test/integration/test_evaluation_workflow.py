@@ -163,7 +163,7 @@ def test_eval_dataset_integration(temp_eval_setup):
     opts.eval.val_size = 5
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.num_loc = setup["graph_size"]
+    opts.env.graph.num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "greedy"
     opts.eval.results_dir = setup["dir"]
     opts.eval.overwrite = True
@@ -199,7 +199,7 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     opts.eval.val_size = 2
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.num_loc = setup["graph_size"]
+    opts.env.graph.num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "sample"
     opts.eval.decoding.beam_width = 2
     opts.eval.results_dir = setup["dir"]

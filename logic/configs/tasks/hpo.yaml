@@ -18,21 +18,21 @@ defaults:
 seed: 42 # Random seed for reproducibility
 
 # =============================================================================
-# Environment Override (Smaller for Faster HPO)
-# =============================================================================
-env:
-  name: "wcvrp" # Problem type for HPO
-  num_loc: 20 # Use small problem size for faster trials (20 nodes vs 50-100)
-  area: "riomaior" # Geographic area
-  waste_type: "plastic" # Waste category
-  edge_threshold: 1.0 # Graph connectivity threshold
-  edge_method: "knn" # Edge construction method
-  vertex_method: "mmn" # Vertex placement method
-
-# =============================================================================
 # HPO Configuration
 # =============================================================================
 hpo:
+  # =============================================================================
+  # Environment Override (Smaller for Faster HPO)
+  # =============================================================================
+  env:
+    name: "wcvrp" # Problem type for HPO
+    num_loc: 20 # Use small problem size for faster trials (20 nodes vs 50-100)
+    area: "riomaior" # Geographic area
+    waste_type: "plastic" # Waste category
+    edge_threshold: 1.0 # Graph connectivity threshold
+    edge_method: "knn" # Edge construction method
+    vertex_method: "mmn" # Vertex placement method
+
   # HPO Method
   method:
     "dehbo" # Hyperparameter optimization method. Options:

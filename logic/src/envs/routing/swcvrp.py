@@ -92,10 +92,18 @@ class SCWCVRPEnv(WCVRPEnv):
             raise ValueError(f"Generator for {self.name} is not initialized. Initialize with an instance first.")
         td = super()._reset_instance(td)
 
-        # Ensure real_waste is tracked
+        # Ensure real_waste is tracked and has correct shape (N+1)
         if "real_waste" not in td.keys():
             # If not provided by generator, assume it's same as waste (no noise)
             td["real_waste"] = td["waste"].clone()
+        else:
+            # If provided by generator, it might be customer-only (N)
+            # Prepend depot (0.0) if needed to match observed waste (N+1)
+            real_waste = td["real_waste"]
+            if real_waste.shape[-1] == td["waste"].shape[-1] - 1:
+                bs = td.batch_size
+                depot_waste = torch.zeros(*bs, 1, device=td.device)
+                td["real_waste"] = torch.cat([depot_waste, real_waste], dim=1)
 
         # Track total real waste collected
         td["total_real_collected"] = torch.zeros_like(td["collected_waste"])

@@ -13,12 +13,14 @@
 
 env:
   name: "wcvrp" # Environment identifier
-  num_loc: 50 # Number of bins. Standard sizes: 20, 50, 100
+  mean: 0.0
+  variance: 0.0
 
   # =============================================================================
   # Graph Construction
   # =============================================================================
   graph:
+    num_loc: 50 # Number of bins. Standard sizes: 20, 50, 100
     area: "riomaior" # Geographic area. Options: riomaior, manhattan, random
     waste_type: "plastic" # Waste category. Options: plastic, glass, paper, organic
     distance_method: "gmaps" # Distance calculation. Options: gmaps, osm, euclidean, manhattan
