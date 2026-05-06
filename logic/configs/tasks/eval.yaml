@@ -22,15 +22,15 @@ seed: 42 # Random seed for reproducible data generation
 start: 0 # Starting epoch/index (usually 0)
 
 # =============================================================================
-# Environment
-# =============================================================================
-env:
-  name: "cwcvrp" # Problem type to evaluate. Should match training environment.
-
-# =============================================================================
 # Evaluation Configuration
 # =============================================================================
 eval:
+  # =============================================================================
+  # Environment
+  # =============================================================================
+  env:
+    name: "cwcvrp" # Problem type to evaluate. Should match training environment.
+
   # Decoding Strategy
   decoding:
     strategy:

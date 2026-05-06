@@ -45,10 +45,9 @@ Example:
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from logic.src.configs.envs.graph import GraphConfig
-from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.envs.env import EnvConfig
 from logic.src.configs.models.decoding import DecodingConfig
 from logic.src.configs.policies.na import NeuralAgentConfig
 
@@ -93,6 +92,5 @@ class EvalConfig:
     max_calc_batch_size: int = 12_800
     results_dir: str = "results"
     multiprocessing: bool = False
-    graph: GraphConfig = field(default_factory=GraphConfig)
-    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
+    env: Any = field(default_factory=EnvConfig)
     problem: str = "cwcvrp"

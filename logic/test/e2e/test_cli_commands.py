@@ -76,7 +76,7 @@ def test_cli_train_lightning_smoke(tmp_path):
                 "main.py",
                 "train",
                 "env.name=vrpp",
-                "env.num_loc=10",
+                "env.graph.num_loc=10",
                 "train.n_epochs=1",
                 "train.batch_size=2",
                 "train.eval_batch_size=2",
@@ -178,7 +178,7 @@ def test_cli_train_lightning_ppo_smoke(tmp_path):
                 "main.py",
                 "train",
                 "env.name=vrpp",
-                "env.num_loc=10",
+                "env.graph.num_loc=10",
                 "+experiment=ppo",  # Use + to append new config group if not in schema
                 "train.n_epochs=1",
                 "train.batch_size=2",

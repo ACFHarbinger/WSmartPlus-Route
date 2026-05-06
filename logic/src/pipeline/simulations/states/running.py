@@ -19,7 +19,7 @@ import os
 import time
 from collections.abc import Mapping
 from multiprocessing.synchronize import Lock
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Dict, Optional, cast
 
 from loguru import logger
 

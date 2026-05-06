@@ -17,9 +17,9 @@ Example:
 from .data import DataConfig
 from .eval import EvalConfig
 from .hpo import HPOConfig
+from .hpo_sim import SimHPOConfig
 from .meta_rl import MetaRLConfig
 from .sim import SimConfig
-from .hpo_sim import SimHPOConfig
 from .train import TrainConfig
 
 __all__ = [

@@ -16,9 +16,13 @@
 
 env:
   name: "cvrpp" # Environment identifier
+  mean: 0.0
+  variance: 0.0
 
   graph:
     num_loc: 50 # Number of customer nodes. Standard sizes: 20, 50, 100, 200.
+    area: "riomaior"
+    waste_type: "plastic"
 
   # =============================================================================
   # Capacity Constraint

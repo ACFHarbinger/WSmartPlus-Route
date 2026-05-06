@@ -23,8 +23,7 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
 
-from logic.src.configs.envs.graph import GraphConfig
-from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.envs.env import EnvConfig
 from logic.src.configs.models.decoding import DecodingConfig
 from logic.src.configs.policies.na import NeuralAgentConfig
 
@@ -41,8 +40,7 @@ class TrainConfig:
         val_dataset: Path to pre-generated validation dataset.
         num_workers: Number of data loading workers.
         data_distribution: Distribution for on-the-fly data generation.
-        graph: Graph configuration.
-        reward: Objective/reward configuration.
+        env: Environment configuration (contains graph and reward).
         decoding: Decoding configuration.
         model: Model configuration.
     """
@@ -81,8 +79,7 @@ class TrainConfig:
     devices: Union[int, str] = "auto"
     strategy: Optional[str] = "auto"
 
-    graph: GraphConfig = field(default_factory=GraphConfig)
-    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
+    env: Any = field(default_factory=EnvConfig)
     decoding: DecodingConfig = field(default_factory=DecodingConfig)
     policy: NeuralAgentConfig = field(default_factory=NeuralAgentConfig)
     callbacks: Optional[List[Any]] = None

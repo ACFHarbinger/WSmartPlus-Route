@@ -57,7 +57,7 @@ class Config:
         callbacks: Dictionary of callback configurations.
     """
 
-    env: EnvConfig = field(default_factory=EnvConfig)
+    env: Any = field(default_factory=EnvConfig)
     model: ModelConfig = field(default_factory=ModelConfig)
     train: TrainConfig = field(default_factory=TrainConfig)
     optim: OptimConfig = field(default_factory=OptimConfig)

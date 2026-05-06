@@ -120,7 +120,7 @@ def flatten_config_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         new_dict.update(policy_cfg)
 
     # Flatten other standard sub-configs
-    for key in ["graph", "reward", "decoding", "model"]:
+    for key in ["env", "graph", "reward", "decoding", "model"]:
         if key in new_dict and isinstance(new_dict[key], ITraversable):
             nested = new_dict.pop(key)
             new_dict.update(nested)

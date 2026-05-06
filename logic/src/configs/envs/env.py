@@ -24,14 +24,12 @@ class EnvConfig:
 
     Attributes:
         name: Name of the environment (e.g., 'vrpp', 'wcvrp').
-        num_loc: Number of locations (excluding depot).
         min_loc: Minimum coordinate value.
         max_loc: Maximum coordinate value.
         capacity: Vehicle capacity (optional).
     """
 
     name: str = "vrpp"
-    num_loc: int = 50
     min_loc: float = 0.0
     max_loc: float = 1.0
     capacity: Optional[float] = None
@@ -42,4 +40,7 @@ class EnvConfig:
     min_fill: float = 0.0
     max_fill: float = 1.0
     fill_distribution: str = "uniform"
+    stochastic: bool = False
+    mean: float = 0.0
+    variance: float = 0.0
     temporal_horizon: int = 0

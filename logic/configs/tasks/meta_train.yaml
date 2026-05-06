@@ -22,17 +22,16 @@ seed: 42 # Random seed for reproducibility
 start: 0 # Starting epoch
 
 # =============================================================================
-# Environment
-# =============================================================================
-env:
-  name: "cwcvrp" # Problem type for meta-training
-  distance_method: "gmaps" # Distance calculation method
-
-# =============================================================================
 # Meta-RL Settings
 # =============================================================================
 meta_rl:
   use_meta: true # Enable meta-learning features (must be true for mrl_train)
+  # =============================================================================
+  # Environment
+  # =============================================================================
+  env:
+    name: "cwcvrp" # Problem type for meta-training
+    distance_method: "gmaps" # Distance calculation method
 
   # Meta-Learning Strategy
   meta_strategy:

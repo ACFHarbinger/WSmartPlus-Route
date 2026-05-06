@@ -13,18 +13,17 @@
 
 env:
   name: "cwcvrp" # Environment identifier
+  mean: 0.0
+  variance: 0.0
 
   # =============================================================================
-  # Problem Size
-  # =============================================================================
-  num_loc:
-    100 # Number of customer bins (nodes). Common sizes: 20, 50, 100, 150.
-    # Does NOT include depot. Total nodes = num_loc + 1.
-
-  # =============================================================================
-  # Geographic Configuration
+  # Graph Construction
   # =============================================================================
   graph:
+    num_loc:
+      100 # Number of customer bins (nodes). Common sizes: 20, 50, 100, 150.
+      # Does NOT include depot. Total nodes = num_loc + 1.
+
     area:
       "riomaior" # Real-world area for bin locations. Options:
       # - "riomaior": Rio Maior, Portugal (default)

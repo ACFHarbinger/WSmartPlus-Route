@@ -16,7 +16,7 @@ from omegaconf import DictConfig, OmegaConf
 
 from logic.src.configs import Config
 from logic.src.envs import get_env
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces import IEnv, ITraversable
 from logic.src.models.policies import (
     AttentionModelPolicy,
     DeepDecoderPolicy,
@@ -31,7 +31,7 @@ from logic.src.models.policies import (
     VectorizedHGSALNS,
 )
 from logic.src.models.policies.selection.factory import create_selector_from_config
-from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys
+from logic.src.pipeline.features.base import deep_sanitize, flatten_config_dict, remap_legacy_keys
 from logic.src.pipeline.rl import REINFORCE, MetaRLModule
 from logic.src.tracking.logging.pylogger import get_pylogger
 
@@ -86,36 +86,34 @@ def create_model(cfg: Config) -> pl.LightningModule:
         run = get_active_run() if get_active_run is not None else None
         if run is not None:
             params: Dict[str, Any] = {
-                "model.name": str(cfg.model.name),
-                "model.algo": str(algo_name),
-                "env.name": str(cfg.env.name),
-                "env.num_loc": int(cfg.env.num_loc),
+                "model.name": cfg.model.name,
+                "model.algo": algo_name,
+                "env.name": cfg.env.name,
+                "env.graph.num_loc": cfg.env.graph.num_loc,
             }
             if hasattr(cfg.model, "encoder"):
                 enc = cfg.model.encoder
                 params.update(
                     {
-                        "model.embed_dim": int(enc.embed_dim),
-                        "model.n_encode_layers": int(enc.n_layers),
-                        "model.n_heads": int(enc.n_heads),
-                        "model.normalization": str(enc.normalization.norm_type)
-                        if hasattr(enc, "normalization")
-                        else "",
+                        "model.embed_dim": enc.embed_dim,
+                        "model.n_encode_layers": enc.n_layers,
+                        "model.n_heads": enc.n_heads,
+                        "model.normalization": enc.normalization.norm_type if hasattr(enc, "normalization") else "",
                     }
                 )
             if hasattr(cfg.model, "decoder"):
                 dec = cfg.model.decoder
-                params["model.decoder_type"] = str(dec.type)
-                params["model.n_decode_layers"] = int(dec.n_layers)
+                params["model.decoder_type"] = dec.type
+                params["model.n_decode_layers"] = dec.n_layers
             if getattr(cfg.meta_rl, "use_meta", False):
                 params["model.use_meta"] = True
-                params["model.meta_lr"] = float(cfg.meta_rl.meta_lr)
+                params["model.meta_lr"] = cfg.meta_rl.meta_lr
             run.log_params(params)
 
     return model
 
 
-def _init_environment(cfg: Config):
+def _init_environment(cfg: Config) -> IEnv:
     """Initialize the environment based on config.
 
     Args:
@@ -124,35 +122,40 @@ def _init_environment(cfg: Config):
     Returns:
         Initialized environment.
     """
-    env_name = cfg.env.name
-    env_kwargs = {k: v for k, v in vars(cfg.env).items() if k not in ["name", "graph", "reward"]}
+    env_dict = _config_to_dict(cfg.env)
+    env_name = env_dict.get("name", "vrpp")
+
+    # Extract base env fields (excluding name, graph, reward which are handled separately)
+    env_kwargs = {k: v for k, v in env_dict.items() if k not in ["name", "graph", "reward"]}
 
     # Flatten GraphConfig
-    if hasattr(cfg.env, "graph"):
-        graph = cfg.env.graph
+    if "graph" in env_dict:
+        graph = env_dict["graph"]
+        graph_dict = graph if isinstance(graph, dict) else _config_to_dict(graph)
         env_kwargs.update(
             {
-                "area": graph.area,
-                "waste_type": graph.waste_type,
-                "vertex_method": graph.vertex_method,
-                "distance_method": graph.distance_method,
-                "dm_filepath": graph.dm_filepath,
-                "edge_threshold": graph.edge_threshold,
-                "edge_method": graph.edge_method,
-                "focus_graph": graph.focus_graph,
-                "focus_size": graph.focus_size,
-                "eval_focus_size": graph.eval_focus_size,
+                "area": graph_dict.get("area", "riomaior"),
+                "waste_type": graph_dict.get("waste_type", "plastic"),
+                "vertex_method": graph_dict.get("vertex_method", "mmn"),
+                "distance_method": graph_dict.get("distance_method", "ogd"),
+                "dm_filepath": graph_dict.get("dm_filepath"),
+                "edge_threshold": graph_dict.get("edge_threshold", "0"),
+                "edge_method": graph_dict.get("edge_method"),
+                "focus_graph": graph_dict.get("focus_graph"),
+                "focus_size": graph_dict.get("focus_size"),
+                "eval_focus_size": graph_dict.get("eval_focus_size"),
             }
         )
 
-    # Flatten ObjectiveConfig
-    if hasattr(cfg.env, "reward"):
-        reward = cfg.env.reward
+    # Flatten Reward/ObjectiveConfig
+    if "reward" in env_dict:
+        reward = env_dict["reward"]
+        reward_dict = reward if isinstance(reward, dict) else _config_to_dict(reward)
         env_kwargs.update(
             {
-                "cost_weight": reward.cost_weight,
-                "waste_weight": reward.waste_weight,
-                "overflow_penalty": reward.overflow_penalty,
+                "cost_weight": reward_dict.get("cost_weight", 1.0),
+                "waste_weight": reward_dict.get("waste_weight", 1.0),
+                "overflow_penalty": reward_dict.get("overflow_penalty", 0.0),
             }
         )
 
@@ -295,7 +298,8 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     # Prepare base dicts
     common_kwargs: Dict[str, Any] = _config_to_dict(cfg.rl)
 
-    train_params = cast(Any, cfg.train).copy() if hasattr(cfg.train, "copy") else _config_to_dict(cfg.train)
+    train_params = _config_to_dict(cfg.train)
+    train_params = flatten_config_dict(train_params)
     common_kwargs.update(train_params)
 
     # Dataset paths
@@ -305,7 +309,8 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
     # Model params
-    model_params = cast(Any, cfg.model).copy() if hasattr(cfg.model, "copy") else _config_to_dict(cfg.model)
+    model_params = _config_to_dict(cfg.model)
+    model_params = flatten_config_dict(model_params)
     common_kwargs.update(model_params)
     common_kwargs.pop("name", None)
 

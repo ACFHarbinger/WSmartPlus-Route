@@ -31,8 +31,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
     Adds noise to the fill levels to simulate uncertain waste fill levels.
 
     Attributes:
-        noise_mean: Mean of the noise added to fill levels.
-        noise_variance: Variance of the noise added to fill levels.
+        mean: Mean of the noise added to fill levels.
+        variance: Variance of the noise added to fill levels.
     """
 
     def __init__(
@@ -48,8 +48,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
         cost_km: float = 1.0,
         revenue_kg: float = 0.1625,
         depot_type: str = "center",
-        noise_mean: float = 0.0,
-        noise_variance: float = 0.0,
+        mean: float = 0.0,
+        variance: float = 0.0,
         device: Union[str, torch.device] = "cpu",
         **kwargs: Any,
     ) -> None:
@@ -67,8 +67,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
             cost_km: Cost per kilometer traveled.
             revenue_kg: Revenue per kg collected.
             depot_type: Depot placement ("center", "corner", "random").
-            noise_mean: Mean of Gaussian noise added to fill levels.
-            noise_variance: Variance of Gaussian noise; 0 disables noise.
+            mean: Mean of Gaussian noise added to fill levels.
+            variance: Variance of Gaussian noise; 0 disables noise.
             device: Target device for generated tensors.
             kwargs: Forwarded to WCVRPGenerator base.
         """
@@ -87,8 +87,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
             device=device,
             **kwargs,
         )
-        self.noise_mean = noise_mean
-        self.noise_variance = noise_variance
+        self.mean = mean
+        self.variance = variance
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate SCWCVRP instances.
@@ -110,10 +110,10 @@ class SCWCVRPGenerator(WCVRPGenerator):
         real_waste = td["waste"].clone()
         td["real_waste"] = real_waste
 
-        if self.noise_variance > 0:
+        if self.variance > 0:
             noise = torch.normal(
-                mean=self.noise_mean,
-                std=self.noise_variance**0.5,
+                mean=self.mean,
+                std=self.variance**0.5,
                 size=real_waste.size(),
                 device=self.device,
                 generator=self.generator,

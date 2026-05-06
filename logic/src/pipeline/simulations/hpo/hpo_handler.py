@@ -60,7 +60,6 @@ from logic.src.pipeline.simulations.repository import (
     set_repository_from_path,
 )
 from logic.src.pipeline.simulations.simulator import sequential_simulations
-from logic.src.tracking.logging.pylogger import get_pylogger
 
 # Suppress verbose warnings from BoTorch for cleaner logs
 warnings.filterwarnings("ignore", category=UserWarning)

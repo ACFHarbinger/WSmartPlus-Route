@@ -37,7 +37,7 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.envs.env import EnvConfig
 
 
 @dataclass
@@ -87,7 +87,7 @@ class SimConfig:
 
     cpu_cores: int = 0
     n_vehicles: int = 1
-    graph: GraphConfig = field(default_factory=GraphConfig)
+    env: Any = field(default_factory=EnvConfig)
     noise_mean: float = 0.0
     noise_variance: float = 0.0
     cache_regular: bool = True

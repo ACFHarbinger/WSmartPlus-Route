@@ -30,38 +30,38 @@ data:
   seed: 42
   n_epochs: 1
   epoch_start: 0
-  dataset_type: "train_time" # train, train_time, test_simulator
-  data_dir: "datasets" # Directory to save generated data
-  name: "vrpp"
+  dataset_type: "test_simulator" # train, train_time, test_simulator
+  data_dir: "wsr_simulator/datasets" # Directory to save generated data
+  name: "wsr"
   filename: null
 
   # Graphs Configuration
   graphs:
     - num_loc: 20
-      n_samples: 128000
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
       focus_size: 1
       focus_graph: "graphs_20V_1N_plastic.json"
       n_days: 30
     - num_loc: 50
-      n_samples: 128000
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 128000
+      focus_size: 1
       focus_graph: "graphs_50V_1N_plastic.json"
       n_days: 30
     - num_loc: 100
-      n_samples: 128000
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 128000
+      focus_size: 1
       focus_graph: "graphs_100V_1N_plastic.json"
       n_days: 30
     - num_loc: 170
-      n_samples: 128000
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 128000
+      focus_size: 1
       focus_graph: "graphs_170V_1N_plastic.json"
       n_days: 30
