@@ -67,7 +67,7 @@ class SimConfig:
         symkey_name: Name of the cryptographic key used to access the API keys.
         gapik_file: Name of the file that contains the key to use for the Google API.
         stats_filepath: Path to the file to read the statistics from.
-        graph: Graph/instance configuration.
+        env: Environment configuration for simulation trials.
         data_dir: Directory containing the simulation data.
         load_dataset: Path to a pre-generated dataset file (.npz, .xlsx).
         config_path: Policy configuration paths populated by expand_policy_configs.

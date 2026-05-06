@@ -124,9 +124,9 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
         sim.days={{ days }} \
         sim.n_samples={{ samples }} \
         sim.data_distribution={{ distribution }} \
-        sim.graph.area={{ area }} \
-        sim.graph.num_loc={{ size }} \
-        sim.problem={{ problem }} \
+        sim.env.graph.area={{ area }} \
+        sim.env.graph.num_loc={{ size }} \
+        sim.env.name={{ problem }} \
         sim.cpu_cores={{ n_cores }}
 
 # Run policy HPO for simulation
@@ -162,11 +162,11 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
         hpo_sim.selection_keywords={{ selection_kw }} \
         hpo_sim.acceptance_keywords={{ acceptance_kw }} \
         hpo_sim.improver_keywords={{ improver_kw }} \
-        hpo_sim.graph.n_days={{ days }} \
-        hpo_sim.graph.area={{ area }} \
-        hpo_sim.graph.num_loc={{ size }} \
-        hpo_sim.graph.n_samples={{ samples }} \
-        sim.problem={{ problem }}
+        hpo_sim.env.graph.n_days={{ days }} \
+        hpo_sim.env.graph.area={{ area }} \
+        hpo_sim.env.graph.num_loc={{ size }} \
+        hpo_sim.env.graph.n_samples={{ samples }} \
+        hpo_sim.env.name={{ problem }}
 
 # Generate data with Hydra configs
 

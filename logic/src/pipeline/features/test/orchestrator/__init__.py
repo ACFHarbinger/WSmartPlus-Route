@@ -117,9 +117,9 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         to_remove = runs_per_policy_any(
             home_dir=str(udef.ROOT_DIR),
             ndays=sim.days,
-            nbins=[sim.graph.num_loc],
+            nbins=[sim.env.graph.num_loc],
             output_dir=sim.output_dir,
-            area=sim.graph.area,
+            area=sim.env.graph.area,
             nsamples=[sim.n_samples],
             policies=policies,
             lock=lock,
@@ -133,8 +133,8 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
 
     n_cores = sim.cpu_cores
     n_cores = min(task_count, n_cores) if n_cores >= 1 else min(task_count, max(1, mp.cpu_count() - 1))
-    if data_size != sim.graph.num_loc:
-        indices = load_indices(sim.graph.focus_graph, sim.n_samples, sim.graph.num_loc, data_size, lock)
+    if data_size != sim.env.graph.num_loc:
+        indices = load_indices(sim.env.graph.focus_graph, sim.n_samples, sim.env.graph.num_loc, data_size, lock)
         if len(indices) == 1:
             indices = [indices[0]] * sim.n_samples
     else:
@@ -177,17 +177,17 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         "assets",
         sim.output_dir,
         f"{sim.days}_days",
-        f"{sim.graph.area}_{sim.graph.num_loc}",
+        f"{sim.env.graph.area}_{sim.env.graph.num_loc}",
         f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
     )
     send_final_output_to_gui(log, log_std, sim.n_samples, policies, realtime_log_path)
 
     display_log_metrics(
         sim.output_dir,
-        sim.graph.num_loc,
+        sim.env.graph.num_loc,
         sim.n_samples,
         sim.days,
-        sim.graph.area,
+        sim.env.graph.area,
         policies,
         log,
         log_std,
