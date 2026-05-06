@@ -103,7 +103,7 @@ defaults:
 # General Configuration
 task: test_sim
 seed: 42
-load_dataset: "data/wsr_simulator/datasets/riomaior170_gamma3_wsr30_N1_seed42.npz"
+load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma3_wsr30_N1_seed42.npz"
 
 # Simulation Configuration
 sim:
@@ -119,13 +119,14 @@ sim:
   data_distribution: "emp"
 
   # Relative to ROOT/data/wsr_simulator/
-  graph:
-    num_loc: 100
-    n_samples: 1
-    area: "riomaior"
-    waste_type: "plastic"
-    dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
-    focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
+  env:
+    graph:
+      num_loc: 100
+      n_samples: 1
+      area: "riomaior"
+      waste_type: "plastic"
+      dm_filepath: "gmaps_distmat_${sim.env.graph.waste_type}[${sim.env.graph.area}].csv"
+      focus_graph: "graphs_${sim.env.graph.num_loc}V_1N_${sim.env.graph.waste_type}.json"
 
   # Policies to run
   policies:

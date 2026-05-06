@@ -35,14 +35,15 @@ hpo_sim:
 
   policy_name: alns
 
-  graph:
-    num_loc: 20
-    area: riomaior
-    waste_type: plastic
-    n_days: 7
-    # WARNING: n_samples < 5 gives noisy estimates for stochastic solvers.
-    # Use n_samples >= 10 for publication-quality results.
-    n_samples: 5
+  env:
+    graph:
+      num_loc: 20
+      area: riomaior
+      waste_type: plastic
+      n_days: 7
+      # WARNING: n_samples < 5 gives noisy estimates for stochastic solvers.
+      # Use n_samples >= 10 for publication-quality results.
+      n_samples: 5
 
   # Study is persisted to {output_dir}/hpo_{policy_name}.db automatically.
   # Re-running with the same settings resumes from where it left off.

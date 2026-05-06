@@ -49,8 +49,8 @@ import itertools
 from abc import ABC, abstractmethod
 from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
-import numpy as np
 import gurobipy as gp
+import numpy as np
 from gurobipy import GRB as _GRB
 
 from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem

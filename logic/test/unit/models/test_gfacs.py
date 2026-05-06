@@ -17,7 +17,7 @@ class TestGFACS:
         self.num_nodes = 50
         self.env = MagicMock()
         self.env.name = "vrpp"
-        self.env.num_loc = self.num_nodes
+        self.env.graph.num_loc = self.num_nodes
 
         # Mock env.reset
         td = TensorDict({
