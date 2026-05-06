@@ -365,17 +365,17 @@ def objective(  # noqa: C901
     # -----------------------------------------------------------------
     # 3. Synchronise graph / simulation settings.
     # -----------------------------------------------------------------
-    trial_cfg.sim.graph.num_loc = hpo_sim.graph.num_loc
-    trial_cfg.sim.graph.area = hpo_sim.graph.area
-    trial_cfg.sim.graph.waste_type = hpo_sim.graph.waste_type
-    trial_cfg.sim.days = hpo_sim.graph.n_days
-    trial_cfg.sim.n_samples = hpo_sim.graph.n_samples
+    trial_cfg.sim.env.graph.num_loc = hpo_sim.env.graph.num_loc
+    trial_cfg.sim.env.graph.area = hpo_sim.env.graph.area
+    trial_cfg.sim.env.graph.waste_type = hpo_sim.env.graph.waste_type
+    trial_cfg.sim.days = hpo_sim.env.graph.n_days
+    trial_cfg.sim.n_samples = hpo_sim.env.graph.n_samples
 
-    if hasattr(trial_cfg.sim.graph, "edge_threshold"):
+    if hasattr(trial_cfg.sim.env.graph, "edge_threshold"):
         try:
-            trial_cfg.sim.graph.edge_threshold = int(trial_cfg.sim.graph.edge_threshold)
+            trial_cfg.sim.env.graph.edge_threshold = int(trial_cfg.sim.env.graph.edge_threshold)
         except (ValueError, TypeError):
-            trial_cfg.sim.graph.edge_threshold = 0
+            trial_cfg.sim.env.graph.edge_threshold = 0
 
     trial_cfg.sim.policies = [policy_name]
     expand_policy_configs(trial_cfg)  # type: ignore[arg-type]
@@ -383,14 +383,14 @@ def objective(  # noqa: C901
     # -----------------------------------------------------------------
     # 4. Resolve instance indices and device.
     # -----------------------------------------------------------------
-    n_samples = hpo_sim.graph.n_samples
-    num_loc = hpo_sim.graph.num_loc
+    n_samples = hpo_sim.env.graph.n_samples
+    num_loc = hpo_sim.env.graph.num_loc
 
     if data_size != num_loc:
-        focus_graph = trial_cfg.sim.graph.focus_graph
+        focus_graph = trial_cfg.sim.env.graph.focus_graph
         if not focus_graph:
-            wtype_suffix = f"_{hpo_sim.graph.waste_type}" if hpo_sim.graph.waste_type else ""
-            focus_graph = f"graphs_{hpo_sim.graph.area}_{num_loc}V_{n_samples}N{wtype_suffix}.json"
+            wtype_suffix = f"_{hpo_sim.env.graph.waste_type}" if hpo_sim.env.graph.waste_type else ""
+            focus_graph = f"graphs_{hpo_sim.env.graph.area}_{num_loc}V_{n_samples}N{wtype_suffix}.json"
 
         indices = load_indices(focus_graph, n_samples, num_loc, data_size, lock)
         if len(indices) == 1:
@@ -571,10 +571,10 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
         validate_search_space(search_space, hpo_sim.policy_name)
 
     # Warn if n_samples is too low for reliable HPO.
-    n_samples = hpo_sim.graph.n_samples
+    n_samples = hpo_sim.env.graph.n_samples
     if n_samples < MIN_RECOMMENDED_SAMPLES:
         logger.warning(
-            f"hpo_sim.graph.n_samples={n_samples} is below the recommended minimum of "
+            f"hpo_sim.env.graph.n_samples={n_samples} is below the recommended minimum of "
             f"{MIN_RECOMMENDED_SAMPLES}. Results may be noisy. Consider increasing n_samples."
         )
 
@@ -604,16 +604,18 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
     # -----------------------------------------------------------------
     load_ds = getattr(cfg, "load_dataset", None)
     if load_ds is not None and set_repository_from_path(
-        str(load_ds), area=sim.graph.area, waste_type=sim.graph.waste_type
+        str(load_ds), area=sim.env.graph.area, waste_type=sim.env.graph.waste_type
     ):
-        data_size = sim.graph.num_loc
+        data_size = sim.env.graph.num_loc
     else:
-        set_repository_from_path(str(ROOT_DIR), area=sim.graph.area, waste_type=sim.graph.waste_type)
+        set_repository_from_path(str(ROOT_DIR), area=sim.env.graph.area, waste_type=sim.env.graph.waste_type)
         try:
-            data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)
+            data_tmp, _ = load_simulator_data(
+                sim.data_dir, sim.env.graph.num_loc, sim.env.graph.area, sim.env.graph.waste_type
+            )
             data_size = len(data_tmp)
         except Exception:
-            data_size = sim.graph.num_loc
+            data_size = sim.env.graph.num_loc
 
     output_dir = getattr(cfg, "output_dir", str(ROOT_DIR))
     os.makedirs(output_dir, exist_ok=True)
@@ -626,7 +628,7 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
         storage_url=f"sqlite:///{os.path.join(output_dir, f'hpo_{hpo_sim.policy_name}.db')}",
         directions=directions,
         metric_names=metrics,
-        max_budget=hpo_sim.graph.n_days,
+        max_budget=hpo_sim.env.graph.n_days,
     )
 
     logger.info(
