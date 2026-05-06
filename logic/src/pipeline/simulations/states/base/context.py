@@ -129,7 +129,7 @@ class SimulationContext:
             "assets",
             sim.output_dir,
             str(sim.days) + "_days",
-            str(sim.graph.area) + "_" + str(sim.graph.num_loc),
+            str(sim.env.graph.area) + "_" + str(sim.env.graph.num_loc),
         )
         policies = sim.full_policies
         raw_policy = policies[pol_id]

@@ -11,7 +11,7 @@ Example:
         n_trials=20,
         num_workers=1,
         policy_name="alns",
-        graph=GraphConfig(),
+        env=EnvConfig(),
     )
 """
 
@@ -40,7 +40,7 @@ class SimHPOConfig:
         selection_keywords: Optional keywords to filter selection parameters.
         acceptance_keywords: Optional keywords to filter acceptance parameters.
         improver_keywords: Optional keywords to filter improver parameters.
-        graph: Graph configuration for simulation trials.
+        env: Environment configuration for simulation trials.
     """
 
     method: str = "tpe"

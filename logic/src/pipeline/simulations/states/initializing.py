@@ -75,7 +75,7 @@ class InitializingState(SimState):
 
         # Load base data
         data, bins_coordinates, depot = setup_basedata(
-            sim.graph.num_loc, ctx.data_dir, sim.graph.area, sim.graph.waste_type
+            sim.env.graph.num_loc, ctx.data_dir, sim.env.graph.area, sim.env.graph.waste_type
         )
         self._setup_capacities(ctx)
 
@@ -211,7 +211,7 @@ class InitializingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
-        capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
+        capacities, _, _, _, _ = load_area_and_waste_type_params(sim.env.graph.area, sim.env.graph.waste_type)
         ctx.vehicle_capacity = capacities
 
     def _load_checkpoint_if_needed(self, ctx: SimulationContext) -> Tuple[Optional[Any], int]:
@@ -346,14 +346,14 @@ class InitializingState(SimState):
 
         ctx.dist_tup, adj_matrix = setup_dist_path_tup(
             ctx.coords,
-            sim.graph.num_loc,
-            sim.graph.distance_method,
-            sim.graph.dm_filepath,
+            sim.env.graph.num_loc,
+            sim.env.graph.distance_method,
+            sim.env.graph.dm_filepath,
             sim.env_file,
             sim.gapik_file,
             sim.symkey_name,
-            sim.graph.edge_threshold,
-            sim.graph.edge_method,
+            sim.env.graph.edge_threshold,
+            sim.env.graph.edge_method,
             ctx.indices,
         )
 
@@ -375,12 +375,12 @@ class InitializingState(SimState):
                 ctx.coords,
                 ctx.dist_tup[2],
                 ctx.device,
-                sim.graph.vertex_method,
+                sim.env.graph.vertex_method,
                 ctx.config,
-                sim.graph.edge_threshold,
-                sim.graph.edge_method,
-                sim.graph.area,
-                sim.graph.waste_type,
+                sim.env.graph.edge_threshold,
+                sim.env.graph.edge_method,
+                sim.env.graph.area,
+                sim.env.graph.waste_type,
                 adj_matrix,
             )
 
@@ -406,11 +406,11 @@ class InitializingState(SimState):
         data_dist = sim.data_distribution
         if "gamma" in data_dist:
             ctx.bins = Bins(
-                sim.graph.num_loc,
+                sim.env.graph.num_loc,
                 ctx.data_dir,
                 data_dist[:-1],
-                area=sim.graph.area,
-                waste_type=sim.graph.waste_type,
+                area=sim.env.graph.area,
+                waste_type=sim.env.graph.waste_type,
                 waste_file=getattr(ctx.cfg, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
@@ -426,11 +426,11 @@ class InitializingState(SimState):
             ctx.bins.set_gamma_distribution(option=gamma_option)  # type: ignore[attr-defined]
         else:
             ctx.bins = Bins(
-                sim.graph.num_loc,
+                sim.env.graph.num_loc,
                 ctx.data_dir,
                 data_dist,
-                area=sim.graph.area,
-                waste_type=sim.graph.waste_type,
+                area=sim.env.graph.area,
+                waste_type=sim.env.graph.waste_type,
                 waste_file=getattr(ctx.cfg, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
