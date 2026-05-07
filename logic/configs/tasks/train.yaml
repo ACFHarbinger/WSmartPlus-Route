@@ -15,6 +15,7 @@
 defaults:
   - /models/policies/hgs_alns@rl.imitation.policy_config
   - /models/policies/hgs_alns@rl.adaptive_imitation.policy_config
+  - /envs: vrpp
   - _self_
   - override /tracking: train
 
@@ -29,20 +30,8 @@ load_dataset: "data/datasets/vrpp/vrpp100_gamma3_time31_seed42.td"
 # Training Settings
 # =============================================================================
 train:
-  # =============================================================================
-  # Environment
-  # =============================================================================
-  env:
-    name: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
-    graph:
-      num_loc: 100
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
-      focus_graph: "graphs_${env.graph.num_loc}V_1N_${env.graph.waste_type}.json"
 
-  train_data_size: 128000 # Number of training instances per epoch
+  train_data_size: 12800 # Number of training instances per epoch
   val_data_size: 128 # Number of validation instances
 
   train_time: true # Enable multi-day temporal training (for WCVRP)
@@ -51,8 +40,8 @@ train:
   data_distribution: "gamma3" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
   seed: 42 # Random seed for dataset generation
 
-  n_epochs: 31 # Total training epochs
-  batch_size: 128 # Training batch size. Reduce if OOM errors occur.
+  n_epochs: 20 # Total training epochs
+  batch_size: 64 # Training batch size. Reduce if OOM errors occur.
   eval_batch_size: 128 # Validation batch size (can be larger than train)
 
   model_weights_path: "model_weights" # Directory for checkpoints

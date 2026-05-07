@@ -115,10 +115,10 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
             "overflows": params.overflow_penalty,
         }
 
-        # Data preparation
-        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0)
+        # Data preparation — normalize waste to [0,1] to match training scale
+        model_data["waste"] = torch.as_tensor(bins.c, dtype=torch.float32).unsqueeze(0) / 100.0
         if "fill_history" in model_data:
-            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
+            model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0) / 100.0
         daily_data = move_to(model_data, device)
         dm_tensor = dm_tensor.to(device)
 

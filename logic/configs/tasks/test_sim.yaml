@@ -97,6 +97,7 @@ defaults:
   - /policies@p.vns: policy_vns
   - /policies@p.nds_brkga: policy_nds_brkga
   - /policies@p.vpl: policy_vpl
+  - /envs: vrpp
   - _self_
   - override /tracking: test_sim
 

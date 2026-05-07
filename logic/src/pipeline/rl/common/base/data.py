@@ -93,6 +93,8 @@ class DataMixin:
                     logger.info(f"Loading training dataset from {self.train_dataset_path}")
 
                 self.train_dataset = TensorDictDataset.load(self.train_dataset_path)
+                if self.train_data_size < len(self.train_dataset):
+                    self.train_dataset = TensorDictDataset(self.train_dataset.data[: self.train_data_size])
             else:
                 data = gen(batch_size=self.train_data_size)
                 self.train_dataset = TensorDictDataset(data)
