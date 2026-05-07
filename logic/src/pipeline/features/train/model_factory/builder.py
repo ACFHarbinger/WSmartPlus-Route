@@ -134,6 +134,7 @@ def _init_environment(cfg: Config) -> IEnv:
         graph_dict = graph if isinstance(graph, dict) else _config_to_dict(graph)
         env_kwargs.update(
             {
+                "num_loc": graph_dict.get("num_loc", 50),
                 "area": graph_dict.get("area", "riomaior"),
                 "waste_type": graph_dict.get("waste_type", "plastic"),
                 "vertex_method": graph_dict.get("vertex_method", "mmn"),

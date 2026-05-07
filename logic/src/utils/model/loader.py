@@ -19,6 +19,7 @@ import os
 import re
 from typing import Any, Dict, Optional, Tuple, Type, cast
 
+import torch
 from omegaconf import OmegaConf
 from torch import nn
 
@@ -130,9 +131,43 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
 
     # Overwrite model parameters by parameters to load
     data = torch_load_cpu(model_filename)
-    loaded_state_dict = data.get("model", {})
+    if "model" in data:
+        loaded_state_dict = data["model"]
+    elif "state_dict" in data:
+        # PyTorch Lightning checkpoint: keys are prefixed "policy.*" inside the REINFORCE module.
+        # Remap to the old AttentionModel key naming.
+        _KEY_MAP = {
+            "init_embedding.node_embed.": "context_embedder.init_embed.",
+            "init_embedding.depot_embed.": "context_embedder.init_embed_depot.",
+        }
+        loaded_state_dict = {}
+        for k, v in data["state_dict"].items():
+            if not k.startswith("policy."):
+                continue
+            k = k[len("policy.") :]
+            for src, dst in _KEY_MAP.items():
+                if k.startswith(src):
+                    k = dst + k[len(src) :]
+                    break
+            loaded_state_dict[k] = v
+    else:
+        loaded_state_dict = {}
 
     model.load_state_dict(loaded_state_dict, strict=False)
+
+    # When loading from a PL checkpoint the new policy lacks context_embedder.project_step_context
+    # (it folds that projection into the decoder).  Initialise it as a near-identity: pass the node
+    # embedding through unchanged and ignore the trailing capacity scalar.
+    if "state_dict" in data and "context_embedder.project_step_context.weight" not in loaded_state_dict:
+        psc = model.context_embedder.project_step_context
+        if isinstance(psc, nn.Linear):
+            embed_dim = psc.out_features
+            with torch.no_grad():
+                psc.weight.zero_()
+                psc.weight[:, :embed_dim] = torch.eye(embed_dim)  # identity on node-emb dims
+                if psc.bias is not None:
+                    psc.bias.zero_()
+
     print("  [*] Loaded model from {}".format(model_filename))
     model.eval()
     return model, args

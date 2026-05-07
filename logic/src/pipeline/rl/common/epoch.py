@@ -197,7 +197,16 @@ def _build_visited_mask(
         return visited_mask
 
     try:
-        all_actions = torch.cat(epoch_actions, dim=0).to(device)
+        # Pad all action tensors to the same sequence length before concatenating.
+        # Tour lengths vary across batches (model visits different numbers of bins).
+        max_len = max(a.shape[-1] for a in epoch_actions)
+        padded = []
+        for a in epoch_actions:
+            if a.shape[-1] < max_len:
+                pad = torch.zeros(*a.shape[:-1], max_len - a.shape[-1], dtype=a.dtype)
+                a = torch.cat([a, pad], dim=-1)
+            padded.append(a)
+        all_actions = torch.cat(padded, dim=0).to(device)
         # Handle padding if actions list was larger than dataset size
         # (e.g. from rollout baseline wrap_dataset)
         if all_actions.shape[0] > batch_size:
@@ -306,7 +315,14 @@ def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: in
         return dataset
 
     batch_size = td.batch_size[0]
-    num_nodes = td["locs"].shape[1] - 1  # Exclude depot
+    # num_nodes = number of customer nodes (excluding depot).
+    # Subtract 1 only when locs already includes the depot as first entry.
+    locs = td["locs"]
+    depot = td.get("depot", None)
+    locs_includes_depot = (
+        depot is not None and locs.shape[1] > 1 and torch.allclose(locs[:1, 0, :], depot[:1, :], atol=1e-3)
+    )
+    num_nodes = locs.shape[1] - 1 if locs_includes_depot else locs.shape[1]
     device = td.device
 
     key = "waste" if "waste" in list(td.keys()) else "fill_level"
@@ -338,8 +354,8 @@ def apply_time_step(dataset: Dataset, epoch_actions: List[torch.Tensor], day: in
     # 3. Update fill
     new_fill = current_fill + next_day_waste
 
-    # 4. Clamp non-negative
-    new_fill = torch.clamp(new_fill, min=0.0)
+    # 4. Clamp to [0, 1] (waste is normalized; bins can't exceed capacity)
+    new_fill = torch.clamp(new_fill, min=0.0, max=1.0)
 
     td[key] = new_fill
     if "waste" in td.keys() and key != "waste" and td["waste"].dim() == 2:
