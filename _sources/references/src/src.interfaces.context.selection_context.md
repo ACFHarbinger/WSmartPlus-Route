@@ -205,6 +205,17 @@
 
 ````
 
+````{py:attribute} current_collection_day
+:canonical: src.interfaces.context.selection_context.SelectionContext.current_collection_day
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.interfaces.context.selection_context.SelectionContext.current_collection_day
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.interfaces.context.selection_context.SelectionContext.seed
 :type: typing.Optional[int]

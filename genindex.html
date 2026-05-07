@@ -9229,10 +9229,10 @@ document.write(`
 </li>
       <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.confidence_factor">confidence_factor (src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.html#src.configs.Config">Config (class in src.configs)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.config">config (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
 
       <ul>
@@ -9749,8 +9749,14 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.cumulative_reward">cumulative_reward (src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm attribute)</a>
 </li>
-      <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.current_collection_day">current_collection_day (src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
+      <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day">current_collection_day (src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.interfaces.context.selection_context.html#src.interfaces.context.selection_context.SelectionContext.current_collection_day">(src.interfaces.context.selection_context.SelectionContext attribute)</a>
 </li>
+        <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.SimulationDayContext.current_collection_day">(src.pipeline.simulations.day_context.SimulationDayContext attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.interfaces.context.joint_context.html#src.interfaces.context.joint_context.JointSelectionConstructionContext.current_day">current_day (src.interfaces.context.joint_context.JointSelectionConstructionContext attribute)</a>
 
       <ul>
@@ -10930,7 +10936,21 @@ document.write(`
       <li><a href="references/src/src.configs.rl.html#src.configs.rl.RLConfig.entropy_weight">entropy_weight (src.configs.rl.RLConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.html#src.configs.Config.env">env (src.configs.Config attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.configs.tasks.eval.html#src.configs.tasks.eval.EvalConfig.env">(src.configs.tasks.eval.EvalConfig attribute)</a>
 </li>
+        <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.env">(src.configs.tasks.hpo.HPOConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.tasks.hpo_sim.html#src.configs.tasks.hpo_sim.SimHPOConfig.env">(src.configs.tasks.hpo_sim.SimHPOConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.env">(src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.env">(src.configs.tasks.sim.SimConfig attribute)</a>
+</li>
+        <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.env">(src.configs.tasks.train.TrainConfig attribute)</a>
+</li>
+      </ul></li>
       <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.env_file">env_file (src.configs.tasks.sim.SimConfig attribute)</a>
 </li>
       <li><a href="references/src/src.envs.html#src.envs.ENV_REGISTRY">ENV_REGISTRY (in module src.envs)</a>
@@ -10943,6 +10963,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.enums.environment_tags.html#src.enums.environment_tags.EnvironmentTag">EnvironmentTag (class in src.enums.environment_tags)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.models.subnets.embeddings.state.env.html#src.models.subnets.embeddings.state.env.EnvState">EnvState (class in src.models.subnets.embeddings.state.env)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.common.baselines.base.html#src.pipeline.rl.common.baselines.base.Baseline.epoch_callback">epoch_callback() (src.pipeline.rl.common.baselines.base.Baseline method)</a>
@@ -10953,8 +10975,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.rl.common.baselines.warmup.html#src.pipeline.rl.common.baselines.warmup.WarmupBaseline.epoch_callback">(src.pipeline.rl.common.baselines.warmup.WarmupBaseline method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.tasks.data.html#src.configs.tasks.data.DataConfig.epoch_start">epoch_start (src.configs.tasks.data.DataConfig attribute)</a>
 
       <ul>
@@ -13320,21 +13340,7 @@ document.write(`
       <li><a href="references/src/src.tracking.integrations.gradient_tracker.html#src.tracking.integrations.gradient_tracker.GradientTrackerCallback">GradientTrackerCallback (class in src.tracking.integrations.gradient_tracker)</a>
 </li>
       <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.graph">graph (src.configs.envs.env.EnvConfig attribute)</a>
-
-      <ul>
-        <li><a href="references/src/src.configs.tasks.eval.html#src.configs.tasks.eval.EvalConfig.graph">(src.configs.tasks.eval.EvalConfig attribute)</a>
 </li>
-        <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.graph">(src.configs.tasks.hpo.HPOConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.hpo_sim.html#src.configs.tasks.hpo_sim.SimHPOConfig.graph">(src.configs.tasks.hpo_sim.SimHPOConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.graph">(src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.sim.html#src.configs.tasks.sim.SimConfig.graph">(src.configs.tasks.sim.SimConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.graph">(src.configs.tasks.train.TrainConfig attribute)</a>
-</li>
-      </ul></li>
       <li><a href="references/src/src.enums.environment_tags.html#src.enums.environment_tags.EnvironmentTag.GRAPH">GRAPH (src.enums.environment_tags.EnvironmentTag attribute)</a>
 </li>
       <li><a href="references/src/src.models.subnets.decoders.common.cache.html#src.models.subnets.decoders.common.cache.AttentionDecoderCache.graph_context">graph_context (src.models.subnets.decoders.common.cache.AttentionDecoderCache attribute)</a>
@@ -13684,8 +13690,6 @@ document.write(`
       <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig.horizon_days">horizon_days (src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days">(src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig attribute)</a>
-</li>
         <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig.horizon_days">(src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig attribute)</a>
 </li>
         <li><a href="references/src/src.interfaces.context.joint_context.html#src.interfaces.context.joint_context.JointSelectionConstructionContext.horizon_days">(src.interfaces.context.joint_context.JointSelectionConstructionContext attribute)</a>
@@ -16152,8 +16156,6 @@ document.write(`
       <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.max_fill">max_fill (src.configs.envs.env.EnvConfig attribute)</a>
 
       <ul>
-        <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill">(src.configs.policies.other.mandatory_selection.MandatorySelectionConfig attribute)</a>
-</li>
         <li><a href="references/src/src.interfaces.context.joint_context.html#src.interfaces.context.joint_context.JointSelectionConstructionContext.max_fill">(src.interfaces.context.joint_context.JointSelectionConstructionContext attribute)</a>
 </li>
         <li><a href="references/src/src.interfaces.context.problem_context.html#src.interfaces.context.problem_context.ProblemContext.max_fill">(src.interfaces.context.problem_context.ProblemContext attribute)</a>
@@ -16599,8 +16601,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.core.mdam.policy.html#src.models.core.mdam.policy.MDAMPolicy">MDAMPolicy (class in src.models.core.mdam.policy)</a>
 </li>
-      <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.mean">mean (src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
+      <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.mean">mean (src.configs.envs.env.EnvConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.mean">(src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller.html#src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller._SlidingWindowStats.mean">mean() (src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller._SlidingWindowStats method)</a>
 </li>
       <li><a href="references/src/src.configs.policies.cp_sat.html#src.configs.policies.cp_sat.CPSATConfig.mean_increment">mean_increment (src.configs.policies.cp_sat.CPSATConfig attribute)</a>
@@ -21772,12 +21778,8 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.html#src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams.num_days">(src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.STEFParams attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.num_loc">num_loc (src.configs.envs.env.EnvConfig attribute)</a>
-
-      <ul>
-        <li><a href="references/src/src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig.num_loc">(src.configs.envs.graph.GraphConfig attribute)</a>
+      <li><a href="references/src/src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig.num_loc">num_loc (src.configs.envs.graph.GraphConfig attribute)</a>
 </li>
-      </ul></li>
       <li><a href="references/src/src.configs.policies.kgls.html#src.configs.policies.kgls.KGLSConfig.num_perturbations">num_perturbations (src.configs.policies.kgls.KGLSConfig attribute)</a>
 
       <ul>
@@ -24073,14 +24075,6 @@ document.write(`
 </li>
         <li><a href="references/src/src.configs.policies.other.reinforcement_learning.html#src.configs.policies.other.reinforcement_learning.RLConfig.reward">(src.configs.policies.other.reinforcement_learning.RLConfig attribute)</a>
 </li>
-        <li><a href="references/src/src.configs.tasks.eval.html#src.configs.tasks.eval.EvalConfig.reward">(src.configs.tasks.eval.EvalConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.hpo.html#src.configs.tasks.hpo.HPOConfig.reward">(src.configs.tasks.hpo.HPOConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.meta_rl.html#src.configs.tasks.meta_rl.MetaRLConfig.reward">(src.configs.tasks.meta_rl.MetaRLConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.tasks.train.html#src.configs.tasks.train.TrainConfig.reward">(src.configs.tasks.train.TrainConfig attribute)</a>
-</li>
       </ul></li>
       <li><a href="references/src/src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.html#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_accepted_worse">reward_accepted_worse (src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams property)</a>
 </li>
@@ -24088,14 +24082,14 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.html#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_improved_current">reward_improved_current (src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.rl_gd_hh.html#src.configs.policies.rl_gd_hh.RLGDHHConfig.reward_improvement">reward_improvement (src.configs.policies.rl_gd_hh.RLGDHHConfig attribute)</a>
 
       <ul>
         <li><a href="references/src/src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.html#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.reward_improvement">(src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.html#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_new_global_best">reward_new_global_best (src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams property)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.html#src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams.reward_rejected">reward_rejected (src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.RLALNSParams property)</a>
@@ -31914,8 +31908,6 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.states.base.base.html#module-src.pipeline.simulations.states.base.base">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.simulations.states.base.context
 
@@ -31923,6 +31915,8 @@ document.write(`
         <li><a href="references/src/src.pipeline.simulations.states.base.context.html#module-src.pipeline.simulations.states.base.context">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     src.pipeline.simulations.states.finishing
 
@@ -39620,6 +39614,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.rl.core.stepwise_ppo.html#src.pipeline.rl.core.stepwise_ppo.StepwisePPO">StepwisePPO (class in src.pipeline.rl.core.stepwise_ppo)</a>
 </li>
+      <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.stochastic">stochastic (src.configs.envs.env.EnvConfig attribute)</a>
+</li>
       <li><a href="references/src/src.enums.environment_tags.html#src.enums.environment_tags.EnvironmentTag.STOCHASTIC">STOCHASTIC (src.enums.environment_tags.EnvironmentTag attribute)</a>
 
       <ul>
@@ -40326,8 +40322,6 @@ document.write(`
         <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig.threshold">(src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig.threshold">(src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig attribute)</a>
-</li>
-        <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold">(src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig attribute)</a>
 </li>
         <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig.threshold">(src.configs.policies.other.mandatory_selection.MultiDayProbSelectionConfig attribute)</a>
 </li>
@@ -41554,8 +41548,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.matheuristics.two_phase_kernel_search.solver.html#src.policies.route_construction.matheuristics.two_phase_kernel_search.solver._PhaseIStats.var_obj_contribution">var_obj_contribution (src.policies.route_construction.matheuristics.two_phase_kernel_search.solver._PhaseIStats attribute)</a>
 </li>
-      <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.variance">variance (src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
+      <li><a href="references/src/src.configs.envs.env.html#src.configs.envs.env.EnvConfig.variance">variance (src.configs.envs.env.EnvConfig attribute)</a>
+
+      <ul>
+        <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler.variance">(src.pipeline.rl.common.reward_scaler.RewardScaler property)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.models.policies.operators.destroy.cluster_removal.html#src.models.policies.operators.destroy.cluster_removal.vectorized_cluster_removal">vectorized_cluster_removal() (in module src.models.policies.operators.destroy.cluster_removal)</a>
 </li>
       <li><a href="references/src/src.models.policies.operators.exchange.cross_exchange.html#src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange">vectorized_cross_exchange() (in module src.models.policies.operators.exchange.cross_exchange)</a>

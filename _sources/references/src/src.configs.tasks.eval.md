@@ -194,24 +194,13 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.tasks.eval.EvalConfig.graph
-:type: logic.src.configs.envs.graph.GraphConfig
+````{py:attribute} env
+:canonical: src.configs.tasks.eval.EvalConfig.env
+:type: typing.Any
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.tasks.eval.EvalConfig.graph
-```
-
-````
-
-````{py:attribute} reward
-:canonical: src.configs.tasks.eval.EvalConfig.reward
-:type: logic.src.configs.envs.objective.ObjectiveConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.eval.EvalConfig.reward
+```{autodoc2-docstring} src.configs.tasks.eval.EvalConfig.env
 ```
 
 ````

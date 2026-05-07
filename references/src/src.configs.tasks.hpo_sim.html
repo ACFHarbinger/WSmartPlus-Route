@@ -486,7 +486,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.selection_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.selection_keywords</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.acceptance_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.acceptance_keywords</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.improver_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.improver_keywords</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.graph</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.env"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.env</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -516,7 +516,7 @@ metric=”profit”,
 n_trials=20,
 num_workers=1,
 policy_name=”alns”,
-graph=GraphConfig(),
+env=EnvConfig(),
 )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -552,7 +552,7 @@ policy_keywords: Optional keywords to filter policy parameters.
 selection_keywords: Optional keywords to filter selection parameters.
 acceptance_keywords: Optional keywords to filter acceptance parameters.
 improver_keywords: Optional keywords to filter improver parameters.
-graph: Graph configuration for simulation trials.</p>
+env: Environment configuration for simulation trials.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.hpo_sim.SimHPOConfig.method">
 <span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tasks.hpo_sim.SimHPOConfig.method" title="Link to this definition">#</a></dt>
@@ -638,8 +638,8 @@ graph: Graph configuration for simulation trials.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.hpo_sim.SimHPOConfig.graph">
-<span class="sig-name descname"><span class="pre">graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.configs.envs.graph.GraphConfig</span></em><a class="headerlink" href="#src.configs.tasks.hpo_sim.SimHPOConfig.graph" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.tasks.hpo_sim.SimHPOConfig.env">
+<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.configs.tasks.hpo_sim.SimHPOConfig.env" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
@@ -712,7 +712,7 @@ graph: Graph configuration for simulation trials.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.selection_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.selection_keywords</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.acceptance_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.acceptance_keywords</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.improver_keywords"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.improver_keywords</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.graph"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.graph</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.hpo_sim.SimHPOConfig.env"><code class="docutils literal notranslate"><span class="pre">SimHPOConfig.env</span></code></a></li>
 </ul>
 </li>
 </ul>

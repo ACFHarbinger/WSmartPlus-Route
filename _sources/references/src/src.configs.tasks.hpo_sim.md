@@ -183,13 +183,13 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.tasks.hpo_sim.SimHPOConfig.graph
-:type: logic.src.configs.envs.graph.GraphConfig
+````{py:attribute} env
+:canonical: src.configs.tasks.hpo_sim.SimHPOConfig.env
+:type: typing.Any
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.tasks.hpo_sim.SimHPOConfig.graph
+```{autodoc2-docstring} src.configs.tasks.hpo_sim.SimHPOConfig.env
 ```
 
 ````

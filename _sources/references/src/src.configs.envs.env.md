@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} num_loc
-:canonical: src.configs.envs.env.EnvConfig.num_loc
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.envs.env.EnvConfig.num_loc
-```
-
-````
-
 ````{py:attribute} min_loc
 :canonical: src.configs.envs.env.EnvConfig.min_loc
 :type: float
@@ -146,6 +135,39 @@
    'uniform'
 
 ```{autodoc2-docstring} src.configs.envs.env.EnvConfig.fill_distribution
+```
+
+````
+
+````{py:attribute} stochastic
+:canonical: src.configs.envs.env.EnvConfig.stochastic
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.stochastic
+```
+
+````
+
+````{py:attribute} mean
+:canonical: src.configs.envs.env.EnvConfig.mean
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.mean
+```
+
+````
+
+````{py:attribute} variance
+:canonical: src.configs.envs.env.EnvConfig.variance
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.variance
 ```
 
 ````

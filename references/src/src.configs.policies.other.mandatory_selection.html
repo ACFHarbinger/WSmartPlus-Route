@@ -490,8 +490,7 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.horizon_days</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.current_collection_day</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig"><code class="docutils literal notranslate"><span class="pre">DeadlineSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -624,7 +623,6 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.strategy</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.max_fill</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.last_minute"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.last_minute</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.regular"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.regular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.service_level"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.service_level</span></code></a></li>
@@ -892,18 +890,11 @@ revenue_threshold: Threshold for revenue-based selection.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">LookaheadSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for predictive collection within a horizon.</p>
 <p>Attributes:
-horizon_days: Number of days to look ahead.
-threshold: Threshold for lookahead selection.</p>
+current_collection_day: Current day in the collection cycle.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days">
-<span class="sig-name descname"><span class="pre">horizon_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days" title="Link to this definition">#</a></dt>
-<dd><p>3</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold">
-<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold" title="Link to this definition">#</a></dt>
-<dd><p>0.7</p>
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day">
+<span class="sig-name descname"><span class="pre">current_collection_day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
 </dd></dl>
 
 </dd></dl>
@@ -1475,7 +1466,6 @@ period: Period for staggered selection.</p>
 <p>Composes algorithm-specific parameters and execution settings.</p>
 <p>Attributes:
 strategy: Primary selection strategy name.
-max_fill: Global overflow threshold (0.0 to 1.0 or 100.0).
 last_minute: Params for LastMinuteSelection.
 regular: Params for RegularSelection.
 service_level: Params for ServiceLevelSelection.
@@ -1506,12 +1496,6 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy">
 <span class="sig-name descname"><span class="pre">strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill">
-<span class="sig-name descname"><span class="pre">max_fill</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill" title="Link to this definition">#</a></dt>
-<dd><p>1.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1761,8 +1745,7 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.horizon_days</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day"><code class="docutils literal notranslate"><span class="pre">LookaheadSelectionConfig.current_collection_day</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.DeadlineSelectionConfig"><code class="docutils literal notranslate"><span class="pre">DeadlineSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
@@ -1895,7 +1878,6 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.strategy</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.max_fill</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.last_minute"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.last_minute</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.regular"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.regular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.service_level"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.service_level</span></code></a></li>

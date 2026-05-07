@@ -359,24 +359,13 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.tasks.hpo.HPOConfig.graph
-:type: logic.src.configs.envs.graph.GraphConfig
+````{py:attribute} env
+:canonical: src.configs.tasks.hpo.HPOConfig.env
+:type: typing.Any
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.graph
-```
-
-````
-
-````{py:attribute} reward
-:canonical: src.configs.tasks.hpo.HPOConfig.reward
-:type: logic.src.configs.envs.objective.ObjectiveConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.reward
+```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.env
 ```
 
 ````

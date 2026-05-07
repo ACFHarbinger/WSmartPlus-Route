@@ -243,24 +243,13 @@
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig
 ```
 
-````{py:attribute} horizon_days
-:canonical: src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days
+````{py:attribute} current_collection_day
+:canonical: src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day
 :type: int
 :value: >
-   3
+   0
 
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.horizon_days
-```
-
-````
-
-````{py:attribute} threshold
-:canonical: src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold
-:type: float
-:value: >
-   0.7
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.threshold
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day
 ```
 
 ````
@@ -1092,17 +1081,6 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
    None
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy
-```
-
-````
-
-````{py:attribute} max_fill
-:canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill
 ```
 
 ````

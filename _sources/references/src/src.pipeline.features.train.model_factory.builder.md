@@ -72,7 +72,7 @@
 ```
 ````
 
-````{py:function} _init_environment(cfg: logic.src.configs.Config)
+````{py:function} _init_environment(cfg: logic.src.configs.Config) -> logic.src.interfaces.IEnv
 :canonical: src.pipeline.features.train.model_factory.builder._init_environment
 
 ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._init_environment

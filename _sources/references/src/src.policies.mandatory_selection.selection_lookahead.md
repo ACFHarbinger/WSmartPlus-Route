@@ -55,7 +55,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStra
 
 ````
 
-````{py:method} _calculate_next_collection_days(bin_indices: typing.List[int], mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray) -> typing.List[int]
+````{py:method} _calculate_next_collection_days(bin_indices: typing.List[int], mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray, current_collection_day: int = 0) -> typing.List[int]
 :canonical: src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._calculate_next_collection_days
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._calculate_next_collection_days
@@ -63,7 +63,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStra
 
 ````
 
-````{py:method} _get_next_collection_day(bin_indices: typing.List[int], mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray) -> int
+````{py:method} _get_next_collection_day(bin_indices: typing.List[int], mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray, current_collection_day: int = 0) -> int
 :canonical: src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._get_next_collection_day
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._get_next_collection_day
@@ -71,7 +71,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStra
 
 ````
 
-````{py:method} _add_bins_to_collect(bin_indices: typing.List[int], next_collection_day: int, mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray) -> typing.List[int]
+````{py:method} _add_bins_to_collect(bin_indices: typing.List[int], next_collection_day: int, mandatory_bins: typing.List[int], current_fill_levels: numpy.ndarray, accumulation_rates: numpy.ndarray, current_collection_day: int = 0) -> typing.List[int]
 :canonical: src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._add_bins_to_collect
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_lookahead.LookaheadSelection._add_bins_to_collect

@@ -172,13 +172,13 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.tasks.sim.SimConfig.graph
-:type: logic.src.configs.envs.graph.GraphConfig
+````{py:attribute} env
+:canonical: src.configs.tasks.sim.SimConfig.env
+:type: typing.Any
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.graph
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.env
 ```
 
 ````

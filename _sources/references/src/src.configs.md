@@ -65,7 +65,7 @@ src.configs.tracking
 
 ````{py:attribute} env
 :canonical: src.configs.Config.env
-:type: src.configs.envs.EnvConfig
+:type: typing.Any
 :value: >
    'field(...)'
 
