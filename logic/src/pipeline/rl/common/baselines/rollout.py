@@ -84,6 +84,26 @@ class RolloutBaseline(Baseline):
             for param in self.baseline_policy.parameters():
                 param.requires_grad = False
 
+    def train(self, mode: bool = True) -> RolloutBaseline:
+        """Override train to keep baseline_policy in eval mode.
+
+        Note:
+            This triggers a PyTorch Lightning warning about modules being in
+            eval mode at the start of training. This is INTENTIONAL for
+            RolloutBaseline as the baseline policy must remain frozen and
+            greedy to provide a stable reference for advantage estimation.
+
+        Args:
+            mode: Whether to set training mode (True) or evaluation mode (False).
+
+        Returns:
+            RolloutBaseline: Self.
+        """
+        super().train(mode)
+        if self.baseline_policy is not None:
+            self.baseline_policy.eval()
+        return self
+
     def _rollout(self, policy: nn.Module, td_or_dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
         """Run greedy rollout on a batch or dataset.
 
