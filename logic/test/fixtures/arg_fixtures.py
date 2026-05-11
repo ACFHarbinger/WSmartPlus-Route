@@ -19,7 +19,7 @@ def base_train_args():
         "256",
         "--epoch_size",
         "128000",
-        "--n_epochs",
+        "--train.env.graph.n_days",
         "25",
     ]
 

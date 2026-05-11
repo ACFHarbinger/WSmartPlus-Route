@@ -153,6 +153,7 @@ class StepMixin:
         batch: Union[TensorDict, Dict[str, Any]],
         batch_idx: int,
         phase: str,
+        env: Optional[Any] = None,
     ) -> dict:
         """
         Common step for train/val/test.
@@ -161,10 +162,14 @@ class StepMixin:
             batch: TensorDict batch.
             batch_idx: Batch index.
             phase: One of "train", "val", "test".
+            env: Optional env override; falls back to self.env when None.
+                 Used by validation_step to select the per-eval-graph env.
 
         Returns:
             Output dictionary with loss, reward, etc.
         """
+        _env = env if env is not None else self.env
+
         # Unwrap batch if it's from a baseline dataset
         batch, baseline_val = self.baseline.unwrap_batch(batch)
 
@@ -187,12 +192,12 @@ class StepMixin:
         if self.mandatory_selector is not None:
             td = self._apply_mandatory_selection(td)
 
-        td = self.env.reset(td)
+        td = _env.reset(td)
 
         # Run policy
         out = self.policy(
             td,
-            self.env,
+            _env,
             strategy="sampling" if phase == "train" else "greedy",
         )
 
@@ -201,12 +206,11 @@ class StepMixin:
 
         # Compute loss for training
         if phase == "train":
-            out["loss"] = self.calculate_loss(td, out, batch_idx, env=self.env)
+            out["loss"] = self.calculate_loss(td, out, batch_idx, env=_env)
 
-        # Log reward
+        # Log reward.
         reward_mean = out["reward"].mean()
         batch_size = out["reward"].shape[0]
-        # Use type: ignore because LitModule.log is known to but StepMixin is a mixin
         self.log(  # type: ignore
             f"{phase}/reward",
             reward_mean,
@@ -294,8 +298,11 @@ class StepMixin:
         """
         Execute a single validation step.
 
+        Supports multiple validation dataloaders (from eval_graphs): the
+        dataloader_idx selects the matching env from self.eval_envs.
+
         Args:
-            args: Positional arguments (batch, batch_idx).
+            args: Positional arguments (batch, batch_idx[, dataloader_idx]).
             kwargs: Additional keyword arguments.
 
         Returns:
@@ -303,7 +310,30 @@ class StepMixin:
         """
         batch: Any = args[0] if args else kwargs["batch"]
         batch_idx: int = args[1] if len(args) > 1 else kwargs.get("batch_idx", 0)
-        return self.shared_step(batch, batch_idx, phase="val")
+        dataloader_idx: int = args[2] if len(args) > 2 else kwargs.get("dataloader_idx", 0)
+
+        eval_envs = getattr(self, "eval_envs", None) or []
+        env = eval_envs[dataloader_idx] if eval_envs and dataloader_idx < len(eval_envs) else None
+        return self.shared_step(batch, batch_idx, phase="val", env=env)
+
+    def on_validation_epoch_end(self) -> None:
+        """
+        Aggregate rewards across multiple validation dataloaders (graphs)
+        to provide a single 'val/reward' metric for checkpoint monitoring.
+        """
+        # Fetch per-dataloader rewards from the callback_metrics
+        # Lightning stores them as 'val/reward/dataloader_idx_N'
+        rewards = []
+        metrics = self.trainer.callback_metrics
+        for k, v in metrics.items():
+            if k.startswith("val/reward/dataloader_idx_"):
+                rewards.append(v)
+
+        if rewards:
+            # Simple average of the means of each graph size
+            # This ensures 'val/reward' is available for ModelCheckpoint(monitor='val/reward')
+            avg_reward = torch.stack(rewards).mean()
+            self.log("val/reward", avg_reward, sync_dist=True, prog_bar=True)
 
     def test_step(self, *args: Any, **kwargs: Any) -> dict:
         """

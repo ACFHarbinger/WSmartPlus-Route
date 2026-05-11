@@ -17,8 +17,6 @@ Example:
         penalty_factor=3.0,
         overwrite=False,
         seed=42,
-        n_epochs=1,
-        epoch_start=0,
         dataset_type="train",
         graphs=[GraphConfig()],
     )
@@ -46,8 +44,6 @@ class DataConfig:
         penalty_factor: Penalty factor for problems.
         overwrite: Set true to overwrite.
         seed: Random seed.
-        n_epochs: The number of epochs to generate data for.
-        epoch_start: Start at epoch #.
         dataset_type: Set type of dataset to generate ('train', 'train_time', 'test_simulator').
         graph: Graph/instance configuration.
     """
@@ -62,7 +58,5 @@ class DataConfig:
     penalty_factor: float = 3.0
     overwrite: bool = False
     seed: int = 42
-    n_epochs: int = 1
-    epoch_start: int = 0
     dataset_type: Optional[str] = None
     graphs: List[GraphConfig] = field(default_factory=list)

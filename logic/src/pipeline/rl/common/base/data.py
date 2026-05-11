@@ -11,7 +11,7 @@ Example:
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
 from torch.utils.data import DataLoader
 
@@ -26,14 +26,96 @@ if TYPE_CHECKING:
 logger = get_pylogger(__name__)
 
 
+def _cfg_get(obj: Any, key: str, default: Any = None) -> Any:
+    """Get a field from a dict-like or attribute-style config object."""
+    if obj is None:
+        return default
+    if hasattr(obj, "get"):
+        return obj.get(key, default)
+    return getattr(obj, key, default)
+
+
+def _get_eval_graphs(cfg: Any) -> list:
+    """Return cfg.env.eval_graphs as a list, or [] if absent/empty."""
+    if cfg is None:
+        return []
+    try:
+        env_cfg = getattr(cfg, "env", None)
+        if env_cfg is None:
+            return []
+        eval_graphs = getattr(env_cfg, "eval_graphs", None)
+        if not eval_graphs:
+            return []
+        return list(eval_graphs)
+    except Exception:
+        return []
+
+
+def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
+    """Build an env and its generator for a single eval_graph config entry.
+
+    Args:
+        cfg: Root config (DictConfig or plain dict-like).
+        eval_graph: A single eval_graph entry (dict-like or object).
+
+    Returns:
+        Tuple of (env, generator) both on CPU.
+    """
+    from logic.src.envs import get_env
+
+    env_cfg = getattr(cfg, "env", None)
+    env_name = str(_cfg_get(env_cfg, "name", "vrpp") or "vrpp")
+    env_graph = _cfg_get(env_cfg, "graph", None)
+    env_reward = _cfg_get(env_cfg, "reward", None)
+    train_cfg = getattr(cfg, "train", None)
+
+    cost_weight = float(_cfg_get(env_reward, "cost_weight", 1.0) or 1.0)
+    waste_weight = float(_cfg_get(env_reward, "waste_weight", 1.0) or 1.0)
+    data_dist = str(_cfg_get(train_cfg, "data_distribution", "gamma3") or "gamma3")
+
+    n_samples = int(_cfg_get(eval_graph, "n_samples", 512))
+    num_loc = int(_cfg_get(eval_graph, "num_loc", _cfg_get(env_graph, "num_loc", 50)))
+    area = str(_cfg_get(eval_graph, "area", _cfg_get(env_graph, "area", "riomaior")))
+    waste_type = str(_cfg_get(eval_graph, "waste_type", _cfg_get(env_graph, "waste_type", "plastic")))
+    focus_graph = _cfg_get(eval_graph, "focus_graph", None)
+    focus_size = _cfg_get(eval_graph, "focus_size", None)
+    vertex_method = str(_cfg_get(eval_graph, "vertex_method", _cfg_get(env_graph, "vertex_method", "mmn")) or "mmn")
+    n_days = int(_cfg_get(eval_graph, "n_days", 1))
+
+    # Use the training device for the eval env (so env.reset and policy run on GPU);
+    # only the data generator is pinned to CPU for offline dataset generation.
+    env_device = str(getattr(cfg, "device", "cpu") or "cpu")
+
+    eval_env = get_env(
+        env_name,
+        num_loc=num_loc,
+        area=area,
+        waste_type=waste_type,
+        focus_graph=focus_graph,
+        focus_size=focus_size,
+        n_samples=n_samples,
+        n_days=n_days,
+        cost_weight=cost_weight,
+        waste_weight=waste_weight,
+        data_distribution=data_dist,
+        device=env_device,
+        batch_size=n_samples,
+        vertex_method=vertex_method,
+    )
+
+    gen = eval_env.generator
+    if hasattr(gen, "to"):
+        gen = gen.to("cpu")
+
+    return eval_env, gen
+
+
 class DataMixin:
     """Mixin for data loading logic.
 
     Attributes:
         env: Environment for data generation.
         policy: Policy for data generation.
-        train_data_size: Size of training data.
-        val_data_size: Size of validation data.
         val_dataset_path: Path to validation dataset.
         train_dataset_path: Path to training dataset.
         batch_size: Batch size.
@@ -41,8 +123,11 @@ class DataMixin:
         persistent_workers: Whether to use persistent workers.
         pin_memory: Whether to pin memory.
         local_rank: Local rank.
+        cfg: Root configuration object.
         train_dataset: Training dataset.
-        val_dataset: Validation dataset.
+        val_dataset: Single validation dataset (fallback when eval_graphs is empty).
+        val_datasets: List of validation datasets, one per eval_graph entry.
+        eval_envs: List of envs corresponding to val_datasets (used by StepMixin).
     """
 
     def __init__(self) -> None:
@@ -54,8 +139,6 @@ class DataMixin:
         # Type hints for attributes expected from the main class
         self.env: IEnv
         self.policy: IPolicy
-        self.train_data_size: int
-        self.val_data_size: int
         self.val_dataset_path: Optional[str]
         self.train_dataset_path: Optional[str]
         self.batch_size: int
@@ -63,8 +146,12 @@ class DataMixin:
         self.persistent_workers: bool
         self.pin_memory: bool
         self.local_rank: int
+        self.cfg: Any
         self.train_dataset: Optional[Any] = None
         self.val_dataset: Optional[Any] = None
+        # Multi-dataset support for eval_graphs
+        self.val_datasets: Optional[List[Any]] = None
+        self.eval_envs: Optional[List[Any]] = None
 
     def setup(self, stage: str) -> None:
         """
@@ -74,18 +161,15 @@ class DataMixin:
             stage: The stage ('fit', 'validate', 'test', or 'predict').
         """
         if stage == "fit":
-            # If num_workers > 0, we should generate on CPU to avoid CUDA fork issues
-            # and transfer to device in shared_step.
-
-            # Pre-generate dataset on CPU for efficiency and VRAM saving
-            # This avoids the overhead of generating 1 instance at a time in __getitem__
             gen = self.env.generator
             assert gen is not None
             if hasattr(gen, "to"):
                 gen = gen.to("cpu")
 
-            if self.local_rank == 0:
-                logger.info(f"Pre-generating training dataset ({self.train_data_size} instances) on CPU...")
+            # Safely resolve training dataset size from config (cfg may be None in tests)
+            _cfg_env = getattr(self.cfg, "env", None)
+            _cfg_graph = _cfg_get(_cfg_env, "graph", None)
+            n_train = int(_cfg_get(_cfg_graph, "n_samples", 10))
 
             assert gen is not None
             if self.train_dataset_path is not None and os.path.exists(self.train_dataset_path):
@@ -93,21 +177,44 @@ class DataMixin:
                     logger.info(f"Loading training dataset from {self.train_dataset_path}")
 
                 self.train_dataset = TensorDictDataset.load(self.train_dataset_path)
-                if self.train_data_size < len(self.train_dataset):
-                    self.train_dataset = TensorDictDataset(self.train_dataset.data[: self.train_data_size])
-            else:
-                data = gen(batch_size=self.train_data_size)
-                self.train_dataset = TensorDictDataset(data)
-            assert self.train_dataset is not None
-            if self.val_dataset_path is not None:
-                # Load validation dataset from file (legacy parity)
-                self.val_dataset = TensorDictDataset.load(self.val_dataset_path)
+                if n_train < len(self.train_dataset):
+                    self.train_dataset = TensorDictDataset(self.train_dataset.data[:n_train])
             else:
                 if self.local_rank == 0:
-                    logger.info(f"Pre-generating validation dataset ({self.val_data_size} instances) on CPU...")
-                val_data = cast(Any, gen)(batch_size=self.val_data_size)
-                self.val_dataset = TensorDictDataset(val_data)
-                assert self.val_dataset is not None
+                    logger.info(f"Generating training dataset ({n_train} instances) on CPU...")
+                data = gen(batch_size=n_train)
+                self.train_dataset = TensorDictDataset(data)
+
+            # Build validation datasets from eval_graphs (multi-graph) or fall back to single dataset
+            eval_graphs = _get_eval_graphs(self.cfg)
+            if eval_graphs:
+                self.val_datasets = []
+                self.eval_envs = []
+                for eval_graph in eval_graphs:
+                    n_samples = int(_cfg_get(eval_graph, "n_samples", n_train))
+                    num_loc = int(_cfg_get(eval_graph, "num_loc", 50))
+                    if self.local_rank == 0:
+                        logger.info(f"Generating eval dataset ({n_samples} instances, {num_loc} nodes) on CPU...")
+                    eval_env, eval_gen = _create_eval_env_and_gen(self.cfg, eval_graph)
+                    val_data = eval_gen(batch_size=n_samples)
+                    self.val_datasets.append(TensorDictDataset(val_data))
+                    self.eval_envs.append(eval_env)
+            else:
+                # Fallback: single validation dataset using the training env
+                self.val_datasets = None
+                self.eval_envs = None
+                env_graph_cfg = _cfg_get(getattr(self.cfg, "env", None), "graph", None)
+                n_val = int(_cfg_get(env_graph_cfg, "n_samples", 512))
+                if self.val_dataset_path is not None:
+                    if self.local_rank == 0:
+                        logger.info(f"Loading validation dataset from {self.val_dataset_path}")
+                    self.val_dataset = TensorDictDataset.load(self.val_dataset_path)
+                else:
+                    if self.local_rank == 0:
+                        logger.info(f"Generating validation dataset ({n_val} instances) on CPU...")
+                    val_data = cast(Any, gen)(batch_size=n_val)
+                    self.val_dataset = TensorDictDataset(val_data)
+                    assert self.val_dataset is not None
         else:
             pass
 
@@ -121,7 +228,7 @@ class DataMixin:
         return DataLoader(
             cast(Any, self.train_dataset),
             batch_size=self.batch_size,
-            shuffle=True,  # Shuffle for training
+            shuffle=True,
             num_workers=self.num_workers,
             collate_fn=tensordict_collate_fn,
             pin_memory=self.pin_memory if self.num_workers > 0 and self.train_dataset is not None else False,
@@ -130,13 +237,29 @@ class DataMixin:
             else False,
         )
 
-    def val_dataloader(self) -> DataLoader:
+    def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         """
-        Create the validation DataLoader.
+        Create the validation DataLoader(s).
+
+        Returns a list of DataLoaders when eval_graphs is configured so that
+        Lightning validates on each graph size independently.
 
         Returns:
-            DataLoader: DataLoader for validation data.
+            Single DataLoader or list of DataLoaders.
         """
+        if self.val_datasets:
+            return [
+                DataLoader(
+                    cast(Any, ds),
+                    batch_size=self.batch_size,
+                    collate_fn=tensordict_collate_fn,
+                    num_workers=self.num_workers,
+                    pin_memory=self.pin_memory if self.num_workers > 0 else False,
+                    persistent_workers=self.persistent_workers if self.num_workers > 0 else False,
+                )
+                for ds in self.val_datasets
+            ]
+
         assert self.val_dataset is not None
         return DataLoader(
             cast(Any, self.val_dataset),

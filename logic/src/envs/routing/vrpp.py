@@ -121,6 +121,16 @@ class VRPPEnv(RL4COEnvBase):
         locs = tensordict["locs"]
         waste = tensordict.get("waste")
 
+        # Temporal datasets store waste as 3D (batch, num_days, num_loc).
+        # apply_time_step() converts it to 2D after epoch 0, but on epoch 0 we
+        # must extract the current day's slice before any depot-prepend logic.
+        if waste is not None and waste.dim() > 2:
+            current_day_t = tensordict.get("current_day", None)
+            day_idx = int(current_day_t.reshape(-1)[0].item()) if current_day_t is not None else 0
+            day_idx = min(day_idx, waste.shape[1] - 1)
+            waste = waste[:, day_idx, :]
+            tensordict["waste"] = waste
+
         # Robust N vs N+1 logic
         # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
         if self.generator is None:
@@ -181,17 +191,8 @@ class VRPPEnv(RL4COEnvBase):
         """
         Execute a routing action and update the episode state.
 
-        This method processes a single step in the VRPP episode by:
-        1. Computing the Euclidean distance traveled from current node to selected action node
-        2. Collecting waste/profit from the destination node (if unvisited and not depot)
-        3. Updating the visit mask, current position, tour sequence, and cumulative metrics
-
-        Reward Logic:
-            - Waste is collected only from nodes that are:
-                a) Previously unvisited (checked via visited mask)
-                b) Not the depot (action != 0)
-            - The depot (node 0) has zero waste and serves as the return point
-            - Revisiting a node does not collect additional waste
+        Delegates common routing mechanics (distance, visited, current_node, tour)
+        to OpsMixin._step_instance, then applies VRPP-specific waste collection.
 
         Args:
             tensordict (TensorDict): Current state containing:
@@ -216,31 +217,25 @@ class VRPPEnv(RL4COEnvBase):
             The method handles edge cases where waste array may not include depot
             (shape mismatch) by dynamically prepending a zero depot waste value.
         """
-        # Locs and waste are already prepended in reset or previously
-        bs = tensordict.batch_size
-        device = tensordict.device
-        locs = tensordict["locs"]
-        waste = tensordict["waste"]
-
         action = tensordict["action"]
-        current = tensordict["current_node"].squeeze(-1)
+        if action.dim() > 1:
+            action = action.squeeze(-1)
+        if action.dim() == 0:
+            action = action.unsqueeze(0)
 
-        # Compute distance traveled
-        current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
-        next_loc = locs.gather(1, action[:, None, None].expand(-1, -1, 2)).squeeze(1)
-        distance = torch.norm(next_loc - current_loc, dim=-1)
-
-        # Update tour length
-        tensordict["tour_length"] = tensordict["tour_length"] + distance
-
-        # Collect waste (only for unvisited, non-depot nodes)
+        # Capture new-visit status before super() updates the visited mask
         is_new_visit = ~tensordict["visited"].gather(1, action.unsqueeze(-1)).squeeze(-1)
         is_not_depot = action != 0
 
-        # waste handling
+        # Delegate distance / visited / current_node / tour updates
+        tensordict = super()._step_instance(tensordict)
+
+        bs = tensordict.batch_size
+        device = tensordict.device
+
+        # Waste collection (VRPP-specific)
         waste = tensordict.get("waste")
         if waste is not None and waste.shape[-1] == tensordict["visited"].shape[-1] - 1:
-            # needs depot
             waste = torch.cat([torch.zeros(*bs, 1, device=device), waste], dim=1)
             tensordict["waste"] = waste
 
@@ -249,15 +244,6 @@ class VRPPEnv(RL4COEnvBase):
             tensordict["collected_waste"] = (
                 tensordict["collected_waste"] + waste_collected * is_new_visit.float() * is_not_depot.float()
             )
-
-        # Update visited
-        tensordict["visited"] = tensordict["visited"].scatter(1, action.unsqueeze(-1), True)
-
-        # Update current node
-        tensordict["current_node"] = action.unsqueeze(-1)
-
-        # Append to tour
-        tensordict["tour"] = torch.cat([tensordict["tour"], action.unsqueeze(-1)], dim=-1)
 
         return tensordict
 
@@ -339,7 +325,13 @@ class VRPPEnv(RL4COEnvBase):
         current_idx = current[:, None, None].expand(-1, -1, 2)
         current_loc = locs.gather(1, current_idx).squeeze(1)
         depot_loc = tensordict["depot"]
-        return_distance = torch.norm(depot_loc - current_loc, dim=-1)
+
+        dm = tensordict.get("dm", None)
+        if dm is not None:
+            # Road distance from current node back to depot (index 0)
+            return_distance = dm.gather(1, current[:, None, None].expand(-1, -1, dm.shape[-1])).squeeze(1)[:, 0]
+        else:
+            return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
         # Only add return distance if not already at depot
         not_at_depot = current != 0

@@ -30,6 +30,7 @@ class GraphConfig:
         focus_graph: Paths to the files with the coordinates of the graphs to focus on.
         focus_size: Number of focus graphs to include.
         n_samples: Number of samples/instances to generate for this graph.
+        start_day: The starting day of the simulation.
         n_days: Number of days to generate for this graph.
     """
 
@@ -44,5 +45,7 @@ class GraphConfig:
     focus_graph: Optional[str] = None
     focus_size: Optional[int] = None
     eval_focus_size: Optional[int] = None
+    load_dataset: Optional[str] = None
     n_samples: int = 1
+    start_day: int = 0
     n_days: int = 1

@@ -58,8 +58,6 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         optimizer_kwargs: Optional[dict] = None,
         lr_scheduler: Optional[str] = None,
         lr_scheduler_kwargs: Optional[dict] = None,
-        train_data_size: int = 100000,
-        val_data_size: int = 10000,
         val_dataset_path: Optional[str] = None,
         batch_size: int = 256,
         num_workers: int = 4,
@@ -79,8 +77,6 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             optimizer_kwargs: Keyword arguments for the optimizer.
             lr_scheduler: Learning rate scheduler name ('cosine', 'step', or None).
             lr_scheduler_kwargs: Keyword arguments for the scheduler.
-            train_data_size: Number of training samples to generate per epoch.
-            val_data_size: Number of validation samples.
             val_dataset_path: Optional path to a pre-saved validation dataset.
             train_dataset_path: Optional path to a pre-saved training dataset.
             batch_size: Batch size for training and validation.
@@ -112,9 +108,11 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         self.train_dataset: Optional[Any] = None
         self.mandatory_selector = mandatory_selector
 
-        # Data params
-        self.train_data_size = train_data_size
-        self.val_data_size = val_data_size
+        # Config initialization
+        self.cfg = kwargs.get("cfg")
+        if isinstance(self.cfg, dict):
+            self.cfg = OmegaConf.create(self.cfg)
+
         self.val_dataset_path = val_dataset_path
         self.train_dataset_path = kwargs.get("train_dataset_path")
         self.batch_size = batch_size
@@ -243,7 +241,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             and self.current_epoch < self.trainer.max_epochs - 1
             and hasattr(self.env, "generator")
         ):
-            new_dataset = regenerate_dataset(self.env, self.train_data_size)
+            new_dataset = regenerate_dataset(self.env, self.cfg.env.graph.n_samples)
             if new_dataset is not None:
                 self.train_dataset = new_dataset
 

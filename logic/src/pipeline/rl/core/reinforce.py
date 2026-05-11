@@ -103,9 +103,6 @@ class REINFORCE(RL4COLitModule):
         # Advantage
         advantage = reward - baseline_val
 
-        # Normalize advantage (optional but helps stability)
-        advantage = (advantage - advantage.mean()) / (advantage.std() + 1e-8)
-
         # Policy gradient loss
         loss = -(advantage.detach() * log_likelihood).mean()
 

@@ -20,13 +20,13 @@ class PPOConfig:
     """PPO specific configuration.
 
     Attributes:
-        epochs: Number of epochs to train.
+        inner_epochs: Number of epochs to train.
         eps_clip: Epsilon value for the algorithm.
         value_loss_weight: Coefficient for value loss.
         mini_batch_size: Fraction of the batch size to use for each mini-batch.
     """
 
-    epochs: int = 10
+    inner_epochs: int = 10
     eps_clip: float = 0.2
     value_loss_weight: float = 0.5
     mini_batch_size: float = 0.25

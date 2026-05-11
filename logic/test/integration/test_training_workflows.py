@@ -43,8 +43,6 @@ def test_reinforce_training_loop():
         baseline="rollout",
         optimizer_kwargs={"lr": 1e-4},
         batch_size=2,
-        train_data_size=10,
-        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -79,8 +77,6 @@ def test_ppo_training_loop():
         critic=critic,
         optimizer_kwargs={"lr": 1e-4},
         batch_size=1,
-        train_data_size=10,
-        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -111,8 +107,6 @@ def test_a2c_training_loop():
         env=env,
         policy=policy,
         batch_size=2,
-        train_data_size=10,
-        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -145,8 +139,6 @@ def test_ppo_multistart_training_loop():
         policy=policy,
         critic=critic,
         batch_size=2,
-        train_data_size=10,
-        val_data_size=10,
         decode_kwargs={"multistart": True, "num_starts": 5, "select_best": True},
     )
 

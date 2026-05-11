@@ -75,8 +75,7 @@ def test_lit_module_configure_schedulers(lit_setup):
 
 def test_lit_module_setup_fit(lit_setup):
     """Verify setup phase for training."""
-    lit_setup.train_data_size = 4
-    lit_setup.val_data_size = 2
+    lit_setup.env.graph.num_samples = 4
 
     # Mock generator to return TensorDict
     from tensordict import TensorDict

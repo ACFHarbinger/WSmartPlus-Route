@@ -37,7 +37,7 @@ Example:
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from logic.src.configs.envs.env import EnvConfig
+from logic.src.configs.envs.graph import GraphConfig
 
 
 @dataclass
@@ -67,9 +67,8 @@ class SimConfig:
         symkey_name: Name of the cryptographic key used to access the API keys.
         gapik_file: Name of the file that contains the key to use for the Google API.
         stats_filepath: Path to the file to read the statistics from.
-        env: Environment configuration for simulation trials.
+        graph: Graph configuration for simulation trials.
         data_dir: Directory containing the simulation data.
-        load_dataset: Path to a pre-generated dataset file (.npz, .xlsx).
         config_path: Policy configuration paths populated by expand_policy_configs.
     """
 
@@ -87,7 +86,7 @@ class SimConfig:
 
     cpu_cores: int = 0
     n_vehicles: int = 1
-    env: Any = field(default_factory=EnvConfig)
+    graph: Any = field(default_factory=GraphConfig)
     noise_mean: float = 0.0
     noise_variance: float = 0.0
     cache_regular: bool = True

@@ -160,7 +160,7 @@ class RunningState(SimState):
         (distance_matrix, paths_between_states, dm_tensor, distancesC) = ctx.dist_tup
 
         return SimulationDayContext(
-            graph_size=sim.env.graph.num_loc,
+            graph_size=sim.graph.num_loc,
             full_policy=ctx.pol_name,
             policy_name=ctx.pol_name,
             bins=ctx.bins,
@@ -172,9 +172,9 @@ class RunningState(SimState):
             model_env=ctx.model_env,
             model_ls=ctx.model_tup or (None, None),
             n_vehicles=sim.n_vehicles,
-            area=sim.env.graph.area,
+            area=sim.graph.area,
             realtime_log_path=realtime_log_path,
-            waste_type=sim.env.graph.waste_type,
+            waste_type=sim.graph.waste_type,
             distpath_tup=ctx.dist_tup,
             distance_matrix=distance_matrix,
             distancesC=distancesC,

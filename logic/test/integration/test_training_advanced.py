@@ -51,8 +51,6 @@ def test_dr_grpo_training_loop(clean_logs):
         lr=1e-4,
         max_grad_norm=1.0,
         env_name="vrpp",
-        train_data_size=10,
-        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -97,8 +95,6 @@ def test_gdpo_training_loop(clean_logs):
         optimizer="adam",
         lr=1e-4,
         env_name="vrpp",
-        train_data_size=10,
-        val_data_size=10,
     )
 
     trainer = Trainer(
@@ -124,8 +120,6 @@ def test_training_resume(tmp_path):
         policy=policy,
         optimizer="adam",
         lr=1e-3,
-        train_data_size=10,
-        val_data_size=10,
     )
 
     checkpoint_dir = tmp_path / "checkpoints"
