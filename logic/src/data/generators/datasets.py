@@ -141,7 +141,7 @@ def _process_instance_generation(
     waste_type = graph_cfg.waste_type
     vertex_method = graph_cfg.vertex_method
     focus_size = graph_cfg.focus_size if graph_cfg.focus_size is not None else 0
-    n_days = graph_cfg.n_days if graph_cfg.n_days is not None else max(data.n_epochs - data.epoch_start, 1)
+    n_days = max(graph_cfg.n_days - graph_cfg.start_day, 1)
     n_samples = graph_cfg.n_samples if graph_cfg.n_samples is not None else 1
     if data.dataset_type == "train":
         n_days = 1
@@ -174,7 +174,9 @@ def _process_instance_generation(
     elif data.dataset_type == "train_time":
         file_count = _generate_train_time_data(builder, problem, n_days, datadir, dist, size, data)
     else:
-        file_count = _generate_train_data(builder, problem, datadir, dist, size, data)
+        file_count = _generate_train_data(
+            builder, problem, graph_cfg.n_days, graph_cfg.start_day, datadir, dist, size, data
+        )
 
     return file_count
 
@@ -309,7 +311,14 @@ def _generate_train_time_data(
 
 
 def _generate_train_data(
-    builder: VRPInstanceBuilder, problem: str, datadir: str, dist: Any, size: int, data: DataConfig
+    builder: VRPInstanceBuilder,
+    problem: str,
+    n_days: int,
+    start_day: int,
+    datadir: str,
+    dist: Any,
+    size: int,
+    data: DataConfig,
 ) -> int:
     """Generate and save standard training data.
 
@@ -325,7 +334,7 @@ def _generate_train_data(
         Number of files generated.
     """
     name = data.name or "dataset"
-    for epoch in range(data.epoch_start, data.n_epochs):
+    for epoch in range(start_day, n_days):
         print("- Generating epoch {} data".format(epoch))
         if data.filename is None:
             ext = ".td"
@@ -339,7 +348,7 @@ def _generate_train_data(
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
                         name,
-                        epoch if data.n_epochs > 1 else "",
+                        epoch if n_days > 1 else "",
                         data.seed,
                         f"gaussian{mu_val}",
                         f"_{sigma_val}",
@@ -354,7 +363,7 @@ def _generate_train_data(
                         size,
                         ("_{}".format(dist) if dist is not None else ""),
                         name,
-                        epoch if data.n_epochs > 1 else "",
+                        epoch if n_days > 1 else "",
                         data.seed,
                         ext,
                     ),
@@ -363,7 +372,7 @@ def _generate_train_data(
             filename = check_extension(data.filename, ".td")
 
         _verify_and_save(builder, filename, data, is_td=True)
-    return max(data.n_epochs - data.epoch_start, 0)
+    return max(n_days - start_day, 0)
 
 
 def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfig, is_td: bool = False) -> None:
@@ -386,3 +395,5 @@ def _verify_and_save(builder: VRPInstanceBuilder, filename: str, data: DataConfi
     else:
         dataset = builder.build()
         save_simulation_dataset(dataset, filename)
+
+    print(f"Generated {filename}")

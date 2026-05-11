@@ -210,6 +210,7 @@ def _find_latest_checkpoint(path: str, epoch: Optional[int]) -> str:
 def _parse_hydra_config(cfg: Any) -> Dict[str, Any]:
     """
     Helper to parse raw Hydra configuration into flat arguments.
+    Supports both legacy flat models and newer nested architectures.
 
     Args:
         cfg: Hydra configuration object.
@@ -217,45 +218,100 @@ def _parse_hydra_config(cfg: Any) -> Dict[str, Any]:
     Returns:
         dict: Flat dictionary of arguments.
     """
-    args = {
-        "problem": cfg.env.name,
-        "encoder": cfg.model.encoder_type,
-        "model": cfg.model.name,
-        "embed_dim": cfg.model.embed_dim,
-        "hidden_dim": cfg.model.hidden_dim,
-        "n_heads": cfg.model.n_heads,
-        "n_encode_layers": cfg.model.n_encoder_layers,
-        "n_encode_sublayers": cfg.model.n_encoder_sublayers,
-        "n_decode_layers": cfg.model.n_decoder_layers,
-        "n_predict_layers": cfg.model.n_predictor_layers,
-        "normalization": cfg.model.normalization,
-        "activation": cfg.model.activation,
-        "dropout": cfg.model.dropout,
-        "tanh_clipping": cfg.model.tanh_clipping,
-        "learn_affine": cfg.model.learn_affine,
-        "track_stats": cfg.model.track_stats,
-        "epsilon_alpha": cfg.model.epsilon_alpha,
-        "momentum_beta": cfg.model.momentum_beta,
-        "lrnorm_k": cfg.model.lrnorm_k,
-        "gnorm_groups": cfg.model.gnorm_groups,
-        "af_param": cfg.model.activation_param,
-        "af_threshold": cfg.model.activation_threshold,
-        "af_replacement": cfg.model.activation_replacement,
-        "af_num_params": cfg.model.activation_num_parameters,
-        "af_urange": cfg.model.activation_uniform_range,
-        "aggregation": cfg.model.aggregation_node,
-        "aggregation_graph": cfg.model.aggregation_graph,
-        "spatial_bias": cfg.model.spatial_bias,
-        "spatial_bias_scale": cfg.model.spatial_bias_scale,
-        "shrink_size": cfg.model.shrink_size,
-        "temporal_horizon": cfg.model.temporal_horizon,
-        "mask_inner": cfg.model.mask_inner,
-        "mask_logits": cfg.model.mask_logits,
-        "mask_graph": cfg.model.mask_graph,
-        "checkpoint_encoder": cfg.model.checkpoint_encoder,
-    }
-    if "rl" in cfg:
-        args["entropy_weight"] = cfg.rl.entropy_weight
+    # Convert to container for easier .get() access if it's a DictConfig
+    container = OmegaConf.to_container(cfg, resolve=True) if OmegaConf.is_config(cfg) else cfg
+    assert container is not None and isinstance(container, dict), f"Container is not a dict: {container}"
+
+    model = container.get("model", {})
+    env = container.get("env", {})
+
+    # Detect nested structure (encoder is a dict) vs legacy (encoder_type string)
+    is_nested = isinstance(model.get("encoder"), dict)
+    if is_nested:
+        enc = model.get("encoder", {})
+        dec = model.get("decoder", {})
+        norm = enc.get("normalization", {})
+        act = enc.get("activation", {})
+
+        args = {
+            "problem": env.get("name", "vrpp"),
+            "encoder": enc.get("type", "gat"),
+            "model": model.get("name", "am"),
+            "embed_dim": enc.get("embed_dim", 128),
+            "hidden_dim": enc.get("hidden_dim", 512),
+            "n_heads": enc.get("n_heads", 8),
+            "n_encode_layers": enc.get("n_layers", 3),
+            "n_encode_sublayers": enc.get("n_sublayers", 1),
+            "n_decode_layers": dec.get("n_layers", 2),
+            "n_predict_layers": dec.get("n_predictor_layers", 0),
+            "normalization": norm.get("norm_type", "instance"),
+            "activation": act.get("name", "gelu"),
+            "dropout": enc.get("dropout", 0.1),
+            "tanh_clipping": dec.get("tanh_clipping", 10.0),
+            "learn_affine": norm.get("learn_affine", True),
+            "track_stats": norm.get("track_stats", False),
+            "epsilon_alpha": norm.get("epsilon", 1e-5),
+            "momentum_beta": norm.get("momentum", 0.1),
+            "lrnorm_k": norm.get("k_lrnorm", 1.0),
+            "gnorm_groups": norm.get("n_groups", 1),
+            "af_param": act.get("param", 1.0),
+            "af_threshold": act.get("threshold", 6.0),
+            "af_replacement": act.get("replacement_value", 6.0),
+            "af_nparams": act.get("n_params", 1),
+            "af_urange": act.get("range", [0.1, 0.4]),
+            "aggregation": enc.get("aggregation_node", "sum"),
+            "aggregation_graph": enc.get("aggregation_graph", "avg"),
+            "spatial_bias": enc.get("spatial_bias", False),
+            "spatial_bias_scale": enc.get("spatial_bias_scale", 1.0),
+            "shrink_size": model.get("shrink_size"),
+            "temporal_horizon": model.get("temporal_horizon", 0),
+            "mask_inner": enc.get("mask_inner", True),
+            "mask_logits": dec.get("mask_logits", True),
+            "mask_graph": enc.get("mask_graph", False),
+            "checkpoint_encoder": enc.get("checkpoint_encoder", False),
+        }
+    else:
+        # Fallback to legacy flat structure
+        args = {
+            "problem": env.get("name", "vrpp"),
+            "encoder": model.get("encoder_type", "gat"),
+            "model": model.get("name", "am"),
+            "embed_dim": model.get("embed_dim", 128),
+            "hidden_dim": model.get("hidden_dim", 512),
+            "n_heads": model.get("n_heads", 8),
+            "n_encode_layers": model.get("n_encoder_layers", 3),
+            "n_encode_sublayers": model.get("n_encoder_sublayers", 1),
+            "n_decode_layers": model.get("n_decoder_layers", 2),
+            "n_predict_layers": model.get("n_predictor_layers", 0),
+            "normalization": model.get("normalization", "instance"),
+            "activation": model.get("activation", "gelu"),
+            "dropout": model.get("dropout", 0.1),
+            "tanh_clipping": model.get("tanh_clipping", 10.0),
+            "learn_affine": model.get("learn_affine", True),
+            "track_stats": model.get("track_stats", False),
+            "epsilon_alpha": model.get("epsilon_alpha", 1e-5),
+            "momentum_beta": model.get("momentum_beta", 0.1),
+            "lrnorm_k": model.get("lrnorm_k", 1.0),
+            "gnorm_groups": model.get("gnorm_groups", 1),
+            "af_param": model.get("activation_param", 1.0),
+            "af_threshold": model.get("activation_threshold", 6.0),
+            "af_replacement": model.get("activation_replacement", 6.0),
+            "af_nparams": model.get("activation_num_parameters", 1),
+            "af_urange": model.get("activation_uniform_range", [0.1, 0.4]),
+            "aggregation": model.get("aggregation_node", "sum"),
+            "aggregation_graph": model.get("aggregation_graph", "avg"),
+            "spatial_bias": model.get("spatial_bias", False),
+            "spatial_bias_scale": model.get("spatial_bias_scale", 1.0),
+            "shrink_size": model.get("shrink_size"),
+            "temporal_horizon": model.get("temporal_horizon", 0),
+            "mask_inner": model.get("mask_inner", True),
+            "mask_logits": model.get("mask_logits", True),
+            "mask_graph": model.get("mask_graph", False),
+            "checkpoint_encoder": model.get("checkpoint_encoder", False),
+        }
+
+    if "rl" in container:
+        args["entropy_weight"] = container["rl"].get("entropy_weight", 0.0)
     return args
 
 

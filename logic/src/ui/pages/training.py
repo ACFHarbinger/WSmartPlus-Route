@@ -64,7 +64,7 @@ def _render_run_overview(selected_runs: List[str]) -> None:
 
             # Key params as metric cards
             key_params: Dict[str, Any] = {}
-            for key in ["env_name", "optimizer", "baseline", "loss_fn", "batch_size", "train_data_size"]:
+            for key in ["env_name", "optimizer", "baseline", "loss_fn", "batch_size"]:
                 if key in hparams:
                     key_params[key] = hparams[key]
 
@@ -93,7 +93,7 @@ def _render_training_progress(runs_data: Dict[str, pd.DataFrame], selected_runs:
     """
     for run_name in selected_runs:
         hparams = load_hparams(run_name)
-        total_epochs = hparams.get("n_epochs")
+        total_epochs = hparams.get("env.graph.n_days")
         if total_epochs is None:
             continue
 

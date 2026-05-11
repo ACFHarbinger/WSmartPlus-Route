@@ -30,7 +30,6 @@ seed: 42
 task: "train"
 start: 0
 device: "cuda"
-load_dataset: null
 
 # =============================================================================
 # Training Defaults (Overridden by tasks/train.yaml)

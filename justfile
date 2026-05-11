@@ -17,7 +17,7 @@ encoder := "gat"
 decoder := "glimpse"
 size := "100"
 area := "riomaior"
-epochs := "31"
+epochs := "50"
 batch_size := "64"
 temporal_horizon := "0"
 days := "30"
@@ -79,9 +79,9 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder decode
         model.encoder.type={{ encoder }} \
         env.graph.num_loc={{ size }} \
         env.graph.area={{ area }} \
+        env.graph.n_days={{ epochs }} \
         train.data_distribution={{ distribution }} \
         hpo.n_trials=0 \
-        train.n_epochs={{ epochs }} \
         train.batch_size={{ batch_size }}
 
 # Run model evaluation with Hydra configs
@@ -108,7 +108,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples problem=problem n_cores=n_cores data_distribution=distribution:
+test-sim policies=policies days=days area=area size=size samples=samples n_cores=n_cores data_distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -124,15 +124,14 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
         sim.days={{ days }} \
         sim.n_samples={{ samples }} \
         sim.data_distribution={{ distribution }} \
-        sim.env.graph.area={{ area }} \
-        sim.env.graph.num_loc={{ size }} \
-        sim.env.name={{ problem }} \
+        sim.graph.area={{ area }} \
+        sim.graph.num_loc={{ size }} \
         sim.cpu_cores={{ n_cores }}
 
 # Run policy HPO for simulation
 
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
-hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw days=days area=area size=size samples=hpo_samples problem=problem:
+hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw days=days area=area size=size samples=hpo_samples:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -162,25 +161,22 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
         hpo_sim.selection_keywords={{ selection_kw }} \
         hpo_sim.acceptance_keywords={{ acceptance_kw }} \
         hpo_sim.improver_keywords={{ improver_kw }} \
-        hpo_sim.env.graph.n_days={{ days }} \
-        hpo_sim.env.graph.area={{ area }} \
-        hpo_sim.env.graph.num_loc={{ size }} \
-        hpo_sim.env.graph.n_samples={{ samples }} \
-        hpo_sim.env.name={{ problem }}
+        hpo_sim.graph.n_days={{ days }} \
+        hpo_sim.graph.area={{ area }} \
+        hpo_sim.graph.num_loc={{ size }} \
+        hpo_sim.graph.n_samples={{ samples }}
 
 # Generate data with Hydra configs
 
-# Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem distribution=distribution data_type="test_simulator":
+# Usage: just gen-data wcvrp 100 emp
+gen-data problem=problem distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset Type:" "{{ data_type }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
-        data.dataset_type={{ data_type }} \
         data.problem={{ problem }} \
         data.data_distributions=[{{ distribution }}]
 

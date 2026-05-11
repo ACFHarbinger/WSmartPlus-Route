@@ -32,7 +32,7 @@ from logic.src.constants import CONFIGS_DIR
 cs = ConfigStore.instance()
 cs.store(name="config", node=Config)
 
-ROOT_KEYS = ["load_dataset", "seed", "device", "experiment_name", "task", "output_dir", "run_name", "start", "tracking"]
+ROOT_KEYS = ["seed", "device", "experiment_name", "task", "output_dir", "run_name", "start", "tracking"]
 
 
 def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:

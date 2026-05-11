@@ -77,11 +77,9 @@ def test_cli_train_lightning_smoke(tmp_path):
                 "train",
                 "env.name=vrpp",
                 "env.graph.num_loc=10",
-                "train.n_epochs=1",
+                "train.env.graph.n_days=1",
                 "train.batch_size=2",
                 "train.eval_batch_size=2",
-                "train.train_data_size=10",
-                "train.val_data_size=10",
                 "train.num_workers=0",  # Disable multiprocessing for faster startup
                 "train.persistent_workers=false",  # Disable persistent workers
                 "train.devices=1",  # Use only 1 GPU
@@ -180,11 +178,9 @@ def test_cli_train_lightning_ppo_smoke(tmp_path):
                 "env.name=vrpp",
                 "env.graph.num_loc=10",
                 "+experiment=ppo",  # Use + to append new config group if not in schema
-                "train.n_epochs=1",
+                "train.env.graph.n_days=1",
                 "train.batch_size=2",
                 "train.eval_batch_size=2",
-                "train.train_data_size=10",
-                "train.val_data_size=10",
                 "train.num_workers=0",  # Disable multiprocessing for faster startup
                 "train.persistent_workers=false",  # Disable persistent workers
                 "train.devices=1",  # Use only 1 GPU

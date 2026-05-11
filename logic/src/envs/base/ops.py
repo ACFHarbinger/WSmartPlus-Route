@@ -275,7 +275,14 @@ class OpsMixin:
         # Compute distance traveled
         current_loc = locs.gather(1, current[:, None, None].expand(-1, -1, 2)).squeeze(1)
         next_loc = locs.gather(1, action[:, None, None].expand(-1, -1, 2)).squeeze(1)
-        distance = torch.norm(next_loc - current_loc, dim=-1)
+
+        dm = tensordict.get("dm", None)
+        if dm is not None:
+            # Use road distance matrix: dm[batch, current, action]
+            distance = dm.gather(1, current[:, None, None].expand(-1, -1, dm.shape[-1])).squeeze(1)
+            distance = distance.gather(1, action.unsqueeze(-1)).squeeze(-1)
+        else:
+            distance = torch.norm(next_loc - current_loc, dim=-1)
 
         # Update tour length
         tensordict["tour_length"] = tensordict.get("tour_length", torch.zeros_like(distance)) + distance

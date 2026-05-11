@@ -25,12 +25,11 @@ class TestIntegrationTraining:
         """Test standard training orchestration with real entry point (mocked trainer)."""
         cfg = Config()
         cfg.env.name = problem_name
-        cfg.train.n_epochs = 1
+        cfg.train.env.graph.n_days = 1
         cfg.tracking.log_dir = str(tmp_path / "logs")
         cfg.train.final_model_path = str(tmp_path / "final.pt")
         # Safety net: reduce data size in case mock fails
-        cfg.train.train_data_size = 10
-        cfg.train.val_data_size = 10
+        cfg.train.env.graph.n_samples = 10
 
         # We mock WSTrainer to avoid actual training in unit tests,
         # but check if run_training flow completes.

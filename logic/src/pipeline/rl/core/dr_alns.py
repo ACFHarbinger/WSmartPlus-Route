@@ -53,7 +53,7 @@ class DRALNSLitModule(pl.LightningModule):
         value_loss_coef: Scaling factor for the value function loss.
         entropy_coef: Scaling factor for the entropy bonus.
         max_grad_norm: Gradient clipping threshold.
-        n_epochs: Number of PPO updates per experience batch.
+        inner_epochs: Number of PPO updates per experience batch.
         n_steps_per_epoch: Steps to collect from environment per training epoch.
         batch_size: Minibatch size for neural network updates.
     """
@@ -69,7 +69,7 @@ class DRALNSLitModule(pl.LightningModule):
         value_loss_coef: float = 0.5,
         entropy_coef: float = 0.01,
         max_grad_norm: float = 0.5,
-        n_epochs: int = 10,
+        inner_epochs: int = 10,
         n_steps_per_epoch: int = 2048,
         batch_size: int = 64,
         instance_generator: Optional[Any] = None,
@@ -90,7 +90,7 @@ class DRALNSLitModule(pl.LightningModule):
             value_loss_coef: Value loss coefficient.
             entropy_coef: Entropy bonus coefficient.
             max_grad_norm: Maximum gradient norm for clipping.
-            n_epochs: Number of PPO update epochs per batch.
+            inner_epochs: Number of PPO update epochs per batch.
             n_steps_per_epoch: Steps to collect per training epoch.
             batch_size: Minibatch size for updates.
             instance_generator: Function to generate problem instances.
@@ -111,7 +111,7 @@ class DRALNSLitModule(pl.LightningModule):
         self.value_loss_coef = value_loss_coef
         self.entropy_coef = entropy_coef
         self.max_grad_norm = max_grad_norm
-        self.n_epochs = n_epochs
+        self.inner_epochs = inner_epochs
         self.n_steps_per_epoch = n_steps_per_epoch
         self.batch_size = batch_size
 
@@ -148,13 +148,13 @@ class DRALNSLitModule(pl.LightningModule):
         # Compute advantages and returns
         states, actions, log_probs, advantages, returns = self._process_buffer()
 
-        # PPO update for n_epochs
+        # PPO update for inner_epochs
         total_policy_loss: float = 0.0
         total_value_loss: float = 0.0
         total_entropy: float = 0.0
         n_updates: int = 0
 
-        for _epoch in range(self.n_epochs):
+        for _epoch in range(self.inner_epochs):
             # Create minibatches
             n_samples = len(states)
             indices = torch.randperm(n_samples)

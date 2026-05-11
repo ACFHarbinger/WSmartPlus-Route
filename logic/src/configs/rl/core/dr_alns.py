@@ -10,7 +10,7 @@ Example:
         n_repair_ops=2,
         n_steps_per_epoch=2048,
         batch_size=64,
-        n_epochs=10,
+        inner_epochs=10,
         lr=3e-4,
         gamma=0.99,
         gae_lambda=0.95,
@@ -34,7 +34,7 @@ class DRALNSConfig:
         n_repair_ops: Number of repair operations to use.
         n_steps_per_epoch: Number of steps per epoch.
         batch_size: Batch size for training.
-        n_epochs: Number of epochs to train.
+        inner_epochs: Number of epochs to train.
         lr: Learning rate.
         gamma: Discount factor.
         gae_lambda: GAE lambda parameter.
@@ -49,7 +49,7 @@ class DRALNSConfig:
     n_repair_ops: int = 2
     n_steps_per_epoch: int = 2048
     batch_size: int = 64
-    n_epochs: int = 10
+    inner_epochs: int = 10
     lr: float = 3e-4
     gamma: float = 0.99
     gae_lambda: float = 0.95

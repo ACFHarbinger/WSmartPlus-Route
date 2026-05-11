@@ -155,7 +155,7 @@ class PPOTrainer:
         value_loss_coef (float): Critic regularization weight.
         entropy_coef (float): Exploration regularization weight.
         max_grad_norm (float): Gradient clipping threshold.
-        n_epochs (int): Number of SGD passes per collection batch.
+        inner_epochs (int): Number of SGD passes per collection batch.
         batch_size (int): Minibatch size for gradient steps.
         device (torch.device): Working hardware.
         optimizer (Adam): Neural network optimizer.
@@ -173,7 +173,7 @@ class PPOTrainer:
         value_loss_coef: float = 0.5,
         entropy_coef: float = 0.01,
         max_grad_norm: float = 0.5,
-        n_epochs: int = 10,
+        inner_epochs: int = 10,
         batch_size: int = 64,
         device: Optional[torch.device] = None,
     ) -> None:
@@ -189,7 +189,7 @@ class PPOTrainer:
             value_loss_coef: Critic weighting.
             entropy_coef: Exploration weighting.
             max_grad_norm: Gradient norm limit.
-            n_epochs: SGD update repeat count.
+            ninner_epochs_epochs: SGD update repeat count.
             batch_size: Training batch size.
             device: Compute device.
         """
@@ -201,7 +201,7 @@ class PPOTrainer:
         self.value_loss_coef = value_loss_coef
         self.entropy_coef = entropy_coef
         self.max_grad_norm = max_grad_norm
-        self.n_epochs = n_epochs
+        self.inner_epochs = inner_epochs
         self.batch_size = batch_size
         self.device = device or torch.device("cpu")
 
@@ -327,7 +327,7 @@ class PPOTrainer:
 
         n_samples = len(batch["states"])
 
-        for _ in range(self.n_epochs):
+        for _ in range(self.inner_epochs):
             indices = np.arange(n_samples)
             np.random.shuffle(indices)
 
@@ -377,7 +377,7 @@ class PPOTrainer:
                 total_value_loss += value_loss.item()
                 total_entropy += avg_entropy.item()
 
-        n_updates = self.n_epochs * (n_samples // self.batch_size)
+        n_updates = self.inner_epochs * (n_samples // self.batch_size)
         stats = {
             "policy_loss": total_policy_loss / n_updates,
             "value_loss": total_value_loss / n_updates,

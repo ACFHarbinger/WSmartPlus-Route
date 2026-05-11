@@ -405,14 +405,37 @@ class TrackingStore:
             size_bytes: Optional file size in bytes.
             metadata: Optional dictionary of additional contextual metadata.
         """
-        with self._conn() as conn:
-            existing = conn.execute(self.queries["check_artifact"], (run_id, path)).fetchone()
-            if existing:
-                return
-            conn.execute(
-                self.queries["insert_artifact"],
-                (run_id, name, path, artifact_type, file_hash, size_bytes, self._now(), json.dumps(metadata or {})),
-            )
+        try:
+            with self._conn() as conn:
+                existing = conn.execute(self.queries["check_artifact"], (run_id, path)).fetchone()
+                if existing:
+                    return
+                conn.execute(
+                    self.queries["insert_artifact"],
+                    (run_id, name, path, artifact_type, file_hash, size_bytes, self._now(), json.dumps(metadata or {})),
+                )
+        except sqlite3.OperationalError as e:
+            if "no such table" in str(e):
+                self._apply_schema()
+                with self._conn() as conn:
+                    existing = conn.execute(self.queries["check_artifact"], (run_id, path)).fetchone()
+                    if existing:
+                        return
+                    conn.execute(
+                        self.queries["insert_artifact"],
+                        (
+                            run_id,
+                            name,
+                            path,
+                            artifact_type,
+                            file_hash,
+                            size_bytes,
+                            self._now(),
+                            json.dumps(metadata or {}),
+                        ),
+                    )
+            else:
+                raise
 
     def get_artifacts(self, run_id: str, artifact_type: Optional[str] = None) -> List[Dict[str, Any]]:
         """Retrieves the metadata for artifacts registered in a run.
