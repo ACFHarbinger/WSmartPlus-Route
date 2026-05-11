@@ -67,6 +67,14 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.base.Baseline`
 
 ````
 
+````{py:method} train(mode: bool = True) -> src.pipeline.rl.common.baselines.rollout.RolloutBaseline
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train
+```
+
+````
+
 ````{py:method} _rollout(policy: torch.nn.Module, td_or_dataset: typing.Any, env: typing.Optional[typing.Any] = None) -> torch.Tensor
 :canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout
 

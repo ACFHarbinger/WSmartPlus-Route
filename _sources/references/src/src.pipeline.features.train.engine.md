@@ -23,6 +23,18 @@
   - ```{autodoc2-docstring} src.pipeline.features.train.engine._build_callbacks
     :summary:
     ```
+* - {py:obj}`_build_stage_config <src.pipeline.features.train.engine._build_stage_config>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.engine._build_stage_config
+    :summary:
+    ```
+* - {py:obj}`_run_single_stage <src.pipeline.features.train.engine._run_single_stage>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.engine._run_single_stage
+    :summary:
+    ```
+* - {py:obj}`_run_curriculum_stages <src.pipeline.features.train.engine._run_curriculum_stages>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.engine._run_curriculum_stages
+    :summary:
+    ```
 * - {py:obj}`run_training <src.pipeline.features.train.engine.run_training>`
   - ```{autodoc2-docstring} src.pipeline.features.train.engine.run_training
     :summary:
@@ -61,17 +73,38 @@
 
 ````
 
-````{py:function} _build_experiment_name(cfg: logic.src.configs.Config) -> str
+````{py:function} _build_experiment_name(cfg: typing.Any) -> str
 :canonical: src.pipeline.features.train.engine._build_experiment_name
 
 ```{autodoc2-docstring} src.pipeline.features.train.engine._build_experiment_name
 ```
 ````
 
-````{py:function} _build_callbacks(cfg: logic.src.configs.Config) -> list
+````{py:function} _build_callbacks(cfg: typing.Any) -> list
 :canonical: src.pipeline.features.train.engine._build_callbacks
 
 ```{autodoc2-docstring} src.pipeline.features.train.engine._build_callbacks
+```
+````
+
+````{py:function} _build_stage_config(cfg: typing.Any, graph_cfg: typing.Any, stage_idx: typing.Optional[int] = None) -> typing.Any
+:canonical: src.pipeline.features.train.engine._build_stage_config
+
+```{autodoc2-docstring} src.pipeline.features.train.engine._build_stage_config
+```
+````
+
+````{py:function} _run_single_stage(cfg: typing.Any, sinks: typing.Optional[typing.List[typing.Any]], prev_state_dict: typing.Optional[typing.Dict[str, typing.Any]] = None, save_final: bool = True) -> typing.Tuple[float, typing.Optional[typing.Dict[str, typing.Any]]]
+:canonical: src.pipeline.features.train.engine._run_single_stage
+
+```{autodoc2-docstring} src.pipeline.features.train.engine._run_single_stage
+```
+````
+
+````{py:function} _run_curriculum_stages(cfg: typing.Any, sinks: typing.Optional[typing.List[typing.Any]], curriculum_graphs: list) -> float
+:canonical: src.pipeline.features.train.engine._run_curriculum_stages
+
+```{autodoc2-docstring} src.pipeline.features.train.engine._run_curriculum_stages
 ```
 ````
 
@@ -82,7 +115,7 @@
 ```
 ````
 
-````{py:function} _log_training_params(run: logic.src.tracking.Run, cfg: logic.src.configs.Config) -> None
+````{py:function} _log_training_params(run: logic.src.tracking.Run, cfg: typing.Any) -> None
 :canonical: src.pipeline.features.train.engine._log_training_params
 
 ```{autodoc2-docstring} src.pipeline.features.train.engine._log_training_params

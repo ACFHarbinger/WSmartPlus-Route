@@ -472,17 +472,13 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig"><code class="docutils literal notranslate"><span class="pre">TrainConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.n_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.n_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.train_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_data_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.val_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.val_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.num_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">TrainConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.seed"><code class="docutils literal notranslate"><span class="pre">TrainConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.precision"><code class="docutils literal notranslate"><span class="pre">TrainConfig.precision</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.train_time"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_time</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.eval_time_days"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_time_days</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.accumulation_steps"><code class="docutils literal notranslate"><span class="pre">TrainConfig.accumulation_steps</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.enable_scaler"><code class="docutils literal notranslate"><span class="pre">TrainConfig.enable_scaler</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.checkpoint_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.checkpoint_epochs</span></code></a></li>
@@ -491,7 +487,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.lr_route_improvement"><code class="docutils literal notranslate"><span class="pre">TrainConfig.lr_route_improvement</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.efficiency_weight"><code class="docutils literal notranslate"><span class="pre">TrainConfig.efficiency_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.overflow_weight"><code class="docutils literal notranslate"><span class="pre">TrainConfig.overflow_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.epoch_start"><code class="docutils literal notranslate"><span class="pre">TrainConfig.epoch_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.eval_only"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.checkpoint_encoder"><code class="docutils literal notranslate"><span class="pre">TrainConfig.checkpoint_encoder</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.resume"><code class="docutils literal notranslate"><span class="pre">TrainConfig.resume</span></code></a></li>
@@ -531,17 +526,10 @@ document.write(`
 TrainConfig: Configuration for model training.</p>
 <p>Example:
 train_config = TrainConfig(
-n_epochs=100,
 batch_size=256,
-train_data_size=100000,
-val_data_size=10000,
 val_dataset=”val.pkl”,
 num_workers=4,
 data_distribution=”gaussian”,
-graph=GraphConfig(),
-reward=ObjectiveConfig(),
-decoding=DecodingConfig(),
-policy=NeuralAgentConfig(),
 )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -563,38 +551,16 @@ policy=NeuralAgentConfig(),
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.tasks.train.</span></span><span class="sig-name descname"><span class="pre">TrainConfig</span></span><a class="headerlink" href="#src.configs.tasks.train.TrainConfig" title="Link to this definition">#</a></dt>
 <dd><p>Training configuration.</p>
 <p>Attributes:
-n_epochs: Number of training epochs.
 batch_size: Training batch size.
-train_data_size: Number of training samples per epoch.
-val_data_size: Number of validation samples.
 val_dataset: Path to pre-generated validation dataset.
 num_workers: Number of data loading workers.
 data_distribution: Distribution for on-the-fly data generation.
-env: Environment configuration (contains graph and reward).
-decoding: Decoding configuration.
-model: Model configuration.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.n_epochs">
-<span class="sig-name descname"><span class="pre">n_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.n_epochs" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
-</dd></dl>
-
+env: Environment configuration (contains graph, reward, curriculum_graphs, eval_graphs).
+decoding: Decoding configuration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.batch_size">
 <span class="sig-name descname"><span class="pre">batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.batch_size" title="Link to this definition">#</a></dt>
 <dd><p>256</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.train_data_size">
-<span class="sig-name descname"><span class="pre">train_data_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.train_data_size" title="Link to this definition">#</a></dt>
-<dd><p>100000</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.val_data_size">
-<span class="sig-name descname"><span class="pre">val_data_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.val_data_size" title="Link to this definition">#</a></dt>
-<dd><p>10000</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -631,12 +597,6 @@ model: Model configuration.</p>
 <dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.train_time">
 <span class="sig-name descname"><span class="pre">train_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.train_time" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.eval_time_days">
-<span class="sig-name descname"><span class="pre">eval_time_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.eval_time_days" title="Link to this definition">#</a></dt>
-<dd><p>1</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -685,12 +645,6 @@ model: Model configuration.</p>
 <dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.overflow_weight">
 <span class="sig-name descname"><span class="pre">overflow_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.overflow_weight" title="Link to this definition">#</a></dt>
 <dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.train.TrainConfig.epoch_start">
-<span class="sig-name descname"><span class="pre">epoch_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.tasks.train.TrainConfig.epoch_start" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -838,17 +792,13 @@ model: Model configuration.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig"><code class="docutils literal notranslate"><span class="pre">TrainConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.n_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.n_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.train_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_data_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.val_data_size"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_data_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.val_dataset"><code class="docutils literal notranslate"><span class="pre">TrainConfig.val_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.num_workers"><code class="docutils literal notranslate"><span class="pre">TrainConfig.num_workers</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.data_distribution"><code class="docutils literal notranslate"><span class="pre">TrainConfig.data_distribution</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.seed"><code class="docutils literal notranslate"><span class="pre">TrainConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.precision"><code class="docutils literal notranslate"><span class="pre">TrainConfig.precision</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.train_time"><code class="docutils literal notranslate"><span class="pre">TrainConfig.train_time</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.eval_time_days"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_time_days</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.accumulation_steps"><code class="docutils literal notranslate"><span class="pre">TrainConfig.accumulation_steps</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.enable_scaler"><code class="docutils literal notranslate"><span class="pre">TrainConfig.enable_scaler</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.checkpoint_epochs"><code class="docutils literal notranslate"><span class="pre">TrainConfig.checkpoint_epochs</span></code></a></li>
@@ -857,7 +807,6 @@ model: Model configuration.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.lr_route_improvement"><code class="docutils literal notranslate"><span class="pre">TrainConfig.lr_route_improvement</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.efficiency_weight"><code class="docutils literal notranslate"><span class="pre">TrainConfig.efficiency_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.overflow_weight"><code class="docutils literal notranslate"><span class="pre">TrainConfig.overflow_weight</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.epoch_start"><code class="docutils literal notranslate"><span class="pre">TrainConfig.epoch_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.eval_only"><code class="docutils literal notranslate"><span class="pre">TrainConfig.eval_only</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.checkpoint_encoder"><code class="docutils literal notranslate"><span class="pre">TrainConfig.checkpoint_encoder</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.train.TrainConfig.resume"><code class="docutils literal notranslate"><span class="pre">TrainConfig.resume</span></code></a></li>

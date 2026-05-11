@@ -477,7 +477,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_repair_ops"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_repair_ops</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_steps_per_epoch"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_steps_per_epoch</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.inner_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.lr"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.lr</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.gamma"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.gae_lambda"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.gae_lambda</span></code></a></li>
@@ -514,7 +514,7 @@ n_destroy_ops=3,
 n_repair_ops=2,
 n_steps_per_epoch=2048,
 batch_size=64,
-n_epochs=10,
+inner_epochs=10,
 lr=3e-4,
 gamma=0.99,
 gae_lambda=0.95,
@@ -548,7 +548,7 @@ n_destroy_ops: Number of destroy operations to use.
 n_repair_ops: Number of repair operations to use.
 n_steps_per_epoch: Number of steps per epoch.
 batch_size: Batch size for training.
-n_epochs: Number of epochs to train.
+inner_epochs: Number of epochs to train.
 lr: Learning rate.
 gamma: Discount factor.
 gae_lambda: GAE lambda parameter.
@@ -587,8 +587,8 @@ max_grad_norm: Maximum gradient norm.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs">
-<span class="sig-name descname"><span class="pre">n_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs">
+<span class="sig-name descname"><span class="pre">inner_epochs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs" title="Link to this definition">#</a></dt>
 <dd><p>10</p>
 </dd></dl>
 
@@ -694,7 +694,7 @@ max_grad_norm: Maximum gradient norm.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_repair_ops"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_repair_ops</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_steps_per_epoch"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_steps_per_epoch</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.batch_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.n_epochs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.inner_epochs</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.lr"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.lr</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.gamma"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.dr_alns.DRALNSConfig.gae_lambda"><code class="docutils literal notranslate"><span class="pre">DRALNSConfig.gae_lambda</span></code></a></li>

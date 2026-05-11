@@ -475,6 +475,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.train()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_dataset()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_batch()</span></code></a></li>
@@ -565,6 +566,21 @@ kwargs: Additional keyword arguments.</p>
 <dd><p>Copy policy for baseline.</p>
 <p>Args:
 policy: Policy to use as initial baseline (will be copied).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline" title="src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><span class="pre">src.pipeline.rl.common.baselines.rollout.RolloutBaseline</span></a></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train" title="Link to this definition">#</a></dt>
+<dd><p>Override train to keep baseline_policy in eval mode.</p>
+<p>Note:
+This triggers a PyTorch Lightning warning about modules being in
+eval mode at the start of training. This is INTENTIONAL for
+RolloutBaseline as the baseline policy must remain frozen and
+greedy to provide a stable reference for advantage estimation.</p>
+<p>Args:
+mode: Whether to set training mode (True) or evaluation mode (False).</p>
+<p>Returns:
+RolloutBaseline: Self.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -696,6 +712,7 @@ env: Environment instance.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.train()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_dataset()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_batch()</span></code></a></li>

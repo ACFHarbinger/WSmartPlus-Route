@@ -483,7 +483,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">GraphConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.start_day"><code class="docutils literal notranslate"><span class="pre">GraphConfig.start_day</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>
@@ -542,6 +544,7 @@ edge_method: Method for getting edges (‘dist’, ‘knn’, etc.).
 focus_graph: Paths to the files with the coordinates of the graphs to focus on.
 focus_size: Number of focus graphs to include.
 n_samples: Number of samples/instances to generate for this graph.
+start_day: The starting day of the simulation.
 n_days: Number of days to generate for this graph.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.area">
@@ -610,9 +613,21 @@ n_days: Number of days to generate for this graph.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.load_dataset">
+<span class="sig-name descname"><span class="pre">load_dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.load_dataset" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.n_samples">
 <span class="sig-name descname"><span class="pre">n_samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.n_samples" title="Link to this definition">#</a></dt>
 <dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.start_day">
+<span class="sig-name descname"><span class="pre">start_day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.start_day" title="Link to this definition">#</a></dt>
+<dd><p>0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -687,7 +702,9 @@ n_days: Number of days to generate for this graph.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">GraphConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.start_day"><code class="docutils literal notranslate"><span class="pre">GraphConfig.start_day</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
 </ul>
 </li>

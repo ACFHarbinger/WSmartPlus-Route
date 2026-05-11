@@ -74,6 +74,17 @@ src.configs.tracking
 
 ````
 
+````{py:attribute} graph
+:canonical: src.configs.Config.graph
+:type: typing.Any
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.Config.graph
+```
+
+````
+
 ````{py:attribute} model
 :canonical: src.configs.Config.model
 :type: src.configs.models.ModelConfig
@@ -213,17 +224,6 @@ src.configs.tracking
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.Config.route_improvement
-```
-
-````
-
-````{py:attribute} load_dataset
-:canonical: src.configs.Config.load_dataset
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.Config.load_dataset
 ```
 
 ````

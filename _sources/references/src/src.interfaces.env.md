@@ -42,6 +42,17 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
+````{py:attribute} graph
+:canonical: src.interfaces.env.IEnv.graph
+:type: typing.Any
+:value: >
+   None
+
+```{autodoc2-docstring} src.interfaces.env.IEnv.graph
+```
+
+````
+
 ````{py:property} device
 :canonical: src.interfaces.env.IEnv.device
 :type: torch.device

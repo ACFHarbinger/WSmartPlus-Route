@@ -29,13 +29,13 @@
 ```{autodoc2-docstring} src.configs.rl.core.ppo.PPOConfig
 ```
 
-````{py:attribute} epochs
-:canonical: src.configs.rl.core.ppo.PPOConfig.epochs
+````{py:attribute} inner_epochs
+:canonical: src.configs.rl.core.ppo.PPOConfig.inner_epochs
 :type: int
 :value: >
    10
 
-```{autodoc2-docstring} src.configs.rl.core.ppo.PPOConfig.epochs
+```{autodoc2-docstring} src.configs.rl.core.ppo.PPOConfig.inner_epochs
 ```
 
 ````

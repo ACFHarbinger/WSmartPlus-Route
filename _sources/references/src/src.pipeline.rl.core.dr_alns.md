@@ -45,7 +45,7 @@
 
 ````
 
-`````{py:class} DRALNSLitModule(env: logic.src.envs.dr_alns.DRALNSEnv, agent: logic.src.models.core.dr_alns.DRALNSPPOAgent, lr: float = 0.0003, gamma: float = 0.99, gae_lambda: float = 0.95, clip_epsilon: float = 0.2, value_loss_coef: float = 0.5, entropy_coef: float = 0.01, max_grad_norm: float = 0.5, n_epochs: int = 10, n_steps_per_epoch: int = 2048, batch_size: int = 64, instance_generator: typing.Optional[typing.Any] = None, **kwargs)
+`````{py:class} DRALNSLitModule(env: logic.src.envs.dr_alns.DRALNSEnv, agent: logic.src.models.core.dr_alns.DRALNSPPOAgent, lr: float = 0.0003, gamma: float = 0.99, gae_lambda: float = 0.95, clip_epsilon: float = 0.2, value_loss_coef: float = 0.5, entropy_coef: float = 0.01, max_grad_norm: float = 0.5, inner_epochs: int = 10, n_steps_per_epoch: int = 2048, batch_size: int = 64, instance_generator: typing.Optional[typing.Any] = None, **kwargs)
 :canonical: src.pipeline.rl.core.dr_alns.DRALNSLitModule
 
 Bases: {py:obj}`pytorch_lightning.LightningModule`

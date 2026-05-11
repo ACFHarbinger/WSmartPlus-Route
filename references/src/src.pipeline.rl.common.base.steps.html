@@ -479,6 +479,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.shared_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.shared_step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.training_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.training_step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.validation_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.validation_step()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">StepMixin.on_validation_epoch_end()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.test_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.test_step()</span></code></a></li>
 </ul>
 </li>
@@ -577,12 +578,14 @@ Loss tensor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.steps.StepMixin.shared_step">
-<span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.shared_step" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.shared_step" title="Link to this definition">#</a></dt>
 <dd><p>Common step for train/val/test.</p>
 <p>Args:
 batch: TensorDict batch.
 batch_idx: Batch index.
-phase: One of “train”, “val”, “test”.</p>
+phase: One of “train”, “val”, “test”.
+env: Optional env override; falls back to self.env when None.
+Used by validation_step to select the per-eval-graph env.</p>
 <p>Returns:
 Output dictionary with loss, reward, etc.</p>
 </dd></dl>
@@ -602,11 +605,20 @@ torch.Tensor: The computed loss.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.steps.StepMixin.validation_step">
 <span class="sig-name descname"><span class="pre">validation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.validation_step" title="Link to this definition">#</a></dt>
 <dd><p>Execute a single validation step.</p>
+<p>Supports multiple validation dataloaders (from eval_graphs): the
+dataloader_idx selects the matching env from self.eval_envs.</p>
 <p>Args:
-args: Positional arguments (batch, batch_idx).
+args: Positional arguments (batch, batch_idx[, dataloader_idx]).
 kwargs: Additional keyword arguments.</p>
 <p>Returns:
 dict: Output dictionary with metrics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end">
+<span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end" title="Link to this definition">#</a></dt>
+<dd><p>Aggregate rewards across multiple validation dataloaders (graphs)
+to provide a single ‘val/reward’ metric for checkpoint monitoring.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -682,6 +694,7 @@ dict: Output dictionary with metrics.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.shared_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.shared_step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.training_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.training_step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.validation_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.validation_step()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end"><code class="docutils literal notranslate"><span class="pre">StepMixin.on_validation_epoch_end()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.steps.StepMixin.test_step"><code class="docutils literal notranslate"><span class="pre">StepMixin.test_step()</span></code></a></li>
 </ul>
 </li>

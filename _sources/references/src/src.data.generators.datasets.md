@@ -93,7 +93,7 @@
 ```
 ````
 
-````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> int
+````{py:function} _generate_train_data(builder: logic.src.data.generators.builders.VRPInstanceBuilder, problem: str, n_days: int, start_day: int, datadir: str, dist: typing.Any, size: int, data: logic.src.configs.tasks.data.DataConfig) -> int
 :canonical: src.data.generators.datasets._generate_train_data
 
 ```{autodoc2-docstring} src.data.generators.datasets._generate_train_data

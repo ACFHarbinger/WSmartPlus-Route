@@ -183,4 +183,26 @@
 
 ````
 
+````{py:attribute} curriculum_graphs
+:canonical: src.configs.envs.env.EnvConfig.curriculum_graphs
+:type: typing.List[src.configs.envs.graph.GraphConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.curriculum_graphs
+```
+
+````
+
+````{py:attribute} eval_graphs
+:canonical: src.configs.envs.env.EnvConfig.eval_graphs
+:type: typing.List[src.configs.envs.graph.GraphConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.eval_graphs
+```
+
+````
+
 `````

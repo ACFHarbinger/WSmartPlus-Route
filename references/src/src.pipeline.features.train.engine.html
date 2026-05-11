@@ -475,6 +475,9 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_experiment_name"><code class="docutils literal notranslate"><span class="pre">_build_experiment_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_callbacks"><code class="docutils literal notranslate"><span class="pre">_build_callbacks()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_stage_config"><code class="docutils literal notranslate"><span class="pre">_build_stage_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_single_stage"><code class="docutils literal notranslate"><span class="pre">_run_single_stage()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_curriculum_stages"><code class="docutils literal notranslate"><span class="pre">_run_curriculum_stages()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.run_training"><code class="docutils literal notranslate"><span class="pre">run_training()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._log_training_params"><code class="docutils literal notranslate"><span class="pre">_log_training_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_training_via_zenml"><code class="docutils literal notranslate"><span class="pre">_run_training_via_zenml()</span></code></a></li>
@@ -497,7 +500,10 @@ document.write(`
 <span id="src-pipeline-features-train-engine"></span><h1><a class="reference internal" href="#module-src.pipeline.features.train.engine" title="src.pipeline.features.train.engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features.train.engine</span></code></a><a class="headerlink" href="#module-src.pipeline.features.train.engine" title="Link to this heading">#</a></h1>
 <p>Training engine for WSmart-Route.</p>
 <p>Attributes:
-run_training: Run single model training.
+run_training: Run single model training (or curriculum if configured).
+_run_curriculum_stages: Orchestrate sequential curriculum training stages.
+_run_single_stage: Execute one training stage and return (val_reward, state_dict).
+_build_stage_config: Build a stage-specific config with updated graph settings.
 _run_training_via_zenml: Run training through the ZenML pipeline.
 _build_experiment_name: Derive a human-readable experiment name from the Hydra config.
 _build_callbacks: Instantiate training callbacks from Hydra config.
@@ -519,13 +525,22 @@ _track_val_dataset: Track the validation dataset if available.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._build_callbacks" title="src.pipeline.features.train.engine._build_callbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_callbacks</span></code></a></p></td>
 <td><p>Instantiate training callbacks from Hydra config.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine.run_training" title="src.pipeline.features.train.engine.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
-<td><p>Run single model training.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._build_stage_config" title="src.pipeline.features.train.engine._build_stage_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_stage_config</span></code></a></p></td>
+<td><p>Build a modified root config for a curriculum stage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._log_training_params" title="src.pipeline.features.train.engine._log_training_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_training_params</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_single_stage" title="src.pipeline.features.train.engine._run_single_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_single_stage</span></code></a></p></td>
+<td><p>Execute one training stage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_curriculum_stages" title="src.pipeline.features.train.engine._run_curriculum_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_curriculum_stages</span></code></a></p></td>
+<td><p>Orchestrate sequential curriculum training.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine.run_training" title="src.pipeline.features.train.engine.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
+<td><p>Run model training, dispatching to curriculum if configured.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._log_training_params" title="src.pipeline.features.train.engine._log_training_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_training_params</span></code></a></p></td>
 <td><p>Flatten and log relevant config sections as run parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_training_via_zenml" title="src.pipeline.features.train.engine._run_training_via_zenml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_training_via_zenml</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_training_via_zenml" title="src.pipeline.features.train.engine._run_training_via_zenml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_training_via_zenml</span></code></a></p></td>
 <td><p>Dispatch training to the ZenML training pipeline.</p></td>
 </tr>
 </tbody>
@@ -553,7 +568,7 @@ _track_val_dataset: Track the validation dataset if available.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine._build_experiment_name">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_experiment_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_experiment_name" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_experiment_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_experiment_name" title="Link to this definition">#</a></dt>
 <dd><p>Derive a human-readable experiment name from the Hydra config.</p>
 <p>Args:
 cfg: Root configuration object.</p>
@@ -563,7 +578,7 @@ Human-readable experiment name string.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine._build_callbacks">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_callbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_callbacks" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_callbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_callbacks" title="Link to this definition">#</a></dt>
 <dd><p>Instantiate training callbacks from Hydra config.</p>
 <p>Handles <code class="docutils literal notranslate"><span class="pre">ITraversable</span></code> configs (direct <code class="docutils literal notranslate"><span class="pre">_target_</span></code> dicts and nested
 name-to-config dicts), links <code class="docutils literal notranslate"><span class="pre">CleanProgressBar</span></code> ↔ <code class="docutils literal notranslate"><span class="pre">TerminalChartCallback</span></code>
@@ -575,9 +590,50 @@ List of instantiated callback objects.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.engine._build_stage_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_build_stage_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._build_stage_config" title="Link to this definition">#</a></dt>
+<dd><p>Build a modified root config for a curriculum stage.</p>
+<p>Converts the root config to a plain dict, overwrites env.graph fields from
+the stage’s graph_cfg, disables curriculum (to prevent infinite recursion),
+and returns a new unstructured DictConfig.</p>
+<p>Args:
+cfg: Root Hydra configuration object.
+graph_cfg: Graph config entry (DictConfig or dict) for this stage.</p>
+<p>Returns:
+Modified DictConfig for this stage.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.engine._run_single_stage">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_run_single_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_final</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._run_single_stage" title="Link to this definition">#</a></dt>
+<dd><p>Execute one training stage.</p>
+<p>Args:
+cfg: Root configuration for this stage.
+sinks: Optional list of tracking sinks.
+prev_state_dict: State dict from the previous curriculum stage for warm-starting.
+save_final: Whether to save the final model weights on this stage.</p>
+<p>Returns:
+Tuple of (val_reward, state_dict).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.engine._run_curriculum_stages">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_run_curriculum_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curriculum_graphs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._run_curriculum_stages" title="Link to this definition">#</a></dt>
+<dd><p>Orchestrate sequential curriculum training.</p>
+<p>Iterates over each graph config in curriculum_graphs, building a stage-specific
+config, training from scratch (or warm-starting), and passing weights forward.</p>
+<p>Args:
+cfg: Root Hydra configuration.
+sinks: Optional tracking sinks.
+curriculum_graphs: Ordered list of graph config entries from train.curriculum_graphs.</p>
+<p>Returns:
+Validation reward from the final stage.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine.run_training">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">run_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sinks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine.run_training" title="Link to this definition">#</a></dt>
-<dd><p>Run single model training.</p>
+<dd><p>Run model training, dispatching to curriculum if configured.</p>
 <p>Args:
 cfg: Root Hydra configuration object.
 sinks: Optional list of tracking sinks (e.g. :class:<code class="docutils literal notranslate"><span class="pre">ZenMLBridge</span></code>)
@@ -585,12 +641,12 @@ to attach to the WSTracker run. When <code class="docutils literal notranslate">
 :class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code> is auto-attached if
 <code class="docutils literal notranslate"><span class="pre">cfg.tracking.mlflow_enabled</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>Returns:
-Validation reward from the best epoch.</p>
+Validation reward from the best epoch (or final curriculum stage).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.engine._log_training_params">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_log_training_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.Run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._log_training_params" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_log_training_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.Run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._log_training_params" title="Link to this definition">#</a></dt>
 <dd><p>Flatten and log relevant config sections as run parameters.</p>
 <p>Args:
 run: WSTracker run object.
@@ -666,6 +722,9 @@ Best validation reward returned by the ZenML pipeline.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_experiment_name"><code class="docutils literal notranslate"><span class="pre">_build_experiment_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_callbacks"><code class="docutils literal notranslate"><span class="pre">_build_callbacks()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_stage_config"><code class="docutils literal notranslate"><span class="pre">_build_stage_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_single_stage"><code class="docutils literal notranslate"><span class="pre">_run_single_stage()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_curriculum_stages"><code class="docutils literal notranslate"><span class="pre">_run_curriculum_stages()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.run_training"><code class="docutils literal notranslate"><span class="pre">run_training()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._log_training_params"><code class="docutils literal notranslate"><span class="pre">_log_training_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_training_via_zenml"><code class="docutils literal notranslate"><span class="pre">_run_training_via_zenml()</span></code></a></li>

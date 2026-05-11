@@ -73,7 +73,7 @@
 
 `````
 
-`````{py:class} PPOTrainer(agent: src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent, env: logic.src.envs.dr_alns.DRALNSEnv, lr: float = 0.0003, gamma: float = 0.99, gae_lambda: float = 0.95, clip_epsilon: float = 0.2, value_loss_coef: float = 0.5, entropy_coef: float = 0.01, max_grad_norm: float = 0.5, n_epochs: int = 10, batch_size: int = 64, device: typing.Optional[torch.device] = None)
+`````{py:class} PPOTrainer(agent: src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent, env: logic.src.envs.dr_alns.DRALNSEnv, lr: float = 0.0003, gamma: float = 0.99, gae_lambda: float = 0.95, clip_epsilon: float = 0.2, value_loss_coef: float = 0.5, entropy_coef: float = 0.01, max_grad_norm: float = 0.5, inner_epochs: int = 10, batch_size: int = 64, device: typing.Optional[torch.device] = None)
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOTrainer
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOTrainer

@@ -607,18 +607,8 @@ TensorDict: Updated state with <code class="docutils literal notranslate"><span 
 <dt class="sig sig-object py" id="src.envs.routing.vrpp.VRPPEnv._step_instance">
 <span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.routing.vrpp.VRPPEnv._step_instance" title="Link to this definition">#</a></dt>
 <dd><p>Execute a routing action and update the episode state.</p>
-<p>This method processes a single step in the VRPP episode by:</p>
-<ol class="arabic simple">
-<li><p>Computing the Euclidean distance traveled from current node to selected action node</p></li>
-<li><p>Collecting waste/profit from the destination node (if unvisited and not depot)</p></li>
-<li><p>Updating the visit mask, current position, tour sequence, and cumulative metrics</p></li>
-</ol>
-<p>Reward Logic:
-- Waste is collected only from nodes that are:
-a) Previously unvisited (checked via visited mask)
-b) Not the depot (action != 0)
-- The depot (node 0) has zero waste and serves as the return point
-- Revisiting a node does not collect additional waste</p>
+<p>Delegates common routing mechanics (distance, visited, current_node, tour)
+to OpsMixin._step_instance, then applies VRPP-specific waste collection.</p>
 <p>Args:
 tensordict (TensorDict): Current state containing:
 - action (LongTensor): Selected next node index, shape (batch,)

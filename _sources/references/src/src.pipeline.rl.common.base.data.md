@@ -21,6 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_cfg_get <src.pipeline.rl.common.base.data._cfg_get>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._cfg_get
+    :summary:
+    ```
+* - {py:obj}`_get_eval_graphs <src.pipeline.rl.common.base.data._get_eval_graphs>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._get_eval_graphs
+    :summary:
+    ```
+* - {py:obj}`_create_eval_env_and_gen <src.pipeline.rl.common.base.data._create_eval_env_and_gen>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._create_eval_env_and_gen
+    :summary:
+    ```
+````
+
 ### Data
 
 ````{list-table}
@@ -43,6 +63,27 @@
 ```{autodoc2-docstring} src.pipeline.rl.common.base.data.logger
 ```
 
+````
+
+````{py:function} _cfg_get(obj: typing.Any, key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.pipeline.rl.common.base.data._cfg_get
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.data._cfg_get
+```
+````
+
+````{py:function} _get_eval_graphs(cfg: typing.Any) -> list
+:canonical: src.pipeline.rl.common.base.data._get_eval_graphs
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.data._get_eval_graphs
+```
+````
+
+````{py:function} _create_eval_env_and_gen(cfg: typing.Any, eval_graph: typing.Any) -> tuple
+:canonical: src.pipeline.rl.common.base.data._create_eval_env_and_gen
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.data._create_eval_env_and_gen
+```
 ````
 
 `````{py:class} DataMixin()
@@ -73,7 +114,7 @@
 
 ````
 
-````{py:method} val_dataloader() -> torch.utils.data.DataLoader
+````{py:method} val_dataloader() -> typing.Union[torch.utils.data.DataLoader, typing.List[torch.utils.data.DataLoader]]
 :canonical: src.pipeline.rl.common.base.data.DataMixin.val_dataloader
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.data.DataMixin.val_dataloader

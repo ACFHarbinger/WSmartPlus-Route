@@ -84,13 +84,13 @@
 
 ````
 
-````{py:attribute} n_epochs
-:canonical: src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs
+````{py:attribute} inner_epochs
+:canonical: src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs
 :type: int
 :value: >
    10
 
-```{autodoc2-docstring} src.configs.rl.core.dr_alns.DRALNSConfig.n_epochs
+```{autodoc2-docstring} src.configs.rl.core.dr_alns.DRALNSConfig.inner_epochs
 ```
 
 ````

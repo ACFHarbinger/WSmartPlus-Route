@@ -139,28 +139,6 @@
 
 ````
 
-````{py:attribute} n_epochs
-:canonical: src.configs.tasks.data.DataConfig.n_epochs
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.n_epochs
-```
-
-````
-
-````{py:attribute} epoch_start
-:canonical: src.configs.tasks.data.DataConfig.epoch_start
-:type: int
-:value: >
-   0
-
-```{autodoc2-docstring} src.configs.tasks.data.DataConfig.epoch_start
-```
-
-````
-
 ````{py:attribute} dataset_type
 :canonical: src.configs.tasks.data.DataConfig.dataset_type
 :type: typing.Optional[str]

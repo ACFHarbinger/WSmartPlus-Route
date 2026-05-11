@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig
 ```
 
-````{py:attribute} n_epochs
-:canonical: src.configs.tasks.train.TrainConfig.n_epochs
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.n_epochs
-```
-
-````
-
 ````{py:attribute} batch_size
 :canonical: src.configs.tasks.train.TrainConfig.batch_size
 :type: int
@@ -47,28 +36,6 @@
    256
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.batch_size
-```
-
-````
-
-````{py:attribute} train_data_size
-:canonical: src.configs.tasks.train.TrainConfig.train_data_size
-:type: int
-:value: >
-   100000
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.train_data_size
-```
-
-````
-
-````{py:attribute} val_data_size
-:canonical: src.configs.tasks.train.TrainConfig.val_data_size
-:type: int
-:value: >
-   10000
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.val_data_size
 ```
 
 ````
@@ -135,17 +102,6 @@
    False
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.train_time
-```
-
-````
-
-````{py:attribute} eval_time_days
-:canonical: src.configs.tasks.train.TrainConfig.eval_time_days
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.eval_time_days
 ```
 
 ````
@@ -234,17 +190,6 @@
    0.2
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.overflow_weight
-```
-
-````
-
-````{py:attribute} epoch_start
-:canonical: src.configs.tasks.train.TrainConfig.epoch_start
-:type: int
-:value: >
-   0
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.epoch_start
 ```
 
 ````

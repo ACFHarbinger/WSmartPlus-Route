@@ -150,6 +150,17 @@
 
 ````
 
+````{py:attribute} load_dataset
+:canonical: src.configs.envs.graph.GraphConfig.load_dataset
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.load_dataset
+```
+
+````
+
 ````{py:attribute} n_samples
 :canonical: src.configs.envs.graph.GraphConfig.n_samples
 :type: int
@@ -157,6 +168,17 @@
    1
 
 ```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.n_samples
+```
+
+````
+
+````{py:attribute} start_day
+:canonical: src.configs.envs.graph.GraphConfig.start_day
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.start_day
 ```
 
 ````

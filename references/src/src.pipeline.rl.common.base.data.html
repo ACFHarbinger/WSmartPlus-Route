@@ -470,9 +470,13 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._cfg_get"><code class="docutils literal notranslate"><span class="pre">_cfg_get()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._get_eval_graphs"><code class="docutils literal notranslate"><span class="pre">_get_eval_graphs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._create_eval_env_and_gen"><code class="docutils literal notranslate"><span class="pre">_create_eval_env_and_gen()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin"><code class="docutils literal notranslate"><span class="pre">DataMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin.setup"><code class="docutils literal notranslate"><span class="pre">DataMixin.setup()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin.train_dataloader"><code class="docutils literal notranslate"><span class="pre">DataMixin.train_dataloader()</span></code></a></li>
@@ -514,6 +518,23 @@ None</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.common.base.data._cfg_get" title="src.pipeline.rl.common.base.data._cfg_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_cfg_get</span></code></a></p></td>
+<td><p>Get a field from a dict-like or attribute-style config object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.rl.common.base.data._get_eval_graphs" title="src.pipeline.rl.common.base.data._get_eval_graphs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_eval_graphs</span></code></a></p></td>
+<td><p>Return cfg.env.eval_graphs as a list, or [] if absent/empty.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.common.base.data._create_eval_env_and_gen" title="src.pipeline.rl.common.base.data._create_eval_env_and_gen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_eval_env_and_gen</span></code></a></p></td>
+<td><p>Build an env and its generator for a single eval_graph config entry.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
@@ -533,6 +554,29 @@ None</p>
 <dd><p>‘get_pylogger(…)’</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.base.data._cfg_get">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.data.</span></span><span class="sig-name descname"><span class="pre">_cfg_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data._cfg_get" title="Link to this definition">#</a></dt>
+<dd><p>Get a field from a dict-like or attribute-style config object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.base.data._get_eval_graphs">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.data.</span></span><span class="sig-name descname"><span class="pre">_get_eval_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data._get_eval_graphs" title="Link to this definition">#</a></dt>
+<dd><p>Return cfg.env.eval_graphs as a list, or [] if absent/empty.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.base.data._create_eval_env_and_gen">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.data.</span></span><span class="sig-name descname"><span class="pre">_create_eval_env_and_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data._create_eval_env_and_gen" title="Link to this definition">#</a></dt>
+<dd><p>Build an env and its generator for a single eval_graph config entry.</p>
+<p>Args:
+cfg: Root config (DictConfig or plain dict-like).
+eval_graph: A single eval_graph entry (dict-like or object).</p>
+<p>Returns:
+Tuple of (env, generator) both on CPU.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.data.DataMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.base.data.</span></span><span class="sig-name descname"><span class="pre">DataMixin</span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data.DataMixin" title="Link to this definition">#</a></dt>
@@ -540,8 +584,6 @@ None</p>
 <p>Attributes:
 env: Environment for data generation.
 policy: Policy for data generation.
-train_data_size: Size of training data.
-val_data_size: Size of validation data.
 val_dataset_path: Path to validation dataset.
 train_dataset_path: Path to training dataset.
 batch_size: Batch size.
@@ -549,8 +591,11 @@ num_workers: Number of workers.
 persistent_workers: Whether to use persistent workers.
 pin_memory: Whether to pin memory.
 local_rank: Local rank.
+cfg: Root configuration object.
 train_dataset: Training dataset.
-val_dataset: Validation dataset.</p>
+val_dataset: Single validation dataset (fallback when eval_graphs is empty).
+val_datasets: List of validation datasets, one per eval_graph entry.
+eval_envs: List of envs corresponding to val_datasets (used by StepMixin).</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Class.</p>
 <p>Args:
@@ -573,10 +618,12 @@ DataLoader: DataLoader for training data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.data.DataMixin.val_dataloader">
-<span class="sig-name descname"><span class="pre">val_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.utils.data.DataLoader</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data.DataMixin.val_dataloader" title="Link to this definition">#</a></dt>
-<dd><p>Create the validation DataLoader.</p>
+<span class="sig-name descname"><span class="pre">val_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.DataLoader</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.DataLoader</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.data.DataMixin.val_dataloader" title="Link to this definition">#</a></dt>
+<dd><p>Create the validation DataLoader(s).</p>
+<p>Returns a list of DataLoaders when eval_graphs is configured so that
+Lightning validates on each graph size independently.</p>
 <p>Returns:
-DataLoader: DataLoader for validation data.</p>
+Single DataLoader or list of DataLoaders.</p>
 </dd></dl>
 
 </dd></dl>
@@ -632,9 +679,13 @@ DataLoader: DataLoader for validation data.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._cfg_get"><code class="docutils literal notranslate"><span class="pre">_cfg_get()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._get_eval_graphs"><code class="docutils literal notranslate"><span class="pre">_get_eval_graphs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data._create_eval_env_and_gen"><code class="docutils literal notranslate"><span class="pre">_create_eval_env_and_gen()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin"><code class="docutils literal notranslate"><span class="pre">DataMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin.setup"><code class="docutils literal notranslate"><span class="pre">DataMixin.setup()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.data.DataMixin.train_dataloader"><code class="docutils literal notranslate"><span class="pre">DataMixin.train_dataloader()</span></code></a></li>

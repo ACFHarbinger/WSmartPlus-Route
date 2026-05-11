@@ -74,7 +74,7 @@
 
 ````
 
-````{py:method} shared_step(batch: typing.Union[tensordict.TensorDict, typing.Dict[str, typing.Any]], batch_idx: int, phase: str) -> dict
+````{py:method} shared_step(batch: typing.Union[tensordict.TensorDict, typing.Dict[str, typing.Any]], batch_idx: int, phase: str, env: typing.Optional[typing.Any] = None) -> dict
 :canonical: src.pipeline.rl.common.base.steps.StepMixin.shared_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.shared_step
@@ -94,6 +94,14 @@
 :canonical: src.pipeline.rl.common.base.steps.StepMixin.validation_step
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.validation_step
+```
+
+````
+
+````{py:method} on_validation_epoch_end() -> None
+:canonical: src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.on_validation_epoch_end
 ```
 
 ````
