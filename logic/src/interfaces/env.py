@@ -44,6 +44,7 @@ class IEnv(Protocol):
     """
 
     name: str
+    graph: Any
 
     @property
     def device(self) -> torch.device:

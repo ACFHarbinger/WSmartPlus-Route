@@ -143,13 +143,13 @@ def _initialize_worker_repository(cfg: Config) -> None:
     Args:
         cfg: The configuration object.
     """
-    load_ds = cfg.load_dataset
+    load_ds = cfg.sim.graph.load_dataset
     if load_ds is not None and set_repository_from_path(
-        load_ds, area=cfg.sim.env.graph.area, waste_type=cfg.sim.env.graph.waste_type
+        load_ds, area=cfg.sim.graph.area, waste_type=cfg.sim.graph.waste_type
     ):
         return
 
-    set_repository_from_path(str(ROOT_DIR), area=cfg.sim.env.graph.area, waste_type=cfg.sim.env.graph.waste_type)
+    set_repository_from_path(str(ROOT_DIR), area=cfg.sim.graph.area, waste_type=cfg.sim.graph.waste_type)
 
 
 def display_log_metrics(
@@ -463,7 +463,7 @@ def sequential_simulations(  # noqa: C901
         "assets",
         sim.output_dir,
         f"{sim.days}_days",
-        f"{sim.env.graph.area}_{sim.env.graph.num_loc}",
+        f"{sim.graph.area}_{sim.graph.num_loc}",
     )
 
     for pol_id, policy in enumerate(policies):

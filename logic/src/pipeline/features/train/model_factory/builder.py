@@ -125,8 +125,9 @@ def _init_environment(cfg: Config) -> IEnv:
     env_dict = _config_to_dict(cfg.env)
     env_name = env_dict.get("name", "vrpp")
 
-    # Extract base env fields (excluding name, graph, reward which are handled separately)
-    env_kwargs = {k: v for k, v in env_dict.items() if k not in ["name", "graph", "reward"]}
+    # Extract base env fields (excluding name, graph, reward, and curriculum/eval lists)
+    _ENV_DICT_SKIP = {"name", "graph", "reward", "curriculum_graphs", "eval_graphs"}
+    env_kwargs = {k: v for k, v in env_dict.items() if k not in _ENV_DICT_SKIP}
 
     # Flatten GraphConfig
     if "graph" in env_dict:
@@ -145,6 +146,9 @@ def _init_environment(cfg: Config) -> IEnv:
                 "focus_graph": graph_dict.get("focus_graph"),
                 "focus_size": graph_dict.get("focus_size"),
                 "eval_focus_size": graph_dict.get("eval_focus_size"),
+                "n_samples": graph_dict.get("n_samples", 1),
+                "start_day": graph_dict.get("start_day", 0),
+                "n_days": graph_dict.get("n_days", 1),
             }
         )
 
@@ -303,9 +307,12 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     train_params = flatten_config_dict(train_params)
     common_kwargs.update(train_params)
 
-    # Dataset paths
-    if cfg.load_dataset:
-        common_kwargs["train_dataset_path"] = cfg.load_dataset
+    # Dataset paths: prefer cfg.env.graph.load_dataset (set by env yamls), fall back to cfg.train.env
+    _env_graph = getattr(getattr(cfg, "env", None), "graph", None)
+    _train_env_graph = getattr(getattr(getattr(cfg, "train", None), "env", None), "graph", None)
+    load_dataset = getattr(_env_graph, "load_dataset", None) or getattr(_train_env_graph, "load_dataset", None)
+    if load_dataset:
+        common_kwargs["train_dataset_path"] = load_dataset
     if "val_dataset" in common_kwargs:
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
@@ -334,6 +341,7 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
         sch_kwargs["eta_min"] = cfg.optim.lr_min_value
     common_kwargs["lr_scheduler_kwargs"] = sch_kwargs
     common_kwargs["baseline"] = cfg.rl.baseline
+    common_kwargs["cfg"] = cfg  # Pass the full config for robust attribute access in RL module
 
     remap_legacy_keys(common_kwargs, cfg)
     common_kwargs = cast(Dict[str, Any], deep_sanitize(common_kwargs))

@@ -12,7 +12,7 @@ Example:
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import List, Optional
 
 from .graph import GraphConfig
 from .objective import ObjectiveConfig
@@ -44,3 +44,5 @@ class EnvConfig:
     mean: float = 0.0
     variance: float = 0.0
     temporal_horizon: int = 0
+    curriculum_graphs: List[GraphConfig] = field(default_factory=list)
+    eval_graphs: List[GraphConfig] = field(default_factory=list)

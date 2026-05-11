@@ -12,20 +12,75 @@
 
 env:
   name: "vrpp" # Environment identifier
-  mean: 0.0
-  variance: 0.0
 
-  # =============================================================================
-  # Graph Construction
-  # =============================================================================
-  graph:
-    num_loc:
-      100 # Number of customer nodes (excluding depot).
-      # Standard benchmark sizes: 20, 50, 100, 200.
-      # Total nodes = num_loc + 1 (includes depot at index 0).
+  # ===========================================================================
+  # Curriculum Learning
+  # ===========================================================================
+  # Sequential training stages with warm-started weights. Leave empty ([]) to disable.
+  curriculum_graphs:
+    - num_loc: 50
+      n_samples: 12800
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 12800
+      focus_graph: "graphs_50V_1N_plastic.json"
+      start_day: 0
+      n_days: 50
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      load_dataset: "data/datasets/vrpp/vrpp50_gamma3_time100_seed42.td"
+    - num_loc: 100
+      n_samples: 12800
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 12800
+      focus_graph: "graphs_100V_1N_plastic.json"
+      start_day: 0
+      n_days: 50
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      load_dataset: "data/datasets/vrpp/vrpp100_gamma3_time100_seed42.td"
+    - num_loc: 170
+      n_samples: 12800
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 12800
+      focus_graph: "graphs_170V_1N_plastic.json"
+      start_day: 0
+      n_days: 50
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      load_dataset: "data/datasets/vrpp/vrpp170_gamma3_time100_seed42.td"
 
-    area: "riomaior" # Geographic area
-    waste_type: "plastic" # Waste category
+  # ===========================================================================
+  # Evaluation Graphs
+  # ===========================================================================
+  # One validation dataset per entry. When empty ([]), uses env.graph.n_samples.
+  eval_graphs:
+    - num_loc: 50
+      n_samples: 512
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 512
+      focus_graph: "graphs_50V_1N_plastic.json"
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      start_day: 0
+      n_days: 7
+    - num_loc: 100
+      n_samples: 512
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 512
+      focus_graph: "graphs_100V_1N_plastic.json"
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      start_day: 0
+      n_days: 7
+    - num_loc: 170
+      n_samples: 512
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 512
+      focus_graph: "graphs_170V_1N_plastic.json"
+      dm_filepath: "gmaps_distmat_${env.graph.waste_type}[${env.graph.area}].csv"
+      start_day: 0
+      n_days: 7
 
   # =============================================================================
   # Objective Function Weights
@@ -38,7 +93,7 @@ env:
       # Typical range: 0.5-2.0.
 
     cost_weight:
-      2.0 # Weight for travel distance penalty.
+      1.0 # Weight for travel distance penalty.
       # Higher = prioritize shorter routes.
       # Typical range: 0.5-2.0.
       #

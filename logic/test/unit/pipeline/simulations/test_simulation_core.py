@@ -52,7 +52,7 @@ class TestSimulation:
                      return_value={"pol1": [1.0, 2.0], "success": True})
 
         # Create output dir
-        results_dir = tmp_path / "assets" / cfg.sim.output_dir / f"{cfg.sim.days}_days" / f"{cfg.sim.env.graph.area}_{cfg.sim.env.graph.num_loc}"
+        results_dir = tmp_path / "assets" / cfg.sim.output_dir / f"{cfg.sim.days}_days" / f"{cfg.sim.graph.area}_{cfg.sim.graph.num_loc}"
         results_dir.mkdir(parents=True, exist_ok=True)
 
         log, log_std, failed = sequential_simulations(

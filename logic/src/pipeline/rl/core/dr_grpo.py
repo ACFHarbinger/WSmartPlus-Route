@@ -51,7 +51,7 @@ class DRGRPO(PPO):
         value_loss_coef: Coefficient for the value function loss.
         entropy_coef: Coefficient for the entropy bonus.
         max_grad_norm: Maximum gradient norm for clipping.
-        n_epochs: Number of epochs to train on collected data.
+        inner_epochs: Number of epochs to train on collected data.
         n_steps_per_epoch: Number of steps to collect per epoch.
         batch_size: Batch size for training updates.
     """

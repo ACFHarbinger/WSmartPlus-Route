@@ -50,8 +50,7 @@ class TestTrainingOrchestration:
         """Verify run_training initializes model and calls trainer.fit."""
         cfg = Config()
         # Reduce data size to prevent hanging
-        cfg.train.train_data_size = 10
-        cfg.train.val_data_size = 5
+        cfg.train.env.graph.num_samples = 10
 
         mock_model = MagicMock()
         mock_create.return_value = mock_model

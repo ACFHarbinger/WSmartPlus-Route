@@ -126,6 +126,16 @@ class WCVRPEnv(RL4COEnvBase):
         locs = tensordict["locs"]
         waste = tensordict["waste"]
 
+        # Temporal datasets store waste as 3D (batch, num_days, num_loc).
+        # apply_time_step() converts it to 2D after epoch 0, but on epoch 0 we
+        # must extract the current day's slice before any depot-prepend logic.
+        if waste is not None and waste.dim() > 2:
+            current_day_t = tensordict.get("current_day", None)
+            day_idx = int(current_day_t.reshape(-1)[0].item()) if current_day_t is not None else 0
+            day_idx = min(day_idx, waste.shape[1] - 1)
+            waste = waste[:, day_idx, :]
+            tensordict["waste"] = waste
+
         # Robust N vs N+1 logic
         # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
         if self.generator is None:
@@ -383,7 +393,13 @@ class WCVRPEnv(RL4COEnvBase):
         current_idx = current[:, None, None].expand(-1, -1, 2)
         current_loc = locs.gather(1, current_idx).squeeze(1)
         depot_loc = tensordict["depot"]
-        return_distance = torch.norm(depot_loc - current_loc, dim=-1)
+
+        dm = tensordict.get("dm", None)
+        if dm is not None:
+            # Road distance from current node back to depot (index 0)
+            return_distance = dm.gather(1, current[:, None, None].expand(-1, -1, dm.shape[-1])).squeeze(1)[:, 0]
+        else:
+            return_distance = torch.norm(depot_loc - current_loc, dim=-1)
 
         not_at_depot = current != 0
         total_cost = cost + return_distance * not_at_depot.float()

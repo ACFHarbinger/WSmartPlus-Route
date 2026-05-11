@@ -71,9 +71,9 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
             return output_stats_any(
                 home_dir=str(udef.ROOT_DIR),
                 ndays=sim.days,
-                nbins=sim.env.graph.num_loc,
+                nbins=sim.graph.num_loc,
                 output_dir=sim.output_dir,
-                area=sim.env.graph.area,
+                area=sim.graph.area,
                 nsamples=sim.n_samples,
                 policies=policy_names,
                 keys=udef.SIM_METRICS,

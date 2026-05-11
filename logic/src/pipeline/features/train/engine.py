@@ -1,7 +1,10 @@
 """Training engine for WSmart-Route.
 
 Attributes:
-    run_training: Run single model training.
+    run_training: Run single model training (or curriculum if configured).
+    _run_curriculum_stages: Orchestrate sequential curriculum training stages.
+    _run_single_stage: Execute one training stage and return (val_reward, state_dict).
+    _build_stage_config: Build a stage-specific config with updated graph settings.
     _run_training_via_zenml: Run training through the ZenML pipeline.
     _build_experiment_name: Derive a human-readable experiment name from the Hydra config.
     _build_callbacks: Instantiate training callbacks from Hydra config.
@@ -18,11 +21,12 @@ from __future__ import annotations
 
 import contextlib
 import os
-from typing import TYPE_CHECKING, Any, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
 import hydra
 import omegaconf
 import torch
+from omegaconf import OmegaConf
 from pytorch_lightning import seed_everything
 from pytorch_lightning.loggers import CSVLogger
 
@@ -46,7 +50,7 @@ if TYPE_CHECKING:
 logger = get_pylogger(__name__)
 
 
-def _build_experiment_name(cfg: Config) -> str:
+def _build_experiment_name(cfg: Any) -> str:
     """Derive a human-readable experiment name from the Hydra config.
 
     Args:
@@ -64,7 +68,7 @@ def _build_experiment_name(cfg: Config) -> str:
     return "-".join(p for p in parts if p)
 
 
-def _build_callbacks(cfg: Config) -> list:
+def _build_callbacks(cfg: Any) -> list:
     """Instantiate training callbacks from Hydra config.
 
     Handles ``ITraversable`` configs (direct ``_target_`` dicts and nested
@@ -101,45 +105,112 @@ def _build_callbacks(cfg: Config) -> list:
     return callbacks
 
 
-def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
-    """Run single model training.
+def _build_stage_config(cfg: Any, graph_cfg: Any, stage_idx: Optional[int] = None) -> Any:
+    """Build a modified root config for a curriculum stage.
+
+    Converts the root config to a plain dict, overwrites env.graph fields from
+    the stage's graph_cfg, disables curriculum (to prevent infinite recursion),
+    and returns a new unstructured DictConfig.
 
     Args:
         cfg: Root Hydra configuration object.
-        sinks: Optional list of tracking sinks (e.g. :class:`ZenMLBridge`)
-            to attach to the WSTracker run. When ``None`` (the default),
-            :class:`MLflowBridge` is auto-attached if
-            ``cfg.tracking.mlflow_enabled`` is ``True``.
+        graph_cfg: Graph config entry (DictConfig or dict) for this stage.
 
     Returns:
-        Validation reward from the best epoch.
+        Modified DictConfig for this stage.
     """
-    # ----- ZenML dispatch (opt-in) -----
-    tracking = getattr(cfg, "tracking", None)
-    zenml_enabled = bool(getattr(tracking, "zenml_enabled", False))
-    if zenml_enabled and sinks is None:
-        # First invocation from CLI / main — delegate to ZenML pipeline
-        return _run_training_via_zenml(cfg)
+    raw: Dict[str, Any] = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=False)  # type: ignore[assignment]
+    assert isinstance(raw, dict), "cfg must be convertible to a plain dict"
 
+    # Collect graph fields from the curriculum entry
+    if hasattr(graph_cfg, "items"):
+        g: Dict[str, Any] = dict(graph_cfg.items())
+    elif hasattr(graph_cfg, "__dict__"):
+        g = vars(graph_cfg)
+    else:
+        g = {}
+
+    env_graph: Dict[str, Any] = raw.setdefault("env", {}).setdefault("graph", {})
+    _GRAPH_KEYS = (
+        "num_loc",
+        "n_samples",
+        "n_days",
+        "start_day",
+        "focus_graph",
+        "focus_size",
+        "area",
+        "waste_type",
+        "load_dataset",
+    )
+    for key in _GRAPH_KEYS:
+        val = g.get(key)
+        if val is not None:
+            env_graph[key] = val
+
+    # If the stage doesn't specify load_dataset, clear it so the stage generates
+    # its own data rather than loading a pre-built file sized for a different graph.
+    if g.get("load_dataset") is None:
+        env_graph.pop("load_dataset", None)
+
+    # Clear curriculum_graphs to prevent recursive dispatch in the stage
+    raw.setdefault("env", {})["curriculum_graphs"] = []
+
+    # Filter eval_graphs to only include the one corresponding to this stage
+    # if stage_idx is provided and eval_graphs exists.
+    if stage_idx is not None:
+        eval_graphs = raw.get("env", {}).get("eval_graphs", [])
+        if eval_graphs and stage_idx < len(eval_graphs):
+            raw["env"]["eval_graphs"] = [eval_graphs[stage_idx]]
+        elif eval_graphs:
+            # Fallback if eval_graphs is shorter than curriculum: empty list
+            # which usually defaults to using env.graph
+            raw["env"]["eval_graphs"] = []
+
+    return OmegaConf.create(raw)
+
+
+def _run_single_stage(
+    cfg: Any,
+    sinks: Optional[List[Any]],
+    prev_state_dict: Optional[Dict[str, Any]] = None,
+    save_final: bool = True,
+) -> Tuple[float, Optional[Dict[str, Any]]]:
+    """Execute one training stage.
+
+    Args:
+        cfg: Root configuration for this stage.
+        sinks: Optional list of tracking sinks.
+        prev_state_dict: State dict from the previous curriculum stage for warm-starting.
+        save_final: Whether to save the final model weights on this stage.
+
+    Returns:
+        Tuple of (val_reward, state_dict).
+    """
     seed_everything(cfg.seed)
 
-    # Enable Tensor Core acceleration for Ampere+ GPUs
-    if torch.cuda.is_available() and cfg.train.precision in ["16-mixed", "bf16-mixed"]:
+    if torch.cuda.is_available() and cfg.train.precision in ("16-mixed", "bf16-mixed"):
         torch.set_float32_matmul_precision("medium")
 
     model_raw = create_model(cfg)
     model = cast("RL4COLitModule", model_raw)
 
-    callbacks = _build_callbacks(cfg)
+    # Warm-start from the previous curriculum stage
+    if prev_state_dict is not None:
+        try:
+            model.load_state_dict(prev_state_dict, strict=False)
+            logger.info("Curriculum warm-start: loaded weights from previous stage.")
+        except Exception as exc:
+            logger.warning(f"Curriculum warm-start failed (continuing from scratch): {exc}")
 
+    callbacks = _build_callbacks(cfg)
     trainer = WSTrainer(
-        max_epochs=cfg.train.n_epochs,
+        max_epochs=cfg.env.graph.n_days,
         project_name="wsmart-route",
         experiment_name=cfg.experiment_name,
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
         devices=cfg.train.devices,
         strategy=cfg.train.strategy,
-        gradient_clip_val=(float(cfg.rl.max_grad_norm) if cfg.rl.algorithm != "ppo" else 0.0),
+        gradient_clip_val=(cfg.rl.max_grad_norm if cfg.rl.algorithm != "ppo" else 0.0),
         logger=CSVLogger(cfg.tracking.log_dir or "logs", name=""),
         callbacks=callbacks,  # type: ignore[arg-type]
         precision=cfg.train.precision,
@@ -151,28 +222,26 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
         tracking_cfg=cfg.tracking,
     )
 
-    # --- Centralised experiment tracking ---
     experiment_name = cfg.experiment_name or _build_experiment_name(cfg)
     tracker = wst.init(experiment_name=experiment_name)
     run_tags = {
         "algorithm": str(getattr(cfg.rl, "algorithm", "")),
         "model": str(getattr(cfg.model, "name", getattr(cfg, "model_name", ""))),
         "problem": str(getattr(cfg.env, "name", "")),
-        "num_loc": str(getattr(cfg.env, "num_loc", "")),
+        "num_loc": str(getattr(cfg.env, "num_loc", "") or getattr(cfg.env.graph, "num_loc", "")),
         "seed": str(cfg.seed),
     }
     run = tracker.start_run(experiment_name, run_type="training", tags=run_tags)
     run.__enter__()
 
-    # ----- Attach secondary sinks -----
     if sinks is not None:
         for sink in sinks:
             run.add_sink(sink)
     else:
-        # Auto-attach MLflowBridge when running outside ZenML
-        mlflow_enabled = bool(getattr(tracking, "mlflow_enabled", False))
+        mlflow_enabled = bool(getattr(getattr(cfg, "tracking", None), "mlflow_enabled", False))
         if mlflow_enabled:
             with contextlib.suppress(Exception):
+                tracking = getattr(cfg, "tracking", None)
                 wst.MLflowBridge.attach(
                     run,
                     mlflow_tracking_uri=str(getattr(tracking, "mlflow_tracking_uri", "mlruns")),
@@ -182,45 +251,114 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
                 )
 
     try:
-        # Log training configuration as params
         _log_training_params(run, cfg)
 
-        # Track validation dataset if available
-        val_ds = cfg.train.val_dataset
-        if val_ds and os.path.exists(str(val_ds)):
+        val_ds = getattr(cfg.train, "val_dataset", None)
+        if val_ds and os.path.exists(val_ds):
             run.log_dataset_event(
                 "load",
-                file_path=str(val_ds),
+                file_path=val_ds,
                 metadata={
                     "variable_name": "val_ds",
                     "source_file": "features/train/engine.py",
                     "source_line": 151,
                 },
             )
-            run.watch_file(str(val_ds))
+            run.watch_file(val_ds)
 
         trainer.fit(model)
 
-        # Save final weights if path is provided
-        if cfg.train.final_model_path:
+        if save_final and cfg.train.final_model_path:
             logger.info("Saving final model weights to: %s", cfg.train.final_model_path)
             model.save_weights(cfg.train.final_model_path)
             logger.info("Final model weights saved successfully.")
             run.log_artifact(cfg.train.final_model_path, artifact_type="model")
-        else:
+        elif not cfg.train.final_model_path:
             logger.info("No final_model_path provided, skipping weight saving.")
 
         val_reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
         run.log_metric("best/val_reward", val_reward)
         run.__exit__(None, None, None)
-        return val_reward
+        return val_reward, model.state_dict()
 
     except Exception as exc:
         run.__exit__(type(exc), exc, exc.__traceback__)
         raise
 
 
-def _log_training_params(run: wst.Run, cfg: Config) -> None:
+def _run_curriculum_stages(
+    cfg: Any,
+    sinks: Optional[List[Any]],
+    curriculum_graphs: list,
+) -> float:
+    """Orchestrate sequential curriculum training.
+
+    Iterates over each graph config in curriculum_graphs, building a stage-specific
+    config, training from scratch (or warm-starting), and passing weights forward.
+
+    Args:
+        cfg: Root Hydra configuration.
+        sinks: Optional tracking sinks.
+        curriculum_graphs: Ordered list of graph config entries from train.curriculum_graphs.
+
+    Returns:
+        Validation reward from the final stage.
+    """
+    prev_state_dict: Optional[Dict[str, Any]] = None
+    final_reward = 0.0
+    n_stages = len(curriculum_graphs)
+
+    for i, graph_cfg in enumerate(curriculum_graphs):
+        is_last = i == n_stages - 1
+        num_loc = getattr(graph_cfg, "num_loc", None) or (
+            graph_cfg.get("num_loc") if hasattr(graph_cfg, "get") else "?"
+        )
+        n_days = getattr(graph_cfg, "n_days", None) or (graph_cfg.get("n_days") if hasattr(graph_cfg, "get") else "?")
+        logger.info(f"Curriculum stage {i + 1}/{n_stages}: num_loc={num_loc}, n_days={n_days}")
+
+        stage_cfg = _build_stage_config(cfg, graph_cfg, stage_idx=i)
+        final_reward, state_dict = _run_single_stage(
+            stage_cfg,
+            sinks,
+            prev_state_dict=prev_state_dict,
+            save_final=is_last,
+        )
+        prev_state_dict = state_dict
+
+    return final_reward
+
+
+def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
+    """Run model training, dispatching to curriculum if configured.
+
+    Args:
+        cfg: Root Hydra configuration object.
+        sinks: Optional list of tracking sinks (e.g. :class:`ZenMLBridge`)
+            to attach to the WSTracker run. When ``None`` (the default),
+            :class:`MLflowBridge` is auto-attached if
+            ``cfg.tracking.mlflow_enabled`` is ``True``.
+
+    Returns:
+        Validation reward from the best epoch (or final curriculum stage).
+    """
+    # ZenML dispatch (opt-in)
+    tracking = getattr(cfg, "tracking", None)
+    zenml_enabled = bool(getattr(tracking, "zenml_enabled", False))
+    if zenml_enabled and sinks is None:
+        return _run_training_via_zenml(cfg)
+
+    # Curriculum dispatch
+    curriculum_graphs = list(getattr(getattr(cfg, "env", None), "curriculum_graphs", None) or [])
+    if curriculum_graphs:
+        logger.info(f"Curriculum learning enabled: {len(curriculum_graphs)} stage(s).")
+        return _run_curriculum_stages(cfg, sinks, curriculum_graphs)
+
+    # Standard single-stage training
+    val_reward, _ = _run_single_stage(cfg, sinks, save_final=True)
+    return val_reward
+
+
+def _log_training_params(run: wst.Run, cfg: Any) -> None:
     """Flatten and log relevant config sections as run parameters.
 
     Args:
@@ -238,7 +376,6 @@ def _log_training_params(run: wst.Run, cfg: Config) -> None:
             with contextlib.suppress(Exception):
                 sections[attr] = {k: getattr(section, k) for k in dir(section) if not k.startswith("_")}
 
-    # Always include top-level seed / experiment_name
     sections["seed"] = cfg.seed
     sections["experiment_name"] = getattr(cfg, "experiment_name", "")
     run.log_params(sections)
@@ -266,7 +403,6 @@ def _run_training_via_zenml(cfg: Config) -> float:
     mlflow_uri = str(getattr(tracking, "mlflow_tracking_uri", "mlruns"))
     stack_name = str(getattr(tracking, "zenml_stack_name", "wsmart-route-stack"))
 
-    # Ensure the ZenML stack is configured before launching the pipeline
     if configure_zenml_stack is None or not configure_zenml_stack(mlflow_uri, stack_name=stack_name):
         logger.warning("ZenML stack configuration failed — falling back to direct training.")
         return run_training(cfg, sinks=[])

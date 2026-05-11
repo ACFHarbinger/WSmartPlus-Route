@@ -121,8 +121,8 @@ class TestPipelineFeaturesTest:
     @patch("logic.src.pipeline.features.test.engine.os.makedirs")
     @patch("logic.src.pipeline.features.test.engine.expand_policy_configs")
     def test_run_wsr_simulator_test_fallback(self, mock_expand, mock_makedirs, mock_sim_test, mock_load_data, mock_wst_init, cfg):
-        cfg.sim.env.graph.area = "mixrmbac"
-        cfg.sim.env.graph.num_loc = 20
+        cfg.sim.graph.area = "mixrmbac"
+        cfg.sim.graph.num_loc = 20
 
         run_sim_test_func(cfg)
 

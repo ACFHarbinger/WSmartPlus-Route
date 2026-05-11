@@ -114,7 +114,7 @@ def main():
         value_loss_coef=0.5,
         entropy_coef=0.01,
         max_grad_norm=0.5,
-        n_epochs=10,
+        inner_epochs=10,
         batch_size=64,
         device=device,
     )

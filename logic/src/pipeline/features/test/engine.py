@@ -86,12 +86,10 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
 
     data_size = _resolve_data_size(cfg)
 
-    print(f"Area {sim.env.graph.area} ({data_size} available) for {sim.env.graph.num_loc} bins")
-    if data_size != sim.env.graph.num_loc and not sim.env.graph.focus_graph:
-        wtype_suffix = f"_{sim.env.graph.waste_type}" if sim.env.graph.waste_type else ""
-        sim.env.graph.focus_graph = (
-            f"graphs_{sim.env.graph.area}_{sim.env.graph.num_loc}V_{sim.n_samples}N{wtype_suffix}.json"
-        )
+    print(f"Area {sim.graph.area} ({data_size} available) for {sim.graph.num_loc} bins")
+    if data_size != sim.graph.num_loc and not sim.graph.focus_graph:
+        wtype_suffix = f"_{sim.graph.waste_type}" if sim.graph.waste_type else ""
+        sim.graph.focus_graph = f"graphs_{sim.graph.area}_{sim.graph.num_loc}V_{sim.n_samples}N{wtype_suffix}.json"
 
     expand_policy_configs(cfg)
     _ensure_directories(cfg)
@@ -104,12 +102,12 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
     device = torch.device("cpu" if not use_cuda else f"cuda:{torch.cuda.device_count() - 1}")
 
     # --- Centralised experiment tracking ---
-    experiment_name = f"sim-{sim.env.graph.area}-{sim.env.graph.num_loc}bins-{sim.days}days"
+    experiment_name = f"sim-{sim.graph.area}-{sim.graph.num_loc}bins-{sim.days}days"
     tracker = wst.init(experiment_name=experiment_name)
     policy_names = [p if not isinstance(p, dict) else list(p.keys())[0] for p in sim.full_policies]
     run_tags = {
-        "area": sim.env.graph.area,
-        "num_loc": str(sim.env.graph.num_loc),
+        "area": sim.graph.area,
+        "num_loc": str(sim.graph.num_loc),
         "days": str(sim.days),
         "n_samples": str(sim.n_samples),
         "policies": ",".join(policy_names),
@@ -173,22 +171,18 @@ def _validate_sim_config(cfg: Config) -> None:
     assert sim.n_samples > 0, "Number of samples must be a positive integer"
 
     # Normalize area string (strip non-alpha, lowercase)
-    sim.env.graph.area = re.sub(r"[^a-zA-Z]", "", sim.env.graph.area.lower())
-    assert sim.env.graph.area in MAP_DEPOTS, (
-        f"Unknown area {sim.env.graph.area}, available areas: {list(MAP_DEPOTS.keys())}"
-    )
+    sim.graph.area = re.sub(r"[^a-zA-Z]", "", sim.graph.area.lower())
+    assert sim.graph.area in MAP_DEPOTS, f"Unknown area {sim.graph.area}, available areas: {list(MAP_DEPOTS.keys())}"
 
     # Normalize waste type
-    sim.env.graph.waste_type = re.sub(r"[^a-zA-Z]", "", sim.env.graph.waste_type.lower())
-    assert sim.env.graph.waste_type in WASTE_TYPES or sim.env.graph.waste_type is None, (
-        f"Unknown waste type {sim.env.graph.waste_type}, available: {list(WASTE_TYPES.keys())}"
+    sim.graph.waste_type = re.sub(r"[^a-zA-Z]", "", sim.graph.waste_type.lower())
+    assert sim.graph.waste_type in WASTE_TYPES or sim.graph.waste_type is None, (
+        f"Unknown waste type {sim.graph.waste_type}, available: {list(WASTE_TYPES.keys())}"
     )
 
     # Coerce edge_threshold to numeric
-    sim.env.graph.edge_threshold = (
-        float(sim.env.graph.edge_threshold)
-        if "." in str(sim.env.graph.edge_threshold)
-        else int(sim.env.graph.edge_threshold)
+    sim.graph.edge_threshold = (
+        float(sim.graph.edge_threshold) if "." in str(sim.graph.edge_threshold) else int(sim.graph.edge_threshold)
     )
 
     assert sim.cpu_cores >= 0, "Number of CPU cores must be >= 0"
@@ -212,22 +206,18 @@ def _resolve_data_size(cfg: Config) -> int:
         Available data size.
     """
     sim = cfg.sim
-    load_ds = cfg.load_dataset
+    load_ds = sim.graph.load_dataset
 
-    if load_ds is not None and set_repository_from_path(
-        load_ds, area=sim.env.graph.area, waste_type=sim.env.graph.waste_type
-    ):
-        return sim.env.graph.num_loc
+    if load_ds is not None and set_repository_from_path(load_ds, area=sim.graph.area, waste_type=sim.graph.waste_type):
+        return sim.graph.num_loc
 
-    set_repository_from_path(str(udef.ROOT_DIR), area=sim.env.graph.area, waste_type=sim.env.graph.waste_type)
+    set_repository_from_path(str(udef.ROOT_DIR), area=sim.graph.area, waste_type=sim.graph.waste_type)
 
     try:
-        data_tmp, _ = load_simulator_data(
-            sim.data_dir, sim.env.graph.num_loc, sim.env.graph.area, sim.env.graph.waste_type
-        )
+        data_tmp, _ = load_simulator_data(sim.data_dir, sim.graph.num_loc, sim.graph.area, sim.graph.waste_type)
         return len(data_tmp)
     except Exception:
-        area, size = sim.env.graph.area, sim.env.graph.num_loc
+        area, size = sim.graph.area, sim.graph.num_loc
         if area == "mixrmbac":
             return 20 if size <= 20 else 50 if size <= 50 else 225
         if area == "riomaior":
@@ -255,7 +245,7 @@ def _ensure_directories(cfg: Config) -> None:
             "assets",
             sim.output_dir,
             f"{sim.days}_days",
-            f"{sim.env.graph.area}_{sim.env.graph.num_loc}",
+            f"{sim.graph.area}_{sim.graph.num_loc}",
         )
         os.makedirs(parent_dir, exist_ok=True)
         os.makedirs(
@@ -292,9 +282,9 @@ def _log_sim_params(run: wst.Run, cfg: Config) -> None:
         "sim.n_samples": sim.n_samples,
         "sim.seed": sim.seed,
         "sim.data_distribution": sim.data_distribution,
-        "sim.area": sim.env.graph.area,
-        "sim.num_loc": sim.env.graph.num_loc,
-        "sim.waste_type": sim.env.graph.waste_type,
+        "sim.area": sim.graph.area,
+        "sim.num_loc": sim.graph.num_loc,
+        "sim.waste_type": sim.graph.waste_type,
         "sim.cpu_cores": sim.cpu_cores,
         "sim.checkpoint_dir": str(getattr(sim, "checkpoint_dir", "")),
         "sim.output_dir": str(getattr(sim, "output_dir", "")),
@@ -314,7 +304,7 @@ def _log_sim_params(run: wst.Run, cfg: Config) -> None:
             params[f"policy.{pol}"] = True
 
     # External dataset path (if provided)
-    load_ds = getattr(cfg, "load_dataset", None)
+    load_ds = getattr(sim.graph, "load_dataset", None)
     if load_ds:
         params["load_dataset"] = str(load_ds)
         with contextlib.suppress(Exception):
