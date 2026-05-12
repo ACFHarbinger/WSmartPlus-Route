@@ -35,7 +35,8 @@ env:
     #  load_dataset: "data/datasets/vrpp/vrpp50_gamma3_time100_seed42.td"
     #  reward:
     #    waste_weight: 1.0
-    #    cost_weight: 1.0
+    #    cost_weight: 2.0
+
     - num_loc: 100
       n_samples: 12800
       area: "riomaior"
@@ -45,17 +46,13 @@ env:
       focus_size: 12800
       focus_graph: "graphs_100V_1N_plastic.json"
       start_day: 0
-      n_days: 31
+      n_days: 100
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-      load_dataset: "data/datasets/vrpp/vrpp100_gamma3_time100_seed42.td"
-
-      # =========================================================================
-      # Objective Function Weights
-      # =========================================================================
+      load_dataset: "data/datasets/vrpp/vrpp100_emp_time100_seed42.td"
       # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
       reward:
         waste_weight: 1.0 # Weight for node wastes/rewards. Typical range: 0.5-2.0.
-        cost_weight: 5.0 # High cost discourages voluntary collection; mandatory bins force routing.
+        cost_weight: 2.5 # High cost discourages voluntary collection; mandatory bins force routing.
 
     #- num_loc: 170
     #  n_samples: 12800
@@ -71,7 +68,7 @@ env:
     #  load_dataset: "data/datasets/vrpp/vrpp170_gamma3_time100_seed42.td"
     #  reward:
     #    waste_weight: 1.0
-    #    cost_weight: 1.0
+    #    cost_weight: 2.0
 
   # ===========================================================================
   # Evaluation Graphs
@@ -94,7 +91,8 @@ env:
     #  n_days: 7
     #  reward:
     #    waste_weight: 1.0
-    #    cost_weight: 1.0
+    #    cost_weight: 2.0
+
     - num_loc: 100
       n_samples: 512
       area: "riomaior"
@@ -104,12 +102,13 @@ env:
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-      load_dataset: "data/datasets/vrpp/vrpp100_gamma3_val_time100_seed42.td"
+      load_dataset: "data/datasets/vrpp/vrpp100_emp_val_time7_seed42.td"
       start_day: 0
       n_days: 7
       reward:
         waste_weight: 1.0
-        cost_weight: 5.0
+        cost_weight: 1.0
+
     #- num_loc: 170
     #  n_samples: 512
     #  area: "riomaior"
@@ -124,4 +123,4 @@ env:
     #  n_days: 7
     #  reward:
     #    waste_weight: 1.0
-    #    cost_weight: 1.0
+    #    cost_weight: 2.0

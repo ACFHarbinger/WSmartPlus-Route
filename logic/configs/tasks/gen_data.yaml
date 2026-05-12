@@ -42,7 +42,7 @@ data:
       focus_size: 512
       focus_graph: "graphs_20V_1N_plastic.json"
       start_day: 0
-      n_days: 100
+      n_days: 7
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
@@ -53,7 +53,7 @@ data:
       focus_size: 512
       focus_graph: "graphs_50V_1N_plastic.json"
       start_day: 0
-      n_days: 100
+      n_days: 7
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
@@ -64,7 +64,7 @@ data:
       focus_size: 512
       focus_graph: "graphs_100V_1N_plastic.json"
       start_day: 0
-      n_days: 100
+      n_days: 7
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
@@ -75,7 +75,7 @@ data:
       focus_size: 512
       focus_graph: "graphs_170V_1N_plastic.json"
       start_day: 0
-      n_days: 100
+      n_days: 7
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
