@@ -122,7 +122,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
                         {
                             "data.dist_method": method,
                             "data.dist_matrix_source": "file",
-                            "data.dist_matrix_n_nodes": int(distance_matrix.shape[0]),
+                            "data.dist_matrix_n_nodes": distance_matrix.shape[0],
                         }
                     )
                     run.log_dataset_event(
@@ -162,7 +162,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
     with contextlib.suppress(Exception):
         run = get_active_run() if get_active_run is not None else None
         if run is not None:
-            n_nodes = int(distance_matrix.shape[0])
+            n_nodes = distance_matrix.shape[0]
             off_diag = distance_matrix[~np.eye(n_nodes, dtype=bool)]
             positive = off_diag[off_diag > 0]
             run.log_params(

@@ -89,7 +89,10 @@ def create_model(cfg: Config) -> pl.LightningModule:
                 "model.name": cfg.model.name,
                 "model.algo": algo_name,
                 "env.name": cfg.env.name,
-                "env.graph.num_loc": cfg.env.graph.num_loc,
+                "env.graph.num_loc": (
+                    getattr(getattr(cfg.env, "graph", {}), "num_loc", None)
+                    or getattr((getattr(cfg.env, "curriculum_graphs", [{}]) or [{}])[0], "num_loc", "")
+                ),
             }
             if hasattr(cfg.model, "encoder"):
                 enc = cfg.model.encoder
@@ -125,37 +128,50 @@ def _init_environment(cfg: Config) -> IEnv:
     env_dict = _config_to_dict(cfg.env)
     env_name = env_dict.get("name", "vrpp")
 
-    # Extract base env fields (excluding name, graph, reward, and curriculum/eval lists)
+    # Extract base env fields (excluding name and the structured sub-configs)
     _ENV_DICT_SKIP = {"name", "graph", "reward", "curriculum_graphs", "eval_graphs"}
     env_kwargs = {k: v for k, v in env_dict.items() if k not in _ENV_DICT_SKIP}
 
     # Flatten GraphConfig
-    if "graph" in env_dict:
-        graph = env_dict["graph"]
-        graph_dict = graph if isinstance(graph, dict) else _config_to_dict(graph)
-        env_kwargs.update(
-            {
-                "num_loc": graph_dict.get("num_loc", 50),
-                "area": graph_dict.get("area", "riomaior"),
-                "waste_type": graph_dict.get("waste_type", "plastic"),
-                "vertex_method": graph_dict.get("vertex_method", "mmn"),
-                "distance_method": graph_dict.get("distance_method", "ogd"),
-                "dm_filepath": graph_dict.get("dm_filepath"),
-                "edge_threshold": graph_dict.get("edge_threshold", "0"),
-                "edge_method": graph_dict.get("edge_method"),
-                "focus_graph": graph_dict.get("focus_graph"),
-                "focus_size": graph_dict.get("focus_size"),
-                "eval_focus_size": graph_dict.get("eval_focus_size"),
-                "n_samples": graph_dict.get("n_samples", 1),
-                "start_day": graph_dict.get("start_day", 0),
-                "n_days": graph_dict.get("n_days", 1),
-            }
-        )
+    graph = env_dict.get("graph")
+    if graph is None:
+        # Fallback to primary curriculum entry if graph was not dynamically injected
+        curriculum = env_dict.get("curriculum_graphs", [])
+        graph = curriculum[0] if curriculum else {}
+    graph_dict = graph if isinstance(graph, dict) else _config_to_dict(graph)
+    env_kwargs.update(
+        {
+            "num_loc": graph_dict.get("num_loc", 50),
+            "area": graph_dict.get("area", "riomaior"),
+            "waste_type": graph_dict.get("waste_type", "plastic"),
+            "vertex_method": graph_dict.get("vertex_method", "mmn"),
+            "distance_method": graph_dict.get("distance_method", "ogd"),
+            "dm_filepath": graph_dict.get("dm_filepath"),
+            "edge_threshold": graph_dict.get("edge_threshold", "0"),
+            "edge_method": graph_dict.get("edge_method"),
+            "focus_graph": graph_dict.get("focus_graph"),
+            "focus_size": graph_dict.get("focus_size"),
+            "n_samples": graph_dict.get("n_samples", 1),
+            "start_day": graph_dict.get("start_day", 0),
+            "n_days": graph_dict.get("n_days", 1),
+        }
+    )
 
-    # Flatten Reward/ObjectiveConfig
+    # Flatten Reward/ObjectiveConfig.
+    # Priority: env.reward (dynamically set by _build_stage_config for curriculum stages)
+    # → env.graph.reward (per-graph reward defined in the graph entry)
+    # → safe defaults (all weights = 1.0)
+    reward_dict: Dict[str, Any] = {}
+    if "graph" in env_dict:
+        graph_reward = env_dict["graph"].get("reward") if isinstance(env_dict["graph"], dict) else None
+        if graph_reward:
+            reward_dict = graph_reward if isinstance(graph_reward, dict) else _config_to_dict(graph_reward)
     if "reward" in env_dict:
-        reward = env_dict["reward"]
-        reward_dict = reward if isinstance(reward, dict) else _config_to_dict(reward)
+        # env.reward is injected dynamically by _build_stage_config for per-stage overrides
+        stage_reward = env_dict["reward"]
+        stage_reward_dict = stage_reward if isinstance(stage_reward, dict) else _config_to_dict(stage_reward)
+        reward_dict.update(stage_reward_dict)
+    if reward_dict:
         env_kwargs.update(
             {
                 "cost_weight": reward_dict.get("cost_weight", 1.0),

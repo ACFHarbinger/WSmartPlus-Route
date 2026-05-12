@@ -241,7 +241,9 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             and self.current_epoch < self.trainer.max_epochs - 1
             and hasattr(self.env, "generator")
         ):
-            new_dataset = regenerate_dataset(self.env, self.cfg.env.graph.n_samples)
+            _graph = getattr(getattr(self.cfg, "env", None), "graph", None)
+            n_samples = int(getattr(_graph, "n_samples", 1) or 1)
+            new_dataset = regenerate_dataset(self.env, n_samples)
             if new_dataset is not None:
                 self.train_dataset = new_dataset
 

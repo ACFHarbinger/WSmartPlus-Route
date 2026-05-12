@@ -40,7 +40,7 @@ def benchmark(problem="vrpp", sizes=[20, 50], num_instances=16):
         # Prepare environment config
         cfg = Config()
         cfg.env = EnvConfig(name=problem)
-        cfg.env.graph.num_loc = graph_size
+        cfg.env.curriculum_graphs[0].num_loc = graph_size
         cfg.train = TrainConfig(batch_size=num_instances)
 
         # Generate generic batch

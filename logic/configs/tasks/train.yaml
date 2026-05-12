@@ -38,7 +38,7 @@ train:
   eval_batch_size: 64 # Validation batch size (can be larger than train)
 
   model_weights_path: "model_weights" # Directory for checkpoints
-  final_model_path: "assets/model_weights/${env.name}${env.graph.num_loc}_${env.graph.area}_${env.graph.waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${model.temporal_horizon}/epoch-${env.graph.n_days}.pt"
+  final_model_path: "assets/model_weights/${env.name}${env.curriculum_graphs[0].num_loc}_${env.curriculum_graphs[0].area}_${env.curriculum_graphs[0].waste_type}/${train.data_distribution}/${model.name}${model.encoder.type}${model.temporal_horizon}/epoch-${env.curriculum_graphs[0].n_days}.pt"
 
   # Hardware / Performance
   precision: "16-mixed" # Training precision (32, 16-mixed, bf16-mixed)

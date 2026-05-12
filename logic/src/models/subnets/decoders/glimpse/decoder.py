@@ -22,6 +22,7 @@ from torch import nn
 
 from logic.src.models.subnets.decoders.common import AttentionDecoderCache
 from logic.src.models.subnets.decoders.glimpse.attention import make_heads, one_to_many_logits
+from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 
 
 class GlimpseDecoder(nn.Module):
@@ -105,10 +106,21 @@ class GlimpseDecoder(nn.Module):
         # Project node embeddings to MHA heads
         self.project_node_embeddings = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.project_step_context = nn.Linear(embed_dim, embed_dim, bias=False)
+        if isinstance(self.problem, str):
+            env_name = self.problem.lower()
+        else:
+            env_name = getattr(self.problem, "name", getattr(self.problem, "NAME", "tsp")).lower()
 
-        # Step context dim can be overridden
-        self.step_context_dim = embed_dim
+        if env_name in CONTEXT_EMBEDDING_REGISTRY:
+            self.context_embedding = CONTEXT_EMBEDDING_REGISTRY[env_name](
+                embed_dim=embed_dim, temporal_horizon=kwargs.get("temporal_horizon", 0)
+            )
+            self.project_step_context = nn.Identity()
+            self.step_context_dim = self.context_embedding.step_context_dim
+        else:
+            self.context_embedding = None
+            self.project_step_context = nn.Linear(embed_dim, embed_dim, bias=False)
+            self.step_context_dim = embed_dim
 
     @property
     def device(self) -> torch.device:
@@ -420,6 +432,13 @@ class GlimpseDecoder(nn.Module):
         Returns:
             torch.Tensor: Projected step context query.
         """
+        if hasattr(self, "context_embedding") and self.context_embedding is not None:
+            step_context = self.context_embedding(embeddings, state)
+            query = self.project_step_context(step_context)
+            if query.dim() == 3:
+                query = query.squeeze(1)
+            return query
+
         current_node = state.get_current_node()
         batch_size = embeddings.size(0)
 
