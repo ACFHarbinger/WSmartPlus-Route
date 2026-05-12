@@ -80,10 +80,25 @@ def _get_params(cfg: object) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Dictionary of strategy parameters.
     """
-    if hasattr(cfg, "__dict__"):
-        return {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}
+    # OmegaConf DictConfig: use OmegaConf.to_container for a clean plain dict.
+    try:
+        from omegaconf import DictConfig, OmegaConf
+
+        if isinstance(cfg, DictConfig):
+            raw = OmegaConf.to_container(cfg, resolve=True)
+            if isinstance(raw, dict):
+                return cast(Dict[str, Any], {k: v for k, v in raw.items() if k != "strategy" and v is not None})
+    except ImportError:
+        pass
+
+    # Dataclasses / plain objects with .items() (ITraversable)
     if isinstance(cfg, ITraversable):
         return {k: v for k, v in cfg.items() if k != "strategy" and v is not None}
+
+    # Last resort: __dict__ (may work for simple dataclass-like objects)
+    if hasattr(cfg, "__dict__"):
+        return {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}
+
     return {}
 
 
@@ -137,9 +152,12 @@ def _create_manager_selector(params: Dict[str, Any]) -> VectorizedSelector:
 def _get_strategy_params(strategy: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """Map strategy name to its specific parameters.
 
+    Looks first in the nested sub-config (e.g. params["last_minute"]["threshold"])
+    then falls back to top-level params, then to hard-coded defaults.
+
     Args:
         strategy: name of the strategy.
-        params: raw parameter dictionary.
+        params: raw parameter dictionary (may contain nested sub-configs).
 
     Returns:
         Dict[str, Any]: mapped parameters for the selector constructor.
@@ -147,18 +165,32 @@ def _get_strategy_params(strategy: str, params: Dict[str, Any]) -> Dict[str, Any
     Raises:
         ValueError: if strategy is unknown.
     """
-    mappings = {
-        "last_minute": {"threshold": params.get("threshold", 0.7)},
-        "regular": {"frequency": params.get("frequency", 3)},
-        "lookahead": {"current_collection_day": params.get("current_collection_day", 0)},
+    # Pull out the nested sub-config for this strategy, if present.
+    nested = params.get(strategy, {})
+    if nested is None:
+        nested = {}
+    # Normalise DictConfig / OmegaConf → plain dict so .get() behaves predictably.
+    if hasattr(nested, "items") and not isinstance(nested, dict):
+        nested = {k: v for k, v in nested.items()}
+
+    def _get(key: str, default: Any) -> Any:
+        """Return nested[key] → params[key] → default."""
+        if key in nested:
+            return nested[key]
+        return params.get(key, default)
+
+    mappings: Dict[str, Any] = {
+        "last_minute": {"threshold": _get("threshold", 0.7)},
+        "regular": {"frequency": _get("frequency", 3)},
+        "lookahead": {"current_collection_day": _get("current_collection_day", 0)},
         "revenue": {
-            "revenue_kg": params.get("revenue_kg", 1.0),
-            "bin_capacity": params.get("bin_capacity", 1.0),
-            "threshold": params.get("threshold", params.get("revenue_threshold", 0.0)),
+            "revenue_kg": _get("revenue_kg", 1.0),
+            "bin_capacity": _get("bin_capacity", 1.0),
+            "threshold": _get("threshold", _get("revenue_threshold", 0.0)),
         },
         "service_level": {
-            "confidence_factor": params.get("confidence_factor", params.get("threshold", 1.0)),
-            "horizon_days": params.get("horizon_days", 1),
+            "confidence_factor": _get("confidence_factor", _get("threshold", 1.0)),
+            "horizon_days": _get("horizon_days", 1),
         },
     }
     if strategy not in mappings:

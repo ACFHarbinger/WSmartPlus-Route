@@ -162,11 +162,13 @@ class VRPPContextEmbedder(ContextEmbedder):
         Returns:
             torch.Tensor: Projected step context embedding, shape (batch, 1, embed_dim).
         """
-        batch_size = embeddings.size(0)
         current_node = state.get_current_node() if hasattr(state, "get_current_node") else state.get("current_node")
-
         if current_node.dim() > 1:
             current_node = current_node.squeeze(-1)  # [B]
+
+        batch_size = current_node.size(0)
+        if embeddings.size(0) == 1 and batch_size > 1:
+            embeddings = embeddings.expand(batch_size, -1, -1)
 
         # 1. Current node embedding [B, 1, embed_dim]
         current_node_embed = embeddings.gather(

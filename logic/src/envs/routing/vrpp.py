@@ -291,10 +291,16 @@ class VRPPEnv(RL4COEnvBase):
         # 4. Mandatory routing override
         mandatory = tensordict.get("mandatory", None)
         if mandatory is not None:
+            # Collapse any unexpected extra dimensions so mandatory is 2D [B, N].
+            # This guards against stale 3D masks from pre-reset state.
+            while mandatory.dim() > 2:
+                mandatory = mandatory.any(dim=1)
+
             # Pending mandatory bins: mandatory AND not yet visited
             pending_mandatory = mandatory & ~visited
 
-            # Check if any mandatory bins remain (excluding depot at index 0)
+            # Check if any mandatory bins remain (excluding depot at index 0).
+            # Result is guaranteed 1D [B] after .any(dim=1) on a 2D tensor.
             has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
 
             # Block depot while mandatory bins are outstanding

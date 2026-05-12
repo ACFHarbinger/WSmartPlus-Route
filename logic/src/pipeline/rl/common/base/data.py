@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
+import torch
 from torch.utils.data import DataLoader
 
 from logic.src.data.datasets import TensorDictDataset
@@ -117,7 +118,7 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
     )
 
     gen = eval_env.generator
-    if hasattr(gen, "to"):
+    if gen is not None and hasattr(gen, "to"):
         gen = gen.to("cpu")
 
     return eval_env, gen
@@ -218,8 +219,41 @@ class DataMixin:
                     else:
                         if self.local_rank == 0:
                             logger.info(f"Generating eval dataset ({n_samples} instances, {num_loc} nodes) on CPU...")
-                        val_data = eval_gen(batch_size=n_samples)
-                        val_ds = TensorDictDataset(val_data)
+                        val_data = eval_gen(batch_size=n_samples) if eval_gen is not None else None
+                        if val_data is not None:
+                            val_ds = TensorDictDataset(val_data)
+                        else:
+                            continue
+
+                    # Trim to n_samples before possible day-expansion
+                    if n_samples < len(val_ds):
+                        val_ds = TensorDictDataset(val_ds.data[:n_samples])
+
+                    # Multi-day expansion: replicate each instance once per eval day,
+                    # injecting 'current_day' so the env selects the right waste slice.
+                    n_days_eval = int(_cfg_get(eval_graph, "n_days", 1))
+                    start_day_eval = int(_cfg_get(eval_graph, "start_day", 0) or 0)
+                    waste_field = val_ds.data.get("waste", None)
+                    if n_days_eval > 1 and waste_field is not None and waste_field.dim() > 2:
+                        n_available = waste_field.shape[1]
+                        day_tds = []
+                        for day_offset in range(n_days_eval):
+                            day_idx = start_day_eval + day_offset
+                            if day_idx >= n_available:
+                                break
+                            td_day = val_ds.data.clone()
+                            td_day["current_day"] = torch.full(
+                                val_ds.data.batch_size, day_idx, dtype=torch.long
+                            )
+                            day_tds.append(td_day)
+                        if len(day_tds) > 1:
+                            merged = cast(Any, torch.cat(day_tds, dim=0))
+                            val_ds = TensorDictDataset(merged)
+                            if self.local_rank == 0:
+                                logger.info(
+                                    f"Expanded eval dataset to {len(val_ds)} instances "
+                                    f"({n_samples} × {len(day_tds)} days)"
+                                )
 
                     self.val_datasets.append(val_ds)
                     self.eval_envs.append(eval_env)

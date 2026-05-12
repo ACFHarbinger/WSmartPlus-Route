@@ -380,9 +380,9 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
 
     # Mandatory selector
     mandatory_selector = None
-    if hasattr(cfg, "mandatory") and cfg.mandatory is not None:
-        mandatory_selector = create_selector_from_config(cfg.mandatory)
+    if hasattr(cfg, "mandatory_selection") and cfg.mandatory_selection is not None:
+        mandatory_selector = create_selector_from_config(cfg.mandatory_selection)
         if mandatory_selector:
-            logger.info(f"Mandatory selector created: {cfg.mandatory.strategy}")
+            logger.info(f"Mandatory selector created: {cfg.mandatory_selection.strategy}")
     common_kwargs["mandatory_selector"] = mandatory_selector
     return common_kwargs
