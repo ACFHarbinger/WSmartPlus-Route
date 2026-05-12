@@ -28,7 +28,6 @@ class NeuralAgentConfig:
 
     Attributes:
         model: Model configuration (architecture and load path).
-        decoding: Decoding strategy configuration.
         reward: Objective/reward weights configuration.
         mandatory_selection: List of mandatory strategy config files.
         route_improvement: List of route improvement operations to apply.

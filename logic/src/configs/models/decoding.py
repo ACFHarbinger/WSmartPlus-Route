@@ -42,3 +42,5 @@ class DecodingConfig:
     multistart: bool = False
     num_starts: int = 1
     select_best: bool = False
+    reward_weight: float = 0.0
+    length_penalty_alpha: float = 0.0

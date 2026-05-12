@@ -21,6 +21,7 @@ from omegaconf import OmegaConf
 
 from logic.src.pipeline.rl.common.baselines import WarmupBaseline, get_baseline
 from logic.src.pipeline.rl.common.epoch import apply_time_step, prepare_epoch, regenerate_dataset
+from logic.src.pipeline.rl.common.pbrs_wrapper import PBRSShaper
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .data import DataMixin
@@ -133,6 +134,14 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         # Initialize baseline
         self._init_baseline()
 
+        # --- Potential-Based Reward Shaping (PBRS) ----------------------------
+        # Build a PBRSShaper when cfg.rl.use_pbrs is True. The shaper uses
+        # rl.gamma as the discount factor (same field used by other algorithms).
+        # self._pbrs is checked by StepMixin.shared_step(); when None, the code
+        # path is a no-op so there is zero overhead without PBRS enabled.
+        self._pbrs: Optional[PBRSShaper] = self._build_pbrs_shaper()
+        # -----------------------------------------------------------------------
+
     def save_weights(self, path: str):
         """
         Save model weights and hyperparameters.
@@ -192,6 +201,39 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             baseline = WarmupBaseline(baseline, warmup_epochs)
 
         self.baseline = baseline
+
+    def _build_pbrs_shaper(self) -> Optional[PBRSShaper]:
+        """Build a :class:`PBRSShaper` from the active configuration.
+
+        Reads ``cfg.rl.use_pbrs``, ``cfg.rl.gamma``, ``cfg.rl.pbrs_shaping_weight``,
+        and ``cfg.rl.pbrs_potential`` (all with safe defaults).  Returns ``None``
+        when PBRS is disabled so :meth:`shared_step` incurs zero overhead.
+
+        Returns:
+            PBRSShaper if ``cfg.rl.use_pbrs`` is True, else None.
+        """
+        cfg = getattr(self, "cfg", None)
+        rl_cfg = getattr(cfg, "rl", None)
+
+        use_pbrs: bool = bool(getattr(rl_cfg, "use_pbrs", False))
+        if not use_pbrs:
+            return None
+
+        # Pull γ from rl.gamma (same field consumed by DRALNS, PPO, etc.)
+        gamma: float = float(getattr(rl_cfg, "gamma", 1.0))
+        shaping_weight: float = float(getattr(rl_cfg, "pbrs_shaping_weight", 1.0))
+        potential_key: str = str(getattr(rl_cfg, "pbrs_potential", "vrpp"))
+
+        # env_name is used to look up the registered potential function
+        env_name: str = getattr(self.env, "name", potential_key)
+
+        shaper = PBRSShaper(
+            gamma=gamma,
+            env_name=env_name,
+            shaping_weight=shaping_weight,
+        )
+        logger.info(f"PBRS enabled — env={env_name}, γ={gamma}, weight={shaping_weight}, potential='{potential_key}'")
+        return shaper
 
     def on_train_epoch_start(self) -> None:
         """Prepare dataset for the new epoch (e.g. wrap with baseline)."""
