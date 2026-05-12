@@ -18,23 +18,12 @@
 
 env:
   name: "scwcvrp" # Environment identifier
-  # =============================================================================
-  # Graph Construction
-  # =============================================================================
-  graph:
-    num_loc: 50 # Number of bins. Standard sizes: 20, 50, 100
-    area: "riomaior" # Geographic area. Options: riomaior, manhattan, random
-    waste_type: "plastic" # Waste category. Options: plastic, glass, paper, organic
-    distance_method: "gmaps" # Distance calculation. Options: gmaps, osm, euclidean, manhattan
-    vertex_method: "mmn" # Vertex placement. Options: mmn (map-matched), grid, random
-    edge_threshold: 1.0 # Max edge distance for connectivity (km)
-    edge_method: "knn" # Edge construction. Options: knn, radius, delaunay, complete
 
   # =============================================================================
   # Stochasticity Parameters
   # =============================================================================
   stochastic: true # Enable stochastic waste generation
-  mean: 0.0 # Mean of the waste noise
+  mean: 0.0        # Mean of the waste noise
   variance:
     0.1 # Fill rate variance (coefficient of variation).
     # 0.1 = 10% uncertainty, 0.2 = 20% uncertainty
@@ -42,18 +31,31 @@ env:
   # ===========================================================================
   # Curriculum Learning
   # ===========================================================================
-  curriculum_graphs: []
+  # The first entry is also used for single-stage training.
+  # Each entry may include a 'reward:' block to override objective weights.
+  curriculum_graphs:
+    - num_loc: 50
+      area: "riomaior"
+      waste_type: "plastic"
+      distance_method: "gmaps"
+      vertex_method: "mmn"
+      edge_threshold: 1.0
+      edge_method: "knn"
+      n_days: 31
+      n_samples: 12800
+      start_day: 0
+
+      # =========================================================================
+      # Objective Function Weights
+      # =========================================================================
+      # Selective collection: bins collected only if profitable or near overflow
+      reward:
+        cost_weight: 1.0       # Distance penalty weight
+        overflow_penalty: 10.0 # Overflow penalty weight (critical - prevents service failures)
+        waste_weight: 10.0     # Collection reward weight
 
   # ===========================================================================
   # Evaluation Graphs
   # ===========================================================================
+  # Each entry may include a 'reward:' block to evaluate under different weights.
   eval_graphs: []
-
-  # =============================================================================
-  # Objective Function Weights
-  # =============================================================================
-  # Selective collection: bins collected only if profitable or near overflow
-  reward:
-    cost_weight: 1.0 # Distance penalty weight
-    overflow_penalty: 10.0 # Overflow penalty weight (critical - prevents service failures)
-    waste_weight: 10.0 # Collection reward weight

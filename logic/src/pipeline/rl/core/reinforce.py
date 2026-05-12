@@ -128,7 +128,8 @@ class REINFORCE(RL4COLitModule):
             optimizer: PyTorch optimizer instance about to step.
         """
         if self.max_grad_norm > 0:
-            torch.nn.utils.clip_grad_norm_(
+            grad_norm = torch.nn.utils.clip_grad_norm_(
                 self.policy.parameters(),  # type: ignore[attr-defined]
                 self.max_grad_norm,
             )
+            self.log("train/grad_norm", grad_norm, sync_dist=True)

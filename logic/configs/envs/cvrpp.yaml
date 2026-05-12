@@ -19,36 +19,39 @@ env:
   mean: 0.0
   variance: 0.0
 
-  graph:
-    num_loc: 50 # Number of customer nodes. Standard sizes: 20, 50, 100, 200.
-    area: "riomaior"
-    waste_type: "plastic"
-
-  # ===========================================================================
-  # Curriculum Learning
-  # ===========================================================================
-  curriculum_graphs: []
-
-  # ===========================================================================
-  # Evaluation Graphs
-  # ===========================================================================
-  eval_graphs: []
-
   # =============================================================================
   # Capacity Constraint
   # =============================================================================
   capacity:
     100.0 # Normalized vehicle capacity.
-    # Waste values typically sum to > capacity, forcing selective collection.
+    # Waste values typically sum to >capacity, forcing selective collection.
     # Range: 0.5-2.0. Higher = less constrained routing.
 
-  # =============================================================================
-  # Objective Function Weights
-  # =============================================================================
-  # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
-  # Subject to: vehicle capacity constraints
+  # ===========================================================================
+  # Curriculum Learning
+  # ===========================================================================
+  # The first entry is also used for single-stage training.
+  # Each entry may include a 'reward:' block to override objective weights.
+  curriculum_graphs:
+    - num_loc: 50
+      area: "riomaior"
+      waste_type: "plastic"
+      n_days: 31
+      n_samples: 12800
+      start_day: 0
 
-  reward:
-    cost_weight: 1.0 # Weight for travel distance. Higher = prioritize shorter routes.
-    waste_weight: 1.0 # Weight for waste collection. Higher = prioritize collecting more waste.
-    overflow_penalty: 1.0 # Penalty factor for overflows. Higher = penalize overflows more.
+      # =========================================================================
+      # Objective Function Weights
+      # =========================================================================
+      # Objective: maximize (waste_weight × Σ wastes) - (cost_weight × total_distance)
+      # Subject to: vehicle capacity constraints
+      reward:
+        cost_weight: 1.0      # Weight for travel distance.
+        waste_weight: 1.0     # Weight for waste collection.
+        overflow_penalty: 1.0 # Penalty factor for overflows.
+
+  # ===========================================================================
+  # Evaluation Graphs
+  # ===========================================================================
+  # Each entry may include a 'reward:' block to evaluate under different weights.
+  eval_graphs: []

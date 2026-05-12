@@ -76,8 +76,8 @@ def test_cli_train_lightning_smoke(tmp_path):
                 "main.py",
                 "train",
                 "env.name=vrpp",
-                "env.graph.num_loc=10",
-                "train.env.graph.n_days=1",
+                "env.curriculum_graphs.0.num_loc=10",
+                "env.curriculum_graphs.0.n_days=1",
                 "train.batch_size=2",
                 "train.eval_batch_size=2",
                 "train.num_workers=0",  # Disable multiprocessing for faster startup
@@ -176,9 +176,9 @@ def test_cli_train_lightning_ppo_smoke(tmp_path):
                 "main.py",
                 "train",
                 "env.name=vrpp",
-                "env.graph.num_loc=10",
+                "env.curriculum_graphs.0.num_loc=10",
                 "+experiment=ppo",  # Use + to append new config group if not in schema
-                "train.env.graph.n_days=1",
+                "env.curriculum_graphs.0.n_days=1",
                 "train.batch_size=2",
                 "train.eval_batch_size=2",
                 "train.num_workers=0",  # Disable multiprocessing for faster startup

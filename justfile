@@ -17,7 +17,6 @@ encoder := "gat"
 decoder := "glimpse"
 size := "100"
 area := "riomaior"
-epochs := "50"
 batch_size := "64"
 temporal_horizon := "0"
 days := "30"
@@ -59,16 +58,13 @@ package:
 # --- Primary Execution Commands (Hydra-based) ---
 # Train a model with Hydra configs
 
-# Usage: just train problem=wcvrp model=am size=50 epochs=100
-train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon area=area distribution=distribution:
+# Usage: just train problem=wcvrp model=am
+train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model:" "{{ model }} ({{ encoder }})"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Epochs:" "{{ epochs }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Batch Size:" "{{ batch_size }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
 
@@ -77,9 +73,6 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder decode
         envs={{ problem }} \
         models={{ model }} \
         model.encoder.type={{ encoder }} \
-        env.graph.num_loc={{ size }} \
-        env.graph.area={{ area }} \
-        env.graph.n_days={{ epochs }} \
         train.data_distribution={{ distribution }} \
         hpo.n_trials=0 \
         train.batch_size={{ batch_size }}

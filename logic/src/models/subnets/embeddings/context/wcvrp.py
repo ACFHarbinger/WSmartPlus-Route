@@ -150,8 +150,9 @@ class WCVRPContextEmbedder(ContextEmbedder):
 
         # 2. State features [batch, 1, WC_STEP_CONTEXT_OFFSET]
         # Common features: remaining_capacity, current_time
-        cap = state.get("remaining_capacity", torch.zeros(batch_size, 1, device=embeddings.device))
-        time = state.get("current_time", torch.zeros(batch_size, 1, device=embeddings.device))
+        td = getattr(state, "td", state)
+        cap = td.get("remaining_capacity", torch.zeros(batch_size, 1, device=embeddings.device))
+        time = td.get("current_time", torch.zeros(batch_size, 1, device=embeddings.device))
 
         if cap.dim() == 1:
             cap = cap.unsqueeze(-1)
