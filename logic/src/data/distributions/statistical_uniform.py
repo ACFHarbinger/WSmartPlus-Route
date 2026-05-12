@@ -10,7 +10,7 @@ Example:
     data = dist._sample_tensor(torch.Size((10, 50)))
 """
 
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
@@ -62,5 +62,5 @@ class Uniform(BaseDistribution):
             np.ndarray: Sampled values in range [1, 100].
         """
         if rng is None:
-            rng = cast(np.random.Generator, np.random.default_rng())
-        return rng.integers(self.low, self.high, size=size)
+            rng = np.random.default_rng()
+        return rng.integers(self.low, self.high, size=size).astype(float) / 100.0

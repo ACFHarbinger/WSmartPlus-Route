@@ -140,4 +140,4 @@ class Empirical(BaseDistribution):
             sampled = self.grid.sample(n_samples=n_samples, rng=rng)
         else:
             raise ValueError("No grid or dataset found.")
-        return np.clip(sampled, 0, 100)
+        return np.clip(sampled, 0, 100) / 100.0

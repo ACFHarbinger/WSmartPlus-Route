@@ -356,7 +356,10 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         # 1. Identify "fractional" routes (0 < λ_k < 1)
         fractional_routes = []
         for idx, var in enumerate(master.lambda_vars):
-            val = var.X
+            try:
+                val = var.X
+            except (AttributeError, gp.GurobiError):
+                continue
             if 0.01 < val < 0.99:
                 fractional_routes.append((master.routes[idx], val))
 
@@ -832,10 +835,10 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
         for i, var in enumerate(master.lambda_vars):
             try:
                 val = var.X
-            except Exception:
+                if val > 1e-4:
+                    active_routes.append((i, val))
+            except (AttributeError, gp.GurobiError):
                 continue
-            if val > 1e-4:
-                active_routes.append((i, val))
         active_routes.sort(key=lambda x: x[1], reverse=True)
 
         if len(active_routes) <= K:
@@ -843,7 +846,10 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
 
         # 2. Find a minimal cover C: the top K+1 routes by fractional value.
         cover_indices = [idx for idx, _ in active_routes[: int(K) + 1]]
-        sum_val = sum(master.lambda_vars[i].X for i in cover_indices)
+        try:
+            sum_val = sum(master.lambda_vars[i].X for i in cover_indices)
+        except (AttributeError, gp.GurobiError):
+            return 0
 
         if sum_val <= K + self.epsilon:
             return 0  # No violation — cut would not be useful.
@@ -1603,15 +1609,18 @@ class MinCutInequalityEngine(CuttingPlaneEngine):
                 continue  # integer or near-zero — no cut needed
 
             # Sum of λ_r over routes visiting this node
-            cover_sum = (
-                sum(
-                    var.X
-                    for idx, var in enumerate(master.lambda_vars)
-                    if var.X > 1e-9 and node in master.routes[idx].node_coverage
+            try:
+                cover_sum = (
+                    sum(
+                        var.X
+                        for idx, var in enumerate(master.lambda_vars)
+                        if var.X > 1e-9 and node in master.routes[idx].node_coverage
+                    )
+                    if master.lambda_vars
+                    else 0.0
                 )
-                if master.lambda_vars
-                else 0.0
-            )
+            except (AttributeError, gp.GurobiError):
+                cover_sum = 0.0
 
             violation = y_v - cover_sum
             if violation < tol:
@@ -1875,7 +1884,11 @@ class LimitedMemoryRank1CutEngine(CuttingPlaneEngine):
             return 0
 
         routes = master.routes
-        sol = {idx: var.X for idx, var in enumerate(master.lambda_vars) if var.X > 1e-9}
+        try:
+            sol = {idx: var.X for idx, var in enumerate(master.lambda_vars) if var.X > 1e-9}
+        except (AttributeError, gp.GurobiError):
+            return 0
+
         tol = 1e-4
         added = 0
 
