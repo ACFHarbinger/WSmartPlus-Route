@@ -46,7 +46,7 @@ train:
   strategy: "auto" # Distributed strategy ('auto', 'ddp', 'deepspeed')
 
   # DataLoader optimization
-  persistent_workers: false # Disable to ensure workers see updated dataset each epoch
+  persistent_workers: true # Disable to ensure workers see updated dataset each epoch
   pin_memory: false # Pin memory for faster GPU transfer
   reload_dataloaders_every_n_epochs: 1 # Reload data every epoch so workers get updated waste
 
@@ -77,11 +77,27 @@ rl:
   baseline: "exponential" # Baseline type. Options: exponential, rollout, critic, no
   bl_alpha: 0.05 # Exponential baseline moving average weight
   exp_beta: 0.6 # Exponential moving average coefficient
-  entropy_weight: 0.01 # Entropy bonus weight — mild exploration to avoid policy collapse
+  entropy_weight: 0.05 # Entropy bonus weight — mild exploration to avoid policy collapse
 
   # Training Stability
   max_grad_norm: 1.0 # Gradient clipping threshold (prevents explosion)
   gamma: 1.0 # Discount factor for future rewards (1.0 = no discounting for episodic tasks)
+
+  # =============================================================================
+  # Potential-Based Reward Shaping (PBRS)
+  # Reference: Ng, Harada & Russell (1999) — ICML
+  # =============================================================================
+  # Adds a shaping bonus F(s,a,s') = gamma * Phi(s') - Phi(s) to the training
+  # reward to provide denser learning signals without changing the optimal policy.
+  #
+  # The discount factor (gamma above) is reused — no separate key needed.
+  # Phi(s_0) = 0 at reset; Phi(s_final) = collected_waste / max_waste for VRPP.
+  #
+  # Anti-pattern guard: {phase}/reward always logs R_base (not the shaped value)
+  # so val/test metrics are never inflated by the shaping signal.
+  use_pbrs: true # Set to true to enable PBRS during training
+  pbrs_shaping_weight: 1.0 # Scale factor applied to F before adding to R_base
+  pbrs_potential: "vrpp" # Potential function key ('vrpp'; others log a warning)
 
   # =============================================================================
   # Algorithm-Specific Configurations
@@ -206,7 +222,7 @@ mandatory_selection:
     current_collection_day: 0
 
   last_minute:
-    threshold: 0.7
+    threshold: 0.25 # ~25% of nodes (top fill-level quartile); forces ~25 bins per instance
 
   regular:
     frequency: 3

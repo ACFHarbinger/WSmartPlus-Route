@@ -4,17 +4,28 @@ This module provides a predictive selection strategy that marks bins for
 collection based on when they are expected to overflow, using current fill
 levels and accumulation rates to calculate a dynamic lookahead horizon.
 
+The algorithm mirrors the scalar reference implementation in
+``logic/src/policies/mandatory_selection/selection_lookahead.py``:
+
+1. Mark bins whose fill level will reach capacity **today** (fill + rate ≥ max).
+2. If none are found, return an empty mask — no constraints this step.
+3. Simulate collection of the mandatory set (reset their fill to 0) and
+   compute the absolute day each bin would overflow again from empty.
+4. The earliest of those days is the **next collection day** (horizon anchor).
+5. Include every non-mandatory bin that would overflow *before* that day,
+   i.e. bins where ``fill + (next_collection_day − today − 1) × rate ≥ max``.
+
 Attributes:
-    LookaheadSelector: Predictive selection policy looking ahead several days.
+    LookaheadSelector: Vectorised predictive selection policy.
 
 Example:
     >>> selector = LookaheadSelector(current_collection_day=0)
-    >>> mask = selector.select(fill_levels, rates)
+    >>> mask = selector.select(fill_levels, accumulation_rates=rates)
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import torch
 
@@ -24,22 +35,22 @@ from .base import VectorizedSelector
 
 
 class LookaheadSelector(VectorizedSelector):
-    """Predictive selection looking several days ahead.
+    """Vectorised predictive selection looking ahead to the next collection day.
 
-    Selects bins that are predicted to overflow within a dynamic lookahead
-    horizon. The horizon is determined by the earliest upcoming overflow among
-    the currently full bins.
+    Selects bins that overflow today *and* any additional bins that would
+    overflow before the next expected collection opportunity, mirroring the
+    logic in ``LookaheadSelection.select_bins``.
 
     Attributes:
-        current_collection_day: Reference day for lookahead simulation.
+        current_collection_day: Default reference day for lookahead simulation.
     """
 
     def __init__(self, current_collection_day: int = 0, **kwargs: Any) -> None:
-        """Initialize the lookahead selector.
+        """Initialise the lookahead selector.
 
         Args:
             current_collection_day: Current day in the collection cycle.
-            kwargs: Additional keyword arguments.
+            kwargs: Additional keyword arguments (ignored).
         """
         self.current_collection_day = current_collection_day
 
@@ -47,63 +58,106 @@ class LookaheadSelector(VectorizedSelector):
         self,
         fill_levels: torch.Tensor,
         accumulation_rates: Optional[torch.Tensor] = None,
-        current_collection_day: Optional[int] = None,
+        current_collection_day: Optional[Union[int, torch.Tensor]] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
-        """Select bins predicted to overflow within dynamic horizon.
+        """Select bins predicted to overflow within the dynamic lookahead horizon.
 
         Args:
-            fill_levels: Current fill levels [B, N].
-            accumulation_rates: Mean daily waste generation per node [B, N].
-            current_collection_day: Override for the reference day.
-            kwargs: Additional keyword arguments.
+            fill_levels: Current fill levels, shape ``[B, N]``.
+            accumulation_rates: Mean daily waste generation per node, shape ``[B, N]``.
+                When ``None`` no prediction is possible and an empty mask is returned.
+            current_collection_day: Override for the reference day; may be an
+                ``int``, a scalar ``Tensor``, or a per-batch ``Tensor`` of shape ``[B]``.
+            kwargs: Additional keyword arguments (ignored).
 
         Returns:
-            torch.Tensor: Boolean mask [B, N] where True indicates collection.
+            torch.Tensor: Boolean mask ``[B, N]`` where ``True`` means the bin
+            must be collected.  Depot (index 0) is always ``False``.
         """
-        overflow_thresh = MAX_WASTE
-        day = current_collection_day if current_collection_day is not None else self.current_collection_day
+        overflow_thresh: float = MAX_WASTE
 
         if accumulation_rates is None:
-            # Without rates, no prediction possible - select nothing
+            # Without rates no prediction is possible — select nothing.
             mandatory = torch.zeros_like(fill_levels, dtype=torch.bool)
+            mandatory[:, 0] = False
+            return mandatory
+
+        # ------------------------------------------------------------------
+        # Step 1: Bins that overflow *today* (fill + one day of accumulation
+        # already reaches capacity).  Mirrors ``_should_bin_be_collected``.
+        # ------------------------------------------------------------------
+        initial_mandatory = (fill_levels + accumulation_rates) >= overflow_thresh  # [B, N]
+
+        # ------------------------------------------------------------------
+        # Step 2: Compute the day each mandatory bin (reset to 0 after
+        # collection) would overflow again.
+        # Mirrors ``_calculate_next_collection_days``:
+        #   starting from fill = 0, accumulate `rate` per day until overflow.
+        #   → days needed = ceil(MAX_CAPACITY / rate)  (rate > 0)
+        # Only bins that are both mandatory AND have a positive rate count;
+        # mandatory bins with rate ≤ 0 can be ignored for the horizon anchor.
+        # ------------------------------------------------------------------
+        day: Union[int, torch.Tensor]
+        day = current_collection_day if current_collection_day is not None else self.current_collection_day
+
+        # Broadcast day to [B, 1] when it is a per-batch tensor.
+        if isinstance(day, torch.Tensor):
+            day_bc = day.unsqueeze(1).to(dtype=fill_levels.dtype, device=fill_levels.device) if day.dim() > 0 else day.to(dtype=fill_levels.dtype, device=fill_levels.device)
         else:
-            # 1. Identify bins that will overflow today after accumulation
-            initial_mandatory = (fill_levels + accumulation_rates) >= overflow_thresh
+            day_bc = float(day)  # scalar — broadcasts freely
 
-            # 2. Simulate collection: collected bins become 0.
-            # Calculate absolute day of next overflow for these bins
-            rates_safe = accumulation_rates.clamp(min=1e-6)
-            days_until_overflow = torch.ceil(overflow_thresh / rates_safe)
+        # Absolute day of re-overflow from zero fill.
+        # Only mandatory bins with rate > 0 can anchor the horizon; bins whose
+        # rate is zero would never overflow again and must not set the anchor.
+        valid_mandatory = initial_mandatory & (accumulation_rates > 0)  # [B, N]
+        has_valid_mandatory = valid_mandatory.any(dim=1)  # [B]
 
-            # day can be a scalar or [B], ensure it can broadcast with [B, N]
-            day_tensor = day.unsqueeze(1) if isinstance(day, torch.Tensor) and day.dim() > 0 else day
-            abs_overflow_days = day_tensor + days_until_overflow
+        rates_safe = accumulation_rates.clamp(min=1e-9)
+        days_from_zero = torch.ceil(
+            torch.tensor(overflow_thresh, device=fill_levels.device, dtype=fill_levels.dtype) / rates_safe
+        )  # [B, N]
+        abs_reoverflow_day = day_bc + days_from_zero  # [B, N]
 
-            # Mask: only consider days for initially selected bins
-            LARGE_NUM = 1e9  # Use a larger number for absolute days
-            next_abs_overflow_days = torch.where(
-                initial_mandatory,
-                abs_overflow_days,
-                torch.tensor(LARGE_NUM, device=fill_levels.device, dtype=abs_overflow_days.dtype),
-            )
+        # ------------------------------------------------------------------
+        # Step 3: Earliest re-overflow among the valid mandatory set.
+        # Mirrors ``_get_next_collection_day``.
+        # For batch instances with no valid mandatory bin (all rates ≤ 0),
+        # set the anchor to LARGE so the expansion horizon collapses to zero.
+        # ------------------------------------------------------------------
+        LARGE = 1e9
+        anchor_per_bin = torch.where(
+            valid_mandatory,
+            abs_reoverflow_day,
+            torch.full_like(abs_reoverflow_day, LARGE),
+        )
+        next_collection_day = anchor_per_bin.min(dim=1).values  # [B]
 
-            # 3. Find the minimum next absolute overflow day for each batch
-            next_collection_day = next_abs_overflow_days.min(dim=1).values
+        # ------------------------------------------------------------------
+        # Step 4: Expand — add non-mandatory bins that would overflow
+        # *before* the next collection day.
+        # Mirrors ``_add_bins_to_collect``:
+        #   for j in range(today+1, next_collection_day):
+        #       if fill[i] + j * rate[i] >= MAX_CAPACITY: add i
+        # The worst-case day in that range is (next_collection_day − 1).
+        # Using relative days from today:
+        #   additional accumulation = (next_collection_day − 1 − today) × rate
+        # ------------------------------------------------------------------
+        # Relative horizon (days between today and next_collection_day − 1).
+        relative_horizon = (next_collection_day.unsqueeze(1) - day_bc - 1.0).clamp(min=0.0)  # [B, 1]
 
-            # 4. Check if other bins overflow before this next collection day
-            # Horizon relative to today: (next_collection_day - today - 1)
-            # day is [B], next_collection_day is [B]
-            check_days = (next_collection_day - day - 1.0).clamp(min=1.0)
+        predicted_fill = fill_levels + relative_horizon * accumulation_rates  # [B, N]
+        candidates = predicted_fill >= overflow_thresh  # [B, N]
 
-            # Broadcast check_days to (B, 1) for multiplication
-            check_days = check_days.unsqueeze(1)
+        # Expansion only applies to instances that have a valid horizon anchor
+        # (i.e. at least one mandatory bin with rate > 0).  Instances whose
+        # only mandatory bins have rate = 0 get no expansion — the reference
+        # returns only the zero-rate mandatory bin in that case.
+        candidates = candidates & has_valid_mandatory.unsqueeze(1)  # [B, N]
 
-            # Final check includes initial selection + new candidates
-            predicted_fill = fill_levels + (check_days * accumulation_rates)
-            mandatory = predicted_fill >= overflow_thresh
+        mandatory = initial_mandatory | candidates  # [B, N]
 
-        # Depot is never a mandatory
+        # Depot is never mandatory.
         mandatory = mandatory.clone()
         mandatory[:, 0] = False
         return mandatory
