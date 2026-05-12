@@ -73,11 +73,13 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
 
     # --- Centralised experiment tracking ---
     model_path = ev.policy.model.load_path if ev.policy else "unknown"
-    experiment_name = f"eval-{ev.problem}-{ev.env.graph.num_loc}loc-{strategy}"
+    _ev_graph = getattr(getattr(ev, "env", None), "graph", None)
+    _ev_num_loc = getattr(_ev_graph, "num_loc", "")
+    experiment_name = f"eval-{ev.problem}-{_ev_num_loc}loc-{strategy}"
     tracker = wst.init(experiment_name=experiment_name)
     run_tags = {
         "problem": ev.problem,
-        "num_loc": str(ev.env.graph.num_loc),
+        "num_loc": str(_ev_num_loc),
         "strategy": strategy,
         "model_path": str(model_path),
         "seed": str(ev.seed),
@@ -112,8 +114,8 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
             "eval.offset": ev.offset,
             "eval.model_path": str(model_path),
             "eval.beam_widths": str(beam_widths),
-            "eval.num_loc": ev.env.graph.num_loc,
-            "eval.area": ev.env.graph.area,
+            "eval.num_loc": _ev_num_loc,
+            "eval.area": getattr(_ev_graph, "area", ""),
             "eval.data_distribution": str(ev.data_distribution),
             "eval.multiprocessing": ev.multiprocessing,
         }

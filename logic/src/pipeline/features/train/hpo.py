@@ -336,7 +336,10 @@ def _mlflow_hpo_run(
                         "hpo.n_epochs_per_trial": cfg.hpo.n_epochs_per_trial,
                         "hpo.num_samples": cfg.hpo.num_samples,
                         "env.name": str(getattr(cfg.env, "name", "")),
-                        "env.graph.num_loc": str(getattr(cfg.env.graph, "num_loc", "")),
+                        "env.graph.num_loc": str(
+                            getattr(getattr(cfg.env, "graph", {}), "num_loc", None)
+                            or getattr((getattr(cfg.env, "curriculum_graphs", [{}]) or [{}])[0], "num_loc", "")
+                        ),
                     }
                 )
     except Exception as exc:

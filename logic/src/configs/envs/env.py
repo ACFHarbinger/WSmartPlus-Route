@@ -8,33 +8,40 @@ Example:
     >>> from logic.src.configs.envs import EnvConfig
     >>> config = EnvConfig()
     >>> print(config)
-    EnvConfig(name='vrpp', num_loc=50, min_loc=0.0, max_loc=1.0, capacity=None, graph=GraphConfig(num_loc=50, num_nodes=50, num_customers=20, customer_types={'A': 0.25, 'B': 0.5, 'C': 0.25}, area='alpine', demand_distribution='normal', demand_normal_mean=10, demand_normal_std=1, min_demand=1, max_demand=25, capacity_distribution='normal', capacity_normal_mean=300, capacity_normal_std=50, min_capacity=200, max_capacity=400, instance_generator='random', edge_probability=0.3, shuffle_seed=42), reward=ObjectiveConfig(w_capacity=1.0, w_distance=1.0, w_time=0.0, w_penalty=1.0, penalty_threshold=1.0, alpha_distance=1.0), data_distribution=None, min_fill=0.0, max_fill=1.0, fill_distribution='uniform', temporal_horizon=0)
+    EnvConfig(name='vrpp', min_loc=0.0, max_loc=1.0, capacity=None, data_distribution=None, min_fill=0.0, max_fill=1.0, fill_distribution='uniform', stochastic=False, mean=0.0, variance=0.0, temporal_horizon=0, curriculum_graphs=[], eval_graphs=[])
 """
 
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .graph import GraphConfig
-from .objective import ObjectiveConfig
 
 
 @dataclass
 class EnvConfig:
     """Environment configuration.
 
+    All graph and reward settings are specified per-graph inside
+    ``curriculum_graphs`` and ``eval_graphs``.  The first entry in
+    ``curriculum_graphs`` acts as the primary training graph.
+
     Attributes:
         name: Name of the environment (e.g., 'vrpp', 'wcvrp').
         min_loc: Minimum coordinate value.
         max_loc: Maximum coordinate value.
         capacity: Vehicle capacity (optional).
+        curriculum_graphs: Ordered list of graphs for sequential curriculum
+            learning. The **first entry** is used for single-stage training.
+            Each :class:`GraphConfig` entry carries an optional ``reward`` field
+            to override objective weights for that stage.
+        eval_graphs: List of graphs used for validation. Each entry may also
+            carry an optional ``reward`` field.
     """
 
     name: str = "vrpp"
     min_loc: float = 0.0
     max_loc: float = 1.0
     capacity: Optional[float] = None
-    graph: GraphConfig = field(default_factory=GraphConfig)
-    reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     # Data distribution and generation
     data_distribution: Optional[str] = None
     min_fill: float = 0.0

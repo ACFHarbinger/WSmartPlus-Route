@@ -105,6 +105,45 @@ def _build_callbacks(cfg: Any) -> list:
     return callbacks
 
 
+def _get_primary_graph(cfg: Any, key: str, default: Any = None) -> Any:
+    """Return a field from the primary graph config.
+
+    Prioritizes ``env.graph`` (dynamically injected for stages) then falls back
+    to ``env.curriculum_graphs[0]`` (the source of truth for root configs).
+
+    Args:
+        cfg: Root Hydra configuration object.
+        key: Attribute name to retrieve (e.g. 'num_loc', 'n_days').
+        default: Value to return when the key is absent.
+
+    Returns:
+        The attribute value or *default*.
+    """
+    try:
+        env = getattr(cfg, "env", None)
+        if env is None:
+            return default
+
+        # 1. Try injected env.graph (DictConfigs from _build_stage_config)
+        graph = getattr(env, "graph", None)
+        if graph is not None:
+            val = graph.get(key) if hasattr(graph, "get") else getattr(graph, key, None)
+            if val is not None:
+                return val
+
+        # 2. Try curriculum_graphs[0] (Root Configs)
+        graphs = getattr(env, "curriculum_graphs", None) or []
+        primary = graphs[0] if graphs else None
+        if primary is not None:
+            val = primary.get(key) if hasattr(primary, "get") else getattr(primary, key, None)
+            if val is not None:
+                return val
+
+        return default
+    except Exception:
+        return default
+
+
 def _build_stage_config(cfg: Any, graph_cfg: Any, stage_idx: Optional[int] = None) -> Any:
     """Build a modified root config for a curriculum stage.
 
@@ -140,6 +179,11 @@ def _build_stage_config(cfg: Any, graph_cfg: Any, stage_idx: Optional[int] = Non
         "focus_size",
         "area",
         "waste_type",
+        "vertex_method",
+        "distance_method",
+        "dm_filepath",
+        "edge_threshold",
+        "edge_method",
         "load_dataset",
     )
     for key in _GRAPH_KEYS:
@@ -151,6 +195,21 @@ def _build_stage_config(cfg: Any, graph_cfg: Any, stage_idx: Optional[int] = Non
     # its own data rather than loading a pre-built file sized for a different graph.
     if g.get("load_dataset") is None:
         env_graph.pop("load_dataset", None)
+
+    # Override env.graph.reward with the per-graph reward config when present.
+    # This allows each curriculum/eval graph to use different objective weights.
+    # builder.py and data.py both read from env.graph.reward as the primary source.
+    stage_reward = g.get("reward")
+    if stage_reward is not None:
+        reward_dict: Dict[str, Any]
+        if hasattr(stage_reward, "items"):
+            reward_dict = dict(stage_reward.items())
+        elif hasattr(stage_reward, "__dict__"):
+            reward_dict = vars(stage_reward)
+        else:
+            reward_dict = {}
+        if reward_dict:
+            raw.setdefault("env", {}).setdefault("graph", {})["reward"] = reward_dict
 
     # Clear curriculum_graphs to prevent recursive dispatch in the stage
     raw.setdefault("env", {})["curriculum_graphs"] = []
@@ -204,7 +263,7 @@ def _run_single_stage(
 
     callbacks = _build_callbacks(cfg)
     trainer = WSTrainer(
-        max_epochs=cfg.env.graph.n_days,
+        max_epochs=_get_primary_graph(cfg, "n_days", 1),
         project_name="wsmart-route",
         experiment_name=cfg.experiment_name,
         accelerator=cfg.device if cfg.device != "cuda" else "auto",
@@ -228,7 +287,7 @@ def _run_single_stage(
         "algorithm": str(getattr(cfg.rl, "algorithm", "")),
         "model": str(getattr(cfg.model, "name", getattr(cfg, "model_name", ""))),
         "problem": str(getattr(cfg.env, "name", "")),
-        "num_loc": str(getattr(cfg.env, "num_loc", "") or getattr(cfg.env.graph, "num_loc", "")),
+        "num_loc": str(getattr(cfg.env, "num_loc", "") or _get_primary_graph(cfg, "num_loc", "")),
         "seed": str(cfg.seed),
     }
     run = tracker.start_run(experiment_name, run_type="training", tags=run_tags)
@@ -267,6 +326,17 @@ def _run_single_stage(
             run.watch_file(val_ds)
 
         trainer.fit(model)
+
+        # Reload best checkpoint so state_dict carries optimal weights into the next
+        # curriculum stage (or into the final save), not just the last training epoch.
+        ckpt_path = getattr(getattr(trainer, "checkpoint_callback", None), "best_model_path", None)
+        if ckpt_path and os.path.exists(ckpt_path):
+            try:
+                ckpt = torch.load(ckpt_path, map_location="cpu")
+                model.load_state_dict(ckpt.get("state_dict", ckpt), strict=False)
+                logger.info("Loaded best checkpoint for state handoff: %s", ckpt_path)
+            except Exception as exc:
+                logger.warning("Could not reload best checkpoint (%s); using last-epoch weights.", exc)
 
         if save_final and cfg.train.final_model_path:
             logger.info("Saving final model weights to: %s", cfg.train.final_model_path)
@@ -349,12 +419,14 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
 
     # Curriculum dispatch
     curriculum_graphs = list(getattr(getattr(cfg, "env", None), "curriculum_graphs", None) or [])
-    if curriculum_graphs:
+    if len(curriculum_graphs) > 1:
         logger.info(f"Curriculum learning enabled: {len(curriculum_graphs)} stage(s).")
         return _run_curriculum_stages(cfg, sinks, curriculum_graphs)
 
-    # Standard single-stage training
-    val_reward, _ = _run_single_stage(cfg, sinks, save_final=True)
+    # Single-stage training: build a stage config from curriculum_graphs[0] when available
+    # so that env.graph is always populated (env.graph was removed from EnvConfig schema).
+    stage_cfg = _build_stage_config(cfg, curriculum_graphs[0], stage_idx=0) if curriculum_graphs else cfg
+    val_reward, _ = _run_single_stage(stage_cfg, sinks, save_final=True)
     return val_reward
 
 

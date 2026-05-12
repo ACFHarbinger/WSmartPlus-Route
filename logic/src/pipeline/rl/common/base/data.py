@@ -66,11 +66,16 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
     env_cfg = getattr(cfg, "env", None)
     env_name = str(_cfg_get(env_cfg, "name", "vrpp") or "vrpp")
     env_graph = _cfg_get(env_cfg, "graph", None)
-    env_reward = _cfg_get(env_cfg, "reward", None)
     train_cfg = getattr(cfg, "train", None)
 
-    cost_weight = float(_cfg_get(env_reward, "cost_weight", 1.0) or 1.0)
-    waste_weight = float(_cfg_get(env_reward, "waste_weight", 1.0) or 1.0)
+    # Reward priority: eval_graph.reward → env.graph.reward → defaults
+    # This allows per-graph objective weights for validation.
+    eval_graph_reward = _cfg_get(eval_graph, "reward", None)
+    env_graph_reward = _cfg_get(env_graph, "reward", None)
+    active_reward = eval_graph_reward if eval_graph_reward is not None else env_graph_reward
+
+    cost_weight = float(_cfg_get(active_reward, "cost_weight", 1.0) or 1.0)
+    waste_weight = float(_cfg_get(active_reward, "waste_weight", 1.0) or 1.0)
     data_dist = str(_cfg_get(train_cfg, "data_distribution", "gamma3") or "gamma3")
 
     n_samples = int(_cfg_get(eval_graph, "n_samples", 512))
@@ -80,6 +85,11 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
     focus_graph = _cfg_get(eval_graph, "focus_graph", None)
     focus_size = _cfg_get(eval_graph, "focus_size", None)
     vertex_method = str(_cfg_get(eval_graph, "vertex_method", _cfg_get(env_graph, "vertex_method", "mmn")) or "mmn")
+    distance_method = str(
+        _cfg_get(eval_graph, "distance_method", _cfg_get(env_graph, "distance_method", "ogd")) or "ogd"
+    )
+    dm_filepath = _cfg_get(eval_graph, "dm_filepath", _cfg_get(env_graph, "dm_filepath", None))
+    start_day = int(_cfg_get(eval_graph, "start_day", _cfg_get(env_graph, "start_day", 0)) or 0)
     n_days = int(_cfg_get(eval_graph, "n_days", 1))
 
     # Use the training device for the eval env (so env.reset and policy run on GPU);
@@ -94,6 +104,7 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
         focus_graph=focus_graph,
         focus_size=focus_size,
         n_samples=n_samples,
+        start_day=start_day,
         n_days=n_days,
         cost_weight=cost_weight,
         waste_weight=waste_weight,
@@ -101,6 +112,8 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
         device=env_device,
         batch_size=n_samples,
         vertex_method=vertex_method,
+        distance_method=distance_method,
+        dm_filepath=dm_filepath,
     )
 
     gen = eval_env.generator
@@ -153,7 +166,7 @@ class DataMixin:
         self.val_datasets: Optional[List[Any]] = None
         self.eval_envs: Optional[List[Any]] = None
 
-    def setup(self, stage: str) -> None:
+    def setup(self, stage: str) -> None:  # noqa: C901
         """
         Set up datasets for training and validation.
 
@@ -193,16 +206,28 @@ class DataMixin:
                 for eval_graph in eval_graphs:
                     n_samples = int(_cfg_get(eval_graph, "n_samples", n_train))
                     num_loc = int(_cfg_get(eval_graph, "num_loc", 50))
-                    if self.local_rank == 0:
-                        logger.info(f"Generating eval dataset ({n_samples} instances, {num_loc} nodes) on CPU...")
                     eval_env, eval_gen = _create_eval_env_and_gen(self.cfg, eval_graph)
-                    val_data = eval_gen(batch_size=n_samples)
-                    self.val_datasets.append(TensorDictDataset(val_data))
+
+                    load_dataset = _cfg_get(eval_graph, "load_dataset", None)
+                    if load_dataset is not None and os.path.exists(load_dataset):
+                        if self.local_rank == 0:
+                            logger.info(
+                                f"Loading eval dataset from {load_dataset} ({n_samples} instances, {num_loc} nodes)"
+                            )
+                        val_ds = TensorDictDataset.load(load_dataset)
+                    else:
+                        if self.local_rank == 0:
+                            logger.info(f"Generating eval dataset ({n_samples} instances, {num_loc} nodes) on CPU...")
+                        val_data = eval_gen(batch_size=n_samples)
+                        val_ds = TensorDictDataset(val_data)
+
+                    self.val_datasets.append(val_ds)
                     self.eval_envs.append(eval_env)
             else:
                 # Fallback: single validation dataset using the training env
                 self.val_datasets = None
                 self.eval_envs = None
+                # env.graph is injected by _build_stage_config; safe fallback when absent.
                 env_graph_cfg = _cfg_get(getattr(self.cfg, "env", None), "graph", None)
                 n_val = int(_cfg_get(env_graph_cfg, "n_samples", 512))
                 if self.val_dataset_path is not None:

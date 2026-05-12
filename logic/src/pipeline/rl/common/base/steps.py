@@ -56,6 +56,7 @@ class StepMixin:
         self.mandatory_selector: Optional[VectorizedSelector]
         self._current_baseline_val: Any = None
         self.last_out: Any = None
+        self.trainer: Any  # provided by LightningModule at runtime
 
     def _apply_mandatory_selection(self, td: TensorDict) -> TensorDict:
         """
@@ -324,7 +325,7 @@ class StepMixin:
         # Fetch per-dataloader rewards from the callback_metrics
         # Lightning stores them as 'val/reward/dataloader_idx_N'
         rewards = []
-        metrics = self.trainer.callback_metrics
+        metrics = self.trainer.callback_metrics  # type: ignore[attr-defined]
         for k, v in metrics.items():
             if k.startswith("val/reward/dataloader_idx_"):
                 rewards.append(v)
@@ -333,7 +334,7 @@ class StepMixin:
             # Simple average of the means of each graph size
             # This ensures 'val/reward' is available for ModelCheckpoint(monitor='val/reward')
             avg_reward = torch.stack(rewards).mean()
-            self.log("val/reward", avg_reward, sync_dist=True, prog_bar=True)
+            self.log("val/reward", avg_reward, sync_dist=True, prog_bar=True)  # type: ignore[attr-defined]
 
     def test_step(self, *args: Any, **kwargs: Any) -> dict:
         """

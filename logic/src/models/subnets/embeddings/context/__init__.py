@@ -17,13 +17,14 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from .base import ContextEmbedder
+from .cvrpp import CVRPPContextEmbedder
 from .generic import GenericContextEmbedder
 from .vrpp import VRPPContextEmbedder
 from .wcvrp import WCVRPContextEmbedder
 
 CONTEXT_EMBEDDING_REGISTRY: Dict[str, Any] = {
     "vrpp": VRPPContextEmbedder,
-    "cvrpp": VRPPContextEmbedder,
+    "cvrpp": CVRPPContextEmbedder,
     "wcvrp": WCVRPContextEmbedder,
     "cwcvrp": WCVRPContextEmbedder,
     "sdwcvrp": WCVRPContextEmbedder,
@@ -33,6 +34,7 @@ CONTEXT_EMBEDDING_REGISTRY: Dict[str, Any] = {
 
 __all__: list[str] = [
     "ContextEmbedder",
+    "CVRPPContextEmbedder",
     "GenericContextEmbedder",
     "VRPPContextEmbedder",
     "WCVRPContextEmbedder",

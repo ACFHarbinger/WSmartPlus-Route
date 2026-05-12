@@ -123,8 +123,8 @@ sim:
     n_samples: 1
     area: "riomaior"
     waste_type: "plastic"
-    dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
-    focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
+    dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    focus_graph: "graphs_100V_1N_plastic.json"
     load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma3_wsr30_N1_seed42.npz"
 
   # Policies to run

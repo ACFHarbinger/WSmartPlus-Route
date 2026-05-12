@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
 
 from logic.src.configs.envs.env import EnvConfig
-from logic.src.configs.models.decoding import DecodingConfig
 from logic.src.configs.policies.na import NeuralAgentConfig
 
 
@@ -64,6 +63,5 @@ class TrainConfig:
     strategy: Optional[str] = "auto"
 
     env: Any = field(default_factory=EnvConfig)
-    decoding: DecodingConfig = field(default_factory=DecodingConfig)
     policy: NeuralAgentConfig = field(default_factory=NeuralAgentConfig)
     callbacks: Optional[List[Any]] = None

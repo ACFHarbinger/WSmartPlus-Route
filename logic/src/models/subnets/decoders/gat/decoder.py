@@ -24,6 +24,7 @@ from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.subnets.decoders.common import AttentionDecoderCache
 from logic.src.models.subnets.decoders.gat.graph_decoder import GraphAttentionDecoder
+from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 
 
 class DeepGATDecoder(nn.Module):
@@ -105,10 +106,24 @@ class DeepGATDecoder(nn.Module):
             **kwargs,
         )
 
-        # Projections
         # Input to project_fixed_context is graph_embed (embed_dim)
         self.project_fixed_context = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.project_step_context = nn.Linear(2 * embed_dim + 1, embed_dim, bias=False)
+
+        self.problem = kwargs.get("problem")
+
+        if isinstance(self.problem, str):
+            env_name = self.problem.lower()
+        else:
+            env_name = getattr(self.problem, "name", getattr(self.problem, "NAME", "tsp")).lower()
+
+        if env_name in CONTEXT_EMBEDDING_REGISTRY:
+            self.context_embedding = CONTEXT_EMBEDDING_REGISTRY[env_name](
+                embed_dim=embed_dim, temporal_horizon=kwargs.get("temporal_horizon", 0)
+            )
+            self.project_step_context = nn.Identity()
+        else:
+            self.context_embedding = None
+            self.project_step_context = nn.Linear(2 * embed_dim + 1, embed_dim, bias=False)
 
     @property
     def device(self) -> torch.device:
@@ -400,6 +415,13 @@ class DeepGATDecoder(nn.Module):
         Raises:
             NotImplementedError: If num_steps > 1.
         """
+        if hasattr(self, "context_embedding") and self.context_embedding is not None:
+            step_context = self.context_embedding(embeddings, state)
+            query = self.project_step_context(step_context)
+            if query.dim() == 3:
+                query = query.squeeze(1)
+            return query
+
         current_node = state.get_current_node()
         batch_size, num_steps = current_node.size()
 

@@ -57,7 +57,6 @@ class VRPPGenerator(Generator):
         max_waste: Maximum waste value.
         waste_distribution: Waste value distribution strategy.
         capacity: Vehicle capacity.
-        max_length: Maximum route length.
         depot_type: Depot placement strategy.
     """
 
@@ -71,7 +70,6 @@ class VRPPGenerator(Generator):
         max_waste: float = 1.0,
         waste_distribution: str = "uniform",
         capacity: float = 1.0,
-        max_length: Optional[float] = None,
         depot_type: str = "corner",
         device: Union[str, torch.device] = "cpu",
         area: Optional[str] = None,
@@ -92,7 +90,6 @@ class VRPPGenerator(Generator):
             max_waste: Maximum waste value.
             waste_distribution: Distribution for waste generation.
             capacity: Vehicle capacity.
-            max_length: Maximum route length (None for unlimited).
             depot_type: Depot placement ("center", "corner", "random").
             device: Device to place tensors on.
             area: Area for grid generation.
@@ -107,7 +104,6 @@ class VRPPGenerator(Generator):
         self.max_waste = max_waste
         self.waste_distribution = kwargs.get("data_distribution", waste_distribution)
         self.capacity = capacity if capacity is not None else 1.0
-        self.max_length = max_length
         self.depot_type = depot_type
         self.data_dir = data_dir
         self.area = area
@@ -133,7 +129,6 @@ class VRPPGenerator(Generator):
                 waste: [*B, num_loc]        — waste at each location
                 capacity: [*B]               — vehicle capacity
                 max_waste: [*B]             — max waste per vehicle
-                max_length: [*B]            — max route length
         """
         # Generate locations
         locs = self._generate_locations(batch_size)
@@ -142,17 +137,10 @@ class VRPPGenerator(Generator):
         depot = self._generate_depot(batch_size)
 
         # Generate waste
-        waste = self._generate_waste(batch_size)
+        waste = self._generate_fill_levels(batch_size)
 
         # Compute max_waste per instance (for normalization)
         max_waste = torch.full((*batch_size,), self.capacity, device=self.device)
-
-        # Compute max_length if not specified
-        max_length = self.max_length
-        if max_length is None:
-            # Default based on problem size (heuristic)
-            max_length = 2.0 + (self.num_loc / 50.0)
-
         return TensorDict(
             {
                 "locs": locs,
@@ -160,7 +148,6 @@ class VRPPGenerator(Generator):
                 "waste": waste,
                 "capacity": torch.full((*batch_size,), self.capacity, device=self.device),
                 "max_waste": max_waste,
-                "max_length": torch.full((*batch_size,), max_length, device=self.device),
             },
             batch_size=batch_size,
             device=self.device,
@@ -185,7 +172,7 @@ class VRPPGenerator(Generator):
         else:
             raise ValueError(f"Unknown depot type: {self.depot_type}")
 
-    def _generate_waste(self, batch_size: tuple[int, ...]) -> torch.Tensor:
+    def _generate_fill_levels(self, batch_size: tuple[int, ...]) -> torch.Tensor:
         """Generate waste values.
 
         Args:

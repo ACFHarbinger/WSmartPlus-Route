@@ -249,47 +249,56 @@ class VRPPEnv(RL4COEnvBase):
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
-        Compute action mask for VRPP with mandatory constraints.
+        Compute action mask for VRPP with VRPP-correct termination logic.
 
         Standard behavior:
-        - Can visit any unvisited node
-        - Can return to depot at any time
-        - Cannot visit already visited nodes (except depot)
+        - Mask out already-visited nodes.
+        - Mask out bins with zero waste (nothing to collect).
+        - Depot (index 0) is **always legal** so the agent can terminate early.
 
-        Mandatory behavior:
-        - If mandatory is None: Standard behavior (depot always valid)
-        - If mandatory has True values: Must route to those bins; depot invalid until done
-        - If mandatory is all False: No routing needed; depot is valid (stay)
+        Mandatory behavior (unchanged):
+        - If pending mandatory bins remain, depot is blocked until they are served.
+        - Once all mandatory bins are visited, depot becomes legal again.
 
         Args:
             tensordict (TensorDict): Input tensor dictionary containing:
                 - visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)
+                - waste (Tensor, optional): Waste at each node, shape (batch, num_nodes)
                 - mandatory (BoolTensor, optional): Mandatory constraints, shape (batch, num_nodes)
 
         Returns:
             Tensor: Boolean mask (batch, num_nodes) where True = valid action.
         """
-        mask = ~tensordict["visited"].clone()
+        visited = tensordict["visited"]  # [B, N]
+        waste = tensordict.get("waste", None)  # [B, N] or None
 
-        # Mandatory routing logic
+        # 1. Exclude already-visited nodes
+        mask = ~visited.clone()
+
+        # 2. Exclude bins with no waste (nothing to collect).
+        #    Depot waste is 0 after prepend; we restore it below.
+        if waste is not None:
+            # Guard: if waste has fewer nodes than visited (no depot col), don't apply to depot
+            if waste.shape[-1] == visited.shape[-1]:
+                mask = mask & (waste > 0)
+            else:
+                # waste doesn't include depot column — apply only to customer columns
+                mask[:, 1:] = mask[:, 1:] & (waste > 0)
+
+        # 3. Depot is ALWAYS legal — agent can return and terminate at any time
+        mask[:, 0] = True
+
+        # 4. Mandatory routing override
         mandatory = tensordict.get("mandatory", None)
         if mandatory is not None:
-            # mandatory: (batch, num_nodes) boolean tensor
-            # True = must visit this bin, False = optional
-
             # Pending mandatory bins: mandatory AND not yet visited
-            pending_mandatory = mandatory & mask
+            pending_mandatory = mandatory & ~visited
 
             # Check if any mandatory bins remain (excluding depot at index 0)
             has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
 
-            # Depot is valid only if no pending mandatory bins remain
-            # If has_pending_mandatory is True -> depot invalid (False)
-            # If has_pending_mandatory is False -> depot valid (True)
+            # Block depot while mandatory bins are outstanding
             mask[:, 0] = ~has_pending_mandatory
-        else:
-            # No mandatory constraint: depot always valid
-            mask[:, 0] = True
 
         return mask
 

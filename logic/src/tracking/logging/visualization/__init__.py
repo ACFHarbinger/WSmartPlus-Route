@@ -90,7 +90,8 @@ def visualize_epoch(
     log_dir: str = getattr(rl, "log_dir", "logs")
     run_name: str = getattr(rl, "run_name", "run")
     save_dir: str = getattr(rl, "save_dir", "outputs")
-    graph_size: int = cfg.train.env.graph.num_loc
+    _train_graph = getattr(getattr(getattr(cfg, "train", None), "env", None), "graph", None)
+    graph_size: int = int(getattr(_train_graph, "num_loc", 50) or 50)
     temporal_horizon: int = model_cfg.temporal_horizon
 
     viz_output_dir = os.path.join(log_dir, "visualizations")

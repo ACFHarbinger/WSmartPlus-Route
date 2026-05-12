@@ -37,7 +37,6 @@ def hpo_opts():
         "edge_threshold": 10,
         "edge_method": "test_edge",
         "focus_graph": None,
-        "eval_focus_size": 0,
         "dm_filepath": None,
         "enable_scaler": False,
         "no_cuda": True,

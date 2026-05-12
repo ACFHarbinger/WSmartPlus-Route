@@ -53,7 +53,6 @@ class VRPPInitEmbedding(nn.Module):
         """
         locs = td["locs"]  # [batch, num_nodes, 2]
         waste = td.get("waste")
-
         if waste is None:
             # Fallback if missing
             waste = torch.zeros(td.batch_size[0], locs.size(1), device=td.device)

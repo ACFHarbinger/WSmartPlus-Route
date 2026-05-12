@@ -132,7 +132,6 @@ class Generator(ABC):
                     "max_waste": self.max_waste,  # type: ignore[attr-defined]
                     "waste_distribution": self.waste_distribution,  # type: ignore[attr-defined]
                     "capacity": self.capacity,  # type: ignore[attr-defined]
-                    "max_length": self.max_length,  # type: ignore[attr-defined]
                     "depot_type": self.depot_type,  # type: ignore[attr-defined]
                 }
             )

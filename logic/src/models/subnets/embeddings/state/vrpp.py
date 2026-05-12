@@ -50,7 +50,7 @@ class VRPPState(EnvState):
             torch.Tensor: Normalized state features of shape (batch, 1).
         """
         # Remaining length or capacity
-        # We use 'max_length' or 'remaining_capacity'
+        # We use 'remaining_length' or 'remaining_capacity'
         if "remaining_length" in td.keys():
             state = td["remaining_length"]
         elif "remaining_capacity" in td.keys():

@@ -94,9 +94,13 @@ DEPOT_DIM: int = 2  # 2D Euclidean coordinates (x, y) in [0, 1] range
 # Used in: wcvrp.py state embeddings for capacity-aware decoding
 WC_STEP_CONTEXT_OFFSET: int = 2  # 2 extra dims for vehicle capacity tracking
 
-# VRPP context: [collected_profit]
-# Used in: vrpp.py state embeddings for profit-aware decoding
-VRPP_STEP_CONTEXT_OFFSET: int = 1  # 1 extra dim for cumulative profit tracking
+# VRPP context: [unvisited_waste_sum, mean_dist_to_unvisited_nodes]
+# Used in: vrpp.py context embeddings for profit-aware early-termination decoding
+VRPP_STEP_CONTEXT_OFFSET: int = 2  # 2 extra dims: remaining profit + mean travel cost signal
+
+# CVRPP context: [unvisited_waste_sum, mean_dist_to_unvisited_nodes, remaining_capacity]
+# Used in: cvrpp.py context embeddings — extends VRPP with hard capacity constraint signal
+CVRPP_STEP_CONTEXT_OFFSET: int = 3  # 3 extra dims: profit signal + distance signal + capacity
 
 # Temporal Defaults
 # ------------------
