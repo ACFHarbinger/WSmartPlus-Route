@@ -24,7 +24,6 @@ samples := "1"
 seed := "42"
 marker := "fast"
 strategy := "greedy"
-distribution := "gamma3"
 n_cores := "10"
 hpo_policy := "bpc"
 hpo_method := "nsgaii"
@@ -38,7 +37,10 @@ hpo_policy_kw := "max_cg_iterations"
 hpo_selection_kw := ""
 hpo_acceptance_kw := ""
 hpo_improver_kw := ""
-policies := "na"
+
+#policies := "na"
+
+policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
 
 #policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
 # --- Setup & Environment ---
@@ -59,7 +61,7 @@ package:
 # Train a model with Hydra configs
 
 # Usage: just train problem=wcvrp model=am
-train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon distribution=distribution:
+train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -73,7 +75,6 @@ train problem=problem model=model encoder=encoder decoder=decoder batch_size=bat
         envs={{ problem }} \
         models={{ model }} \
         model.encoder.type={{ encoder }} \
-        train.data_distribution={{ distribution }} \
         hpo.n_trials=0 \
         train.batch_size={{ batch_size }}
 
@@ -101,7 +102,7 @@ eval model_path="" dataset="" problem=problem size=size strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples n_cores=n_cores data_distribution=distribution:
+test-sim policies=policies days=days area=area size=size samples=samples n_cores=n_cores:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -110,13 +111,11 @@ test-sim policies=policies days=days area=area size=size samples=samples n_cores
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py test_sim \
         sim.policies=[{{ policies }}] \
         sim.days={{ days }} \
         sim.n_samples={{ samples }} \
-        sim.data_distribution={{ distribution }} \
         sim.graph.area={{ area }} \
         sim.graph.num_loc={{ size }} \
         sim.cpu_cores={{ n_cores }}
@@ -162,16 +161,14 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp
-gen-data problem=problem distribution=distribution:
+gen-data problem=problem:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
-        data.problem={{ problem }} \
-        data.data_distributions=[{{ distribution }}]
+        data.problem={{ problem }}
 
 # Launch the GUI
 gui:

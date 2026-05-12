@@ -21,7 +21,6 @@ import torch
 if TYPE_CHECKING:
     from .params import NeuralParams
 
-from logic.src.envs.tasks.base import BaseProblem
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
     get_route_cost,
 )
@@ -157,10 +156,7 @@ class SimulationMixin:
                     w_len = 0.1
                     if cost_weights and "length" in cost_weights:
                         cw_val = cost_weights["length"]
-                        if isinstance(cw_val, torch.Tensor):
-                            w_len = cw_val[batch_indices].unsqueeze(-1)
-                        else:
-                            w_len = cw_val
+                        w_len = cw_val[batch_indices].unsqueeze(-1) if isinstance(cw_val, torch.Tensor) else cw_val
 
                     # Incremental reward proxy: Profit - Cost
                     incremental_reward = waste - dists * w_len

@@ -83,7 +83,7 @@ class CompoundPoissonGamma(BaseDistribution):
         # so we don't pass torch.Size(size) again to avoid doubling dimensions
         Y_sampled = gamma_dist.sample()
 
-        return torch.where(mask, Y_sampled, torch.zeros_like(Y_sampled))
+        return torch.where(mask, Y_sampled, torch.zeros_like(Y_sampled)) / 100.0
 
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """Sample from Compound Poisson-Gamma distribution.
@@ -108,4 +108,4 @@ class CompoundPoissonGamma(BaseDistribution):
         # If gamma_shape has the requested size (via safe_N), the output will match it.
         Y_sampled = rng.gamma(shape=gamma_shape, scale=self.theta)
 
-        return np.where(mask, Y_sampled, 0.0)
+        return np.where(mask, Y_sampled, 0.0) / 100.0

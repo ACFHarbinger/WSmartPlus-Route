@@ -375,9 +375,17 @@ def column_generation_loop(  # noqa: C901
                             f"[Dynamic ng-Expansion] Added {added_ng} neighborhood pairs "
                             f"to suppress {len(cycles)} cycles in iteration {_iteration}."
                         )
-                        continue  # Re-run pricing with tightened relaxation
+                    else:
+                        logger.info(
+                            f"[Cycle Suppression] Manually disabled {len(cycles)} cyclic routes "
+                            f"in iteration {_iteration}."
+                        )
+                    continue  # Re-run LP and pricing with tightened relaxation
 
                 # Truly converged for this cut-iteration
+                # Perform a final LP solve to ensure the primal solution is consistent
+                # if cycle suppression or purging just happened.
+                master.solve_lp_relaxation()
                 converged = True
                 break
 

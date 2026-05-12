@@ -31,7 +31,7 @@ start: 0 # Starting epoch (for resuming training)
 train:
   train_time: true # Enable multi-day temporal training (for WCVRP)
 
-  data_distribution: "gamma3" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
+  data_distribution: "emp" # Waste generation distribution. Options: gamma1, gamma2, uniform, beta
   seed: 42 # Random seed for dataset generation
 
   batch_size: 64 # Training batch size. Reduce if OOM errors occur.
@@ -95,7 +95,7 @@ rl:
   #
   # Anti-pattern guard: {phase}/reward always logs R_base (not the shaped value)
   # so val/test metrics are never inflated by the shaping signal.
-  use_pbrs: true # Set to true to enable PBRS during training
+  use_pbrs: false # Set to true to enable PBRS during training
   pbrs_shaping_weight: 1.0 # Scale factor applied to F before adding to R_base
   pbrs_potential: "vrpp" # Potential function key ('vrpp'; others log a warning)
 

@@ -115,7 +115,7 @@ sim:
   output_dir: "output"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  data_distribution: "emp"
+  data_distribution: "gamma3"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:

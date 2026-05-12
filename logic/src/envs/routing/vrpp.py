@@ -299,6 +299,14 @@ class VRPPEnv(RL4COEnvBase):
             # Pending mandatory bins: mandatory AND not yet visited
             pending_mandatory = mandatory & ~visited
 
+            # Mandatory bins are a hard operational constraint that overrides the
+            # waste > 0 filter. A bin with zero current fill can still be mandatory
+            # (e.g. recently collected but high accumulation rate means it will
+            # overflow before the next collection cycle). Without this override,
+            # the decoder deadlocks: the waste filter blocks the bin, mandatory
+            # blocks the depot, and all logits become -inf → NaN.
+            mask[:, 1:] = mask[:, 1:] | pending_mandatory[:, 1:]
+
             # Check if any mandatory bins remain (excluding depot at index 0).
             # Result is guaranteed 1D [B] after .any(dim=1) on a 2D tensor.
             has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
