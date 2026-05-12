@@ -18,6 +18,7 @@ from tensordict import TensorDict
 
 from logic.src.constants.metrics import METRIC_MAPPING
 from logic.src.interfaces import ITraversable
+from logic.src.pipeline.rl.common.pbrs_wrapper import PBRSShaper
 from logic.src.tracking.logging.pylogger import get_pylogger
 from logic.src.utils.functions.rl import ensure_tensordict
 
@@ -58,7 +59,7 @@ class StepMixin:
         self.last_out: Any = None
         self.trainer: Any  # provided by LightningModule at runtime
 
-    def _apply_mandatory_selection(self, td: TensorDict) -> TensorDict:
+    def _apply_mandatory_selection(self, td: TensorDict) -> TensorDict:  # noqa: C901
         """
         Apply mandatory selection to determine which bins must be collected.
 
@@ -66,7 +67,7 @@ class StepMixin:
             td: TensorDict with problem instance data.
 
         Returns:
-            TensorDict with 'mandatory' mask added.
+            TensorDict with 'mandatory' mask added (always 2D: [B, num_loc+1]).
         """
         if self.mandatory_selector is None:
             return td
@@ -82,49 +83,65 @@ class StepMixin:
             logger.warning("No fill levels found in TensorDict for mandatory selection")
             return td
 
-        # Ensure fill_levels is 2D (batch_size, num_nodes)
-        if fill_levels.dim() == 1:
+        selector_kwargs: dict = {}
+
+        # Handle 3D temporal waste [B, n_days, num_loc]:
+        # extract the current day's slice and derive accumulation rates from
+        # consecutive-day differences so lookahead selectors work out-of-the-box.
+        if fill_levels.dim() == 3:
+            waste_3d = fill_levels
+            n_days_avail = waste_3d.shape[1]
+
+            current_day_t = td.get("current_day", None)
+            day_idx = int(current_day_t.reshape(-1)[0].item()) if current_day_t is not None else 0
+            day_idx = min(day_idx, n_days_avail - 1)
+
+            # Compute mean positive day-over-day accumulation rate when no
+            # explicit rate key is present in the TensorDict.
+            if "accumulation_rate" not in td.keys() and n_days_avail > 1:
+                deltas = (waste_3d[:, 1:, :] - waste_3d[:, :-1, :]).clamp(min=0.0)
+                selector_kwargs["accumulation_rates"] = deltas.mean(dim=1)  # [B, num_loc]
+
+            fill_levels = waste_3d[:, day_idx, :]  # [B, num_loc]
+        elif fill_levels.dim() == 1:
             fill_levels = fill_levels.unsqueeze(0)
 
-        # Get additional data for advanced selectors (lookahead, service_level)
-        selector_kwargs = {}
+        # Explicit keys in the TensorDict take priority over computed values.
         if "accumulation_rate" in td.keys():
             selector_kwargs["accumulation_rates"] = td["accumulation_rate"]
         if "std_deviation" in td.keys():
             selector_kwargs["std_deviations"] = td["std_deviation"]
+        # LookaheadSelector expects current_collection_day, not current_day.
         if "current_day" in td.keys():
-            selector_kwargs["current_day"] = td["current_day"]
+            selector_kwargs["current_collection_day"] = td["current_day"]
 
-        # Get data needed for ManagerSelector (neural network-based selection)
         if "locs" in td.keys():
             selector_kwargs["locs"] = td["locs"]
         elif "loc" in td.keys():
             selector_kwargs["locs"] = td["loc"]
 
-        # Waste history for temporal modeling
         if "waste_history" in td.keys():
             selector_kwargs["waste_history"] = td["waste_history"]
         elif "fill_history" in td.keys():
             selector_kwargs["waste_history"] = td["fill_history"]
 
-        # Apply selector to get mandatory mask
         mandatory_mask = self.mandatory_selector.select(fill_levels, **selector_kwargs)
 
-        # Ensure mandatory_mask matches the environment's node count (N+1)
-        # Bins are typically customers-only in fill_levels, but mask needs depot (index 0)
-        # Check num_loc in env or its generator
+        # Collapse any extra dimensions — output must be 2D [B, num_loc].
+        while mandatory_mask.dim() > 2:
+            mandatory_mask = mandatory_mask.any(dim=1)
+
+        # Prepend a depot column (depot is never mandatory) so the mask aligns
+        # with the N+1 node layout used inside the environment.
         num_loc = getattr(self.env, "num_loc", None)
         if num_loc is None and hasattr(self.env, "generator"):
             num_loc = getattr(self.env.generator, "num_loc", None)
 
         if num_loc is not None and mandatory_mask.shape[-1] == num_loc:
-            # Prepend False for the depot (index 0)
-            depot_mandatory = torch.zeros(*mandatory_mask.shape[:-1], 1, dtype=torch.bool, device=mandatory_mask.device)
-            mandatory_mask = torch.cat([depot_mandatory, mandatory_mask], dim=-1)
+            depot_col = torch.zeros(mandatory_mask.shape[0], 1, dtype=torch.bool, device=mandatory_mask.device)
+            mandatory_mask = torch.cat([depot_col, mandatory_mask], dim=-1)
 
-        # Store in TensorDict
         td["mandatory"] = mandatory_mask
-
         return td
 
     @abstractmethod
@@ -149,7 +166,7 @@ class StepMixin:
         """
         raise NotImplementedError
 
-    def shared_step(
+    def shared_step(  # noqa: C901
         self,
         batch: Union[TensorDict, Dict[str, Any]],
         batch_idx: int,
@@ -158,6 +175,16 @@ class StepMixin:
     ) -> dict:
         """
         Common step for train/val/test.
+
+        PBRS integration (training phase only):
+            After ``env.reset()``, Φ(s₀) is recorded by the :class:`PBRSShaper`.
+            After the policy rollout, the shaping bonus
+            ``F = gamma · Φ(s_final) − Φ(s₀)`` is applied to ``out["reward"]``.
+            The **base reward** is always what gets logged as ``{phase}/reward``
+            to prevent metric corruption; shaped reward is used only for the
+            loss calculation.
+            During validation and test, PBRS is **not** applied so that
+            evaluation metrics remain comparable across runs.
 
         Args:
             batch: TensorDict batch.
@@ -195,6 +222,14 @@ class StepMixin:
 
         td = _env.reset(td)
 
+        # --- PBRS: record Φ(s₀) immediately after reset ----------------------
+        # self._pbrs is set by the training engine when cfg.rl.use_pbrs=True.
+        # It is intentionally absent (None) during val/test.
+        _pbrs: Optional[PBRSShaper] = getattr(self, "_pbrs", None)
+        if _pbrs is not None and phase == "train":
+            _pbrs.record_initial(td)
+        # ---------------------------------------------------------------------
+
         # Run policy
         out = self.policy(
             td,
@@ -205,13 +240,43 @@ class StepMixin:
         # Get updated td from rollout (if available)
         final_td = out.get("td", td)
 
+        # --- PBRS: apply shaping bonus to training reward --------------------
+        # Anti-pattern guard: we log R_base to {phase}/reward (unchanged) so
+        # that learning curves are not artificially inflated.  The shaped
+        # reward is only used inside calculate_loss (for advantage computation).
+        if _pbrs is not None and phase == "train":
+            base_reward = out["reward"].detach().clone()
+            shaped_reward, shaping_reward = _pbrs.apply(out["reward"], final_td)
+            # Store decomposed signals in the output dict for downstream logging
+            out["reward_base"] = base_reward
+            out["reward_shaping"] = shaping_reward
+            # Replace reward with shaped version for loss calculation
+            out["reward"] = shaped_reward
+            # Log shaping diagnostics
+            self.log(  # type: ignore
+                "train/reward_base",
+                base_reward.mean(),
+                sync_dist=True,
+                batch_size=base_reward.shape[0],
+            )
+            self.log(  # type: ignore
+                "train/reward_shaping",
+                shaping_reward.mean(),
+                sync_dist=True,
+                batch_size=shaping_reward.shape[0],
+            )
+        # ---------------------------------------------------------------------
+
         # Compute loss for training
         if phase == "train":
             out["loss"] = self.calculate_loss(td, out, batch_idx, env=_env)
 
-        # Log reward.
-        reward_mean = out["reward"].mean()
-        batch_size = out["reward"].shape[0]
+        # Log reward.  When PBRS is active we log R_base (not the shaped value)
+        # to keep the metric comparable with non-PBRS runs and prevent leakage
+        # of the shaping signal into evaluation dashboards.
+        reward_for_log = out.get("reward_base", out["reward"]) if phase == "train" else out["reward"]
+        reward_mean = reward_for_log.mean()
+        batch_size = reward_for_log.shape[0]
         self.log(  # type: ignore
             f"{phase}/reward",
             reward_mean,

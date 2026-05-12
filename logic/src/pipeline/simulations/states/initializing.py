@@ -265,7 +265,7 @@ class InitializingState(SimState):
             flat_pol_cfg = _flatten_config(ctx.pol_cfg)
 
             # Extract decoding parameters from policy config
-            decoding = flat_pol_cfg.get("decoding", {})
+            decoding = flat_pol_cfg.get("decoding") or {}
             temp = decoding.get("temperature", 1.0)
             strat = str(decoding.get("strategy", "greedy"))
 
