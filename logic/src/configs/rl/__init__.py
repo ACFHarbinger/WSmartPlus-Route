@@ -45,6 +45,21 @@ class RLConfig:
     exp_beta: float = 0.8
     bl_alpha: float = 0.05
 
+    # -------------------------------------------------------------------------
+    # Potential-Based Reward Shaping (PBRS)
+    # Reference: Ng, Harada & Russell (1999) — ICML
+    # -------------------------------------------------------------------------
+    # F(s, a, s') = gamma * Phi(s') - Phi(s)
+    # R_total = R_base + pbrs_shaping_weight * F
+    # gamma is reused from the field above — no separate key needed.
+    use_pbrs: bool = False
+    """Enable episode-level PBRS shaping (default: False)."""
+    pbrs_shaping_weight: float = 1.0
+    """Scale factor applied to F before adding to R_base (default: 1.0)."""
+    pbrs_potential: str = "vrpp"
+    """Potential function key. Currently supported: 'vrpp'. Others log a warning
+    and fall back to zero shaping."""
+
     # Algorithm specific sub-configs
     ppo: PPOConfig = field(default_factory=PPOConfig)
     sapo: SAPOConfig = field(default_factory=SAPOConfig)

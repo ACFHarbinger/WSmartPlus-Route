@@ -105,8 +105,8 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         values = kwargs.get("config", {}).get("na", {})
         params = NeuralParams.from_config(self._config or values)
 
-        agent = NeuralAgent(model_env, seed=kwargs.get("seed", params.seed))
         model_data, graph, profit_vars = model_ls
+        agent = NeuralAgent(model_env)
 
         # Construct cost weights
         cost_weights = {
@@ -125,7 +125,7 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         # Handle mandatory selection
         mandatory_mask = self._get_mandatory_mask(kwargs, bins, profit_vars, device)
 
-        tour, cost, output_dict = agent.compute_simulator_day(  # type: ignore[call-arg]
+        tour, cost, output_dict = agent.compute_simulator_day(
             daily_data,
             graph,
             dm_tensor,
@@ -134,6 +134,7 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
             waste_history=bins.get_level_history(device=device),
             cost_weights=cost_weights,
             mandatory=mandatory_mask,
+            params=params,
         )
 
         # Log parameters

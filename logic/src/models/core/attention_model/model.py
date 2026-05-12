@@ -475,7 +475,10 @@ class AttentionModel(DecodingMixin, nn.Module):
         from logic.src.utils.decoding import CachedLookup
 
         embeddings, init_context = self._get_initial_embeddings(input)
-        out = self.decoder(input, embeddings, init_context, None, precompute_only=True)
+        # Apply encoder (GNN/GAT) to get contextual embeddings
+        encoded_embeddings = self.encoder(embeddings)
+        # Use encoded embeddings for decoder pre-computation
+        out = self.decoder(input, encoded_embeddings, init_context, None, precompute_only=True)
 
         if isinstance(out, tuple):
             if len(out) >= 3:
@@ -485,7 +488,7 @@ class AttentionModel(DecodingMixin, nn.Module):
         else:
             _log_p = out
 
-        return CachedLookup(embeddings=embeddings, context=init_context)
+        return CachedLookup(embeddings=encoded_embeddings, context=init_context)
 
     def expand(self, t: Union[torch.Tensor, ITensorDictLike, None]) -> Any:
         """Expands instance features to support parallel POMO constructions.

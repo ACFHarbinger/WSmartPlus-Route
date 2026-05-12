@@ -57,17 +57,21 @@ na:
       #   - Objective weight (gamma): 1.0 (balanced cost/overflow)
 
     # ---------------------------------------------------------------------
-    # Decoding Strategy (Implicit)
+    # Decoding Strategy
     # ---------------------------------------------------------------------
-    # Decoding mode is controlled by test_sim command-line arguments:
-    #   - Greedy: Select highest-probability node at each step (deterministic)
-    #   - Sampling: Sample from probability distribution (stochastic)
-    #   - Beam Search: Maintain top-k partial solutions (highest quality)
+    # Configures how the neural model selects nodes during route construction:
+    #   - greedy: Select highest-probability node (fast, deterministic)
+    #   - sampling: Sample from distribution (stochastic, diverse)
+    #   - beam_search: Explore top-k partial solutions (highest quality)
     #
-    # Default for simulation: Greedy (fastest, reproducible)
-    #
-    # To override: python main.py test_sim policy=neural strategy=sampling
+    # Note: Beam search requires significant additional memory and compute.
     # ---------------------------------------------------------------------
+    - decoding:
+        strategy: "greedy"
+        beam_width: 5
+        reward_weight: 0.0
+        length_penalty_alpha: 0.0
+
     # Node Selection Strategy
     # ---------------------------------------------------------------------
     - mandatory_selection: ["other/ms_lookahead.yaml"]

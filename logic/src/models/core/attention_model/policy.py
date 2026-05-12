@@ -89,7 +89,7 @@ class AttentionModelPolicy(AutoregressivePolicy):
             **kwargs,
         )
 
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         td: TensorDict,
         env: RL4COEnvBase,
