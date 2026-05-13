@@ -15,11 +15,9 @@ problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-size := "100"
 area := "riomaior"
 batch_size := "64"
 temporal_horizon := "0"
-days := "30"
 samples := "1"
 seed := "42"
 marker := "fast"
@@ -80,50 +78,44 @@ train problem=problem model=model encoder=encoder decoder=decoder batch_size=bat
 
 # Run model evaluation with Hydra configs
 
-# Usage: just eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp size=50 strategy=greedy
-eval model_path="" dataset="" problem=problem size=size strategy=strategy:
+# Usage: just eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp strategy=greedy
+eval model_path="" dataset="" problem=problem strategy=strategy:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📊 STARTING MODEL EVALUATION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model Path:" "{{ model_path }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset:" "{{ dataset }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Graph Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Strategy:" "{{ strategy }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py eval \
         eval.policy.model.load_path={{ model_path }} \
         eval.datasets=[{{ dataset }}] \
         eval.problem={{ problem }} \
-        eval.graph.num_loc={{ size }} \
         eval.val_size={{ samples }} \
         eval.decoding.strategy={{ strategy }}
 
 # Run simulator testing with Hydra configs
 
-# Usage: just test-sim policies="vrpp,alns" days=31 area=riomaior
-test-sim policies=policies days=days area=area size=size samples=samples n_cores=n_cores:
+# Usage: just test-sim policies="vrpp,alns" area=riomaior
+test-sim policies=policies area=area samples=samples n_cores=n_cores:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "{{ days }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Size:" "{{ size }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py test_sim \
         sim.policies=[{{ policies }}] \
-        sim.days={{ days }} \
         sim.n_samples={{ samples }} \
         sim.graph.area={{ area }} \
-        sim.graph.num_loc={{ size }} \
         sim.cpu_cores={{ n_cores }}
 
 # Run policy HPO for simulation
 
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
-hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw days=days area=area size=size samples=hpo_samples:
+hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -138,8 +130,7 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection KW:" "{{ selection_kw }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance KW:" "{{ acceptance_kw }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver KW:" "{{ improver_kw }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }} ({{ size }} nodes)"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Horizon:" "{{ days }} days"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py hpo_sim tracking=hpo_sim \
         hpo_sim.policy_name={{ policy }} \
@@ -153,9 +144,7 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
         hpo_sim.selection_keywords={{ selection_kw }} \
         hpo_sim.acceptance_keywords={{ acceptance_kw }} \
         hpo_sim.improver_keywords={{ improver_kw }} \
-        hpo_sim.graph.n_days={{ days }} \
         hpo_sim.graph.area={{ area }} \
-        hpo_sim.graph.num_loc={{ size }} \
         hpo_sim.graph.n_samples={{ samples }}
 
 # Generate data with Hydra configs

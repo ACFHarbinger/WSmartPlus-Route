@@ -108,24 +108,24 @@ seed: 42
 sim:
   cpu_cores: 0
   n_vehicles: 0
-  days: 30
+  days: 90
   no_cuda: false
   n_samples: 1
   problem: "vrpp"
   output_dir: "output"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  data_distribution: "gamma3"
+  data_distribution: "emp"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
-    num_loc: 100
+    num_loc: 170
     n_samples: 1
     area: "riomaior"
     waste_type: "plastic"
     dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    focus_graph: "graphs_100V_1N_plastic.json"
-    load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma3_wsr30_N1_seed42.npz"
+    focus_graph: "graphs_170V_1N_plastic.json"
+    load_dataset: "data/wsr_simulator/datasets/riomaior170_emp_wsr90_N1_seed42.npz"
 
   # Policies to run
   policies:

@@ -28,54 +28,54 @@ data:
   penalty_factor: 3.0
   overwrite: true
   seed: 42
-  dataset_type: "train_time" # train, train_time, test_simulator
-  data_dir: "datasets" # Directory to save generated data
-  name: "val_time"
+  dataset_type: "test_simulator" # train, train_time, test_simulator
+  data_dir: "wsr_simulator/datasets" # Directory to save generated data
+  name: "wsr"
   filename: null
 
   # Graphs Configuration
   graphs:
     - num_loc: 20
-      n_samples: 512
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 512
+      focus_size: 1
       focus_graph: "graphs_20V_1N_plastic.json"
       start_day: 0
-      n_days: 7
+      n_days: 90
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
     - num_loc: 50
-      n_samples: 512
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 512
+      focus_size: 1
       focus_graph: "graphs_50V_1N_plastic.json"
       start_day: 0
-      n_days: 7
+      n_days: 90
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
     - num_loc: 100
-      n_samples: 512
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 512
+      focus_size: 1
       focus_graph: "graphs_100V_1N_plastic.json"
       start_day: 0
-      n_days: 7
+      n_days: 90
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
     - num_loc: 170
-      n_samples: 512
+      n_samples: 1
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 512
+      focus_size: 1
       focus_graph: "graphs_170V_1N_plastic.json"
       start_day: 0
-      n_days: 7
+      n_days: 90
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
