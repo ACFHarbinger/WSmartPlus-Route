@@ -54,21 +54,21 @@ env:
         waste_weight: 1.0 # Weight for node wastes/rewards. Typical range: 0.5-2.0.
         cost_weight: 2.5 # High cost discourages voluntary collection; mandatory bins force routing.
 
-    #- num_loc: 170
-    #  n_samples: 12800
-    #  area: "riomaior"
-    #  waste_type: "plastic"
-    #  vertex_method: "mmn"
-    #  distance_method: "gmaps"
-    #  focus_size: 12800
-    #  focus_graph: "graphs_170V_1N_plastic.json"
-    #  start_day: 0
-    #  n_days: 31
-    #  dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    #  load_dataset: "data/datasets/vrpp/vrpp170_gamma3_time100_seed42.td"
-    #  reward:
-    #    waste_weight: 1.0
-    #    cost_weight: 2.0
+    - num_loc: 170
+      n_samples: 12800
+      area: "riomaior"
+      waste_type: "plastic"
+      vertex_method: "mmn"
+      distance_method: "gmaps"
+      focus_size: 12800
+      focus_graph: "graphs_170V_1N_plastic.json"
+      start_day: 0
+      n_days: 100
+      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+      load_dataset: "data/datasets/vrpp/vrpp170_emp_time100_seed42.td"
+      reward:
+        waste_weight: 1.0
+        cost_weight: 2.5
 
   # ===========================================================================
   # Evaluation Graphs
@@ -109,18 +109,18 @@ env:
         waste_weight: 1.0
         cost_weight: 1.0
 
-    #- num_loc: 170
-    #  n_samples: 512
-    #  area: "riomaior"
-    #  waste_type: "plastic"
-    #  focus_size: 512
-    #  focus_graph: "graphs_170V_1N_plastic.json"
-    #  vertex_method: "mmn"
-    #  distance_method: "gmaps"
-    #  dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    #  load_dataset: "data/datasets/vrpp/vrpp170_gamma3_val_time100_seed42.td"
-    #  start_day: 0
-    #  n_days: 7
-    #  reward:
-    #    waste_weight: 1.0
-    #    cost_weight: 2.0
+    - num_loc: 170
+      n_samples: 512
+      area: "riomaior"
+      waste_type: "plastic"
+      focus_size: 512
+      focus_graph: "graphs_170V_1N_plastic.json"
+      vertex_method: "mmn"
+      distance_method: "gmaps"
+      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+      load_dataset: "data/datasets/vrpp/vrpp170_emp_val_time7_seed42.td"
+      start_day: 0
+      n_days: 7
+      reward:
+        waste_weight: 1.0
+        cost_weight: 2.5
