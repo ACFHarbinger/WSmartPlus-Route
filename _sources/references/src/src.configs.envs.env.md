@@ -73,28 +73,6 @@
 
 ````
 
-````{py:attribute} graph
-:canonical: src.configs.envs.env.EnvConfig.graph
-:type: src.configs.envs.graph.GraphConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.envs.env.EnvConfig.graph
-```
-
-````
-
-````{py:attribute} reward
-:canonical: src.configs.envs.env.EnvConfig.reward
-:type: src.configs.envs.objective.ObjectiveConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.envs.env.EnvConfig.reward
-```
-
-````
-
 ````{py:attribute} data_distribution
 :canonical: src.configs.envs.env.EnvConfig.data_distribution
 :type: typing.Optional[str]

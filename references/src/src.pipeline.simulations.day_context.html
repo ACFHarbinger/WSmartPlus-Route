@@ -473,6 +473,12 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="docutils literal notranslate"><span class="pre">get_canonical_policy_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._clean"><code class="docutils literal notranslate"><span class="pre">_clean()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.find_policy_keys"><code class="docutils literal notranslate"><span class="pre">find_policy_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.build_naming_config"><code class="docutils literal notranslate"><span class="pre">build_naming_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.resolve_policy_display_name"><code class="docutils literal notranslate"><span class="pre">resolve_policy_display_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.to_slug"><code class="docutils literal notranslate"><span class="pre">to_slug()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_full_policy_name"><code class="docutils literal notranslate"><span class="pre">get_full_policy_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.graph_size"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.graph_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.full_policy"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.full_policy</span></code></a></li>
@@ -507,6 +513,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.threshold"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.seed"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.policy_seed"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.policy_seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.display_name"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.display_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.daily_log"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.daily_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.output_dict"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.output_dict</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.tour"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.tour</span></code></a></li>
@@ -582,6 +589,26 @@ SimulationDayContext: Represents the context of a single simulation day.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.get_canonical_policy_name" title="src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_canonical_policy_name</span></code></a></p></td>
 <td><p>Get canonical algorithm name for RNG seeding.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context._clean" title="src.pipeline.simulations.day_context._clean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean</span></code></a></p></td>
+<td><p>Clean a policy/strategy name for display.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.find_policy_keys" title="src.pipeline.simulations.day_context.find_policy_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_policy_keys</span></code></a></p></td>
+<td><p>Recursively find mandatory_selection and route_improvement keys in a config.
+Searches for synonyms and handles deep nesting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.build_naming_config" title="src.pipeline.simulations.day_context.build_naming_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_naming_config</span></code></a></p></td>
+<td><p>Build a configuration dictionary specifically for naming resolution.
+It combines keys found in the policy config with global simulation defaults.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.resolve_policy_display_name" title="src.pipeline.simulations.day_context.resolve_policy_display_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_policy_display_name</span></code></a></p></td>
+<td><p>Resolves the original policy ID and its full descriptive display name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.to_slug" title="src.pipeline.simulations.day_context.to_slug"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_slug</span></code></a></p></td>
+<td><p>Converts a display name to a safe slug string for IDs and filenames.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.get_full_policy_name" title="src.pipeline.simulations.day_context.get_full_policy_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_full_policy_name</span></code></a></p></td>
+<td><p>Construct a descriptive policy name including mandatory selection and route improvement.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.set_daily_waste" title="src.pipeline.simulations.day_context.set_daily_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_daily_waste</span></code></a></p></td>
 <td><p>Updates neural model input with current bin waste levels.</p></td>
 </tr>
@@ -612,6 +639,69 @@ Canonical name for seeding (e.g., ‘ma_ts’)</p>
 <p>Examples:
 &gt;&gt;&gt; get_canonical_policy_name(‘lookahead_ma_ts_custom_gamma3’)
 ‘ma_ts’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context._clean">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context._clean" title="Link to this definition">#</a></dt>
+<dd><p>Clean a policy/strategy name for display.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.find_policy_keys">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">find_policy_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.find_policy_keys" title="Link to this definition">#</a></dt>
+<dd><p>Recursively find mandatory_selection and route_improvement keys in a config.
+Searches for synonyms and handles deep nesting.</p>
+<p>Args:
+obj: The configuration object (dict, list, DictConfig, etc.)</p>
+<p>Returns:
+Dictionary containing the found keys.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.build_naming_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">build_naming_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.build_naming_config" title="Link to this definition">#</a></dt>
+<dd><p>Build a configuration dictionary specifically for naming resolution.
+It combines keys found in the policy config with global simulation defaults.</p>
+<p>Args:
+pol_cfg: The policy-specific configuration.
+global_sim_cfg: The global simulation configuration (ctx.cfg.sim).</p>
+<p>Returns:
+A dictionary with ‘mandatory_selection’ and ‘route_improvement’ keys.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.resolve_policy_display_name">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">resolve_policy_display_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.resolve_policy_display_name" title="Link to this definition">#</a></dt>
+<dd><p>Resolves the original policy ID and its full descriptive display name.</p>
+<p>Args:
+policy: The policy configuration (string or dict).
+sim_cfg: The simulation configuration.</p>
+<p>Returns:
+Tuple of (pol_id_orig, display_name)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.to_slug">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">to_slug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.to_slug" title="Link to this definition">#</a></dt>
+<dd><p>Converts a display name to a safe slug string for IDs and filenames.</p>
+<p>Replaces ‘ + ‘ with ‘_’, removes ‘()’, and converts to lowercase.</p>
+<p>Args:
+name: The display name to convert.</p>
+<p>Returns:
+The slug string.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.get_full_policy_name">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_full_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_full_policy_name" title="Link to this definition">#</a></dt>
+<dd><p>Construct a descriptive policy name including mandatory selection and route improvement.</p>
+<p>This reflects the entire construction and improvement stack.</p>
+<p>Args:
+pol_name: Base policy name (the route constructor).
+config: The naming configuration dictionary.</p>
+<p>Returns:
+A formatted name string (e.g., ‘Lookahead + AM + None’).</p>
 </dd></dl>
 
 <dl class="py class">
@@ -652,7 +742,8 @@ overflow_penalty: Weight for overflows.
 engine: The policy engine type (e.g., ‘neural’, ‘classical’).
 threshold: Decision threshold for bin selection.
 seed: Base seed for the simulation.
-policy_seed: Policy-specific seed for RNG isolation.</p>
+policy_seed: Policy-specific seed for RNG isolation.
+display_name: Descriptive name for logging (e.g., ‘Regular + ALNS + None’).</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Mutable attributes added during run_day
 daily_log: Dictionary for daily logs.
 output_dict: Dictionary for output results.
@@ -864,6 +955,11 @@ time: Elapsed time for policy execution.
 <span class="sig-name descname"><span class="pre">policy_seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.policy_seed" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.display_name">
+<span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.display_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.daily_log">
@@ -1123,6 +1219,12 @@ The updated context after executing all daily actions.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="docutils literal notranslate"><span class="pre">get_canonical_policy_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._clean"><code class="docutils literal notranslate"><span class="pre">_clean()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.find_policy_keys"><code class="docutils literal notranslate"><span class="pre">find_policy_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.build_naming_config"><code class="docutils literal notranslate"><span class="pre">build_naming_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.resolve_policy_display_name"><code class="docutils literal notranslate"><span class="pre">resolve_policy_display_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.to_slug"><code class="docutils literal notranslate"><span class="pre">to_slug()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_full_policy_name"><code class="docutils literal notranslate"><span class="pre">get_full_policy_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.graph_size"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.graph_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.full_policy"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.full_policy</span></code></a></li>
@@ -1157,6 +1259,7 @@ The updated context after executing all daily actions.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.threshold"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.seed"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.policy_seed"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.policy_seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.display_name"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.display_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.daily_log"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.daily_log</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.output_dict"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.output_dict</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.tour"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.tour</span></code></a></li>

@@ -475,6 +475,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_experiment_name"><code class="docutils literal notranslate"><span class="pre">_build_experiment_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_callbacks"><code class="docutils literal notranslate"><span class="pre">_build_callbacks()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._get_primary_graph"><code class="docutils literal notranslate"><span class="pre">_get_primary_graph()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_stage_config"><code class="docutils literal notranslate"><span class="pre">_build_stage_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_single_stage"><code class="docutils literal notranslate"><span class="pre">_run_single_stage()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_curriculum_stages"><code class="docutils literal notranslate"><span class="pre">_run_curriculum_stages()</span></code></a></li>
@@ -525,22 +526,25 @@ _track_val_dataset: Track the validation dataset if available.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._build_callbacks" title="src.pipeline.features.train.engine._build_callbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_callbacks</span></code></a></p></td>
 <td><p>Instantiate training callbacks from Hydra config.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._build_stage_config" title="src.pipeline.features.train.engine._build_stage_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_stage_config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._get_primary_graph" title="src.pipeline.features.train.engine._get_primary_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_primary_graph</span></code></a></p></td>
+<td><p>Return a field from the primary graph config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._build_stage_config" title="src.pipeline.features.train.engine._build_stage_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_stage_config</span></code></a></p></td>
 <td><p>Build a modified root config for a curriculum stage.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_single_stage" title="src.pipeline.features.train.engine._run_single_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_single_stage</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_single_stage" title="src.pipeline.features.train.engine._run_single_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_single_stage</span></code></a></p></td>
 <td><p>Execute one training stage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_curriculum_stages" title="src.pipeline.features.train.engine._run_curriculum_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_curriculum_stages</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_curriculum_stages" title="src.pipeline.features.train.engine._run_curriculum_stages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_curriculum_stages</span></code></a></p></td>
 <td><p>Orchestrate sequential curriculum training.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine.run_training" title="src.pipeline.features.train.engine.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine.run_training" title="src.pipeline.features.train.engine.run_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_training</span></code></a></p></td>
 <td><p>Run model training, dispatching to curriculum if configured.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._log_training_params" title="src.pipeline.features.train.engine._log_training_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_training_params</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._log_training_params" title="src.pipeline.features.train.engine._log_training_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_training_params</span></code></a></p></td>
 <td><p>Flatten and log relevant config sections as run parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_training_via_zenml" title="src.pipeline.features.train.engine._run_training_via_zenml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_training_via_zenml</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.engine._run_training_via_zenml" title="src.pipeline.features.train.engine._run_training_via_zenml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_training_via_zenml</span></code></a></p></td>
 <td><p>Dispatch training to the ZenML training pipeline.</p></td>
 </tr>
 </tbody>
@@ -587,6 +591,20 @@ when both are present, and always includes a :class:<code class="docutils litera
 cfg: Root configuration object.</p>
 <p>Returns:
 List of instantiated callback objects.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.engine._get_primary_graph">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.engine.</span></span><span class="sig-name descname"><span class="pre">_get_primary_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.features.train.engine._get_primary_graph" title="Link to this definition">#</a></dt>
+<dd><p>Return a field from the primary graph config.</p>
+<p>Prioritizes <code class="docutils literal notranslate"><span class="pre">env.graph</span></code> (dynamically injected for stages) then falls back
+to <code class="docutils literal notranslate"><span class="pre">env.curriculum_graphs[0]</span></code> (the source of truth for root configs).</p>
+<p>Args:
+cfg: Root Hydra configuration object.
+key: Attribute name to retrieve (e.g. ‘num_loc’, ‘n_days’).
+default: Value to return when the key is absent.</p>
+<p>Returns:
+The attribute value or <em>default</em>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -722,6 +740,7 @@ Best validation reward returned by the ZenML pipeline.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_experiment_name"><code class="docutils literal notranslate"><span class="pre">_build_experiment_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_callbacks"><code class="docutils literal notranslate"><span class="pre">_build_callbacks()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._get_primary_graph"><code class="docutils literal notranslate"><span class="pre">_get_primary_graph()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._build_stage_config"><code class="docutils literal notranslate"><span class="pre">_build_stage_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_single_stage"><code class="docutils literal notranslate"><span class="pre">_run_single_stage()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.engine._run_curriculum_stages"><code class="docutils literal notranslate"><span class="pre">_run_curriculum_stages()</span></code></a></li>

@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.pipeline.simulations.states.base.context.logger>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.states.base.context.logger
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} logger
+:canonical: src.pipeline.simulations.states.base.context.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.logger
+```
+
+````
 
 `````{py:class} SimulationContext(cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig], device: torch.device, indices: typing.List[int], sample_id: int, pol_id: int, model_weights_path: typing.Optional[str], variables_dict: typing.Dict[str, typing.Any])
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext
@@ -129,6 +151,16 @@
 :value: <Multiline-String>
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.pol_name
+```
+
+````
+
+````{py:attribute} display_name
+:canonical: src.pipeline.simulations.states.base.context.SimulationContext.display_name
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.display_name
 ```
 
 ````

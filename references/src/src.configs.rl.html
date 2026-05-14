@@ -481,6 +481,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gamma"><code class="docutils literal notranslate"><span class="pre">RLConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.exp_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.exp_beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.use_pbrs"><code class="docutils literal notranslate"><span class="pre">RLConfig.use_pbrs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pbrs_shaping_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.pbrs_shaping_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pbrs_potential"><code class="docutils literal notranslate"><span class="pre">RLConfig.pbrs_potential</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.grpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.grpo</span></code></a></li>
@@ -621,6 +624,28 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.use_pbrs">
+<span class="sig-name descname"><span class="pre">use_pbrs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.use_pbrs" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+<p>Enable episode-level PBRS shaping (default: False).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.pbrs_shaping_weight">
+<span class="sig-name descname"><span class="pre">pbrs_shaping_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.pbrs_shaping_weight" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+<p>Scale factor applied to F before adding to R_base (default: 1.0).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.rl.RLConfig.pbrs_potential">
+<span class="sig-name descname"><span class="pre">pbrs_potential</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.rl.RLConfig.pbrs_potential" title="Link to this definition">#</a></dt>
+<dd><p>‘vrpp’</p>
+<p>Potential function key. Currently supported: ‘vrpp’. Others log a warning
+and fall back to zero shaping.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.RLConfig.ppo">
 <span class="sig-name descname"><span class="pre">ppo</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.rl.core.ppo.html#src.configs.rl.core.ppo.PPOConfig" title="src.configs.rl.core.ppo.PPOConfig"><span class="pre">src.configs.rl.core.ppo.PPOConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.ppo" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
@@ -738,6 +763,9 @@ max_grad_norm: Maximum gradient norm for clipping.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gamma"><code class="docutils literal notranslate"><span class="pre">RLConfig.gamma</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.exp_beta"><code class="docutils literal notranslate"><span class="pre">RLConfig.exp_beta</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.bl_alpha"><code class="docutils literal notranslate"><span class="pre">RLConfig.bl_alpha</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.use_pbrs"><code class="docutils literal notranslate"><span class="pre">RLConfig.use_pbrs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pbrs_shaping_weight"><code class="docutils literal notranslate"><span class="pre">RLConfig.pbrs_shaping_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.pbrs_potential"><code class="docutils literal notranslate"><span class="pre">RLConfig.pbrs_potential</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.ppo"><code class="docutils literal notranslate"><span class="pre">RLConfig.ppo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.sapo"><code class="docutils literal notranslate"><span class="pre">RLConfig.sapo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.grpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.grpo</span></code></a></li>

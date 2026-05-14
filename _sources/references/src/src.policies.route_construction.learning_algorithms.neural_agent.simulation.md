@@ -29,7 +29,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.simulation.SimulationMixin
 ```
 
-````{py:method} compute_simulator_day(input: typing.Dict[str, typing.Any], graph: typing.Tuple[typing.Any, typing.Any], distC: torch.Tensor, profit_vars: typing.Optional[typing.Any] = None, waste_history: typing.Optional[torch.Tensor] = None, cost_weights: typing.Optional[typing.Dict[str, float]] = None, mandatory: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any)
+````{py:method} compute_simulator_day(input: typing.Dict[str, typing.Any], graph: typing.Tuple[typing.Any, typing.Any], distC: torch.Tensor, profit_vars: typing.Optional[typing.Any] = None, waste_history: typing.Optional[torch.Tensor] = None, cost_weights: typing.Optional[typing.Dict[str, float]] = None, mandatory: typing.Optional[torch.Tensor] = None, params: typing.Optional[src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams] = None, **kwargs: typing.Any)
 :canonical: src.policies.route_construction.learning_algorithms.neural_agent.simulation.SimulationMixin.compute_simulator_day
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.simulation.SimulationMixin.compute_simulator_day

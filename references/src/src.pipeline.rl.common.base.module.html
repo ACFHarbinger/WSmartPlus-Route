@@ -478,6 +478,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.baseline"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.baseline</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.save_weights"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.save_weights()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule._init_baseline"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule._init_baseline()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule._build_pbrs_shaper()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.on_train_epoch_start()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_end"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.on_train_epoch_end()</span></code></a></li>
 </ul>
@@ -592,6 +593,17 @@ path: Path to save the weights to.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper">
+<span class="sig-name descname"><span class="pre">_build_pbrs_shaper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.pipeline.rl.common.pbrs_wrapper.PBRSShaper</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper" title="Link to this definition">#</a></dt>
+<dd><p>Build a :class:<code class="docutils literal notranslate"><span class="pre">PBRSShaper</span></code> from the active configuration.</p>
+<p>Reads <code class="docutils literal notranslate"><span class="pre">cfg.rl.use_pbrs</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.rl.gamma</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.rl.pbrs_shaping_weight</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">cfg.rl.pbrs_potential</span></code> (all with safe defaults).  Returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
+when PBRS is disabled so :meth:<code class="docutils literal notranslate"><span class="pre">shared_step</span></code> incurs zero overhead.</p>
+<p>Returns:
+PBRSShaper if <code class="docutils literal notranslate"><span class="pre">cfg.rl.use_pbrs</span></code> is True, else None.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start">
 <span class="sig-name descname"><span class="pre">on_train_epoch_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start" title="Link to this definition">#</a></dt>
 <dd><p>Prepare dataset for the new epoch (e.g. wrap with baseline).</p>
@@ -664,6 +676,7 @@ path: Path to save the weights to.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.baseline"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.baseline</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.save_weights"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.save_weights()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule._init_baseline"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule._init_baseline()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule._build_pbrs_shaper()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.on_train_epoch_start()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_end"><code class="docutils literal notranslate"><span class="pre">RL4COLitModule.on_train_epoch_end()</span></code></a></li>
 </ul>

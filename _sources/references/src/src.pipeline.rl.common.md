@@ -23,6 +23,7 @@ src.pipeline.rl.common.base
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.rl.common.pbrs_wrapper
 src.pipeline.rl.common.route_improvement
 src.pipeline.rl.common.trainer
 src.pipeline.rl.common.epoch

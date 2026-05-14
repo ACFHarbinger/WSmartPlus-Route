@@ -31,6 +31,30 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
     :summary:
     ```
+* - {py:obj}`_clean <src.pipeline.simulations.day_context._clean>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context._clean
+    :summary:
+    ```
+* - {py:obj}`find_policy_keys <src.pipeline.simulations.day_context.find_policy_keys>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.find_policy_keys
+    :summary:
+    ```
+* - {py:obj}`build_naming_config <src.pipeline.simulations.day_context.build_naming_config>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.build_naming_config
+    :summary:
+    ```
+* - {py:obj}`resolve_policy_display_name <src.pipeline.simulations.day_context.resolve_policy_display_name>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_policy_display_name
+    :summary:
+    ```
+* - {py:obj}`to_slug <src.pipeline.simulations.day_context.to_slug>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.to_slug
+    :summary:
+    ```
+* - {py:obj}`get_full_policy_name <src.pipeline.simulations.day_context.get_full_policy_name>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_full_policy_name
+    :summary:
+    ```
 * - {py:obj}`set_daily_waste <src.pipeline.simulations.day_context.set_daily_waste>`
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.set_daily_waste
     :summary:
@@ -51,6 +75,48 @@
 :canonical: src.pipeline.simulations.day_context.get_canonical_policy_name
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
+```
+````
+
+````{py:function} _clean(name: typing.Any) -> str
+:canonical: src.pipeline.simulations.day_context._clean
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context._clean
+```
+````
+
+````{py:function} find_policy_keys(obj: typing.Any) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.simulations.day_context.find_policy_keys
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.find_policy_keys
+```
+````
+
+````{py:function} build_naming_config(pol_cfg: typing.Any, global_sim_cfg: typing.Any) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.simulations.day_context.build_naming_config
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.build_naming_config
+```
+````
+
+````{py:function} resolve_policy_display_name(policy: typing.Any, sim_cfg: typing.Any) -> typing.Tuple[str, str]
+:canonical: src.pipeline.simulations.day_context.resolve_policy_display_name
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_policy_display_name
+```
+````
+
+````{py:function} to_slug(name: str) -> str
+:canonical: src.pipeline.simulations.day_context.to_slug
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.to_slug
+```
+````
+
+````{py:function} get_full_policy_name(pol_name: str, config: typing.Dict[str, typing.Any]) -> str
+:canonical: src.pipeline.simulations.day_context.get_full_policy_name
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.get_full_policy_name
 ```
 ````
 
@@ -417,6 +483,16 @@ Bases: {py:obj}`collections.abc.Mapping`
    None
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.policy_seed
+```
+
+````
+
+````{py:attribute} display_name
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.display_name
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.display_name
 ```
 
 ````

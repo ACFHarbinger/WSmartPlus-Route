@@ -16,6 +16,7 @@
 src.models.subnets.embeddings.context.base
 src.models.subnets.embeddings.context.generic
 src.models.subnets.embeddings.context.vrpp
+src.models.subnets.embeddings.context.cvrpp
 src.models.subnets.embeddings.context.wcvrp
 ```
 
@@ -54,7 +55,7 @@ src.models.subnets.embeddings.context.wcvrp
 :canonical: src.models.subnets.embeddings.context.__all__
 :type: list[str]
 :value: >
-   ['ContextEmbedder', 'GenericContextEmbedder', 'VRPPContextEmbedder', 'WCVRPContextEmbedder', 'CONTEX...
+   ['ContextEmbedder', 'CVRPPContextEmbedder', 'GenericContextEmbedder', 'VRPPContextEmbedder', 'WCVRPC...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.__all__
 ```

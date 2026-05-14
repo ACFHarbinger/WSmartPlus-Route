@@ -127,6 +127,39 @@ src.configs.rl.core
 
 ````
 
+````{py:attribute} use_pbrs
+:canonical: src.configs.rl.RLConfig.use_pbrs
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.rl.RLConfig.use_pbrs
+```
+
+````
+
+````{py:attribute} pbrs_shaping_weight
+:canonical: src.configs.rl.RLConfig.pbrs_shaping_weight
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.rl.RLConfig.pbrs_shaping_weight
+```
+
+````
+
+````{py:attribute} pbrs_potential
+:canonical: src.configs.rl.RLConfig.pbrs_potential
+:type: str
+:value: >
+   'vrpp'
+
+```{autodoc2-docstring} src.configs.rl.RLConfig.pbrs_potential
+```
+
+````
+
 ````{py:attribute} ppo
 :canonical: src.configs.rl.RLConfig.ppo
 :type: src.configs.rl.core.ppo.PPOConfig

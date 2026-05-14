@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.subnets.embeddings.context.vrpp';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.subnets.embeddings.context.wcvrp" href="src.models.subnets.embeddings.context.wcvrp.html" />
+    <link rel="next" title="src.models.subnets.embeddings.context.cvrpp" href="src.models.subnets.embeddings.context.cvrpp.html" />
     <link rel="prev" title="src.models.subnets.embeddings.context.generic" href="src.models.subnets.embeddings.context.generic.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -550,12 +550,31 @@ torch.Tensor: Initial node embeddings including the depot.</p>
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder._step_context">
 <span class="sig-name descname"><span class="pre">_step_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.vrpp.VRPPContextEmbedder._step_context" title="Link to this definition">#</a></dt>
 <dd><p>Extracts current VRPP step context.</p>
-<p>Fuses current node embedding with system status (e.g., current load).</p>
+<p>Fuses three signals into the decoder query at each selection step:</p>
+<ol class="arabic simple">
+<li><p>Current node embedding (where the vehicle is).</p></li>
+<li><p>Sum of waste on unvisited nodes (remaining profit on the map).</p></li>
+<li><p>Mean Euclidean distance from the current node to all unvisited
+profitable nodes (spatial spread of remaining profit).</p></li>
+</ol>
+<p>These two scalars together give the decoder a rich signal to decide
+whether continued travel is profitable or early termination is optimal.
+The VRPP has no capacity constraint, so load state is omitted here.</p>
+<p>Tensor shapes:
+current_node_embed  : [B, 1, embed_dim]
+unvisited_waste_sum : [B, 1, 1]
+mean_dist_unvisited : [B, 1, 1]
+combined            : [B, 1, embed_dim + 2]  → [B, 1, embed_dim]</p>
+<p>TensorDict keys consumed:
+<code class="docutils literal notranslate"><span class="pre">waste</span></code>        : [B, N]  — waste per node (depot waste = 0)
+<code class="docutils literal notranslate"><span class="pre">visited</span></code>      : [B, N]  — visit flags
+<code class="docutils literal notranslate"><span class="pre">locs</span></code>         : [B, N, 2] — Euclidean coordinates (fallback)
+<code class="docutils literal notranslate"><span class="pre">current_node</span></code> : [B] or [B, 1] — current vehicle position index</p>
 <p>Args:
-embeddings: Current node embeddings.
-state: Current environment state.</p>
+embeddings: Current node embeddings, shape (batch, num_nodes, embed_dim).
+state: Current environment state (TensorDict or compatible).</p>
 <p>Returns:
-torch.Tensor: Projected step context embedding.</p>
+torch.Tensor: Projected step context embedding, shape (batch, 1, embed_dim).</p>
 </dd></dl>
 
 <dl class="py property">
@@ -594,11 +613,11 @@ int: Dimension size.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.models.subnets.embeddings.context.wcvrp.html"
+       href="src.models.subnets.embeddings.context.cvrpp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.wcvrp</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.cvrpp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

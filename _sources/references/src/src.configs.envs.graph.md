@@ -139,17 +139,6 @@
 
 ````
 
-````{py:attribute} eval_focus_size
-:canonical: src.configs.envs.graph.GraphConfig.eval_focus_size
-:type: typing.Optional[int]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.eval_focus_size
-```
-
-````
-
 ````{py:attribute} load_dataset
 :canonical: src.configs.envs.graph.GraphConfig.load_dataset
 :type: typing.Optional[str]
@@ -190,6 +179,17 @@
    1
 
 ```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.n_days
+```
+
+````
+
+````{py:attribute} reward
+:canonical: src.configs.envs.graph.GraphConfig.reward
+:type: typing.Optional[src.configs.envs.objective.ObjectiveConfig]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.reward
 ```
 
 ````

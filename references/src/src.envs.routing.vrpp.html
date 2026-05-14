@@ -634,22 +634,22 @@ The method handles edge cases where waste array may not include depot
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.routing.vrpp.VRPPEnv._get_action_mask">
 <span class="sig-name descname"><span class="pre">_get_action_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensordict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.routing.vrpp.VRPPEnv._get_action_mask" title="Link to this definition">#</a></dt>
-<dd><p>Compute action mask for VRPP with mandatory constraints.</p>
+<dd><p>Compute action mask for VRPP with VRPP-correct termination logic.</p>
 <p>Standard behavior:</p>
 <ul class="simple">
-<li><p>Can visit any unvisited node</p></li>
-<li><p>Can return to depot at any time</p></li>
-<li><p>Cannot visit already visited nodes (except depot)</p></li>
+<li><p>Mask out already-visited nodes.</p></li>
+<li><p>Mask out bins with zero waste (nothing to collect).</p></li>
+<li><p>Depot (index 0) is <strong>always legal</strong> so the agent can terminate early.</p></li>
 </ul>
-<p>Mandatory behavior:</p>
+<p>Mandatory behavior (unchanged):</p>
 <ul class="simple">
-<li><p>If mandatory is None: Standard behavior (depot always valid)</p></li>
-<li><p>If mandatory has True values: Must route to those bins; depot invalid until done</p></li>
-<li><p>If mandatory is all False: No routing needed; depot is valid (stay)</p></li>
+<li><p>If pending mandatory bins remain, depot is blocked until they are served.</p></li>
+<li><p>Once all mandatory bins are visited, depot becomes legal again.</p></li>
 </ul>
 <p>Args:
 tensordict (TensorDict): Input tensor dictionary containing:
 - visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)
+- waste (Tensor, optional): Waste at each node, shape (batch, num_nodes)
 - mandatory (BoolTensor, optional): Mandatory constraints, shape (batch, num_nodes)</p>
 <p>Returns:
 Tensor: Boolean mask (batch, num_nodes) where True = valid action.</p>

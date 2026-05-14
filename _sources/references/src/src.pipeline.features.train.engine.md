@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.train.engine._build_callbacks
     :summary:
     ```
+* - {py:obj}`_get_primary_graph <src.pipeline.features.train.engine._get_primary_graph>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.engine._get_primary_graph
+    :summary:
+    ```
 * - {py:obj}`_build_stage_config <src.pipeline.features.train.engine._build_stage_config>`
   - ```{autodoc2-docstring} src.pipeline.features.train.engine._build_stage_config
     :summary:
@@ -84,6 +88,13 @@
 :canonical: src.pipeline.features.train.engine._build_callbacks
 
 ```{autodoc2-docstring} src.pipeline.features.train.engine._build_callbacks
+```
+````
+
+````{py:function} _get_primary_graph(cfg: typing.Any, key: str, default: typing.Any = None) -> typing.Any
+:canonical: src.pipeline.features.train.engine._get_primary_graph
+
+```{autodoc2-docstring} src.pipeline.features.train.engine._get_primary_graph
 ```
 ````
 

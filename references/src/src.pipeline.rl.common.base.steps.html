@@ -560,7 +560,7 @@ None.</p>
 <p>Args:
 td: TensorDict with problem instance data.</p>
 <p>Returns:
-TensorDict with ‘mandatory’ mask added.</p>
+TensorDict with ‘mandatory’ mask added (always 2D: [B, num_loc+1]).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -580,6 +580,15 @@ Loss tensor.</p>
 <dt class="sig sig-object py" id="src.pipeline.rl.common.base.steps.StepMixin.shared_step">
 <span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.base.steps.StepMixin.shared_step" title="Link to this definition">#</a></dt>
 <dd><p>Common step for train/val/test.</p>
+<p>PBRS integration (training phase only):
+After <code class="docutils literal notranslate"><span class="pre">env.reset()</span></code>, Φ(s₀) is recorded by the :class:<code class="docutils literal notranslate"><span class="pre">PBRSShaper</span></code>.
+After the policy rollout, the shaping bonus
+<code class="docutils literal notranslate"><span class="pre">F</span> <span class="pre">=</span> <span class="pre">gamma</span> <span class="pre">·</span> <span class="pre">Φ(s_final)</span> <span class="pre">−</span> <span class="pre">Φ(s₀)</span></code> is applied to <code class="docutils literal notranslate"><span class="pre">out[&quot;reward&quot;]</span></code>.
+The <strong>base reward</strong> is always what gets logged as <code class="docutils literal notranslate"><span class="pre">{phase}/reward</span></code>
+to prevent metric corruption; shaped reward is used only for the
+loss calculation.
+During validation and test, PBRS is <strong>not</strong> applied so that
+evaluation metrics remain comparable across runs.</p>
 <p>Args:
 batch: TensorDict batch.
 batch_idx: Batch index.

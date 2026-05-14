@@ -84,6 +84,50 @@
 
 ````
 
+````{py:attribute} decoding_strategy
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy
+:type: str
+:value: >
+   'greedy'
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy
+```
+
+````
+
+````{py:attribute} beam_width
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width
+```
+
+````
+
+````{py:attribute} reward_weight
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight
+```
+
+````
+
+````{py:attribute} length_penalty_alpha
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.seed
 :type: int

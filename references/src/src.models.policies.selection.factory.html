@@ -590,9 +590,11 @@ VectorizedSelector: Instantiated ManagerSelector.</p>
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._get_strategy_params">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_strategy_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_strategy_params" title="Link to this definition">#</a></dt>
 <dd><p>Map strategy name to its specific parameters.</p>
+<p>Looks first in the nested sub-config (e.g. params[“last_minute”][“threshold”])
+then falls back to top-level params, then to hard-coded defaults.</p>
 <p>Args:
 strategy: name of the strategy.
-params: raw parameter dictionary.</p>
+params: raw parameter dictionary (may contain nested sub-configs).</p>
 <p>Returns:
 Dict[str, Any]: mapped parameters for the selector constructor.</p>
 <p>Raises:

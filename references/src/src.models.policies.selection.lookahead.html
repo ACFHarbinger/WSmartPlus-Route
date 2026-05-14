@@ -496,11 +496,22 @@ document.write(`
 <p>This module provides a predictive selection strategy that marks bins for
 collection based on when they are expected to overflow, using current fill
 levels and accumulation rates to calculate a dynamic lookahead horizon.</p>
+<p>The algorithm mirrors the scalar reference implementation in
+<code class="docutils literal notranslate"><span class="pre">logic/src/policies/mandatory_selection/selection_lookahead.py</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Mark bins whose fill level will reach capacity <strong>today</strong> (fill + rate ≥ max).</p></li>
+<li><p>If none are found, return an empty mask — no constraints this step.</p></li>
+<li><p>Simulate collection of the mandatory set (reset their fill to 0) and
+compute the absolute day each bin would overflow again from empty.</p></li>
+<li><p>The earliest of those days is the <strong>next collection day</strong> (horizon anchor).</p></li>
+<li><p>Include every non-mandatory bin that would overflow <em>before</em> that day,
+i.e. bins where <code class="docutils literal notranslate"><span class="pre">fill</span> <span class="pre">+</span> <span class="pre">(next_collection_day</span> <span class="pre">−</span> <span class="pre">today</span> <span class="pre">−</span> <span class="pre">1)</span> <span class="pre">×</span> <span class="pre">rate</span> <span class="pre">≥</span> <span class="pre">max</span></code>.</p></li>
+</ol>
 <p>Attributes:
-LookaheadSelector: Predictive selection policy looking ahead several days.</p>
+LookaheadSelector: Vectorised predictive selection policy.</p>
 <p>Example:
 &gt;&gt;&gt; selector = LookaheadSelector(current_collection_day=0)
-&gt;&gt;&gt; mask = selector.select(fill_levels, rates)</p>
+&gt;&gt;&gt; mask = selector.select(fill_levels, accumulation_rates=rates)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -508,7 +519,7 @@ LookaheadSelector: Predictive selection policy looking ahead several days.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.selection.lookahead.LookaheadSelector" title="src.models.policies.selection.lookahead.LookaheadSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LookaheadSelector</span></code></a></p></td>
-<td><p>Predictive selection looking several days ahead.</p></td>
+<td><p>Vectorised predictive selection looking ahead to the next collection day.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,28 +531,31 @@ LookaheadSelector: Predictive selection policy looking ahead several days.</p>
 <dt class="sig sig-object py" id="src.models.policies.selection.lookahead.LookaheadSelector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.lookahead.</span></span><span class="sig-name descname"><span class="pre">LookaheadSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_collection_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.lookahead.LookaheadSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
-<p>Predictive selection looking several days ahead.</p>
-<p>Selects bins that are predicted to overflow within a dynamic lookahead
-horizon. The horizon is determined by the earliest upcoming overflow among
-the currently full bins.</p>
+<p>Vectorised predictive selection looking ahead to the next collection day.</p>
+<p>Selects bins that overflow today <em>and</em> any additional bins that would
+overflow before the next expected collection opportunity, mirroring the
+logic in <code class="docutils literal notranslate"><span class="pre">LookaheadSelection.select_bins</span></code>.</p>
 <p>Attributes:
-current_collection_day: Reference day for lookahead simulation.</p>
+current_collection_day: Default reference day for lookahead simulation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the lookahead selector.</p>
+<p>Initialise the lookahead selector.</p>
 <p>Args:
 current_collection_day: Current day in the collection cycle.
-kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments (ignored).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.lookahead.LookaheadSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_collection_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.lookahead.LookaheadSelector.select" title="Link to this definition">#</a></dt>
-<dd><p>Select bins predicted to overflow within dynamic horizon.</p>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_collection_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.lookahead.LookaheadSelector.select" title="Link to this definition">#</a></dt>
+<dd><p>Select bins predicted to overflow within the dynamic lookahead horizon.</p>
 <p>Args:
-fill_levels: Current fill levels [B, N].
-accumulation_rates: Mean daily waste generation per node [B, N].
-current_collection_day: Override for the reference day.
-kwargs: Additional keyword arguments.</p>
+fill_levels: Current fill levels, shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">N]</span></code>.
+accumulation_rates: Mean daily waste generation per node, shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">N]</span></code>.
+When <code class="docutils literal notranslate"><span class="pre">None</span></code> no prediction is possible and an empty mask is returned.
+current_collection_day: Override for the reference day; may be an
+<code class="docutils literal notranslate"><span class="pre">int</span></code>, a scalar <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>, or a per-batch <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code>.
+kwargs: Additional keyword arguments (ignored).</p>
 <p>Returns:
-torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
+torch.Tensor: Boolean mask <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">N]</span></code> where <code class="docutils literal notranslate"><span class="pre">True</span></code> means the bin
+must be collected.  Depot (index 0) is always <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 </dd></dl>

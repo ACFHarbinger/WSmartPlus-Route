@@ -139,4 +139,26 @@
 
 ````
 
+````{py:attribute} reward_weight
+:canonical: src.configs.models.decoding.DecodingConfig.reward_weight
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.models.decoding.DecodingConfig.reward_weight
+```
+
+````
+
+````{py:attribute} length_penalty_alpha
+:canonical: src.configs.models.decoding.DecodingConfig.length_penalty_alpha
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.models.decoding.DecodingConfig.length_penalty_alpha
+```
+
+````
+
 `````

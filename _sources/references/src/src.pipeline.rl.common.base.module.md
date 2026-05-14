@@ -97,6 +97,14 @@ Bases: {py:obj}`src.pipeline.rl.common.base.data.DataMixin`, {py:obj}`src.pipeli
 
 ````
 
+````{py:method} _build_pbrs_shaper() -> typing.Optional[logic.src.pipeline.rl.common.pbrs_wrapper.PBRSShaper]
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper
+```
+
+````
+
 ````{py:method} on_train_epoch_start() -> None
 :canonical: src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start
 

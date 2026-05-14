@@ -477,6 +477,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">NeuralParams.overflow_penalty</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_name"><code class="docutils literal notranslate"><span class="pre">NeuralParams.selector_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_threshold"><code class="docutils literal notranslate"><span class="pre">NeuralParams.selector_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy"><code class="docutils literal notranslate"><span class="pre">NeuralParams.decoding_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width"><code class="docutils literal notranslate"><span class="pre">NeuralParams.beam_width</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight"><code class="docutils literal notranslate"><span class="pre">NeuralParams.reward_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha"><code class="docutils literal notranslate"><span class="pre">NeuralParams.length_penalty_alpha</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.seed"><code class="docutils literal notranslate"><span class="pre">NeuralParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.from_config"><code class="docutils literal notranslate"><span class="pre">NeuralParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.to_dict"><code class="docutils literal notranslate"><span class="pre">NeuralParams.to_dict()</span></code></a></li>
@@ -533,6 +537,8 @@ cost_weight: Penalty multiplier for travel distance.
 overflow_penalty: Penalty multiplier for bin overflows.
 selector_name: Name of vectorized selector for mandatory filtering.
 selector_threshold: Confidence threshold for node selection.
+decoding_strategy: Decoding strategy (greedy, sampling, beam_search).
+beam_width: Width of the search beam if beam_search is used.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.waste_weight">
@@ -562,6 +568,30 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_threshold">
 <span class="sig-name descname"><span class="pre">selector_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_threshold" title="Link to this definition">#</a></dt>
 <dd><p>0.7</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy">
+<span class="sig-name descname"><span class="pre">decoding_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘greedy’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width">
+<span class="sig-name descname"><span class="pre">beam_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight">
+<span class="sig-name descname"><span class="pre">reward_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha">
+<span class="sig-name descname"><span class="pre">length_penalty_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -648,6 +678,10 @@ Dict[str, Any]: Dictionary representation of NeuralParams.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.overflow_penalty"><code class="docutils literal notranslate"><span class="pre">NeuralParams.overflow_penalty</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_name"><code class="docutils literal notranslate"><span class="pre">NeuralParams.selector_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.selector_threshold"><code class="docutils literal notranslate"><span class="pre">NeuralParams.selector_threshold</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.decoding_strategy"><code class="docutils literal notranslate"><span class="pre">NeuralParams.decoding_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.beam_width"><code class="docutils literal notranslate"><span class="pre">NeuralParams.beam_width</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.reward_weight"><code class="docutils literal notranslate"><span class="pre">NeuralParams.reward_weight</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.length_penalty_alpha"><code class="docutils literal notranslate"><span class="pre">NeuralParams.length_penalty_alpha</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.seed"><code class="docutils literal notranslate"><span class="pre">NeuralParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.from_config"><code class="docutils literal notranslate"><span class="pre">NeuralParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.learning_algorithms.neural_agent.params.NeuralParams.to_dict"><code class="docutils literal notranslate"><span class="pre">NeuralParams.to_dict()</span></code></a></li>

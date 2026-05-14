@@ -326,17 +326,6 @@
 
 ````
 
-````{py:attribute} decoding
-:canonical: src.configs.tasks.train.TrainConfig.decoding
-:type: logic.src.configs.models.decoding.DecodingConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.decoding
-```
-
-````
-
 ````{py:attribute} policy
 :canonical: src.configs.tasks.train.TrainConfig.policy
 :type: logic.src.configs.policies.na.NeuralAgentConfig

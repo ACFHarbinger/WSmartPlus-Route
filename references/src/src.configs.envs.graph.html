@@ -482,11 +482,11 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">GraphConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.start_day"><code class="docutils literal notranslate"><span class="pre">GraphConfig.start_day</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.reward"><code class="docutils literal notranslate"><span class="pre">GraphConfig.reward</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -545,7 +545,10 @@ focus_graph: Paths to the files with the coordinates of the graphs to focus on.
 focus_size: Number of focus graphs to include.
 n_samples: Number of samples/instances to generate for this graph.
 start_day: The starting day of the simulation.
-n_days: Number of days to generate for this graph.</p>
+n_days: Number of days to generate for this graph.
+reward: Per-graph objective/reward weights. When set, overrides <code class="docutils literal notranslate"><span class="pre">env.reward</span></code>
+for this graph during curriculum or evaluation. When <code class="docutils literal notranslate"><span class="pre">None</span></code>, the
+global <code class="docutils literal notranslate"><span class="pre">env.reward</span></code> is used.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.area">
 <span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.area" title="Link to this definition">#</a></dt>
@@ -607,12 +610,6 @@ n_days: Number of days to generate for this graph.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.eval_focus_size">
-<span class="sig-name descname"><span class="pre">eval_focus_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.eval_focus_size" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.load_dataset">
 <span class="sig-name descname"><span class="pre">load_dataset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.load_dataset" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -634,6 +631,12 @@ n_days: Number of days to generate for this graph.</p>
 <dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.n_days">
 <span class="sig-name descname"><span class="pre">n_days</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.n_days" title="Link to this definition">#</a></dt>
 <dd><p>1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.envs.graph.GraphConfig.reward">
+<span class="sig-name descname"><span class="pre">reward</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.configs.envs.objective.html#src.configs.envs.objective.ObjectiveConfig" title="src.configs.envs.objective.ObjectiveConfig"><span class="pre">src.configs.envs.objective.ObjectiveConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.envs.graph.GraphConfig.reward" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
 </dd></dl>
 
 </dd></dl>
@@ -701,11 +704,11 @@ n_days: Number of days to generate for this graph.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.edge_method"><code class="docutils literal notranslate"><span class="pre">GraphConfig.edge_method</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_graph"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_graph</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.focus_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.eval_focus_size"><code class="docutils literal notranslate"><span class="pre">GraphConfig.eval_focus_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.load_dataset"><code class="docutils literal notranslate"><span class="pre">GraphConfig.load_dataset</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_samples"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_samples</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.start_day"><code class="docutils literal notranslate"><span class="pre">GraphConfig.start_day</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.n_days"><code class="docutils literal notranslate"><span class="pre">GraphConfig.n_days</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.envs.graph.GraphConfig.reward"><code class="docutils literal notranslate"><span class="pre">GraphConfig.reward</span></code></a></li>
 </ul>
 </li>
 </ul>
