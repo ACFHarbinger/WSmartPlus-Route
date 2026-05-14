@@ -28,7 +28,6 @@ from logic.src.pipeline.features.test.orchestrator.monitor import (
     monitor_tasks_until_complete,
 )
 from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
-from logic.src.utils.configs.setup_utils import get_pol_name
 from logic.src.utils.tasks.simulation_utils import (
     prepare_parallel_task_args,
     print_execution_info,
@@ -148,7 +147,14 @@ def execute_and_monitor_tasks(
     """
     sim = cfg.sim
     policies = sim.full_policies
-    policy_names = [get_pol_name(p) for p in policies]
+
+    # Resolve all names upfront to avoid disagreement with workers
+    from logic.src.pipeline.simulations.day_context import resolve_policy_display_name, to_slug
+
+    resolved_info = [resolve_policy_display_name(p, sim) for p in policies]
+    policy_names = []
+    for _orig_id, display_name in resolved_info:
+        policy_names.append(to_slug(display_name))
     no_pbar = cfg.tracking.no_progress_bar
     display = initialize_simulation_display(policy_names, sim.n_samples, sim.days) if not no_pbar else None
 
@@ -168,7 +174,8 @@ def execute_and_monitor_tasks(
             failed_log.append(result)
             return
 
-        pol_name = list(result.keys())[0]
+        # Get the policy name from the result dict (excluding success/sample_id/etc)
+        pol_name = next((k for k in result.keys() if k not in ["success", "sample_id"]), "unknown")
 
         # Clear from shared_metrics to avoid double counting, NOW safely after we have the final result
         if shared_metrics is not None and sample_id is not None:
@@ -231,4 +238,4 @@ def cleanup_multiprocessing_pool(pool: Pool) -> None:
         pool.close()
         pool.join()
     except Exception:
-        pass
+        pool.terminate()
