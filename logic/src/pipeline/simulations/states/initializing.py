@@ -80,7 +80,7 @@ class InitializingState(SimState):
         self._setup_capacities(ctx)
 
         # Checkpoints
-        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, sim.checkpoint_dir, ctx.pol_name, ctx.sample_id)
+        ctx.checkpoint = SimulationCheckpoint(ctx.results_dir, sim.checkpoint_dir, ctx.pol_id_orig, ctx.sample_id)
         saved_state, last_day = self._load_checkpoint_if_needed(ctx)
 
         # Setup Models
@@ -238,8 +238,8 @@ class InitializingState(SimState):
         """
         # If policy config was not correctly loaded in __init__ (common when passing paths in config_path)
         # we re-link it here from the correctly loaded context config registry.
-        if not ctx.pol_cfg and ctx.pol_name in ctx.config:
-            ctx.pol_cfg = ctx.config[ctx.pol_name]
+        if not ctx.pol_cfg and ctx.pol_id_orig in ctx.config:
+            ctx.pol_cfg = ctx.config[ctx.pol_id_orig]
 
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:

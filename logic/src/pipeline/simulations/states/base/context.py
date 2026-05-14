@@ -29,11 +29,14 @@ from logic.src.constants import (
 )
 from logic.src.pipeline.simulations.states.base.base import SimState
 from logic.src.pipeline.simulations.states.initializing import InitializingState
-from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
+from logic.src.tracking.logging.pylogger import get_pylogger
 
 if TYPE_CHECKING:
     from logic.src.configs import Config
     from logic.src.pipeline.simulations.checkpoints import SimulationCheckpoint
+
+
+logger = get_pylogger(__name__)
 
 
 class SimulationContext:
@@ -72,6 +75,7 @@ class SimulationContext:
     end_time: Optional[float] = None
 
     pol_name: str = ""
+    display_name: str = ""
     pol_id: int = 0
     pol_cfg: Dict[str, Any] = {}
 
@@ -135,30 +139,15 @@ class SimulationContext:
         raw_policy = policies[pol_id]
 
         # Use robust utility to extract policy name and ensure config is a plain dict
-        self.pol_name = get_pol_name(raw_policy)
-        sanitized_policy = deep_sanitize(raw_policy)
+        from logic.src.utils.configs.setup_utils import deep_sanitize
 
-        # 1. Handle case where raw_policy is just a string (common in expanded test-sim)
-        if isinstance(sanitized_policy, str):
-            try:
-                config_paths = cfg.sim.config_path
-                if config_paths is None:
-                    config_paths = {}
-            except Exception:
-                config_paths = {}
-            # Try to find the config for this policy name in the config_path map
-            if self.pol_name in config_paths:
-                loaded_cfg = deep_sanitize(config_paths[self.pol_name])
-                self.pol_cfg = loaded_cfg if isinstance(loaded_cfg, dict) else {}
-            else:
-                self.pol_cfg = {}
-        # 2. Handle structured dictionary case
-        elif isinstance(sanitized_policy, dict) and len(sanitized_policy) == 1 and self.pol_name in sanitized_policy:
-            self.pol_cfg = sanitized_policy[self.pol_name]
-        elif isinstance(sanitized_policy, dict):
-            self.pol_cfg = sanitized_policy
-        else:
-            self.pol_cfg = {}
+        self.pol_cfg = deep_sanitize(raw_policy)
+
+        # Use centralized utility for consistent name resolution across processes
+        from logic.src.pipeline.simulations.day_context import resolve_policy_display_name, to_slug
+
+        self.pol_id_orig, self.display_name = resolve_policy_display_name(raw_policy, sim)
+        self.pol_name = to_slug(self.display_name)
 
         self._continue_init(variables_dict, pol_id)
 

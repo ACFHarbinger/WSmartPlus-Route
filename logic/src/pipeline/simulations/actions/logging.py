@@ -61,7 +61,7 @@ class LogAction(SimulationAction):
         )
 
         context["daily_log"] = dlog
-        policy_name = context["policy_name"]
+        policy_name = context.get("display_name", context["policy_name"])
 
         # Pretty terminal output
         console = Console()
