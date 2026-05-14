@@ -93,7 +93,7 @@ def get_pol_name(pol_obj: Any) -> str:
             except (ValueError, SyntaxError):
                 return "unnamed_policy"
 
-        if len(name) > 64:
+        if len(name) > 256:
             return "unnamed_policy"
 
         return name

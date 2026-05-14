@@ -212,7 +212,7 @@ def display_log_metrics(
 
     display_simulation_summary_table(
         log,
-        title=f"Final Simulation Summary: [bold cyan]{area}[/] ({n_samples} Samples, {days} Days)",
+        title=f"Final Simulation Summary: [bold cyan]{area} {size} nodes[/] ({n_samples} Samples, {days} Days)",
         lock=lock,
     )
 
@@ -264,14 +264,14 @@ def single_simulation(
 
         context = SimulationContext(cfg, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
         res: Optional[Dict[str, Any]] = context.run()
-        # Aggregate execution result
-        if res and "success" in res and res["success"]:
-            # If successful, extract the policy name to return the correct dictionary key
-            pol_name = get_pol_name(policies[pol_id])
-            if pol_name in res:
-                return {pol_name: res[pol_name], "success": True, "sample_id": sample_id}
 
-        print(f"\n[INFO] Finished simulation for policy {pol_id} and sample {sample_id}")
+        pol_name = get_pol_name(policies[pol_id])
+        # Aggregate execution result
+        if res and "success" in res and res["success"] and pol_name in res:
+            # If successful, extract the policy name to return the correct dictionary key
+            return {pol_name: res[pol_name], "success": True, "sample_id": sample_id}
+
+        print(f"\n[INFO] Finished simulation for policy {pol_name} and sample {sample_id}")
         return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
         # Report to redirected stderr so it's captured in simulation log files
@@ -430,19 +430,28 @@ def sequential_simulations(  # noqa: C901
             - log_std: Dict[policy] -> List[std_metrics] (None if n_samples=1)
             - failed_log: List of error result dictionaries
     """
+    from logic.src.pipeline.simulations.day_context import resolve_policy_display_name, to_slug
+
     sim = cfg.sim
     policies = sim.full_policies
 
     log: Dict[str, Any] = {}
     failed_log: List[Dict[str, Any]] = []
     log_std: Optional[Dict[str, Any]] = {}
-    log_full: Dict[str, List[List[float]]] = {get_pol_name(policy): [] for policy in policies}
+    # Resolve full policy names early to ensure consistency between simulator and context
+    resolved_names = []
+    for policy in policies:
+        orig_name, full_pretty_name = resolve_policy_display_name(policy, sim)
+        resolved_name = to_slug(full_pretty_name)
+        resolved_names.append(resolved_name)
+
+    log_full: Dict[str, List[List[float]]] = {name: [] for name in resolved_names}
 
     counter = SimpleCounter()
     loop_tic = time.time()
-    last_reported_days = {p: 0 for p in policies}
-    log_tmp: Dict[str, Any] = {p: {} for p in policies}
-    policy_names = [get_pol_name(p) for p in policies]
+    last_reported_days = {name: 0 for name in resolved_names}
+    log_tmp: Dict[str, Any] = {name: {} for name in resolved_names}
+    policy_names = resolved_names
 
     from logic.src.pipeline.features.test.orchestrator.monitor import initialize_simulation_display
 
@@ -466,8 +475,8 @@ def sequential_simulations(  # noqa: C901
         f"{sim.graph.area}_{sim.graph.num_loc}",
     )
 
-    for pol_id, policy in enumerate(policies):
-        pol_name = get_pol_name(policy)
+    for pol_id, _ in enumerate(policies):
+        pol_name = resolved_names[pol_id]
         for sample_id in sample_idx_ls[pol_id]:
             try:
                 variables_dict: Dict[str, Any] = {

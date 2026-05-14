@@ -75,9 +75,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
 
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
-    mdl.Params.LogToConsole = 0
     mdl.Params.Seed = seed
-
     x = mdl.addVars(pares_viaveis, vtype=GRB.BINARY, name="x")
     g = mdl.addVars(nodes, vtype=GRB.BINARY, name="g")
 

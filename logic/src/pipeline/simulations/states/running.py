@@ -132,9 +132,9 @@ class RunningState(SimState):
                     current_policy_config[g_key] = ctx.config[g_key]
 
         # 2. ADD POLICY-SPECIFIC CONFIG FROM CONTEXT
-        # This can come from ctx.pol_cfg (structured) or ctx.config[ctx.pol_name] (auto-expanded test-sim)
-        if ctx.config and ctx.pol_name in ctx.config:
-            pol_data = ctx.config[ctx.pol_name]
+        # This can come from ctx.pol_cfg (structured) or ctx.config[ctx.pol_id_orig] (auto-expanded test-sim)
+        if ctx.config and ctx.pol_id_orig in ctx.config:
+            pol_data = ctx.config[ctx.pol_id_orig]
             if isinstance(pol_data, (dict, Mapping)):
                 # Ensure it's deeply converted or updated properly
                 current_policy_config.update(dict(pol_data))
@@ -159,10 +159,12 @@ class RunningState(SimState):
         assert ctx.dist_tup is not None
         (distance_matrix, paths_between_states, dm_tensor, distancesC) = ctx.dist_tup
 
+        display_name = getattr(ctx, "display_name", ctx.pol_name)
         return SimulationDayContext(
             graph_size=sim.graph.num_loc,
             full_policy=ctx.pol_name,
             policy_name=ctx.pol_name,
+            display_name=display_name,
             bins=ctx.bins,
             new_data=ctx.new_data,
             coords=ctx.coords,

@@ -16,6 +16,7 @@ Example:
 
 from __future__ import annotations
 
+import os
 import random
 import zlib
 from collections.abc import Mapping
@@ -67,6 +68,241 @@ def get_canonical_policy_name(policy_name: str) -> str:
     return policy_name
 
 
+def _clean(name: Any) -> str:  # noqa: C901
+    """Clean a policy/strategy name for display."""
+    if name is None:
+        return "None"
+
+    # Handle lists/sequences (including OmegaConf ListConfig and nested lists)
+    # Recursively unwrap until we find a string or a dict/config
+    if not isinstance(name, str) and hasattr(name, "__iter__") and not hasattr(name, "items"):
+        try:
+            name_list = list(name)
+            if len(name_list) > 0:
+                # Try each item until we find something valid
+                for item in name_list:
+                    cleaned = _clean(item)
+                    if cleaned != "None":
+                        return cleaned
+            return "None"
+        except Exception:
+            return "None"
+
+    # Handle string names/paths
+    if isinstance(name, str):
+        if name.lower() in ["none", "null", "false", "[]", "none.yaml"]:
+            return "None"
+
+        # If it's a full path, get the basename
+        base = os.path.basename(name)
+        # Remove common prefixes and extensions
+        for p in ["ms_", "ri_", "policy_", ".yaml", ".xml", ".json"]:
+            base = base.replace(p, "")
+
+        # Clean up any remaining directory parts if basename failed (e.g. windows paths)
+        if "/" in base:
+            base = base.split("/")[-1]
+        if "\\" in base:
+            base = base.split("\\")[-1]
+
+        return base.replace("_", " ").title()
+
+    # Handle structured config objects (Dataclasses, Dicts, DictConfigs)
+    if hasattr(name, "strategy"):
+        return _clean(name.strategy)
+
+    if hasattr(name, "get") or isinstance(name, Mapping):
+        # Check exhaustive list of common keys for strategies
+        for k in ["strategy", "type", "name", "id", "model", "method"]:
+            val = name.get(k) if hasattr(name, "get") else name.get(k, None)
+            if val:
+                cleaned = _clean(val)
+                if cleaned != "None":
+                    return cleaned
+        return "Custom"
+
+    return "None"
+
+
+# Recursive helper to find naming keys in potentially nested/listed configs
+def find_policy_keys(obj: Any) -> Dict[str, Any]:
+    """
+    Recursively find mandatory_selection and route_improvement keys in a config.
+    Searches for synonyms and handles deep nesting.
+
+    Args:
+        obj: The configuration object (dict, list, DictConfig, etc.)
+
+    Returns:
+        Dictionary containing the found keys.
+    """
+    found = {}
+
+    # Synonyms for metadata keys
+    MS_KEYS = {"mandatory_selection", "ms", "node_selection", "selection_strategy"}
+    RI_KEYS = {"route_improvement", "ri", "improvement_strategy", "local_search"}
+
+    # Handle Mapping (dict, DictConfig)
+    if isinstance(obj, Mapping) or hasattr(obj, "items"):
+        # 1. Check current level for direct matches or synonyms
+        for key, value in obj.items():
+            if key in MS_KEYS:
+                if value is not None and str(value).lower() not in ["none", "null", "false", "[]"]:
+                    found["mandatory_selection"] = value
+            elif key in RI_KEYS and value is not None and str(value).lower() not in ["none", "null", "false", "[]"]:
+                found["route_improvement"] = value
+
+        # 2. Recurse into all values to find deeper configurations
+        # We process values in order, so deeper values will overwrite shallower ones
+        for v in obj.values():
+            if v is not None and not isinstance(v, (str, int, float, bool)):
+                inner = find_policy_keys(v)
+                if inner:
+                    found.update(inner)
+
+    # Handle sequences (list, ListConfig)
+    elif hasattr(obj, "__iter__") and not isinstance(obj, str):
+        for item in obj:
+            if item is not None and not isinstance(item, (str, int, float, bool)):
+                inner = find_policy_keys(item)
+                if inner:
+                    found.update(inner)
+
+    return found
+
+
+def build_naming_config(pol_cfg: Any, global_sim_cfg: Any) -> Dict[str, Any]:
+    """
+    Build a configuration dictionary specifically for naming resolution.
+    It combines keys found in the policy config with global simulation defaults.
+
+    Args:
+        pol_cfg: The policy-specific configuration.
+        global_sim_cfg: The global simulation configuration (ctx.cfg.sim).
+
+    Returns:
+        A dictionary with 'mandatory_selection' and 'route_improvement' keys.
+    """
+    # 1. Extract keys from policy config (recursive)
+    extracted = find_policy_keys(pol_cfg)
+
+    # 2. Fallback to global simulation defaults if keys are missing or None
+    for key in ["mandatory_selection", "route_improvement"]:
+        if not extracted.get(key) and hasattr(global_sim_cfg, key):
+            val = getattr(global_sim_cfg, key)
+            if val:
+                extracted[key] = val
+
+    return extracted
+
+
+def resolve_policy_display_name(policy: Any, sim_cfg: Any) -> Tuple[str, str]:
+    """Resolves the original policy ID and its full descriptive display name.
+
+    Args:
+        policy: The policy configuration (string or dict).
+        sim_cfg: The simulation configuration.
+
+    Returns:
+        Tuple of (pol_id_orig, display_name)
+    """
+    from logic.src.utils.configs.config_loader import load_config
+    from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
+
+    pol_id_orig = get_pol_name(policy)
+    sanitized_policy = deep_sanitize(policy)
+    pol_cfg = {}
+
+    if isinstance(sanitized_policy, str):
+        config_paths = deep_sanitize(sim_cfg.config_path) if hasattr(sim_cfg, "config_path") else {}
+        if pol_id_orig in config_paths:
+            loaded_cfg = deep_sanitize(config_paths[pol_id_orig])
+            if isinstance(loaded_cfg, dict):
+                pol_cfg = loaded_cfg
+            elif isinstance(loaded_cfg, str) and os.path.exists(loaded_cfg):
+                try:
+                    pol_cfg = load_config(loaded_cfg)
+                except Exception:
+                    pol_cfg = {}
+    elif isinstance(sanitized_policy, dict) and len(sanitized_policy) == 1 and pol_id_orig in sanitized_policy:
+        pol_cfg = sanitized_policy[pol_id_orig]
+    elif isinstance(sanitized_policy, dict):
+        pol_cfg = sanitized_policy
+
+    sanitized_pol_cfg = deep_sanitize(pol_cfg)
+    naming_cfg = build_naming_config(sanitized_pol_cfg, sim_cfg)
+    display_name = get_full_policy_name(pol_id_orig, naming_cfg)
+
+    return pol_id_orig, display_name
+
+
+def to_slug(name: str) -> str:
+    """Converts a display name to a safe slug string for IDs and filenames.
+
+    Replaces ' + ' with '_', removes '()', and converts to lowercase.
+
+    Args:
+        name: The display name to convert.
+
+    Returns:
+        The slug string.
+    """
+    return name.replace(" + ", "_").replace(" ", "_").replace("(", "").replace(")", "").lower()
+
+
+def get_full_policy_name(pol_name: str, config: Dict[str, Any]) -> str:
+    """
+    Construct a descriptive policy name including mandatory selection and route improvement.
+
+    This reflects the entire construction and improvement stack.
+
+    Args:
+        pol_name: Base policy name (the route constructor).
+        config: The naming configuration dictionary.
+
+    Returns:
+        A formatted name string (e.g., 'Lookahead + AM + None').
+    """
+
+    # 1. Extract Mandatory Selection
+    ms = config.get("mandatory_selection")
+    ms_name = _clean(ms)
+
+    # 2. Extract Route Construction (Base Policy)
+    # Strip common prefixes/suffixes
+    base_id = pol_name.lower().replace("policy_", "")
+
+    # Remove distribution suffix and anything after it
+    for suffix in ["_emp", "_gamma"]:
+        if suffix in base_id:
+            base_id = base_id.split(suffix)[0]
+
+    if "_" in base_id:
+        # If it looks expanded (e.g., 'ms_regular_alns_ri_none'), try to extract the middle
+        parts = base_id.split("_")
+        if "ms" in parts or "ri" in parts:
+            # It's already expanded, try to find the 'constructor' part
+            # This is a bit heuristic but should work for most cases
+            for p in parts:
+                if p not in ["ms", "ri", "none", "custom", "alns", "hgs", "new", "og"]:
+                    base_id = p
+                    break
+
+    base_name = base_id.upper()
+    # Extract distribution suffix to append at the end
+    dist_tag = ""
+    for suffix in ["_emp", "_gamma"]:
+        if suffix in pol_name.lower():
+            dist_tag = f" ({suffix.replace('_', '').capitalize()})"
+            break
+
+    # 3. Extract Route Improvement
+    ri = config.get("route_improvement")
+    ri_name = _clean(ri)
+
+    return f"{ms_name} + {base_name} + {ri_name}{dist_tag}"
+
+
 @dataclass
 class SimulationDayContext(Mapping):
     """
@@ -106,6 +342,7 @@ class SimulationDayContext(Mapping):
         threshold: Decision threshold for bin selection.
         seed: Base seed for the simulation.
         policy_seed: Policy-specific seed for RNG isolation.
+        display_name: Descriptive name for logging (e.g., 'Regular + ALNS + None').
 
         # Mutable attributes added during run_day
         daily_log: Dictionary for daily logs.
@@ -159,6 +396,7 @@ class SimulationDayContext(Mapping):
     threshold: Optional[float] = None
     seed: int = 42
     policy_seed: Optional[int] = None  # Policy-specific seed for RNG isolation
+    display_name: str = ""
 
     # Optional/Mutable Fields
     daily_log: Optional[Dict[str, Any]] = None
