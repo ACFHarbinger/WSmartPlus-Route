@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} save_updated_dm
+:canonical: src.configs.envs.graph.GraphConfig.save_updated_dm
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.save_updated_dm
+```
+
+````
+
 ````{py:attribute} edge_threshold
 :canonical: src.configs.envs.graph.GraphConfig.edge_threshold
 :type: typing.Union[float, int, str]

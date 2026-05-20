@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.models.subnets.embeddings.context.vrpp
+src.models.subnets.embeddings.context.wcvrp
+src.models.subnets.embeddings.context.cvrpp
 src.models.subnets.embeddings.context.base
 src.models.subnets.embeddings.context.generic
-src.models.subnets.embeddings.context.vrpp
-src.models.subnets.embeddings.context.cvrpp
-src.models.subnets.embeddings.context.wcvrp
 ```
 
 ## Package Contents

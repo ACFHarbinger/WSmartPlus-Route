@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl
-src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params
 src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver
+src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params
 ```
 
 ## Package Contents

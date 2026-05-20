@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.deterministic
-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.reversed
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.random_search
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.reversed
 ```
 
 ## Package Contents

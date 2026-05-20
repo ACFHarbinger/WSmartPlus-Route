@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_improvement.base.factory
 src.policies.route_improvement.base.registry
+src.policies.route_improvement.base.factory
 ```
 
 ## Package Contents

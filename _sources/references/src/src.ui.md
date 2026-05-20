@@ -14,9 +14,9 @@
 :maxdepth: 3
 
 src.ui.components
-src.ui.pages
-src.ui.styles
 src.ui.services
+src.ui.styles
+src.ui.pages
 ```
 
 ## Submodules

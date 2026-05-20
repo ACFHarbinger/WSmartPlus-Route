@@ -14,8 +14,8 @@
 :maxdepth: 3
 
 src.envs.routing
-src.envs.generators
 src.envs.tasks
+src.envs.generators
 src.envs.base
 ```
 
@@ -25,9 +25,9 @@ src.envs.base
 :titlesonly:
 :maxdepth: 1
 
-src.envs.dr_alns
 src.envs.tsp_kopt
 src.envs.problems
+src.envs.dr_alns
 ```
 
 ## Package Contents

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp
 src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.params
+src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.policy_adp
 src.policies.route_construction.learning_algorithms.approximate_dynamic_programming_with_rollout.adp_engine
 ```
 

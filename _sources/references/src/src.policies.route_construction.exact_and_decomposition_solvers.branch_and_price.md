@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params
-src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.policy_bp
 src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.policy_bp
+src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params
 ```
 
 ## Package Contents

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.other_algorithms.sequential_route_constructor.params
 src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src
+src.policies.route_construction.other_algorithms.sequential_route_constructor.params
 ```
 
 ## Package Contents

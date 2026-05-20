@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params
 src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.policy_lrh
+src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params
 ```
 
 ## Package Contents

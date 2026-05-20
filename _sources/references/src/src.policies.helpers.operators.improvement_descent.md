@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.improvement_descent.node_exchange_steepest
 src.policies.helpers.operators.improvement_descent.or_opt_steepest
+src.policies.helpers.operators.improvement_descent.node_exchange_steepest
 src.policies.helpers.operators.improvement_descent.steepest_two_opt
 ```
 

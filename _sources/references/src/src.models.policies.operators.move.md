@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.operators.move.relocate
 src.models.policies.operators.move.swap
+src.models.policies.operators.move.relocate
 ```

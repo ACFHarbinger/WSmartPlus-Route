@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.selection_and_construction.joint_simulated_annealing.params
 src.policies.selection_and_construction.joint_simulated_annealing.policy_jsa
+src.policies.selection_and_construction.joint_simulated_annealing.params
 ```
 
 ## Package Contents

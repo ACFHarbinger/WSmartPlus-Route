@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.volleyball_premier_league.params
-src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl
 src.policies.route_construction.meta_heuristics.volleyball_premier_league.solver
+src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl
+src.policies.route_construction.meta_heuristics.volleyball_premier_league.params
 ```
 
 ## Package Contents

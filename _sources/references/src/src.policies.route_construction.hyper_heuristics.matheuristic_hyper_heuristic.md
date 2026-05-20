@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params
 src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.policy_mhh
+src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params
 ```
 
 ## Package Contents

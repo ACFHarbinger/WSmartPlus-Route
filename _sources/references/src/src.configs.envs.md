@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.configs.envs.graph
-src.configs.envs.env
 src.configs.envs.objective
+src.configs.envs.env
 ```
 
 ## Package Contents

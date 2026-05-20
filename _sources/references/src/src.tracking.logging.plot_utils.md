@@ -26,7 +26,7 @@
 ````{py:data} __all__
 :canonical: src.tracking.logging.plot_utils.__all__
 :value: >
-   ['plot_linechart', 'draw_graph', 'plot_tsp', 'plot_vehicle_routes', 'discrete_cmap', 'plot_attention...
+   ['plot_linechart', 'plot_3dchart', 'draw_graph', 'plot_tsp', 'plot_vehicle_routes', 'discrete_cmap',...
 
 ```{autodoc2-docstring} src.tracking.logging.plot_utils.__all__
 ```

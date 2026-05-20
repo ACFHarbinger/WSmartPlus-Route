@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.mandatory_selection.base.selection_factory
-src.policies.mandatory_selection.base.eoq
 src.policies.mandatory_selection.base.selection_registry
+src.policies.mandatory_selection.base.eoq
 ```
 
 ## Package Contents

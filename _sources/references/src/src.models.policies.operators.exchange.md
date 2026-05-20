@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.models.policies.operators.exchange.ejection_chain
 src.models.policies.operators.exchange.or_opt
 src.models.policies.operators.exchange.cross_exchange
-src.models.policies.operators.exchange.ejection_chain
 src.models.policies.operators.exchange.lambda_interchange
 ```
 

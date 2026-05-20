@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
-src.tracking.logging.modules
 src.tracking.logging.plotting
 src.tracking.logging.visualization
+src.tracking.logging.modules
 ```
 
 ## Submodules
@@ -25,14 +25,14 @@ src.tracking.logging.visualization
 :maxdepth: 1
 
 src.tracking.logging.plot_utils
-src.tracking.logging.json_formatter
-src.tracking.logging.log_visualization
 src.tracking.logging.structured_logging
-src.tracking.logging.logger_writer
-src.tracking.logging.log_utils
 src.tracking.logging.pylogger
+src.tracking.logging.logger_writer
 src.tracking.logging.logstash_handler
 src.tracking.logging.visualize_utils
+src.tracking.logging.log_utils
+src.tracking.logging.json_formatter
+src.tracking.logging.log_visualization
 ```
 
 ## Package Contents

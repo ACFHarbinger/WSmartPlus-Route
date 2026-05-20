@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params
 src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver
+src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params
 src.policies.route_construction.meta_heuristics.quantum_differential_evolution.policy_qde
 ```

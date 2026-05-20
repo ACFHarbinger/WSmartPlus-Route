@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.graph.generation
 src.utils.graph.conversion
 src.utils.graph.network_utils
-src.utils.graph.generation
 src.utils.graph.algorithms
 ```
 

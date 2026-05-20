@@ -15,8 +15,8 @@
 
 src.models.core.neuopt.decoder
 src.models.core.neuopt.policy
-src.models.core.neuopt.model
 src.models.core.neuopt.encoder
+src.models.core.neuopt.model
 ```
 
 ## Package Contents

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.harmony_search.params
 src.policies.route_construction.meta_heuristics.harmony_search.solver
 src.policies.route_construction.meta_heuristics.harmony_search.policy_hs
+src.policies.route_construction.meta_heuristics.harmony_search.params
 ```
 
 ## Package Contents

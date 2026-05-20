@@ -14,11 +14,11 @@
 :maxdepth: 3
 
 src.models.subnets.other
-src.models.subnets.embeddings
+src.models.subnets.encoders
 src.models.subnets.factories
 src.models.subnets.modules
-src.models.subnets.encoders
 src.models.subnets.decoders
+src.models.subnets.embeddings
 ```
 
 ## Package Contents

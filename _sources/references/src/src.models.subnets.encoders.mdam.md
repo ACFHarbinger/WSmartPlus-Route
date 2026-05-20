@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.mdam.mdam_attention_layer
 src.models.subnets.encoders.mdam.encoder
+src.models.subnets.encoders.mdam.mdam_attention_layer
 ```
 
 ## Package Contents

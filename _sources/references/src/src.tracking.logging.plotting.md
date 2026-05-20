@@ -13,10 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.logging.plotting.charts
-src.tracking.logging.plotting.interactive
+src.tracking.logging.plotting.charts3d
 src.tracking.logging.plotting.routes
 src.tracking.logging.plotting.attention
+src.tracking.logging.plotting.interactive
+src.tracking.logging.plotting.charts
 ```
 
 ## Package Contents
@@ -38,7 +39,7 @@ src.tracking.logging.plotting.attention
 ````{py:data} __all__
 :canonical: src.tracking.logging.plotting.__all__
 :value: >
-   ['plot_linechart', 'draw_graph', 'plot_tsp', 'plot_vehicle_routes', 'discrete_cmap', 'plot_attention...
+   ['plot_linechart', 'plot_3dchart', 'draw_graph', 'plot_tsp', 'plot_vehicle_routes', 'discrete_cmap',...
 
 ```{autodoc2-docstring} src.tracking.logging.plotting.__all__
 ```
