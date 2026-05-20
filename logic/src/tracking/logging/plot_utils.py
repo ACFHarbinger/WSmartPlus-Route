@@ -6,6 +6,7 @@ solutions, attention maps, and training metrics.
 
 Attributes:
     plot_linechart: Generates 2D line charts for metric tracking.
+    plot_3dchart: Generates 3D charts for multi-policy metric tracking.
     draw_graph: Visualizes problem graphs and nodes.
     plot_tsp: Plots Traveling Salesman Problem solutions.
     plot_vehicle_routes: Visualizes multi-vehicle routing paths.
@@ -22,6 +23,7 @@ import matplotlib.pyplot as plt
 from .plotting import (
     discrete_cmap,
     draw_graph,
+    plot_3dchart,
     plot_attention_maps_wrapper,
     plot_linechart,
     plot_tsp,
@@ -31,6 +33,7 @@ from .plotting import (
 
 __all__ = [
     "plot_linechart",
+    "plot_3dchart",
     "draw_graph",
     "plot_tsp",
     "plot_vehicle_routes",

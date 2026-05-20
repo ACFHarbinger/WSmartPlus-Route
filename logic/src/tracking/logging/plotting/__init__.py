@@ -6,7 +6,8 @@ charts, interactive heatmaps, neural attention maps, and geographic/cartesian
 route rendering.
 
 Attributes:
-    plot_linechart: Main entry point for static metric charts.
+    plot_linechart: Main entry point for static 2D metric charts.
+    plot_3dchart: Main entry point for static 3D metric charts.
     draw_graph: Coordinate-free graph visualization.
     plot_tsp: Renders single-vehicle tours.
     plot_vehicle_routes: Renders multi-vehicle VRP solutions.
@@ -21,6 +22,7 @@ Example:
 
 from .attention import plot_attention_maps_wrapper
 from .charts import plot_linechart
+from .charts3d import plot_3dchart
 from .interactive import visualize_interactive_plot
 from .routes import (
     discrete_cmap,
@@ -31,6 +33,7 @@ from .routes import (
 
 __all__ = [
     "plot_linechart",
+    "plot_3dchart",
     "draw_graph",
     "plot_tsp",
     "plot_vehicle_routes",
