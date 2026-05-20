@@ -98,7 +98,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: ["other/ri_rls.yaml"]
+    route_improvement: ["other/ri_ftsp.yaml"]
     # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================

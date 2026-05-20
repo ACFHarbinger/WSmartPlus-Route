@@ -98,7 +98,7 @@ alns:
     - engine: "custom"
       # Execution backend: logic/src/policies/adaptive_large_neighborhood_search.py
 
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
