@@ -78,11 +78,11 @@ class FinishingState(SimState):
 
         daily_log_path = os.path.join(
             ctx.results_dir,
-            f"daily_{sim.data_distribution}_{sim.n_samples}N.json",
+            f"daily_{sim.data_distribution}_{sim.graph.n_samples}N.json",
         )
 
-        if sim.n_samples > 1:
-            log_path = os.path.join(ctx.results_dir, f"log_full_{sim.n_samples}N.json")
+        if sim.graph.n_samples > 1:
+            log_path = os.path.join(ctx.results_dir, f"log_full_{sim.graph.n_samples}N.json")
             log_to_json(
                 log_path,
                 SIM_METRICS,
@@ -98,7 +98,7 @@ class FinishingState(SimState):
                 lock=ctx.lock,
             )
         else:
-            log_path = os.path.join(ctx.results_dir, f"log_mean_{sim.n_samples}N.json")
+            log_path = os.path.join(ctx.results_dir, f"log_mean_{sim.graph.n_samples}N.json")
             log_to_json(log_path, SIM_METRICS, {ctx.pol_name: lg}, lock=ctx.lock)
             assert ctx.daily_log is not None
             log_to_json(
@@ -181,7 +181,7 @@ class FinishingState(SimState):
                         p_name = get_pol_name(policy)
                         pol_results = []
                         # Collect all samples for this policy
-                        for s_id in range(sim.n_samples):
+                        for s_id in range(sim.graph.n_samples):
                             res_key = f"res_{p_name}_{s_id}"
                             if res_key in shared_metrics:
                                 pol_results.append(shared_metrics[res_key])
@@ -194,7 +194,7 @@ class FinishingState(SimState):
                     if all_aggregated_results:
                         display_simulation_summary_table(
                             all_aggregated_results,
-                            title=f"Simulation Summary: [bold cyan]{sim.graph.area}[/] ({sim.n_samples} Samples, {sim.days} Days)",
+                            title=f"Simulation Summary: [bold cyan]{sim.graph.area}[/] ({sim.graph.n_samples} Samples, {sim.graph.n_days} Days)",
                         )
 
         # Forward final aggregated metrics to the centralised tracker (no-op if no run active)

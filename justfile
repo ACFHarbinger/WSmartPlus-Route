@@ -38,8 +38,9 @@ hpo_improver_kw := ""
 
 #policies := "na"
 
-policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
+policies := "aco_hh,psoma"
 
+#"aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
 #policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
 # --- Setup & Environment ---
 
@@ -112,7 +113,50 @@ test-sim policies=policies area=area samples=samples n_cores=n_cores:
         sim.graph.area={{ area }} \
         sim.cpu_cores={{ n_cores }}
 
-# Run policy HPO for simulation
+# Remove targeted simulation runs from output artefacts.
+#
+# Usage:
+#   just clean-results results_dir=assets/output/30_days/riomaior_100 distribution=emp constructor=alns
+#   just clean-results results_dir=assets/output/30_days/riomaior_100 improver=ftsp dry_run=true
+#
+# Parameters:
+#   results_dir  — path to the output folder (required)
+#   distribution — space-separated distribution tags  (emp gamma1 gamma2 gamma3)
+#   constructor  — route constructor(s)               (alns hgs aco_hh bpc psoma …)
+#   ms_strategy  — mandatory-selection strategy/ies   (lookahead last_minute regular)
+#   improver     — route improver(s)                  (ftsp rls rds none …)
+#   dry_run      — set to "true" to preview without deleting (default: false)
+#   quiet        — set to "true" to suppress per-item output (default: false)
+
+results_dir := "assets/output/30_days/riomaior_100"
+distribution := ""
+constructor := ""
+ms_strategy := ""
+improver := ""
+dry_run := "false"
+quiet := "false"
+
+clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING SIMULATION RESULTS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Results Dir:" "{{ results_dir }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructor:" "{{ constructor }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "MS Strategy:" "{{ ms_strategy }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:" "{{ dry_run }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python -m logic.src.cli.target_parser \
+        --results-dir {{ results_dir }} \
+        $([ -n "{{ distribution }}" ] && echo "--distribution {{ distribution }}" || true) \
+        $([ -n "{{ constructor }}" ] && echo "--constructor {{ constructor }}" || true) \
+        $([ -n "{{ ms_strategy }}" ] && echo "--ms-strategy {{ ms_strategy }}" || true) \
+        $([ -n "{{ improver }}" ] && echo "--improver {{ improver }}" || true) \
+        $([ "{{ dry_run }}" = "true" ] && echo "--dry-run" || true) \
+        $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)
+
+
 
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:

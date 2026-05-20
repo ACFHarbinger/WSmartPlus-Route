@@ -15,6 +15,7 @@ from logic.src.cli.base import ConfigsParser
 from logic.src.cli.benchmark_parser import add_benchmark_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args
+from logic.src.cli.target_parser import add_target_args
 from logic.src.cli.ts_parser import add_test_suite_args
 
 
@@ -44,6 +45,13 @@ def get_parser() -> ConfigsParser:
     # Benchmark
     bench_parser = subparsers.add_parser("benchmark", help="Run performance benchmarks")
     add_benchmark_args(bench_parser)
+
+    # Clean Results
+    clean_parser = subparsers.add_parser(
+        "clean_results",
+        help="Remove targeted simulation runs from output artefacts",
+    )
+    add_target_args(clean_parser)
 
     # TUI
 

@@ -42,7 +42,7 @@ class TestSimulation:
         """Test running multiple samples sequentially."""
         lock, _ = mock_lock_counter
         cfg = wsr_opts
-        cfg.sim.n_samples = 2
+        cfg.sim.graph.n_samples = 2
         cfg.sim.full_policies = ["pol1"]
         cfg.sim.policies = ["pol1"]
         mocker.patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path))
@@ -52,7 +52,7 @@ class TestSimulation:
                      return_value={"pol1": [1.0, 2.0], "success": True})
 
         # Create output dir
-        results_dir = tmp_path / "assets" / cfg.sim.output_dir / f"{cfg.sim.days}_days" / f"{cfg.sim.graph.area}_{cfg.sim.graph.num_loc}"
+        results_dir = tmp_path / "assets" / cfg.sim.output_dir / f"{cfg.sim.graph.n_days}_days" / f"{cfg.sim.graph.area}_{cfg.sim.graph.num_loc}"
         results_dir.mkdir(parents=True, exist_ok=True)
 
         log, log_std, failed = sequential_simulations(

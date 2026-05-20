@@ -45,6 +45,7 @@ class GraphConfig:
     vertex_method: Optional[str] = "mmn"
     distance_method: str = "ogd"
     dm_filepath: Optional[str] = None
+    save_updated_dm: Optional[str] = None
     edge_threshold: Union[float, int, str] = "0"
     edge_method: Optional[str] = None
     focus_graph: Optional[str] = None

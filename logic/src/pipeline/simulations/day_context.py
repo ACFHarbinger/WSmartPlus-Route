@@ -288,7 +288,6 @@ def get_full_policy_name(pol_name: str, config: Dict[str, Any]) -> str:
                     base_id = p
                     break
 
-    base_name = base_id.upper()
     # Extract distribution suffix to append at the end
     dist_tag = ""
     for suffix in ["_emp", "_gamma"]:
@@ -300,6 +299,12 @@ def get_full_policy_name(pol_name: str, config: Dict[str, Any]) -> str:
     ri = config.get("route_improvement")
     ri_name = _clean(ri)
 
+    # Remove redundant route improvement name from base_id to prevent duplication
+    ri_slug = ri_name.lower()
+    if ri_slug != "none" and ri_slug in base_id:
+        base_id = base_id.replace(f"_{ri_slug}", "").replace(f"{ri_slug}_", "").replace(ri_slug, "")
+
+    base_name = base_id.upper()
     return f"{ms_name} + {base_name} + {ri_name}{dist_tag}"
 
 

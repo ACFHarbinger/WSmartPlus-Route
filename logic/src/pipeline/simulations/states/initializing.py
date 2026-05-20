@@ -354,7 +354,10 @@ class InitializingState(SimState):
             sim.symkey_name,
             sim.graph.edge_threshold,
             sim.graph.edge_method,
+            sim.graph.area,
+            sim.graph.n_days,
             ctx.indices,
+            save_updated_dm=getattr(sim.graph, "save_updated_dm", None),
         )
 
         model_name = ""
@@ -414,8 +417,8 @@ class InitializingState(SimState):
                 waste_file=getattr(sim.graph, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
-                n_days=sim.days,
-                n_samples=sim.n_samples,
+                n_days=sim.graph.n_days,
+                n_samples=sim.graph.n_samples,
                 seed=ctx.cfg.sim.seed + ctx.sample_id,
             )
             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
@@ -434,7 +437,7 @@ class InitializingState(SimState):
                 waste_file=getattr(sim.graph, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
-                n_days=sim.days,
-                n_samples=sim.n_samples,
+                n_days=sim.graph.n_days,
+                n_samples=sim.graph.n_samples,
                 seed=ctx.cfg.sim.seed + ctx.sample_id,
             )

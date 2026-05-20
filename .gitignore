@@ -474,3 +474,4 @@ assets/output/**/*.jsonl
 !**/fill_history/enchimentos*
 !logic/src/utils/validation/target
 !logic/src/pipeline/simulations/checkpoints
+!logic/src/utils/target

@@ -65,16 +65,16 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
     policies = sim.full_policies
     policy_names = [get_pol_name(p) for p in policies]
 
-    if sim.n_samples > 1:
+    if sim.graph.n_samples > 1:
         if sim.resume:
             output_stats_any: Any = output_stats
             return output_stats_any(
                 home_dir=str(udef.ROOT_DIR),
-                ndays=sim.days,
+                ndays=sim.graph.n_days,
                 nbins=sim.graph.num_loc,
                 output_dir=sim.output_dir,
                 area=sim.graph.area,
-                nsamples=sim.n_samples,
+                nsamples=sim.graph.n_samples,
                 policies=policy_names,
                 keys=udef.SIM_METRICS,
                 lock=lock,

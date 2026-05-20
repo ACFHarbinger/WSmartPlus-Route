@@ -13,6 +13,7 @@ Example:
     >>> callback.display(cfg)
 """
 
+import os
 import sys
 from typing import Any, Dict, Iterable, List, cast
 
@@ -21,6 +22,7 @@ from rich.console import Console
 from rich.table import Table
 
 from logic.src.configs import Config, MandatorySelectionConfig
+from logic.src.constants import ROOT_DIR
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 from logic.src.tracking.logging.logger_writer import LoggerWriter
@@ -272,11 +274,37 @@ class PolicySummaryCallback:
         for item in items:
             item_obj: object = item
             if isinstance(item_obj, str):
-                steps.append(item_obj)
+                if item_obj.endswith(".yaml") or item_obj.endswith(".xml"):
+                    fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item_obj)
+                    if os.path.exists(fpath):
+                        try:
+                            ri_cfg = load_config(fpath)
+                            if "methods" in ri_cfg:
+                                steps.extend(ri_cfg["methods"])
+                                continue
+                            else:
+                                if "config" in ri_cfg and len(ri_cfg) == 1:
+                                    ri_cfg = ri_cfg["config"]
+                                steps.extend(list(ri_cfg.keys()))
+                                continue
+                        except Exception:
+                            pass
+
+                # Fallback: strip path and extension if file not found or parse failed
+                name = item_obj
+                if name.startswith("other/ri_"):
+                    name = name[len("other/ri_") :]
+                elif name.startswith("other/"):
+                    name = name[len("other/") :]
+                if name.endswith(".yaml"):
+                    name = name[: -len(".yaml")]
+                elif name.endswith(".xml"):
+                    name = name[: -len(".xml")]
+                steps.append(name)
             elif isinstance(item_obj, ITraversable):
                 steps.append(list(item_obj.keys())[0])
 
-        return ", ".join(steps)
+        return ", ".join(steps) if steps else "None"
 
     def _extract_acceptance_criterion(self, config: Dict[str, Any]) -> str:
         """Extract the acceptance criterion method.

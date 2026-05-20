@@ -108,7 +108,6 @@ class RouteImprovementAction(SimulationAction):
             A list of instantiated route improver processors.
         """
         pp_name = ""
-        pp_params = {k: v for k, v in context.items() if k != "tour"}
         if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
             fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
             try:
@@ -116,11 +115,23 @@ class RouteImprovementAction(SimulationAction):
                 if "config" in cfg and len(cfg) == 1:
                     cfg = cfg["config"]
 
+                if "methods" in cfg:
+                    processors = []
+                    for k, v in cfg.items():
+                        if k != "methods":
+                            context[k] = v
+                    for method in cfg["methods"]:
+                        try:
+                            processors.append(factory.create(method))
+                        except Exception as e:
+                            logger.warning(f"Failed to create route improver {method}: {e}")
+                    return processors
+
                 for k, v in cfg.items():
                     pp_name = k
                     v_obj: object = v
                     if isinstance(v_obj, ITraversable):
-                        pp_params.update(v_obj)
+                        context.update(v_obj)
             except (OSError, ValueError) as e:
                 logger.warning(f"Error loading route_improvement config {item}: {e}")
                 return []

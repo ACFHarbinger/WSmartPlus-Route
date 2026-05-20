@@ -99,7 +99,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # route improvement
     # ---------------------------------------------------------------------
-    - route_improvement: []
+    - route_improvement: ["other/ms_last_minute_cf70.yaml"]
     # No route improvement needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 

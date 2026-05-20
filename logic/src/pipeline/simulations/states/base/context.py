@@ -132,7 +132,7 @@ class SimulationContext:
             ROOT_DIR,
             "assets",
             sim.output_dir,
-            str(sim.days) + "_days",
+            str(sim.graph.n_days) + "_days",
             str(sim.graph.area) + "_" + str(sim.graph.num_loc),
         )
         policies = sim.full_policies
