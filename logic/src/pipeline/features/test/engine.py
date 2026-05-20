@@ -89,7 +89,9 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
     print(f"Area {sim.graph.area} ({data_size} available) for {sim.graph.num_loc} bins")
     if data_size != sim.graph.num_loc and not sim.graph.focus_graph:
         wtype_suffix = f"_{sim.graph.waste_type}" if sim.graph.waste_type else ""
-        sim.graph.focus_graph = f"graphs_{sim.graph.area}_{sim.graph.num_loc}V_{sim.n_samples}N{wtype_suffix}.json"
+        sim.graph.focus_graph = (
+            f"graphs_{sim.graph.area}_{sim.graph.num_loc}V_{sim.graph.n_samples}N{wtype_suffix}.json"
+        )
 
     expand_policy_configs(cfg)
     _ensure_directories(cfg)
@@ -102,14 +104,14 @@ def run_wsr_simulator_test(cfg: Config, sinks: Optional[List[Any]] = None) -> No
     device = torch.device("cpu" if not use_cuda else f"cuda:{torch.cuda.device_count() - 1}")
 
     # --- Centralised experiment tracking ---
-    experiment_name = f"sim-{sim.graph.area}-{sim.graph.num_loc}bins-{sim.days}days"
+    experiment_name = f"sim-{sim.graph.area}-{sim.graph.num_loc}bins-{sim.graph.n_days}days"
     tracker = wst.init(experiment_name=experiment_name)
     policy_names = [p if not isinstance(p, dict) else list(p.keys())[0] for p in sim.full_policies]
     run_tags = {
         "area": sim.graph.area,
         "num_loc": str(sim.graph.num_loc),
-        "days": str(sim.days),
-        "n_samples": str(sim.n_samples),
+        "days": str(sim.graph.n_days),
+        "n_samples": str(sim.graph.n_samples),
         "policies": ",".join(policy_names),
         "seed": str(sim.seed),
         "distribution": sim.data_distribution,
@@ -167,8 +169,8 @@ def _validate_sim_config(cfg: Config) -> None:
     """
     sim = cfg.sim
 
-    assert sim.days >= 1, "Must run the simulation for 1 or more days"
-    assert sim.n_samples > 0, "Number of samples must be a positive integer"
+    assert sim.graph.n_days >= 1, "Must run the simulation for 1 or more days"
+    assert sim.graph.n_samples > 0, "Number of samples must be a positive integer"
 
     # Normalize area string (strip non-alpha, lowercase)
     sim.graph.area = re.sub(r"[^a-zA-Z]", "", sim.graph.area.lower())
@@ -244,7 +246,7 @@ def _ensure_directories(cfg: Config) -> None:
             udef.ROOT_DIR,
             "assets",
             sim.output_dir,
-            f"{sim.days}_days",
+            f"{sim.graph.n_days}_days",
             f"{sim.graph.area}_{sim.graph.num_loc}",
         )
         os.makedirs(parent_dir, exist_ok=True)
@@ -278,13 +280,13 @@ def _log_sim_params(run: wst.Run, cfg: Config) -> None:
     sim = cfg.sim
 
     params: Dict[str, Any] = {
-        "sim.days": sim.days,
-        "sim.n_samples": sim.n_samples,
+        "sim.graph.n_days": sim.graph.n_days,
+        "sim.graph.n_samples": sim.graph.n_samples,
         "sim.seed": sim.seed,
         "sim.data_distribution": sim.data_distribution,
-        "sim.area": sim.graph.area,
-        "sim.num_loc": sim.graph.num_loc,
-        "sim.waste_type": sim.graph.waste_type,
+        "sim.graph.area": sim.graph.area,
+        "sim.graph.num_loc": sim.graph.num_loc,
+        "sim.graph.waste_type": sim.graph.waste_type,
         "sim.cpu_cores": sim.cpu_cores,
         "sim.checkpoint_dir": str(getattr(sim, "checkpoint_dir", "")),
         "sim.output_dir": str(getattr(sim, "output_dir", "")),

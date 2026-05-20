@@ -10,10 +10,13 @@ Example:
 """
 
 import contextlib
+import os
 
 import numpy as np
+import pandas as pd
 import torch
 
+from logic.src.constants import ROOT_DIR
 from logic.src.data.network import compute_distance_matrix
 from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 
@@ -54,7 +57,10 @@ def setup_dist_path_tup(
     symkey_name,
     edge_thresh,
     edge_method,
+    area,
+    n_days,
     focus_idx=None,
+    save_updated_dm=None,
 ):
     """Compute distance matrix, edge structure and shortest paths.
 
@@ -68,7 +74,11 @@ def setup_dist_path_tup(
         symkey_name: Symmetric key name.
         edge_thresh: Edge filtering threshold.
         edge_method: Edge generation method.
+        area: Geographic area name (used to construct the save path).
+        n_days: Number of simulation days (used to construct the save path).
         focus_idx: Optional focus indices.
+        save_updated_dm: Optional filename to save the updated distance matrix under
+            ``assets/output/{n_days}_days/{area}_{size}/submatrix/``.
 
     Returns:
         Tuple of ((dist_matrix_edges, paths, dm_tensor, distC), adj_matrix).
@@ -83,6 +93,15 @@ def setup_dist_path_tup(
         focus_idx=focus_idx,
     )
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)
+    if save_updated_dm is not None and str(save_updated_dm).strip():
+        save_path = os.path.join(
+            ROOT_DIR, "assets", "output", f"{n_days}_days", f"{area}_{size}", "submatrix", save_updated_dm
+        )
+        print(f"[INFO] Saved {area} graph with {size} nodesdistancematrix to : ", save_path)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        with open(save_path, mode="w", newline="") as matrix_f:
+            matrix_f.write(",".join(map(str, bins_coordinates["ID"].to_numpy())) + "\n")
+        pd.DataFrame(dist_matrix_edges).to_csv(save_path, mode="a", index=False, header=False)
     paths = get_paths_between_states(size + 1, shortest_paths)
     dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0)
     distC = np.round(dist_matrix_edges * 10).astype("int32")
@@ -90,8 +109,8 @@ def setup_dist_path_tup(
     with contextlib.suppress(Exception):
         run = get_active_run() if get_active_run is not None else None
         if run is not None:
-            n_nonzero = int(np.count_nonzero(dist_matrix_edges))
-            n_total = int(dist_matrix_edges.size)
+            n_nonzero = np.count_nonzero(dist_matrix_edges)
+            n_total = dist_matrix_edges.size
             run.log_params(
                 {
                     "data.edge_threshold": float(edge_thresh),

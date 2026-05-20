@@ -118,13 +118,14 @@ psoma:
   # Infrastructure Settings
   # -------------------------------------------------------------------------
   seed: 42
-  profit_aware_operators: false
+  profit_aware_operators: true
   vrpp: true
 
   mandatory_selection:
     ["other/ms_lookahead.yaml"]
     # Node selection strategy for waste collection problems
 
-  route_improvement: []
+  route_improvement:
+    ["other/ri_ftsp.yaml"]
     # SA already refines routes; no further route improvement needed
 # =============================================================================

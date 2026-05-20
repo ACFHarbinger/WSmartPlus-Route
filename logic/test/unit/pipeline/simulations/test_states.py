@@ -227,7 +227,7 @@ class TestRunningState:
         state.handle(ctx)
 
         assert isinstance(ctx.current_state, FinishingState)
-        assert mock_run_day.call_count == mock_cfg.sim.days
+        assert mock_run_day.call_count == mock_cfg.sim.graph.n_days
 
     @patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
     def test_running_handle_checkpoint_error(self, mock_cp_manager, mock_cfg, ctx_vars):

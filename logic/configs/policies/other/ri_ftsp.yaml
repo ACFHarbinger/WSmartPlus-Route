@@ -30,4 +30,4 @@ methods:
   - "fast_tsp"
 
 # Fast TSP parameters
-time_limit: 10.0
+time_limit: 30.0

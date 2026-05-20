@@ -67,7 +67,7 @@ class TestPipelineFeaturesTest:
         mock_udef.PBAR_WAIT_TIME = 0.1
 
         cfg.sim.cpu_cores = 2
-        cfg.sim.n_samples = 2
+        cfg.sim.graph.n_samples = 2
 
         mock_load.return_value = [0, 1]
 
