@@ -36,8 +36,8 @@ def validate_sim_config(cfg: Config) -> None:
     graph = sim.graph
 
     # --- Core constraints ---
-    assert sim.days >= 1, "Must run the simulation for 1 or more days"
-    assert sim.n_samples > 0, "Number of samples must be non-negative integer"
+    assert graph.n_days >= 1, "Must run the simulation for 1 or more days"
+    assert graph.n_samples > 0, "Number of samples must be non-negative integer"
 
     # --- Sanitize area ---
     area = re.sub(r"[^a-zA-Z]", "", (graph.area or "").lower())

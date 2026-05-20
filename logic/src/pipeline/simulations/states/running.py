@@ -56,7 +56,7 @@ class RunningState(SimState):
         sim = ctx.cfg.sim
         realtime_log_path = os.path.join(
             ctx.results_dir,
-            f"log_realtime_{sim.data_distribution}_{sim.n_samples}N.jsonl",
+            f"log_realtime_{sim.data_distribution}_{sim.graph.n_samples}N.jsonl",
         )
 
         ctx.tic = time.perf_counter() + ctx.run_time
@@ -65,15 +65,15 @@ class RunningState(SimState):
             assert ctx.checkpoint is not None
             with checkpoint_manager(ctx.checkpoint, sim.checkpoint_days, ctx.get_current_state_tuple) as hook:
                 hook.set_timer(ctx.tic)
-                iterator = range(ctx.start_day, sim.days + 1)
+                iterator = range(ctx.start_day, sim.graph.n_days + 1)
                 self._run_simulation_days(ctx, iterator, hook, realtime_log_path)
 
-            logger.info(f"Simulation loop for policy {ctx.pol_name} complete. Processed {sim.days} days.")
+            logger.info(f"Simulation loop for policy {ctx.pol_name} complete. Processed {sim.graph.n_days} days.")
             ctx.transition_to(FinishingState())
         except CheckpointError as e:
             ctx.result = e.error_result
             if ctx.result:
-                final_simulation_summary(ctx.result, ctx.pol_name, sim.n_samples)
+                final_simulation_summary(ctx.result, ctx.pol_name, sim.graph.n_samples)
             ctx.transition_to(None)
 
     def _run_simulation_days(self, ctx, iterator, hook, realtime_log_path):

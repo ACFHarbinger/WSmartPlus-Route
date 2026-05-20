@@ -1,0 +1,1015 @@
+env:
+  name: vrpp
+  min_loc: 0.0
+  max_loc: 1.0
+  capacity: null
+  data_distribution: null
+  min_fill: 0.0
+  max_fill: 1.0
+  fill_distribution: uniform
+  stochastic: false
+  mean: 0.0
+  variance: 0.0
+  temporal_horizon: 0
+  curriculum_graphs: []
+  eval_graphs:
+  - area: riomaior
+    num_loc: 170
+    waste_type: plastic
+    vertex_method: mmn
+    distance_method: gmaps
+    dm_filepath: gmaps_distmat_plastic[riomaior].csv
+    save_updated_dm: null
+    edge_threshold: '0'
+    edge_method: null
+    focus_graph: graphs_170V_1N_plastic.json
+    focus_size: 512
+    load_dataset: data/datasets/vrpp/vrpp170_emp_val_time7_seed42.td
+    n_samples: 512
+    start_day: 0
+    n_days: 7
+    reward:
+      cost_weight: 2.5
+      waste_weight: 1.0
+      overflow_penalty: 1.0
+  graph:
+    num_loc: 170
+    n_samples: 12800
+    n_days: 1
+    start_day: 0
+    focus_graph: graphs_170V_1N_plastic.json
+    focus_size: 12800
+    area: riomaior
+    waste_type: plastic
+    vertex_method: mmn
+    distance_method: gmaps
+    dm_filepath: gmaps_distmat_plastic[riomaior].csv
+    edge_threshold: '0'
+    load_dataset: data/datasets/vrpp/vrpp170_emp_time100_seed42.td
+    reward:
+      cost_weight: 2.5
+      waste_weight: 1.0
+      overflow_penalty: 1.0
+graph:
+  area: riomaior
+  num_loc: 50
+  waste_type: plastic
+  vertex_method: mmn
+  distance_method: ogd
+  dm_filepath: null
+  save_updated_dm: null
+  edge_threshold: '0'
+  edge_method: null
+  focus_graph: null
+  focus_size: null
+  load_dataset: null
+  n_samples: 1
+  start_day: 0
+  n_days: 1
+  reward: null
+model:
+  name: am
+  encoder:
+    type: gat
+    embed_dim: 128
+    hidden_dim: 512
+    n_layers: 3
+    n_heads: 8
+    n_sublayers: 1
+    normalization:
+      norm_type: instance
+      epsilon: 1.0e-05
+      learn_affine: true
+      track_stats: false
+      momentum: 0.1
+      n_groups: 1
+      k_lrnorm: 1.0
+    activation:
+      name: gelu
+      param: 1.0
+      threshold: 6.0
+      replacement_value: 6.0
+      n_params: 3
+      range:
+      - 0.125
+      - 0.3333333333333333
+    dropout: 0.1
+    mask_inner: true
+    mask_graph: false
+    spatial_bias: false
+    connection_type: residual
+    aggregation_graph: avg
+    aggregation_node: sum
+    spatial_bias_scale: 1.0
+    hyper_expansion: 4
+  decoder:
+    type: glimpse
+    embed_dim: 128
+    hidden_dim: 512
+    n_layers: 2
+    n_heads: 8
+    normalization:
+      norm_type: instance
+      epsilon: 1.0e-05
+      learn_affine: true
+      track_stats: false
+      momentum: 0.1
+      n_groups: 1
+      k_lrnorm: 1.0
+    activation:
+      name: gelu
+      param: 1.0
+      threshold: 6.0
+      replacement_value: 6.0
+      n_params: 3
+      range:
+      - 0.125
+      - 0.3333333333333333
+    decoding:
+      strategy: greedy
+      beam_width: 1
+      temperature: 1.0
+      top_k: null
+      top_p: null
+      tanh_clipping: 0.0
+      mask_logits: true
+      multistart: false
+      num_starts: 1
+      select_best: false
+      reward_weight: 0.0
+      length_penalty_alpha: 0.0
+    dropout: 0.1
+    mask_logits: true
+    connection_type: residual
+    n_predictor_layers: 2
+    tanh_clipping: 10.0
+    hyper_expansion: 4
+  temporal_horizon: 0
+  policy_config: null
+  load_path: null
+train:
+  batch_size: 64
+  val_dataset: null
+  num_workers: 4
+  data_distribution: emp
+  seed: 42
+  precision: 16-mixed
+  train_time: true
+  accumulation_steps: 1
+  enable_scaler: false
+  checkpoint_epochs: 1
+  shrink_size: null
+  route_improvement_epochs: 0
+  lr_route_improvement: 0.001
+  efficiency_weight: 0.8
+  overflow_weight: 0.2
+  eval_only: false
+  checkpoint_encoder: false
+  resume: null
+  model_weights_path: model_weights
+  final_model_path: assets/model_weights/vrpp100_riomaior_plastic/emp/amgat0/epoch-1.pt
+  eval_batch_size: 64
+  persistent_workers: true
+  pin_memory: false
+  reload_dataloaders_every_n_epochs: 1
+  devices: auto
+  strategy: auto
+  env:
+    name: vrpp
+    min_loc: 0.0
+    max_loc: 1.0
+    capacity: null
+    data_distribution: null
+    min_fill: 0.0
+    max_fill: 1.0
+    fill_distribution: uniform
+    stochastic: false
+    mean: 0.0
+    variance: 0.0
+    temporal_horizon: 0
+    curriculum_graphs: []
+    eval_graphs: []
+  policy:
+    model:
+      name: am
+      encoder:
+        type: gat
+        embed_dim: 128
+        hidden_dim: 512
+        n_layers: 3
+        n_heads: 8
+        n_sublayers: null
+        normalization:
+          norm_type: batch
+          epsilon: 1.0e-05
+          learn_affine: true
+          track_stats: false
+          momentum: 0.1
+          n_groups: 1
+          k_lrnorm: 1.0
+        activation:
+          name: gelu
+          param: 1.0
+          threshold: 6.0
+          replacement_value: 6.0
+          n_params: 3
+          range:
+          - 0.125
+          - 0.3333333333333333
+        dropout: 0.1
+        mask_inner: true
+        mask_graph: false
+        spatial_bias: false
+        connection_type: residual
+        aggregation_graph: avg
+        aggregation_node: sum
+        spatial_bias_scale: 1.0
+        hyper_expansion: 4
+      decoder:
+        type: attention
+        embed_dim: 128
+        hidden_dim: 512
+        n_layers: 3
+        n_heads: 8
+        normalization:
+          norm_type: batch
+          epsilon: 1.0e-05
+          learn_affine: true
+          track_stats: false
+          momentum: 0.1
+          n_groups: 1
+          k_lrnorm: 1.0
+        activation:
+          name: gelu
+          param: 1.0
+          threshold: 6.0
+          replacement_value: 6.0
+          n_params: 3
+          range:
+          - 0.125
+          - 0.3333333333333333
+        decoding:
+          strategy: greedy
+          beam_width: 1
+          temperature: 1.0
+          top_k: null
+          top_p: null
+          tanh_clipping: 0.0
+          mask_logits: true
+          multistart: false
+          num_starts: 1
+          select_best: false
+          reward_weight: 0.0
+          length_penalty_alpha: 0.0
+        dropout: 0.1
+        mask_logits: true
+        connection_type: residual
+        n_predictor_layers: null
+        tanh_clipping: 10.0
+        hyper_expansion: 4
+      temporal_horizon: 0
+      policy_config: null
+      load_path: null
+    reward:
+      cost_weight: 1.0
+      waste_weight: 1.0
+      overflow_penalty: 1.0
+    mandatory_selection: null
+    route_improvement: null
+    seed: null
+    vrpp: true
+  callbacks:
+  - display:
+      _target_: logic.src.pipeline.callbacks.pytorch.training_display.TrainingDisplayCallback
+      metric_keys:
+      - train/reward
+      - val/reward
+      chart_title: 📈 Training Progress
+      history_length: null
+optim:
+  optimizer: rmsprop
+  lr: 0.0001
+  weight_decay: 0.0
+  lr_scheduler: lambda
+  lr_scheduler_kwargs: {}
+  lr_critic: 0.0001
+  lr_decay: 1.0
+  lr_min_value: 0.0
+  lr_min_decay: 1.0e-08
+rl:
+  algorithm: reinforce
+  baseline: exponential
+  bl_warmup_epochs: 0
+  entropy_weight: 0.05
+  max_grad_norm: 1.0
+  gamma: 1.0
+  exp_beta: 0.6
+  bl_alpha: 0.05
+  use_pbrs: false
+  pbrs_shaping_weight: 1.0
+  pbrs_potential: vrpp
+  ppo:
+    inner_epochs: 7
+    eps_clip: 0.2
+    value_loss_weight: 0.5
+    mini_batch_size: 0.25
+  sapo:
+    tau_pos: 0.1
+    tau_neg: 1.0
+  grpo:
+    group_size: 8
+    epsilon: 0.2
+    epochs: 3
+  pomo:
+    num_augment: 1
+    num_starts: null
+    augment_fn: dihedral8
+    mandatory_starts_only: false
+  symnco:
+    alpha: 0.2
+    beta: 1.0
+  imitation:
+    policy_config:
+      _target_: logic.src.configs.rl.policies.HGSALNSConfig
+      time_limit: 30.0
+      n_generations: 100
+      population_size: 50
+      elite_size: 10
+      mutation_rate: 0.2
+      crossover_rate: 0.7
+      alns_education_iterations: 50
+      alns_start_temp: 0.5
+      alns_cooling_rate: 0.9995
+      max_vehicles: 0
+    loss_fn: nll
+  gdpo:
+    objective_keys:
+    - reward_waste
+    - reward_cost
+    objective_weights: null
+    conditional_key: null
+    renormalize: true
+  adaptive_imitation:
+    il_weight: 1.0
+    il_decay: 0.95
+    patience: 5
+    threshold: 0.0001
+    decay_step: 1
+    epsilon: 1.0e-06
+    policy_config:
+      _target_: logic.src.configs.rl.policies.HGSALNSConfig
+      time_limit: 30.0
+      n_generations: 100
+      population_size: 50
+      elite_size: 10
+      mutation_rate: 0.2
+      crossover_rate: 0.7
+      alns_education_iterations: 50
+      alns_start_temp: 0.5
+      alns_cooling_rate: 0.9995
+      max_vehicles: 0
+    loss_fn: weighted_nll
+  dr_alns:
+    max_iterations: 100
+    n_destroy_ops: 3
+    n_repair_ops: 2
+    n_steps_per_epoch: 2048
+    batch_size: 64
+    inner_epochs: 10
+    lr: 0.0003
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_epsilon: 0.2
+    value_loss_coef: 0.5
+    entropy_coef: 0.01
+    max_grad_norm: 0.5
+meta_rl:
+  use_meta: false
+  meta_strategy: rnn
+  meta_lr: 0.001
+  meta_hidden_dim: 64
+  meta_history_length: 10
+  mrl_exploration_factor: 2.0
+  mrl_range:
+  - 0.01
+  - 5.0
+  mrl_batch_size: 256
+  mrl_step: 10
+  hrl_threshold: 0.9
+  hrl_epochs: 4
+  hrl_clip_eps: 0.2
+  hrl_pid_target: 0.0003
+  hrl_lambda_waste: 300.0
+  hrl_lambda_cost: 0.5
+  hrl_lambda_overflow_initial: 2000.0
+  hrl_lambda_overflow_min: 100.0
+  hrl_lambda_overflow_max: 5000.0
+  hrl_lambda_pruning: 0.5
+  hrl_lambda_mask_aux: 5.0
+  hrl_entropy_coef: 0.01
+  shared_encoder: true
+  gat_hidden_dim: 128
+  lstm_hidden_dim: 64
+  gate_prob_threshold: 0.5
+  lr_critic_value: 0.0001
+  cb_exploration_method: ucb
+  cb_num_configs: 10
+  cb_epsilon_decay: 0.995
+  cb_min_epsilon: 0.01
+  cb_context_features:
+  - waste
+  - overflow
+  - length
+  - visited_ratio
+  - day
+  cb_features_aggregation: avg
+  morl_objectives:
+  - waste_efficiency
+  - overflow_rate
+  morl_adaptation_rate: 0.1
+  env:
+    name: vrpp
+    min_loc: 0.0
+    max_loc: 1.0
+    capacity: null
+    data_distribution: null
+    min_fill: 0.0
+    max_fill: 1.0
+    fill_distribution: uniform
+    stochastic: false
+    mean: 0.0
+    variance: 0.0
+    temporal_horizon: 0
+    curriculum_graphs: []
+    eval_graphs: []
+hpo:
+  method: dehbo
+  metric: reward
+  n_trials: 0
+  n_epochs_per_trial: 10
+  num_workers: 4
+  search_space:
+    rl.entropy_weight:
+      type: float
+      low: 0.0
+      high: 0.1
+    optim.lr:
+      type: float
+      low: 1.0e-05
+      high: 0.001
+      log: true
+  hop_range:
+  - 0.0
+  - 2.0
+  fevals: 100
+  timeout: null
+  n_startup_trials: 5
+  n_warmup_steps: 3
+  min_fidelity: 1
+  max_fidelity: 10
+  interval_steps: 1
+  eta: 10.0
+  indpb: 0.2
+  tournsize: 3
+  cxpb: 0.7
+  mutpb: 0.2
+  n_pop: 20
+  n_gen: 10
+  cpu_cores: 1
+  train_best: true
+  local_mode: false
+  num_samples: 20
+  max_tres: 14
+  reduction_factor: 3
+  max_failures: 3
+  grid:
+  - 0.0
+  - 0.5
+  - 1.0
+  - 1.5
+  - 2.0
+  max_conc: 4
+  env:
+    name: vrpp
+    min_loc: 0.0
+    max_loc: 1.0
+    capacity: null
+    data_distribution: null
+    min_fill: 0.0
+    max_fill: 1.0
+    fill_distribution: uniform
+    stochastic: false
+    mean: 0.0
+    variance: 0.0
+    temporal_horizon: 0
+    curriculum_graphs: []
+    eval_graphs: []
+eval:
+  datasets: null
+  overwrite: false
+  output_filename: null
+  val_size: 12800
+  offset: 0
+  eval_batch_size: 256
+  decoding:
+    strategy: greedy
+    beam_width: 1
+    temperature: 1.0
+    top_k: null
+    top_p: null
+    tanh_clipping: 0.0
+    mask_logits: true
+    multistart: false
+    num_starts: 1
+    select_best: false
+    reward_weight: 0.0
+    length_penalty_alpha: 0.0
+  policy:
+    model:
+      name: am
+      encoder:
+        type: gat
+        embed_dim: 128
+        hidden_dim: 512
+        n_layers: 3
+        n_heads: 8
+        n_sublayers: null
+        normalization:
+          norm_type: batch
+          epsilon: 1.0e-05
+          learn_affine: true
+          track_stats: false
+          momentum: 0.1
+          n_groups: 1
+          k_lrnorm: 1.0
+        activation:
+          name: gelu
+          param: 1.0
+          threshold: 6.0
+          replacement_value: 6.0
+          n_params: 3
+          range:
+          - 0.125
+          - 0.3333333333333333
+        dropout: 0.1
+        mask_inner: true
+        mask_graph: false
+        spatial_bias: false
+        connection_type: residual
+        aggregation_graph: avg
+        aggregation_node: sum
+        spatial_bias_scale: 1.0
+        hyper_expansion: 4
+      decoder:
+        type: attention
+        embed_dim: 128
+        hidden_dim: 512
+        n_layers: 3
+        n_heads: 8
+        normalization:
+          norm_type: batch
+          epsilon: 1.0e-05
+          learn_affine: true
+          track_stats: false
+          momentum: 0.1
+          n_groups: 1
+          k_lrnorm: 1.0
+        activation:
+          name: gelu
+          param: 1.0
+          threshold: 6.0
+          replacement_value: 6.0
+          n_params: 3
+          range:
+          - 0.125
+          - 0.3333333333333333
+        decoding:
+          strategy: greedy
+          beam_width: 1
+          temperature: 1.0
+          top_k: null
+          top_p: null
+          tanh_clipping: 0.0
+          mask_logits: true
+          multistart: false
+          num_starts: 1
+          select_best: false
+          reward_weight: 0.0
+          length_penalty_alpha: 0.0
+        dropout: 0.1
+        mask_logits: true
+        connection_type: residual
+        n_predictor_layers: null
+        tanh_clipping: 10.0
+        hyper_expansion: 4
+      temporal_horizon: 0
+      policy_config: null
+      load_path: null
+    reward:
+      cost_weight: 1.0
+      waste_weight: 1.0
+      overflow_penalty: 1.0
+    mandatory_selection: null
+    route_improvement: null
+    seed: null
+    vrpp: true
+  seed: 42
+  data_distribution: null
+  no_cuda: false
+  compress_mask: false
+  max_calc_batch_size: 12800
+  results_dir: results
+  multiprocessing: false
+  env:
+    name: vrpp
+    min_loc: 0.0
+    max_loc: 1.0
+    capacity: null
+    data_distribution: null
+    min_fill: 0.0
+    max_fill: 1.0
+    fill_distribution: uniform
+    stochastic: false
+    mean: 0.0
+    variance: 0.0
+    temporal_horizon: 0
+    curriculum_graphs: []
+    eval_graphs: []
+  problem: cwcvrp
+sim:
+  policies: []
+  full_policies: []
+  data_distribution: gamma1
+  problem: vrpp
+  days: 31
+  seed: 42
+  output_dir: output
+  checkpoint_dir: temp
+  checkpoint_days: 0
+  n_samples: 1
+  resume: false
+  cpu_cores: 0
+  n_vehicles: 1
+  graph:
+    area: riomaior
+    num_loc: 50
+    waste_type: plastic
+    vertex_method: mmn
+    distance_method: ogd
+    dm_filepath: null
+    save_updated_dm: null
+    edge_threshold: '0'
+    edge_method: null
+    focus_graph: null
+    focus_size: null
+    load_dataset: null
+    n_samples: 1
+    start_day: 0
+    n_days: 1
+    reward: null
+  noise_mean: 0.0
+  noise_variance: 0.0
+  cache_regular: true
+  no_cuda: false
+  server_run: false
+  env_file: vars.env
+  gplic_file: null
+  symkey_name: null
+  gapik_file: null
+  stats_filepath: null
+  data_dir: null
+  policy_configs: {}
+  config_path: {}
+hpo_sim:
+  method: tpe
+  metric: profit
+  metrics: []
+  n_trials: 10
+  num_workers: 1
+  search_space: {}
+  policy_name: alns
+  selection_name: null
+  acceptance_name: null
+  improver_name: null
+  policy_keywords: null
+  selection_keywords: null
+  acceptance_keywords: null
+  improver_keywords: null
+  graph:
+    area: riomaior
+    num_loc: 50
+    waste_type: plastic
+    vertex_method: mmn
+    distance_method: ogd
+    dm_filepath: null
+    save_updated_dm: null
+    edge_threshold: '0'
+    edge_method: null
+    focus_graph: null
+    focus_size: null
+    load_dataset: null
+    n_samples: 5
+    start_day: 0
+    n_days: 1
+    reward: null
+data:
+  name: null
+  filename: null
+  data_dir: datasets
+  problem: all
+  mu: null
+  sigma: 0.6
+  data_distributions:
+  - all
+  penalty_factor: 3.0
+  overwrite: false
+  seed: 42
+  dataset_type: null
+  graphs: []
+tracking:
+  wst_tracking_uri: assets/tracking
+  mlflow_enabled: true
+  mlflow_tracking_uri: assets/logs/mlruns
+  mlflow_experiment_name: wsmart-route
+  mlflow_run_name: null
+  ray_tune_storage_path: ray_results
+  ray_tune_mlflow_enabled: true
+  zenml_enabled: true
+  zenml_store_url: ''
+  zenml_stack_name: wsmart-route-stack
+  wandb_mode: disabled
+  no_tensorboard: false
+  no_progress_bar: false
+  log_dir: logs/output
+  verbose: true
+  profile: false
+  log_step: 10
+  log_level: INFO
+  real_time_log: false
+  log_file: null
+  log_gradients: false
+  log_weights: false
+  log_activations: false
+  log_attention: false
+  log_memory: false
+  log_throughput: false
+  log_embeddings: false
+  log_loss_landscape: false
+  log_attention_heatmaps: false
+  log_profiling_report: false
+  nan_guard: false
+  viz_every_n_epochs: 0
+  profiler_buffer_size: 200
+mandatory_selection:
+  strategy: lookahead
+  last_minute:
+    threshold: 0.25
+  regular:
+    frequency: 3
+  service_level:
+    confidence_factor: 1.0
+  revenue:
+    revenue_kg: 1.0
+    bin_capacity: 1.0
+    revenue_threshold: 0.0
+  lookahead:
+    current_collection_day: 0
+  deadline:
+    horizon_days: 3
+    threshold: 0.9
+  multi_day_prob:
+    horizon_days: 3
+    threshold: 0.5
+  pareto_front:
+    threshold: 0.5
+  profit_per_km:
+    threshold: 0.0
+    revenue_kg: 1.0
+  spatial_synergy:
+    critical_threshold: 0.9
+    synergy_threshold: 0.6
+    radius: 10.0
+  stochastic_regret:
+    threshold: 0.1
+  combined:
+    strategies: null
+    logic: or
+  manager:
+    hidden_dim: 128
+    lstm_hidden: 64
+    history_length: 10
+    manager_critical_threshold: 0.9
+    manager_weights: null
+    device: cuda
+  mip_knapsack:
+    n_vehicles: 1
+    cost_per_km: 0.1
+    use_eoq_threshold: false
+    holding_cost_per_kg_day: 0.0
+    ordering_cost_per_visit: 0.0
+    overflow_penalty_frac: 1.0
+  fractional_knapsack:
+    n_vehicles: 1
+    cost_per_km: 0.1
+    use_eoq_threshold: false
+    holding_cost_per_kg_day: 0.01
+    ordering_cost_per_visit: 10.0
+    revenue_kg: 1.0
+    bin_capacity: 1.0
+  rollout:
+    rollout_horizon: 5
+    rollout_base_policy: last_minute
+    rollout_n_scenarios: 1
+    rollout_discount: 0.95
+  whittle:
+    whittle_discount: 0.95
+    whittle_grid_size: 21
+    n_vehicles: 1
+  cvar:
+    cvar_alpha: 0.95
+    threshold: 0.0
+  savings:
+    savings_min_fill_ratio: 0.5
+  set_cover:
+    service_radius: 5.0
+    critical_threshold: 0.9
+  modular_greedy:
+    modular_alpha: 1.0
+    modular_budget: 0
+  learned:
+    learned_model_path: null
+    learned_threshold: 0.5
+  thompson_dispatcher:
+    dispatcher_state_path: null
+    dispatcher_candidate_strategies: null
+    dispatcher_exploration: 1.0
+    dispatcher_mode: union
+  wasserstein:
+    wasserstein_radius: 0.1
+    wasserstein_p: 1
+  lagrangian:
+    n_vehicles: 1
+    cost_per_km: 0.1
+  bernoulli:
+    p: 0.5
+  kmeans_sector:
+    n_sectors: 5
+  staggered_regular:
+    period: 1
+  params: {}
+route_improvement:
+  methods:
+  - fast_tsp
+  fast_tsp:
+    time_limit: 2.0
+    seed: 42
+  lkh:
+    max_iterations: 1000
+    time_limit: 30.0
+    seed: 42
+  local_search:
+    ls_operator: 2opt
+    iterations: 1000
+    time_limit: 30.0
+    seed: 42
+  random_local_search:
+    iterations: 1000
+    params:
+      two_opt: 0.2
+      two_opt_star: 0.2
+      swap: 0.15
+      swap_star: 0.15
+      relocate: 0.15
+      three_opt: 0.1
+    time_limit: 30.0
+    seed: 42
+  path:
+    vehicle_capacity: 100.0
+  or_opt:
+    chain_len: 2
+    iterations: 500
+    seed: 42
+  cross_exchange:
+    cross_exchange_max_segment_len: 3
+    iterations: 500
+    seed: 42
+  guided_local_search:
+    gls_iterations: 20
+    gls_inner_iterations: 50
+    gls_lambda_factor: 0.1
+    gls_base_operator: or_opt
+    seed: 42
+  simulated_annealing:
+    acceptance_criterion:
+      method: bmc
+      params:
+        initial_temp: 1.0
+        alpha: 0.995
+        seed: 42
+    iterations: 2000
+    params:
+      two_opt: 0.2
+      two_opt_star: 0.15
+      swap: 0.15
+      swap_star: 0.15
+      relocate: 0.15
+      three_opt: 0.1
+      or_opt: 0.05
+      cross_exchange: 0.05
+    seed: 42
+  insertion:
+    cost_per_km: 0.0
+    revenue_kg: 0.0
+    regret_k: 2
+    detour_epsilon: 0.2
+    n_bins: null
+    seed: 42
+  ruin_recreate:
+    acceptance_criterion:
+      method: oi
+      params: {}
+    lns_iterations: 100
+    ruin_fraction: 0.2
+    repair_k: 2
+    cost_per_km: 0.0
+    revenue_kg: 0.0
+    seed: 42
+  adaptive_lns:
+    acceptance_criterion:
+      method: bmc
+      params: {}
+    alns_iterations: 200
+    ruin_fraction: 0.2
+    alns_bandit_warm_start_path: null
+    alns_ruin_ops:
+    - random
+    - worst
+    - shaw
+    - cluster
+    alns_repair_ops:
+    - greedy
+    - regret
+    repair_k: 2
+    cost_per_km: 0.0
+    revenue_kg: 0.0
+    seed: 42
+  multi_phase:
+    phases:
+    - cheapest_insertion
+    - lkh
+    seed: 42
+  fix_and_optimize:
+    fo_n_free: null
+    fo_free_fraction: 0.3
+    fo_time_limit: 30.0
+    seed: 42
+  set_partitioning:
+    sp_n_perturbations: 20
+    sp_include_dp: true
+    sp_time_limit: 60.0
+    ruin_fraction: 0.2
+    seed: 42
+  set_partitioning_polish:
+    route_pool: null
+    sp_time_limit: 60.0
+    seed: 42
+  branch_and_price:
+    bp_max_iterations: 100
+    bp_max_routes_per_iteration: 10
+    bp_optimality_gap: 0.0001
+    bp_branching_strategy: edge
+    bp_max_branch_nodes: 1000
+    bp_use_exact_pricing: true
+    bp_use_ng_routes: true
+    bp_ng_neighborhood_size: 8
+    bp_tree_search_strategy: best_first
+    bp_vehicle_limit: null
+    bp_cleanup_frequency: 20
+    bp_cleanup_threshold: -100.0
+    bp_early_termination_gap: 0.001
+    bp_allow_heuristic_ryan_foster: false
+    bp_time_limit: 120.0
+    bp_use_cspy: true
+    seed: 42
+  learned:
+    learned_weights_path: null
+    learned_max_iter: 100
+    learned_min_improvement: 0.0001
+    learned_neighborhood_size: 20
+    seed: 42
+  max_iter: 500
+  dp_max_nodes: 20
+  chain_lengths:
+  - 1
+  - 2
+  - 3
+  params: {}
+seed: 42
+device: cuda
+experiment_name: null
+task: train
+output_dir: assets/model_weights
+run_name: null
+start: 0
+p: {}
+callbacks: {}

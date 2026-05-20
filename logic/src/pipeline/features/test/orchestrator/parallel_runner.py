@@ -80,7 +80,7 @@ def run_parallel_simulations(
     counter = mp.Value("i", 0)
 
     # Prepare task arguments
-    args = prepare_parallel_task_args(sim.full_policies, sim.n_samples, indices, sample_idx_ls)
+    args = prepare_parallel_task_args(sim.full_policies, sim.graph.n_samples, indices, sample_idx_ls)
 
     # Print execution info
     print_execution_info(task_count, n_cores)
@@ -156,7 +156,9 @@ def execute_and_monitor_tasks(
     for _orig_id, display_name in resolved_info:
         policy_names.append(to_slug(display_name))
     no_pbar = cfg.tracking.no_progress_bar
-    display = initialize_simulation_display(policy_names, sim.n_samples, sim.days) if not no_pbar else None
+    display = (
+        initialize_simulation_display(policy_names, sim.graph.n_samples, sim.graph.n_days) if not no_pbar else None
+    )
 
     log_tmp = manager.dict()
     failed_log = manager.list()

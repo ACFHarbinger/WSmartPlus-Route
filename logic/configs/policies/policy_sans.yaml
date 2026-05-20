@@ -94,11 +94,11 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    mandatory_selection: ["other/ms_lookahead.yaml"]
+    mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
     # VRPP Settings
     vrpp: true
 
-    route_improvement: []
+    route_improvement: ["other/ri_rls.yaml"]
     # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================
@@ -122,7 +122,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: []
+    route_improvement: ["other/ri_ftsp.yaml"]
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
@@ -156,7 +156,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: []
+    route_improvement: ["other/ri_ftsp.yaml"]
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)

@@ -456,7 +456,7 @@ def sequential_simulations(  # noqa: C901
     from logic.src.pipeline.features.test.orchestrator.monitor import initialize_simulation_display
 
     display = (
-        initialize_simulation_display(policy_names, sim.n_samples, sim.days)
+        initialize_simulation_display(policy_names, sim.graph.n_samples, sim.graph.n_days)
         if not cfg.tracking.no_progress_bar
         else None
     )
@@ -471,7 +471,7 @@ def sequential_simulations(  # noqa: C901
         ROOT_DIR,
         "assets",
         sim.output_dir,
-        f"{sim.days}_days",
+        f"{sim.graph.n_days}_days",
         f"{sim.graph.area}_{sim.graph.num_loc}",
     )
 
@@ -537,11 +537,11 @@ def sequential_simulations(  # noqa: C901
                 # Skip broken checkpoints
                 pass
 
-        if sim.n_samples >= 1:
+        if sim.graph.n_samples >= 1:
             if sim.resume:
                 res_log, res_std = output_stats(
                     results_dir,
-                    sim.n_samples,
+                    sim.graph.n_samples,
                     [pol_name],
                     SIM_METRICS,
                     lock=lock,
@@ -559,14 +559,14 @@ def sequential_simulations(  # noqa: C901
                     log_std[pol_name] = [0.0] * len(log[pol_name])
 
                 log_to_json(
-                    os.path.join(results_dir, f"log_mean_{sim.n_samples}N.json"),
+                    os.path.join(results_dir, f"log_mean_{sim.graph.n_samples}N.json"),
                     SIM_METRICS,
                     {pol_name: log[pol_name]},
                     lock=lock,
                 )
                 if log_std is not None:
                     log_to_json(
-                        os.path.join(results_dir, f"log_std_{sim.n_samples}N.json"),
+                        os.path.join(results_dir, f"log_std_{sim.graph.n_samples}N.json"),
                         SIM_METRICS,
                         {pol_name: log_std[pol_name]},
                         lock=lock,

@@ -368,8 +368,8 @@ def objective(  # noqa: C901
     trial_cfg.sim.graph.num_loc = hpo_sim.graph.num_loc
     trial_cfg.sim.graph.area = hpo_sim.graph.area
     trial_cfg.sim.graph.waste_type = hpo_sim.graph.waste_type
-    trial_cfg.sim.days = hpo_sim.graph.n_days
-    trial_cfg.sim.n_samples = hpo_sim.graph.n_samples
+    trial_cfg.sim.graph.n_days = hpo_sim.graph.n_days
+    trial_cfg.sim.graph.n_samples = hpo_sim.graph.n_samples
 
     if hasattr(trial_cfg.sim.graph, "edge_threshold"):
         try:

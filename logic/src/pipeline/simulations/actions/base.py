@@ -14,36 +14,37 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Mapping
 
 
-def _find_mandatory(d: Any) -> Any:
+def _find_key(d: Any, target_key: str) -> Any:
     """
-    Recursively find the first occurrence of 'mandatory_selection' in a nested structure.
+    Recursively find the first occurrence of a target key in a nested structure.
     Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).
 
     Args:
         d: The nested structure to search within.
+        target_key: The key to search for.
 
     Returns:
-        The value of the first 'mandatory_selection' found, or None if not found.
+        The value of the first target key found, or None if not found.
     """
     if isinstance(d, dict) or hasattr(d, "items"):
         d_dict = dict(d) if hasattr(d, "items") else d
-        if "mandatory_selection" in d_dict:
-            return d_dict["mandatory_selection"]
+        if target_key in d_dict:
+            return d_dict[target_key]
         for val in d_dict.values():
-            res = _find_mandatory(val)
+            res = _find_key(val, target_key)
             if res is not None:
                 return res
     elif isinstance(d, (list, tuple)) or (
         not isinstance(d, (str, dict)) and hasattr(d, "__iter__")
     ):  # Handle sequences including ListConfig
         for item in d:
-            res = _find_mandatory(item)
+            res = _find_key(item, target_key)
             if res is not None:
                 return res
     return None
 
 
-def _flatten_config(cfg: Any) -> dict:
+def _flatten_config(cfg: Any) -> dict:  # noqa: C901
     """
     Helper to flatten nested configuration structures (e.g. hgs.custom -> list of dicts).
     Args:
@@ -62,7 +63,7 @@ def _flatten_config(cfg: Any) -> dict:
         # Safer key extraction
         key = next(iter(curr.keys()))
 
-        if key in ["mandatory_selection", "policy", "route_improvement"]:
+        if key in ["mandatory_selection", "policy", "route_improvement", "acceptance_criterion"]:
             break
         curr = curr[key]
 
@@ -89,10 +90,11 @@ def _flatten_config(cfg: Any) -> dict:
                 if primitive_list:
                     flat[_k] = primitive_list
 
-        if "mandatory_selection" not in flat:
-            mg = _find_mandatory(curr)
-            if mg:
-                flat["mandatory_selection"] = mg
+        for target in ["mandatory_selection", "route_improvement", "acceptance_criterion"]:
+            if target not in flat:
+                val = _find_key(curr, target)
+                if val is not None:
+                    flat[target] = val
 
         return flat
 
