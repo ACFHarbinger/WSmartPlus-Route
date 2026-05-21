@@ -458,7 +458,6 @@ mcp.json
 # Local files and directories
 **/results/
 **/daily_*/
-**/fill_history/
 mlruns/
 outputs/
 test_logs/
@@ -466,12 +465,15 @@ checkpoints/
 test_tracking/
 assets/output/**/*.jsonl
 
-# To include
+# Assets to include
 !assets/logs
 !assets/model_weights
 !assets/*.out
 !assets/*.pkl
-!**/fill_history/enchimentos*
+!**/checkpoints
+!**/fill_history
+
+# Logic to include
 !logic/src/utils/validation/target
 !logic/src/pipeline/simulations/checkpoints
 !logic/src/utils/target
