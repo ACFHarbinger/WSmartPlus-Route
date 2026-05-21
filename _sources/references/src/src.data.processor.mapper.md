@@ -109,7 +109,7 @@
 
 ````
 
-````{py:method} save_results(matrix: typing.List[typing.List[float]], results_dir: str, seed: int, data_dist: str, policy: str, sample_id: int) -> None
+````{py:method} save_results(matrix: typing.List[typing.List[float]], results_dir: str, seed: int, policy: str, sample_id: int) -> None
 :canonical: src.data.processor.mapper.SimulationDataMapper.save_results
 
 ```{autodoc2-docstring} src.data.processor.mapper.SimulationDataMapper.save_results

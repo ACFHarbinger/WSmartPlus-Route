@@ -35,6 +35,10 @@
   - ```{autodoc2-docstring} src.ui.pages.simulation.summary._extract_distributions
     :summary:
     ```
+* - {py:obj}`_load_aggregated_data <src.ui.pages.simulation.summary._load_aggregated_data>`
+  - ```{autodoc2-docstring} src.ui.pages.simulation.summary._load_aggregated_data
+    :summary:
+    ```
 * - {py:obj}`_build_summary_df <src.ui.pages.simulation.summary._build_summary_df>`
   - ```{autodoc2-docstring} src.ui.pages.simulation.summary._build_summary_df
     :summary:
@@ -109,6 +113,13 @@
 :canonical: src.ui.pages.simulation.summary._extract_distributions
 
 ```{autodoc2-docstring} src.ui.pages.simulation.summary._extract_distributions
+```
+````
+
+````{py:function} _load_aggregated_data(output_dir: str) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, typing.Any], typing.Dict[str, typing.Any]]
+:canonical: src.ui.pages.simulation.summary._load_aggregated_data
+
+```{autodoc2-docstring} src.ui.pages.simulation.summary._load_aggregated_data
 ```
 ````
 

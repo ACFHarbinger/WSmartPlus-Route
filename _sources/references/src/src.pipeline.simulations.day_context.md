@@ -735,7 +735,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 ```
 ````
 
-````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
+````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float, mandatory_nodes: typing.Optional[typing.List[int]] = None) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
 :canonical: src.pipeline.simulations.day_context.get_daily_results
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_daily_results

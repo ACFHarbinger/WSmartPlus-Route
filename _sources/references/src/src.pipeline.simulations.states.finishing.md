@@ -53,7 +53,7 @@ Bases: {py:obj}`src.pipeline.simulations.states.base.SimState`
 
 `````
 
-````{py:function} _log_result_artifacts(ctx: typing.Any, sim: typing.Any, log_path: str, daily_log_path: str) -> None
+````{py:function} _log_result_artifacts(ctx: typing.Any, sim: typing.Any, log_path: str) -> None
 :canonical: src.pipeline.simulations.states.finishing._log_result_artifacts
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.finishing._log_result_artifacts

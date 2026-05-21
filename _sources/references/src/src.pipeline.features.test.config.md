@@ -35,8 +35,8 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.config._parse_inner_components
     :summary:
     ```
-* - {py:obj}`_apply_ms_override <src.pipeline.features.test.config._apply_ms_override>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.config._apply_ms_override
+* - {py:obj}`_apply_overrides <src.pipeline.features.test.config._apply_overrides>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.config._apply_overrides
     :summary:
     ```
 * - {py:obj}`_clean_id <src.pipeline.features.test.config._clean_id>`
@@ -68,24 +68,24 @@
 ```
 ````
 
-````{py:function} _find_inner_config(pol_cfg: typing.Any) -> typing.Tuple[typing.Any, typing.Any]
+````{py:function} _find_inner_config(pol_cfg: typing.Any, pol_name: str = '') -> typing.Tuple[typing.Any, typing.Any]
 :canonical: src.pipeline.features.test.config._find_inner_config
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._find_inner_config
 ```
 ````
 
-````{py:function} _parse_inner_components(inner_cfg: typing.Any) -> typing.Tuple[typing.List[typing.Any], typing.List[typing.Any], int]
+````{py:function} _parse_inner_components(inner_cfg: typing.Any) -> typing.Tuple[typing.List[typing.Any], typing.List[typing.Any], typing.List[typing.Any], int, int]
 :canonical: src.pipeline.features.test.config._parse_inner_components
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._parse_inner_components
 ```
 ````
 
-````{py:function} _apply_ms_override(var_cfg: typing.Any, match_idx: int, ms_item: str) -> None
-:canonical: src.pipeline.features.test.config._apply_ms_override
+````{py:function} _apply_overrides(var_cfg: typing.Any, ms_idx: int, ms_item: typing.Any, ac_idx: int, ac_item: typing.Any) -> None
+:canonical: src.pipeline.features.test.config._apply_overrides
 
-```{autodoc2-docstring} src.pipeline.features.test.config._apply_ms_override
+```{autodoc2-docstring} src.pipeline.features.test.config._apply_overrides
 ```
 ````
 

@@ -478,7 +478,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._extract_variants"><code class="docutils literal notranslate"><span class="pre">_extract_variants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._find_inner_config"><code class="docutils literal notranslate"><span class="pre">_find_inner_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._parse_inner_components"><code class="docutils literal notranslate"><span class="pre">_parse_inner_components()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_ms_override"><code class="docutils literal notranslate"><span class="pre">_apply_ms_override()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_overrides"><code class="docutils literal notranslate"><span class="pre">_apply_overrides()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._clean_id"><code class="docutils literal notranslate"><span class="pre">_clean_id()</span></code></a></li>
 </ul>
 </li>
@@ -529,10 +529,10 @@ _clean_id: Clean an identifier string by removing a prefix and replacing undersc
 <td><p>Find the list of configurations/variants within a policy config.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._parse_inner_components" title="src.pipeline.features.test.config._parse_inner_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_inner_components</span></code></a></p></td>
-<td><p>Extract mandatory and route improvement lists from inner config.</p></td>
+<td><p>Extract mandatory, acceptance criteria, and route improvement lists.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._apply_ms_override" title="src.pipeline.features.test.config._apply_ms_override"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_ms_override</span></code></a></p></td>
-<td><p>Apply a mandatory override to a deep-copied config.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._apply_overrides" title="src.pipeline.features.test.config._apply_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_overrides</span></code></a></p></td>
+<td><p>Apply mandatory and acceptance criteria overrides to a deep-copied config.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._clean_id" title="src.pipeline.features.test.config._clean_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_id</span></code></a></p></td>
 <td><p>Clean a component ID from a path or string.</p></td>
@@ -577,32 +577,35 @@ Tuple of (variants, variant_name).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._find_inner_config">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_find_inner_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._find_inner_config" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_find_inner_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._find_inner_config" title="Link to this definition">#</a></dt>
 <dd><p>Find the list of configurations/variants within a policy config.</p>
 <p>Args:
-pol_cfg: Policy configuration object.</p>
+pol_cfg: Policy configuration object.
+pol_name: Policy name to use for matching the exact variant.</p>
 <p>Returns:
 Tuple of (inner_config, variant_name).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._parse_inner_components">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_parse_inner_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._parse_inner_components" title="Link to this definition">#</a></dt>
-<dd><p>Extract mandatory and route improvement lists from inner config.</p>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_parse_inner_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inner_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._parse_inner_components" title="Link to this definition">#</a></dt>
+<dd><p>Extract mandatory, acceptance criteria, and route improvement lists.</p>
 <p>Args:
 inner_cfg: Inner configuration object.</p>
 <p>Returns:
-Tuple of (mandatory_list, route_improvement_list, match_index).</p>
+Tuple of (ms_list, ac_list, pp_list, ms_idx, ac_idx).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.features.test.config._apply_ms_override">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_apply_ms_override</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._apply_ms_override" title="Link to this definition">#</a></dt>
-<dd><p>Apply a mandatory override to a deep-copied config.</p>
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._apply_overrides">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_apply_overrides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ac_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ac_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._apply_overrides" title="Link to this definition">#</a></dt>
+<dd><p>Apply mandatory and acceptance criteria overrides to a deep-copied config.</p>
 <p>Args:
 var_cfg: Deep-copied policy configuration object.
-match_idx: Index of the configuration to modify.
-ms_item: Mandatory list item to apply.</p>
+ms_idx: Index of the mandatory config to modify.
+ms_item: Mandatory list item to apply.
+ac_idx: Index of the acceptance criteria config to modify.
+ac_item: Acceptance criteria list item to apply.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -673,7 +676,7 @@ Cleaned identifier.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._extract_variants"><code class="docutils literal notranslate"><span class="pre">_extract_variants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._find_inner_config"><code class="docutils literal notranslate"><span class="pre">_find_inner_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._parse_inner_components"><code class="docutils literal notranslate"><span class="pre">_parse_inner_components()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_ms_override"><code class="docutils literal notranslate"><span class="pre">_apply_ms_override()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_overrides"><code class="docutils literal notranslate"><span class="pre">_apply_overrides()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._clean_id"><code class="docutils literal notranslate"><span class="pre">_clean_id()</span></code></a></li>
 </ul>
 </li>

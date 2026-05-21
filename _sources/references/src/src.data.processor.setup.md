@@ -34,7 +34,7 @@
 ```
 ````
 
-````{py:function} setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, edge_thresh, edge_method, area, n_days, focus_idx=None, save_updated_dm=None)
+````{py:function} setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, edge_thresh, edge_method, area, waste_type, n_days, distribution=None, focus_idx=None, save_updated_dm=None)
 :canonical: src.data.processor.setup.setup_dist_path_tup
 
 ```{autodoc2-docstring} src.data.processor.setup.setup_dist_path_tup

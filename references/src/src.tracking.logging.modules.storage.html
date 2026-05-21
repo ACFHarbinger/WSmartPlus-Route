@@ -478,6 +478,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage._sort_log"><code class="docutils literal notranslate"><span class="pre">_sort_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.sort_log"><code class="docutils literal notranslate"><span class="pre">sort_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_json"><code class="docutils literal notranslate"><span class="pre">log_to_json()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.update_policy_log_section"><code class="docutils literal notranslate"><span class="pre">update_policy_log_section()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_json2"><code class="docutils literal notranslate"><span class="pre">log_to_json2()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_pickle"><code class="docutils literal notranslate"><span class="pre">log_to_pickle()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.update_log"><code class="docutils literal notranslate"><span class="pre">update_log()</span></code></a></li>
@@ -534,13 +535,16 @@ update_log: Appends new results to an existing structured log.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_json" title="src.tracking.logging.modules.storage.log_to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_json</span></code></a></p></td>
 <td><p>Write or update a JSON log file with new policy results.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_json2" title="src.tracking.logging.modules.storage.log_to_json2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_json2</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.update_policy_log_section" title="src.tracking.logging.modules.storage.update_policy_log_section"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_policy_log_section</span></code></a></p></td>
+<td><p>Write or update a named section in a per-policy JSON log file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_json2" title="src.tracking.logging.modules.storage.log_to_json2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_json2</span></code></a></p></td>
 <td><p>Write or update a JSON log file (variant with different recovery logic).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_pickle" title="src.tracking.logging.modules.storage.log_to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_pickle</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_pickle" title="src.tracking.logging.modules.storage.log_to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_pickle</span></code></a></p></td>
 <td><p>Serialize a log object to a pickle file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.update_log" title="src.tracking.logging.modules.storage.update_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_log</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.update_log" title="src.tracking.logging.modules.storage.update_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_log</span></code></a></p></td>
 <td><p>Update existing log entries with new policy outputs.</p></td>
 </tr>
 </tbody>
@@ -602,6 +606,19 @@ sample_id: Index of the simulation sample (enables list-mode). Defaults to None.
 lock: Optional thread lock for atomic access. Defaults to None.</p>
 <p>Returns:
 Union[Dict[str, Any], List[Any]]: The updated full log state.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.storage.update_policy_log_section">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">update_policy_log_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.update_policy_log_section" title="Link to this definition">#</a></dt>
+<dd><p>Write or update a named section in a per-policy JSON log file.</p>
+<p>Args:
+json_path: Path to the per-policy JSON file.
+section: Top-level key to update (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;std&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;daily&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;samples&quot;</span></code>).
+data: Value to write into the section.
+sample_id: When provided the section is treated as a dict keyed by
+<code class="docutils literal notranslate"><span class="pre">str(sample_id)</span></code> so parallel samples can be appended safely.
+lock: Optional thread lock for atomic access.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -702,6 +719,7 @@ Union[Dict[str, Any], List[Any]]: The updated log state.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage._sort_log"><code class="docutils literal notranslate"><span class="pre">_sort_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.sort_log"><code class="docutils literal notranslate"><span class="pre">sort_log()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_json"><code class="docutils literal notranslate"><span class="pre">log_to_json()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.update_policy_log_section"><code class="docutils literal notranslate"><span class="pre">update_policy_log_section()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_json2"><code class="docutils literal notranslate"><span class="pre">log_to_json2()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.log_to_pickle"><code class="docutils literal notranslate"><span class="pre">log_to_pickle()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.storage.update_log"><code class="docutils literal notranslate"><span class="pre">update_log()</span></code></a></li>

@@ -502,8 +502,7 @@ document.write(`
 <p>This module provides functions to surgically remove specific policy runs
 from all simulation output artefacts:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">daily_{dist}_{N}N.json</span></code> / <code class="docutils literal notranslate"><span class="pre">log_mean_{N}N.json</span></code> / <code class="docutils literal notranslate"><span class="pre">log_std_{N}N.json</span></code>
-/ <code class="docutils literal notranslate"><span class="pre">log_full_{N}N.json</span></code> — keyed JSON files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_{policy}_{N}N.json</span></code> — per-policy JSON files containing mean, std, samples, and daily sections</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">log_realtime_{dist}_{N}N.jsonl</span></code> — prefixed JSONL stream files</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoints/</span></code> — per-policy/sample <code class="docutils literal notranslate"><span class="pre">.pkl</span></code> files</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fill_history/{dist}/</span></code> — per-policy XLSX files</p></li>
@@ -646,7 +645,7 @@ List of deleted (or would-be-deleted) file paths.</p>
 <p>Scans the given <em>results_dir</em> (e.g. <code class="docutils literal notranslate"><span class="pre">assets/output/30_days/riomaior_100</span></code>)
 and removes matching entries from:</p>
 <ul class="simple">
-<li><p>All <code class="docutils literal notranslate"><span class="pre">*.json</span></code> result files (daily, log_mean, log_std, log_full)</p></li>
+<li><p>All <code class="docutils literal notranslate"><span class="pre">log_*.json</span></code> per-policy result files</p></li>
 <li><p>All <code class="docutils literal notranslate"><span class="pre">*.jsonl</span></code> realtime log files</p></li>
 <li><p>All matching <code class="docutils literal notranslate"><span class="pre">checkpoints/*.pkl</span></code> files</p></li>
 <li><p>All matching <code class="docutils literal notranslate"><span class="pre">fill_history/**/*.xlsx</span></code> files</p></li>

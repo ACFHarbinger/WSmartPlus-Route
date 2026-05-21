@@ -35,6 +35,10 @@
   - ```{autodoc2-docstring} src.tracking.logging.modules.storage.log_to_json
     :summary:
     ```
+* - {py:obj}`update_policy_log_section <src.tracking.logging.modules.storage.update_policy_log_section>`
+  - ```{autodoc2-docstring} src.tracking.logging.modules.storage.update_policy_log_section
+    :summary:
+    ```
 * - {py:obj}`log_to_json2 <src.tracking.logging.modules.storage.log_to_json2>`
   - ```{autodoc2-docstring} src.tracking.logging.modules.storage.log_to_json2
     :summary:
@@ -83,6 +87,13 @@
 :canonical: src.tracking.logging.modules.storage.log_to_json
 
 ```{autodoc2-docstring} src.tracking.logging.modules.storage.log_to_json
+```
+````
+
+````{py:function} update_policy_log_section(json_path: str, section: str, data: typing.Any, sample_id: typing.Optional[int] = None, lock: typing.Optional[threading.Lock] = None) -> None
+:canonical: src.tracking.logging.modules.storage.update_policy_log_section
+
+```{autodoc2-docstring} src.tracking.logging.modules.storage.update_policy_log_section
 ```
 ````
 

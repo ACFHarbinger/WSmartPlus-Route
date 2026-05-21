@@ -99,7 +99,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`logic.src
 
 ````
 
-````{py:method} _validate_mandatory(mandatory: typing.Optional[typing.List[int]]) -> typing.Optional[typing.Tuple[typing.List[int], float]]
+````{py:method} _validate_mandatory(mandatory: typing.Optional[typing.List[int]]) -> typing.Optional[typing.Tuple[typing.List[int], float, float]]
 :canonical: src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._validate_mandatory
 
 ```{autodoc2-docstring} src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._validate_mandatory

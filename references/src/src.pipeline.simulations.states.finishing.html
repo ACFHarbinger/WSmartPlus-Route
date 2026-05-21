@@ -550,20 +550,18 @@ ctx: The simulation context object.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.finishing._log_result_artifacts">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.finishing.</span></span><span class="sig-name descname"><span class="pre">_log_result_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.finishing._log_result_artifacts" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.finishing.</span></span><span class="sig-name descname"><span class="pre">_log_result_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.finishing._log_result_artifacts" title="Link to this definition">#</a></dt>
 <dd><p>Register simulation output files with the active tracking run.</p>
 <p>Silently no-ops if no run is active or if any file doesn’t exist yet.</p>
 <p>Registered artifact types:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — primary JSON summary (per-sample full log or mean log)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — per-day JSON log for this <code class="docutils literal notranslate"><span class="pre">(policy,</span> <span class="pre">sample)</span></code> pair</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — per-policy JSON log containing samples, daily, mean, and std</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">result</span></code> — Excel fill-history matrix with metadata tag <code class="docutils literal notranslate"><span class="pre">fill_history</span></code></p></li>
 </ul>
 <p>Args:
 ctx: The simulation context object.
 sim: Root configuration object.
-log_path: Path to the main log file.
-daily_log_path: Path to the daily log file.</p>
+log_path: Path to the per-policy log file.</p>
 </dd></dl>
 
 </section>
