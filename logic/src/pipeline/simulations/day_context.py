@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import random
+import re
 import zlib
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
@@ -96,7 +97,7 @@ def _clean(name: Any) -> str:  # noqa: C901
         # If it's a full path, get the basename
         base = os.path.basename(name)
         # Remove common prefixes and extensions
-        for p in ["ms_", "ri_", "policy_", ".yaml", ".xml", ".json"]:
+        for p in ["ms_", "ri_", "ac_", "policy_", ".yaml", ".xml", ".json"]:
             base = base.replace(p, "")
 
         # Clean up any remaining directory parts if basename failed (e.g. windows paths)
@@ -141,6 +142,7 @@ def find_policy_keys(obj: Any) -> Dict[str, Any]:
     # Synonyms for metadata keys
     MS_KEYS = {"mandatory_selection", "ms", "node_selection", "selection_strategy"}
     RI_KEYS = {"route_improvement", "ri", "improvement_strategy", "local_search"}
+    AC_KEYS = {"acceptance_criteria", "acceptance_criterion", "ac"}
 
     # Handle Mapping (dict, DictConfig)
     if isinstance(obj, Mapping) or hasattr(obj, "items"):
@@ -151,6 +153,8 @@ def find_policy_keys(obj: Any) -> Dict[str, Any]:
                     found["mandatory_selection"] = value
             elif key in RI_KEYS and value is not None and str(value).lower() not in ["none", "null", "false", "[]"]:
                 found["route_improvement"] = value
+            elif key in AC_KEYS and value is not None and str(value).lower() not in ["none", "null", "false", "[]"]:
+                found["acceptance_criteria"] = value
 
         # 2. Recurse into all values to find deeper configurations
         # We process values in order, so deeper values will overwrite shallower ones
@@ -187,7 +191,7 @@ def build_naming_config(pol_cfg: Any, global_sim_cfg: Any) -> Dict[str, Any]:
     extracted = find_policy_keys(pol_cfg)
 
     # 2. Fallback to global simulation defaults if keys are missing or None
-    for key in ["mandatory_selection", "route_improvement"]:
+    for key in ["mandatory_selection", "route_improvement", "acceptance_criteria"]:
         if not extracted.get(key) and hasattr(global_sim_cfg, key):
             val = getattr(global_sim_cfg, key)
             if val:
@@ -239,7 +243,9 @@ def resolve_policy_display_name(policy: Any, sim_cfg: Any) -> Tuple[str, str]:
 def to_slug(name: str) -> str:
     """Converts a display name to a safe slug string for IDs and filenames.
 
-    Replaces ' + ' with '_', removes '()', and converts to lowercase.
+    Strips parenthetical distribution tags (e.g. " (Gamma3)", " (Emp)") so
+    they appear in human-readable output but never reach the log filename.
+    Replaces ' + ' with '_', removes remaining '()' chars, and lowercases.
 
     Args:
         name: The display name to convert.
@@ -247,6 +253,8 @@ def to_slug(name: str) -> str:
     Returns:
         The slug string.
     """
+    # Strip " (Gamma3)"-style parenthetical suffixes before building the slug
+    name = re.sub(r"\s*\([^)]*\)", "", name)
     return name.replace(" + ", "_").replace(" ", "_").replace("(", "").replace(")", "").lower()
 
 
@@ -288,24 +296,41 @@ def get_full_policy_name(pol_name: str, config: Dict[str, Any]) -> str:
                     base_id = p
                     break
 
-    # Extract distribution suffix to append at the end
-    dist_tag = ""
-    for suffix in ["_emp", "_gamma"]:
-        if suffix in pol_name.lower():
-            dist_tag = f" ({suffix.replace('_', '').capitalize()})"
-            break
-
     # 3. Extract Route Improvement
     ri = config.get("route_improvement")
     ri_name = _clean(ri)
+
+    # Remove redundant mandatory selection name from base_id to prevent duplication
+    ms_slug = ms_name.lower().replace(" ", "_")
+    if ms_slug != "none" and ms_slug in base_id:
+        base_id = base_id.replace(f"_{ms_slug}", "").replace(f"{ms_slug}_", "").replace(ms_slug, "")
+
+    # 4. Extract Acceptance Criteria
+    ac = config.get("acceptance_criteria")
+    ac_name = _clean(ac)
 
     # Remove redundant route improvement name from base_id to prevent duplication
     ri_slug = ri_name.lower()
     if ri_slug != "none" and ri_slug in base_id:
         base_id = base_id.replace(f"_{ri_slug}", "").replace(f"{ri_slug}_", "").replace(ri_slug, "")
 
+    # Remove redundant acceptance criteria name from base_id to prevent duplication
+    ac_slug = ac_name.lower()
+    if ac_slug != "none" and ac_slug in base_id:
+        base_id = base_id.replace(f"_{ac_slug}", "").replace(f"{ac_slug}_", "").replace(ac_slug, "")
+
+    # Extract distribution suffix for display only (most specific first)
+    dist_tag = ""
+    for suffix in ["_gamma3", "_gamma2", "_gamma1", "_gamma", "_emp"]:
+        if suffix in pol_name.lower():
+            dist_tag = f" ({suffix.lstrip('_').capitalize()})"
+            break
+
     base_name = base_id.upper()
-    return f"{ms_name} + {base_name} + {ri_name}{dist_tag}"
+    if ac_name.lower() != "none":
+        return f"{ms_name} + {base_name} + {ac_name} + {ri_name}{dist_tag}"
+    else:
+        return f"{ms_name} + {base_name} + {ri_name}{dist_tag}"
 
 
 @dataclass
@@ -540,6 +565,7 @@ def get_daily_results(
     coordinates: pd.DataFrame,
     profit: float,
     time: float,
+    mandatory_nodes: Optional[List[int]] = None,
 ) -> Dict[str, Union[int, float, List[Union[int, str]]]]:
     """Formats raw simulation outputs into structured daily log dictionary.
 
@@ -554,12 +580,13 @@ def get_daily_results(
         coordinates: DataFrame containing bin metadata and coordinates.
         profit: Total profit from collected waste.
         time: Execution time of the routing policy (s).
+        mandatory_nodes: Optional list of bin indices selected as mandatory
+            before routing (iloc-based). Resolved to real IDs.
 
     Returns:
         Dictionary containing formatted daily metrics and the route.
     """
     dlog: Dict[str, Any] = {key: 0 for key in DAY_METRICS}
-    dlog["day"] = day
     dlog["overflows"] = new_overflows
     dlog["kg_lost"] = sum_lost
     dlog["time"] = time
@@ -572,6 +599,17 @@ def get_daily_results(
         dlog["reward"] = reward
         dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
+        # Resolve mandatory node indices to real bin IDs
+        if mandatory_nodes:
+            mandatory_ids: List[int] = []
+            for idx in mandatory_nodes:
+                try:
+                    mandatory_ids.append(int(coordinates.iloc[idx]["ID"]))
+                except (IndexError, KeyError):
+                    mandatory_ids.append(idx)
+            dlog["mandatory_nodes"] = mandatory_ids
+        else:
+            dlog["mandatory_nodes"] = []
         # Use iloc as node indices from the environment correspond to row positions in the coordinates DataFrame
         dlog["tour"] = [0] + coordinates.iloc[ids]["ID"].tolist() + [0]
     else:
@@ -581,6 +619,7 @@ def get_daily_results(
         dlog["kg/km"] = 0
         dlog["reward"] = -new_overflows
         dlog["profit"] = 0
+        dlog["mandatory_nodes"] = []
         dlog["tour"] = [0]
     return dlog
 

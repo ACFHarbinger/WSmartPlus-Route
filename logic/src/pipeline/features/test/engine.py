@@ -246,14 +246,13 @@ def _ensure_directories(cfg: Config) -> None:
             udef.ROOT_DIR,
             "assets",
             sim.output_dir,
-            f"{sim.graph.n_days}_days",
-            f"{sim.graph.area}_{sim.graph.num_loc}",
+            f"{sim.graph.n_days}days",
+            f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
+            sim.data_distribution,
         )
         os.makedirs(parent_dir, exist_ok=True)
-        os.makedirs(
-            os.path.join(parent_dir, "fill_history", sim.data_distribution),
-            exist_ok=True,
-        )
+        os.makedirs(os.path.join(parent_dir, "fill_history"), exist_ok=True)
+        os.makedirs(os.path.join(parent_dir, "submatrices"), exist_ok=True)
         os.makedirs(os.path.join(udef.ROOT_DIR, sim.checkpoint_dir), exist_ok=True)
         os.makedirs(os.path.join(parent_dir, sim.checkpoint_dir), exist_ok=True)
     except Exception as e:

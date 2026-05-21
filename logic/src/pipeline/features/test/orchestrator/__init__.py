@@ -16,10 +16,12 @@ Example:
 import contextlib
 import multiprocessing as mp
 import os
+import shutil
 import signal
 import sys
 from typing import Any, Dict, List, Optional
 
+from hydra.core.hydra_config import HydraConfig
 from loguru import logger
 from omegaconf import OmegaConf
 
@@ -70,7 +72,7 @@ __all__ = [
 ]
 
 
-def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
+def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa: C901
     """
     Orchestrates the parallel execution of multiple simulation runs.
 
@@ -117,6 +119,48 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
         raw_policies = sim.full_policies
         policies = [to_slug(resolve_policy_display_name(p, sim)[1]) for p in raw_policies]
         sample_idx_dict: Dict[str, List[int]] = {pol: list(range(sim.graph.n_samples)) for pol in raw_policies}
+
+        # ── Config snapshot ─────────────────────────────────────────────────────
+        # Persist the fully-resolved Hydra config (including all CLI overrides)
+        # into the results directory so every run is self-contained.
+        _snapshot_dir = os.path.join(
+            udef.ROOT_DIR,
+            "assets",
+            sim.output_dir,
+            f"{sim.graph.n_days}days",
+            f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}"
+            if sim.graph.waste_type
+            else f"{sim.graph.area}{sim.graph.num_loc}",
+            sim.data_distribution,
+        )
+        try:
+            os.makedirs(_snapshot_dir, exist_ok=True)
+
+            idx = 0
+            while True:
+                target_hydra_dir = os.path.join(_snapshot_dir, f"hydra{idx}")
+                if not os.path.exists(target_hydra_dir):
+                    break
+                idx += 1
+            os.makedirs(target_hydra_dir)
+
+            try:
+                hydra_out_dir = HydraConfig.get().runtime.output_dir
+                source_hydra_dir = os.path.join(hydra_out_dir, ".hydra")
+            except Exception:
+                source_hydra_dir = os.path.join(os.getcwd(), ".hydra")
+
+            if os.path.exists(source_hydra_dir):
+                for fname in ["config.yaml", "hydra.yaml", "overrides.yaml"]:
+                    src_file = os.path.join(source_hydra_dir, fname)
+                    if os.path.exists(src_file):
+                        shutil.copy2(src_file, os.path.join(target_hydra_dir, fname))
+                logger.info(f"Hydra config snapshot saved → {target_hydra_dir}")
+            else:
+                logger.warning(f"Could not find source .hydra directory at {source_hydra_dir}")
+        except Exception as _snap_err:
+            logger.warning(f"Could not save hydra config snapshot: {_snap_err}")
+        # ────────────────────────────────────────────────────────────────────────
         if sim.resume:
             runs_per_policy_any: Any = runs_per_policy
             to_remove = runs_per_policy_any(
@@ -181,9 +225,10 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
             udef.ROOT_DIR,
             "assets",
             sim.output_dir,
-            f"{sim.graph.n_days}_days",
-            f"{sim.graph.area}_{sim.graph.num_loc}",
-            f"log_realtime_{sim.data_distribution}_{sim.graph.n_samples}N.jsonl",
+            f"{sim.graph.n_days}days",
+            f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
+            sim.data_distribution,
+            f"log_realtime_{sim.graph.n_samples}N.jsonl",
         )
         send_final_output_to_gui(log, log_std, sim.graph.n_samples, policies, realtime_log_path)
 
@@ -197,6 +242,8 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:
             log,
             log_std,
             lock,
+            waste_type=sim.graph.waste_type,
+            data_distribution=sim.data_distribution,
         )
     finally:
         with contextlib.suppress(Exception):

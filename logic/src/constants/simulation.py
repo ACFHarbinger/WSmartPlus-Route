@@ -98,11 +98,11 @@ METRICS: List[str] = [
 # - days: integer (simulation duration, e.g., 31 for monthly simulation)
 SIM_METRICS: List[str] = METRICS + ["days"]
 
-# Daily log metrics (add day identifier and tour)
+# Daily log metrics (add mandatory nodes selected before tour)
 # Additional fields:
-# - day: integer (day number in simulation, 1-indexed)
+# - mandatory_nodes: List[int] (bin IDs selected as mandatory before routing)
 # - tour: List[int] (node sequence, e.g., [0, 5, 12, 8, 0] for depot→5→12→8→depot)
-DAY_METRICS: List[str] = ["day"] + METRICS + ["tour"]
+DAY_METRICS: List[str] = METRICS + ["mandatory_nodes", "tour"]
 
 # Neural network training loss components
 # Used in: RL training loops, logged to WandB/TensorBoard

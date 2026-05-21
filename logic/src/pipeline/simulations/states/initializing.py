@@ -355,7 +355,9 @@ class InitializingState(SimState):
             sim.graph.edge_threshold,
             sim.graph.edge_method,
             sim.graph.area,
+            sim.graph.waste_type,
             sim.graph.n_days,
+            sim.data_distribution,
             ctx.indices,
             save_updated_dm=getattr(sim.graph, "save_updated_dm", None),
         )

@@ -470,8 +470,8 @@ assets/output/**/*.jsonl
 !assets/model_weights
 !assets/*.out
 !assets/*.pkl
-!**/checkpoints
-!**/fill_history
+!assets/**/temp/
+!assets/fill_history/
 
 # Logic to include
 !logic/src/utils/validation/target

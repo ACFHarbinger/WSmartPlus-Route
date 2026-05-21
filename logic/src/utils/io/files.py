@@ -162,6 +162,7 @@ def compose_dirpath(fun: T) -> T:
         output_dir: str,
         area: str,
         *args: Any,
+        waste_type: str = "",
         **kwargs: Any,
     ) -> Any:
         """
@@ -174,18 +175,19 @@ def compose_dirpath(fun: T) -> T:
             output_dir: Output directory.
             area: Area.
             *args: Additional arguments.
+            waste_type: Waste type suffix for directory naming.
             **kwargs: Additional keyword arguments.
 
         Returns:
             Result of the decorated function.
         """
         if not isinstance(nbins, Iterable):
-            dir_path: str = os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}")
+            dir_path: str = os.path.join(home_dir, "assets", output_dir, f"{ndays}days", f"{area}{nbins}_{waste_type}")
             return fun(dir_path, *args, **kwargs)
 
         dir_paths: List[str] = []
         for gs in nbins:
-            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{gs}"))
+            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}days", f"{area}{gs}_{waste_type}"))
         return fun(dir_paths, *args, **kwargs)
 
     return cast(T, inner)

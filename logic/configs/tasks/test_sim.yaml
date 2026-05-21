@@ -108,13 +108,12 @@ seed: 42
 sim:
   cpu_cores: 0
   n_vehicles: 0
-  days: 30
   no_cuda: false
   problem: "vrpp"
   output_dir: "output"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  data_distribution: "gamma3"
+  data_distribution: "emp"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
@@ -125,8 +124,8 @@ sim:
     waste_type: "plastic"
     dm_filepath: "gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
     focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
-    load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.graph.n_samples}_seed42.npz"
-    save_updated_dm: "gmaps_distmat_${sim.graph.waste_type}${sim.graph.num_loc}_${sim.data_distribution}[${sim.graph.area}]lm_ftsp.csv"
+    load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz"
+    save_updated_dm: "gmaps_distmat${sim.graph.num_loc}_lm_ftsp_${sim.graph.n_samples}N.csv"
 
   # Policies to run
   policies:
@@ -206,7 +205,10 @@ sim:
     - rts: ${p.rts.rts}
     - sa: ${p.sa.sa}
     - shh: ${p.shh.shh}
-    - sans: ${p.sans.sans}
+    - sans: ${p.sans.new}
+    - sans_new: ${p.sans.new}
+    - sans_og_a: ${p.sans.og_a}
+    - sans_og_b: ${p.sans.og_b}
     - sca: ${p.sca.sca}
     - sisr: ${p.sisr.sisr}
     - slc: ${p.slc.slc}

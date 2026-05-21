@@ -118,7 +118,7 @@ aco_ks:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-    - acceptance_criterion: { method: "oi" }
+    - acceptance_criteria: ["other/ac_oi.yaml"]
       # Local search already integrated; no further refinement needed
       # Empty = use KS-ACO output directly
 # =============================================================================

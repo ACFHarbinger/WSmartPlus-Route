@@ -167,19 +167,21 @@ def _run_gurobi_optimizer(  # noqa: C901
             GRB.MAXIMIZE,
         )
 
-    mdl.Params.MIPFocus = 1
-    mdl.Params.Heuristics = HEURISTICS_RATIO
-    mdl.Params.Threads = 0
-    mdl.Params.Cuts = 3
-    mdl.Params.CliqueCuts = 2
-    mdl.Params.CoverCuts = 2
-    mdl.Params.FlowCoverCuts = 2
-    mdl.Params.GUBCoverCuts = 2
-    mdl.Params.Presolve = 1
-    mdl.Params.NodefileStart = NODEFILE_START_GB
-    mdl.Params.LogToConsole = 0
-    mdl.Params.OutputFlag = 0
-    mdl.setParam("MIPGap", MIP_GAP)
+    if not env:
+        mdl.Params.MIPFocus = 1
+        mdl.Params.Heuristics = HEURISTICS_RATIO
+        mdl.Params.Threads = 0
+        mdl.Params.Cuts = 3
+        mdl.Params.CliqueCuts = 2
+        mdl.Params.CoverCuts = 2
+        mdl.Params.FlowCoverCuts = 2
+        mdl.Params.GUBCoverCuts = 2
+        mdl.Params.Presolve = 1
+        mdl.Params.NodefileStart = NODEFILE_START_GB
+        mdl.Params.LogToConsole = 0
+        mdl.Params.OutputFlag = 0
+        mdl.setParam("MIPGap", MIP_GAP)
+
     if time_limit > 0:
         mdl.Params.TimeLimit = time_limit
 

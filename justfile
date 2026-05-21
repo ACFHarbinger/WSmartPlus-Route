@@ -35,9 +35,8 @@ hpo_policy_kw := "max_cg_iterations"
 hpo_selection_kw := ""
 hpo_acceptance_kw := ""
 hpo_improver_kw := ""
-policies := "sans"
+policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
 
-#policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
 #policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
 # --- Setup & Environment ---
 

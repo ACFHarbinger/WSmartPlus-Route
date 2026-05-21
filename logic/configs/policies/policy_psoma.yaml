@@ -94,12 +94,7 @@ psoma:
     # Cooling rate (alpha) for temperature reduction
     # Range: 0.8-0.999 (higher → slower cooling, more intensive)
 
-  acceptance_criterion:
-    method: "bmc"
-    params:
-      initial_temp: 3.0
-      alpha: 0.9
-      seed: 42
+  acceptance_criteria: ["other/ac_bmc.yaml"]
 
   # -------------------------------------------------------------------------
   # Runtime Control
@@ -122,7 +117,7 @@ psoma:
   vrpp: true
 
   mandatory_selection:
-    ["other/ms_lookahead.yaml"]
+    ["other/ms_last_minute_cf70.yaml"]
     # Node selection strategy for waste collection problems
 
   route_improvement:

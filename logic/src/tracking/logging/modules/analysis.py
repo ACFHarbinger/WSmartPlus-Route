@@ -16,12 +16,12 @@ Example:
     >>> output_stats("logs/run1", 100, ["greedy", "alns"], ["profit", "km"])
 """
 
+import contextlib
 import json
 import os
 import statistics
 import threading
 import traceback
-from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from loguru import logger
@@ -54,15 +54,19 @@ def load_log_dict(
     logs: Dict[str, str] = {}
     for path, ns in zip(dir_paths, nsamples, strict=False):
         gsize = int(os.path.basename(path).split("_")[1])
-        logs[f"{gsize}"] = os.path.join(path, f"log_mean_{ns}N.json")
+        # Return the directory path so callers can locate per-policy log files
+        logs[f"{gsize}"] = path
         if show_incomplete and ns > 1:
-            log_full = cast(List[Dict[str, Any]], read_json(os.path.join(path, f"log_full_{ns}N.json"), lock))
-            counter: Counter[str] = Counter()
-            for run in log_full:
-                counter.update(run.keys())
-            for key, val in dict(counter).items():
-                if ns - val > 0:
-                    print(f"graph {gsize} incomplete runs: - {key} - {ns - val}")
+            import glob as _glob
+
+            pol_files = _glob.glob(os.path.join(path, f"log_*_{ns}N.json"))
+            for pol_file in pol_files:
+                pol_data = cast(Dict[str, Any], read_json(pol_file, lock))
+                if isinstance(pol_data, dict) and "samples" in pol_data:
+                    n_recorded = len(pol_data["samples"])
+                    if ns - n_recorded > 0:
+                        pol_name = os.path.basename(pol_file).replace(f"_{ns}N.json", "")[4:]
+                        print(f"graph {gsize} incomplete runs: - {pol_name} - {ns - n_recorded}")
     return logs
 
 
@@ -78,8 +82,11 @@ def output_stats(
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Compute mean and std statistics for policies and write to JSON.
 
+    Reads per-sample data from ``log_{pol}_{nsamples}N.json`` files (``samples``
+    section) and writes back the computed ``mean`` and ``std`` sections.
+
     Args:
-        dir_path: Directory contains the 'log_full' results.
+        dir_path: Directory containing per-policy log JSON files.
         nsamples: Number of simulation samples in the full log.
         policies: List of policy names to include in statistics.
         keys: Metric names (e.g. 'profit', 'km') to aggregate.
@@ -90,29 +97,40 @@ def output_stats(
     Returns:
         Tuple[Dict[str, Any], Dict[str, Any]]: Mean dict and Std-dev dict.
     """
-    mean_filename = os.path.join(dir_path, f"log_mean_{nsamples}N.json")
-    std_filename = os.path.join(dir_path, f"log_std_{nsamples}N.json")
+    from logic.src.tracking.logging.modules.storage import update_policy_log_section
+
+    mean_dit: Dict[str, Any] = {}
+    std_dit: Dict[str, Any] = {}
+
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return {}, {}
     try:
-        if os.path.isfile(mean_filename):
-            mean_dit = cast(Dict[str, Any], read_json(mean_filename, lock=None))
-            std_dit = cast(Dict[str, Any], read_json(std_filename, lock=None))
-        else:
-            mean_dit, std_dit = {}, {}
-        data = cast(List[Dict[str, Any]], read_json(os.path.join(dir_path, f"log_full_{nsamples}N.json"), lock=None))
         for pol in policies:
-            tmp = [list(data[n_id][pol].values()) for n_id in range(nsamples)]
-            mean_dit[pol] = {
-                key: val for key, val in zip(keys, [*map(statistics.mean, zip(*tmp, strict=False))], strict=False)
-            }
-            if nsamples > 1:
-                std_dit[pol] = {
-                    key: val for key, val in zip(keys, [*map(statistics.stdev, zip(*tmp, strict=False))], strict=False)
-                }
+            pol_log_path = os.path.join(dir_path, f"log_{pol}_{nsamples}N.json")
+            if not os.path.isfile(pol_log_path):
+                continue
+            try:
+                pol_data = cast(Dict[str, Any], read_json(pol_log_path, lock=None))
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if not isinstance(pol_data, dict) or "samples" not in pol_data:
+                continue
+            samples_section = pol_data["samples"]
+            # samples_section is {str(sample_id): {metric: val}}
+            sample_values = [list(v.values()) for v in samples_section.values() if isinstance(v, dict)]
+            if not sample_values:
+                continue
+            mean_vals = [*map(statistics.mean, zip(*sample_values, strict=False))]
+            mean_dit[pol] = dict(zip(keys, mean_vals, strict=False))
+            if len(sample_values) > 1:
+                std_vals = [*map(statistics.stdev, zip(*sample_values, strict=False))]
+                std_dit[pol] = dict(zip(keys, std_vals, strict=False))
             else:
                 std_dit[pol] = {key: 0.0 for key in keys}
+
+            update_policy_log_section(pol_log_path, "mean", mean_dit[pol], lock=None)
+            update_policy_log_section(pol_log_path, "std", std_dit[pol], lock=None)
 
         if sort_log_func:
             mean_dit = sort_log_func(mean_dit)
@@ -120,17 +138,11 @@ def output_stats(
 
         if print_output:
             for pol in mean_dit:
-                lg_obj = mean_dit[pol]
-                lg_std_obj = std_dit[pol]
-                logm = lg_obj.values() if hasattr(lg_obj, "values") else lg_obj
-                logs = lg_std_obj.values() if hasattr(lg_std_obj, "values") else lg_std_obj
                 print(f"{pol}:")
-                for key, m, s in zip(keys, logm, logs, strict=False):
+                for key in keys:
+                    m = mean_dit[pol].get(key, 0.0)
+                    s = std_dit[pol].get(key, 0.0) if pol in std_dit else 0.0
                     print(f"- {key}: {m:.2f} +- {s:.4f}")
-        with open(mean_filename, "w") as fp:
-            json.dump(mean_dit, fp, indent=True)
-        with open(std_filename, "w") as fp:
-            json.dump(std_dit, fp, indent=True)
     finally:
         if lock is not None:
             lock.release()
@@ -160,15 +172,18 @@ def runs_per_policy(
     runs_ls = []
     for path, ns in zip(dir_paths, nsamples, strict=False):
         dit: Dict[str, List[int]] = {pol: [] for pol in policies}
-        full_log_path = os.path.join(path, f"log_full_{ns}N.json")
-        if not os.path.exists(full_log_path):
-            runs_ls.append(dit)
-            continue
-        data = cast(List[Dict[str, Any]], read_json(full_log_path, lock))
-        for id, run_data in enumerate(data):
-            for key in dit:
-                if key in run_data:
-                    dit[key].append(id)
+        for pol in policies:
+            pol_log_path = os.path.join(path, f"log_{pol}_{ns}N.json")
+            if not os.path.exists(pol_log_path):
+                continue
+            try:
+                pol_data = cast(Dict[str, Any], read_json(pol_log_path, lock))
+            except Exception:
+                continue
+            if isinstance(pol_data, dict) and "samples" in pol_data:
+                for sample_id_str in pol_data["samples"]:
+                    with contextlib.suppress(ValueError, TypeError):
+                        dit[pol].append(int(sample_id_str))
         runs_ls.append(dit)
         if print_output:
             gsize = int(os.path.basename(path).rsplit("_", 1)[1])
@@ -321,9 +336,10 @@ def display_per_policy_simulation_summary(  # noqa: C901
                 expand=False,
             )
 
-            # Define columns
+            # Define columns — 'day' is now derived from index (1-based), not stored
             columns = [
                 ("Day", "day", "cyan"),
+                ("Mandatory", "mandatory_nodes", "yellow"),
                 ("Tour", "tour", "white"),
                 ("Profit", "profit", "green"),
                 ("KG", "kg", "white"),
@@ -335,28 +351,31 @@ def display_per_policy_simulation_summary(  # noqa: C901
             ]
 
             for label, _, style in columns:
-                table.add_column(label, style=style, justify="right" if label != "Tour" else "left")
+                table.add_column(label, style=style, justify="right" if label not in ("Tour", "Mandatory") else "left")
 
-            # Filter and add rows
-            days = daily_log.get("day", [])
+            # Use km list length as the authoritative iteration count
             kms = daily_log.get("km", [])
 
             has_active_days = False
-            for i in range(len(days)):
+            for i, km_val in enumerate(kms):
                 # Only show days where a route was performed (km > 0)
-                # Robust check for list index and value
-                km_val = kms[i] if i < len(kms) else 0.0
                 if km_val > 0:
                     has_active_days = True
                     row = []
                     for _, key, _ in columns:
+                        if key == "day" or key is None:
+                            # "Day" column — synthetic 1-based index (not stored in daily_log)
+                            row.append(str(i + 1))
+                            continue
                         vals = daily_log.get(key, [])
                         val = vals[i] if i < len(vals) else None
 
-                        if key == "day":
-                            row.append(f"{int(val)}" if val is not None else "-")
+                        if key == "mandatory_nodes":
+                            mand_str = str(val) if val else "[]"
+                            if len(mand_str) > 40:
+                                mand_str = mand_str[:37] + "..."
+                            row.append(mand_str)
                         elif key == "tour":
-                            # Truncate tour if too long
                             tour_str = str(val) if val is not None else "[]"
                             if len(tour_str) > 50:
                                 tour_str = tour_str[:47] + "..."

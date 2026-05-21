@@ -22,12 +22,12 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from logic.src.constants import DAY_METRICS, SIM_METRICS
+from logic.src.constants import SIM_METRICS
 from logic.src.data.processor import save_matrix_to_excel
 from logic.src.tracking.logging.log_utils import (
     display_per_policy_simulation_summary,
     display_simulation_summary_table,
-    log_to_json,
+    update_policy_log_section,
 )
 
 try:
@@ -76,37 +76,22 @@ class FinishingState(SimState):
             ctx.bins.ndays,
         ]
 
-        daily_log_path = os.path.join(
+        log_path = os.path.join(
             ctx.results_dir,
-            f"daily_{sim.data_distribution}_{sim.graph.n_samples}N.json",
+            f"log_{ctx.pol_name}_{sim.graph.n_samples}N.json",
         )
+        print(ctx.results_dir)
 
-        if sim.graph.n_samples > 1:
-            log_path = os.path.join(ctx.results_dir, f"log_full_{sim.graph.n_samples}N.json")
-            log_to_json(
-                log_path,
-                SIM_METRICS,
-                {ctx.pol_name: lg},
-                sample_id=ctx.sample_id,
-                lock=ctx.lock,
-            )
-            assert ctx.daily_log is not None
-            log_to_json(
-                daily_log_path,
-                DAY_METRICS,
-                {f"{ctx.pol_name} #{ctx.sample_id}": ctx.daily_log.values()},
-                lock=ctx.lock,
-            )
-        else:
-            log_path = os.path.join(ctx.results_dir, f"log_mean_{sim.graph.n_samples}N.json")
-            log_to_json(log_path, SIM_METRICS, {ctx.pol_name: lg}, lock=ctx.lock)
-            assert ctx.daily_log is not None
-            log_to_json(
-                daily_log_path,
-                DAY_METRICS,
-                {ctx.pol_name: ctx.daily_log.values()},
-                lock=ctx.lock,
-            )
+        sample_metrics = dict(zip(SIM_METRICS, lg, strict=False))
+        assert ctx.daily_log is not None
+        daily_dict = {k: list(v) for k, v in ctx.daily_log.items()}
+
+        update_policy_log_section(log_path, "samples", sample_metrics, sample_id=ctx.sample_id, lock=ctx.lock)
+        update_policy_log_section(log_path, "daily", daily_dict, sample_id=ctx.sample_id, lock=ctx.lock)
+
+        if sim.graph.n_samples == 1:
+            update_policy_log_section(log_path, "mean", sample_metrics, lock=ctx.lock)
+            update_policy_log_section(log_path, "std", {m: 0.0 for m in SIM_METRICS}, lock=ctx.lock)
 
         save_matrix_to_excel(
             ctx.bins.get_fill_history(),
@@ -141,7 +126,7 @@ class FinishingState(SimState):
                 )
 
         # Register all output files as tracking artifacts
-        _log_result_artifacts(ctx, sim, log_path, daily_log_path)
+        _log_result_artifacts(ctx, sim, log_path)
 
         if ctx.checkpoint:
             ctx.checkpoint.clear()
@@ -211,22 +196,20 @@ class FinishingState(SimState):
 # ---------------------------------------------------------------------------
 
 
-def _log_result_artifacts(ctx: Any, sim: Any, log_path: str, daily_log_path: str) -> None:
+def _log_result_artifacts(ctx: Any, sim: Any, log_path: str) -> None:
     """Register simulation output files with the active tracking run.
 
     Silently no-ops if no run is active or if any file doesn't exist yet.
 
     Registered artifact types:
 
-    * ``result`` — primary JSON summary (per-sample full log or mean log)
-    * ``result`` — per-day JSON log for this ``(policy, sample)`` pair
+    * ``result`` — per-policy JSON log containing samples, daily, mean, and std
     * ``result`` — Excel fill-history matrix with metadata tag ``fill_history``
 
     Args:
         ctx: The simulation context object.
         sim: Root configuration object.
-        log_path: Path to the main log file.
-        daily_log_path: Path to the daily log file.
+        log_path: Path to the per-policy log file.
     """
     with contextlib.suppress(Exception):
         run = get_active_run()
@@ -235,9 +218,8 @@ def _log_result_artifacts(ctx: Any, sim: Any, log_path: str, daily_log_path: str
 
         metadata = {"policy": ctx.pol_name, "sample_id": ctx.sample_id}
 
-        for path in (log_path, daily_log_path):
-            if os.path.exists(path):
-                run.log_artifact(path, artifact_type="result", metadata=metadata)
+        if os.path.exists(log_path):
+            run.log_artifact(log_path, artifact_type="result", metadata=metadata)
 
         # Excel fill-history: {results_dir}/fill_history/{dist}/{policy}{seed}_sample{id}.xlsx
         excel_path = os.path.join(

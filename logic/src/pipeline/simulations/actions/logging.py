@@ -58,6 +58,7 @@ class LogAction(SimulationAction):
             coords,
             profit,
             time,
+            mandatory_nodes=context.get("mandatory"),
         )
 
         context["daily_log"] = dlog

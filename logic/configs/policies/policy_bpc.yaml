@@ -43,7 +43,7 @@ bpc:
     # -------------------------------------------------------------------------
     # Infrastructure
     # -------------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
 
     - time_limit: 300.0
       # Full 300s wall-clock budget.

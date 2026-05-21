@@ -55,8 +55,8 @@ from logic.src.constants import ROOT_DIR, SIM_METRICS
 from logic.src.pipeline.simulations.repository import set_repository_from_path
 from logic.src.tracking.logging.log_utils import (
     display_simulation_summary_table,
-    log_to_json,
     output_stats,
+    update_policy_log_section,
 )
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.setup_utils import get_pol_name
@@ -162,6 +162,8 @@ def display_log_metrics(
     log: Dict[str, Union[List[float], Dict[str, float]]],
     log_std: Optional[Dict[str, Union[List[float], Dict[str, float]]]] = None,
     lock: Optional[Any] = None,
+    waste_type: str = "",
+    data_distribution: str = "",
 ) -> None:
     """
     Pretty-prints aggregated simulation results to the console.
@@ -176,39 +178,26 @@ def display_log_metrics(
         log: Dict mapping policy name to mean metrics list.
         log_std: Dict mapping policy name to std dev metrics list (optional).
         lock: Thread/process lock for safe printing/logging.
+        waste_type: Waste type suffix for directory naming.
+        data_distribution: Data distribution subdirectory (e.g. 'gamma3', 'emp').
     """
     abs_output_dir = os.path.join(
         ROOT_DIR,
         "assets",
         output_dir,
-        f"{days}_days",
-        f"{area}_{size}",
+        f"{days}days",
+        f"{area}{size}_{waste_type}" if waste_type else f"{area}{size}",
+        data_distribution,
     )
 
-    if n_samples > 1 and log_std is not None:
-        log_to_json(
-            os.path.join(abs_output_dir, f"log_mean_{n_samples}N.json"),
-            SIM_METRICS,
-            log,
-            sample_id=None,
-            lock=lock,
-        )
-        log_to_json(
-            os.path.join(abs_output_dir, f"log_std_{n_samples}N.json"),
-            SIM_METRICS,
-            log_std,
-            sample_id=None,
-            lock=lock,
-        )
-    elif n_samples == 1:
-        # For single sample, we still save the log_mean for consistency
-        log_to_json(
-            os.path.join(abs_output_dir, f"log_mean_{n_samples}N.json"),
-            SIM_METRICS,
-            log,
-            sample_id=None,
-            lock=lock,
-        )
+    for pol_name, mean_vals in log.items():
+        pol_log_path = os.path.join(abs_output_dir, f"log_{pol_name}_{n_samples}N.json")
+        mean_dict = dict(zip(SIM_METRICS, mean_vals, strict=False)) if isinstance(mean_vals, list) else mean_vals
+        update_policy_log_section(pol_log_path, "mean", mean_dict, lock=lock)
+        if log_std is not None and pol_name in log_std:
+            std_vals = log_std[pol_name]
+            std_dict = dict(zip(SIM_METRICS, std_vals, strict=False)) if isinstance(std_vals, list) else std_vals
+            update_policy_log_section(pol_log_path, "std", std_dict, lock=lock)
 
     display_simulation_summary_table(
         log,
@@ -471,8 +460,9 @@ def sequential_simulations(  # noqa: C901
         ROOT_DIR,
         "assets",
         sim.output_dir,
-        f"{sim.graph.n_days}_days",
-        f"{sim.graph.area}_{sim.graph.num_loc}",
+        f"{sim.graph.n_days}days",
+        f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
+        sim.data_distribution,
     )
 
     for pol_id, _ in enumerate(policies):
@@ -558,19 +548,12 @@ def sequential_simulations(  # noqa: C901
                 elif log_std is not None:
                     log_std[pol_name] = [0.0] * len(log[pol_name])
 
-                log_to_json(
-                    os.path.join(results_dir, f"log_mean_{sim.graph.n_samples}N.json"),
-                    SIM_METRICS,
-                    {pol_name: log[pol_name]},
-                    lock=lock,
-                )
-                if log_std is not None:
-                    log_to_json(
-                        os.path.join(results_dir, f"log_std_{sim.graph.n_samples}N.json"),
-                        SIM_METRICS,
-                        {pol_name: log_std[pol_name]},
-                        lock=lock,
-                    )
+                pol_log_path = os.path.join(results_dir, f"log_{pol_name}_{sim.graph.n_samples}N.json")
+                mean_dict = dict(zip(SIM_METRICS, log[pol_name], strict=False))
+                update_policy_log_section(pol_log_path, "mean", mean_dict, lock=lock)
+                if log_std is not None and pol_name in log_std:
+                    std_dict = dict(zip(SIM_METRICS, log_std[pol_name], strict=False))
+                    update_policy_log_section(pol_log_path, "std", std_dict, lock=lock)
 
     with contextlib.suppress(Exception):
         run = get_active_run() if get_active_run is not None else None
