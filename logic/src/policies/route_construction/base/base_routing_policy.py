@@ -189,7 +189,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             return config_cls(**filtered)
         return config
 
-    def _validate_mandatory(self, mandatory: Optional[List[int]]) -> Optional[Tuple[List[int], float]]:
+    def _validate_mandatory(self, mandatory: Optional[List[int]]) -> Optional[Tuple[List[int], float, float]]:
         """
         Validate mandatory input. Returns early result if empty.
 
@@ -201,7 +201,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         """
 
         if not mandatory:
-            return [0, 0], 0.0
+            return [0, 0], 0.0, 0.0
         return None
 
     def _load_area_params(

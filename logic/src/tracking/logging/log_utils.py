@@ -42,6 +42,7 @@ from .modules.storage import (
     setup_system_logger,
     sort_log,
     update_log,
+    update_policy_log_section,
 )
 
 __all__ = [
@@ -62,4 +63,5 @@ __all__ = [
     "display_per_policy_simulation_summary",
     "send_daily_output_to_gui",
     "send_final_output_to_gui",
+    "update_policy_log_section",
 ]

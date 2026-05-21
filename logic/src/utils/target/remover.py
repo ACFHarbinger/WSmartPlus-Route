@@ -3,8 +3,7 @@
 This module provides functions to surgically remove specific policy runs
 from all simulation output artefacts:
 
-- ``daily_{dist}_{N}N.json`` / ``log_mean_{N}N.json`` / ``log_std_{N}N.json``
-  / ``log_full_{N}N.json`` — keyed JSON files
+- ``log_{policy}_{N}N.json`` — per-policy JSON files containing mean, std, samples, and daily sections
 - ``log_realtime_{dist}_{N}N.jsonl`` — prefixed JSONL stream files
 - ``checkpoints/`` — per-policy/sample ``.pkl`` files
 - ``fill_history/{dist}/`` — per-policy XLSX files
@@ -40,9 +39,7 @@ import glob
 import json
 import os
 import re
-import shutil
-from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from logic.src.utils.target.matcher import (
     PolicyFilter,
@@ -60,7 +57,7 @@ __all__ = [
 ]
 
 # ---------------------------------------------------------------------------
-# JSON files  (daily_*, log_mean_*, log_std_*, log_full_*)
+# JSON files  (log_{policy}_{N}N.json — per-policy unified files)
 # ---------------------------------------------------------------------------
 
 
@@ -234,12 +231,10 @@ def remove_fill_history_files(
             continue
 
         # If distribution filter is set, skip sub-dirs that don't match
-        if policy_filter.distributions:
-            # dist_dir itself is the distribution name
-            if not any(
-                d.lower() == dist_dir.lower() or d.lower() in dist_dir.lower() for d in policy_filter.distributions
-            ):
-                continue
+        if policy_filter.distributions and not any(
+            d.lower() == dist_dir.lower() or d.lower() in dist_dir.lower() for d in policy_filter.distributions
+        ):
+            continue  # dist_dir itself is the distribution name
 
         for fname in os.listdir(dist_path):
             if not fname.endswith(".xlsx"):
@@ -266,7 +261,7 @@ def remove_fill_history_files(
 # ---------------------------------------------------------------------------
 
 
-def remove_targeted_runs(
+def remove_targeted_runs(  # noqa: C901
     results_dir: str,
     policy_filter: PolicyFilter,
     distributions: Optional[List[str]] = None,
@@ -278,7 +273,7 @@ def remove_targeted_runs(
     Scans the given *results_dir* (e.g. ``assets/output/30_days/riomaior_100``)
     and removes matching entries from:
 
-    - All ``*.json`` result files (daily, log_mean, log_std, log_full)
+    - All ``log_*.json`` per-policy result files
     - All ``*.jsonl`` realtime log files
     - All matching ``checkpoints/*.pkl`` files
     - All matching ``fill_history/**/*.xlsx`` files
@@ -306,15 +301,21 @@ def remove_targeted_runs(
             print(f"[WARN] Results directory not found: {results_dir}")
         return all_removed
 
-    # --- JSON result files ---
-    for fpath in glob.glob(os.path.join(results_dir, "*.json")):
-        removed_keys = remove_from_json_file(fpath, policy_filter, dry_run=dry_run)
-        for key in removed_keys:
-            desc = f"JSON key '{key}' from {os.path.basename(fpath)}"
-            all_removed.append(desc)
-            if verbose:
-                prefix = "[DRY RUN]" if dry_run else "[REMOVED]"
-                print(f"  {prefix} {desc}")
+    # --- Per-policy JSON result files (log_<policy>_<N>N.json) ---
+    _pol_file_re = re.compile(r"^log_(.+)_\d+N\.json$")
+    for fpath in glob.glob(os.path.join(results_dir, "log_*.json")):
+        fname = os.path.basename(fpath)
+        m = _pol_file_re.match(fname)
+        if m:
+            pol_slug = m.group(1)
+            if slug_matches_filter(pol_slug, policy_filter):
+                desc = f"per-policy file {fname}"
+                all_removed.append(desc)
+                if verbose:
+                    prefix = "[DRY RUN]" if dry_run else "[REMOVED]"
+                    print(f"  {prefix} {desc}")
+                if not dry_run:
+                    os.remove(fpath)
 
     # --- JSONL realtime logs ---
     for fpath in glob.glob(os.path.join(results_dir, "*.jsonl")):

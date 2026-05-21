@@ -63,7 +63,7 @@ def _flatten_config(cfg: Any) -> dict:  # noqa: C901
         # Safer key extraction
         key = next(iter(curr.keys()))
 
-        if key in ["mandatory_selection", "policy", "route_improvement", "acceptance_criterion"]:
+        if key in ["mandatory_selection", "policy", "route_improvement", "acceptance_criterion", "acceptance_criteria"]:
             break
         curr = curr[key]
 
@@ -90,7 +90,7 @@ def _flatten_config(cfg: Any) -> dict:  # noqa: C901
                 if primitive_list:
                     flat[_k] = primitive_list
 
-        for target in ["mandatory_selection", "route_improvement", "acceptance_criterion"]:
+        for target in ["mandatory_selection", "route_improvement", "acceptance_criterion", "acceptance_criteria"]:
             if target not in flat:
                 val = _find_key(curr, target)
                 if val is not None:

@@ -22,4 +22,4 @@ ils:
 
     - mandatory_selection: ["other/ms_lookahead.yaml"]
     - route_improvement: []
-    - acceptance_criterion: {method: "oi"}
+    - acceptance_criteria: ["other/ac_oi.yaml"]

@@ -77,7 +77,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
     # VRPP Settings
     - vrpp: true
     # Multiple selection strategies (union of both):

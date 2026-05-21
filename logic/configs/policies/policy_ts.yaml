@@ -61,6 +61,4 @@ ts:
     - route_improvement: []
 
     # Acceptance Criterion
-    - acceptance_criterion:
-        method: "ac"
-        params: {}
+    - acceptance_criteria: ["other/ac_oi.yaml"]

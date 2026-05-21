@@ -339,20 +339,17 @@ class SimulationDataMapper:
             profit_vars,
         )
 
-    def save_results(
-        self, matrix: List[List[float]], results_dir: str, seed: int, data_dist: str, policy: str, sample_id: int
-    ) -> None:
+    def save_results(self, matrix: List[List[float]], results_dir: str, seed: int, policy: str, sample_id: int) -> None:
         """Exports fill history to Excel.
 
         Args:
             matrix: Fill history matrix.
             results_dir: Directory to save results.
             seed: Random seed.
-            data_dist: Data distribution.
             policy: Policy used.
             sample_id: Sample ID.
         """
-        path = os.path.join(results_dir, "fill_history", data_dist)
+        path = os.path.join(results_dir, "fill_history")
         os.makedirs(path, exist_ok=True)
         filepath = os.path.join(path, f"{policy}{seed}_sample{sample_id}.xlsx")
         if not os.path.exists(filepath):
