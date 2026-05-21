@@ -97,13 +97,7 @@ def _find_json_files(output_dir: str) -> Dict[str, str]:
         fpath = os.path.join(abs_dir, fname)
         lower = fname.lower()
 
-        if "log_mean" in lower:
-            result["mean"] = fpath
-        elif "log_std" in lower:
-            result["std"] = fpath
-        elif "log_full" in lower:
-            result["full"] = fpath
-        elif lower.startswith("daily"):
+        if lower.startswith("log_"):
             result[fname] = fpath
 
     return result
@@ -146,6 +140,52 @@ def _extract_distributions(mean_data: Dict[str, Any]) -> List[str]:
             _, dist = _parse_policy_name(key)
             dists_set.add(dist)
     return sorted(dists_set)
+
+
+def _load_aggregated_data(output_dir: str) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    """Aggregates per-policy JSON files in *output_dir* into legacy-format dicts.
+
+    Reads every ``log_<policy>_<N>N.json`` file and collects the ``mean``,
+    ``std``, and ``daily`` sections into flat dicts keyed by policy name.
+
+    Args:
+        output_dir: Relative path (from ``assets/output``) to the target directory.
+
+    Returns:
+        Tuple of (mean_data, std_data, daily_data) each mapping policy name to
+        a dict of metric values / daily lists.
+    """
+    abs_dir = os.path.join(ROOT_DIR, "assets", "output", output_dir)
+    mean_data: Dict[str, Any] = {}
+    std_data: Dict[str, Any] = {}
+    daily_data: Dict[str, Any] = {}
+
+    if not os.path.isdir(abs_dir):
+        return mean_data, std_data, daily_data
+
+    for fname in sorted(os.listdir(abs_dir)):
+        if not (fname.startswith("log_") and fname.endswith(".json")):
+            continue
+        fpath = os.path.join(abs_dir, fname)
+        pol_data = _load_json(fpath)
+        if not isinstance(pol_data, dict):
+            continue
+
+        # Extract policy name: log_<policy>_<N>N.json → <policy>
+        stem = re.sub(r"_\d+N\.json$", "", fname[4:])  # strip "log_" prefix
+
+        if "mean" in pol_data and isinstance(pol_data["mean"], dict):
+            mean_data[stem] = pol_data["mean"]
+        if "std" in pol_data and isinstance(pol_data["std"], dict):
+            std_data[stem] = pol_data["std"]
+        if "daily" in pol_data and isinstance(pol_data["daily"], dict):
+            # Use sample "0" if available, otherwise first available sample
+            daily_section = pol_data["daily"]
+            sample_key = "0" if "0" in daily_section else (next(iter(daily_section), None))
+            if sample_key is not None and isinstance(daily_section[sample_key], dict):
+                daily_data[stem] = daily_section[sample_key]
+
+    return mean_data, std_data, daily_data
 
 
 def _build_summary_df(
@@ -294,9 +334,8 @@ def render_simulation_summary() -> None:
 
     # Always load for the first available dir initially to populate sidebar
     init_dir = prev_dir if prev_dir in available_dirs else available_dirs[0]
-    json_files = _find_json_files(init_dir)
-    mean_data = _load_json(json_files["mean"]) if "mean" in json_files else None
-    distributions: List[str] = _extract_distributions(mean_data) if isinstance(mean_data, dict) else []
+    mean_data, std_data, daily_data = _load_aggregated_data(init_dir)
+    distributions: List[str] = _extract_distributions(mean_data) if mean_data else []
 
     # Sidebar (needs distributions list)
     controls = _render_sidebar_controls(available_dirs, distributions)
@@ -305,28 +344,20 @@ def render_simulation_summary() -> None:
 
     # Reload if directory changed from what we initially loaded
     if selected_dir != init_dir:
-        json_files = _find_json_files(selected_dir)
-        mean_data = _load_json(json_files["mean"]) if "mean" in json_files else None
-        # Recompute distributions — sidebar won't update until next rerun,
-        # but we store the dir so next render uses the right one.
-        if isinstance(mean_data, dict):
-            new_dists = _extract_distributions(mean_data)
-            if new_dists != distributions:
-                st.session_state[selected_dir_key] = selected_dir
-                st.rerun()
+        mean_data, std_data, daily_data = _load_aggregated_data(selected_dir)
+        new_dists = _extract_distributions(mean_data) if mean_data else []
+        if new_dists != distributions:
+            st.session_state[selected_dir_key] = selected_dir
+            st.rerun()
 
     st.session_state[selected_dir_key] = selected_dir
 
-    # Load std data
-    std_data = _load_json(json_files["std"]) if "std" in json_files else None
-
-    if not mean_data or not isinstance(mean_data, dict):
-        st.warning(f"No `log_mean*.json` found in `{selected_dir}`.")
+    if not mean_data:
+        st.warning(f"No `log_*.json` policy files found in `{selected_dir}`.")
         return
 
     # Build summary DataFrame
-    std_dict = std_data if isinstance(std_data, dict) else None
-    summary_df = _build_summary_df(mean_data, std_dict)
+    summary_df = _build_summary_df(mean_data, std_data if std_data else None)
 
     if summary_df.empty:
         st.error("Could not parse policy data from the selected directory.")
@@ -360,21 +391,8 @@ def render_simulation_summary() -> None:
         _render_distribution_comparison(summary_df)
 
     elif selected_tab == "Daily Trends":
-        # Find daily files and load
-        daily_files = {k: v for k, v in json_files.items() if k.startswith("daily")}
-        if daily_files:
-            daily_names = list(daily_files.keys())
-            selected_daily = st.selectbox(
-                "Daily Data File",
-                options=daily_names,
-                index=0,
-                key="ss_daily_file",
-            )
-            daily_data = _load_json(daily_files[selected_daily])
-            if daily_data and isinstance(daily_data, dict):
-                daily_df = _build_daily_df(daily_data)
-                _render_daily_timeseries(daily_df, dist_filter)
-            else:
-                st.warning("Could not parse daily data.")
+        if daily_data:
+            daily_df = _build_daily_df(daily_data)
+            _render_daily_timeseries(daily_df, dist_filter)
         else:
-            st.info("No daily data files found in this directory.")
+            st.info("No daily data found in this directory.")

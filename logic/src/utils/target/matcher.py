@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import List, Optional, Sequence
+from typing import List, Sequence
 
 # ---------------------------------------------------------------------------
 # Known vocabulary sets (lower-case, no leading/trailing underscores)
@@ -168,10 +168,7 @@ def slug_matches_filter(slug: str, f: PolicyFilter) -> bool:
         return False
     if not f._ok(f.improvers, parsed["improver"]):
         return False
-    if f.constructors:
-        if not f._ok(f.constructors, parsed["constructor"]):
-            return False
-    return True
+    return not (f.constructors and not f._ok(f.constructors, parsed["constructor"]))
 
 
 def display_name_matches_filter(display_name: str, f: PolicyFilter) -> bool:
@@ -197,10 +194,7 @@ def display_name_matches_filter(display_name: str, f: PolicyFilter) -> bool:
     def _any_in(tokens: Sequence[str]) -> bool:
         if not tokens:
             return True
-        for t in tokens:
-            if t.lower().replace("_", " ") in dn_low or t.lower() in dn_low.replace(" ", "_"):
-                return True
-        return False
+        return any(t.lower().replace("_", " ") in dn_low or t.lower() in dn_low.replace(" ", "_") for t in tokens)
 
     if not _any_in(f.distributions):
         return False
@@ -208,6 +202,4 @@ def display_name_matches_filter(display_name: str, f: PolicyFilter) -> bool:
         return False
     if not _any_in(f.constructors):
         return False
-    if not _any_in(f.improvers):
-        return False
-    return True
+    return _any_in(f.improvers)

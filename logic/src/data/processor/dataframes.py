@@ -162,7 +162,7 @@ def save_matrix_to_excel(matrix, results_dir, seed, data_dist, policy, sample_id
     Returns:
         Path to the generated Excel file.
     """
-    result = _mapper.save_results(matrix, results_dir, seed, data_dist, policy, sample_id)
+    result = _mapper.save_results(matrix, results_dir, seed, policy, sample_id)
     _log_processor_event(
         "save_matrix_to_excel",
         variable_name="excel_file",

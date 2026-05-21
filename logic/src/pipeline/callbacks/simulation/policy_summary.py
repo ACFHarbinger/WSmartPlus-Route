@@ -66,6 +66,8 @@ class PolicySummaryCallback:
         table.add_column("Route Improvement", style="blue")
         table.add_column("Acceptance", style="red")
 
+        from logic.src.pipeline.simulations.day_context import resolve_policy_display_name
+
         policies: List[str] = cfg.sim.full_policies or []
         config_paths: Dict[str, Any] = dict(cfg.sim.config_path) if cfg.sim.config_path else {}
 
@@ -78,13 +80,19 @@ class PolicySummaryCallback:
                 except Exception:
                     config = {}
 
+            # Resolve the full descriptive display name (includes ms prefix + ri suffix)
+            try:
+                _, display_name = resolve_policy_display_name(policy_name, cfg.sim)
+            except Exception:
+                display_name = policy_name
+
             # Extract details
             engine = self._extract_engine(policy_name, config)
             selection = self._extract_selection(config)
             route_imp = self._extract_route_improvement(config)
             acceptance = self._extract_acceptance_criterion(config)
 
-            table.add_row(str(idx + 1), policy_name, engine, selection, route_imp, acceptance)
+            table.add_row(str(idx + 1), display_name, engine, selection, route_imp, acceptance)
 
         console.print(table)
         console.print("\n")
@@ -317,13 +325,33 @@ class PolicySummaryCallback:
         """
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
-        ac = flat_cfg.get("acceptance_criterion")
+
+        # Try both keys, prefer acceptance_criteria
+        ac = flat_cfg.get("acceptance_criteria") or flat_cfg.get("acceptance_criterion")
 
         if not ac:
             return "None"
 
-        if isinstance(ac, dict):
-            return str(ac.get("method", "Unknown")).upper()
-        if isinstance(ac, ITraversable):
-            return str(ac.get("method") or "Unknown").upper()
-        return str(ac).upper()
+        steps = []
+        items = ac if isinstance(ac, (list, tuple)) else [ac]
+        for item in items:
+            item_obj: object = item
+            if isinstance(item_obj, str):
+                name = item_obj
+                if name.startswith("other/ac_"):
+                    name = name[len("other/ac_") :]
+                elif name.startswith("other/"):
+                    name = name[len("other/") :]
+                if name.endswith(".yaml"):
+                    name = name[: -len(".yaml")]
+                elif name.endswith(".xml"):
+                    name = name[: -len(".xml")]
+                steps.append(name.upper())
+            elif isinstance(item_obj, dict):
+                steps.append(str(item_obj.get("method", "Unknown")).upper())
+            elif isinstance(item_obj, ITraversable):
+                steps.append(str(item_obj.get("method") or "Unknown").upper())
+            else:
+                steps.append(str(item_obj).upper())
+
+        return ", ".join(steps) if steps else "None"

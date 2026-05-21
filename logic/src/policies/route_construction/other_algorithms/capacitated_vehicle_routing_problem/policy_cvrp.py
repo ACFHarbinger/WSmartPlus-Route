@@ -143,8 +143,8 @@ class CVRPPolicy(BaseRoutingPolicy):
         early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
             # Re-map early result to 5-tuple
-            routes, dist = early_result
-            return routes, dist, 0.0, kwargs.get("search_context"), kwargs.get("multi_day_context")
+            routes, dist, profit = early_result
+            return routes, dist, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
         bins = kwargs["bins"]
         area = kwargs.get("area", "Rio Maior")

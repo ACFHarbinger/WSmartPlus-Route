@@ -198,6 +198,49 @@ def log_to_json(
     return old
 
 
+def update_policy_log_section(
+    json_path: str,
+    section: str,
+    data: Any,
+    sample_id: Optional[int] = None,
+    lock: Optional[threading.Lock] = None,
+) -> None:
+    """Write or update a named section in a per-policy JSON log file.
+
+    Args:
+        json_path: Path to the per-policy JSON file.
+        section: Top-level key to update (e.g. ``"mean"``, ``"std"``, ``"daily"``, ``"samples"``).
+        data: Value to write into the section.
+        sample_id: When provided the section is treated as a dict keyed by
+            ``str(sample_id)`` so parallel samples can be appended safely.
+        lock: Optional thread lock for atomic access.
+    """
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
+    try:
+        existing: Dict[str, Any] = {}
+        if os.path.isfile(json_path):
+            try:
+                with open(json_path) as fp:
+                    existing = json.load(fp)
+            except (json.JSONDecodeError, ValueError):
+                existing = {}
+
+        if sample_id is not None:
+            if section not in existing or not isinstance(existing[section], dict):
+                existing[section] = {}
+            existing[section][str(sample_id)] = data
+        else:
+            existing[section] = data
+
+        with open(json_path, "w") as fp:
+            json.dump(_convert_numpy(existing), fp, indent=True)
+    finally:
+        if lock is not None:
+            lock.release()
+
+
 def log_to_json2(
     json_path: str,
     keys: List[str],

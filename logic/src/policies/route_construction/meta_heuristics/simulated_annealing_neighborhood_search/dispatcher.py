@@ -81,7 +81,13 @@ def execute_new(
     mandatory = kwargs.get("mandatory", [])
     early_result = policy._validate_mandatory(mandatory)
     if early_result is not None:
-        return early_result
+        return (
+            early_result[0],
+            early_result[1],
+            early_result[2],
+            kwargs.get("search_context"),
+            kwargs.get("multi_day_context"),
+        )
 
     bins = kwargs["bins"]
     distance_matrix = kwargs["distance_matrix"]
@@ -169,7 +175,13 @@ def execute_og(
     mandatory = kwargs.get("mandatory", [])
     early_result = policy._validate_mandatory(mandatory)
     if early_result is not None:
-        return early_result
+        return (
+            early_result[0],
+            early_result[1],
+            early_result[2],
+            kwargs.get("search_context"),
+            kwargs.get("multi_day_context"),
+        )
 
     bins = kwargs["bins"]
     distance_matrix = kwargs["distance_matrix"]

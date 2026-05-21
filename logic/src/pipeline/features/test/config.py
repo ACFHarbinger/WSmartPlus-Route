@@ -71,13 +71,26 @@ def expand_policy_configs(cfg: Config) -> None:  # noqa: C901
             if not full_name.endswith(dist_suffix):
                 full_name = f"{full_name}{dist_suffix}"
 
-            final_cfg = copy.deepcopy(custom_cfg or cfg_path)
-            if custom_overrides and final_cfg:
+            # If custom_overrides is already a fully-resolved variant config (contains
+            # top-level policy-level keys such as engine/mandatory_selection/route_improvement),
+            # it IS the specific variant — store it directly rather than loading the full YAML
+            # and merging.  The full-YAML merge path leaves sibling variants (e.g. og_a/og_b)
+            # inside the stored config, which causes find_policy_keys to discover the wrong
+            # mandatory_selection when it recurses over all sub-trees.
+            _override_keys: set = set(custom_overrides.keys()) if isinstance(custom_overrides, dict) else set()
+            _is_resolved_variant = bool(
+                _override_keys & {"engine", "mandatory_selection", "route_improvement", "time_limit", "params"}
+            )
+            if custom_overrides and _is_resolved_variant:
+                # Use the resolved variant config directly, wrapped under the policy name key
+                final_cfg = {pol_name: copy.deepcopy(dict(custom_overrides))}
+            else:
+                final_cfg = copy.deepcopy(custom_cfg or cfg_path)
                 if isinstance(final_cfg, str):
-                    # Load it first so we can merge
+                    # Always load the config if it's just a path
                     final_cfg = load_config(final_cfg)
 
-                if isinstance(final_cfg, dict):
+                if custom_overrides and final_cfg and isinstance(final_cfg, dict):
                     # Special handling for single-key policy configs
                     pol_key = list(final_cfg.keys())[0] if len(final_cfg) == 1 else None
                     if pol_key and pol_key == pol_name:
@@ -185,43 +198,70 @@ def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str
         if not pol_cfg:
             return [("", "", None)], None
 
-        inner_cfg, variant_name = _find_inner_config(pol_cfg)
-        ms_list, pp_list, match_idx = _parse_inner_components(inner_cfg)
+        inner_cfg, variant_name = _find_inner_config(pol_cfg, pol_name)
+        ms_list, ac_list, pp_list, ms_idx, ac_idx = _parse_inner_components(inner_cfg)
 
-        if ms_list and len(ms_list) > 1:
-            variants: List[Tuple[str, str, Any]] = []
-            for ms_item in ms_list:
-                prefix = f"{_clean_id(ms_item, 'ms_')}_"
-                suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
+        ms_list_iter = ms_list if ms_list else [None]
+        ac_list_iter = ac_list if ac_list else [None]
+
+        # Flatten the inner_cfg into a single dictionary
+        merged_cfg = {}
+        for item in inner_cfg:
+            if isinstance(item, dict) or hasattr(item, "items"):
+                merged_cfg.update(dict(item))
+
+        # If neither has multiple items, treat as a single variant
+        if len(ms_list_iter) <= 1 and len(ac_list_iter) <= 1:
+            var_cfg = copy.deepcopy(merged_cfg)
+            if ms_list_iter and ms_list_iter[0]:
+                var_cfg["mandatory_selection"] = [ms_list_iter[0]]
+            if ac_list_iter and ac_list_iter[0]:
+                var_cfg["acceptance_criteria"] = [ac_list_iter[0]]
+
+            prefix = f"{_clean_id(ms_list[0], 'ms_')}_" if ms_list else ""
+            ac_suffix = f"_{_clean_id(ac_list[0], 'ac_')}" if ac_list else ""
+            pp_suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
+            suffix = f"{ac_suffix}{pp_suffix}"
+            return [(prefix, suffix, var_cfg)], variant_name
+
+        variants: List[Tuple[str, str, Any]] = []
+        for ms_item in ms_list_iter:
+            for ac_item in ac_list_iter:
+                prefix = f"{_clean_id(ms_item, 'ms_')}_" if ms_item else ""
+                ac_suffix = f"_{_clean_id(ac_item, 'ac_')}" if ac_item else ""
+                pp_suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
+                suffix = f"{ac_suffix}{pp_suffix}"
 
                 # If the policy name already contains the prefix, we are likely looking at an expanded name
                 # In that case, only yield the variant that matches this prefix
                 clean_prefix = prefix.rstrip("_")
-                if clean_prefix in pol_name:
-                    var_cfg = copy.deepcopy(pol_cfg)
-                    _apply_ms_override(var_cfg, match_idx, ms_item)
+                if clean_prefix and clean_prefix in pol_name:
+                    var_cfg = copy.deepcopy(merged_cfg)
+                    if ms_item:
+                        var_cfg["mandatory_selection"] = [ms_item]
+                    if ac_item:
+                        var_cfg["acceptance_criteria"] = [ac_item]
                     return [(prefix, suffix, var_cfg)], variant_name
 
-                var_cfg = copy.deepcopy(pol_cfg)
-                _apply_ms_override(var_cfg, match_idx, ms_item)
+                var_cfg = copy.deepcopy(merged_cfg)
+                if ms_item:
+                    var_cfg["mandatory_selection"] = [ms_item]
+                if ac_item:
+                    var_cfg["acceptance_criteria"] = [ac_item]
                 variants.append((prefix, suffix, var_cfg))
-            return variants, variant_name
-
-        # Single variant case
-        prefix = f"{_clean_id(ms_list[0], 'ms_')}_" if ms_list else ""
-        suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
-        return [(prefix, suffix, None)], variant_name
+        return variants, variant_name
 
     except Exception as e:
         print(f"Warning: Could not load variants for {pol_name}: {e}")
         return [("", "", None)], None
 
 
-def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
+def _find_inner_config(pol_cfg: Any, pol_name: str = "") -> Tuple[Any, Any]:
     """Find the list of configurations/variants within a policy config.
 
     Args:
         pol_cfg: Policy configuration object.
+        pol_name: Policy name to use for matching the exact variant.
 
     Returns:
         Tuple of (inner_config, variant_name).
@@ -236,59 +276,124 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
             if isinstance(v_obj, ITraversable) or hasattr(v_obj, "items"):
                 v_dict = cast(Dict[str, Any], v_obj)
                 # If this dict itself contains components, it's an inner variant
-                if any(k in v_dict for k in ["mandatory", "route_improvement", "engine", "params"]):
+                if any(
+                    k in v_dict
+                    for k in [
+                        "mandatory",
+                        "mandatory_selection",
+                        "route_improvement",
+                        "acceptance_criteria",
+                        "engine",
+                        "params",
+                    ]
+                ):
                     return [v], _k
                 # Otherwise, look one level deeper
+                valid_subs = []
                 for sub_k, sub_v in v_dict.items():
                     if isinstance(sub_v, list):
-                        return sub_v, sub_k
+                        valid_subs.append((sub_v, sub_k))
+                        continue
                     sub_v_obj: object = sub_v
                     if isinstance(sub_v_obj, ITraversable) or hasattr(sub_v_obj, "items"):
                         sub_v_dict = cast(Dict[str, Any], sub_v_obj)
-                        if any(sk in sub_v_dict for sk in ["mandatory", "route_improvement", "engine", "params"]):
-                            return [sub_v], sub_k
+                        if any(
+                            sk in sub_v_dict
+                            for sk in [
+                                "mandatory",
+                                "mandatory_selection",
+                                "route_improvement",
+                                "acceptance_criteria",
+                                "engine",
+                                "params",
+                            ]
+                        ):
+                            valid_subs.append(([sub_v], sub_k))
+
+                if valid_subs:
+                    if pol_name:
+                        for sub_v, sub_k in valid_subs:
+                            if sub_k and sub_k in pol_name:
+                                return sub_v, sub_k
+                    return valid_subs[0][0], valid_subs[0][1]
     return [], None
 
 
 def _parse_inner_components(
     inner_cfg: Any,
-) -> Tuple[List[Any], List[Any], int]:
-    """Extract mandatory and route improvement lists from inner config.
+) -> Tuple[List[Any], List[Any], List[Any], int, int]:
+    """Extract mandatory, acceptance criteria, and route improvement lists.
 
     Args:
         inner_cfg: Inner configuration object.
 
     Returns:
-        Tuple of (mandatory_list, route_improvement_list, match_index).
+        Tuple of (ms_list, ac_list, pp_list, ms_idx, ac_idx).
     """
     ms_list: List[Any] = []
+    ac_list: List[Any] = []
     pp_list: List[Any] = []
-    match_idx = -1
-    for idx, item in enumerate(inner_cfg):
+    ms_idx = -1
+    ac_idx = -1
+
+    if isinstance(inner_cfg, dict):
+        inner_cfg_list = [inner_cfg]
+    else:
+        inner_cfg_list = inner_cfg
+
+    for idx, item in enumerate(inner_cfg_list):
         item_obj: object = item
-        if isinstance(item_obj, ITraversable):
-            if "mandatory" in item_obj:
-                ms_list = item_obj["mandatory"]
-                match_idx = idx
-            if "route_improvement" in item_obj:
-                pp_list = item_obj["route_improvement"]
-    return ms_list, pp_list, match_idx
+        if isinstance(item_obj, ITraversable) or hasattr(item_obj, "items"):
+            item_dict = dict(item_obj)
+            if "mandatory_selection" in item_dict:
+                ms_list = item_dict["mandatory_selection"]
+                ms_idx = idx
+            elif "mandatory" in item_dict:
+                ms_list = item_dict["mandatory"]
+                ms_idx = idx
+
+            if "acceptance_criteria" in item_dict:
+                ac_list = item_dict["acceptance_criteria"]
+                ac_idx = idx
+
+            if "route_improvement" in item_dict:
+                pp_list = item_dict["route_improvement"]
+
+    return ms_list, ac_list, pp_list, ms_idx, ac_idx
 
 
-def _apply_ms_override(var_cfg: Any, match_idx: int, ms_item: str) -> None:
-    """Apply a mandatory override to a deep-copied config.
+def _apply_overrides(var_cfg: Any, ms_idx: int, ms_item: Any, ac_idx: int, ac_item: Any) -> None:
+    """Apply mandatory and acceptance criteria overrides to a deep-copied config.
 
     Args:
         var_cfg: Deep-copied policy configuration object.
-        match_idx: Index of the configuration to modify.
+        ms_idx: Index of the mandatory config to modify.
         ms_item: Mandatory list item to apply.
+        ac_idx: Index of the acceptance criteria config to modify.
+        ac_item: Acceptance criteria list item to apply.
     """
     var_inner, _ = _find_inner_config(var_cfg)
-    if var_inner and 0 <= match_idx < len(var_inner):
-        item = var_inner[match_idx]
-        item_obj: object = item
-        if isinstance(item_obj, (dict, ITraversable)):
-            cast(Any, item_obj)["mandatory"] = [ms_item]
+    if var_inner:
+        if isinstance(var_inner, list):
+            if ms_item is not None and 0 <= ms_idx < len(var_inner):
+                item_obj = var_inner[ms_idx]
+                if isinstance(item_obj, (dict, ITraversable)):
+                    if "mandatory_selection" in item_obj:
+                        cast(Any, item_obj)["mandatory_selection"] = [ms_item]
+                    else:
+                        cast(Any, item_obj)["mandatory"] = [ms_item]
+            if ac_item is not None and 0 <= ac_idx < len(var_inner):
+                item_obj = var_inner[ac_idx]
+                if isinstance(item_obj, (dict, ITraversable)):
+                    cast(Any, item_obj)["acceptance_criteria"] = [ac_item]
+        else:  # dict
+            if ms_item is not None:
+                if "mandatory_selection" in var_inner:
+                    var_inner["mandatory_selection"] = [ms_item]
+                elif "mandatory" in var_inner:
+                    var_inner["mandatory"] = [ms_item]
+            if ac_item is not None:
+                var_inner["acceptance_criteria"] = [ac_item]
 
 
 def _clean_id(path_or_str: Any, prefix: str) -> str:
