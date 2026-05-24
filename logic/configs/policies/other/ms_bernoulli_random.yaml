@@ -20,5 +20,6 @@
 #     Range: 0.0 to 1.0
 # =============================================================================
 
-strategy: bernoulli_random
-p: 0.5
+p50:
+  strategy: bernoulli_random
+  p: 0.5

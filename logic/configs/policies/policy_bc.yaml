@@ -102,7 +102,7 @@ bc:
     # ---------------------------------------------------------------------
     # mandatory Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
       # Node selection strategy for waste collection problems
       # Options:
       #   - ms_lookahead.yaml: Predict overflow within N days

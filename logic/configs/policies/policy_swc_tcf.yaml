@@ -77,12 +77,12 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: { "other/ms_last_minute.yaml": ["cf70"] }
     # VRPP Settings
     - vrpp: true
     # Multiple selection strategies (union of both):
     #   1. ms_lookahead.yaml: Bins predicted to overflow soon
-    #   2. ms_service_level0.84.xml: Statistical service level ≥84%
+    #   2. ms_service_level.yaml: Statistical service level ≥84%
     #
     # mandatory nodes receive bonus profit (delta) and stricter constraints
     # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
@@ -99,7 +99,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # route improvement
     # ---------------------------------------------------------------------
-    - route_improvement: ["other/ri_ftsp.yaml"]
+    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
     # No route improvement needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 

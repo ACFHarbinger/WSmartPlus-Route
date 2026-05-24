@@ -5,8 +5,9 @@
 #   Perform pairwise node swaps until a local minimum is reached.
 # =============================================================================
 
-methods:
-  - "node_exchange_steepest"
+default:
+  methods:
+    - "node_exchange_steepest"
 
-max_iter: 300
-seed: 42
+  max_iter: 300
+  seed: 42

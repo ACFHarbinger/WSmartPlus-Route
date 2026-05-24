@@ -1,2 +1,3 @@
-method: ama
-params: {}
+ama:
+  method: ama
+  params: {}

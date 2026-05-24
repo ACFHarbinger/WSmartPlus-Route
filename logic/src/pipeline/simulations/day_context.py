@@ -113,6 +113,19 @@ def _clean(name: Any) -> str:  # noqa: C901
         return _clean(name.strategy)
 
     if hasattr(name, "get") or isinstance(name, Mapping):
+        # Handle new dict format: {"other/ms_last_minute.yaml": "cf70"}
+        if len(name) == 1:
+            key, val = next(iter(name.items()))
+            key_str = str(key)
+            if key_str.endswith(".yaml") or key_str.endswith(".xml"):
+                base = os.path.basename(key_str)
+                for p in ["ms_", "ri_", "ac_", "policy_", ".yaml", ".xml", ".json"]:
+                    base = base.replace(p, "")
+                variant = str(val) if val else ""
+                if variant and variant != "default" and variant != base:
+                    base = f"{base}_{variant}"
+                return base.replace("_", " ").title()
+
         # Check exhaustive list of common keys for strategies
         for k in ["strategy", "type", "name", "id", "model", "method"]:
             val = name.get(k) if hasattr(name, "get") else name.get(k, None)

@@ -118,19 +118,15 @@ class PolicySummaryCallback:
         elif isinstance(policy_cfg, str):
             solver_key = policy_cfg
 
-        # 2. Check top-level keys, skipping known non-engine keys
+        # 2. Check top-level keys for explicit type/solver/engine
         if not solver_key:
-            non_engine_keys = {"mandatory_selection", "route_improvement", "acceptance_criterion", "p", "setup"}
-            for key in raw_cfg.keys():
-                if key not in non_engine_keys:
-                    solver_key = key
-                    break
+            solver_key = flat_cfg.get("engine") or flat_cfg.get("solver") or flat_cfg.get("type")
 
-        # 3. Fallback to name inference from policy_name
+        # 3. Default to CUSTOM
         if not solver_key:
-            solver_key = policy_name.split("_")[0]
+            solver_key = "CUSTOM"
 
-        return str(solver_key).replace("_", "-").upper() if solver_key else "Unknown"
+        return str(solver_key).replace("_", "-").upper()
 
     def _extract_selection(self, config: Dict[str, Any]) -> str:
         """Extract selection strategy details.
@@ -164,7 +160,7 @@ class PolicySummaryCallback:
 
         return ", ".join(strategies) if strategies else "None"
 
-    def _parse_selection_item(self, item: Any) -> tuple[str, str]:
+    def _parse_selection_item(self, item: Any) -> tuple[str, str]:  # noqa: C901
         """Parse a single selection item into name and params.
 
         Args:
@@ -192,6 +188,40 @@ class PolicySummaryCallback:
                     val = item_obj[name]
                     if isinstance(val, ITraversable):
                         params = self._parse_traversable_params(val)
+
+        elif isinstance(item_obj, (dict, ITraversable)) and len(item_obj) == 1:
+            item_dict = dict(item_obj.items()) if hasattr(item_obj, "items") else {}
+            key = next(iter(item_dict), None)
+            val = item_dict.get(key) if key else None
+            if (
+                key
+                and val
+                and isinstance(key, str)
+                and isinstance(val, str)
+                and (key.endswith(".yaml") or key.endswith(".xml"))
+            ):
+                fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", key)
+                try:
+                    cfg = load_config(fpath)
+                    if val in cfg:
+                        variant_cfg = cfg[val]
+                        if isinstance(variant_cfg, dict) and "strategy" in variant_cfg:
+                            name = str(variant_cfg["strategy"])
+                            params = self._parse_traversable_params(variant_cfg)
+                        else:
+                            base = os.path.basename(key).replace(".yaml", "")
+                            if base.startswith("ms_"):
+                                base = base[3:]
+                            name = f"{base}_{val}"
+                    else:
+                        name = str(val)
+                except Exception:
+                    name = str(val)
+            elif key:
+                name = str(key)
+                val_item: object = val
+                if isinstance(val_item, ITraversable):
+                    params = self._parse_traversable_params(cast(Any, val_item))
 
         elif isinstance(item_obj, str):
             name = item_obj
@@ -261,7 +291,7 @@ class PolicySummaryCallback:
             return f"(c={item['critical_threshold']}, s={item.get('synergy_threshold')})"
         return ""
 
-    def _extract_route_improvement(self, config: Dict[str, Any]) -> str:
+    def _extract_route_improvement(self, config: Dict[str, Any]) -> str:  # noqa: C901
         """Extract route improvement steps.
 
         Args:
@@ -281,7 +311,41 @@ class PolicySummaryCallback:
         items = pp if isinstance(pp, list) else [pp]
         for item in items:
             item_obj: object = item
-            if isinstance(item_obj, str):
+            # Handle new dict format: {"other/ri_ftsp.yaml": "default"} or {"other/ri_ftsp.yaml": ["default"]}
+            if (isinstance(item_obj, dict) or hasattr(item_obj, "items")) and not isinstance(item_obj, str):
+                item_dict = dict(item_obj.items()) if hasattr(item_obj, "items") else dict(item_obj)
+                if len(item_dict) == 1:
+                    file_key, variant_val = next(iter(item_dict.items()))
+                    file_key = str(file_key)
+                    if file_key.endswith(".yaml") or file_key.endswith(".xml"):
+                        if isinstance(variant_val, (list, tuple)) and len(variant_val) > 0:
+                            variant_val = variant_val[0]
+                        variant_val = str(variant_val) if variant_val else ""
+                        fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                        if os.path.exists(fpath):
+                            try:
+                                ri_cfg = load_config(fpath)
+                                if variant_val and variant_val in ri_cfg:
+                                    ri_cfg = ri_cfg[variant_val]
+                                if "methods" in ri_cfg:
+                                    steps.extend(ri_cfg["methods"])
+                                    continue
+                                else:
+                                    if "config" in ri_cfg and len(ri_cfg) == 1:
+                                        ri_cfg = ri_cfg["config"]
+                                    steps.extend(list(ri_cfg.keys()))
+                                    continue
+                            except Exception:
+                                pass
+                        base = os.path.basename(file_key)
+                        for p in ["ri_", "ms_", "ac_", ".yaml", ".xml"]:
+                            base = base.replace(p, "")
+                        if variant_val and variant_val != "default" and variant_val != base:
+                            base = f"{base}_{variant_val}"
+                        steps.append(base)
+                        continue
+                steps.append(str(next(iter(item_dict.keys()))))
+            elif isinstance(item_obj, str):
                 if item_obj.endswith(".yaml") or item_obj.endswith(".xml"):
                     fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item_obj)
                     if os.path.exists(fpath):
@@ -309,12 +373,10 @@ class PolicySummaryCallback:
                 elif name.endswith(".xml"):
                     name = name[: -len(".xml")]
                 steps.append(name)
-            elif isinstance(item_obj, ITraversable):
-                steps.append(list(item_obj.keys())[0])
 
         return ", ".join(steps) if steps else "None"
 
-    def _extract_acceptance_criterion(self, config: Dict[str, Any]) -> str:
+    def _extract_acceptance_criterion(self, config: Dict[str, Any]) -> str:  # noqa: C901
         """Extract the acceptance criterion method.
 
         Args:
@@ -336,7 +398,36 @@ class PolicySummaryCallback:
         items = ac if isinstance(ac, (list, tuple)) else [ac]
         for item in items:
             item_obj: object = item
-            if isinstance(item_obj, str):
+            # Handle new dict format: {"other/ac_oi.yaml": "oi"} or {"other/ac_oi.yaml": ["oi"]}
+            if (isinstance(item_obj, dict) or hasattr(item_obj, "items")) and not isinstance(item_obj, str):
+                item_dict = dict(item_obj.items()) if hasattr(item_obj, "items") else dict(item_obj)
+                if len(item_dict) == 1:
+                    file_key, variant_val = next(iter(item_dict.items()))
+                    file_key = str(file_key)
+                    if file_key.endswith(".yaml") or file_key.endswith(".xml"):
+                        if isinstance(variant_val, (list, tuple)) and len(variant_val) > 0:
+                            variant_val = variant_val[0]
+                        variant_val = str(variant_val) if variant_val else ""
+                        fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                        if os.path.exists(fpath):
+                            try:
+                                ac_cfg = load_config(fpath)
+                                if variant_val and variant_val in ac_cfg:
+                                    ac_cfg = ac_cfg[variant_val]
+                                method = ac_cfg.get("method") if hasattr(ac_cfg, "get") else None
+                                if method:
+                                    steps.append(str(method).upper())
+                                    continue
+                            except Exception:
+                                pass
+                        base = os.path.basename(file_key)
+                        for p in ["ac_", "ms_", "ri_", ".yaml", ".xml"]:
+                            base = base.replace(p, "")
+                        label = variant_val if (variant_val and variant_val != "default") else base
+                        steps.append(label.upper())
+                        continue
+                steps.append(str(next(iter(item_dict.values()), "Unknown")).upper())
+            elif isinstance(item_obj, str):
                 name = item_obj
                 if name.startswith("other/ac_"):
                     name = name[len("other/ac_") :]
@@ -347,8 +438,6 @@ class PolicySummaryCallback:
                 elif name.endswith(".xml"):
                     name = name[: -len(".xml")]
                 steps.append(name.upper())
-            elif isinstance(item_obj, dict):
-                steps.append(str(item_obj.get("method", "Unknown")).upper())
             elif isinstance(item_obj, ITraversable):
                 steps.append(str(item_obj.get("method") or "Unknown").upper())
             else:

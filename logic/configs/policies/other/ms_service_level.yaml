@@ -26,6 +26,7 @@
 #   Prevents ~80% of potential overflows while allowing some risk
 # =============================================================================
 
-strategy: service_level
-confidence_factor: 0.84
-horizon_days: 1
+cf84:
+  strategy: service_level
+  confidence_factor: 0.84
+  horizon_days: 1

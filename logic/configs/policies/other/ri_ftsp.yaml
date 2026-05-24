@@ -26,8 +26,9 @@
 #   - methods: [fast_tsp] - Single-method route improvement pipeline
 # =============================================================================
 
-methods:
-  - "fast_tsp"
+default:
+  methods:
+    - "fast_tsp"
 
-# Fast TSP parameters
-time_limit: 15.0
+  # Fast TSP parameters
+  time_limit: 15.0

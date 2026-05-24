@@ -1,2 +1,3 @@
-strategy: savings
-savings_min_fill_ratio: 0.5
+default:
+  strategy: savings
+  savings_min_fill_ratio: 0.5

@@ -19,5 +19,6 @@
 #     Range: 1 to N_bins
 # =============================================================================
 
-strategy: kmeans_sector
-n_sectors: 5
+k5:
+  strategy: kmeans_sector
+  n_sectors: 5

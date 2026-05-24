@@ -54,12 +54,7 @@ cvrp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection:
-        [
-          "other/ms_regular_lvl3.yaml",
-          "other/ms_regular_lvl4.yaml",
-          "other/ms_regular_lvl5.yaml",
-        ]
+    - mandatory_selection: {"other/ms_regular.yaml": ["lvl3", "lvl4", "lvl5"]}
     # Multiple selection strategies for waste collection
     # Collects bins when fill level exceeds 70%, 80%, or 90%
     # Note: Uses regular thresholds instead of lookahead prediction

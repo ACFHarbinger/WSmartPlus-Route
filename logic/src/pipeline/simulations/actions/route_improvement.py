@@ -96,7 +96,7 @@ class RouteImprovementAction(SimulationAction):
         # Legacy handling for strings/files
         return self._create_legacy_processors(entry, context, RouteImproverFactory)
 
-    def _create_legacy_processors(self, item: Any, context: Dict[str, Any], factory) -> list:
+    def _create_legacy_processors(self, item: Any, context: Dict[str, Any], factory) -> list:  # noqa: C901
         """Handle legacy string/file configuration for processors.
 
         Args:
@@ -108,7 +108,45 @@ class RouteImprovementAction(SimulationAction):
             A list of instantiated route improver processors.
         """
         pp_name = ""
-        if isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
+        # Resolve dict format: {"other/ri_ftsp.yaml": "default"} or {"other/ri_ftsp.yaml": ["default"]}
+        if isinstance(item, (dict, ITraversable)) or (hasattr(item, "items") and not isinstance(item, str)):
+            item_dict = dict(item.items()) if hasattr(item, "items") else dict(item)
+            if len(item_dict) == 1:
+                file_key, variant_val = next(iter(item_dict.items()))
+                file_key = str(file_key)
+                if file_key.endswith(".yaml") or file_key.endswith(".xml"):
+                    # Unwrap list variants to a single string
+                    if isinstance(variant_val, (list, tuple)) and len(variant_val) > 0:
+                        variant_val = variant_val[0]
+                    variant_val = str(variant_val) if variant_val is not None else ""
+                    fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                    try:
+                        cfg = load_config(fpath)
+                        if "config" in cfg and len(cfg) == 1:
+                            cfg = cfg["config"]
+                        # Navigate into named variant sub-key if present
+                        if variant_val and variant_val in cfg:
+                            cfg = cfg[variant_val]
+                        if "methods" in cfg:
+                            processors = []
+                            for k, v in cfg.items():
+                                if k != "methods":
+                                    context[k] = v
+                            for method in cfg["methods"]:
+                                try:
+                                    processors.append(factory.create(method))
+                                except Exception as e:
+                                    logger.warning(f"Failed to create route improver {method}: {e}")
+                            return processors
+                        for k, v in cfg.items():
+                            pp_name = k
+                            v_obj: object = v
+                            if isinstance(v_obj, ITraversable):
+                                context.update(v_obj)
+                    except (OSError, ValueError) as e:
+                        logger.warning(f"Error loading route_improvement config {file_key}: {e}")
+                        return []
+        elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
             fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
             try:
                 cfg = load_config(fpath)

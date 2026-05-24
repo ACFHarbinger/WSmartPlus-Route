@@ -163,13 +163,13 @@ hgs:
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Uses PyVRP library (https://pyvrp.org/)
 
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
       # Node selection strategy for waste collection problems
-      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - route_improvement: ["other/ri_ftsp.yaml"]
-    - acceptance_criteria: ["other/ac_oi.yaml"]
+    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    - acceptance_criteria: {"other/ac_oi.yaml": ["oi"]}
       # HGS local search is comprehensive; external route improvement redundant
       # Empty = use HGS output directly
 # =============================================================================

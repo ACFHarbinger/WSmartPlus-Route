@@ -74,7 +74,7 @@ na:
 
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
       # Pre-filter nodes before neural model inference
       # Options: ms_lookahead.yaml (predict overflow), ms_last_minute_*.yaml
       # See: docs/MUST_GO_STRATEGIES.md

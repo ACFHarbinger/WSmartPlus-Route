@@ -43,12 +43,12 @@ bpc:
     # -------------------------------------------------------------------------
     # Infrastructure
     # -------------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
 
     - time_limit: 300.0
       # Full 300s wall-clock budget.
 
-    - route_improvement: ["other/ri_ftsp.yaml"]
+    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
 
     # -------------------------------------------------------------------------
     # Branch-and-Bound Search Strategy

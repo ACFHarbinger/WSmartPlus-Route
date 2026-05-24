@@ -1,4 +1,5 @@
-method: svns
-params:
-  alpha: 0.5
-  maximization: true
+svns:
+  method: svns
+  params:
+    alpha: 0.5
+    maximization: true

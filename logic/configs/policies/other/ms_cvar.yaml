@@ -1,3 +1,4 @@
-strategy: cvar
-cvar_alpha: 0.95
-threshold: 5.0
+a95:
+  strategy: cvar
+  cvar_alpha: 0.95
+  threshold: 5.0

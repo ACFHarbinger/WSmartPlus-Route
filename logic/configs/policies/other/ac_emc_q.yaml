@@ -1,6 +1,7 @@
-method: emc_q
-params:
-  p: 0.1
-  p_boost: 0.5
-  q_threshold: 50
-  seed: 42
+emc_q:
+  method: emc_q
+  params:
+    p: 0.1
+    p_boost: 0.5
+    q_threshold: 50
+    seed: 42

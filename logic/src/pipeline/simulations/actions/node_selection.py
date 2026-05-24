@@ -261,11 +261,11 @@ class MandatorySelectionAction(SimulationAction):
                 strategies.extend(self._parse_strategy_item(item))
         return strategies
 
-    def _parse_strategy_item(self, item: Any) -> List[Dict[str, Any]]:
+    def _parse_strategy_item(self, item: Any) -> List[Dict[str, Any]]:  # noqa: C901
         """Parse a single mandatory configuration item.
 
         Args:
-            item: The configuration item to parse (Config, string path, or dict).
+            item: The configuration item to parse (Config, string path, (file, variant) tuple, or dict).
 
         Returns:
             A list of strategy definitions parsed from the item.
@@ -273,6 +273,36 @@ class MandatorySelectionAction(SimulationAction):
         strategies: List[Dict[str, Any]] = []
         if isinstance(item, MandatorySelectionConfig):
             strategies.append({"config": item})
+        elif (isinstance(item, (dict, ITraversable)) or hasattr(item, "items")) and len(item) == 1:
+            item_dict = dict(item.items()) if hasattr(item, "items") else dict(item)  # type: ignore
+            key = next(iter(item_dict))
+            val = item_dict[key]
+            if isinstance(key, str) and isinstance(val, str) and (key.endswith(".yaml") or key.endswith(".xml")):
+                fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", key)
+                cfg = load_config(fpath)
+                if "config" in cfg and len(cfg) == 1:
+                    cfg = cfg["config"]
+                if val and val in cfg:
+                    cfg = cfg[val]
+                if "strategy" in cfg:
+                    cfg_dict = dict(cfg.items()) if hasattr(cfg, "items") else dict(cfg)  # type: ignore
+                    strat_name = cfg_dict.pop("strategy")
+                    strategies.append({"name": strat_name, "params": cfg_dict})
+                else:
+                    for k, v in cfg.items():
+                        strategies.append({"name": k, "params": v if isinstance(v, ITraversable) else {}})
+                return strategies
+            # Fall through to ITraversable handling below for non-file dicts
+            item_obj2: object = item
+            if isinstance(item_obj2, ITraversable) or hasattr(item_obj2, "items"):
+                item_dict2 = dict(item_obj2.items()) if hasattr(item_obj2, "items") else dict(item_obj2)  # type: ignore
+                if "strategy" in item_dict2:
+                    strat_name = item_dict2.pop("strategy")
+                    strategies.append({"name": strat_name, "params": item_dict2})
+                else:
+                    for k, v in item_dict2.items():
+                        strategies.append({"name": k, "params": v if isinstance(v, (dict, ITraversable)) else {}})
+            return strategies
         elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
             fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
             cfg = load_config(fpath)

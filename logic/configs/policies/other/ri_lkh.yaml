@@ -33,8 +33,9 @@
 #   - seed: 42 (random seed for double-bridge kicks)
 # =============================================================================
 
-methods:
-  - "lkh"
+default:
+  methods:
+    - "lkh"
 
-max_iterations: 1000
-time_limit: 30.0
+  max_iterations: 1000
+  time_limit: 30.0

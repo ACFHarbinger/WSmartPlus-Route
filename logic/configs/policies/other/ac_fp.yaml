@@ -1,3 +1,4 @@
-method: fp
-params:
-  maximization: true
+fp:
+  method: fp
+  params:
+    maximization: true

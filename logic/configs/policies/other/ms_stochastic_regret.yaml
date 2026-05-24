@@ -26,5 +26,6 @@
 #   - When overflow cost is quantified and needs to be minimized
 # =============================================================================
 
-strategy: stochastic_regret
-threshold: 0.5
+default:
+  strategy: stochastic_regret
+  threshold: 0.5

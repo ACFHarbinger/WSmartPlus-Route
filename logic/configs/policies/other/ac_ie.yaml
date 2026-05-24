@@ -1,2 +1,3 @@
-method: ie
-params: {}
+ie:
+  method: ie
+  params: {}

@@ -1,3 +1,4 @@
-strategy: supermodular_greedy
-modular_alpha: 1.0
-modular_budget: 0
+default:
+  strategy: supermodular_greedy
+  modular_alpha: 1.0
+  modular_budget: 0

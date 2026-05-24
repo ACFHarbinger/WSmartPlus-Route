@@ -62,7 +62,7 @@ bb:
   # mandatory_selection:
   #   - name: "fill_level"
   #     threshold: 90.0
-  mandatory_selection: ["other/ms_lookahead.yaml"]
+  mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
 
   # List of route improvement operations to apply after the search.
   # Example:

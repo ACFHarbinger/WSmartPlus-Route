@@ -1,6 +1,7 @@
-method: oba
-params:
-  initial_threshold: 100.0
-  increment: 1.1
-  decrement: 0.9
-  maximization: true
+oba:
+  method: oba
+  params:
+    initial_threshold: 100.0
+    increment: 1.1
+    decrement: 0.9
+    maximization: true

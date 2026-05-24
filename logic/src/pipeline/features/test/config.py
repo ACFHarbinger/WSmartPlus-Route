@@ -180,7 +180,7 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
     return ""
 
 
-def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str, Any]], Any]:
+def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str, Any]], Any]:  # noqa: C901
     """Extract policy variants from its configuration.
 
     Args:
@@ -201,6 +201,9 @@ def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str
         inner_cfg, variant_name = _find_inner_config(pol_cfg, pol_name)
         ms_list, ac_list, pp_list, ms_idx, ac_idx = _parse_inner_components(inner_cfg)
 
+        ms_list = _expand_dict_ms_list(ms_list)
+        ac_list = _expand_dict_ms_list(ac_list)
+        pp_list = _expand_dict_ms_list(pp_list)
         ms_list_iter = ms_list if ms_list else [None]
         ac_list_iter = ac_list if ac_list else [None]
 
@@ -336,11 +339,7 @@ def _parse_inner_components(
     ms_idx = -1
     ac_idx = -1
 
-    if isinstance(inner_cfg, dict):
-        inner_cfg_list = [inner_cfg]
-    else:
-        inner_cfg_list = inner_cfg
-
+    inner_cfg_list = [inner_cfg] if isinstance(inner_cfg, dict) else inner_cfg
     for idx, item in enumerate(inner_cfg_list):
         item_obj: object = item
         if isinstance(item_obj, ITraversable) or hasattr(item_obj, "items"):
@@ -396,6 +395,45 @@ def _apply_overrides(var_cfg: Any, ms_idx: int, ms_item: Any, ac_idx: int, ac_it
                 var_inner["acceptance_criteria"] = [ac_item]
 
 
+def _expand_dict_ms_list(ms_list: Any) -> List[Any]:
+    """Expand a dict-format mandatory_selection into a flat list of single-variant dicts.
+
+    A dict like ``{"other/ms_last_minute.yaml": ["cf70", "cf90"]}`` expands to
+    ``[{"other/ms_last_minute.yaml": "cf70"}, {"other/ms_last_minute.yaml": "cf90"}]``.
+    Plain lists of strings or already-flat lists are returned unchanged.
+
+    Args:
+        ms_list: Raw value from the mandatory_selection key.
+
+    Returns:
+        Flat list of items (strings or single-variant dicts ``{file: variant}``).
+    """
+    _is_mapping = isinstance(ms_list, dict) or (hasattr(ms_list, "items") and not isinstance(ms_list, (str, list)))
+    if _is_mapping and len(ms_list) == 1:
+        file_path, variants = next(iter(ms_list.items()))
+        if isinstance(variants, (list, tuple)) or (hasattr(variants, "__iter__") and not isinstance(variants, str)):
+            return [{str(file_path): str(v)} for v in variants]
+        return [{str(file_path): str(variants)}]
+    if isinstance(ms_list, (list, tuple)) or (
+        hasattr(ms_list, "__iter__") and not isinstance(ms_list, (str, dict)) and not hasattr(ms_list, "items")
+    ):
+        expanded: List[Any] = []
+        for item in ms_list:
+            _item_is_mapping = isinstance(item, dict) or (hasattr(item, "items") and not isinstance(item, str))
+            if _item_is_mapping and len(item) == 1:
+                file_path, variants = next(iter(item.items()))
+                if isinstance(variants, (list, tuple)) or (
+                    hasattr(variants, "__iter__") and not isinstance(variants, str)
+                ):
+                    expanded.extend({str(file_path): str(v)} for v in variants)
+                else:
+                    expanded.append({str(file_path): str(variants)})
+            else:
+                expanded.append(item)
+        return expanded
+    return ms_list if ms_list else []
+
+
 def _clean_id(path_or_str: Any, prefix: str) -> str:
     """Clean a component ID from a path or string.
 
@@ -406,6 +444,14 @@ def _clean_id(path_or_str: Any, prefix: str) -> str:
     Returns:
         Cleaned identifier.
     """
+    if isinstance(path_or_str, dict) and len(path_or_str) == 1:
+        file_path, variant_key = next(iter(path_or_str.items()))
+        name = os.path.basename(str(file_path))
+        for p in [prefix, ".xml", ".yaml"]:
+            name = name.replace(p, "")
+        if variant_key == "default" or variant_key == name:
+            return name
+        return f"{name}_{variant_key}"
     if not isinstance(path_or_str, str):
         return ""
     name = os.path.basename(path_or_str)
