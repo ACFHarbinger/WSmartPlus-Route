@@ -5,8 +5,9 @@
 #   Perform exact TSP reoptimization per route using Dynamic Programming.
 # =============================================================================
 
-methods:
-  - "dp_route_reopt"
+default:
+  methods:
+    - "dp_route_reopt"
 
-dp_max_nodes: 20
-seed: 42
+  dp_max_nodes: 20
+  seed: 42

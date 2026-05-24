@@ -1,6 +1,7 @@
-method: da
-params:
-  initial_credit: 0.0
-  is_stochastic: false
-  maximization: true
-  seed: 42
+da:
+  method: da
+  params:
+    initial_credit: 0.0
+    is_stochastic: false
+    maximization: true
+    seed: 42

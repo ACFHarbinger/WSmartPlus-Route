@@ -117,7 +117,7 @@ ils_bd:
     # ---------------------------------------------------------------------
     # mandatory Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
       # Selection strategy for mandatory visits.
 
     # ---------------------------------------------------------------------

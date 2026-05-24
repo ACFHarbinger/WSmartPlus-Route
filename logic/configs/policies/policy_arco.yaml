@@ -156,7 +156,7 @@ arco:
     # Profit-aware routing mode (Vehicle Routing Problem with Profits).
     # Must match the mode of all sub-constructors in the pool.
 
-  - mandatory_selection: ["other/ms_lookahead.yaml"]
+  - mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
     # Node selection strategy applied before the constructor chain runs.
     # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular_*.yaml
     # See: docs/MUST_GO_STRATEGIES.md
@@ -164,7 +164,7 @@ arco:
   - route_improvement: []
     # Optional post-chain local-search refinement applied to the final tour.
     # Empty = use the raw output of the last constructor in the chain.
-    # Example: ["other/ac_bmc.yaml"] for a BMC acceptance criterion pass.
+    # Example: {"other/ac_bmc.yaml": ["bmc"]} for a BMC acceptance criterion pass.
 
   # ---------------------------------------------------------------------------
   # Determinism

@@ -1,3 +1,4 @@
-method: pd
-params:
-  maximization: true
+pd:
+  method: pd
+  params:
+    maximization: true

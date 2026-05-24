@@ -1,5 +1,6 @@
-method: bmc
-params:
-  initial_temp: 100.0
-  alpha: 0.995
-  seed: 42
+bmc:
+  method: bmc
+  params:
+    initial_temp: 100.0
+    alpha: 0.995
+    seed: 42

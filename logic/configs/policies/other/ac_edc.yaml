@@ -1,3 +1,4 @@
-method: edc
-params:
-  epsilon: 0.01
+edc:
+  method: edc
+  params:
+    epsilon: 0.01

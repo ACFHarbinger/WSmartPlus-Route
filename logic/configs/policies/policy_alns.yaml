@@ -98,13 +98,13 @@ alns:
     - engine: "custom"
       # Execution backend: logic/src/policies/adaptive_large_neighborhood_search.py
 
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
       # Node selection strategy for waste collection problems
-      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - route_improvement: ["other/ri_ftsp.yaml"]
-    - acceptance_criteria: ["other/ac_bmc.yaml"]
+    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    - acceptance_criteria: {"other/ac_bmc.yaml": ["bmc"]}
       # Route refinement heuristics applied after ALNS (e.g., 2-opt, relocate)
       # Empty list = use raw ALNS output
       # Options: ["2opt_intra", "relocate", "swap"]

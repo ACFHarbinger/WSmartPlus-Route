@@ -34,7 +34,8 @@
 #     Typical range: 50.0-200.0 depending on vehicle type
 # =============================================================================
 
-methods:
-  - "path"
+default:
+  methods:
+    - "path"
 
-vehicle_capacity: 100.0
+  vehicle_capacity: 100.0

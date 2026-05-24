@@ -29,9 +29,10 @@
 #     Range: 100-5000 (100 = quick, 1000 = thorough, 5000 = exhaustive)
 # =============================================================================
 
-methods:
-  - "classical_local_search"
+default:
+  methods:
+    - "classical_local_search"
 
-ls_operator: 2opt
-iterations: 1000
-time_limit: 30.0
+  ls_operator: 2opt
+  iterations: 1000
+  time_limit: 30.0
