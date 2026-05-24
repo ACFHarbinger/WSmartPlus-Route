@@ -20,6 +20,7 @@
 #     Range: 0-14 (0 = immediate lookahead, 7 = week ahead)
 # =============================================================================
 
-strategy: lookahead
-lookahead:
-  current_collection_day: 0
+default:
+  strategy: lookahead
+  lookahead:
+    current_collection_day: 0

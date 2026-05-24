@@ -57,8 +57,8 @@ ts:
     - profit_aware_operators: false
     - vrpp: true
 
-    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
     - route_improvement: []
 
     # Acceptance Criterion
-    - acceptance_criteria: ["other/ac_oi.yaml"]
+    - acceptance_criteria: {"other/ac_oi.yaml": ["oi"]}

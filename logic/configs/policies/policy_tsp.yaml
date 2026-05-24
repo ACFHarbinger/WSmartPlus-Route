@@ -44,11 +44,11 @@ tsp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
+    - mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
     # VRPP Settings
     - vrpp: true
     # Pre-filter nodes before TSP solving
-    # ms_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
+    # ms_last_minute.yaml cf70: Collect bins when fill ≥70% capacity
     # Alternative strategies: ms_lookahead.yaml (predictive), ms_regular.yaml
     # See: docs/MUST_GO_STRATEGIES.md
     #

@@ -25,6 +25,7 @@
 #   - Conservative risk management
 # =============================================================================
 
-strategy: multi_day_prob
-horizon_days: 3
-threshold: 0.85
+h3:
+  strategy: multi_day_prob
+  horizon_days: 3
+  threshold: 0.85

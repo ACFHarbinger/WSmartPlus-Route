@@ -19,5 +19,6 @@
 #     Range: 1+ (equivalent to Regular Selection frequency)
 # =============================================================================
 
-strategy: staggered_regular
-period: 3
+p3:
+  strategy: staggered_regular
+  period: 3

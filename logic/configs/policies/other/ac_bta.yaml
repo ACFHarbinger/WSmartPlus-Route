@@ -1,4 +1,5 @@
-method: bta
-params:
-  k_participants: 2
-  maximization: true
+bta:
+  method: bta
+  params:
+    k_participants: 2
+    maximization: true

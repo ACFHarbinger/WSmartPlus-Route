@@ -1,2 +1,3 @@
-method: ac
-params: {}
+ac:
+  method: ac
+  params: {}

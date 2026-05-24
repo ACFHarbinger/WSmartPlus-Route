@@ -1,10 +1,12 @@
 # route improvement: Guided Local Search (GLS)
-methods:
-  - "guided_local_search"
 
-guided_local_search:
-  gls_iterations: 20
-  gls_inner_iterations: 50
-  gls_lambda_factor: 0.1
-  gls_base_operator: or_opt
-  seed: 42
+default:
+  methods:
+    - "guided_local_search"
+
+  guided_local_search:
+    gls_iterations: 20
+    gls_inner_iterations: 50
+    gls_lambda_factor: 0.1
+    gls_base_operator: or_opt
+    seed: 42

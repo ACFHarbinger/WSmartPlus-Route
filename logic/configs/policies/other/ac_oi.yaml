@@ -1,2 +1,3 @@
-method: oi
-params: {}
+oi:
+  method: oi
+  params: {}

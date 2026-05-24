@@ -62,9 +62,8 @@ sa:
   # ---------------------------------------------------------------------------
   # List of mandatory collection filters executed prior to meta-heuristic search.
   mandatory_selection:
-    - "other/ms_lookahead.yaml"
-
+    - {"other/ms_lookahead.yaml": ["default"]}
   # List of route improvement refinement operations.
   route_improvement: []
 
-  acceptance_criteria: ["other/ac_bmc.yaml"]
+  acceptance_criteria: {"other/ac_bmc.yaml": ["bmc"]}

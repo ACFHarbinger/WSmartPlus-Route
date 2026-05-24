@@ -25,5 +25,6 @@
 #   - Avoiding both overflows AND excessive detour costs
 # =============================================================================
 
-strategy: pareto_front
-threshold: 7.0
+default:
+  strategy: pareto_front
+  threshold: 7.0

@@ -5,9 +5,10 @@
 #   Perform chain relocations (lengths 1, 2, 3) until a local minimum is reached.
 # =============================================================================
 
-methods:
-  - "or_opt_steepest"
+default:
+  methods:
+    - "or_opt_steepest"
 
-chain_lengths: [1, 2, 3]
-max_iter: 500
-seed: 42
+  chain_lengths: [1, 2, 3]
+  max_iter: 500
+  seed: 42
