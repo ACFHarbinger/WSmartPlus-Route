@@ -21,14 +21,14 @@
 #   - lvl5: frequency 5 (collect every 5 days / weekly work schedule)
 # =============================================================================
 
-lvl3:
+regular_lvl3:
   strategy: regular
   frequency: 3
 
-lvl4:
+regular_lvl4:
   strategy: regular
   frequency: 4
 
-lvl5:
+regular_lvl5:
   strategy: regular
   frequency: 5

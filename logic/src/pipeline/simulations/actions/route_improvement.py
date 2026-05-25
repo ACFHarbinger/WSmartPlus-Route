@@ -73,7 +73,16 @@ class RouteImprovementAction(SimulationAction):
             return []
 
         if not isinstance(pp_list, list):
-            pp_list = [pp_list] if isinstance(pp_list, str) and pp_list.lower() != "none" else []
+            if isinstance(pp_list, str) and pp_list.lower() != "none":
+                pp_list = [pp_list]
+            elif hasattr(pp_list, "__iter__") and not isinstance(pp_list, str) and not hasattr(pp_list, "items"):
+                # OmegaConf ListConfig or other non-dict sequence
+                pp_list = list(pp_list)
+            elif hasattr(pp_list, "items"):
+                # New dict format: {"other/ri_ftsp.yaml": ["ftsp"]} → wrap as single item
+                pp_list = [pp_list]
+            else:
+                pp_list = []
 
         pp_configs = []
         for item in pp_list:
@@ -115,9 +124,13 @@ class RouteImprovementAction(SimulationAction):
                 file_key, variant_val = next(iter(item_dict.items()))
                 file_key = str(file_key)
                 if file_key.endswith(".yaml") or file_key.endswith(".xml"):
-                    # Unwrap list variants to a single string
-                    if isinstance(variant_val, (list, tuple)) and len(variant_val) > 0:
-                        variant_val = variant_val[0]
+                    # Unwrap list variants (including OmegaConf ListConfig) to a single string
+                    if hasattr(variant_val, "__iter__") and not isinstance(variant_val, str):
+                        try:
+                            v_list = list(variant_val)
+                            variant_val = v_list[0] if v_list else None
+                        except Exception:
+                            pass
                     variant_val = str(variant_val) if variant_val is not None else ""
                     fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
                     try:
@@ -127,6 +140,11 @@ class RouteImprovementAction(SimulationAction):
                         # Navigate into named variant sub-key if present
                         if variant_val and variant_val in cfg:
                             cfg = cfg[variant_val]
+                        elif len(cfg) == 1 and "methods" not in cfg:
+                            # Single-key YAML (e.g. ftsp: {methods: [...]}) — navigate in
+                            _inner = next(iter(cfg.values()))
+                            if isinstance(_inner, dict) and "methods" in _inner:
+                                cfg = _inner
                         if "methods" in cfg:
                             processors = []
                             for k, v in cfg.items():
@@ -142,7 +160,8 @@ class RouteImprovementAction(SimulationAction):
                             pp_name = k
                             v_obj: object = v
                             if isinstance(v_obj, ITraversable):
-                                context.update(v_obj)
+                                for _k, _v in v_obj.items():
+                                    context[_k] = _v
                     except (OSError, ValueError) as e:
                         logger.warning(f"Error loading route_improvement config {file_key}: {e}")
                         return []
@@ -152,6 +171,12 @@ class RouteImprovementAction(SimulationAction):
                 cfg = load_config(fpath)
                 if "config" in cfg and len(cfg) == 1:
                     cfg = cfg["config"]
+
+                # Single-key YAML (e.g. ftsp: {methods: [...]}) — navigate in automatically
+                if len(cfg) == 1 and "methods" not in cfg:
+                    _inner = next(iter(cfg.values()))
+                    if isinstance(_inner, dict) and "methods" in _inner:
+                        cfg = _inner
 
                 if "methods" in cfg:
                     processors = []
@@ -169,7 +194,8 @@ class RouteImprovementAction(SimulationAction):
                     pp_name = k
                     v_obj: object = v
                     if isinstance(v_obj, ITraversable):
-                        context.update(v_obj)
+                        for _k, _v in v_obj.items():
+                            context[_k] = _v
             except (OSError, ValueError) as e:
                 logger.warning(f"Error loading route_improvement config {item}: {e}")
                 return []
