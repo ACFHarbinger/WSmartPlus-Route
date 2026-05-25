@@ -446,12 +446,13 @@ def _clean_id(path_or_str: Any, prefix: str) -> str:
     """
     if isinstance(path_or_str, dict) and len(path_or_str) == 1:
         file_path, variant_key = next(iter(path_or_str.items()))
+        variant_key = str(variant_key) if variant_key is not None else ""
+        if variant_key and variant_key != "default":
+            return variant_key
         name = os.path.basename(str(file_path))
         for p in [prefix, ".xml", ".yaml"]:
             name = name.replace(p, "")
-        if variant_key == "default" or variant_key == name:
-            return name
-        return f"{name}_{variant_key}"
+        return name
     if not isinstance(path_or_str, str):
         return ""
     name = os.path.basename(path_or_str)

@@ -22,10 +22,10 @@
 #     Aggressive threshold - fewer collections, higher overflow risk
 # =============================================================================
 
-cf70:
+last_minute_cf70:
   strategy: last_minute
   threshold: 70
 
-cf90:
+last_minute_cf90:
   strategy: last_minute
   threshold: 90

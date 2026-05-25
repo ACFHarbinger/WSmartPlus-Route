@@ -38,7 +38,7 @@
 #   - iterations: 1000 (total operator applications)
 # =============================================================================
 
-default:
+rls:
   methods:
     - "random_local_search"
 

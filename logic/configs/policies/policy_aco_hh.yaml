@@ -126,12 +126,15 @@ aco_hh:
     - profit_aware_operators: true
     - vrpp: true
 
-    - mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
+    - mandatory_selection:
+        {
+          "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf70"],
+        }
       # Node selection strategy for waste collection problems
       # Options: ms_lookahead.yaml, ms_last_minute.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
       # Operator sequences already apply local search; no further refinement
       # Empty = use HH-ACO output directly
 # =============================================================================

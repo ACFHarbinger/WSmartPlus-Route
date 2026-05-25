@@ -118,12 +118,19 @@ def _clean(name: Any) -> str:  # noqa: C901
             key, val = next(iter(name.items()))
             key_str = str(key)
             if key_str.endswith(".yaml") or key_str.endswith(".xml"):
+                raw_v = val
+                if hasattr(val, "__iter__") and not isinstance(val, str):
+                    try:
+                        v_list = list(val)
+                        raw_v = v_list[0] if v_list else ""
+                    except Exception:
+                        pass
+                variant = str(raw_v) if raw_v is not None else ""
+                if variant and variant != "default":
+                    return variant.replace("_", " ").title()
                 base = os.path.basename(key_str)
                 for p in ["ms_", "ri_", "ac_", "policy_", ".yaml", ".xml", ".json"]:
                     base = base.replace(p, "")
-                variant = str(val) if val else ""
-                if variant and variant != "default" and variant != base:
-                    base = f"{base}_{variant}"
                 return base.replace("_", " ").title()
 
         # Check exhaustive list of common keys for strategies

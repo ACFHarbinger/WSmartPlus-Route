@@ -94,11 +94,12 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
+    mandatory_selection:
+      { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
     # VRPP Settings
     vrpp: true
 
-    route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
     # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================
@@ -118,11 +119,11 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
+    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
     # VRPP Settings
     vrpp: true
 
-    route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    route_improvement: { "other/ri_ftsp.yaml": ["default"] }
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
@@ -152,11 +153,11 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
+    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
     # VRPP Settings
     vrpp: true
 
-    route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    route_improvement: { "other/ri_ftsp.yaml": ["default"] }
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
@@ -180,7 +181,7 @@ lac:
     engine: og
     combination: a
     time_limit: 60
-    mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
+    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
     # VRPP Settings
     vrpp: true
 
@@ -198,7 +199,7 @@ lac:
     engine: og
     combination: b
     time_limit: 60
-    mandatory_selection: {"other/ms_lookahead.yaml": ["default"]}
+    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
     # VRPP Settings
     vrpp: true
 

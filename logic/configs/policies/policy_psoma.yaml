@@ -94,7 +94,7 @@ psoma:
     # Cooling rate (alpha) for temperature reduction
     # Range: 0.8-0.999 (higher → slower cooling, more intensive)
 
-  acceptance_criteria: {"other/ac_bmc.yaml": ["bmc"]}
+  acceptance_criteria: { "other/ac_bmc.yaml": ["bmc"] }
 
   # -------------------------------------------------------------------------
   # Runtime Control
@@ -116,10 +116,11 @@ psoma:
   profit_aware_operators: true
   vrpp: true
 
-  mandatory_selection: {"other/ms_last_minute.yaml": ["cf70"]}
+  mandatory_selection:
+    { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
   # Node selection strategy for waste collection problems
 
   route_improvement:
-    {"other/ri_ftsp.yaml": ["default"]}
+    { "other/ri_ftsp.yaml": ["ftsp"] }
     # SA already refines routes; no further route improvement needed
 # =============================================================================

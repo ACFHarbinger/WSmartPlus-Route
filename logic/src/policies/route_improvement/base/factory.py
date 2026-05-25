@@ -73,7 +73,7 @@ class RouteImproverFactory:
         if not cls:
             # Fallback for dynamic/mapped names
             n_lower = name.lower()
-            if n_lower in ["fast_tsp", "tsp"]:
+            if n_lower in ["fast_tsp", "ftsp"]:
                 return FastTSPRouteImprover()
             elif n_lower in ["local_search", "classical_local_search", "cls"]:
                 return ClassicalLocalSearchRouteImprover(operator_name=n_lower)

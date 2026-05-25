@@ -34,7 +34,7 @@
 #     Typical range: 50.0-200.0 depending on vehicle type
 # =============================================================================
 
-default:
+path:
   methods:
     - "path"
 
