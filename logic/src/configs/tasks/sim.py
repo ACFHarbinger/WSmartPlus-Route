@@ -98,5 +98,6 @@ class SimConfig:
     gapik_file: Optional[str] = None
     stats_filepath: Optional[str] = None
     data_dir: Optional[str] = None
+    run_name: Optional[str] = None
     policy_configs: Dict[str, Any] = field(default_factory=dict)
     config_path: Dict[str, Any] = field(default_factory=dict)
