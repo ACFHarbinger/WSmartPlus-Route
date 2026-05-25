@@ -260,7 +260,7 @@ def single_simulation(
             # If successful, extract the policy name to return the correct dictionary key
             return {pol_name: res[pol_name], "success": True, "sample_id": sample_id}
 
-        print(f"\n[INFO] Finished simulation for policy {pol_name} and sample {sample_id}")
+        print(f"\n[INFO] Finished simulation for policy {pol_name} sample {sample_id}")
         return res or {"error": "Unknown error", "policy": "unknown", "sample_id": sample_id, "success": False}
     except BaseException as e:
         # Report to redirected stderr so it's captured in simulation log files

@@ -77,7 +77,10 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - mandatory_selection: { "other/ms_last_minute.yaml": ["cf70"] }
+    - mandatory_selection:
+        {
+          "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"],
+        }
     # VRPP Settings
     - vrpp: true
     # Multiple selection strategies (union of both):
@@ -99,7 +102,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # route improvement
     # ---------------------------------------------------------------------
-    - route_improvement: {"other/ri_ftsp.yaml": ["default"]}
+    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
     # No route improvement needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 
