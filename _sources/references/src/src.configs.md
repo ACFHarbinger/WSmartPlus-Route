@@ -63,39 +63,6 @@ src.configs.tracking
 ```{autodoc2-docstring} src.configs.Config
 ```
 
-````{py:attribute} env
-:canonical: src.configs.Config.env
-:type: typing.Any
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.Config.env
-```
-
-````
-
-````{py:attribute} graph
-:canonical: src.configs.Config.graph
-:type: typing.Any
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.Config.graph
-```
-
-````
-
-````{py:attribute} model
-:canonical: src.configs.Config.model
-:type: src.configs.models.ModelConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.Config.model
-```
-
-````
-
 ````{py:attribute} train
 :canonical: src.configs.Config.train
 :type: src.configs.tasks.TrainConfig
@@ -206,28 +173,6 @@ src.configs.tracking
 
 ````
 
-````{py:attribute} mandatory_selection
-:canonical: src.configs.Config.mandatory_selection
-:type: src.configs.policies.other.MandatorySelectionConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.Config.mandatory_selection
-```
-
-````
-
-````{py:attribute} route_improvement
-:canonical: src.configs.Config.route_improvement
-:type: src.configs.policies.other.RouteImprovingConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.Config.route_improvement
-```
-
-````
-
 ````{py:attribute} seed
 :canonical: src.configs.Config.seed
 :type: int
@@ -272,17 +217,6 @@ src.configs.tracking
 
 ````
 
-````{py:attribute} output_dir
-:canonical: src.configs.Config.output_dir
-:type: str
-:value: >
-   'assets/model_weights'
-
-```{autodoc2-docstring} src.configs.Config.output_dir
-```
-
-````
-
 ````{py:attribute} run_name
 :canonical: src.configs.Config.run_name
 :type: typing.Optional[str]
@@ -290,17 +224,6 @@ src.configs.tracking
    None
 
 ```{autodoc2-docstring} src.configs.Config.run_name
-```
-
-````
-
-````{py:attribute} start
-:canonical: src.configs.Config.start
-:type: int
-:value: >
-   0
-
-```{autodoc2-docstring} src.configs.Config.start
 ```
 
 ````

@@ -39,6 +39,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.config._apply_overrides
     :summary:
     ```
+* - {py:obj}`_expand_dict_ms_list <src.pipeline.features.test.config._expand_dict_ms_list>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.config._expand_dict_ms_list
+    :summary:
+    ```
 * - {py:obj}`_clean_id <src.pipeline.features.test.config._clean_id>`
   - ```{autodoc2-docstring} src.pipeline.features.test.config._clean_id
     :summary:
@@ -86,6 +90,13 @@
 :canonical: src.pipeline.features.test.config._apply_overrides
 
 ```{autodoc2-docstring} src.pipeline.features.test.config._apply_overrides
+```
+````
+
+````{py:function} _expand_dict_ms_list(ms_list: typing.Any) -> typing.List[typing.Any]
+:canonical: src.pipeline.features.test.config._expand_dict_ms_list
+
+```{autodoc2-docstring} src.pipeline.features.test.config._expand_dict_ms_list
 ```
 ````
 

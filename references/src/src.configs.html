@@ -477,9 +477,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.env"><code class="docutils literal notranslate"><span class="pre">Config.env</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.graph"><code class="docutils literal notranslate"><span class="pre">Config.graph</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.model"><code class="docutils literal notranslate"><span class="pre">Config.model</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.train"><code class="docutils literal notranslate"><span class="pre">Config.train</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.optim"><code class="docutils literal notranslate"><span class="pre">Config.optim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.rl"><code class="docutils literal notranslate"><span class="pre">Config.rl</span></code></a></li>
@@ -490,15 +487,11 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.hpo_sim"><code class="docutils literal notranslate"><span class="pre">Config.hpo_sim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.data"><code class="docutils literal notranslate"><span class="pre">Config.data</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.tracking"><code class="docutils literal notranslate"><span class="pre">Config.tracking</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">Config.mandatory_selection</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.route_improvement"><code class="docutils literal notranslate"><span class="pre">Config.route_improvement</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.seed"><code class="docutils literal notranslate"><span class="pre">Config.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.device"><code class="docutils literal notranslate"><span class="pre">Config.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.experiment_name"><code class="docutils literal notranslate"><span class="pre">Config.experiment_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.task"><code class="docutils literal notranslate"><span class="pre">Config.task</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.output_dir"><code class="docutils literal notranslate"><span class="pre">Config.output_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.run_name"><code class="docutils literal notranslate"><span class="pre">Config.run_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.start"><code class="docutils literal notranslate"><span class="pre">Config.start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.p"><code class="docutils literal notranslate"><span class="pre">Config.p</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.callbacks"><code class="docutils literal notranslate"><span class="pre">Config.callbacks</span></code></a></li>
 </ul>
@@ -528,7 +521,25 @@ Config: Root configuration.</p>
 &gt;&gt;&gt; from logic.src.configs import Config
 &gt;&gt;&gt; config = Config()
 &gt;&gt;&gt; print(config)
-Config(env=EnvConfig(max_nodes=50, n_customers=20, customer_types={‘A’: 0.25, ‘B’: 0.5, ‘C’: 0.25}, n_depots=1, demand_distribution=’normal’, demand_normal_mean=10, demand_normal_std=1, min_demand=1, max_demand=25, capacity_distribution=’normal’, capacity_normal_mean=300, capacity_normal_std=50, min_capacity=200, max_capacity=400, instance_generator=’random’, max_travel_time=24, opening_time=0, closing_time=24, min_waste_nodes_ratio=0.4, max_waste_nodes_ratio=0.6, service_time=1, n_time_bins=1, max_time_bin_length=1, generate_empty_graphs=False, n_edges_factor=3, shuffle_seed=42), model=ModelConfig(type=’Transformer’, encoder_hidden_dim=64, decoder_hidden_dim=64, n_encoder_layers=3, n_decoder_layers=3, n_heads=4, dropout_rate=0.1, normalization=’layer’, activation=’gelu’, feed_forward_expansion=4, use_skip_connections=True, tanh_clipping=10.0, predictor_layers=None), hpo=HPOConfig(type=’optuna’, n_trials=100, n_jobs=-1, show_progress=True, pruning=True, pruning_n_trials=10, pruning_n_startup_trials=5, pruning_n_intermediate_trials=5, pruner=’halving’, sampler=’tpe’, storage=None), hpo_sim=SimHPOConfig(n_trials=1000, n_jobs=-1, show_progress=True, pruning=True, pruning_n_trials=10, pruning_n_startup_trials=5, pruning_n_intermediate_trials=5, pruner=’halving’, sampler=’tpe’, storage=None), rl=RLConfig(gamma=1.0, learning_rate=0.001, buffer_size=10000, min_buffer_size=100, batch_size=32, n_warmup_samples=0, update_rate=0.01, target_update_rate=0.005, discount_factor=0.9, reward_scale=1.0, n_greedy_episodes=20, n_exploit_episodes=5, eval_every_n_steps=100, eval_n_episodes=20, eval_baseline_n_episodes=20, log_interval=10, train_batch_size=32, n_train_batches=50, n_eval_episodes=10, n_test_episodes=100, target_network_update_freq=500, exploration_fraction=0.1, exploration_initial_eps=1.0, exploration_final_eps=0.05, train_value_net=True, value_net_learning_rate=0.001, value_net_hidden_dim=64, value_net_layers=2, value_net_dropout=0.1, gradient_clipping=1.0, n_steps=1, n_target_update_steps=1, train_freq=4, gradient_accumulation_steps=1, use_gae=False, gae_lambda=0.95, clip_range=0.2, clip_range_vf=0.2, ent_coef=0.01, vf_coef=0.5, max_grad_norm=1.0, rollout_buffer_size=1024, learning_starts=0, train_freq_steps=1, train_batch_size_steps=32, max_grad_norm=1.0), meta_rl=MetaRLConfig(total_updates=10000, meta_batch_size=32, meta_learning_rate=0.001, inner_learning_rate=0.01, inner_updates=1, embedding_size=32, embedding_lr=0.001, num_heads=4, num_layers=2, use_skip_connections=True, activation=’gelu’, normalization=’layer’, dropout_rate=0.1, tanh_clipping=10.0, predictor_layers=None, rollout_buffer_size=1024, min_rollout_buffer_size=100, train_freq=4, gradient_accumulation_steps=1, clip_range=0.2, clip_range_vf=0.2, ent_coef=0.01, vf_coef=0.5, max_grad_norm=1.0, train_freq_steps=1, train_batch_size_steps=32), train=TrainConfig(max_epochs=100, batch_size=32, learning_rate=0.001, dropout_rate=0.1, clip_grad_norm=None, weight_decay=0.0, label_smoothing=0.0, warmup_epochs=10, reduce_lr_on_plateau=False, patience=5, min_lr=1e-06, patience_epochs=5, eval_freq_epochs=10, eval_batch_size=None, gradient_accumulation_steps=1, grad_clip=1.0, label_smoothing=0.0, gradient_clipping=1.0, gradient_clipping_norm=None, target_temperature=1.0, target_temperature_decay_rate=0.999997, temperature_decay_steps=10000, learning_rate_decay=None, learning_rate_decay_rate=0.9999, patience=5, min_learning_rate=1e-5), optim=OptimConfig(type=’adamw’, lr=0.001, beta1=0.9, beta2=0.999, eps=1e-08, weight_decay=0.0, amsgrad=False, foreach=False, grad_clip_norm=None, gradient_clipping=None), data=DataConfig(data_dir=””, train_size=100, val_size=20, test_size=20, n_train_workers=4, n_val_workers=2, n_test_workers=2, shuffle=True, pin_memory=False, persistent_workers=False, batch_size=32, val_batch_size=32, test_batch_size=32), eval=EvalConfig(eval_size=20, n_workers=2, batch_size=32, shuffle=True, pin_memory=False, persistent_workers=False), sim=SimConfig(n_agents=1, n_simulations=1000, n_parallel_sims=10, visualize=True, batch_size=32, val_batch_size=32, test_batch_size=32, val_size=20, test_size=20, n_train_workers=0, n_test_workers=0), hpo=HPOConfig(n_trials=100, n_jobs=-1, show_progress=True, pruning=True, pruning_n_trials=10, pruning_n_startup_trials=5, pruning_n_intermediate_trials=5, pruner=’halving’, sampler=’tpe’, storage=None), tracking=TrackingConfig(name=””, project_name=None, use_mlflow=False, use_tensorboard=False, use_wandb=True), mandatory_selection=MandatorySelectionConfig(nodes_ratio=0.2, edges_ratio=0.0, strategy=’random’), route_improvement=RouteImprovingConfig(n_iterations=10, swap_cost_weight=0.0001, insertion_cost_weight=0.0001, max_neighbors=1000), seed=42, device=’cuda’, experiment_name=None, task=’train’, output_dir=’assets/model_weights’, log_dir=’assets/logs’, run_name=None, verbose=True, start=0, p={}, callbacks={}),</p>
+Config(
+train=TrainConfig(
+max_epochs=100, batch_size=32, learning_rate=0.001, dropout_rate=0.1,
+clip_grad_norm=None, weight_decay=0.0, label_smoothing=0.0,
+warmup_epochs=10, reduce_lr_on_plateau=False, patience=5,
+min_lr=1e-06, patience_epochs=5, eval_freq_epochs=10,
+eval_batch_size=None, gradient_accumulation_steps=1, grad_clip=1.0,
+gradient_clipping=1.0, gradient_clipping_norm=None,
+target_temperature=1.0, target_temperature_decay_rate=0.999997,
+temperature_decay_steps=10000, learning_rate_decay=None,
+learning_rate_decay_rate=0.9999, patience=5, min_learning_rate=1e-5
+),
+optim=OptimConfig(type=’adamw’, lr=0.001, beta1=0.9, beta2=0.999, eps=1e-08, weight_decay=0.0, amsgrad=False, foreach=False, grad_clip_norm=None, gradient_clipping=None),
+data=DataConfig(data_dir=””, train_size=100, val_size=20, test_size=20, n_train_workers=4, n_val_workers=2, n_test_workers=2, shuffle=True, pin_memory=False, persistent_workers=False, batch_size=32, val_batch_size=32, test_batch_size=32),
+eval=EvalConfig(eval_size=20, n_workers=2, batch_size=32, shuffle=True, pin_memory=False, persistent_workers=False),
+sim=SimConfig(n_agents=1, n_simulations=1000, n_parallel_sims=10, visualize=True, batch_size=32, val_batch_size=32, test_batch_size=32, val_size=20, test_size=20, n_train_workers=0, n_test_workers=0),
+tracking=TrackingConfig(name=””, project_name=None, use_mlflow=False, use_tensorboard=False, use_wandb=True),
+seed=42, device=’cuda’, experiment_name=None, task=’train’, run_name=None, verbose=True, start=0, p={}, callbacks={})
+)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -733,9 +744,6 @@ Config(env=EnvConfig(max_nodes=50, n_customers=20, customer_types={‘A’: 0.25
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#src.configs.Config" title="Link to this definition">#</a></dt>
 <dd><p>Root configuration.</p>
 <p>Attributes:
-env: Environment configuration.
-graph: Graph configuration.
-model: Model configuration.
 train: Training configuration.
 optim: Optimizer configuration.
 rl: RL algorithm configuration.
@@ -745,8 +753,6 @@ eval: Evaluation configuration.
 sim: Simulation configuration.
 data: Data generation configuration.
 tracking: Tracking backend configuration (WSTracker + optional MLflow).
-mandatory_selection: Mandatory nodes selection strategy configuration.
-route_improvement: Route refinement configuration.
 seed: Random seed.
 device: Device to use (‘cpu’, ‘cuda’).
 experiment_name: Optional name for the experiment.
@@ -754,31 +760,10 @@ task: Task to perform (‘train’, ‘eval’, ‘test_sim’, ‘gen_data’).
 wandb_mode: Weights &amp; Biases mode (‘online’, ‘offline’, ‘disabled’).
 no_tensorboard: If True, disable TensorBoard logging.
 no_progress_bar: If True, disable the progress bar.
-output_dir: Directory to save model outputs and artifacts.
-log_dir: Directory to save logs.
 run_name: Specific name for the run (separate from experiment_name).
 verbose: If True, enable verbose logging.
-start: Starting index or offset (e.g., for resuming or dataset slicing).
 p: Dictionary for arbitrary additional parameters.
 callbacks: Dictionary of callback configurations.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.env">
-<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.configs.Config.env" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.graph">
-<span class="sig-name descname"><span class="pre">graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#src.configs.Config.graph" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">src.configs.models.ModelConfig</span></em><a class="headerlink" href="#src.configs.Config.model" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.Config.train">
 <span class="sig-name descname"><span class="pre">train</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">src.configs.tasks.TrainConfig</span></em><a class="headerlink" href="#src.configs.Config.train" title="Link to this definition">#</a></dt>
@@ -840,18 +825,6 @@ callbacks: Dictionary of callback configurations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.mandatory_selection">
-<span class="sig-name descname"><span class="pre">mandatory_selection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">src.configs.policies.other.MandatorySelectionConfig</span></em><a class="headerlink" href="#src.configs.Config.mandatory_selection" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.route_improvement">
-<span class="sig-name descname"><span class="pre">route_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">src.configs.policies.other.RouteImprovingConfig</span></em><a class="headerlink" href="#src.configs.Config.route_improvement" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.Config.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.Config.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
@@ -876,21 +849,9 @@ callbacks: Dictionary of callback configurations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.output_dir">
-<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.Config.output_dir" title="Link to this definition">#</a></dt>
-<dd><p>‘assets/model_weights’</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.Config.run_name">
 <span class="sig-name descname"><span class="pre">run_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.Config.run_name" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.Config.start">
-<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.Config.start" title="Link to this definition">#</a></dt>
-<dd><p>0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -969,9 +930,6 @@ callbacks: Dictionary of callback configurations.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.env"><code class="docutils literal notranslate"><span class="pre">Config.env</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.graph"><code class="docutils literal notranslate"><span class="pre">Config.graph</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.model"><code class="docutils literal notranslate"><span class="pre">Config.model</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.train"><code class="docutils literal notranslate"><span class="pre">Config.train</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.optim"><code class="docutils literal notranslate"><span class="pre">Config.optim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.rl"><code class="docutils literal notranslate"><span class="pre">Config.rl</span></code></a></li>
@@ -982,15 +940,11 @@ callbacks: Dictionary of callback configurations.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.hpo_sim"><code class="docutils literal notranslate"><span class="pre">Config.hpo_sim</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.data"><code class="docutils literal notranslate"><span class="pre">Config.data</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.tracking"><code class="docutils literal notranslate"><span class="pre">Config.tracking</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">Config.mandatory_selection</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.route_improvement"><code class="docutils literal notranslate"><span class="pre">Config.route_improvement</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.seed"><code class="docutils literal notranslate"><span class="pre">Config.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.device"><code class="docutils literal notranslate"><span class="pre">Config.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.experiment_name"><code class="docutils literal notranslate"><span class="pre">Config.experiment_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.task"><code class="docutils literal notranslate"><span class="pre">Config.task</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.output_dir"><code class="docutils literal notranslate"><span class="pre">Config.output_dir</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.run_name"><code class="docutils literal notranslate"><span class="pre">Config.run_name</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.start"><code class="docutils literal notranslate"><span class="pre">Config.start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.p"><code class="docutils literal notranslate"><span class="pre">Config.p</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.Config.callbacks"><code class="docutils literal notranslate"><span class="pre">Config.callbacks</span></code></a></li>
 </ul>
