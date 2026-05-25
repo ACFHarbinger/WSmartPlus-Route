@@ -164,6 +164,7 @@ def display_log_metrics(
     lock: Optional[Any] = None,
     waste_type: str = "",
     data_distribution: str = "",
+    run_name: Optional[str] = None,
 ) -> None:
     """
     Pretty-prints aggregated simulation results to the console.
@@ -180,6 +181,7 @@ def display_log_metrics(
         lock: Thread/process lock for safe printing/logging.
         waste_type: Waste type suffix for directory naming.
         data_distribution: Data distribution subdirectory (e.g. 'gamma3', 'emp').
+        run_name: Run name subdirectory for organizing outputs.
     """
     abs_output_dir = os.path.join(
         ROOT_DIR,
@@ -188,6 +190,7 @@ def display_log_metrics(
         f"{days}days",
         f"{area}{size}_{waste_type}" if waste_type else f"{area}{size}",
         data_distribution,
+        *(run_name,) if run_name else (),
     )
 
     for pol_name, mean_vals in log.items():

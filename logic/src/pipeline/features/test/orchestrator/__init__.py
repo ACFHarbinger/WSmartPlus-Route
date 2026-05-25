@@ -19,6 +19,7 @@ import os
 import shutil
 import signal
 import sys
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from hydra.core.hydra_config import HydraConfig
@@ -88,9 +89,14 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
     if OmegaConf.is_config(cfg):
         OmegaConf.set_struct(cfg, False)  # type: ignore[arg-type]
         cfg.tracking.log_file = log_file
+        if not cfg.sim.run_name:
+            cfg.sim.run_name = f"run{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         OmegaConf.set_struct(cfg, True)  # type: ignore[arg-type]
     else:
         cfg.tracking.log_file = log_file
+        if not cfg.sim.run_name:
+            cfg.sim.run_name = f"run{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    sim = cfg.sim
 
     # Capture original stderr for shutdown messages if redirected
     original_stderr = sys.stderr
@@ -132,17 +138,13 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
             if sim.graph.waste_type
             else f"{sim.graph.area}{sim.graph.num_loc}",
             sim.data_distribution,
+            sim.run_name,
         )
         try:
             os.makedirs(_snapshot_dir, exist_ok=True)
 
-            idx = 0
-            while True:
-                target_hydra_dir = os.path.join(_snapshot_dir, f"hydra{idx}")
-                if not os.path.exists(target_hydra_dir):
-                    break
-                idx += 1
-            os.makedirs(target_hydra_dir)
+            target_hydra_dir = os.path.join(_snapshot_dir, "hydra")
+            os.makedirs(target_hydra_dir, exist_ok=True)
 
             try:
                 hydra_out_dir = HydraConfig.get().runtime.output_dir
@@ -228,7 +230,8 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
             f"{sim.graph.n_days}days",
             f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
             sim.data_distribution,
-            f"log_realtime_{sim.graph.n_samples}N.jsonl",
+            sim.run_name,
+            f"log_realtime_{sim.data_distribution}_{sim.graph.n_samples}N.jsonl",
         )
         send_final_output_to_gui(log, log_std, sim.graph.n_samples, policies, realtime_log_path)
 
@@ -244,6 +247,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
             lock,
             waste_type=sim.graph.waste_type,
             data_distribution=sim.data_distribution,
+            run_name=sim.run_name,
         )
     finally:
         with contextlib.suppress(Exception):

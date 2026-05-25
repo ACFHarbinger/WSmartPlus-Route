@@ -344,6 +344,10 @@ class InitializingState(SimState):
 
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
 
+        _save_dm = getattr(sim.graph, "save_updated_dm", None)
+        if _save_dm and ctx.results_dir:
+            _save_dm = os.path.join(ctx.results_dir, _save_dm)
+
         ctx.dist_tup, adj_matrix = setup_dist_path_tup(
             ctx.coords,
             sim.graph.num_loc,
@@ -359,7 +363,7 @@ class InitializingState(SimState):
             sim.graph.n_days,
             sim.data_distribution,
             ctx.indices,
-            save_updated_dm=getattr(sim.graph, "save_updated_dm", None),
+            save_updated_dm=_save_dm,
         )
 
         model_name = ""

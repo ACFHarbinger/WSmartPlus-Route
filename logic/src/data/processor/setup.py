@@ -80,7 +80,7 @@ def setup_dist_path_tup(
         n_days: Number of simulation days (used to construct the save path).
         focus_idx: Optional focus indices.
         save_updated_dm: Optional filename to save the updated distance matrix under
-            ``assets/output/{n_days}days/{area}{size}_{area}/{distribution}/submatrices/``.
+            ``assets/output/{n_days}days/{area}{size}_{area}/{distribution}/{run_name}/``.
 
     Returns:
         Tuple of ((dist_matrix_edges, paths, dm_tensor, distC), adj_matrix).
@@ -103,7 +103,6 @@ def setup_dist_path_tup(
             f"{n_days}days",
             f"{area}{size}_{waste_type}",
             f"{distribution}",
-            "submatrices",
             save_updated_dm,
         )
         print(f"[INFO] Saved {area} graph with {size} nodesdistancematrix to : ", save_path)
