@@ -148,6 +148,13 @@ def compose_dirpath(fun: T) -> T:
     """
     Decorator to compose directory paths based on home_dir, ndays, num_bins, etc.
 
+    The full path produced is::
+
+        <home_dir>/assets/<output_dir>/<ndays>days/<area><nbins>_<waste_type>[/<data_distribution>][/<run_name>]
+
+    The ``data_distribution`` and ``run_name`` components are appended only when
+    they are non-empty strings.
+
     Args:
         fun: Function to decorate.
 
@@ -161,8 +168,10 @@ def compose_dirpath(fun: T) -> T:
         nbins: Union[int, List[int]],
         output_dir: str,
         area: str,
-        *args: Any,
         waste_type: str = "",
+        data_distribution: str = "",
+        run_name: str = "",
+        *args: Any,
         **kwargs: Any,
     ) -> Any:
         """
@@ -171,23 +180,27 @@ def compose_dirpath(fun: T) -> T:
         Args:
             home_dir: Home directory.
             ndays: Number of days.
-            nbins: Number of bins.
-            output_dir: Output directory.
-            area: Area.
-            *args: Additional arguments.
-            waste_type: Waste type suffix for directory naming.
-            **kwargs: Additional keyword arguments.
+            nbins: Number of bins (int or list of ints).
+            output_dir: Output directory name (relative to assets/).
+            area: Geographic area identifier.
+            waste_type: Waste type suffix for directory naming. Defaults to "".
+            data_distribution: Data distribution sub-directory (e.g. ``"gamma3"``). Defaults to "".
+            run_name: Run name sub-directory for experiment isolation. Defaults to "".
+            *args: Additional positional arguments forwarded to *fun*.
+            **kwargs: Additional keyword arguments forwarded to *fun*.
 
         Returns:
             Result of the decorated function.
         """
-        if not isinstance(nbins, Iterable):
-            dir_path: str = os.path.join(home_dir, "assets", output_dir, f"{ndays}days", f"{area}{nbins}_{waste_type}")
-            return fun(dir_path, *args, **kwargs)
 
-        dir_paths: List[str] = []
-        for gs in nbins:
-            dir_paths.append(os.path.join(home_dir, "assets", output_dir, f"{ndays}days", f"{area}{gs}_{waste_type}"))
-        return fun(dir_paths, *args, **kwargs)
+        def _build(gs: Union[int, str]) -> str:
+            base = os.path.join(home_dir, "assets", output_dir, f"{ndays}days", f"{area}{gs}_{waste_type}")
+            extras = [d for d in (data_distribution, run_name) if d]
+            return os.path.join(base, *extras) if extras else base
+
+        if not isinstance(nbins, Iterable):
+            return fun(_build(nbins), *args, **kwargs)
+
+        return fun([_build(gs) for gs in nbins], *args, **kwargs)
 
     return cast(T, inner)
