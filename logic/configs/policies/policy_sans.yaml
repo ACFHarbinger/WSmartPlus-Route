@@ -95,12 +95,11 @@ sans:
     # Infrastructure Settings
     # -------------------------------------------------------------------------
     mandatory_selection:
-      { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+      { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
     route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
-    # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================
   # ORIGINAL ENGINE: LAC (Look-Ahead Collection) - Variant A
