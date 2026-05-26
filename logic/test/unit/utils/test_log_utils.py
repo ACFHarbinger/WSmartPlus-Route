@@ -1,3 +1,4 @@
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -12,7 +13,6 @@ from logic.src.tracking.logging.log_utils import (
 )
 from logic.src.tracking.logging.log_visualization import log_training
 from omegaconf import OmegaConf
-from typing import Any, cast
 
 
 class TestLogUtils:
@@ -108,35 +108,38 @@ class TestLogUtils:
         assert mock_wandb.log.called
         assert tb_logger.add_scalar.called
 
-    @patch("logic.src.tracking.logging.modules.analysis.os.path.isfile")
+    @patch("logic.src.tracking.logging.modules.analysis.os.path.isfile", return_value=True)
     @patch("logic.src.tracking.logging.modules.analysis.read_json")
-    @patch("builtins.open", new_callable=MagicMock)
-    @patch("json.dump")
-    def test_output_stats(self, mock_dump, mock_open_file, mock_read, mock_isfile):
+    @patch("logic.src.tracking.logging.modules.storage.update_policy_log_section")
+    def test_output_stats(self, mock_update_section, mock_read, mock_isfile):
         """Test output_stats function."""
-        mock_isfile.return_value = True
-        # Call 1: mean_dit, Call 2: std_dit, Call 3: data
-        mock_read.side_effect = [
-            {},  # mean_dit
-            {},  # std_dit
-            [
-                {"policy1": {"cost": 10.0}},
-                {"policy1": {"cost": 20.0}},
-            ],  # data
-        ]
-        mock_open_file.return_value.__enter__.return_value = MagicMock()
-        mean, std = output_stats("home", 1, 50, "out", "area", 2, ["policy1"], ["cost"], print_output=False)    # type: ignore
+        mock_read.return_value = {
+            "samples": {
+                "0": {"cost": 10.0},
+                "1": {"cost": 20.0},
+            }
+        }
+        # Invoke via compose_dirpath: (home_dir, ndays, nbins, output_dir, area,
+        #   waste_type, data_distribution, run_name) then wrapped-fn kwargs
+        mean, std = output_stats(  # type: ignore
+            "home", 1, 50, "out", "area", "paper", "gamma", "run1",
+            nsamples=2, policies=["policy1"], keys=["cost"], print_output=False,
+        )
         assert isinstance(mean, dict)
         assert isinstance(std, dict)
-        assert mock_dump.called
+        assert mock_update_section.called
 
     @patch("logic.src.tracking.logging.modules.analysis.os.path.exists")
     @patch("logic.src.tracking.logging.modules.analysis.read_json")
     def test_runs_per_policy(self, mock_read, mock_exists):
         """Test runs_per_policy function."""
         mock_exists.return_value = True
-        mock_read.return_value = [{"policy1": "res"}, {}]
-        res = runs_per_policy("home", 1, [50], "out", "area", [100], ["policy1"], print_output=True)    # type: ignore
+        mock_read.return_value = {"samples": {"0": {"cost": 10.0}, "1": {"cost": 20.0}}}
+        # Invoke via compose_dirpath: list nbins → list of dir_paths
+        res = runs_per_policy(  # type: ignore
+            "home", 1, [50], "out", "area", "paper", "gamma", "run1",
+            nsamples=[2], policies=["policy1"], print_output=True,
+        )
         assert isinstance(res, list)
         assert len(res) == 1
-        assert res[0]["policy1"] == [0]
+        assert res[0]["policy1"] == [0, 1]

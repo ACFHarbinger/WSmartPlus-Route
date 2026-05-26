@@ -25,6 +25,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, List, Optional, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  registers the '3d' projection
@@ -93,7 +94,9 @@ def plot_3dchart(
 
     if fsave:
         _save_3d_plot(output_dest, x_values)
-    plt.show()
+    if matplotlib.get_backend().lower() != "agg":
+        plt.show()
+    plt.close()
 
 
 def _plot_3d_series(
