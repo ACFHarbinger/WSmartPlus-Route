@@ -304,6 +304,17 @@
 
 ````
 
+````{py:attribute} run_name
+:canonical: src.configs.tasks.sim.SimConfig.run_name
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.run_name
+```
+
+````
+
 ````{py:attribute} policy_configs
 :canonical: src.configs.tasks.sim.SimConfig.policy_configs
 :type: typing.Dict[str, typing.Any]

@@ -137,7 +137,7 @@
 ```
 ````
 
-````{py:function} display_log_metrics(output_dir: str, size: int, n_samples: int, days: int, area: str, policies: typing.List[str], log: typing.Dict[str, typing.Union[typing.List[float], typing.Dict[str, float]]], log_std: typing.Optional[typing.Dict[str, typing.Union[typing.List[float], typing.Dict[str, float]]]] = None, lock: typing.Optional[typing.Any] = None, waste_type: str = '', data_distribution: str = '') -> None
+````{py:function} display_log_metrics(output_dir: str, size: int, n_samples: int, days: int, area: str, policies: typing.List[str], log: typing.Dict[str, typing.Union[typing.List[float], typing.Dict[str, float]]], log_std: typing.Optional[typing.Dict[str, typing.Union[typing.List[float], typing.Dict[str, float]]]] = None, lock: typing.Optional[typing.Any] = None, waste_type: str = '', data_distribution: str = '', run_name: typing.Optional[str] = None) -> None
 :canonical: src.pipeline.simulations.simulator.display_log_metrics
 
 ```{autodoc2-docstring} src.pipeline.simulations.simulator.display_log_metrics

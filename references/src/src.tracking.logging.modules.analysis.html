@@ -471,8 +471,30 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._MANDATORY_PREFIXES"><code class="docutils literal notranslate"><span class="pre">_MANDATORY_PREFIXES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_IMPROVERS"><code class="docutils literal notranslate"><span class="pre">_ROUTE_IMPROVERS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS"><code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTORS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES"><code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA"><code class="docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._parse_slug"><code class="docutils literal notranslate"><span class="pre">_parse_slug()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB"><code class="docutils literal notranslate"><span class="pre">ResultsDB</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.METADATA_COLS"><code class="docutils literal notranslate"><span class="pre">ResultsDB.METADATA_COLS</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.from_records"><code class="docutils literal notranslate"><span class="pre">ResultsDB.from_records()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.filter"><code class="docutils literal notranslate"><span class="pre">ResultsDB.filter()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.to_dataframe"><code class="docutils literal notranslate"><span class="pre">ResultsDB.to_dataframe()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.metric_cols"><code class="docutils literal notranslate"><span class="pre">ResultsDB.metric_cols</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.std_cols"><code class="docutils literal notranslate"><span class="pre">ResultsDB.std_cols</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.mean_metrics"><code class="docutils literal notranslate"><span class="pre">ResultsDB.mean_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.std_metrics"><code class="docutils literal notranslate"><span class="pre">ResultsDB.std_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.groupby"><code class="docutils literal notranslate"><span class="pre">ResultsDB.groupby()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.__len__"><code class="docutils literal notranslate"><span class="pre">ResultsDB.__len__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.__repr__"><code class="docutils literal notranslate"><span class="pre">ResultsDB.__repr__()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.load_log_dict"><code class="docutils literal notranslate"><span class="pre">load_log_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.output_stats"><code class="docutils literal notranslate"><span class="pre">output_stats()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.runs_per_policy"><code class="docutils literal notranslate"><span class="pre">runs_per_policy()</span></code></a></li>
@@ -497,41 +519,81 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.modules.analysis">
 <span id="src-tracking-logging-modules-analysis"></span><h1><a class="reference internal" href="#module-src.tracking.logging.modules.analysis" title="src.tracking.logging.modules.analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.modules.analysis</span></code></a><a class="headerlink" href="#module-src.tracking.logging.modules.analysis" title="Link to this heading">#</a></h1>
 <p>Analysis utilities for experiment and simulation logs.</p>
-<p>This module provides tools for aggregating, summarizing, and reporting
-on experimental results. It handles loading log directories, computing
-mean and standard deviation statistics across multiple runs, and generating
-human-readable summaries for different routing policies and graph sizes.</p>
+<p>This module provides tools for aggregating, summarising, and reporting on
+experimental results.  The primary entry point for post-processing is
+:class:<code class="docutils literal notranslate"><span class="pre">ResultsDB</span></code> together with :func:<code class="docutils literal notranslate"><span class="pre">load_log_dict</span></code>, which recursively
+walk the output tree and expose every simulation result as a queryable,
+filterable pandas DataFrame row.</p>
 <p>Attributes:
-load_log_dict: Loads file paths for log JSONs grouped by problem size.
-output_stats: Computes and persists statistical summaries (mean/std).
-runs_per_policy: Detects and counts valid samples per solver policy.
-final_simulation_summary: Prints a formatted metric report to the logger.</p>
+ResultsDB: Queryable container for all loaded simulation results.
+load_log_dict: Walk output directories and return a populated ResultsDB.
+output_stats: Compute/persist mean and std back to per-policy JSON files.
+runs_per_policy: Count completed samples per solver policy.
+final_simulation_summary: Print a formatted per-policy summary table.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.tracking.logging.modules.analysis import output_stats
-&gt;&gt;&gt; output_stats(“logs/run1”, 100, [“greedy”, “alns”], [“profit”, “km”])</p>
+&gt;&gt;&gt; from logic.src.tracking.logging.modules.analysis import load_log_dict
+&gt;&gt;&gt; db = load_log_dict(“/path/to/project”, “output”)
+&gt;&gt;&gt; db.filter(mandatory_selection=”lookahead”, n_bins=100).mean_metrics()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.ResultsDB" title="src.tracking.logging.modules.analysis.ResultsDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResultsDB</span></code></a></p></td>
+<td><p>Queryable container for simulation results loaded from log directories.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.load_log_dict" title="src.tracking.logging.modules.analysis.load_log_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_log_dict</span></code></a></p></td>
-<td><p>Load log file paths from directories keyed by graph size.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._parse_slug" title="src.tracking.logging.modules.analysis._parse_slug"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_slug</span></code></a></p></td>
+<td><p>Best-effort decomposition of a policy slug into its five named components.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.output_stats" title="src.tracking.logging.modules.analysis.output_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_stats</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.load_log_dict" title="src.tracking.logging.modules.analysis.load_log_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_log_dict</span></code></a></p></td>
+<td><p>Walk all simulation output directories and return a queryable ResultsDB.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.output_stats" title="src.tracking.logging.modules.analysis.output_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_stats</span></code></a></p></td>
 <td><p>Compute mean and std statistics for policies and write to JSON.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.runs_per_policy" title="src.tracking.logging.modules.analysis.runs_per_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runs_per_policy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.runs_per_policy" title="src.tracking.logging.modules.analysis.runs_per_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runs_per_policy</span></code></a></p></td>
 <td><p>Count runs per policy from full log files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.final_simulation_summary" title="src.tracking.logging.modules.analysis.final_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">final_simulation_summary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.final_simulation_summary" title="src.tracking.logging.modules.analysis.final_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">final_simulation_summary</span></code></a></p></td>
 <td><p>Log a final summary of simulation statistics for a policy.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_simulation_summary_table" title="src.tracking.logging.modules.analysis.display_simulation_summary_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_simulation_summary_table</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_simulation_summary_table" title="src.tracking.logging.modules.analysis.display_simulation_summary_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_simulation_summary_table</span></code></a></p></td>
 <td><p>Display a pretty comparative table of simulation results for multiple policies.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary" title="src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary" title="src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary</span></code></a></p></td>
 <td><p>Display detailed results for a single policy simulation run.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._MANDATORY_PREFIXES" title="src.tracking.logging.modules.analysis._MANDATORY_PREFIXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MANDATORY_PREFIXES</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._ROUTE_IMPROVERS" title="src.tracking.logging.modules.analysis._ROUTE_IMPROVERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ROUTE_IMPROVERS</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS" title="src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTORS</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES" title="src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA" title="src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -539,17 +601,241 @@ final_simulation_summary: Prints a formatted metric report to the logger.</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._MANDATORY_PREFIXES">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_MANDATORY_PREFIXES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis._MANDATORY_PREFIXES" title="Link to this definition">#</a></dt>
+<dd><p>[‘last_minute_cf70’, ‘last_minute_cf80’, ‘last_minute_cf90’, ‘last_minute_cf’, ‘service_level1’, ‘se…</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._ROUTE_IMPROVERS">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_ROUTE_IMPROVERS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis._ROUTE_IMPROVERS" title="Link to this definition">#</a></dt>
+<dd><p>[‘tsp_fast_tsp’, ‘cvrp_ortools’, ‘ftsp’, ‘tsp’]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_ROUTE_CONSTRUCTORS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS" title="Link to this definition">#</a></dt>
+<dd><p>[‘vrpp_gurobi’, ‘pg_clns’, ‘swc_tcf’, ‘sans_new’, ‘ks_aco’, ‘aco_hh’, ‘alns’, ‘psoma’, ‘sisr’, ‘hvpl…</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES" title="Link to this definition">#</a></dt>
+<dd><p>[]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_ACCEPTANCE_CRITERIA</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA" title="Link to this definition">#</a></dt>
+<dd><p>[]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis._parse_slug">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">_parse_slug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_prefixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_improvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructor_engines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis._parse_slug" title="Link to this definition">#</a></dt>
+<dd><p>Best-effort decomposition of a policy slug into its five named components.</p>
+<p>The expected slug format is::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{mandatory_selection}_{route_constructor}_{route_constructor_engine}_{acceptance_criterion}_{route_improver}
+</pre></div>
+</div>
+<p>Any component may be absent.  Parsing proceeds in this order so that each
+vocabulary is applied to the right portion of the slug:</p>
+<ol class="arabic simple">
+<li><p>Strip the <code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code> prefix (longest match from the start).</p></li>
+<li><p>Strip the <code class="docutils literal notranslate"><span class="pre">route_improver</span></code> suffix (longest match from the end).</p></li>
+<li><p>Strip the <code class="docutils literal notranslate"><span class="pre">route_constructor</span></code> prefix (longest match from the start).</p></li>
+<li><p>Strip the <code class="docutils literal notranslate"><span class="pre">route_constructor_engine</span></code> prefix (longest match from the
+start of the remainder).</p></li>
+<li><p>Match <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code> from the vocabulary (longest prefix match);
+fall back to consuming the whole remainder when no vocabulary entry
+matches.</p></li>
+</ol>
+<p>Vocabulary lists default to the module-level constants when <code class="docutils literal notranslate"><span class="pre">None</span></code>
+is passed.  <code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code> and <code class="docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code>
+default to empty lists, so callers must supply them when their slugs
+contain those components.</p>
+<p>Args:
+slug: Full policy slug, e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;lookahead_aco_hh_ortools_custom_ftsp&quot;</span></code>.
+mandatory_prefixes: Ordered mandatory-selection prefixes (longest-first).
+Defaults to <code class="docutils literal notranslate"><span class="pre">_MANDATORY_PREFIXES</span></code>.
+route_constructors: Ordered route-constructor names.  Defaults to
+<code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTORS</span></code>.
+route_improvers: Ordered route-improver suffixes (longest-first).
+Defaults to <code class="docutils literal notranslate"><span class="pre">_ROUTE_IMPROVERS</span></code>.
+route_constructor_engines: Ordered constructor-engine names
+(longest-first).  Defaults to <code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code>
+(empty — must be supplied when engines appear in slugs).
+acceptance_criteria: Ordered acceptance-criterion names (longest-first).
+Defaults to <code class="docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code> (empty — whatever remains
+after all other components are stripped becomes the criterion).</p>
+<p>Returns:
+Dict with keys <code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code>, <code class="docutils literal notranslate"><span class="pre">route_constructor</span></code>,
+<code class="docutils literal notranslate"><span class="pre">route_constructor_engine</span></code>, <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">route_improver</span></code>.  Missing components are empty strings.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">ResultsDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB" title="Link to this definition">#</a></dt>
+<dd><p>Queryable container for simulation results loaded from log directories.</p>
+<p>Each row in the underlying DataFrame represents the aggregated results for
+one policy / graph-size / distribution / run_name combination.  The
+<code class="docutils literal notranslate"><span class="pre">filter</span></code> method narrows the view without modifying the original; calls
+can be chained.</p>
+<p>Attributes:
+METADATA_COLS: Descriptive column names that identify a result’s context.</p>
+<p>Example::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>db = load_log_dict(home_dir, &quot;output&quot;)
+# Filter then view as DataFrame
+df = db.filter(mandatory_selection=&quot;lookahead&quot;, n_bins=100).mean_metrics()
+# Group by constructor, average profit across graph sizes
+db.to_dataframe().groupby(&quot;route_constructor&quot;)[&quot;profit&quot;].mean()
+</pre></div>
+</div>
+<p class="rubric">Initialization</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.METADATA_COLS">
+<span class="sig-name descname"><span class="pre">METADATA_COLS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.METADATA_COLS" title="Link to this definition">#</a></dt>
+<dd><p>[‘n_days’, ‘n_bins’, ‘area’, ‘waste_type’, ‘data_distribution’, ‘run_name’, ‘policy_slug’, ‘n_sample…</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.from_records">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.logging.modules.analysis.ResultsDB" title="src.tracking.logging.modules.analysis.ResultsDB"><span class="pre">src.tracking.logging.modules.analysis.ResultsDB</span></a></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.from_records" title="Link to this definition">#</a></dt>
+<dd><p>Construct a ResultsDB from a list of flat record dicts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_slug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_selection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructor_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criterion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_improver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.logging.modules.analysis.ResultsDB" title="src.tracking.logging.modules.analysis.ResultsDB"><span class="pre">src.tracking.logging.modules.analysis.ResultsDB</span></a></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.filter" title="Link to this definition">#</a></dt>
+<dd><p>Return a narrowed ResultsDB matching all non-None filters.</p>
+<p>String parameters use case-insensitive substring matching.
+Numeric parameters accept a scalar (equality) or a list (membership).
+Filters are AND-ed together.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.to_dataframe">
+<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.to_dataframe" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying DataFrame.</p>
+<p>Args:
+include_raw: If True, keep the heavy <code class="docutils literal notranslate"><span class="pre">samples</span></code> and <code class="docutils literal notranslate"><span class="pre">daily</span></code>
+columns (loaded only when requested in :func:<code class="docutils literal notranslate"><span class="pre">load_log_dict</span></code>).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.metric_cols">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metric_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.metric_cols" title="Link to this definition">#</a></dt>
+<dd><p>Mean metric column names (excludes metadata and <code class="docutils literal notranslate"><span class="pre">_std</span></code> columns).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.std_cols">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">std_cols</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.std_cols" title="Link to this definition">#</a></dt>
+<dd><p>Standard-deviation column names (columns ending with <code class="docutils literal notranslate"><span class="pre">_std</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.mean_metrics">
+<span class="sig-name descname"><span class="pre">mean_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.mean_metrics" title="Link to this definition">#</a></dt>
+<dd><p>Return a DataFrame with metadata + mean metric columns only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.std_metrics">
+<span class="sig-name descname"><span class="pre">std_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.std_metrics" title="Link to this definition">#</a></dt>
+<dd><p>Return a DataFrame with metadata + standard-deviation columns only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.groupby">
+<span class="sig-name descname"><span class="pre">groupby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.groupby" title="Link to this definition">#</a></dt>
+<dd><p>Delegate to <code class="docutils literal notranslate"><span class="pre">DataFrame.groupby</span></code> for aggregation and pivoting.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.__len__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.ResultsDB.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.ResultsDB.__repr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.load_log_dict">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">load_log_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_incomplete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.load_log_dict" title="Link to this definition">#</a></dt>
-<dd><p>Load log file paths from directories keyed by graph size.</p>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">load_log_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">home_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_prefixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_improvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_constructor_engines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptance_criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_daily</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.logging.modules.analysis.ResultsDB" title="src.tracking.logging.modules.analysis.ResultsDB"><span class="pre">src.tracking.logging.modules.analysis.ResultsDB</span></a></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.load_log_dict" title="Link to this definition">#</a></dt>
+<dd><p>Walk all simulation output directories and return a queryable ResultsDB.</p>
+<p>Recursively scans <code class="docutils literal notranslate"><span class="pre">{home_dir}/assets/{output_dir}/</span></code> for files matching
+<code class="docutils literal notranslate"><span class="pre">log_*_&lt;N&gt;N.json</span></code> (realtime JSONL files are skipped).  Each file is
+parsed into a record containing:</p>
+<ul class="simple">
+<li><p><strong>Path metadata</strong>: <code class="docutils literal notranslate"><span class="pre">n_days</span></code>, <code class="docutils literal notranslate"><span class="pre">n_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">area</span></code>, <code class="docutils literal notranslate"><span class="pre">waste_type</span></code>,
+<code class="docutils literal notranslate"><span class="pre">data_distribution</span></code>, <code class="docutils literal notranslate"><span class="pre">run_name</span></code>.</p></li>
+<li><p><strong>Policy components</strong> (best-effort slug decomposition):
+<code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code>, <code class="docutils literal notranslate"><span class="pre">route_constructor</span></code>, <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code>,
+<code class="docutils literal notranslate"><span class="pre">route_improver</span></code>, <code class="docutils literal notranslate"><span class="pre">policy_slug</span></code>.</p></li>
+<li><p><strong>Mean / std metrics</strong>: read directly from the <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;std&quot;</span></code>
+sections of each JSON; computed from <code class="docutils literal notranslate"><span class="pre">&quot;samples&quot;</span></code> when those sections are
+absent.</p></li>
+</ul>
+<p>The expected path structure is::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{home_dir}/assets/{output_dir}/
+  {n_days}days/
+    {area}{n_bins}_{waste_type}/
+      {data_distribution}/
+        {run_name}/
+          log_{policy_slug}_{N}N.json
+</pre></div>
+</div>
+<p>Slug decomposition uses the module-level vocabulary constants by default.
+Pass explicit lists to override them when your result directories use
+different naming conventions — all three lists are ordered longest-first
+so that longer tokens shadow shorter ones that share a prefix::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>db = load_log_dict(
+    home_dir,
+    mandatory_prefixes=[&quot;my_custom_strat&quot;, &quot;fallback&quot;],
+    route_constructors=[&quot;vrpp_gurobi&quot;, &quot;gurobi&quot;, &quot;my_solver&quot;],
+    route_improvers=[&quot;tsp_fast_tsp&quot;, &quot;ftsp&quot;, &quot;tsp&quot;],
+)
+</pre></div>
+</div>
 <p>Args:
-dir_paths: List of directory paths to scan.
-nsamples: List of sample counts corresponding to each path.
-show_incomplete: Whether to print warnings for missing samples. Defaults to False.
-lock: Optional thread lock for safe file reading. Defaults to None.</p>
+home_dir: Project root (where <code class="docutils literal notranslate"><span class="pre">assets/</span></code> lives).
+output_dir: Sub-directory under <code class="docutils literal notranslate"><span class="pre">assets/</span></code> holding the results tree.
+mandatory_prefixes: Override the default <code class="docutils literal notranslate"><span class="pre">_MANDATORY_PREFIXES</span></code> list
+used by slug parsing.  Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> to keep the built-in defaults.
+route_constructors: Override the default <code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTORS</span></code> list.
+Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> to keep the built-in defaults.
+route_improvers: Override the default <code class="docutils literal notranslate"><span class="pre">_ROUTE_IMPROVERS</span></code> list.
+Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> to keep the built-in defaults.
+route_constructor_engines: Override the default
+<code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code> list (empty by default — must be
+supplied when constructor engines appear in slug names).
+acceptance_criteria: Override the default <code class="docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code> list
+(empty by default — whatever remains after all other components are
+stripped becomes the acceptance criterion).
+load_samples: Attach the raw <code class="docutils literal notranslate"><span class="pre">&quot;samples&quot;</span></code> section to each record.
+load_daily: Attach the raw <code class="docutils literal notranslate"><span class="pre">&quot;daily&quot;</span></code> section to each record.
+lock: Optional thread lock for concurrent file access.</p>
 <p>Returns:
-Dict[str, str]: Map of graph sizes to their corresponding mean log path.</p>
+ResultsDB: Use <code class="docutils literal notranslate"><span class="pre">.filter()</span></code>, <code class="docutils literal notranslate"><span class="pre">.groupby()</span></code>, and <code class="docutils literal notranslate"><span class="pre">.to_dataframe()</span></code>
+to access and slice the data.</p>
+<p>Example::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>db = load_log_dict(home_dir)
+# All 100-bin lookahead results for the emp distribution
+sub = db.filter(n_bins=100, mandatory_selection=&quot;lookahead&quot;,
+                data_distribution=&quot;emp&quot;)
+print(sub.mean_metrics())
+# Compare profit across constructors
+sub.groupby(&quot;route_constructor&quot;)[&quot;profit&quot;].mean().sort_values()
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -667,8 +953,30 @@ lock: Optional lock for thread-safe printing.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._MANDATORY_PREFIXES"><code class="docutils literal notranslate"><span class="pre">_MANDATORY_PREFIXES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_IMPROVERS"><code class="docutils literal notranslate"><span class="pre">_ROUTE_IMPROVERS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTORS"><code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTORS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ROUTE_CONSTRUCTOR_ENGINES"><code class="docutils literal notranslate"><span class="pre">_ROUTE_CONSTRUCTOR_ENGINES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._ACCEPTANCE_CRITERIA"><code class="docutils literal notranslate"><span class="pre">_ACCEPTANCE_CRITERIA</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis._parse_slug"><code class="docutils literal notranslate"><span class="pre">_parse_slug()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB"><code class="docutils literal notranslate"><span class="pre">ResultsDB</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.METADATA_COLS"><code class="docutils literal notranslate"><span class="pre">ResultsDB.METADATA_COLS</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.from_records"><code class="docutils literal notranslate"><span class="pre">ResultsDB.from_records()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.filter"><code class="docutils literal notranslate"><span class="pre">ResultsDB.filter()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.to_dataframe"><code class="docutils literal notranslate"><span class="pre">ResultsDB.to_dataframe()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.metric_cols"><code class="docutils literal notranslate"><span class="pre">ResultsDB.metric_cols</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.std_cols"><code class="docutils literal notranslate"><span class="pre">ResultsDB.std_cols</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.mean_metrics"><code class="docutils literal notranslate"><span class="pre">ResultsDB.mean_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.std_metrics"><code class="docutils literal notranslate"><span class="pre">ResultsDB.std_metrics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.groupby"><code class="docutils literal notranslate"><span class="pre">ResultsDB.groupby()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.__len__"><code class="docutils literal notranslate"><span class="pre">ResultsDB.__len__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.ResultsDB.__repr__"><code class="docutils literal notranslate"><span class="pre">ResultsDB.__repr__()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.load_log_dict"><code class="docutils literal notranslate"><span class="pre">load_log_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.output_stats"><code class="docutils literal notranslate"><span class="pre">output_stats()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.runs_per_policy"><code class="docutils literal notranslate"><span class="pre">runs_per_policy()</span></code></a></li>
