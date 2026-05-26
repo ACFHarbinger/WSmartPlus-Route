@@ -30,11 +30,19 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 2. Remove the directory you don't want public
-          # We use 'git rm -rf' to remove it from the index and the working tree
+          # 2. Remove directories you don't want public
+          # We use 'git rm -rf' to remove them from the index and the working tree
+          REMOVED=0
           if [ -d "bibliography" ]; then
             git rm -rf bibliography
-            git commit -m "chore: exclude bibliography from public sync"
+            REMOVED=1
+          fi
+          if [ -d "assets" ]; then
+            git rm -rf assets
+            REMOVED=1
+          fi
+          if [ "$REMOVED" = "1" ]; then
+            git commit -m "chore: exclude private directories from public sync"
           fi
 
           # 3. Clean up and add remote

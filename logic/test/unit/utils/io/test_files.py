@@ -58,14 +58,23 @@ def test_compose_dirpath():
     def mock_fun(dir_path, extra=None):
         return dir_path, extra
 
-    # Single nbins
-    res, extra_val = cast(Any, mock_fun)("home", 30, 50, "out", "area", "test")
-    assert "home/assets/out/30_days/area_50" in res
-    assert extra_val == "test"
+    # Single nbins — no data_distribution or run_name
+    res, extra_val = cast(Any, mock_fun)("home", 30, 50, "out", "area", "paper", extra="hello")
+    assert os.path.join("home", "assets", "out", "30days", "area50_paper") in res
+    assert extra_val == "hello"
 
-    # Multi nbins (list)
+    # Single nbins — with data_distribution and run_name
+    res2, _ = cast(Any, mock_fun)("home", 30, 50, "out", "area", "paper", "gamma", "run1")
+    assert os.path.join("30days", "area50_paper", "gamma", "run1") in res2
+
+    # Multi nbins (list) — no distribution/run_name
     res_list, _ = cast(Any, mock_fun)("home", 30, [20, 50], "out", "area")
     assert isinstance(res_list, list)
     assert len(res_list) == 2
-    assert "area_20" in res_list[0]
-    assert "area_50" in res_list[1]
+    assert "area20_" in res_list[0]
+    assert "area50_" in res_list[1]
+
+    # Multi nbins — with distribution and run_name
+    res_list2, _ = cast(Any, mock_fun)("home", 30, [20, 50], "out", "area", "paper", "emp", "run2")
+    assert os.path.join("area20_paper", "emp", "run2") in res_list2[0]
+    assert os.path.join("area50_paper", "emp", "run2") in res_list2[1]

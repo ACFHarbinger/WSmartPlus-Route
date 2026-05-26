@@ -459,6 +459,7 @@ def sequential_simulations(  # noqa: C901
     overall_progress = ProgressUpdater(
         display, shared_metrics, log_tmp, last_reported_days, policy_names, loop_tic, counter
     )
+    _run_name = getattr(sim, "run_name", "") or ""
     results_dir = os.path.join(
         ROOT_DIR,
         "assets",
@@ -466,6 +467,7 @@ def sequential_simulations(  # noqa: C901
         f"{sim.graph.n_days}days",
         f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
         sim.data_distribution,
+        *([_run_name] if _run_name else []),
     )
 
     for pol_id, _ in enumerate(policies):
@@ -533,10 +535,17 @@ def sequential_simulations(  # noqa: C901
         if sim.graph.n_samples >= 1:
             if sim.resume:
                 res_log, res_std = output_stats(
-                    results_dir,
-                    sim.graph.n_samples,
-                    [pol_name],
-                    SIM_METRICS,
+                    str(ROOT_DIR),
+                    sim.graph.n_days,
+                    sim.graph.num_loc,
+                    sim.output_dir,
+                    sim.graph.area,
+                    sim.graph.waste_type,
+                    sim.data_distribution,
+                    _run_name,
+                    nsamples=sim.graph.n_samples,
+                    policies=[pol_name],
+                    keys=SIM_METRICS,
                     lock=lock,
                 )
                 if res_log:

@@ -26,6 +26,13 @@ Example:
 """
 
 from .modules.analysis import (
+    ResultsDB,
+    _ACCEPTANCE_CRITERIA,
+    _MANDATORY_PREFIXES,
+    _ROUTE_CONSTRUCTOR_ENGINES,
+    _ROUTE_CONSTRUCTORS,
+    _ROUTE_IMPROVERS,
+    _parse_slug,
     display_per_policy_simulation_summary,
     display_simulation_summary_table,
     final_simulation_summary,
@@ -46,6 +53,13 @@ from .modules.storage import (
 )
 
 __all__ = [
+    "ResultsDB",
+    "_ACCEPTANCE_CRITERIA",
+    "_MANDATORY_PREFIXES",
+    "_ROUTE_CONSTRUCTOR_ENGINES",
+    "_ROUTE_CONSTRUCTORS",
+    "_ROUTE_IMPROVERS",
+    "_parse_slug",
     "log_values",
     "log_epoch",
     "get_loss_stats",

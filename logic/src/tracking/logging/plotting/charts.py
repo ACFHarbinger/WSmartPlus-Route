@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -126,7 +127,9 @@ def plot_linechart(
 
     if fsave:
         _save_plot(output_dest, x_values)
-    plt.show()
+    if matplotlib.get_backend().lower() != "agg":
+        plt.show()
+    plt.close()
     return pareto_dominants if pareto_front else None
 
 

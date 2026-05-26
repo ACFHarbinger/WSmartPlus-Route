@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -48,7 +49,9 @@ def draw_graph(distance_matrix):
     print(G.edges(data=True))
 
     nx_any.draw_networkx_edge_labels(G, pos, edge_labels=labels)
-    plt.show()
+    if matplotlib.get_backend().lower() != "agg":
+        plt.show()
+    plt.close()
 
 
 # Code inspired by Google OR Tools plot:
