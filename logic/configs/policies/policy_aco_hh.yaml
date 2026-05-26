@@ -127,9 +127,7 @@ aco_hh:
     - vrpp: true
 
     - mandatory_selection:
-        {
-          "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf70"],
-        }
+        { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
       # Node selection strategy for waste collection problems
       # Options: ms_lookahead.yaml, ms_last_minute.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
