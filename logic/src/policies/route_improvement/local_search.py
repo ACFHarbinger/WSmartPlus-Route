@@ -87,13 +87,8 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
         if not routes:
             return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
-        # Case 1: Steepest-descent intensification operators
+        # Case 1: Mathematical programming and exact intensification solvers
         Mapping = {
-            "2opt": "2OPT_PROFIT",
-            "two_opt": "2OPT_PROFIT",
-            "swap": "NODE_SWAP_PROFIT",
-            "relocate": "OR_OPT_PROFIT",
-            "or_opt": "OR_OPT_PROFIT",
             "dp_reopt": "DP_REOPT_PROFIT",
             "fix_opt": "FIX_OPT_PROFIT",
             "sp_polish": "SP_POLISH_PROFIT",
@@ -108,7 +103,7 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
             except Exception:
                 return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
-        # Case 2: Multi-move or iterative operators via LocalSearchManager
+        # Case 2: Multi-operator sequential search loop (from simplest to most complex)
         from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
         manager = LocalSearchManager(
@@ -122,25 +117,37 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
         )
         manager.set_routes(routes)
 
-        # Mapping for Manager methods
-        Manager_Mapping = {
-            "3opt": manager.three_opt_intra,
-            "three_opt": manager.three_opt_intra,
-            "2opt*": manager.two_opt_star,
-            "two_opt_star": manager.two_opt_star,
-            "swap_star": manager.swap_star,
-            "4opt": manager.four_opt_intra,
-            "four_opt": manager.four_opt_intra,
-        }
+        # Multi-operator list ordered from simplest (cheapest) to most complex (expensive)
+        # 1. relocate: Shift single node (simplest O(N) or O(N^2))
+        # 2. swap: Exchange two nodes (O(N^2))
+        # 3. two_opt_intra: Intra-route segment reversal (O(N^2))
+        # 4. or_opt_2: Relocate chain of 2 nodes (O(N^2))
+        # 5. or_opt_3: Relocate chain of 3 nodes (O(N^2))
+        # 6. two_opt_star: Inter-route tail swap (O(N^2))
+        # 7. swap_star: Inter-route node exchange with best insertion (O(N^2))
+        # 8. three_opt_intra: Intra-route 3-opt (O(N^3))
+        # 9. four_opt_intra: Intra-route 4-opt (O(N^4))
+        operators = [
+            manager.relocate,
+            manager.swap,
+            manager.two_opt_intra,
+            lambda: manager.or_opt(chain_len=2),
+            lambda: manager.or_opt(chain_len=3),
+            manager.two_opt_star,
+            manager.swap_star,
+            manager.three_opt_intra,
+            manager.four_opt_intra,
+        ]
 
-        op_meth = Manager_Mapping.get(operator_name.lower())
-        if op_meth:
-            try:
-                for _ in range(max_iter):
-                    if not op_meth():
-                        break
-                return assemble_tour(manager.get_routes()), {"algorithm": "ClassicalLocalSearchRouteImprover"}
-            except Exception:
-                return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
-
-        return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
+        try:
+            for _ in range(max_iter):
+                improved = False
+                for op_func in operators:
+                    if op_func():
+                        improved = True
+                        break  # restart search from simplest operator
+                if not improved:
+                    break  # local optimum with respect to all operators reached
+            return assemble_tour(manager.get_routes()), {"algorithm": "ClassicalLocalSearchRouteImprover"}
+        except Exception:
+            return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}

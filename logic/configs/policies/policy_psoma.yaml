@@ -120,5 +120,5 @@ psoma:
     { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
   # Node selection strategy for waste collection problems
 
-  route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+  route_improvement: { "other/ri_cls.yaml": ["default"] }
 # =============================================================================

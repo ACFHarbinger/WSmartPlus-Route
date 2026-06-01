@@ -99,7 +99,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+    route_improvement: { "other/ri_cls.yaml": ["default"] }
 
   # ===========================================================================
   # ORIGINAL ENGINE: LAC (Look-Ahead Collection) - Variant A
