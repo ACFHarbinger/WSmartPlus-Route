@@ -111,7 +111,7 @@ sim:
   no_cuda: false
   problem: "vrpp"
   output_dir: "output"
-  run_name: "sl_ftsp"
+  run_name: "sl_cls"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   data_distribution: "gamma3"
@@ -119,7 +119,7 @@ sim:
   # Relative to ROOT/data/wsr_simulator/
   graph:
     n_days: 30
-    num_loc: 170
+    num_loc: 100
     n_samples: 1
     area: "riomaior"
     waste_type: "plastic"

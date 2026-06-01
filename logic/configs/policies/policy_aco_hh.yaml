@@ -132,7 +132,7 @@ aco_hh:
       # Options: ms_lookahead.yaml, ms_last_minute.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+    - route_improvement: { "other/ri_cls.yaml": ["default"] }
       # Operator sequences already apply local search; no further refinement
       # Empty = use HH-ACO output directly
 # =============================================================================

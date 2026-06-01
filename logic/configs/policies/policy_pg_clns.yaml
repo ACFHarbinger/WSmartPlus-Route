@@ -84,5 +84,5 @@ pg_clns:
     - vrpp: true
     - mandatory_selection:
         { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
-    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+    - route_improvement: { "other/ri_cls.yaml": ["default"] }
 # =============================================================================

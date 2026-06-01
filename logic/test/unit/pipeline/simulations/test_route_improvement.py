@@ -3,23 +3,28 @@
 import numpy as np
 import pytest
 from logic.src.policies.route_improvement import (
-    RouteImproverFactory,
-    FastTSPRouteImprover,
     ClassicalLocalSearchRouteImprover,
-    RandomLocalSearchRouteImprover
+    FastTSPRouteImprover,
+    RandomLocalSearchRouteImprover,
+    RouteImproverFactory,
 )
+
 
 @pytest.fixture
 def sample_route_data():
     """Sample data for route improvement tests."""
-    dist_matrix = np.array([
-        [0, 10, 20, 10],
-        [10, 0, 10, 20],
-        [20, 10, 0, 10],
-        [10, 20, 10, 0],
-    ], dtype=np.int32)
-    tour = [0, 2, 1, 3, 0] # Inefficient tour
+    dist_matrix = np.array(
+        [
+            [0, 10, 20, 10],
+            [10, 0, 10, 20],
+            [20, 10, 0, 10],
+            [10, 20, 10, 0],
+        ],
+        dtype=np.int32,
+    )
+    tour = [0, 2, 1, 3, 0]  # Inefficient tour
     return dist_matrix, tour
+
 
 class TestRouteImproverFactory:
     def test_factory_get_fast_tsp(self):
@@ -34,6 +39,7 @@ class TestRouteImproverFactory:
         with pytest.raises(ValueError):
             RouteImproverFactory.create("invalid_processor")
 
+
 class TestFastTSPRouteImprover:
     def test_fast_tsp_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
@@ -42,6 +48,7 @@ class TestFastTSPRouteImprover:
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
+
 
 class TestClassicalLocalSearchRouteImprover:
     def test_2opt_refinement(self, sample_route_data):
@@ -72,21 +79,39 @@ class TestClassicalLocalSearchRouteImprover:
 
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
-        assert 0 in refined_tour[1:-1] # Ensure it remains multi-route
+        assert 0 in refined_tour[1:-1]  # Ensure it remains multi-route
+
+    def test_multi_operator_sequential_refinement(self):
+        # Setup an inefficient tour where a combination of operators is applied.
+        dist_matrix = np.zeros((6, 6))
+        for i in range(6):
+            for j in range(6):
+                dist_matrix[i, j] = abs(i - j)
+
+        # Inefficient tour: [0, 4, 3, 5, 2, 1, 0]
+        # Distance: d(0,4)=4, d(4,3)=1, d(3,5)=2, d(5,2)=3, d(2,1)=1, d(1,0)=1 -> Total = 12
+        tour = [0, 4, 3, 5, 2, 1, 0]
+        processor = ClassicalLocalSearchRouteImprover()
+        refined_tour, _ = processor.process(tour, distance_matrix=dist_matrix)
+
+        def get_tour_cost(t):
+            return sum(dist_matrix[t[k], t[k + 1]] for k in range(len(t) - 1))
+
+        assert refined_tour[0] == 0
+        assert refined_tour[-1] == 0
+        assert len(refined_tour) == len(tour)
+        assert get_tour_cost(refined_tour) < get_tour_cost(tour)
+
 
 class TestRandomLocalSearchRouteImprover:
     def test_random_ls_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
         processor = RandomLocalSearchRouteImprover()
-        refined_tour, _ = processor.process(
-            tour,
-            distance_matrix=dist_matrix,
-            iterations=10,
-            op_probs={"two_opt": 1.0}
-        )
+        refined_tour, _ = processor.process(tour, distance_matrix=dist_matrix, iterations=10, op_probs={"two_opt": 1.0})
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
+
 
 class TestPathRouteImprover:
     def test_path_refinement_fills_gap(self):
@@ -107,14 +132,10 @@ class TestPathRouteImprover:
         # Mock fill levels: bin 1=10, bin 2=10, bin 3=10
         # Indices in fill array are bin_id-1.
         # bin 1 -> idx 0, etc.
-        current_fill = np.array([10.0, 10.0, 10.0, 10.0]) # 4 bins
+        current_fill = np.array([10.0, 10.0, 10.0, 10.0])  # 4 bins
 
         refined, _ = processor.process(
-            tour,
-            paths_between_states=paths,
-            total_fill=current_fill,
-            vehicle_capacity=100.0,
-            bins=None
+            tour, paths_between_states=paths, total_fill=current_fill, vehicle_capacity=100.0, bins=None
         )
 
         # Expect 2 to be inserted between 1 and 3
@@ -132,10 +153,7 @@ class TestPathRouteImprover:
         # Node 2(50) + 100 = 150 > 100. Should skip.
 
         refined, _ = processor.process(
-            tour,
-            paths_between_states=paths,
-            total_fill=current_fill,
-            vehicle_capacity=100.0
+            tour, paths_between_states=paths, total_fill=current_fill, vehicle_capacity=100.0
         )
 
         assert refined == tour
@@ -149,10 +167,7 @@ class TestPathRouteImprover:
         current_fill = np.array([10.0, 10.0, 10.0, 10.0])
 
         refined, _ = processor.process(
-            tour,
-            paths_between_states=paths,
-            total_fill=current_fill,
-            vehicle_capacity=100.0
+            tour, paths_between_states=paths, total_fill=current_fill, vehicle_capacity=100.0
         )
 
         assert refined == tour
