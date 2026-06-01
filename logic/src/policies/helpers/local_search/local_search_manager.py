@@ -126,6 +126,18 @@ class LocalSearchManager:
         # Load cache for efficiency
         self._load_cache: Dict[int, float] = {}
 
+    def get_dist(self, u: int, v: int) -> float:
+        """Get distance between node u and node v.
+
+        Args:
+            u (int): Source node ID.
+            v (int): Destination node ID.
+
+        Returns:
+            float: Distance from u to v.
+        """
+        return float(self.d[u, v])
+
     def set_routes(self, routes: List[List[int]]) -> None:
         """
         Update the current working set of routes.
