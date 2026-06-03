@@ -82,7 +82,6 @@ pg_clns:
     # ---------------------------------------------------------------------
     - profit_aware_operators: true
     - vrpp: true
-    - mandatory_selection:
-        { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
+    - mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
     - route_improvement: { "other/ri_cls.yaml": ["default"] }
 # =============================================================================
