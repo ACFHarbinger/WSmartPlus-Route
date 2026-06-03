@@ -94,8 +94,7 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    mandatory_selection:
-      { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
+    mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
     # VRPP Settings
     vrpp: true
 
