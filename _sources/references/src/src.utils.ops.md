@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.ops.graph
 src.utils.ops.pomo
 src.utils.ops.distance
-src.utils.ops.graph
 src.utils.ops.tensor
 src.utils.ops.probabilistic
 ```

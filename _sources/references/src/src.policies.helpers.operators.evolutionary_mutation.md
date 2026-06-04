@@ -16,8 +16,8 @@
 src.policies.helpers.operators.evolutionary_mutation.differential_evolution
 src.policies.helpers.operators.evolutionary_mutation.inversion
 src.policies.helpers.operators.evolutionary_mutation.swap
-src.policies.helpers.operators.evolutionary_mutation.scramble
 src.policies.helpers.operators.evolutionary_mutation.random_2opt
+src.policies.helpers.operators.evolutionary_mutation.scramble
 ```
 
 ## Package Contents

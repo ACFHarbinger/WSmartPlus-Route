@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns
-src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params
 src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.policy_lb_vns
+src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params
 ```
 
 ## Package Contents

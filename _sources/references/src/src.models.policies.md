@@ -25,16 +25,16 @@ src.models.policies.shared
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.hybrid_volleyball_premier_league
-src.models.policies.hgs
-src.models.policies.local_search
-src.models.policies.alns
-src.models.policies.hybrid_genetic_search
 src.models.policies.hgs_alns
-src.models.policies.random_local_search
+src.models.policies.hybrid_volleyball_premier_league
+src.models.policies.hybrid_genetic_search
+src.models.policies.hgs
+src.models.policies.alns
+src.models.policies.adaptive_large_neighborhood_search
+src.models.policies.local_search
 src.models.policies.iterated_local_search
 src.models.policies.ant_colony_system
-src.models.policies.adaptive_large_neighborhood_search
+src.models.policies.random_local_search
 ```
 
 ## Package Contents

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens
 src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.solver
+src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens
 src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.params
 ```
 

@@ -14,6 +14,6 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.soccer_league_competition.solver
-src.policies.route_construction.meta_heuristics.soccer_league_competition.params
 src.policies.route_construction.meta_heuristics.soccer_league_competition.policy_slc
+src.policies.route_construction.meta_heuristics.soccer_league_competition.params
 ```

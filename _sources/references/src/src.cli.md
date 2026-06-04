@@ -22,10 +22,10 @@ src.cli.base
 :titlesonly:
 :maxdepth: 1
 
-src.cli.registry
-src.cli.gui_parser
-src.cli.ts_parser
 src.cli.benchmark_parser
+src.cli.ts_parser
+src.cli.gui_parser
+src.cli.registry
 src.cli.target_parser
 src.cli.fs_parser
 ```

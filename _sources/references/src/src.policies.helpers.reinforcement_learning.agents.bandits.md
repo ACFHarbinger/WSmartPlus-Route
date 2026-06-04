@@ -14,11 +14,11 @@
 :maxdepth: 1
 
 src.policies.helpers.reinforcement_learning.agents.bandits.ucb
-src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy
-src.policies.helpers.reinforcement_learning.agents.bandits.thompson
 src.policies.helpers.reinforcement_learning.agents.bandits.base
 src.policies.helpers.reinforcement_learning.agents.bandits.exp3
+src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy
 src.policies.helpers.reinforcement_learning.agents.bandits.softmax
+src.policies.helpers.reinforcement_learning.agents.bandits.thompson
 ```
 
 ## Module Contents

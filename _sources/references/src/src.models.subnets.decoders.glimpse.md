@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.decoders.glimpse.decoder
 src.models.subnets.decoders.glimpse.attention
+src.models.subnets.decoders.glimpse.decoder
 ```
 
 ## Package Contents

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.logging.visualization.helpers
 src.tracking.logging.visualization.embeddings
 src.tracking.logging.visualization.heatmaps
+src.tracking.logging.visualization.helpers
 src.tracking.logging.visualization.landscape
 ```
 

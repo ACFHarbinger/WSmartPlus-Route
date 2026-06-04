@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params
-src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef
 src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree
+src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef
 src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine
+src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params
 ```
 
 ## Package Contents

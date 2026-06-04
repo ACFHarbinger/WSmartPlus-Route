@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh
 src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver
-src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params
 src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree
+src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gp_hh
+src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params
 ```

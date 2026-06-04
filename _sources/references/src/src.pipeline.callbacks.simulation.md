@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.callbacks.simulation.policy_summary
 src.pipeline.callbacks.simulation.simulation_display
+src.pipeline.callbacks.simulation.policy_summary
 ```

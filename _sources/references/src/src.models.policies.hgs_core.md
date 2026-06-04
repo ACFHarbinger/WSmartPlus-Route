@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.policies.hgs_core.evaluation
 src.models.policies.hgs_core.population
+src.models.policies.hgs_core.evaluation
 src.models.policies.hgs_core.crossover
 ```
 

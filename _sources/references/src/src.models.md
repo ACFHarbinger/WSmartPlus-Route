@@ -15,9 +15,9 @@
 
 src.models.meta
 src.models.core
-src.models.common
 src.models.subnets
 src.models.policies
+src.models.common
 ```
 
 ## Package Contents

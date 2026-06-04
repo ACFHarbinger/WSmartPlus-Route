@@ -23,10 +23,10 @@ src.pipeline.simulations.wsmart_bin_analysis.Deliverables.enums
 :maxdepth: 1
 
 src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors
-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract
+src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load
 src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container
 src.pipeline.simulations.wsmart_bin_analysis.Deliverables.grid
-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation
-src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load
 src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform
+src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract
+src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation
 ```

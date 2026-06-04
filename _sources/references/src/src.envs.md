@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 3
 
-src.envs.routing
 src.envs.tasks
-src.envs.generators
 src.envs.base
+src.envs.generators
+src.envs.routing
 ```
 
 ## Submodules
@@ -25,9 +25,9 @@ src.envs.base
 :titlesonly:
 :maxdepth: 1
 
-src.envs.tsp_kopt
 src.envs.problems
 src.envs.dr_alns
+src.envs.tsp_kopt
 ```
 
 ## Package Contents

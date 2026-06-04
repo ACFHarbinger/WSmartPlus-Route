@@ -35,6 +35,14 @@
 ```{autodoc2-docstring} src.policies.helpers.local_search.local_search_manager.LocalSearchManager.__init__
 ```
 
+````{py:method} get_dist(u: int, v: int) -> float
+:canonical: src.policies.helpers.local_search.local_search_manager.LocalSearchManager.get_dist
+
+```{autodoc2-docstring} src.policies.helpers.local_search.local_search_manager.LocalSearchManager.get_dist
+```
+
+````
+
 ````{py:method} set_routes(routes: typing.List[typing.List[int]]) -> None
 :canonical: src.policies.helpers.local_search.local_search_manager.LocalSearchManager.set_routes
 

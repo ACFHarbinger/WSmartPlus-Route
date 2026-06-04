@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.tabu_search.solver
-src.policies.route_construction.meta_heuristics.tabu_search.policy_ts
 src.policies.route_construction.meta_heuristics.tabu_search.params
+src.policies.route_construction.meta_heuristics.tabu_search.policy_ts
 ```
 
 ## Package Contents

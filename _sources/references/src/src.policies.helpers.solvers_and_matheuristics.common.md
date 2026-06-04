@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.common.route
 src.policies.helpers.solvers_and_matheuristics.common.node
+src.policies.helpers.solvers_and_matheuristics.common.route
 ```
 
 ## Package Contents

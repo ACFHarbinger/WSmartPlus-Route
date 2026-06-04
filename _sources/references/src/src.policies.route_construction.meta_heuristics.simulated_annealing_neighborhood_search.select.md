@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.greedy
-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.consecutive
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.random
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.consecutive
 ```
 
 ## Package Contents

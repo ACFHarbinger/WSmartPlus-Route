@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.models.common.improvement
 src.models.common.critic_network
 src.models.common.non_autoregressive
-src.models.common.improvement
 src.models.common.autoregressive
 src.models.common.transductive
 ```

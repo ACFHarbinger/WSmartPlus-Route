@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.ui.sim_page
 src.utils.ui.maps_utils
+src.utils.ui.sim_page
 ```

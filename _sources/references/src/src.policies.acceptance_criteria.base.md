@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.acceptance_criteria.base.registry
 src.policies.acceptance_criteria.base.factory
+src.policies.acceptance_criteria.base.registry
 ```
 
 ## Package Contents
