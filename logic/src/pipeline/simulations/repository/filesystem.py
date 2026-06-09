@@ -291,13 +291,15 @@ class FileSystemRepository(SimulationRepository):
         Returns:
             Tuple containing (stats_df, coordinates_df).
         """
-        data = self._preprocess_county_date(pd.read_csv(os.path.join(d_dir, "out_crude_rate[figdafoz].csv")))
+        data = self._preprocess_county_date(
+            pd.read_csv(os.path.join(d_dir, "bins_waste", "out_rate_crude[figdafoz].csv"))
+        )
         assert number_of_bins <= 1094, f"Number of bins for area {src_area} must be <= 1094"
         coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", "out_info[figdafoz].csv"))
         coords_tmp = coords_tmp.rename(columns={"Latitude": "Lat", "Longitude": "Lng"})
         if wtype:
             _n_before = len(coords_tmp)
-            coords_tmp = coords_tmp[coords_tmp["Tipo de Residuos"] == wtype]
+            coords_tmp = coords_tmp[coords_tmp["description"] == wtype]
             with contextlib.suppress(Exception):
                 run = get_active_run() if get_active_run is not None else None
                 if run is not None:
