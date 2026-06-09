@@ -79,3 +79,14 @@ data:
       vertex_method: "mmn"
       distance_method: "gmaps"
       dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    - num_loc: 350
+      n_samples: 1
+      area: "figueiradafoz"
+      waste_type: "paper"
+      focus_size: 0
+      focus_graph: null
+      start_day: 0
+      n_days: 90
+      vertex_method: "mmn"
+      distance_method: "file"
+      dm_filepath: "gmaps_distmat_paper[figueiradafoz].csv"
