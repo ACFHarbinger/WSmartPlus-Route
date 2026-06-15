@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_linechart(
+def plot_linechart(  # noqa: C901
     output_dest: str,
     graph_log: np.ndarray,
     plot_func: Callable[..., Any],

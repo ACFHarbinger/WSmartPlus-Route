@@ -34,6 +34,7 @@ from rich.console import Console
 from rich.table import Table
 
 import logic.src.constants as udef
+from logic.src.tracking.logging.modules.storage import update_policy_log_section
 from logic.src.utils.io.files import compose_dirpath, read_json
 
 # ── Policy slug component vocabularies (ordered longest → shortest) ────────────
@@ -360,7 +361,7 @@ class ResultsDB:
         )
 
 
-def load_log_dict(
+def load_log_dict(  # noqa: C901
     home_dir: str,
     output_dir: str = "output",
     *,
@@ -543,7 +544,7 @@ def load_log_dict(
 
 
 @compose_dirpath
-def output_stats(
+def output_stats(  # noqa: C901
     dir_path: str,
     nsamples: int,
     policies: List[str],
@@ -569,8 +570,6 @@ def output_stats(
     Returns:
         Tuple[Dict[str, Any], Dict[str, Any]]: Mean dict and Std-dev dict.
     """
-    from logic.src.tracking.logging.modules.storage import update_policy_log_section
-
     mean_dit: Dict[str, Any] = {}
     std_dit: Dict[str, Any] = {}
 
@@ -642,7 +641,7 @@ def output_stats(
 
 
 @compose_dirpath
-def runs_per_policy(
+def runs_per_policy(  # noqa: C901
     dir_paths: List[str],
     nsamples: List[int],
     policies: List[str],

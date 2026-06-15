@@ -14,7 +14,7 @@ references/index
 ## 1. Introduction
 
 ### Project Overview
-- **Source Code**: [logic/src](https://github.com/ACFHarbinger/WSmartPlus-Route/tree/main/logic/src)
+- **Source Code**: [logic/src](../../src)
 - **Status**: Development (PhD Research)
 
 ### Indices and tables

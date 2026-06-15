@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/acfharbinger/WSmartPlus-Route/main/assets/images/logo-wsmartroute-white.png" alt="WSMart+ Route Logo" style="width: 35%; height: auto;">
+<img src="assets/images/logo-wsmartroute-white.png" alt="WSmart+ Route Logo" style="width: 35%; height: auto;">
 
 # WSmart+ Route
 
