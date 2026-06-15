@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.moe.moe_multi_head_attention_layer
 src.models.subnets.encoders.moe.encoder
+src.models.subnets.encoders.moe.moe_multi_head_attention_layer
 ```
 
 ## Package Contents

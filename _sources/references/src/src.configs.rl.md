@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.configs.rl.core
 src.configs.rl.policies
+src.configs.rl.core
 ```
 
 ## Package Contents

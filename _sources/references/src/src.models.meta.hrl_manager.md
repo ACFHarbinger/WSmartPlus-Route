@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.meta.hrl_manager.mandatory_head
+src.models.meta.hrl_manager.model
 src.models.meta.hrl_manager.gate_head
 src.models.meta.hrl_manager.temporal_encoder
-src.models.meta.hrl_manager.model
+src.models.meta.hrl_manager.mandatory_head
 src.models.meta.hrl_manager.critic_head
 ```
 

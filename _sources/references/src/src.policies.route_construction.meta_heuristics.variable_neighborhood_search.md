@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver
-src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns
 src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params
+src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns
 ```
 
 ## Package Contents

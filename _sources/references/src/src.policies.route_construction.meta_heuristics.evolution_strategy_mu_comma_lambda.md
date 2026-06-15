@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.solver
-src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl
 src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.params
+src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl
 ```
 
 ## Package Contents

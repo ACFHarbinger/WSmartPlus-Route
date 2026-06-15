@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.branching.tree
-src.policies.helpers.solvers_and_matheuristics.branching.strategies
 src.policies.helpers.solvers_and_matheuristics.branching.constraints
+src.policies.helpers.solvers_and_matheuristics.branching.strategies
 src.policies.helpers.solvers_and_matheuristics.branching.pruning
+src.policies.helpers.solvers_and_matheuristics.branching.tree
 ```
 
 ## Package Contents

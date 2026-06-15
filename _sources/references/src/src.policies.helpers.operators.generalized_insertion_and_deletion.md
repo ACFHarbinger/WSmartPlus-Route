@@ -14,15 +14,15 @@
 :maxdepth: 1
 
 src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iii
-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii
-src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iv
-src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_i
-src.policies.helpers.operators.generalized_insertion_and_deletion._routes
-src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_ii
-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i
-src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_wrapper
 src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_wrapper
 src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iii
+src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_i
+src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_ii
+src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_i
+src.policies.helpers.operators.generalized_insertion_and_deletion.stringing_iv
+src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_wrapper
+src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_ii
+src.policies.helpers.operators.generalized_insertion_and_deletion._routes
 src.policies.helpers.operators.generalized_insertion_and_deletion.unstringing_iv
 ```
 

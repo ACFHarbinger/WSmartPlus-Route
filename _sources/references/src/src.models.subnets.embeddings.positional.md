@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.positional.cyclic_positional_embedding
 src.models.subnets.embeddings.positional.absolute_positional_embedding
+src.models.subnets.embeddings.positional.cyclic_positional_embedding
 ```
 
 ## Package Contents

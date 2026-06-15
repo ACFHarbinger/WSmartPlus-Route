@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.intensification_fixing.dp_route_reopt
 src.policies.helpers.operators.intensification_fixing.fix_and_optimize
+src.policies.helpers.operators.intensification_fixing.dp_route_reopt
 src.policies.helpers.operators.intensification_fixing.set_partitioning_polish
 ```
 

@@ -22,12 +22,12 @@ src.data.network.base
 :titlesonly:
 :maxdepth: 1
 
-src.data.network.haversine
 src.data.network.geodesic
-src.data.network.osm
-src.data.network.euclidean
-src.data.network.geopandas
 src.data.network.file
+src.data.network.osm
+src.data.network.geopandas
+src.data.network.haversine
+src.data.network.euclidean
 src.data.network.google
 ```
 

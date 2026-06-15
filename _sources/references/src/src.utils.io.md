@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.io.file_processing
-src.utils.io.value_processing
-src.utils.io.splitting
-src.utils.io.files
-src.utils.io.dict_processing
-src.utils.io.locking
 src.utils.io.preview
+src.utils.io.splitting
+src.utils.io.dict_processing
+src.utils.io.file_processing
 src.utils.io.statistics
+src.utils.io.files
+src.utils.io.locking
+src.utils.io.value_processing
 ```
 
 ## Package Contents

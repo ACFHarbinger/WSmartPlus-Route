@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.models.core.moe.moe_attention_model
-src.models.core.moe.policy
 src.models.core.moe.moe_temporal_attention_model
+src.models.core.moe.policy
 ```
 
 ## Package Contents

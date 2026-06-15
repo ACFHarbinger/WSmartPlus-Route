@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.helpers.operators
-src.policies.helpers.local_search
-src.policies.helpers.solvers_and_matheuristics
 src.policies.helpers.reinforcement_learning
+src.policies.helpers.solvers_and_matheuristics
+src.policies.helpers.local_search
+src.policies.helpers.operators
 ```
 
 ## Package Contents

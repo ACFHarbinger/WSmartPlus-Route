@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.tracking.logging.plotting.charts
+src.tracking.logging.plotting.routes
 src.tracking.logging.plotting.charts3d
 src.tracking.logging.plotting.interactive
-src.tracking.logging.plotting.routes
 src.tracking.logging.plotting.attention
-src.tracking.logging.plotting.charts
 ```
 
 ## Package Contents
