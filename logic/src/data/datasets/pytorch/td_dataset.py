@@ -67,7 +67,7 @@ class TensorDictDataset(Dataset):
         Returns:
             TensorDictDataset: The loaded dataset.
         """
-        return TensorDictDataset(torch.load(path))
+        return TensorDictDataset(torch.load(path, weights_only=False))
 
     def save(self, path: str):
         """

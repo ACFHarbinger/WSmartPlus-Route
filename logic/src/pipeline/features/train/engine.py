@@ -247,6 +247,9 @@ def _run_single_stage(
     """
     seed_everything(cfg.seed)
 
+    # Ensure log directory exists
+    os.makedirs(cfg.tracking.log_dir or "logs", exist_ok=True)
+
     if torch.cuda.is_available() and cfg.train.precision in ("16-mixed", "bf16-mixed"):
         torch.set_float32_matmul_precision("medium")
 
@@ -332,7 +335,7 @@ def _run_single_stage(
         ckpt_path = getattr(getattr(trainer, "checkpoint_callback", None), "best_model_path", None)
         if ckpt_path and os.path.exists(ckpt_path):
             try:
-                ckpt = torch.load(ckpt_path, map_location="cpu")
+                ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
                 model.load_state_dict(ckpt.get("state_dict", ckpt), strict=False)
                 logger.info("Loaded best checkpoint for state handoff: %s", ckpt_path)
             except Exception as exc:

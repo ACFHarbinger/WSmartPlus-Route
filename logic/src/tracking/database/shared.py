@@ -16,9 +16,14 @@ Example:
 
 from __future__ import annotations
 
+import os
 import sqlite3
+from pathlib import Path
 
-DB_PATH: str = "assets/tracking/tracking.db"
+from logic.src.constants import ROOT_DIR
+
+base_uri = "test_tracking" if os.environ.get("TEST_MODE") == "true" else "assets/tracking"
+DB_PATH: str = str(Path(ROOT_DIR).joinpath(base_uri, "tracking.db").resolve())
 
 
 def _conn(timeout: float = 5.0) -> sqlite3.Connection:

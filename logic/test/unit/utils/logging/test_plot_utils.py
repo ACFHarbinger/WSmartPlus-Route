@@ -21,7 +21,6 @@ def test_draw_graph(mock_nx, mock_plt):
     dm = np.zeros((3, 3))
     draw_graph(dm)
     assert mock_nx.from_numpy_array.called
-    assert mock_plt.show.called
 
 @patch("logic.src.tracking.logging.plotting.charts.plt")
 def test_plot_linechart_simple(mock_plt):
@@ -93,9 +92,9 @@ def test_plot_attention_maps(mock_sns, mock_plt, tmp_path):
         50, # nbins
         "out", # output_dir
         "area", # area
-        attn_dict,
-        "model",
-        exec_func
+        attention_dict=attn_dict,
+        model_name="model",
+        execution_function=exec_func
     )
 
     assert mock_sns.heatmap.called

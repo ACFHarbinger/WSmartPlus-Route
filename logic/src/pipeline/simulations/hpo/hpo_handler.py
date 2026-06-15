@@ -60,6 +60,7 @@ from logic.src.pipeline.simulations.repository import (
     set_repository_from_path,
 )
 from logic.src.pipeline.simulations.simulator import sequential_simulations
+from logic.src.utils.configs.setup_utils import get_graph_config
 
 # Suppress verbose warnings from BoTorch for cleaner logs
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -365,18 +366,20 @@ def objective(  # noqa: C901
     # -----------------------------------------------------------------
     # 3. Synchronise graph / simulation settings.
     # -----------------------------------------------------------------
-    trial_cfg.sim.graph.num_loc = hpo_sim.graph.num_loc
-    trial_cfg.sim.graph.area = hpo_sim.graph.area
-    trial_cfg.sim.graph.waste_type = hpo_sim.graph.waste_type
-    trial_cfg.sim.graph.n_days = hpo_sim.graph.n_days
-    trial_cfg.sim.graph.n_samples = hpo_sim.graph.n_samples
+    graph = get_graph_config(trial_cfg.sim)
+    graph.num_loc = hpo_sim.graph.num_loc
+    graph.area = hpo_sim.graph.area
+    graph.waste_type = hpo_sim.graph.waste_type
+    graph.n_days = hpo_sim.graph.n_days
+    graph.n_samples = hpo_sim.graph.n_samples
 
-    if hasattr(trial_cfg.sim.graph, "edge_threshold"):
+    if hasattr(graph, "edge_threshold"):
         try:
-            trial_cfg.sim.graph.edge_threshold = int(trial_cfg.sim.graph.edge_threshold)
+            graph.edge_threshold = int(graph.edge_threshold)
         except (ValueError, TypeError):
-            trial_cfg.sim.graph.edge_threshold = 0
+            graph.edge_threshold = 0
 
+    trial_cfg.sim.graph = graph
     trial_cfg.sim.policies = [policy_name]
     expand_policy_configs(trial_cfg)  # type: ignore[arg-type]
 

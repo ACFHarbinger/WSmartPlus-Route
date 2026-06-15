@@ -13,6 +13,21 @@ from pathlib import Path
 
 import pytest
 import torch
+import sqlite3
+
+# Global interception of sqlite3.connect to prevent updates to the production tracking.db
+_original_sqlite3_connect = sqlite3.connect
+
+def _test_safe_sqlite3_connect(database, *args, **kwargs):
+    if isinstance(database, (str, Path)):
+        db_str = str(database).replace("\\", "/")
+        if "tracking.db" in db_str and "test_tracking" not in db_str:
+            test_dir = Path.cwd() / "test_tracking"
+            test_dir.mkdir(exist_ok=True, parents=True)
+            database = str(test_dir / "tracking.db")
+    return _original_sqlite3_connect(database, *args, **kwargs)
+
+sqlite3.connect = _test_safe_sqlite3_connect
 
 # The project root is THREE levels up from conftest.py:
 # conftest.py -> test -> logic -> WSmart-Route (Project Root)

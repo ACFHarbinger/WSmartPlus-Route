@@ -172,7 +172,7 @@ def load_td_dataset(filename: str, device: str = "cpu") -> TensorDict:
     Returns:
         The loaded TensorDict.
     """
-    return torch.load(check_extension(filename, ".td"), map_location=device)
+    return torch.load(check_extension(filename, ".td"), map_location=device, weights_only=False)
 
 
 def load_dataset(filename: str) -> Any:

@@ -122,9 +122,9 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
     mocker.patch("logic.src.pipeline.simulations.states.running.checkpoint_manager", return_value=mock_cm)
 
     # 9. Mock utilities
-    mock_log_to_json = mocker.MagicMock()
-    mocker.patch("logic.src.pipeline.simulations.states.finishing.log_to_json", mock_log_to_json)
-    mocker.patch("logic.src.pipeline.simulations.simulator.log_to_json", mock_log_to_json)
+    mock_update_policy_log_section = mocker.MagicMock()
+    mocker.patch("logic.src.pipeline.simulations.states.finishing.update_policy_log_section", mock_update_policy_log_section)
+    mocker.patch("logic.src.pipeline.simulations.simulator.update_policy_log_section", mock_update_policy_log_section)
     mock_save_excel = mocker.patch("logic.src.pipeline.simulations.states.finishing.save_matrix_to_excel")
     mocker.patch("time.perf_counter", return_value=1.0)
     mocker.patch("pandas.DataFrame.to_excel")
@@ -136,7 +136,7 @@ def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):
         "checkpoint": mock_cp_instance,
         "hook": mock_hook,
         "run_day": mock_run_day,
-        "log_to_json": mock_log_to_json,
+        "log_to_json": mock_update_policy_log_section,
         "save_excel": mock_save_excel,
         "bins": mock_bins_instance,
         "setup_model": mock_setup_model,
