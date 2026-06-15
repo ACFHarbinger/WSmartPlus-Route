@@ -16,7 +16,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -50,6 +50,8 @@ class SCWCVRPGenerator(WCVRPGenerator):
         depot_type: str = "center",
         mean: float = 0.0,
         variance: float = 0.0,
+        noise_mean: Optional[float] = None,
+        noise_variance: Optional[float] = None,
         device: Union[str, torch.device] = "cpu",
         **kwargs: Any,
     ) -> None:
@@ -87,8 +89,24 @@ class SCWCVRPGenerator(WCVRPGenerator):
             device=device,
             **kwargs,
         )
-        self.mean = mean
-        self.variance = variance
+        self.noise_mean = noise_mean if noise_mean is not None else mean
+        self.noise_variance = noise_variance if noise_variance is not None else variance
+
+    @property
+    def mean(self) -> float:
+        return self.noise_mean
+
+    @mean.setter
+    def mean(self, value: float) -> None:
+        self.noise_mean = value
+
+    @property
+    def variance(self) -> float:
+        return self.noise_variance
+
+    @variance.setter
+    def variance(self, value: float) -> None:
+        self.noise_variance = value
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate SCWCVRP instances.
@@ -110,10 +128,10 @@ class SCWCVRPGenerator(WCVRPGenerator):
         real_waste = td["waste"].clone()
         td["real_waste"] = real_waste
 
-        if self.variance > 0:
+        if self.noise_variance > 0:
             noise = torch.normal(
-                mean=self.mean,
-                std=self.variance**0.5,
+                mean=self.noise_mean,
+                std=self.noise_variance**0.5,
                 size=real_waste.size(),
                 device=self.device,
                 generator=self.generator,

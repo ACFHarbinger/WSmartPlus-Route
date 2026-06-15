@@ -29,6 +29,7 @@ from logic.src.tracking.logging.log_utils import (
     display_simulation_summary_table,
     update_policy_log_section,
 )
+from logic.src.utils.configs.setup_utils import get_graph_config
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -59,6 +60,7 @@ class FinishingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
+        graph = get_graph_config(sim)
         assert ctx.bins is not None
 
         ctx.execution_time = time.perf_counter() - ctx.tic
@@ -78,7 +80,7 @@ class FinishingState(SimState):
 
         log_path = os.path.join(
             ctx.results_dir,
-            f"log_{ctx.pol_name}_{sim.graph.n_samples}N.json",
+            f"log_{ctx.pol_name}_{graph.n_samples}N.json",
         )
         print(ctx.results_dir)
 
@@ -89,7 +91,7 @@ class FinishingState(SimState):
         update_policy_log_section(log_path, "samples", sample_metrics, sample_id=ctx.sample_id, lock=ctx.lock)
         update_policy_log_section(log_path, "daily", daily_dict, sample_id=ctx.sample_id, lock=ctx.lock)
 
-        if sim.graph.n_samples == 1:
+        if graph.n_samples == 1:
             update_policy_log_section(log_path, "mean", sample_metrics, lock=ctx.lock)
             update_policy_log_section(log_path, "std", {m: 0.0 for m in SIM_METRICS}, lock=ctx.lock)
 

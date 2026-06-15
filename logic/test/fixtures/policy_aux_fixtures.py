@@ -75,6 +75,9 @@ class MockLS:
     def _get_load_cached(self, ri):
         return self.route_loads[ri]
 
+    def get_dist(self, u: int, v: int) -> float:
+        return float(self.d[u, v])
+
 
 @pytest.fixture
 def mock_ls():

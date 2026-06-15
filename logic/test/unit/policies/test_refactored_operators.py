@@ -20,6 +20,9 @@ class MockLS:
     def _get_load_cached(self, ri):
         return sum(self.waste.get(n, 0) for n in self.routes[ri])
 
+    def get_dist(self, u: int, v: int) -> float:
+        return float(self.d[u, v])
+
 class TestRefactoredOperators(unittest.TestCase):
     def test_adjacent_swap(self):
         # 0 - 1 - 2 - 3 - 0

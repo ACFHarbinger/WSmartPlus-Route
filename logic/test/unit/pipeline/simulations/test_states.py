@@ -94,7 +94,7 @@ class TestSimulationContext:
             model_weights_path="weights",
             variables_dict=ctx_vars
         )
-        assert ctx.pol_name == "am_dirichlet"
+        assert ctx.pol_name == "none_am_dirichlet_none"
         assert isinstance(ctx.current_state, InitializingState)
 
     @patch("logic.src.pipeline.simulations.states.InitializingState.handle")
@@ -245,10 +245,9 @@ class TestRunningState:
         assert ctx.current_state is None
 
 class TestFinishingState:
-    @patch("logic.src.pipeline.simulations.states.finishing.log_to_json")
+    @patch("logic.src.pipeline.simulations.states.finishing.update_policy_log_section")
     @patch("logic.src.pipeline.simulations.states.finishing.save_matrix_to_excel")
-    @patch("logic.src.pipeline.simulations.states.finishing.final_simulation_summary")
-    def test_finishing_handle(self, mock_summary, mock_excel, mock_log_json, mock_cfg, ctx_vars):
+    def test_finishing_handle(self, mock_excel, mock_log_json, mock_cfg, ctx_vars):
         ctx = SimulationContext(mock_cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
         ctx.bins = MagicMock()
         ctx.bins.inoverflow = [1, 0]; ctx.bins.collected = [1, 0]; ctx.bins.ncollections = [1, 0]; ctx.bins.lost = [0, 0]; ctx.bins.travel = 100.0; ctx.bins.profit = 50.0; ctx.bins.ndays = 2

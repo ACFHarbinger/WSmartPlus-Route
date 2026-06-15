@@ -34,7 +34,7 @@ def torch_load_cpu(load_path: str) -> Any:
     Returns:
         The loaded data.
     """
-    return torch.load(load_path, map_location=lambda storage, loc: storage)  # Load on CPU
+    return torch.load(load_path, map_location=lambda storage, loc: storage, weights_only=False)  # Load on CPU
 
 
 def load_data(load_path: Optional[str], resume: Optional[str]) -> Any:
@@ -75,7 +75,7 @@ def _load_model_file(load_path: str, model: nn.Module) -> Tuple[nn.Module, Optio
     print("  [*] Loading model from {}".format(load_path))
 
     checkpoint_data: object = torch.load(
-        os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage
+        os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage, weights_only=False
     )
     if isinstance(checkpoint_data, ITraversable):
         load_optimizer_state_dict = checkpoint_data.get("optimizer", None)

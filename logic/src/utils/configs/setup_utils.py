@@ -11,11 +11,14 @@ Example:
 """
 
 import ast
+import dataclasses
 from typing import Any
 
 import numpy as np
 import torch
 from omegaconf import DictConfig, ListConfig, OmegaConf
+
+from logic.src.configs.envs.graph import GraphConfig
 
 
 def deep_sanitize(val: Any) -> Any:
@@ -99,3 +102,31 @@ def get_pol_name(pol_obj: Any) -> str:
         return name
     except Exception:
         return "unknown_policy"
+
+
+def get_graph_config(sim: Any) -> Any:
+    """Extract and validate GraphConfig from a simulation configuration object.
+
+    Supports both GraphConfig dataclass instances and dict/DictConfig containers.
+    """
+    graph = getattr(sim, "graph", None)
+    if graph is None:
+        return GraphConfig()
+
+    if isinstance(graph, GraphConfig):
+        return graph
+
+    sanitized = deep_sanitize(graph)
+    if not isinstance(sanitized, dict):
+        return GraphConfig()
+
+    valid_fields = {f.name for f in dataclasses.fields(GraphConfig)}
+    init_args = {k: v for k, v in sanitized.items() if k in valid_fields}
+
+    # Handle the mapping of legacy keys
+    if "days" in sanitized and "n_days" not in init_args:
+        init_args["n_days"] = sanitized["days"]
+    if "size" in sanitized and "num_loc" not in init_args:
+        init_args["num_loc"] = sanitized["size"]
+
+    return GraphConfig(**init_args)

@@ -170,7 +170,7 @@ class LearnedRouteImprover(IRouteImprovement):
 
         try:
             self._model = MoveScorer()
-            state_dict = torch.load(weights_path, map_location="cpu")
+            state_dict = torch.load(weights_path, map_location="cpu", weights_only=False)
             self._model.load_state_dict(state_dict)
             self._model.eval()
             logger.info("learned: loaded model from %s", weights_path)

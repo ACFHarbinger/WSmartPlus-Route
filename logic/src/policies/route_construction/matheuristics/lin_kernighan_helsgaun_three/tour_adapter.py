@@ -105,6 +105,10 @@ class TourAdapter:
         """
         self._updated = True
 
+    def get_dist(self, u: int, v: int) -> float:
+        """Get distance between two nodes."""
+        return float(self.d[u, v])
+
     def to_closed_tour(self) -> List[int]:
         """Return the current route as a closed tour (first node repeated at end).
 

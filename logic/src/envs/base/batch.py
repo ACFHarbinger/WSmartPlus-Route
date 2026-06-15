@@ -64,7 +64,7 @@ class BatchMixin:
             self._safe_set_shape(self.done_spec, (*value, 1))
 
         for spec_name in ["observation_spec", "action_spec", "input_spec", "output_spec"]:
-            with contextlib.suppress(KeyError, AttributeError):
+            with contextlib.suppress(KeyError, AttributeError, IndexError):
                 spec = getattr(self, spec_name, None)
                 if spec is None:
                     continue

@@ -44,8 +44,8 @@ class TestContextEmbedder:
         assert embeddings.shape == (1, 6, embed_dim)
 
         # Check step context dim
-        # VRPP: embed_dim + 1
-        assert model.step_context_dim == embed_dim + 1
+        # VRPP: embed_dim + 2
+        assert model.step_context_dim == embed_dim + 2
 
     def test_wc_key_fallback(self):
         """Test fallback key logic for Waste."""

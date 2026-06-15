@@ -73,6 +73,9 @@ def process_display_updates(
 
     # A. Process ACTIVE samples from shared_metrics
     for _key, data in shared_metrics.items():
+        if _key == "finished_tasks" or _key.startswith("res_") or not isinstance(data, dict) or "policy" not in data:
+            continue
+
         pol = data["policy"]
         sid = data["sample_id"]
         day = data["day"]

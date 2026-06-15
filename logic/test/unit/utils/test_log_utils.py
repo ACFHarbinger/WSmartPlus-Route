@@ -110,7 +110,7 @@ class TestLogUtils:
 
     @patch("logic.src.tracking.logging.modules.analysis.os.path.isfile", return_value=True)
     @patch("logic.src.tracking.logging.modules.analysis.read_json")
-    @patch("logic.src.tracking.logging.modules.storage.update_policy_log_section")
+    @patch("logic.src.tracking.logging.modules.analysis.update_policy_log_section")
     def test_output_stats(self, mock_update_section, mock_read, mock_isfile):
         """Test output_stats function."""
         mock_read.return_value = {

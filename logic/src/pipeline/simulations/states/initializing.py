@@ -43,6 +43,7 @@ from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
 from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
+from logic.src.utils.configs.setup_utils import get_graph_config
 from logic.src.utils.configs.setup_worker import setup_model
 
 if TYPE_CHECKING:
@@ -69,14 +70,13 @@ class InitializingState(SimState):
         torch.manual_seed(seed)
 
         sim = ctx.cfg.sim
+        graph = get_graph_config(sim)
 
         self._setup_logging_and_dirs(ctx)
         self._load_all_configurations(ctx)
 
         # Load base data
-        data, bins_coordinates, depot = setup_basedata(
-            sim.graph.num_loc, ctx.data_dir, sim.graph.area, sim.graph.waste_type
-        )
+        data, bins_coordinates, depot = setup_basedata(graph.num_loc, ctx.data_dir, graph.area, graph.waste_type)
         self._setup_capacities(ctx)
 
         # Checkpoints
@@ -211,7 +211,10 @@ class InitializingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
-        capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
+        from logic.src.utils.configs.setup_utils import get_graph_config
+
+        graph = get_graph_config(sim)
+        capacities, _, _, _, _ = load_area_and_waste_type_params(graph.area, graph.waste_type)
         ctx.vehicle_capacity = capacities
 
     def _load_checkpoint_if_needed(self, ctx: SimulationContext) -> Tuple[Optional[Any], int]:
@@ -341,26 +344,29 @@ class InitializingState(SimState):
             depot: Depot location information.
         """
         sim = ctx.cfg.sim
+        from logic.src.utils.configs.setup_utils import get_graph_config
+
+        graph = get_graph_config(sim)
 
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
 
-        _save_dm = getattr(sim.graph, "save_updated_dm", None)
+        _save_dm = getattr(graph, "save_updated_dm", None)
         if _save_dm and ctx.results_dir:
             _save_dm = os.path.join(ctx.results_dir, _save_dm)
 
         ctx.dist_tup, adj_matrix = setup_dist_path_tup(
             ctx.coords,
-            sim.graph.num_loc,
-            sim.graph.distance_method,
-            sim.graph.dm_filepath,
+            graph.num_loc,
+            graph.distance_method,
+            graph.dm_filepath,
             sim.env_file,
             sim.gapik_file,
             sim.symkey_name,
-            sim.graph.edge_threshold,
-            sim.graph.edge_method,
-            sim.graph.area,
-            sim.graph.waste_type,
-            sim.graph.n_days,
+            graph.edge_threshold,
+            graph.edge_method,
+            graph.area,
+            graph.waste_type,
+            graph.n_days,
             sim.data_distribution,
             ctx.indices,
             save_updated_dm=_save_dm,
@@ -384,12 +390,12 @@ class InitializingState(SimState):
                 ctx.coords,
                 ctx.dist_tup[2],
                 ctx.device,
-                sim.graph.vertex_method,
+                graph.vertex_method,
                 ctx.config,
-                sim.graph.edge_threshold,
-                sim.graph.edge_method,
-                sim.graph.area,
-                sim.graph.waste_type,
+                graph.edge_threshold,
+                graph.edge_method,
+                graph.area,
+                graph.waste_type,
                 adj_matrix,
             )
 
@@ -412,19 +418,22 @@ class InitializingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
+        from logic.src.utils.configs.setup_utils import get_graph_config
+
+        graph = get_graph_config(sim)
         data_dist = sim.data_distribution
         if "gamma" in data_dist:
             ctx.bins = Bins(
-                sim.graph.num_loc,
+                graph.num_loc,
                 ctx.data_dir,
                 data_dist[:-1],
-                area=sim.graph.area,
-                waste_type=sim.graph.waste_type,
-                waste_file=getattr(sim.graph, "load_dataset", None),
+                area=graph.area,
+                waste_type=graph.waste_type,
+                waste_file=getattr(graph, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
-                n_days=sim.graph.n_days,
-                n_samples=sim.graph.n_samples,
+                n_days=graph.n_days,
+                n_samples=graph.n_samples,
                 seed=ctx.cfg.sim.seed + ctx.sample_id,
             )
             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
@@ -435,15 +444,15 @@ class InitializingState(SimState):
             ctx.bins.set_gamma_distribution(option=gamma_option)  # type: ignore[attr-defined]
         else:
             ctx.bins = Bins(
-                sim.graph.num_loc,
+                graph.num_loc,
                 ctx.data_dir,
                 data_dist,
-                area=sim.graph.area,
-                waste_type=sim.graph.waste_type,
-                waste_file=getattr(sim.graph, "load_dataset", None),
+                area=graph.area,
+                waste_type=graph.waste_type,
+                waste_file=getattr(graph, "load_dataset", None),
                 noise_mean=sim.noise_mean,
                 noise_variance=sim.noise_variance,
-                n_days=sim.graph.n_days,
-                n_samples=sim.graph.n_samples,
+                n_days=graph.n_days,
+                n_samples=graph.n_samples,
                 seed=ctx.cfg.sim.seed + ctx.sample_id,
             )

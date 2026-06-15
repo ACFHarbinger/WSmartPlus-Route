@@ -135,7 +135,7 @@ class SimulationContext:
             f"{sim.graph.n_days}days",
             f"{sim.graph.area}{sim.graph.num_loc}_{sim.graph.waste_type}",
             sim.data_distribution,
-            sim.run_name,
+            sim.run_name or "",
         )
         os.makedirs(self.results_dir, exist_ok=True)
         policies = sim.full_policies
