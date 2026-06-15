@@ -242,9 +242,7 @@ class DataMixin:
                             if day_idx >= n_available:
                                 break
                             td_day = val_ds.data.clone()
-                            td_day["current_day"] = torch.full(
-                                val_ds.data.batch_size, day_idx, dtype=torch.long
-                            )
+                            td_day["current_day"] = torch.full(val_ds.data.batch_size, day_idx, dtype=torch.long)
                             day_tds.append(td_day)
                         if len(day_tds) > 1:
                             merged = cast(Any, torch.cat(day_tds, dim=0))
