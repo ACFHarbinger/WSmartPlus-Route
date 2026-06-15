@@ -3,9 +3,9 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^assets/|^reports/
+        exclude: ^assets/|^reports/|.*\.md$|.*\.tex$|.*\.ipynb$|.*\.spec$
       - id: end-of-file-fixer
-        exclude: ^assets/|^reports/
+        exclude: ^assets/|^reports/|.*\.md$|.*\.tex$|.*\.ipynb$|.*\.spec$
       - id: check-yaml
       - id: check-case-conflict
       - id: check-merge-conflict

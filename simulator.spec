@@ -42,7 +42,7 @@ a = Analysis(
         # ---------------------------------------------------------
         # NEW: Map the configs to the exact relative internal path
         # ---------------------------------------------------------
-        ('logic/configs', 'logic/configs'), 
+        ('logic/configs', 'logic/configs'),
     ],
     hiddenimports=[
         # Other modules

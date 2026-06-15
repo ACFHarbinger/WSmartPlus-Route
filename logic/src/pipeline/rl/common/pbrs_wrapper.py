@@ -98,8 +98,7 @@ def _get_potential_not_implemented(td: TensorDict) -> torch.Tensor:
         torch.Tensor: Zero tensor matching the batch size.
     """
     logger.warning(
-        "PBRS: No potential function defined for this environment. "
-        "Shaping will be zero — PBRS is effectively disabled."
+        "PBRS: No potential function defined for this environment. Shaping will be zero — PBRS is effectively disabled."
     )
     return torch.zeros(td.batch_size, device=td.device)
 
@@ -245,10 +244,7 @@ class PBRSShaper:
             - **shaping_reward** ``(batch,)`` or ``(batch, 1)``: F alone (for logging).
         """
         if self._phi_0 is None:
-            logger.warning(
-                "PBRSShaper.apply() called before record_initial(). "
-                "Shaping disabled for this batch."
-            )
+            logger.warning("PBRSShaper.apply() called before record_initial(). Shaping disabled for this batch.")
             return base_reward, torch.zeros_like(base_reward)
 
         # --- Evaluate Φ(s') -----------------------------------------------------

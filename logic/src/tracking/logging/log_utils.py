@@ -26,12 +26,12 @@ Example:
 """
 
 from .modules.analysis import (
-    ResultsDB,
     _ACCEPTANCE_CRITERIA,
     _MANDATORY_PREFIXES,
     _ROUTE_CONSTRUCTOR_ENGINES,
     _ROUTE_CONSTRUCTORS,
     _ROUTE_IMPROVERS,
+    ResultsDB,
     _parse_slug,
     display_per_policy_simulation_summary,
     display_simulation_summary_table,

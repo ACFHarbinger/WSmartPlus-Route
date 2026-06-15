@@ -103,7 +103,11 @@ class LookaheadSelector(VectorizedSelector):
 
         # Broadcast day to [B, 1] when it is a per-batch tensor.
         if isinstance(day, torch.Tensor):
-            day_bc = day.unsqueeze(1).to(dtype=fill_levels.dtype, device=fill_levels.device) if day.dim() > 0 else day.to(dtype=fill_levels.dtype, device=fill_levels.device)
+            day_bc = (
+                day.unsqueeze(1).to(dtype=fill_levels.dtype, device=fill_levels.device)
+                if day.dim() > 0
+                else day.to(dtype=fill_levels.dtype, device=fill_levels.device)
+            )
         else:
             day_bc = float(day)  # scalar — broadcasts freely
 

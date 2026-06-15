@@ -4,7 +4,7 @@
 # SRC (Sequential Route Constructor) Meta-Solver Configuration
 # =============================================================================
 # PURPOSE:
-#   Orchestrates a sequence of routing solvers, where each solver uses the 
+#   Orchestrates a sequence of routing solvers, where each solver uses the
 #   output of the previous ones to refine the solution.
 #
 # ALGORITHM:
