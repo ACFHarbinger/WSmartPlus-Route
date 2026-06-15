@@ -90,7 +90,7 @@ class HVPLConfig:
             cooling_rate=0.95,
             reaction_factor=0.1,
             min_removal=1,
-            max_removal_pct=0.3,
+            xi=0.3,
             time_limit=60.0,
         )
     )

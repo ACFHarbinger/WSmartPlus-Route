@@ -57,6 +57,7 @@ def test_simulator_testing_single_core():
 def test_simulator_testing_multi_core():
     """Verify multi-core simulation testing flow with process pool mocking."""
     cfg = _make_sim_cfg(cpu_cores=2, n_samples=2)
+    cfg.sim.graph.n_samples = 2
     device = torch.device("cpu")
 
     with patch("multiprocessing.Manager") as mock_manager, patch(

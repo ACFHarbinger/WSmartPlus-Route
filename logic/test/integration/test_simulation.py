@@ -69,7 +69,7 @@ def test_simulation_context_init(mock_sim_opts):
         # Should initialize and transition to InitializingState
         expected_sim = {**mock_sim_opts, "full_policies": mock_sim_opts["policies"], "graph": {"area": "Rio Maior", "num_loc": 20, "size": 20}}
         assert OmegaConf.to_container(context.cfg.sim) == expected_sim
-        assert context.policy == "regular_unif"
+        assert context.policy == "none_regular_unif_none"
         mock_transition.assert_called()
         # Verify call args
         args, _ = mock_transition.call_args

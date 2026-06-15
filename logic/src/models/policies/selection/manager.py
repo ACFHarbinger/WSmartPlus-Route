@@ -124,7 +124,7 @@ class ManagerSelector(VectorizedSelector):
         Args:
             path: Path to the weight checkpoint file.
         """
-        checkpoint = torch.load(path, map_location=self.device)
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
         if "manager_state_dict" in checkpoint:
             self.manager.load_state_dict(checkpoint["manager_state_dict"])
         elif "state_dict" in checkpoint:

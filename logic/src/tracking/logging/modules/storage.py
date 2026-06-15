@@ -46,7 +46,11 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") 
     """
     logger.remove()
     logger.add(sys.stderr, level=level)
-    logger.add(log_path, rotation="10 MB", level=level)
+    abs_log_path = os.path.abspath(log_path)
+    log_dir = os.path.dirname(abs_log_path)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    logger.add(abs_log_path, rotation="10 MB", level=level)
 
     noisy_modules = [
         "AttentionDecoder",

@@ -73,7 +73,7 @@ class LearnedSelection(IMandatorySelectionStrategy):
             self._model = joblib.load(path)
             self._model_type = "sklearn"
         elif ext == ".pt":
-            self._model = torch.load(path, map_location="cpu")
+            self._model = torch.load(path, map_location="cpu", weights_only=False)
             self._model.eval()
             self._model_type = "torch"
         else:

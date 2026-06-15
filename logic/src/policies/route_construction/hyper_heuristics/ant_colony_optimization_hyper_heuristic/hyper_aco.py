@@ -877,7 +877,7 @@ class HyperHeuristicACO:
             numerator = (self.tau[current_op_idx] ** self.params.alpha) * (self.eta[current_op_idx] ** self.params.beta)
             denom = np.sum(numerator)
             probs = numerator / denom if denom > 1e-12 else np.ones(self.n_operators) / self.n_operators
-            next_op_idx = int(self.np_rng.choice(self.n_operators, p=probs))
+            next_op_idx = self.np_rng.choice(self.n_operators, p=probs)
 
             sequence.append(self.operator_names[next_op_idx])
             current_op_idx = next_op_idx
