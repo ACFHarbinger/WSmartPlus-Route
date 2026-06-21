@@ -49,6 +49,83 @@ train:
   pin_memory: false # Pin memory for faster GPU transfer
   reload_dataloaders_every_n_epochs: 1 # Reload data every epoch so workers get updated waste
 
+  policy:
+    model:
+      name: "am" # Model architecture
+      temporal_horizon: 0 # Temporal lookahead (0 for static, 7+ for WCVRP)
+
+      # Encoder Architecture
+      encoder:
+        type: "gat" # Graph encoder type (gat, gcn, tgc, mlp)
+        embed_dim: 128 # Node embedding dimension
+        hidden_dim: 512 # Feed-forward hidden size
+        n_layers: 3 # Number of encoder transformer layers
+        n_heads: 8 # Number of attention heads
+        n_sublayers: 1 # Sublayers per encoder block
+        dropout: 0.1 # Dropout probability
+        spatial_bias: false # Add learnable spatial distance bias
+        connection_type: "residual" # Skip connection type (residual, static_hyper, dynamic_hyper)
+        hyper_expansion: 4 # For connection_type="hyper"
+        aggregation_node: "sum" # Feature aggregation (sum, mean, max)
+        aggregation_graph: "avg" # Graph pooling (avg, max, sum)
+
+        # Normalization & Activation
+        normalization:
+          norm_type: "layer" # batch, layer, instance, group
+          learn_affine: true
+          track_stats: false
+          epsilon: 1e-5
+          momentum: 0.1
+          n_groups: 1
+          k_lrnorm: 1.0
+
+        activation:
+          name: "gelu" # relu, gelu, swish, mish, elu
+          param: 1.0
+          threshold: 6.0
+          replacement_value: 6.0
+          n_params: 3
+          range: [0.125, 0.3333333333333333]
+
+      # Decoder Architecture
+      decoder:
+        type: "glimpse" # attention, pointer, glimpse
+        n_layers: 2 # Number of decoder layers
+        n_heads: 8
+        n_predictor_layers: 0 # Depth of GRF predictor (TAM)
+        dropout: 0.1
+        tanh_clipping: 10.0
+        mask_logits: true
+        connection_type: "residual"
+
+    mandatory_selection:
+      strategy: "lookahead" # Default strategy for training
+
+      lookahead:
+        current_collection_day: 0
+
+      last_minute:
+        threshold: 0.25 # ~25% of nodes (top fill-level quartile); forces ~25 bins per instance
+
+      regular:
+        frequency: 3
+
+      service_level:
+        confidence_factor: 1.0
+
+      revenue:
+        revenue_kg: 1.0
+        bin_capacity: 1.0
+        revenue_threshold: 0.0
+
+      manager:
+        hidden_dim: 128
+        lstm_hidden: 64
+        history_length: 10
+        manager_critical_threshold: 0.9
+        manager_weights: null
+        device: "cuda"
+
 # =============================================================================
 # Optimizer Settings
 # =============================================================================
@@ -146,98 +223,3 @@ rl:
     n_steps_per_epoch: 2048
     batch_size: 64
     inner_epochs: 10
-
-# =============================================================================
-# Model Settings (Defaults - Override with model=<config>)
-# =============================================================================
-model:
-  name: "am" # Model architecture
-  temporal_horizon: 0 # Temporal lookahead (0 for static, 7+ for WCVRP)
-
-  # Encoder Architecture
-  encoder:
-    type: "gat" # Graph encoder type (gat, gcn, tgc, mlp)
-    embed_dim: 128 # Node embedding dimension
-    hidden_dim: 512 # Feed-forward hidden size
-    n_layers: 3 # Number of encoder transformer layers
-    n_heads: 8 # Number of attention heads
-    n_sublayers: 1 # Sublayers per encoder block
-    dropout: 0.1 # Dropout probability
-    spatial_bias: false # Add learnable spatial distance bias
-    connection_type: "residual" # Skip connection type (residual, static_hyper, dynamic_hyper)
-    hyper_expansion: 4 # For connection_type="hyper"
-    aggregation_node: "sum" # Feature aggregation (sum, mean, max)
-    aggregation_graph: "avg" # Graph pooling (avg, max, sum)
-
-    # Normalization & Activation
-    normalization:
-      norm_type: "layer" # batch, layer, instance, group
-      learn_affine: true
-      track_stats: false
-      epsilon: 1e-5
-      momentum: 0.1
-      n_groups: 1
-      k_lrnorm: 1.0
-
-    activation:
-      name: "gelu" # relu, gelu, swish, mish, elu
-      param: 1.0
-      threshold: 6.0
-      replacement_value: 6.0
-      n_params: 3
-      range: [0.125, 0.3333333333333333]
-
-  # Decoder Architecture
-  decoder:
-    type: "glimpse" # attention, pointer, glimpse
-    n_layers: 2 # Number of decoder layers
-    n_heads: 8
-    n_predictor_layers: 0 # Depth of GRF predictor (TAM)
-    dropout: 0.1
-    tanh_clipping: 10.0
-    mask_logits: true
-    connection_type: "residual"
-
-# =============================================================================
-# Mandatory Selection Strategy
-# =============================================================================
-# Determines which bins MUST be collected during each routing decision.
-# Critical for WCVRP training to prevent overflow penalties.
-#
-# Strategy Options:
-#   - last_minute: Collect bins exceeding threshold (reactive)
-#   - regular: Fixed-frequency collection (e.g., every 3 days)
-#   - lookahead: Predict future overflows and collect proactively
-#   - revenue: Collect if revenue > cost
-#   - service_level: Statistical overflow prediction
-#   - manager: Neural network decides mandatory bins (HRL)
-#   - combined: Hybrid of multiple strategies
-#   - null: No mandatory constraints (free routing)
-# =============================================================================
-mandatory_selection:
-  strategy: "lookahead" # Default strategy for training
-
-  lookahead:
-    current_collection_day: 0
-
-  last_minute:
-    threshold: 0.25 # ~25% of nodes (top fill-level quartile); forces ~25 bins per instance
-
-  regular:
-    frequency: 3
-
-  service_level:
-    confidence_factor: 1.0
-
-  revenue:
-    revenue_kg: 1.0
-    bin_capacity: 1.0
-    revenue_threshold: 0.0
-
-  manager:
-    hidden_dim: 128
-    lstm_hidden: 64
-    history_length: 10
-    manager_critical_threshold: 0.9
-    manager_weights: null
-    device: "cuda"
