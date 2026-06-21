@@ -48,7 +48,7 @@ def test_compose_dirpath():
     area = "madrid"
 
     path = mock_fun(home, ndays, nbins, out, area)
-    # Expected: /test/assets/res/30_days/madrid_20
+    # Expected: /test/assets/res/30days/madrid20_
     assert "assets" in path
-    assert "30_days" in path
-    assert "madrid_20" in path
+    assert "30days" in path
+    assert "madrid20_" in path

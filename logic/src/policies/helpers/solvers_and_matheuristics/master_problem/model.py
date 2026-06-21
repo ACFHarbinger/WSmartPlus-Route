@@ -457,7 +457,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
                 var.VType = GRB.CONTINUOUS
             self.model.update()
 
-    def add_route(self, route: Route) -> None:
+    def add_route(self, route: Route) -> bool:
         """Add a route (column) to the master problem.
 
         If the Gurobi model has already been built, the column is inserted
@@ -466,11 +466,23 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
 
         Args:
             route: Route to insert as a new λ variable.
+
+        Returns:
+            bool: True if the route was successfully added, False if it was a duplicate.
         """
+        if not hasattr(self, "_route_signatures"):
+            self._route_signatures = {tuple(r.nodes) for r in self.routes}
+
+        sig = tuple(route.nodes)
+        if sig in self._route_signatures:
+            return False
 
         self.routes.append(route)
+        self._route_signatures.add(sig)
         if self.model is not None:
             self._add_column_to_model(route)
+
+        return True
 
     def _add_column_to_model(self, route: Route) -> None:
         """Dynamically inserts a new column (route) into the Restricted Master Problem.
@@ -619,10 +631,15 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             return 0
 
         for i in sorted(to_remove, reverse=True):
-            self.global_column_pool.append(self.routes[i])
+            route_to_remove = self.routes[i]
+            self.global_column_pool.append(route_to_remove)
             self.model.remove(self.lambda_vars[i])
             self.lambda_vars.pop(i)
             self.routes.pop(i)
+            if hasattr(self, "_route_signatures"):
+                sig = tuple(route_to_remove.nodes)
+                if sig in self._route_signatures:
+                    self._route_signatures.remove(sig)
 
         self.model.update()
         return len(to_remove)

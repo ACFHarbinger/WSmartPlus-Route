@@ -22,6 +22,7 @@ def _make_integration_cfg(**overrides):
         dm_filepath="dummy_path",
         edge_threshold="0.5",
         edge_method="knn",
+        n_days=2,
     )
     sim = SimConfig(
         policies=[{"am_gamma1": {"model": {"name": "am"}}}],
