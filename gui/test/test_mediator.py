@@ -59,13 +59,14 @@ def test_register_tab_and_update(mediator):
     mediator.set_current_command("Train Model")
     # Initial update
     assert len(received_commands) == 1
-    assert "--epochs 100" in received_commands[0]
+    assert "python main.py train" in received_commands[0]
+    assert "epochs=100" in received_commands[0]
 
     # Update param and emit
     tab.update_param("epochs", 200)
     # Should trigger update
     assert len(received_commands) == 2
-    assert "--epochs 200" in received_commands[1]
+    assert "epochs=200" in received_commands[1]
 
 
 def test_command_mapping(mediator):

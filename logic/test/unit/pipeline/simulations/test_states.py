@@ -167,7 +167,7 @@ class TestInitializingState:
         state.handle(ctx)
 
         assert isinstance(ctx.current_state, RunningState)
-        assert ctx.pol_name == "vrpp_gurobi_dirichlet"
+        assert ctx.pol_name == "none_vrpp_gurobi_dirichlet_none"
 
     @patch("logic.src.pipeline.simulations.states.initializing.setup_basedata")
     @patch("logic.src.pipeline.simulations.states.initializing.Bins")

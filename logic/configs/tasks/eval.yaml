@@ -12,7 +12,7 @@
 # =============================================================================
 
 defaults:
-  - /envs: cwcvrp
+  - /envs@eval.env: cwcvrp
   - _self_
   - override /tracking: eval
 

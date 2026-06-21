@@ -293,8 +293,16 @@ class VRPPEnv(RL4COEnvBase):
         if mandatory is not None:
             # Collapse any unexpected extra dimensions so mandatory is 2D [B, N].
             # This guards against stale 3D masks from pre-reset state.
+            loop_count = 0
             while mandatory.dim() > 2:
                 mandatory = mandatory.any(dim=1)
+                loop_count += 1
+                if loop_count > 10:
+                    break
+
+            if mandatory.shape[-1] == visited.shape[-1] - 1:
+                depot_mandatory = torch.zeros(mandatory.shape[0], 1, dtype=torch.bool, device=mandatory.device)
+                mandatory = torch.cat([depot_mandatory, mandatory], dim=1)
 
             # Pending mandatory bins: mandatory AND not yet visited
             pending_mandatory = mandatory & ~visited

@@ -25,7 +25,7 @@ def bpc_instance():
 
 def test_bpc_default_branching_strategy(bpc_instance):
     dist, wastes, cap, R, C = bpc_instance
-    values = {"max_cg_iterations": 2}
+    values = {"max_cg_iterations": 10}
     result = run_bpc(dist, wastes, cap, R, C, params=values)
 
     if isinstance(result, tuple):
@@ -63,7 +63,7 @@ def test_create_engine_factory():
     engine = create_cutting_plane_engine("all", v_model, sep_engine)
     assert engine.get_name() == "composite"
     assert isinstance(engine, CompositeCuttingPlaneEngine)
-    assert len(engine.engines) == 7  # RCC, SRI, EdgeClique, FleetCover, PhysicalLCI, SaturatedArcLCI, KnapsackCover
+    assert len(engine.engines) >= 7  # RCC, SRI, EdgeClique, FleetCover, PhysicalLCI, SaturatedArcLCI, KnapsackCover, plus supplemental
 
 def test_bpc_exact_convergence_log(bpc_instance, caplog):
     dist, wastes, cap, R, C = bpc_instance

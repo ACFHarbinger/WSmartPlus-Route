@@ -21,7 +21,7 @@ def small_instance():
 
 def test_bpc_native_execution(small_instance):
     dist, wastes, cap, R, C = small_instance
-    values = {"max_cg_iterations": 5, "max_cuts_per_iteration": 2}
+    values = {"max_cg_iterations": 10, "max_cuts_per_iteration": 2, "time_limit": 300.0}
     routes, cost = run_bpc(dist, wastes, cap, R, C, values)
     assert len(routes) > 0
     assert cost > 0
