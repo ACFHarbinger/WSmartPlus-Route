@@ -63,7 +63,6 @@ def test_cli_gen_data_smoke(tmp_path, problem):
 
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Hangs in pytest due to multiprocessing deadlock")
 def test_cli_train_lightning_smoke(tmp_path):
     """Smoke test for training loop."""
     # Path to model weights that will be created during training
@@ -94,7 +93,7 @@ def test_cli_train_lightning_smoke(tmp_path):
                 f"+output_dir={weights_dir}",
                 "hpo.n_trials=0",  # Explicitly disable HPO
                 "+trainer.fast_dev_run=true",
-                "~train.policy.mandatory_selection",
+                "train.policy.mandatory_selection=null",
                 "train.data_distribution=unif",
                 "train.env.curriculum_graphs.0.load_dataset=null",
                 "train.env.eval_graphs=[]",
@@ -171,7 +170,6 @@ def test_cli_test_sim_smoke():
 
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Hangs in pytest due to multiprocessing deadlock")
 def test_cli_train_lightning_ppo_smoke(tmp_path):
     """Smoke test for PPO training loop via CLI."""
     # Path to model weights that will be created during training
@@ -203,7 +201,7 @@ def test_cli_train_lightning_ppo_smoke(tmp_path):
                 f"+output_dir={weights_dir}",
                 "hpo.n_trials=0",  # Explicitly disable HPO
                 "+trainer.fast_dev_run=true",
-                "~train.policy.mandatory_selection",
+                "train.policy.mandatory_selection=null",
                 "train.data_distribution=unif",
                 "train.env.curriculum_graphs.0.load_dataset=null",
                 "train.env.eval_graphs=[]",

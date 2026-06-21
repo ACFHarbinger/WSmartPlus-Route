@@ -233,11 +233,9 @@ def session_cleanup():
         Path("test_tracking"),
         Path("test_mlruns"),
         Path("test_logs"),
-        project_root / "assets" / "model_weights" / "vrpp10_riomaior_plastic" / "gamma1" / "amgat0",
+        project_root / "assets" / "model_weights",
         project_root / "assets" / "keys" / "testkey.pkl",
         project_root / "assets" / "keys" / "testkey.salt",
-        project_root / "assets" / "output" / "2_days",
-        project_root / "assets" / "output" / "5_days",
         project_root / "assets" / "test_out",
     ]
 
@@ -254,3 +252,16 @@ def session_cleanup():
                     os.remove(artifact_path)
             except Exception:
                 pass
+
+    # Clean up generated folders in assets/output/ (excluding the tracked 30days folder)
+    output_dir = project_root / "assets" / "output"
+    if output_dir.exists():
+        for item in output_dir.iterdir():
+            if item.name != "30days":
+                try:
+                    if item.is_dir():
+                        shutil.rmtree(item)
+                    else:
+                        os.remove(item)
+                except Exception:
+                    pass
