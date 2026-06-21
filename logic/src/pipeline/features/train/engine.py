@@ -59,11 +59,17 @@ def _build_experiment_name(cfg: Any) -> str:
     Returns:
         Human-readable experiment name string.
     """
+    task = getattr(cfg, "task", "train")
+    task_cfg = getattr(cfg, task, cfg)
+    env = getattr(task_cfg, "env", getattr(cfg, "env", None))
+    policy = getattr(task_cfg, "policy", task_cfg)
+    model = getattr(policy, "model", getattr(cfg, "model", None))
+
     parts = [
-        getattr(cfg.env, "name", "env"),
-        str(getattr(cfg.env, "num_loc", "")),
-        getattr(cfg.model, "name", getattr(cfg, "model_name", "")),
-        getattr(cfg.rl, "algorithm", ""),
+        getattr(env, "name", "env") if env else "env",
+        str(getattr(env, "num_loc", "")) if env else "",
+        getattr(model, "name", getattr(cfg, "model_name", "")) if model else "",
+        getattr(cfg.rl, "algorithm", "") if hasattr(cfg, "rl") else "",
     ]
     return "-".join(p for p in parts if p)
 
@@ -286,11 +292,17 @@ def _run_single_stage(
 
     experiment_name = cfg.experiment_name or _build_experiment_name(cfg)
     tracker = wst.init(experiment_name=experiment_name)
+
+    task_cfg = getattr(cfg, getattr(cfg, "task", "train"), cfg)
+    env_cfg = getattr(task_cfg, "env", getattr(cfg, "env", None))
+    policy_cfg = getattr(task_cfg, "policy", task_cfg)
+    model_cfg = getattr(policy_cfg, "model", getattr(cfg, "model", None))
+
     run_tags = {
         "algorithm": str(getattr(cfg.rl, "algorithm", "")),
-        "model": str(getattr(cfg.model, "name", getattr(cfg, "model_name", ""))),
-        "problem": str(getattr(cfg.env, "name", "")),
-        "num_loc": str(getattr(cfg.env, "num_loc", "") or _get_primary_graph(cfg, "num_loc", "")),
+        "model": str(getattr(model_cfg, "name", getattr(cfg, "model_name", "")) if model_cfg else ""),
+        "problem": str(getattr(env_cfg, "name", "") if env_cfg else ""),
+        "num_loc": str(getattr(env_cfg, "num_loc", "") if env_cfg else _get_primary_graph(cfg, "num_loc", "")),
         "seed": str(cfg.seed),
     }
     run = tracker.start_run(experiment_name, run_type="training", tags=run_tags)

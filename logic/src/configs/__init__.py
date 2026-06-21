@@ -82,6 +82,7 @@ class Config:
     experiment_name: Optional[str] = None
     task: str = "train"
     run_name: Optional[str] = None
+    start: int = 0
     p: Dict[str, Any] = field(default_factory=dict)
     callbacks: Dict[str, Any] = field(default_factory=dict)
 

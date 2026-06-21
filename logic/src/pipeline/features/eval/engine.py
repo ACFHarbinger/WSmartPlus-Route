@@ -107,7 +107,14 @@ def _build_dataset_kwargs(cfg: Config) -> Dict[str, Any]:
         Dictionary of keyword arguments for make_dataset.
     """
     ev = cfg.eval
-    graph = ev.graph
+    env_cfg = getattr(cfg, cfg.task, cfg.eval).env
+    graph = (
+        env_cfg.curriculum_graphs[0]
+        if env_cfg.curriculum_graphs
+        else (env_cfg.eval_graphs[0] if env_cfg.eval_graphs else None)
+    )
+    if graph is None:
+        raise ValueError("No graph configuration found in environment config.")
     return {
         "num_samples": ev.val_size,
         "offset": ev.offset,
@@ -119,7 +126,7 @@ def _build_dataset_kwargs(cfg: Config) -> Dict[str, Any]:
         "area": graph.area,
         "dist_matrix_path": graph.dm_filepath,
         "number_edges": graph.edge_threshold,
-        "waste_weight": ev.reward.waste_weight if ev.reward else 1.0,
+        "waste_weight": graph.reward.waste_weight if graph and getattr(graph, "reward", None) else 1.0,
         "dist_strat": graph.distance_method,
         "edge_strat": graph.edge_method,
     }

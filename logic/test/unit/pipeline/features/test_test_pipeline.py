@@ -29,6 +29,7 @@ def _make_pipeline_cfg(**overrides):
         resume=False,
         cpu_cores=1,
         graph=graph,
+        run_name="test_run",
     )
     for k, v in overrides.items():
         if hasattr(sim, k):

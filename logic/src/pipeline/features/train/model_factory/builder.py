@@ -48,6 +48,16 @@ if TYPE_CHECKING:
 logger = get_pylogger(__name__)
 
 
+def _resolve_configs(cfg: Any):
+    """Helper to dynamically resolve env, policy, and model based on the active task."""
+    task = getattr(cfg, "task", "train")
+    task_cfg = getattr(cfg, task, cfg)
+    env_cfg = getattr(task_cfg, "env", getattr(cfg, "env", None))
+    policy_cfg = getattr(task_cfg, "policy", task_cfg)
+    model_cfg = getattr(policy_cfg, "model", getattr(cfg, "model", None))
+    return env_cfg, policy_cfg, model_cfg
+
+
 def create_model(cfg: Config) -> pl.LightningModule:
     """Helper to create the RL model based on config.
 
@@ -82,32 +92,37 @@ def create_model(cfg: Config) -> pl.LightningModule:
             hidden_size=cfg.meta_rl.meta_hidden_dim,
         )
 
+    env_cfg, _, model_cfg = _resolve_configs(cfg)
     with contextlib.suppress(Exception):
         run = get_active_run() if get_active_run is not None else None
         if run is not None:
             params: Dict[str, Any] = {
-                "model.name": cfg.model.name,
+                "model.name": getattr(model_cfg, "name", ""),
                 "model.algo": algo_name,
-                "env.name": cfg.env.name,
+                "env.name": getattr(env_cfg, "name", ""),
                 "env.graph.num_loc": (
-                    getattr(getattr(cfg.env, "graph", {}), "num_loc", None)
-                    or getattr((getattr(cfg.env, "curriculum_graphs", [{}]) or [{}])[0], "num_loc", "")
+                    getattr(getattr(env_cfg, "graph", {}), "num_loc", None)
+                    if env_cfg
+                    else None
+                    or getattr(
+                        (getattr(env_cfg, "curriculum_graphs", [{}]) or [{}])[0] if env_cfg else {}, "num_loc", ""
+                    )
                 ),
             }
-            if hasattr(cfg.model, "encoder"):
-                enc = cfg.model.encoder
+            if model_cfg and hasattr(model_cfg, "encoder"):
+                enc = model_cfg.encoder
                 params.update(
                     {
-                        "model.embed_dim": enc.embed_dim,
-                        "model.n_encode_layers": enc.n_layers,
-                        "model.n_heads": enc.n_heads,
+                        "model.embed_dim": getattr(enc, "embed_dim", ""),
+                        "model.n_encode_layers": getattr(enc, "n_layers", ""),
+                        "model.n_heads": getattr(enc, "n_heads", ""),
                         "model.normalization": enc.normalization.norm_type if hasattr(enc, "normalization") else "",
                     }
                 )
-            if hasattr(cfg.model, "decoder"):
-                dec = cfg.model.decoder
-                params["model.decoder_type"] = dec.type
-                params["model.n_decode_layers"] = dec.n_layers
+            if model_cfg and hasattr(model_cfg, "decoder"):
+                dec = model_cfg.decoder
+                params["model.decoder_type"] = getattr(dec, "type", "")
+                params["model.n_decode_layers"] = getattr(dec, "n_layers", "")
             if getattr(cfg.meta_rl, "use_meta", False):
                 params["model.use_meta"] = True
                 params["model.meta_lr"] = cfg.meta_rl.meta_lr
@@ -125,7 +140,8 @@ def _init_environment(cfg: Config) -> IEnv:
     Returns:
         Initialized environment.
     """
-    env_dict = _config_to_dict(cfg.env)
+    env_cfg, _, _ = _resolve_configs(cfg)
+    env_dict = _config_to_dict(env_cfg) if env_cfg else {}
     env_name = env_dict.get("name", "vrpp")
 
     # Extract base env fields (excluding name and the structured sub-configs)
@@ -199,6 +215,8 @@ def _init_policy(cfg: Config, env: Any):
     Returns:
         Initialized policy.
     """
+    env_cfg, _, model_cfg = _resolve_configs(cfg)
+
     policy_map = {
         "am": AttentionModelPolicy,
         "moe": MoEPolicy,
@@ -213,14 +231,14 @@ def _init_policy(cfg: Config, env: Any):
         "hybrid_two_stage": HybridTwoStagePolicy,
     }
 
-    if cfg.model.name == "hybrid":
+    if getattr(model_cfg, "name", "") == "hybrid":
         return _init_hybrid_policy(cfg)
 
     # Flatten ModelConfig for policy initialization
-    policy_kwargs: Dict[str, Any] = {"env_name": cfg.env.name}
+    policy_kwargs: Dict[str, Any] = {"env_name": getattr(env_cfg, "name", "vrpp") if env_cfg else "vrpp"}
 
-    if hasattr(cfg.model, "encoder"):
-        enc = cfg.model.encoder
+    if model_cfg and hasattr(model_cfg, "encoder"):
+        enc = model_cfg.encoder
         policy_kwargs.update(
             {
                 "embed_dim": enc.embed_dim,
@@ -235,8 +253,8 @@ def _init_policy(cfg: Config, env: Any):
             }
         )
 
-    if hasattr(cfg.model, "decoder"):
-        dec = cfg.model.decoder
+    if model_cfg and hasattr(model_cfg, "decoder"):
+        dec = model_cfg.decoder
         policy_kwargs.update(
             {
                 "n_decode_layers": dec.n_layers,
@@ -246,14 +264,15 @@ def _init_policy(cfg: Config, env: Any):
         )
 
     # Copy other top-level model params
-    for k, v in vars(cfg.model).items():
-        if k not in ["encoder", "decoder", "name"]:
-            policy_kwargs[k] = v
+    if model_cfg:
+        for k, v in vars(model_cfg).items():
+            if k not in ["encoder", "decoder", "name"]:
+                policy_kwargs[k] = v
 
     for key in ["lr_critic", "lr_critic_value"]:
         policy_kwargs.pop(key, None)
 
-    return policy_map[cfg.model.name](**policy_kwargs)
+    return policy_map[getattr(model_cfg, "name", "am") if model_cfg else "am"](**policy_kwargs)
 
 
 def _init_hybrid_policy(cfg: Config):
@@ -265,9 +284,16 @@ def _init_hybrid_policy(cfg: Config):
     Returns:
         Initialized hybrid policy.
     """
+    env_cfg, _, _ = _resolve_configs(cfg)
+
     # 1. Neural construction policy
     neural_cfg = cast(Any, cfg).copy()  # Simplified copy
-    neural_cfg.model.name = "am"
+    task = getattr(neural_cfg, "task", "train")
+    task_cfg = getattr(neural_cfg, task, neural_cfg)
+    policy_cfg = getattr(task_cfg, "policy", task_cfg)
+    if hasattr(policy_cfg, "model"):
+        policy_cfg.model.name = "am"
+
     neural_policy = cast("AutoregressivePolicy", create_model(cast(Config, neural_cfg)).policy)
 
     # 2. Heuristic refinement policy
@@ -275,13 +301,14 @@ def _init_hybrid_policy(cfg: Config):
     ref_time = getattr(cfg.rl, "refinement_time_limit", 5.0)
     ref_iters = getattr(cfg.rl, "refinement_iterations", 500)
     max_v = getattr(cfg.rl, "max_vehicles", 0)
+    env_name = getattr(env_cfg, "name", "vrpp") if env_cfg else "vrpp"
 
     if ref_strategy == "alns":
         heuristic_policy = VectorizedALNS(
-            env_name=cfg.env.name, time_limit=ref_time, max_iterations=ref_iters, max_vehicles=max_v
+            env_name=env_name, time_limit=ref_time, max_iterations=ref_iters, max_vehicles=max_v
         )
     else:
-        heuristic_policy = VectorizedHGS(env_name=cfg.env.name, time_limit=ref_time, max_iterations=ref_iters)  # type: ignore[assignment]
+        heuristic_policy = VectorizedHGS(env_name=env_name, time_limit=ref_time, max_iterations=ref_iters)  # type: ignore[assignment]
     return NeuralHeuristicHybrid(neural_policy=neural_policy, heuristic_policy=heuristic_policy)
 
 
@@ -316,26 +343,30 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
     Returns:
         Keyword arguments for RL module initialization.
     """
+    env_cfg, policy_cfg, model_cfg = _resolve_configs(cfg)
+
     # Prepare base dicts
     common_kwargs: Dict[str, Any] = _config_to_dict(cfg.rl)
 
-    train_params = _config_to_dict(cfg.train)
-    train_params = flatten_config_dict(train_params)
-    common_kwargs.update(train_params)
+    task = getattr(cfg, "task", "train")
+    if hasattr(cfg, task):
+        train_params = _config_to_dict(getattr(cfg, task))
+        train_params = flatten_config_dict(train_params)
+        common_kwargs.update(train_params)
 
     # Dataset paths: prefer cfg.env.graph.load_dataset (set by env yamls), fall back to cfg.train.env
-    _env_graph = getattr(getattr(cfg, "env", None), "graph", None)
-    _train_env_graph = getattr(getattr(getattr(cfg, "train", None), "env", None), "graph", None)
-    load_dataset = getattr(_env_graph, "load_dataset", None) or getattr(_train_env_graph, "load_dataset", None)
+    _env_graph = getattr(env_cfg, "graph", None)
+    load_dataset = getattr(_env_graph, "load_dataset", None)
     if load_dataset:
         common_kwargs["train_dataset_path"] = load_dataset
     if "val_dataset" in common_kwargs:
         common_kwargs["val_dataset_path"] = common_kwargs.pop("val_dataset")
 
     # Model params
-    model_params = _config_to_dict(cfg.model)
-    model_params = flatten_config_dict(model_params)
-    common_kwargs.update(model_params)
+    if model_cfg:
+        model_params = _config_to_dict(model_cfg)
+        model_params = flatten_config_dict(model_params)
+        common_kwargs.update(model_params)
     common_kwargs.pop("name", None)
 
     # Inject core objects
@@ -380,9 +411,10 @@ def _prepare_rl_kwargs(cfg: Config, env: Any, policy: Any):
 
     # Mandatory selector
     mandatory_selector = None
-    if hasattr(cfg, "mandatory_selection") and cfg.mandatory_selection is not None:
-        mandatory_selector = create_selector_from_config(cfg.mandatory_selection)
+    mandatory_selection = getattr(policy_cfg, "mandatory_selection", getattr(cfg, "mandatory_selection", None))
+    if mandatory_selection is not None:
+        mandatory_selector = create_selector_from_config(mandatory_selection)
         if mandatory_selector:
-            logger.info(f"Mandatory selector created: {cfg.mandatory_selection.strategy}")
+            logger.info(f"Mandatory selector created: {mandatory_selection.strategy}")
     common_kwargs["mandatory_selector"] = mandatory_selector
     return common_kwargs

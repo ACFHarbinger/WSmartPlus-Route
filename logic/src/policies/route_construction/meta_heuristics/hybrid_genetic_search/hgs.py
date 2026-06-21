@@ -116,7 +116,7 @@ class HGSSolver:
         self.split_manager = LinearSplit(
             dist_matrix, wastes, capacity, R, C, params.max_vehicles, mandatory_nodes, vrpp=params.vrpp
         )
-        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, params)
+        self.ls = HGSLocalSearch(dist_matrix, wastes, capacity, R, C, mandatory_nodes, params)
         if x_coords is not None and y_coords is not None:
             self.ls.x_coords = x_coords
             self.ls.y_coords = y_coords

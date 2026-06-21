@@ -9,7 +9,7 @@
 # =============================================================================
 
 defaults:
-  - /envs: cwcvrp
+  - /envs@hpo.env: cwcvrp
   - _self_
   - override /tracking: hpo
 

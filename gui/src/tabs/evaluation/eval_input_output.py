@@ -142,7 +142,7 @@ class EvalIOTab(QWidget):
         """
         params = {
             "datasets": self.datasets_input.text().strip() or None,
-            "model": self.model_input.text().strip() or None,
+            "eval.policy.model.load_path": self.model_input.text().strip() or None,
             "o": self.output_file_input.text().strip() or None,
             "results_dir": self.results_dir_input.text().strip(),
             "f": self.overwrite_check.isChecked(),

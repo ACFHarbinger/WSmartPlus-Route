@@ -198,8 +198,7 @@ def solve_farkas_pricing_step(
     exhausted = True
     for route in routes:
         farkas_weight = sum(farkas_duals.get(v, 0.0) for v in route.nodes)
-        if farkas_weight > _FARKAS_TOL:
-            master.add_route(route)
+        if farkas_weight > _FARKAS_TOL and master.add_route(route):
             added += 1
             exhausted = False
 
@@ -309,8 +308,8 @@ def solve_pricing_step(
     added = 0
     for route in routes:
         if route.reduced_cost > rc_tolerance:
-            master.add_route(route)
-            added += 1
+            if master.add_route(route):
+                added += 1
 
     pricing_exhausted = getattr(pricing_solver, "last_max_rc", 0.0) <= optimality_gap
     return added, pricing_exhausted

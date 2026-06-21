@@ -72,11 +72,13 @@ def reset_master_constraints(master: VRPPMasterProblem) -> None:
     if temp_c:
         master.model.remove(temp_c)
 
-    if master.vehicle_limit is not None:
-        constr = master.model.getConstrByName("vehicle_limit")
-        if constr:
+    constr = master.model.getConstrByName("vehicle_limit")
+    if constr:
+        if master.vehicle_limit is not None:
             constr.RHS = float(master.vehicle_limit)
             constr.Sense = GRB.LESS_EQUAL
+        else:
+            master.model.remove(constr)
 
     # Reset coverage senses
     for node in range(1, master.n_nodes + 1):
@@ -216,8 +218,6 @@ def apply_branching_to_master(
         apply_route_level_branching_filters(master, bc)
 
     # Apply global fleet limits to the master model
-    # We can't easily add a lower bound without a new constraint if it doesn't exist.
-    # We assume 'vehicle_limit' exists from build_model if specified in Params.
     vl_constr = master.model.getConstrByName("vehicle_limit")
     if vl_constr:
         # If we have a lower bound that equals the upper bound, force equality
@@ -227,9 +227,11 @@ def apply_branching_to_master(
         else:
             vl_constr.Sense = GRB.LESS_EQUAL
             vl_constr.RHS = max_vehicles
-            # Lower bound (>=) is rarely reached in maximization, but we add it if significant
-            if min_vehicles > 0.5:
-                master.model.addConstr(gp.quicksum(master.lambda_vars) >= min_vehicles, name="temp_min_vehicles")
+    elif max_vehicles < float("inf"):
+        master.model.addConstr(gp.quicksum(master.lambda_vars) <= max_vehicles, name="vehicle_limit")
+
+    if min_vehicles > 0.5:
+        master.model.addConstr(gp.quicksum(master.lambda_vars) >= min_vehicles, name="temp_min_vehicles")
 
     # Apply node visitation forcing (Sense change)
     for node in forced_nodes:

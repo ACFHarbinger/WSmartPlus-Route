@@ -15,12 +15,12 @@ class TestTimeTraining:
 
         # 3D Waste: [bs, num_days, num_nodes+1]
         waste_3d = torch.zeros(batch_size, num_days, num_nodes + 1)
-        # Day 0: 0, 10, 10, 10
-        waste_3d[:, 0, 1:] = 10.0
-        # Day 1: 0, 5, 5, 5 (next day waste to add)
-        waste_3d[:, 1, 1:] = 5.0
-        # Day 2: 0, 2, 2, 2
-        waste_3d[:, 2, 1:] = 2.0
+        # Day 0: 0, 0.5, 0.5, 0.5
+        waste_3d[:, 0, 1:] = 0.5
+        # Day 1: 0, 0.3, 0.3, 0.3 (next day waste to add)
+        waste_3d[:, 1, 1:] = 0.3
+        # Day 2: 0, 0.2, 0.2, 0.2
+        waste_3d[:, 2, 1:] = 0.2
 
         locs = torch.zeros(batch_size, num_nodes + 1, 2)
 
@@ -28,7 +28,8 @@ class TestTimeTraining:
             {
                 "waste": waste_3d,
                 "locs": locs,
-                "capacity": torch.tensor([100.0, 100.0]),
+                "depot": torch.zeros(batch_size, 2),
+                "capacity": torch.tensor([1.0, 1.0]),
             },
             batch_size=[batch_size],
         )
@@ -52,19 +53,19 @@ class TestTimeTraining:
         assert current_day[1].item() == 1
 
         # Check logic:
-        # B0 Node 1: Was 10 -> Reset to 0 -> Add Day 1 Waste (5) -> 5
-        assert new_waste[0, 1] == 5.0
-        # B0 Node 2: Was 10 -> Reset to 0 -> Add Day 1 Waste (5) -> 5
-        assert new_waste[0, 2] == 5.0
-        # B0 Node 3: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
-        assert new_waste[0, 3] == 15.0
+        # B0 Node 1: Was 0.5 -> Reset to 0 -> Add Day 1 Waste (0.3) -> 0.3
+        assert torch.isclose(new_waste[0, 1], torch.tensor(0.3))
+        # B0 Node 2: Was 0.5 -> Reset to 0 -> Add Day 1 Waste (0.3) -> 0.3
+        assert torch.isclose(new_waste[0, 2], torch.tensor(0.3))
+        # B0 Node 3: Was 0.5 -> Not visited -> Add Day 1 Waste (0.3) -> 0.8
+        assert torch.isclose(new_waste[0, 3], torch.tensor(0.8))
 
-        # B1 Node 1: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
-        assert new_waste[1, 1] == 15.0
-        # B1 Node 2: Was 10 -> Not visited -> Add Day 1 Waste (5) -> 15
-        assert new_waste[1, 2] == 15.0
-        # B1 Node 3: Was 10 -> Reset 0 -> Add Day 1 Waste (5) -> 5
-        assert new_waste[1, 3] == 5.0
+        # B1 Node 1: Was 0.5 -> Not visited -> Add Day 1 Waste (0.3) -> 0.8
+        assert torch.isclose(new_waste[1, 1], torch.tensor(0.8))
+        # B1 Node 2: Was 0.5 -> Not visited -> Add Day 1 Waste (0.3) -> 0.8
+        assert torch.isclose(new_waste[1, 2], torch.tensor(0.8))
+        # B1 Node 3: Was 0.5 -> Reset 0 -> Add Day 1 Waste (0.3) -> 0.3
+        assert torch.isclose(new_waste[1, 3], torch.tensor(0.3))
 
     def test_apply_time_step_on_the_fly_stochastic(self):
         # Mock dataset and TensorDict for on-the-fly generation (2D waste)
@@ -72,16 +73,16 @@ class TestTimeTraining:
         num_nodes = 3  # + 1 depot = 4 cols
 
         # Current waste:
-        # B0: [0, 10, 10, 10]
-        # B1: [0, 20, 20, 20]
-        waste = torch.tensor([[0.0, 10.0, 10.0, 10.0], [0.0, 20.0, 20.0, 20.0]])
+        # B0: [0, 0.5, 0.5, 0.5]
+        # B1: [0, 0.4, 0.4, 0.4]
+        waste = torch.tensor([[0.0, 0.5, 0.5, 0.5], [0.0, 0.4, 0.4, 0.4]])
         locs = torch.zeros(batch_size, num_nodes + 1, 2)
 
         td = TensorDict(
             {
                 "waste": waste.clone(),
-                "waste": waste.clone(),  # 2D waste, triggers on-the-fly
                 "locs": locs,
+                "depot": torch.zeros(batch_size, 2),
             },
             batch_size=[batch_size],
         )
@@ -92,19 +93,20 @@ class TestTimeTraining:
         # Mock env and generator
         class DummyGenerator:
             def __init__(self):
-                self.noise_variance = 0.1
+                self.noise_variance = 0.01
                 self.noise_mean = 0.0
-                self.capacity = 100.0
-                self.max_fill = 100.0
+                self.capacity = 1.0
+                self.max_fill = 1.0
                 self.called = False
 
             def _generate_fill_levels(self, batch_size):
                 self.called = True
-                return torch.tensor([[0.0, 5.0, 5.0, 5.0], [0.0, 5.0, 5.0, 5.0]])
+                return torch.tensor([[0.0, 0.3, 0.3, 0.3], [0.0, 0.3, 0.3, 0.3]])
 
         env = MagicMock()
         gen = DummyGenerator()
         env.generator = gen
+        env.name = "scwcvrp"
 
         # Actions
         # B0 visited 1, 2
@@ -118,12 +120,12 @@ class TestTimeTraining:
         # Ensure generator was called
         assert env.generator.called
 
-        # B0 Node 1: Reset to 0 -> Add noisy Day 1 Waste (~5)
-        # Because of variance 0.1, std is ~0.316.
-        # Value should be close to 5 (not exact)
-        assert new_waste[0, 1] > 3.0 and new_waste[0, 1] < 7.0
-        # Node 3 wasn't visited, carryover was 10. New total ~15
-        assert new_waste[0, 3] > 13.0 and new_waste[0, 3] < 17.0
+        # B0 Node 1: Reset to 0 -> Add noisy Day 1 Waste (~0.3)
+        # Because of variance 0.01, std is 0.1.
+        # Value should be close to 0.3 (not exact)
+        assert new_waste[0, 1] > 0.0 and new_waste[0, 1] < 0.6
+        # Node 3 wasn't visited, carryover was 0.5. New total ~0.8
+        assert new_waste[0, 3] > 0.5 and new_waste[0, 3] < 1.0
 
     def test_prepare_epoch_time_metadata(self):
         # Test that current_day is injected when train_time is True

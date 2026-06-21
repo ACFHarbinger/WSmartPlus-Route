@@ -88,6 +88,7 @@ class LocalSearch(ABC):
         R: float,
         C: float,
         params: Any,
+        mandatory_nodes: Optional[List[int]] = None,
         neighbors: Optional[Dict[int, List[int]]] = None,
         penalty_capacity: float = 1.0,
         acceptance_criterion: Optional[IAcceptanceCriterion] = None,
@@ -126,6 +127,7 @@ class LocalSearch(ABC):
         self.params = params
         self.penalty_capacity = penalty_capacity
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
+        self.mandatory_nodes = set(mandatory_nodes) if mandatory_nodes else set()
 
         # Modular Acceptance Criterion Injection
         self.acceptance_criterion = acceptance_criterion or getattr(params, "acceptance_criterion", None)
@@ -419,7 +421,7 @@ class LocalSearch(ABC):
         if shifted[0] <= s2[1] and s2[0] <= shifted[1]:
             return True
         shifted = (s2[0] + 2 * math.pi, s2[1] + 2 * math.pi)
-        return bool(s1[0] <= shifted[1] and shifted[0] <= s1[1])
+        return s1[0] <= shifted[1] and shifted[0] <= s1[1]
 
     def _process_pair(self, u: int, v: int) -> bool:
         """
@@ -828,7 +830,7 @@ class LocalSearch(ABC):
         """
         if exchange_2_0(self, r_u, p_u, r_v, p_v):
             return True
-        return bool(exchange_2_1(self, r_u, p_u, r_v, p_v))
+        return exchange_2_1(self, r_u, p_u, r_v, p_v)
 
     def _try_ejection_chain(self, r_u: int) -> bool:
         """Docstring.
@@ -856,7 +858,7 @@ class LocalSearch(ABC):
         """
         if relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=2):
             return True
-        return bool(relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=3))
+        return relocate_chain(self, r_u, p_u, r_v, p_v, chain_len=3)
 
     def _move_three_permutation(self, u: int, r_u: int, p_u: int) -> bool:
         """Apply 3-Permutation move.
@@ -956,6 +958,9 @@ class LocalSearch(ABC):
 
         # Validation
         if pos < 0 or pos >= len(route) or route[pos] != node:
+            return False
+
+        if getattr(self, "mandatory_nodes", None) and node in self.mandatory_nodes:
             return False
 
         prev = route[pos - 1] if pos > 0 else 0

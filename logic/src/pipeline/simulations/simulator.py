@@ -560,6 +560,7 @@ def sequential_simulations(  # noqa: C901
                 elif log_std is not None:
                     log_std[pol_name] = [0.0] * len(log[pol_name])
 
+                os.makedirs(results_dir, exist_ok=True)
                 pol_log_path = os.path.join(results_dir, f"log_{pol_name}_{sim.graph.n_samples}N.json")
                 mean_dict = dict(zip(SIM_METRICS, log[pol_name], strict=False))
                 update_policy_log_section(pol_log_path, "mean", mean_dict, lock=lock)

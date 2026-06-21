@@ -687,6 +687,9 @@ class RCSPPSolver:
             )
 
             for v in candidates:
+                if v == self.depot:
+                    continue
+
                 # Fix 2: Early exit for fixed arcs before expensive feasibility checks
                 if (u, v) in self.fixed_arcs:
                     continue

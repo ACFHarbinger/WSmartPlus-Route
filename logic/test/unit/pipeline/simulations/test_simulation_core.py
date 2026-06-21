@@ -49,7 +49,7 @@ class TestSimulation:
         mocker.patch("logic.src.tracking.logging.log_utils.log_to_json")
 
         mocker.patch("logic.src.pipeline.simulations.states.base.context.SimulationContext.run",
-                     return_value={"pol1": [1.0, 2.0], "success": True})
+                     return_value={"none_pol1_none": [1.0, 2.0], "success": True})
 
         # Create output dir
         results_dir = tmp_path / "assets" / cfg.sim.output_dir / f"{cfg.sim.graph.n_days}days" / f"{cfg.sim.graph.area}{cfg.sim.graph.num_loc}_{cfg.sim.graph.waste_type}" / cfg.sim.data_distribution
@@ -59,7 +59,7 @@ class TestSimulation:
             cfg, mock_torch_device, [None, None], [[0, 1]], "weights", lock
         )
 
-        assert "pol1" in log
-        assert len(log["pol1"]) == 2
+        assert "none_pol1_none" in log
+        assert len(log["none_pol1_none"]) == 2
         assert log_std is not None
-        assert "pol1" in log_std
+        assert "none_pol1_none" in log_std

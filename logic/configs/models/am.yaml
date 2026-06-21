@@ -1,4 +1,3 @@
-# @package _global_
 # =============================================================================
 # Attention Model (AM) Configuration
 # =============================================================================
@@ -9,109 +8,108 @@
 # Reference: Kool et al. (2019) "Attention, Learn to Solve Routing Problems!"
 # =============================================================================
 
-model:
-  name: "am" # Model identifier for factory instantiation
+name: "am" # Model identifier for factory instantiation
 
-  # =============================================================================
-  # Encoder Architecture
-  # =============================================================================
-  encoder:
-    type:
-      "gat" # Graph encoder type (gat, gcn, tgc, mlp)
-      # - "gat": Graph Attention Network (default, best for VRP)
-      # - "gcn": Graph Convolutional Network
-      # - "tgc": Transformer Graph Convolution
-      # - "mlp": Structure-agnostic MLP
+# =============================================================================
+# Encoder Architecture
+# =============================================================================
+encoder:
+  type:
+    "gat" # Graph encoder type (gat, gcn, tgc, mlp)
+    # - "gat": Graph Attention Network (default, best for VRP)
+    # - "gcn": Graph Convolutional Network
+    # - "tgc": Transformer Graph Convolution
+    # - "mlp": Structure-agnostic MLP
 
-    # Dimensions
-    embed_dim:
-      128 # Node embedding dimension. Powers of 2 recommended (64, 128, 256, 512).
-      # Larger values = more expressive but slower. 128 is good default for VRPP/WCVRP.
+  # Dimensions
+  embed_dim:
+    128 # Node embedding dimension. Powers of 2 recommended (64, 128, 256, 512).
+    # Larger values = more expressive but slower. 128 is good default for VRPP/WCVRP.
 
-    hidden_dim:
-      512 # Feed-forward hidden layer size. Typically 4x embed_dim.
-      # Controls MLP expressiveness in encoder/decoder layers.
+  hidden_dim:
+    512 # Feed-forward hidden layer size. Typically 4x embed_dim.
+    # Controls MLP expressiveness in encoder/decoder layers.
 
-    # Layer Depth
-    n_layers:
-      3 # Number of encoder transformer layers. Range: 1-6.
-      # More layers = richer spatial encoding but slower. 3 is standard.
+  # Layer Depth
+  n_layers:
+    3 # Number of encoder transformer layers. Range: 1-6.
+    # More layers = richer spatial encoding but slower. 3 is standard.
 
-    n_heads:
-      8 # Number of attention heads. Must divide embed_dim evenly.
-      # Common values: 4, 8, 16. More heads = diverse attention patterns.
+  n_heads:
+    8 # Number of attention heads. Must divide embed_dim evenly.
+    # Common values: 4, 8, 16. More heads = diverse attention patterns.
 
-    n_sublayers:
-      1 # Sublayers per encoder block (attention + FFN repetitions).
-      # Usually 1; increase for deeper per-layer processing.
+  n_sublayers:
+    1 # Sublayers per encoder block (attention + FFN repetitions).
+    # Usually 1; increase for deeper per-layer processing.
 
-    # Normalization & Activation
-    normalization:
-      norm_type:
-        "instance" # Normalization type. Options: "batch", "layer", "instance", "group".
-        # "instance" works best for VRP; "batch" for large batches.
+  # Normalization & Activation
+  normalization:
+    norm_type:
+      "instance" # Normalization type. Options: "batch", "layer", "instance", "group".
+      # "instance" works best for VRP; "batch" for large batches.
 
-    activation:
-      name:
-        "gelu" # Activation function. Options: "relu", "gelu", "swish", "mish", "elu".
-        # "gelu" is default for transformers; "relu" for speed.
+  activation:
+    name:
+      "gelu" # Activation function. Options: "relu", "gelu", "swish", "mish", "elu".
+      # "gelu" is default for transformers; "relu" for speed.
 
-    # Regularization & Bias
-    dropout:
-      0.1 # Dropout probability (0.0-0.5). Regularization for overfitting.
-      # 0.1 is standard; increase to 0.2-0.3 if training loss << val loss.
+  # Regularization & Bias
+  dropout:
+    0.1 # Dropout probability (0.0-0.5). Regularization for overfitting.
+    # 0.1 is standard; increase to 0.2-0.3 if training loss << val loss.
 
-    spatial_bias:
-      false # Add learnable spatial bias to attention (distance-aware attention).
-      # Set true for problems where geometry matters (TSP, CVRP).
+  spatial_bias:
+    false # Add learnable spatial bias to attention (distance-aware attention).
+    # Set true for problems where geometry matters (TSP, CVRP).
 
-    # Connections
-    connection_type:
-      "residual" # Connection type between layers. Options:
-      # - "residual": Standard skip connections (x + F(x))
-      # - "dense": DenseNet-style (concat all previous layers)
-      # - "hyper": Dynamic hyper-connections (experimental)
+  # Connections
+  connection_type:
+    "residual" # Connection type between layers. Options:
+    # - "residual": Standard skip connections (x + F(x))
+    # - "dense": DenseNet-style (concat all previous layers)
+    # - "hyper": Dynamic hyper-connections (experimental)
 
-    hyper_expansion:
-      4 # Hyper-connection expansion factor (for connection_type="hyper").
-      # Controls number of parallel skip paths. Ignored for residual.
+  hyper_expansion:
+    4 # Hyper-connection expansion factor (for connection_type="hyper").
+    # Controls number of parallel skip paths. Ignored for residual.
 
-    # Aggregation Strategies
-    aggregation_node:
-      "sum" # Node-level feature aggregation. Options: "sum", "mean", "max".
-      # "sum" preserves scale; "mean" normalizes by degree.
+  # Aggregation Strategies
+  aggregation_node:
+    "sum" # Node-level feature aggregation. Options: "sum", "mean", "max".
+    # "sum" preserves scale; "mean" normalizes by degree.
 
-    aggregation_graph:
-      "avg" # Graph-level pooling for context embedding.
-      # Options: "avg", "max", "sum". "avg" is standard.
+  aggregation_graph:
+    "avg" # Graph-level pooling for context embedding.
+    # Options: "avg", "max", "sum". "avg" is standard.
 
-  # =============================================================================
-  # Decoder Architecture
-  # =============================================================================
-  decoder:
-    type: "glimpse"
-    embed_dim: 128
-    hidden_dim: 512
-    n_layers:
-      2 # Number of decoder layers. Range: 1-4.
-      # More layers = better action selection but slower inference.
-    n_heads: 8
-    n_predictor_layers:
-      2 # Depth of GRF predictor (for temporal models like TAM).
-      # Set to 0 for static problems (VRPP, CVRPP).
+# =============================================================================
+# Decoder Architecture
+# =============================================================================
+decoder:
+  type: "glimpse"
+  embed_dim: 128
+  hidden_dim: 512
+  n_layers:
+    2 # Number of decoder layers. Range: 1-4.
+    # More layers = better action selection but slower inference.
+  n_heads: 8
+  n_predictor_layers:
+    2 # Depth of GRF predictor (for temporal models like TAM).
+    # Set to 0 for static problems (VRPP, CVRPP).
 
-    normalization:
-      norm_type: "instance"
+  normalization:
+    norm_type: "instance"
 
-    activation:
-      name: "gelu"
+  activation:
+    name: "gelu"
 
-    dropout: 0.1
-    connection_type: "residual"
+  dropout: 0.1
+  connection_type: "residual"
 
-  # =============================================================================
-  # Global Model Settings
-  # =============================================================================
-  temporal_horizon:
-    0 # Temporal lookahead for multi-day problems (TAM).
-    # 0 = static (single-day VRPP/CVRPP), 10+ for WCVRP simulation.
+# =============================================================================
+# Global Model Settings
+# =============================================================================
+temporal_horizon:
+  0 # Temporal lookahead for multi-day problems (TAM).
+  # 0 = static (single-day VRPP/CVRPP), 10+ for WCVRP simulation.

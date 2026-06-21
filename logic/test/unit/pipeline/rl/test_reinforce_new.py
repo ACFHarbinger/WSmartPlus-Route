@@ -94,7 +94,7 @@ class TestREINFORCE:
         module.baseline.eval_return_value = torch.zeros(2)
 
         # Mock output with entropy
-        reward = torch.tensor([1.0, 1.0])
+        reward = torch.tensor([0.0, 0.0])
         log_likelihood = torch.tensor([-1.0, -1.0])
         entropy = torch.tensor([0.5, 0.5])
         out = {
@@ -140,7 +140,8 @@ class TestREINFORCE:
         # Policy is real nn.Module, so parameters exist
         optimizer = MagicMock()
 
-        with patch("torch.nn.utils.clip_grad_norm_") as mock_clip:
+        with patch("torch.nn.utils.clip_grad_norm_") as mock_clip, patch.object(module, "log"):
+            mock_clip.return_value = torch.tensor(0.5)
             module.on_before_optimizer_step(optimizer)
 
             mock_clip.assert_called_once()

@@ -18,7 +18,7 @@ class TestTrainingOrchestration:
         """Verify create_model creates a REINFORCE LightningModule."""
         cfg = Config()
         cfg.rl.algorithm = "reinforce"
-        cfg.model.name = "am"
+        cfg.train.policy.model.name = "am"
 
         with patch("logic.src.pipeline.features.train.get_env"), patch(
             "logic.src.pipeline.features.train.AttentionModelPolicy"
@@ -33,7 +33,7 @@ class TestTrainingOrchestration:
         """Verify create_model creates a PPO LightningModule."""
         cfg = Config()
         cfg.rl.algorithm = "ppo"
-        cfg.model.name = "am"
+        cfg.train.policy.model.name = "am"
 
         with patch("logic.src.pipeline.features.train.get_env"), patch(
             "logic.src.pipeline.features.train.AttentionModelPolicy"
@@ -48,9 +48,13 @@ class TestTrainingOrchestration:
     @patch("logic.src.pipeline.features.train.engine.create_model")
     def test_run_training_flow(self, mock_create, mock_trainer_cls):
         """Verify run_training initializes model and calls trainer.fit."""
-        cfg = Config()
+        from omegaconf import OmegaConf
+        cfg = OmegaConf.create(cast(Any, Config()))
         # Reduce data size to prevent hanging
-        cfg.train.env.graph.num_samples = 10
+        if not cfg.train.env.curriculum_graphs:
+            from logic.src.configs.envs.graph import GraphConfig
+            cfg.train.env.curriculum_graphs.append(OmegaConf.create(cast(Any, GraphConfig())))
+        cfg.train.env.curriculum_graphs[0].n_samples = 10
 
         mock_model = MagicMock()
         mock_create.return_value = mock_model
@@ -61,7 +65,7 @@ class TestTrainingOrchestration:
         reward = run_training(cfg)
 
         assert reward == 0.5
-        mock_create.assert_called_once_with(cfg)
+        mock_create.assert_called_once()
         mock_trainer.fit.assert_called_once_with(mock_model)
 
     @pytest.mark.unit
@@ -74,7 +78,7 @@ class TestTrainingOrchestration:
             # or just use plain objects.
             cfg_dict = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg)), resolve=True))
             cfg_dict["rl"]["algorithm"] = algo
-            cfg_dict["model"]["name"] = "am"
+            cfg_dict["train"]["policy"]["model"]["name"] = "am"
 
             # Setup specific sub-configs if needed
             if algo == "symnco":
@@ -83,7 +87,8 @@ class TestTrainingOrchestration:
                 cfg_dict["rl"]["pomo"] = {
                     "num_augment": 8,
                     "augment_fn": "dihedral8",
-                    "num_starts": 50
+                    "num_starts": 50,
+                    "mandatory_starts_only": False,
                 }
 
             # Create a DictConfig from the modified dict

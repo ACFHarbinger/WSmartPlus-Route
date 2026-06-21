@@ -159,7 +159,7 @@ class UIMediator(QObject):
 
         return all_params
 
-    def _construct_command_string(self, actual_command, all_params):
+    def _construct_command_string(self, actual_command, all_params):  # noqa: C901
         """Formats the final command string from parameters."""
         # Split logic into parts
         if actual_command.startswith(("scripts/", "scripts\\")) and "script" in all_params:
@@ -169,39 +169,61 @@ class UIMediator(QObject):
         else:
             cmd_parts = [f"python main.py {actual_command}"]
 
+        # Determine if this is a Hydra command
+        hydra_tasks = {"train", "evaluation", "eval", "test_sim", "gen_data", "hpo", "meta_train", "hpo_sim", "sim_hpo"}
+        is_hydra = actual_command in hydra_tasks
+
         regex = r"(?<!-)-(?!-)"
         for key, value in all_params.items():
             if value is None or value == "":
                 continue
 
-            if isinstance(value, bool):
-                clean_key = re.sub(regex, "_", key)
-                if key in ["mask_inner", "mask_logits"] and value is False:
-                    cmd_parts.append(f"--no_{clean_key}")
-                elif value is True:
-                    cmd_parts.append(f"--{clean_key}")
-            elif isinstance(value, (int, float)):
-                clean_key = re.sub(regex, "_", key)
-                cmd_parts.append(f"--{clean_key} {value}")
-            elif isinstance(value, str):
-                list_keys = [
-                    "focus_graph",
-                    "input_keys",
-                    "graph_sizes",
-                    "data_distributions",
-                    "policies",
-                    "pregular_level",
-                    "plastminute_cf",
-                    "lookahead_configs",
-                    "gurobi_param",
-                ]
-                if key in list_keys:
-                    parts = value.split()
-                    cmd_parts.append(f"--{key}")
-                    cmd_parts.extend(parts)
-                elif " " in value or '"' in value or "'" in value or key == "update_operation":
-                    cmd_parts.append(f"--{key} '{value}'")
-                else:
-                    cmd_parts.append(f"--{key} {value}")
+            if is_hydra:
+                # Hydra syntax: key=value
+                if isinstance(value, bool):
+                    if key in ["mask_inner", "mask_logits", "train.policy.mandatory_selection"] and value is False:
+                        cmd_parts.append(f"~{key}")
+                    elif value is True:
+                        cmd_parts.append(f"{key}=true")
+                    else:
+                        cmd_parts.append(f"{key}=false")
+                elif isinstance(value, (int, float)):
+                    cmd_parts.append(f"{key}={value}")
+                elif isinstance(value, str):
+                    if " " in value or '"' in value or "'" in value:
+                        cmd_parts.append(f"{key}='{value}'")
+                    else:
+                        cmd_parts.append(f"{key}={value}")
+            else:
+                # Legacy argparse syntax: --key value
+                if isinstance(value, bool):
+                    clean_key = re.sub(regex, "_", key)
+                    if key in ["mask_inner", "mask_logits"] and value is False:
+                        cmd_parts.append(f"--no_{clean_key}")
+                    elif value is True:
+                        cmd_parts.append(f"--{clean_key}")
+                elif isinstance(value, (int, float)):
+                    clean_key = re.sub(regex, "_", key)
+                    cmd_parts.append(f"--{clean_key} {value}")
+                elif isinstance(value, str):
+                    list_keys = [
+                        "focus_graph",
+                        "input_keys",
+                        "graph_sizes",
+                        "data_distributions",
+                        "policies",
+                        "pregular_level",
+                        "plastminute_cf",
+                        "lookahead_configs",
+                        "gurobi_param",
+                    ]
+                    if key in list_keys:
+                        parts = value.split()
+                        cmd_parts.append(f"--{key}")
+                        cmd_parts.extend(parts)
+                    elif " " in value or '"' in value or "'" in value or key == "update_operation":
+                        cmd_parts.append(f"--{key} '{value}'")
+                    else:
+                        cmd_parts.append(f"--{key} {value}")
 
         return " \\\n  ".join(cmd_parts)
