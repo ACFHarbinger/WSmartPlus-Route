@@ -183,6 +183,8 @@ def remove_checkpoint_files(
             continue
         # Strip "checkpoint_" prefix and "_day{n}.pkl" suffix to get the slug
         stem = fname[len("checkpoint_") :] if fname.startswith("checkpoint_") else fname
+        if stem.endswith(".pkl"):
+            stem = stem[:-4]
         # Remove trailing _day{n}
         stem = re.sub(r"_day\d+$", "", stem)
         # Remove trailing _sample or _<digit> (sample id)
