@@ -10,6 +10,27 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock
+
+# Global setup for mock streamlit to handle cache decorators correctly before any imports
+def mock_cache_decorator(*args, **kwargs):
+    def decorator(func):
+        return func
+    return decorator
+
+if "streamlit" not in sys.modules:
+    mock_st = MagicMock()
+    mock_st.cache_data = mock_cache_decorator
+    mock_st.session_state = {}
+    sys.modules["streamlit"] = mock_st
+    sys.modules["streamlit.components"] = MagicMock()
+    sys.modules["streamlit.components.v1"] = MagicMock()
+else:
+    mock_st = sys.modules["streamlit"]
+    if isinstance(mock_st, MagicMock):
+        mock_st.cache_data = mock_cache_decorator
+        if not hasattr(mock_st, "session_state") or isinstance(mock_st.session_state, MagicMock):
+            mock_st.session_state = {}
 
 import pytest
 import torch
