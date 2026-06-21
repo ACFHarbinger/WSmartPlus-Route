@@ -1,6 +1,0 @@
-#[submodule "rl4co"]
-#	path = rl4co
-#	url = https://github.com/ACFPeacekeeper/rl4co.git
-[submodule "logic/src/pipeline/simulations/wsmart_bin_analysis"]
-    path = logic/src/pipeline/simulations/wsmart_bin_analysis
-    url = https://github.com/ACFPeacekeeper/wsmart_bin_analysis.git
