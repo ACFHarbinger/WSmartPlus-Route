@@ -63,7 +63,7 @@ SELECT id,
        file_hash,
        prev_hash,
        size_bytes,
-       num_samples,
+       shape,
        metadata,    -- JSON-encoded
        timestamp
 FROM   dataset_events

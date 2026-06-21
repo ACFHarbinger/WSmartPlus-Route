@@ -119,15 +119,14 @@ class KSparseACOQLSolver:
 
         # Constructor
         self.constructor = SolutionConstructor(
-            dist_matrix,
-            wastes,
-            capacity,
-            self.pheromone,
-            self.eta,
-            self.candidate_lists,
-            self.nodes,
-            params,
-            self.tau_0,
+            node_coords=dist_matrix,
+            wastes=wastes,
+            capacity=capacity,
+            pheromone=self.pheromone,
+            candidate_lists=self.candidate_lists,
+            nodes=self.nodes,
+            params=params,
+            tau_0=self.tau_0,
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
