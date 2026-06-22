@@ -7,21 +7,20 @@ Attributes:
     log_plot: Execution function for saving static plots.
 
 Example:
-    >>> from logic.src.tracking.logging.log_visualization import log_plot
+    >>> from logic.src.utils.expo.log_visualization import log_plot
     >>> log_plot(fig=my_fig, fig_filename="plot.png")
 """
 
 import os
 from typing import Any, List, Union
 
+import logic.src.constants as udef
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wandb
-from omegaconf import DictConfig
-
-import logic.src.constants as udef
 from logic.src.configs import Config
+from omegaconf import DictConfig
 
 
 def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config, DictConfig]) -> None:

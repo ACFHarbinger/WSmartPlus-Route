@@ -11,7 +11,7 @@ Attributes:
     RLMetric: Adapter for reinforcement learning cost computation.
 
 Example:
-    >>> from logic.src.tracking.logging.visualization import landscape
+    >>> from logic.src.utils.expo.visualization import landscape
     >>> landscape.plot_loss_landscape(model, cfg, "output/landscape/")
 """
 
@@ -25,12 +25,12 @@ import torch
 matplotlib.use("Agg")
 import loss_landscapes
 import matplotlib.pyplot as plt
+from logic.src.configs import Config
+from logic.src.models.policies.local_search import vectorized_two_opt
 from loss_landscapes.metrics import Metric
 from omegaconf import DictConfig
 
-from logic.src.configs import Config
-from logic.src.models.policies.local_search import vectorized_two_opt
-from logic.src.tracking.logging.visualization.helpers import MyModelWrapper, get_batch
+from .helpers import MyModelWrapper, get_batch
 
 
 def imitation_loss_fn(m, x_batch, pi_target, cost_weights=None):
@@ -190,7 +190,31 @@ def plot_loss_landscape(
     os.makedirs(output_dir, exist_ok=True)
     device = torch.device("cpu")
 
-    temporal_horizon: int = cfg.model.temporal_horizon
+    temporal_horizon = 0
+    if not isinstance(cfg, dict):
+        train = getattr(cfg, "train", None)
+        if train is not None:
+            policy = getattr(train, "policy", None)
+            if policy is not None:
+                model_cfg = getattr(policy, "model", None)
+                if model_cfg is not None:
+                    temporal_horizon = getattr(model_cfg, "temporal_horizon", 0)
+        if temporal_horizon == 0:
+            model_cfg = getattr(cfg, "model", None)
+            if model_cfg is not None:
+                temporal_horizon = getattr(model_cfg, "temporal_horizon", 0)
+    else:
+        train = cfg.get("train", {})
+        if isinstance(train, dict):
+            temporal_horizon = train.get("policy", {}).get("model", {}).get("temporal_horizon", cfg.get("model", {}).get("temporal_horizon", 0))
+        else:
+            # Check if getattr is needed for OmegaConf/object types in dict-like wrapper
+            policy = getattr(train, "policy", None)
+            if policy is not None:
+                model_cfg = getattr(policy, "model", None)
+                temporal_horizon = getattr(model_cfg, "temporal_horizon", 0) if model_cfg is not None else 0
+            else:
+                temporal_horizon = cfg.get("model", {}).get("temporal_horizon", 0)
 
     # Generate random batch for landscape
     x_batch = get_batch(

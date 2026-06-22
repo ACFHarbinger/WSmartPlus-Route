@@ -11,7 +11,7 @@ from logic.src.tracking.logging.log_utils import (
     output_stats,
     runs_per_policy,
 )
-from logic.src.tracking.logging.log_visualization import log_training
+from logic.src.utils.expo.log_visualization import log_training
 from omegaconf import OmegaConf
 
 
@@ -28,8 +28,8 @@ class TestLogUtils:
         log_epoch(x_tup, loss_keys, epoch_loss, opts)
         assert mock_wandb.log.called
 
-    @patch("logic.src.tracking.logging.log_visualization.wandb")
-    @patch("logic.src.tracking.logging.log_visualization.plt")
+    @patch("logic.src.utils.expo.log_visualization.wandb")
+    @patch("logic.src.utils.expo.log_visualization.plt")
     def test_log_training(self, mock_plt, mock_wandb):
         """Test log_training with mocked components."""
         opts = OmegaConf.create({
