@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.utils.configs
+src.utils.packages
 src.utils.output
 src.utils.docs
 src.utils.decoding

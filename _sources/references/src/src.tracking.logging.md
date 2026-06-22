@@ -13,8 +13,6 @@
 :titlesonly:
 :maxdepth: 3
 
-src.tracking.logging.plotting
-src.tracking.logging.visualization
 src.tracking.logging.modules
 ```
 
@@ -24,11 +22,8 @@ src.tracking.logging.modules
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.logging.visualize_utils
 src.tracking.logging.log_utils
 src.tracking.logging.logger_writer
-src.tracking.logging.plot_utils
-src.tracking.logging.log_visualization
 src.tracking.logging.pylogger
 src.tracking.logging.structured_logging
 src.tracking.logging.json_formatter
