@@ -152,6 +152,66 @@ clean-results results_dir=results_dir distribution=distribution constructor=cons
         $([ "{{ dry_run }}" = "true" ] && echo "--dry-run" || true) \
         $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)
 
+# Clean up Route Constructor configs and implementations
+# Usage: just cleanup-route-constructors acronyms="alns,bpc"
+cleanup-route-constructors acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING ROUTE CONSTRUCTORS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_route_constructors.py "{{ acronyms }}"
+
+# Clean up other Policy configs and implementations (mandatory selection, route improver, acceptance criteria, selection and construction)
+# Usage: just cleanup-policy-others acronyms="bmc,regular"
+cleanup-policy-others acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING OTHER POLICIES"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_policy_others.py "{{ acronyms }}"
+
+# Clean up Environment (Envs) configs and implementations
+# Usage: just cleanup-envs acronyms="vrpp"
+cleanup-envs acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING ENVIRONMENTS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_envs.py "{{ acronyms }}"
+
+# Clean up Model configs and implementations
+# Usage: just cleanup-models acronyms="am"
+cleanup-models acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING MODELS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_models.py "{{ acronyms }}"
+
+# Clean up RL Training Algorithm configs and implementations
+# Usage: just cleanup-rl-algorithms acronyms="ppo"
+cleanup-rl-algorithms acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING RL ALGORITHMS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_rl_algorithms.py "{{ acronyms }}"
+
+# Clean up Route Constructor policies used for training models with Imitation Learning
+# Usage: just cleanup-imitation-policies acronyms="aco"
+cleanup-imitation-policies acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING IMITATION POLICIES"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/packages/remove_imitation_policies.py "{{ acronyms }}"
+
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"

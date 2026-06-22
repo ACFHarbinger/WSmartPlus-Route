@@ -477,6 +477,7 @@ assets/output/**/*.jsonl
 !assets/fill_history/
 
 # Logic to include
-!logic/src/utils/validation/target
-!logic/src/pipeline/simulations/checkpoints
-!logic/src/utils/target
+!logic/src/utils/target/
+!logic/src/utils/packages/**.py
+!logic/src/utils/validation/target/
+!logic/src/pipeline/simulations/checkpoints/
