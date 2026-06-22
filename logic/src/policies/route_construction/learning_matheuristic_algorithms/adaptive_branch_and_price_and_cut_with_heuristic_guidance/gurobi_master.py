@@ -309,7 +309,7 @@ class GurobiMasterProblem:
             Objective value as a float (``float("inf")`` if not solved successfully).
         """
         try:
-            return float(self.model.ObjVal)
+            return self.model.ObjVal
         except (AttributeError, gp.GurobiError):
             return float("inf")
 
@@ -320,7 +320,7 @@ class GurobiMasterProblem:
             MIP gap as a float (0.0 = optimal).
         """
         try:
-            return float(self.model.MIPGap)
+            return self.model.MIPGap
         except (AttributeError, gp.GurobiError):
             return float("inf")
 

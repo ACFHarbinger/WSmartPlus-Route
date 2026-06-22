@@ -430,6 +430,9 @@ model_weights/
 /**/target
 /**/wsmart_route.egg-info
 
+# Documentation generation
+logic/docs/source/references/
+
 # WSmart Route simulator temporary files
 temp/
 cache/

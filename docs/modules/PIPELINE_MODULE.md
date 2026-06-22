@@ -965,7 +965,7 @@ simulations/
 ├── checkpoints/
 │   └── checkpoint.py           # Save/resume simulation
 └── wsmart_bin_analysis/        # Real-world data analysis
-    └── Deliverables/           # Production-ready tools
+    └── export/                 # Production-ready tools
 ```
 
 ### Simulator Orchestration

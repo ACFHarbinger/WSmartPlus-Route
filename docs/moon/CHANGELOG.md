@@ -7,7 +7,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
 [![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
-[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![Coverage](https://img.shields.io/badge/coverage-50%25-green.svg)](https://coverage.readthedocs.io/)
 [![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
 
 All notable changes to this project will be documented in this file.
@@ -273,7 +273,7 @@ The **Old RL Pipeline** (`logic/src/pipeline/reinforcement_learning/`) features 
 - Moved DEHB implementation from `logic/src/pipeline/reinforcement_learning/hyperparameter_optimization/` to `logic/src/dehb/`.
 - Updated all import statements in `hpo.py` and test files to reflect DEHB move.
 - Updated `.gitignore` to exclude `.pytest_cache`, `.mypy_cache`, and `.ruff_cache`.
-- Increased code coverage threshold to 60% with enforcement in `pyproject.toml`.
+- Increased code coverage threshold to 50% with enforcement in `pyproject.toml`.
 - Improved `BaseProblem` and `VRPP` logic for full `TensorDict` compatibility.
 - Fixed inconsistent return types in `multi_vehicle.py` solver wrappers.
 

@@ -36,4 +36,4 @@ COPY . .
 EXPOSE 8501
 
 # Run the application
-ENTRYPOINT ["uv", "run", "streamlit", "run", "gui/src/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ENTRYPOINT ["uv", "run", "streamlit", "run", "logic/dashboard_entry.py", "--server.port=8501", "--server.address=0.0.0.0"]

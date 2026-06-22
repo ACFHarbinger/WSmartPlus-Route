@@ -164,7 +164,7 @@ exclude = [
     "logic/benchmark",
     "notebooks",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python",
 ]
 
 [tool.uv.sources]
@@ -222,8 +222,8 @@ exclude = [
     "gui/docs/",
     "logic/benchmark/",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/Deliverables/Tutorials/",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/export/notebooks/",
     "assets/",
 ]
 
@@ -339,7 +339,7 @@ wsr_temp_dir = "./temp_test"
 [tool.coverage.run]
 source = ["logic/src", "gui/src"]
 omit = [
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/python experiental",
+    "logic/src/pipeline/simulations/wsmart_bin_analysis/python",
     "*/benchmark/*",
     "*/test/*",
     "*/test_*",

@@ -129,7 +129,7 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 1. **Neural + Classical**: Compare attention-based models with exact solvers and metaheuristics
 2. **Production-Ready**: CLI and GUI interfaces for researchers and practitioners
 3. **Extensible**: Add new models, policies, and problems with minimal boilerplate
-4. **Well-Tested**: Comprehensive test suite with 60%+ code coverage
+4. **Well-Tested**: Comprehensive test suite with 50%+ code coverage
 5. **Well-Documented**: Extensive documentation for all skill levels
 
 ---
