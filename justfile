@@ -203,7 +203,7 @@ gui:
 
 # Launch the dashboard
 dashboard:
-    uv run streamlit run dashboard.py
+    uv run streamlit run logic/dashboard_entry.py
 
 # --- Codebase Validation ---
 
@@ -367,22 +367,24 @@ docker-dashboard:
 
 # Clean caches and artifacts
 clean:
-    find . -type d -name "__pycache__" -exec rm -rf {} +
     find . -type d -name ".pytest_cache" -exec rm -rf {} +
+    find . -type d -name "__pycache__" -exec rm -rf {} +
     find . -type d -name ".ruff_cache" -exec rm -rf {} +
     find . -type d -name ".mypy_cache" -exec rm -rf {} +
     find . -type d -name ".hypothesis" -exec rm -rf {} +
+    find . -type f -name "coverage.json" -exec rm {} +
     find . -type f -name "coverage.xml" -exec rm {} +
     find . -type f -name ".coverage" -exec rm {} +
-    rm -rf build/
-    rm -rf dist/
-    rm -rf temp/
-    rm -rf wandb/
-    rm -rf mlruns/
-    rm -rf outputs/
-    rm -rf checkpoints/
     rm -rf *.egg-info
     rm -rf logs/
+    rm -rf dist/
+    rm -rf temp/
+    rm -rf build/
+    rm -rf wandb/
+    rm -rf mlruns/
+    rm -rf scratch/
+    rm -rf outputs/
+    rm -rf checkpoints/
     rm -rf model_weights/
     # Remove all empty directories recursively
     find . -type d -empty -delete

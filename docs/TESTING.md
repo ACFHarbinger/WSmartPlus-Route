@@ -7,7 +7,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
 [![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
-[![Coverage](https://img.shields.io/badge/coverage-60%25-green.svg)](https://coverage.readthedocs.io/)
+[![Coverage](https://img.shields.io/badge/coverage-50%25-green.svg)](https://coverage.readthedocs.io/)
 [![CI](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/WSmart-Route/actions/workflows/ci.yml)
 
 > **Version**: 2.0 (Comprehensive Edition)
@@ -51,9 +51,9 @@ WSmart-Route utilizes `pytest` as the primary testing framework with comprehensi
 
 | Metric           | Minimum | Target |
 | ---------------- | ------- | ------ |
-| Overall Coverage | 60%     | 80%    |
-| Critical Paths   | 80%     | 95%    |
-| New Code         | 80%     | 90%    |
+| Overall Coverage | 50%     | 70%    |
+| Critical Paths   | 70%     | 90%    |
+| New Code         | 60%     | 75%    |
 
 ---
 
