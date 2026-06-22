@@ -218,6 +218,44 @@ cleanup-imitation-policies acronyms="":
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python logic/src/utils/packages/remove_imitation_policies.py "{{ acronyms }}"
 
+# Clean up HPO config files and implementations
+cleanup-hpo:
+    uv run python logic/src/utils/packages/remove_hpo.py
+
+# Clean up Meta-RL config files and implementations
+cleanup-meta:
+    uv run python logic/src/utils/packages/remove_meta.py
+
+# Clean up Evaluation config files and implementations
+cleanup-eval:
+    uv run python logic/src/utils/packages/remove_eval.py
+
+# Clean up Callback implementations, keeping only those specified in keep_list
+# Usage: just cleanup-callbacks keep_list="logging,checkpoint"
+cleanup-callbacks keep_list="":
+    uv run python logic/src/utils/packages/remove_callbacks.py "{{ keep_list }}"
+
+# Clean up Tracking components and databases from the codebase
+cleanup-tracking:
+    uv run python logic/src/utils/packages/remove_tracking.py
+
+# Clean up UI components from the codebase
+cleanup-ui:
+    uv run python logic/src/utils/packages/remove_ui.py
+
+# Clean up Enums and the GlobalRegistry from the codebase
+cleanup-enums:
+    uv run python logic/src/utils/packages/remove_enums.py
+
+# Clean up Datasets, Distributions, and Network Strategies from the codebase
+# Usage: just cleanup-data datasets="baseline" distributions="uniform" network="euclidean"
+cleanup-data datasets="" distributions="" network="":
+    uv run python logic/src/utils/packages/remove_data.py --datasets "{{ datasets }}" --distributions "{{ distributions }}" --network "{{ network }}"
+
+# Clean up Security and File System Utilities from the codebase
+cleanup-security:
+    uv run python logic/src/utils/packages/remove_security.py
+
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
