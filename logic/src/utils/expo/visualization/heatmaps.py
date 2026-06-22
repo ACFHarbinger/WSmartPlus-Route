@@ -10,7 +10,7 @@ Attributes:
     plot_logit_lens: Projects intermediate layers to detection logits.
 
 Example:
-    >>> from logic.src.tracking.logging.visualization import heatmaps
+    >>> from logic.src.utils.expo.visualization import heatmaps
     >>> heatmaps.plot_attention_heatmaps(model, "output/heatmaps/")
 """
 

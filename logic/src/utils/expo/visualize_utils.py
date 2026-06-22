@@ -17,7 +17,7 @@ Example:
     >>> visualize_utils.plot_attention_heatmaps(policy, "heatmaps/")
 """
 
-from logic.src.tracking.logging.visualization import (
+from logic.src.utils.expo.visualization import (
     MyModelWrapper,
     get_batch,
     imitation_loss_fn,

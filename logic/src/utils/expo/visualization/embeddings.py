@@ -11,7 +11,7 @@ Attributes:
     project_node_embeddings: Projects 3D node features for TensorBoard analysis.
 
 Example:
-    >>> from logic.src.tracking.logging.visualization import embeddings
+    >>> from logic.src.utils.expo.visualization import embeddings
     >>> embeddings.log_weight_distributions(model, epoch, "logs/tb/")
 """
 
@@ -40,7 +40,7 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
 
     files = [f for f in os.listdir(checkpoint_dir) if f.endswith(".pt")]
     # Sort files by epoch number
-    files.sort(key=lambda x: (int(x.split("-")[1].split(".")[0]) if "-" in x and "epoch" in x else 0))
+    files.sort(key=lambda x: int(x.split("-")[1].split(".")[0]) if "-" in x and "epoch" in x else 0)
 
     weights = []
     epochs = []

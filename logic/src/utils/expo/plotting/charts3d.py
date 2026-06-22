@@ -10,7 +10,7 @@ Attributes:
 Example:
     >>> import numpy as np
     >>> import matplotlib.pyplot as plt
-    >>> from logic.src.tracking.logging.plotting.charts3d import plot_3dchart
+    >>> from logic.src.utils.expo.plotting.charts3d import plot_3dchart
     >>> data = np.random.rand(2, 10, 3)  # 2 policies, 10 points, (x, y, z)
     >>> plot_3dchart(
     ...     "metrics_3d.png",

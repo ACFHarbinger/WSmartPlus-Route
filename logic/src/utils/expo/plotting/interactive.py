@@ -7,7 +7,7 @@ Attributes:
     visualize_interactive_plot: Launcher for interactive Plotly charts.
 
 Example:
-    >>> from logic.src.tracking.logging.plotting.interactive import visualize_interactive_plot
+    >>> from logic.src.utils.expo.plotting.interactive import visualize_interactive_plot
     >>> visualize_interactive_plot(plot_target=data, title="Interactive Map")
 """
 

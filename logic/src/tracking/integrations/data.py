@@ -240,7 +240,7 @@ class RuntimeDataTracker:
         stats: Dict[str, Dict[str, Any]] = {}
         for name, tensor in fields.items():
             t = tensor.float().detach()
-            shape: List[int] = [int(d) for d in t.shape]
+            shape: List[int] = [d for d in t.shape]
             try:
                 entry: Dict[str, Any] = {
                     "shape": shape,
@@ -274,9 +274,11 @@ class RuntimeDataTracker:
                 params[f"data/{tag}/{field}/{stat_name}"] = val
 
         if params:
+            assert self._run is not None
             self._run.log_params(params)
 
         if step is not None:
+            assert self._run is not None
             for field, entry in stats.items():
                 if "mean" in entry:
                     with contextlib.suppress(Exception):
@@ -299,5 +301,5 @@ class RuntimeDataTracker:
             with contextlib.suppress(Exception):
                 return tuple(data.data.shape)
         with contextlib.suppress(Exception):
-            return (int(len(data)),)
+            return (len(data),)
         return None

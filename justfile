@@ -153,6 +153,7 @@ clean-results results_dir=results_dir distribution=distribution constructor=cons
         $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)
 
 # Clean up Route Constructor configs and implementations
+
 # Usage: just cleanup-route-constructors acronyms="alns,bpc"
 cleanup-route-constructors acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -163,6 +164,7 @@ cleanup-route-constructors acronyms="":
     uv run python logic/src/utils/packages/remove_route_constructors.py "{{ acronyms }}"
 
 # Clean up other Policy configs and implementations (mandatory selection, route improver, acceptance criteria, selection and construction)
+
 # Usage: just cleanup-policy-others acronyms="bmc,regular"
 cleanup-policy-others acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -173,6 +175,7 @@ cleanup-policy-others acronyms="":
     uv run python logic/src/utils/packages/remove_policy_others.py "{{ acronyms }}"
 
 # Clean up Environment (Envs) configs and implementations
+
 # Usage: just cleanup-envs acronyms="vrpp"
 cleanup-envs acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -183,6 +186,7 @@ cleanup-envs acronyms="":
     uv run python logic/src/utils/packages/remove_envs.py "{{ acronyms }}"
 
 # Clean up Model configs and implementations
+
 # Usage: just cleanup-models acronyms="am"
 cleanup-models acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -193,6 +197,7 @@ cleanup-models acronyms="":
     uv run python logic/src/utils/packages/remove_models.py "{{ acronyms }}"
 
 # Clean up RL Training Algorithm configs and implementations
+
 # Usage: just cleanup-rl-algorithms acronyms="ppo"
 cleanup-rl-algorithms acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -203,6 +208,7 @@ cleanup-rl-algorithms acronyms="":
     uv run python logic/src/utils/packages/remove_rl_algorithms.py "{{ acronyms }}"
 
 # Clean up Route Constructor policies used for training models with Imitation Learning
+
 # Usage: just cleanup-imitation-policies acronyms="aco"
 cleanup-imitation-policies acronyms="":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -266,6 +272,24 @@ dashboard:
     uv run streamlit run logic/dashboard_entry.py
 
 # --- Codebase Validation ---
+
+# Pyrefly type checking for logic
+pyrefly-logic:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING PYREFLY TYPE CHECKING"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Target:" "Logic"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run pyrefly check logic/src --output-format min-text
+
+# Pyrefly type checking for GUI
+pyrefly-gui:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING PYREFLY TYPE CHECKING"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Target:" "GUI"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run pyrefly check gui/src --output-format min-text
 
 # Count lines of code and comments (use --group-by-dir N to aggregate by directory depth)
 count-loc group_by="0":

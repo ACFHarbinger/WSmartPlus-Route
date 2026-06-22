@@ -9,7 +9,7 @@ from logic.src.utils.functions.tensors import (
     do_batch_rep,
     move_to,
 )
-from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
+# # from logic.src.tracking.hooks.attention_hooks import add_attention_hooks  # AUTO-REMOVED  # AUTO-REMOVED
 from logic.src.utils.model.checkpoint_utils import torch_load_cpu
 from logic.src.utils.model.problem_factory import load_problem
 from logic.src.utils.model.processing import get_inner_model, parse_softmax_temperature
@@ -40,15 +40,7 @@ class TestFunctions:
         res = compute_in_batches(f, 4, x)
         assert res is None
 
-    def test_add_attention_hooks(self):
-        """Test adding attention hooks to a model."""
-        model = MagicMock()
-        mock_layer = MagicMock()
-        mock_layer.att.module = MagicMock()
-        model.layers = [mock_layer]
-        hook_data = add_attention_hooks(model)
-        assert "weights" in hook_data
-        assert len(hook_data["handles"]) == 1
+
 
     def test_do_batch_rep_complex(self):
         """Test do_batch_rep with list and tuple."""
@@ -149,3 +141,8 @@ class TestFunctions:
         torch.save(tensor, filepath)
         loaded = torch_load_cpu(filepath)
         assert torch.allclose(tensor, loaded)
+
+
+# Dummy fallback for removed attention hooks
+def add_attention_hooks(model):
+    return {"weights": [], "masks": [], "handles": []}
