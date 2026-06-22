@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_resolve_configs <src.pipeline.features.train.model_factory.builder._resolve_configs>`
+  - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._resolve_configs
+    :summary:
+    ```
 * - {py:obj}`create_model <src.pipeline.features.train.model_factory.builder.create_model>`
   - ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder.create_model
     :summary:
@@ -63,6 +67,13 @@
 ```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder.logger
 ```
 
+````
+
+````{py:function} _resolve_configs(cfg: typing.Any)
+:canonical: src.pipeline.features.train.model_factory.builder._resolve_configs
+
+```{autodoc2-docstring} src.pipeline.features.train.model_factory.builder._resolve_configs
+```
 ````
 
 ````{py:function} create_model(cfg: logic.src.configs.Config) -> pytorch_lightning.LightningModule

@@ -60,7 +60,7 @@
 ```
 ````
 
-````{py:function} remap_legacy_keys(common_kwargs: typing.Dict[str, typing.Any], cfg: logic.src.configs.Config) -> None
+````{py:function} remap_legacy_keys(common_kwargs: typing.Dict[str, typing.Any], cfg: typing.Any) -> None
 :canonical: src.pipeline.features.base.remap_legacy_keys
 
 ```{autodoc2-docstring} src.pipeline.features.base.remap_legacy_keys

@@ -107,7 +107,7 @@ Bases: {py:obj}`logic.src.policies.helpers.solvers_and_matheuristics.master_prob
 
 ````
 
-````{py:method} add_route(route: logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route) -> None
+````{py:method} add_route(route: logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route) -> bool
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route

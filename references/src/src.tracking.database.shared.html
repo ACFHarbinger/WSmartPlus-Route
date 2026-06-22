@@ -474,6 +474,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared.base_uri"><code class="docutils literal notranslate"><span class="pre">base_uri</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared.DB_PATH"><code class="docutils literal notranslate"><span class="pre">DB_PATH</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared._conn"><code class="docutils literal notranslate"><span class="pre">_conn()</span></code></a></li>
 </ul>
@@ -521,7 +522,10 @@ DB_PATH: Default relative path to the WSTracker SQLite database.</p>
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.shared.DB_PATH" title="src.tracking.database.shared.DB_PATH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DB_PATH</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.shared.base_uri" title="src.tracking.database.shared.base_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base_uri</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.shared.DB_PATH" title="src.tracking.database.shared.DB_PATH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DB_PATH</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -531,9 +535,15 @@ DB_PATH: Default relative path to the WSTracker SQLite database.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.database.shared.base_uri">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.database.shared.</span></span><span class="sig-name descname"><span class="pre">base_uri</span></span><a class="headerlink" href="#src.tracking.database.shared.base_uri" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="src.tracking.database.shared.DB_PATH">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.shared.</span></span><span class="sig-name descname"><span class="pre">DB_PATH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.tracking.database.shared.DB_PATH" title="Link to this definition">#</a></dt>
-<dd><p>‘assets/tracking/tracking.db’</p>
+<dd><p>‘str(…)’</p>
 </dd></dl>
 
 <dl class="py function">
@@ -600,6 +610,7 @@ sqlite3.Connection: A configured connection with dictionary-like row access.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared.base_uri"><code class="docutils literal notranslate"><span class="pre">base_uri</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared.DB_PATH"><code class="docutils literal notranslate"><span class="pre">DB_PATH</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.database.shared._conn"><code class="docutils literal notranslate"><span class="pre">_conn()</span></code></a></li>
 </ul>

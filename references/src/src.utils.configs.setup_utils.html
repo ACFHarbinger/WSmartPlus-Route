@@ -475,6 +475,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.deep_sanitize"><code class="docutils literal notranslate"><span class="pre">deep_sanitize()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.get_pol_name"><code class="docutils literal notranslate"><span class="pre">get_pol_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.get_graph_config"><code class="docutils literal notranslate"><span class="pre">get_graph_config()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -512,6 +513,9 @@ get_pol_name(pol_obj)</p>
 <td><p>Extract a concise policy name from a structured or string config.
 Handles Hydra/OmegaConf objects, dicts, and strings.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.configs.setup_utils.get_graph_config" title="src.utils.configs.setup_utils.get_graph_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_graph_config</span></code></a></p></td>
+<td><p>Extract and validate GraphConfig from a simulation configuration object.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -537,6 +541,13 @@ Handles Hydra/OmegaConf objects, dicts, and strings.</p>
 pol_obj: The policy object to extract the name from.</p>
 <p>Returns:
 The policy name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.configs.setup_utils.get_graph_config">
+<span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_utils.</span></span><span class="sig-name descname"><span class="pre">get_graph_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.configs.setup_utils.get_graph_config" title="Link to this definition">#</a></dt>
+<dd><p>Extract and validate GraphConfig from a simulation configuration object.</p>
+<p>Supports both GraphConfig dataclass instances and dict/DictConfig containers.</p>
 </dd></dl>
 
 </section>
@@ -593,6 +604,7 @@ The policy name.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.deep_sanitize"><code class="docutils literal notranslate"><span class="pre">deep_sanitize()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.get_pol_name"><code class="docutils literal notranslate"><span class="pre">get_pol_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.configs.setup_utils.get_graph_config"><code class="docutils literal notranslate"><span class="pre">get_graph_config()</span></code></a></li>
 </ul>
 </li>
 </ul>

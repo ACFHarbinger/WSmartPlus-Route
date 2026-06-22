@@ -732,13 +732,15 @@ RuntimeError: If the MIP solve fails.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route">
-<span class="sig-name descname"><span class="pre">add_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route" title="Link to this definition">#</a></dt>
 <dd><p>Add a route (column) to the master problem.</p>
 <p>If the Gurobi model has already been built, the column is inserted
 into the live model immediately. Otherwise it is buffered in
 self.routes and will be included when build_model() is called.</p>
 <p>Args:
 route: Route to insert as a new λ variable.</p>
+<p>Returns:
+bool: True if the route was successfully added, False if it was a duplicate.</p>
 </dd></dl>
 
 <dl class="py method">

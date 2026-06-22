@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.utils.configs.setup_utils.get_pol_name
     :summary:
     ```
+* - {py:obj}`get_graph_config <src.utils.configs.setup_utils.get_graph_config>`
+  - ```{autodoc2-docstring} src.utils.configs.setup_utils.get_graph_config
+    :summary:
+    ```
 ````
 
 ### API
@@ -38,5 +42,12 @@
 :canonical: src.utils.configs.setup_utils.get_pol_name
 
 ```{autodoc2-docstring} src.utils.configs.setup_utils.get_pol_name
+```
+````
+
+````{py:function} get_graph_config(sim: typing.Any) -> typing.Any
+:canonical: src.utils.configs.setup_utils.get_graph_config
+
+```{autodoc2-docstring} src.utils.configs.setup_utils.get_graph_config
 ```
 ````

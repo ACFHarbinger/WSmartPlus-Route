@@ -43,6 +43,14 @@
 
 ````
 
+````{py:method} get_dist(u: int, v: int) -> float
+:canonical: src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.get_dist
+
+```{autodoc2-docstring} src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.get_dist
+```
+
+````
+
 ````{py:method} to_closed_tour() -> typing.List[int]
 :canonical: src.policies.helpers.operators.search_heuristics._tour_adapter.TourAdapter.to_closed_tour
 

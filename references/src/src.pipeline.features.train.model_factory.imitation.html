@@ -473,6 +473,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._resolve_configs"><code class="docutils literal notranslate"><span class="pre">_resolve_configs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_imitation"><code class="docutils literal notranslate"><span class="pre">_create_imitation()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">_create_adaptive_imitation()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_critic_helper"><code class="docutils literal notranslate"><span class="pre">_create_critic_helper()</span></code></a></li>
@@ -508,13 +509,16 @@ _create_critic_helper: Create critic network from actor policy</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_imitation" title="src.pipeline.features.train.model_factory.imitation._create_imitation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_imitation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._resolve_configs" title="src.pipeline.features.train.model_factory.imitation._resolve_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_configs</span></code></a></p></td>
+<td><p>Helper to dynamically resolve env, policy, and model based on the active task.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_imitation" title="src.pipeline.features.train.model_factory.imitation._create_imitation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_imitation</span></code></a></p></td>
 <td><p>Create imitation learning module.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation" title="src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_adaptive_imitation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation" title="src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_adaptive_imitation</span></code></a></p></td>
 <td><p>Create adaptive imitation learning module.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_critic_helper" title="src.pipeline.features.train.model_factory.imitation._create_critic_helper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_critic_helper</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.imitation._create_critic_helper" title="src.pipeline.features.train.model_factory.imitation._create_critic_helper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_critic_helper</span></code></a></p></td>
 <td><p>Create critic network from actor policy.</p></td>
 </tr>
 </tbody>
@@ -523,6 +527,12 @@ _create_critic_helper: Create critic network from actor policy</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.imitation._resolve_configs">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.imitation.</span></span><span class="sig-name descname"><span class="pre">_resolve_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.features.train.model_factory.imitation._resolve_configs" title="Link to this definition">#</a></dt>
+<dd><p>Helper to dynamically resolve env, policy, and model based on the active task.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.imitation._create_imitation">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.imitation.</span></span><span class="sig-name descname"><span class="pre">_create_imitation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pytorch_lightning.LightningModule</span></span></span><a class="headerlink" href="#src.pipeline.features.train.model_factory.imitation._create_imitation" title="Link to this definition">#</a></dt>
@@ -612,6 +622,7 @@ Initialized critic network.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._resolve_configs"><code class="docutils literal notranslate"><span class="pre">_resolve_configs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_imitation"><code class="docutils literal notranslate"><span class="pre">_create_imitation()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">_create_adaptive_imitation()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.imitation._create_critic_helper"><code class="docutils literal notranslate"><span class="pre">_create_critic_helper()</span></code></a></li>

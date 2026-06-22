@@ -228,6 +228,17 @@ src.configs.tracking
 
 ````
 
+````{py:attribute} start
+:canonical: src.configs.Config.start
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.Config.start
+```
+
+````
+
 ````{py:attribute} p
 :canonical: src.configs.Config.p
 :type: typing.Dict[str, typing.Any]

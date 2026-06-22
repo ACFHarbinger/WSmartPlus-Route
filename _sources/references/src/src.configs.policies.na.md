@@ -53,7 +53,7 @@
 
 ````{py:attribute} mandatory_selection
 :canonical: src.configs.policies.na.NeuralAgentConfig.mandatory_selection
-:type: typing.Optional[typing.List[logic.src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
+:type: typing.Optional[typing.Any]
 :value: >
    None
 
@@ -64,7 +64,7 @@
 
 ````{py:attribute} route_improvement
 :canonical: src.configs.policies.na.NeuralAgentConfig.route_improvement
-:type: typing.Optional[typing.List[logic.src.configs.policies.other.route_improvement.RouteImprovingConfig]]
+:type: typing.Optional[typing.Any]
 :value: >
    None
 

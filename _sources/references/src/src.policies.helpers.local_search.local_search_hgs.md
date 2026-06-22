@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HGSLocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams)
+`````{py:class} HGSLocalSearch(dist_matrix: numpy.ndarray, waste: typing.Dict[int, float], capacity: float, R: float, C: float, mandatory_nodes: typing.Optional[typing.List[int]], params: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams)
 :canonical: src.policies.helpers.local_search.local_search_hgs.HGSLocalSearch
 
 Bases: {py:obj}`src.policies.helpers.local_search.local_search_base.LocalSearch`

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LocalSearch(dist_matrix: typing.Optional[numpy.ndarray], waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None, penalty_capacity: float = 1.0, acceptance_criterion: typing.Optional[logic.src.interfaces.IAcceptanceCriterion] = None, node_coords: typing.Optional[numpy.ndarray] = None)
+`````{py:class} LocalSearch(dist_matrix: typing.Optional[numpy.ndarray], waste: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Any, mandatory_nodes: typing.Optional[typing.List[int]] = None, neighbors: typing.Optional[typing.Dict[int, typing.List[int]]] = None, penalty_capacity: float = 1.0, acceptance_criterion: typing.Optional[logic.src.interfaces.IAcceptanceCriterion] = None, node_coords: typing.Optional[numpy.ndarray] = None)
 :canonical: src.policies.helpers.local_search.local_search_base.LocalSearch
 
 Bases: {py:obj}`abc.ABC`

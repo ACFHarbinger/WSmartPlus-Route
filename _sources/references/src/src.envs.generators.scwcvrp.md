@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SCWCVRPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_fill: float = 0.0, max_fill: float = 1.0, fill_distribution: str = 'uniform', capacity: float = 100.0, cost_km: float = 1.0, revenue_kg: float = 0.1625, depot_type: str = 'center', mean: float = 0.0, variance: float = 0.0, device: typing.Union[str, torch.device] = 'cpu', **kwargs: typing.Any)
+`````{py:class} SCWCVRPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_fill: float = 0.0, max_fill: float = 1.0, fill_distribution: str = 'uniform', capacity: float = 100.0, cost_km: float = 1.0, revenue_kg: float = 0.1625, depot_type: str = 'center', mean: float = 0.0, variance: float = 0.0, noise_mean: typing.Optional[float] = None, noise_variance: typing.Optional[float] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs: typing.Any)
 :canonical: src.envs.generators.scwcvrp.SCWCVRPGenerator
 
 Bases: {py:obj}`src.envs.generators.wcvrp.WCVRPGenerator`
@@ -36,6 +36,24 @@ Bases: {py:obj}`src.envs.generators.wcvrp.WCVRPGenerator`
 
 ```{autodoc2-docstring} src.envs.generators.scwcvrp.SCWCVRPGenerator.__init__
 ```
+
+````{py:property} mean
+:canonical: src.envs.generators.scwcvrp.SCWCVRPGenerator.mean
+:type: float
+
+```{autodoc2-docstring} src.envs.generators.scwcvrp.SCWCVRPGenerator.mean
+```
+
+````
+
+````{py:property} variance
+:canonical: src.envs.generators.scwcvrp.SCWCVRPGenerator.variance
+:type: float
+
+```{autodoc2-docstring} src.envs.generators.scwcvrp.SCWCVRPGenerator.variance
+```
+
+````
 
 ````{py:method} _generate(batch_size: tuple[int, ...]) -> tensordict.TensorDict
 :canonical: src.envs.generators.scwcvrp.SCWCVRPGenerator._generate

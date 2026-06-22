@@ -475,6 +475,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._resolve_configs"><code class="docutils literal notranslate"><span class="pre">_resolve_configs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder.create_model"><code class="docutils literal notranslate"><span class="pre">create_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_environment"><code class="docutils literal notranslate"><span class="pre">_init_environment()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_policy"><code class="docutils literal notranslate"><span class="pre">_init_policy()</span></code></a></li>
@@ -509,22 +510,25 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder.create_model" title="src.pipeline.features.train.model_factory.builder.create_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_model</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._resolve_configs" title="src.pipeline.features.train.model_factory.builder._resolve_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_configs</span></code></a></p></td>
+<td><p>Helper to dynamically resolve env, policy, and model based on the active task.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder.create_model" title="src.pipeline.features.train.model_factory.builder.create_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_model</span></code></a></p></td>
 <td><p>Helper to create the RL model based on config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_environment" title="src.pipeline.features.train.model_factory.builder._init_environment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_environment</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_environment" title="src.pipeline.features.train.model_factory.builder._init_environment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_environment</span></code></a></p></td>
 <td><p>Initialize the environment based on config.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_policy" title="src.pipeline.features.train.model_factory.builder._init_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_policy</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_policy" title="src.pipeline.features.train.model_factory.builder._init_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_policy</span></code></a></p></td>
 <td><p>Initialize the policy based on config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy" title="src.pipeline.features.train.model_factory.builder._init_hybrid_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_hybrid_policy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._init_hybrid_policy" title="src.pipeline.features.train.model_factory.builder._init_hybrid_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_hybrid_policy</span></code></a></p></td>
 <td><p>Special handling for hybrid construction-refinement policy.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._config_to_dict" title="src.pipeline.features.train.model_factory.builder._config_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_config_to_dict</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._config_to_dict" title="src.pipeline.features.train.model_factory.builder._config_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_config_to_dict</span></code></a></p></td>
 <td><p>Convert config object (dataclass or DictConfig) to dict.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs" title="src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prepare_rl_kwargs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs" title="src.pipeline.features.train.model_factory.builder._prepare_rl_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prepare_rl_kwargs</span></code></a></p></td>
 <td><p>Prepare keyword arguments for RL module initialization.</p></td>
 </tr>
 </tbody>
@@ -548,6 +552,12 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.builder.logger">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.builder.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.pipeline.features.train.model_factory.builder.logger" title="Link to this definition">#</a></dt>
 <dd><p>‘get_pylogger(…)’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.train.model_factory.builder._resolve_configs">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.train.model_factory.builder.</span></span><span class="sig-name descname"><span class="pre">_resolve_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.features.train.model_factory.builder._resolve_configs" title="Link to this definition">#</a></dt>
+<dd><p>Helper to dynamically resolve env, policy, and model based on the active task.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -667,6 +677,7 @@ Keyword arguments for RL module initialization.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._resolve_configs"><code class="docutils literal notranslate"><span class="pre">_resolve_configs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder.create_model"><code class="docutils literal notranslate"><span class="pre">create_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_environment"><code class="docutils literal notranslate"><span class="pre">_init_environment()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.train.model_factory.builder._init_policy"><code class="docutils literal notranslate"><span class="pre">_init_policy()</span></code></a></li>

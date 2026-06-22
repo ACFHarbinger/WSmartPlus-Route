@@ -43,6 +43,14 @@
 
 ````
 
+````{py:method} get_dist(u: int, v: int) -> float
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter.get_dist
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter.get_dist
+```
+
+````
+
 ````{py:method} to_closed_tour() -> typing.List[int]
 :canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter.to_closed_tour
 

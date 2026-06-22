@@ -19,7 +19,6 @@ src.pipeline.simulations.repository
 src.pipeline.simulations.checkpoints
 src.pipeline.simulations.actions
 src.pipeline.simulations.states
-src.pipeline.simulations.wsmart_bin_analysis
 ```
 
 ## Submodules
