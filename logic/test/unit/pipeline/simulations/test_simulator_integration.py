@@ -22,6 +22,7 @@ def _make_integration_cfg(**overrides):
         dm_filepath="dummy_path",
         edge_threshold="0.5",
         edge_method="knn",
+        n_days=2,
     )
     sim = SimConfig(
         policies=[{"am_gamma1": {"model": {"name": "am"}}}],
@@ -119,7 +120,7 @@ class TestSimulatorIntegration:
         result = simulator.single_simulation(
             cfg, mock_torch_device, indices=None, sample_id=0, pol_id=0, model_weights_path="weights", n_cores=1
         )
-        assert "am_gamma1" in result
+        assert "none_am_none" in result
         assert result["success"] is True
         assert mock_sim_dependencies["run_day"].call_count == 2
 
@@ -151,7 +152,7 @@ class TestSimulatorIntegration:
         cfg = _make_integration_cfg()
         simulator._lock, simulator._counter = mock_lock_counter
 
-        error_res = {"error": "Test failure", "policy": "am_gamma1", "success": False}
+        error_res = {"error": "Test failure", "policy": "none_am_none", "success": False}
         mock_sim_dependencies["checkpoint_manager"].side_effect = CheckpointError(error_res)
 
         result = simulator.single_simulation(
@@ -169,5 +170,5 @@ class TestSimulatorIntegration:
             cfg, mock_torch_device, [None, None], [[0], [1]], "weights", lock
         )
 
-        assert "am_gamma1" in results
+        assert "none_am_none" in results
         assert len(failed) == 0

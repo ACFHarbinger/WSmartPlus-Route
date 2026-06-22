@@ -7,7 +7,7 @@
 # python main.py task=hpo_sim hpo_sim.num_workers=4
 
 defaults:
-  - /envs: vrpp
+  - /envs@hpo_sim.env: vrpp
   - _self_
   - override /tracking: hpo
 

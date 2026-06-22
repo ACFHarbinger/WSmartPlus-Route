@@ -135,7 +135,7 @@ def load_model_instance(model_path, device, size=100, problem_name="wcvrp"):
         predictor_layers=2,
     ).to(device)
 
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
     # Handle cases where checkpoint might be nested
     state_dict = checkpoint.get("model", checkpoint)
     model.load_state_dict(state_dict)

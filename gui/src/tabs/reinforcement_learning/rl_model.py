@@ -209,7 +209,10 @@ class RLModelTab(BaseReinforcementLearningTab):
 
                 if cli_argument:
                     # 3. Assign the command-line value to the parameter key
-                    params[key] = cli_argument  # type: ignore[assignment]
+                    if key == "model":
+                        params["train.policy.model.name"] = cli_argument
+                    else:
+                        params[key] = cli_argument  # type: ignore[assignment]
 
         # This part handles boolean flags that might not be QCheckBoxes.
         params["mask_inner"] = self.widgets["mask_inner"].isChecked()

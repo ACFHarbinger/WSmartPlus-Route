@@ -239,6 +239,8 @@ def resolve_policy_display_name(policy: Any, sim_cfg: Any) -> Tuple[str, str]:
 
     if isinstance(sanitized_policy, str):
         config_paths = deep_sanitize(sim_cfg.config_path) if hasattr(sim_cfg, "config_path") else {}
+        if config_paths is None:
+            config_paths = {}
         if pol_id_orig in config_paths:
             loaded_cfg = deep_sanitize(config_paths[pol_id_orig])
             if isinstance(loaded_cfg, dict):
@@ -607,6 +609,7 @@ def get_daily_results(
         Dictionary containing formatted daily metrics and the route.
     """
     dlog: Dict[str, Any] = {key: 0 for key in DAY_METRICS}
+    dlog["day"] = day
     dlog["overflows"] = new_overflows
     dlog["kg_lost"] = sum_lost
     dlog["time"] = time

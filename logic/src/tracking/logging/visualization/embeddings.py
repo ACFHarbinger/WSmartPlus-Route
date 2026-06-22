@@ -48,7 +48,7 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
     for f in files:
         path = os.path.join(checkpoint_dir, f)
         try:
-            checkpoint = torch.load(path, map_location="cpu")
+            checkpoint = torch.load(path, map_location="cpu", weights_only=False)
             state_dict = checkpoint.get("model", checkpoint)
 
             # More robust weight extraction: try encoder, then embed, then any model param

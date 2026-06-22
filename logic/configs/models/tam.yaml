@@ -1,4 +1,3 @@
-# @package _global_
 # =============================================================================
 # Temporal Attention Model (TAM) Configuration
 # =============================================================================
@@ -14,31 +13,30 @@
 # Not Needed For: VRPP, CVRPP (static single-day problems)
 # =============================================================================
 
-model:
-  name: "tam" # Model identifier
-  embed_dim: 128 # Node embedding dimension (same as AM)
-  hidden_dim: 512 # Feed-forward hidden size (same as AM)
-  n_encode_layers: 3 # Encoder depth (same as AM)
-  n_decode_layers: 2 # Decoder depth (same as AM)
-  n_heads: 8 # Attention heads (same as AM)
-  encoder_type: "gat" # Graph encoder type (same as AM)
+name: "tam" # Model identifier
+embed_dim: 128 # Node embedding dimension (same as AM)
+hidden_dim: 512 # Feed-forward hidden size (same as AM)
+n_encode_layers: 3 # Encoder depth (same as AM)
+n_decode_layers: 2 # Decoder depth (same as AM)
+n_heads: 8 # Attention heads (same as AM)
+encoder_type: "gat" # Graph encoder type (same as AM)
 
-  # =============================================================================
-  # Temporal-Specific Parameters
-  # =============================================================================
-  temporal_horizon:
-    7 # Number of days to forecast ahead for bin fill prediction.
-    # Range: 3-14 days. Higher = better long-term planning but slower.
-    # Typical values:
-    #   - 7: Standard (1 week ahead)
-    #   - 14: Long-term planning (2 weeks)
-    #   - 3: Short-term reactive
+# =============================================================================
+# Temporal-Specific Parameters
+# =============================================================================
+temporal_horizon:
+  7 # Number of days to forecast ahead for bin fill prediction.
+  # Range: 3-14 days. Higher = better long-term planning but slower.
+  # Typical values:
+  #   - 7: Standard (1 week ahead)
+  #   - 14: Long-term planning (2 weeks)
+  #   - 3: Short-term reactive
 
-  # =============================================================================
-  # Standard Parameters (Inherited from AM)
-  # =============================================================================
-  normalization: "instance" # Normalization type (same as AM)
-  activation: "gelu" # Activation function (same as AM)
-  dropout: 0.1 # Dropout rate (same as AM)
-  aggregation_node: "sum" # Node-level aggregation (same as AM)
-  aggregation_graph: "avg" # Graph-level pooling (same as AM)
+# =============================================================================
+# Standard Parameters (Inherited from AM)
+# =============================================================================
+normalization: "instance" # Normalization type (same as AM)
+activation: "gelu" # Activation function (same as AM)
+dropout: 0.1 # Dropout rate (same as AM)
+aggregation_node: "sum" # Node-level aggregation (same as AM)
+aggregation_graph: "avg" # Graph-level pooling (same as AM)

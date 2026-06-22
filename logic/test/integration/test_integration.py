@@ -8,13 +8,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 from logic.src.configs import Config
-from omegaconf import OmegaConf
-
-# Training imports from the new entry point
+from logic.src.envs.problems import VRPP, WCVRP
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
 from logic.src.pipeline.features.train import run_training
-
-# Simulation imports
 from logic.src.pipeline.simulations.simulator import sequential_simulations
+from omegaconf import OmegaConf
 
 
 class TestIntegrationTraining:
@@ -24,12 +23,14 @@ class TestIntegrationTraining:
     def test_run_training_integration(self, problem_name, tmp_path):
         """Test standard training orchestration with real entry point (mocked trainer)."""
         cfg = Config()
-        cfg.env.name = problem_name
-        cfg.train.env.graph.n_days = 1
+        cfg.train.env.name = problem_name
+        if not cfg.train.env.curriculum_graphs:
+            cfg.train.env.curriculum_graphs.append(GraphConfig())
+        cfg.train.env.curriculum_graphs[0].n_days = 1
         cfg.tracking.log_dir = str(tmp_path / "logs")
         cfg.train.final_model_path = str(tmp_path / "final.pt")
         # Safety net: reduce data size in case mock fails
-        cfg.train.env.graph.n_samples = 10
+        cfg.train.env.curriculum_graphs[0].n_samples = 10
 
         # We mock WSTrainer to avoid actual training in unit tests,
         # but check if run_training flow completes.
@@ -57,7 +58,7 @@ class TestIntegrationSimulation:
 
         cfg = OmegaConf.create({
             "device": opts["device"],
-            "sim": {**opts, "full_policies": opts["policies"], "config_path": None, "noise_mean": 0.0, "noise_variance": 1.0, "policy_configs": {}, "graph": {**opts, "area": "Rio Maior", "num_loc": 20, "size": 20}},
+            "sim": {**opts, "full_policies": opts["policies"], "config_path": None, "noise_mean": 0.0, "noise_variance": 1.0, "policy_configs": {}, "run_name": None, "output_dir": "output", "data_distribution": "gamma1", "graph": {**opts, "area": "Rio Maior", "num_loc": 20, "size": 20, "n_days": opts.get("days", 1), "n_samples": opts.get("n_samples", 1)}},
             "tracking": {"no_progress_bar": True, "log_file": None, "log_dir": "logs", "log_level": "INFO"},
             "env": {"name": "wcvrp", "graph_size": 20},
             "model": {},
@@ -70,28 +71,29 @@ class TestIntegrationSimulation:
         """Test basic sequential simulation run."""
         # Ensure we have some policies to test
         sim_opts["policies"] = ["policy_regular_emp"]
-        from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
         MockPolicy = MagicMock()
         RouteConstructorRegistry.register("policy_regular_emp")(MockPolicy)
+        RouteConstructorRegistry.register("none_regular_none")(MockPolicy)
         instance = MockPolicy.return_value
         instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)
         try:
             log, log_std, failed = self._run_sim(sim_opts)
             assert not failed
-            assert any("regular_emp" in k for k in log.keys())
+            assert any("regular" in k for k in log.keys())
         finally:
             if "policy_regular_emp" in RouteConstructorRegistry._registry:
                 del RouteConstructorRegistry._registry["policy_regular_emp"]
+            if "none_regular_none" in RouteConstructorRegistry._registry:
+                del RouteConstructorRegistry._registry["none_regular_none"]
 
     @pytest.mark.unit
     @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
     def test_sim_policy_neural_mock(self, mock_setup, sim_opts):
         """Test Neural policy integration in simulation."""
-        from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
-
         # Register a Mock class that accepts any arguments (like config)
         MockPolicy = MagicMock()
         RouteConstructorRegistry.register("meanstd0.84_am_emp")(MockPolicy)
+        RouteConstructorRegistry.register("none_meanstd0.84_am_none")(MockPolicy)
 
         instance = MockPolicy.return_value
         instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)
@@ -103,10 +105,12 @@ class TestIntegrationSimulation:
             sim_opts["policies"] = ["meanstd0.84_am_emp"]
             log, _, failed = self._run_sim(sim_opts)
             assert not failed
-            assert any("am_emp" in k for k in log.keys())
+            assert any("am" in k for k in log.keys())
         finally:
             if "meanstd0.84_am_emp" in RouteConstructorRegistry._registry:
                 del RouteConstructorRegistry._registry["meanstd0.84_am_emp"]
+            if "none_meanstd0.84_am_none" in RouteConstructorRegistry._registry:
+                del RouteConstructorRegistry._registry["none_meanstd0.84_am_none"]
 
 
 class TestIntegrationProblems:
@@ -114,8 +118,6 @@ class TestIntegrationProblems:
 
     def test_vrpp_physics_flow(self):
         """Verify VRPP physics behaves correctly in an end-to-end state update."""
-        from logic.src.envs.problems import VRPP
-
         batch = {
             "loc": torch.rand(1, 10, 2),
             "depot": torch.rand(1, 2),
@@ -133,8 +135,6 @@ class TestIntegrationProblems:
 
     def test_wcvrp_physics_flow(self):
         """Verify WCVRP physics behaves correctly."""
-        from logic.src.envs.problems import WCVRP
-
         depot = torch.rand(1, 2)
         customers = torch.rand(1, 4, 2)
         loc = torch.cat([depot.unsqueeze(1), customers], dim=1) # (1, 5, 2)

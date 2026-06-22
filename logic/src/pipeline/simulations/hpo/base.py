@@ -114,10 +114,15 @@ class PolicyHPOBase(ABC):
                         raise AttributeError(f"Cannot find config path: {key}") from err
 
             last_part = parts[-1]
-            if hasattr(target, last_part):
-                setattr(target, last_part, value)
-            else:
-                target[last_part] = value  # type: ignore[index]
+            try:
+                if hasattr(target, last_part):
+                    setattr(target, last_part, value)
+                elif isinstance(target, list) and last_part.isdigit():
+                    target[int(last_part)] = value
+                else:
+                    target[last_part] = value  # type: ignore[index]
+            except (KeyError, IndexError, TypeError, AttributeError) as err:
+                raise AttributeError(f"Cannot find config path: {key}") from err
 
     @staticmethod
     def validate_search_space(space: Dict[str, Any], policy_name: str) -> None:

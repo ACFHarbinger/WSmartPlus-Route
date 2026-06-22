@@ -10,9 +10,45 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock
+
+# Global setup for mock streamlit to handle cache decorators correctly before any imports
+def mock_cache_decorator(*args, **kwargs):
+    def decorator(func):
+        return func
+    return decorator
+
+if "streamlit" not in sys.modules:
+    mock_st = MagicMock()
+    mock_st.cache_data = mock_cache_decorator
+    mock_st.session_state = {}
+    sys.modules["streamlit"] = mock_st
+    sys.modules["streamlit.components"] = MagicMock()
+    sys.modules["streamlit.components.v1"] = MagicMock()
+else:
+    mock_st = sys.modules["streamlit"]
+    if isinstance(mock_st, MagicMock):
+        mock_st.cache_data = mock_cache_decorator
+        if not hasattr(mock_st, "session_state") or isinstance(mock_st.session_state, MagicMock):
+            mock_st.session_state = {}
 
 import pytest
 import torch
+import sqlite3
+
+# Global interception of sqlite3.connect to prevent updates to the production tracking.db
+_original_sqlite3_connect = sqlite3.connect
+
+def _test_safe_sqlite3_connect(database, *args, **kwargs):
+    if isinstance(database, (str, Path)):
+        db_str = str(database).replace("\\", "/")
+        if "tracking.db" in db_str and "test_tracking" not in db_str:
+            test_dir = Path.cwd() / "test_tracking"
+            test_dir.mkdir(exist_ok=True, parents=True)
+            database = str(test_dir / "tracking.db")
+    return _original_sqlite3_connect(database, *args, **kwargs)
+
+sqlite3.connect = _test_safe_sqlite3_connect
 
 # The project root is THREE levels up from conftest.py:
 # conftest.py -> test -> logic -> WSmart-Route (Project Root)
@@ -218,11 +254,9 @@ def session_cleanup():
         Path("test_tracking"),
         Path("test_mlruns"),
         Path("test_logs"),
-        project_root / "assets" / "model_weights" / "vrpp10_riomaior_plastic" / "gamma1" / "amgat0",
+        project_root / "assets" / "model_weights",
         project_root / "assets" / "keys" / "testkey.pkl",
         project_root / "assets" / "keys" / "testkey.salt",
-        project_root / "assets" / "output" / "2_days",
-        project_root / "assets" / "output" / "5_days",
         project_root / "assets" / "test_out",
     ]
 
@@ -239,3 +273,16 @@ def session_cleanup():
                     os.remove(artifact_path)
             except Exception:
                 pass
+
+    # Clean up generated folders in assets/output/ (excluding the tracked 30days folder)
+    output_dir = project_root / "assets" / "output"
+    if output_dir.exists():
+        for item in output_dir.iterdir():
+            if item.name != "30days":
+                try:
+                    if item.is_dir():
+                        shutil.rmtree(item)
+                    else:
+                        os.remove(item)
+                except Exception:
+                    pass

@@ -12,7 +12,7 @@
 # =============================================================================
 
 defaults:
-  - /envs: cwcvrp
+  - /envs@meta_rl.env: cwcvrp
   - _self_
   - override /tracking: meta_train
 

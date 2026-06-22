@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import pytest
 import torch
+from logic.src.configs.envs.graph import GraphConfig
 from logic.src.envs.problems import VRPP
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
@@ -158,12 +159,15 @@ def test_eval_dataset_integration(temp_eval_setup):
 
     # Options dict mimicking what argparse would produce
     opts = Config()
-    opts.env.name = "vrpp"
+    opts.task = "eval"
+    opts.eval.env.name = "vrpp"
     opts.eval.policy.model.load_path = setup["model_path"]
     opts.eval.val_size = 5
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.curriculum_graphs[0].num_loc = setup["graph_size"]
+    if not opts.eval.env.curriculum_graphs:
+        opts.eval.env.curriculum_graphs.append(GraphConfig())
+    opts.eval.env.curriculum_graphs[0].num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "greedy"
     opts.eval.results_dir = setup["dir"]
     opts.eval.overwrite = True
@@ -194,12 +198,15 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     setup = temp_eval_setup
 
     opts = Config()
-    opts.env.name = "vrpp"
+    opts.task = "eval"
+    opts.eval.env.name = "vrpp"
     opts.eval.policy.model.load_path = setup["model_path"]
     opts.eval.val_size = 2
     opts.eval.offset = 0
     opts.eval.data_distribution = "uniform"
-    opts.env.curriculum_graphs[0].num_loc = setup["graph_size"]
+    if not opts.eval.env.curriculum_graphs:
+        opts.eval.env.curriculum_graphs.append(GraphConfig())
+    opts.eval.env.curriculum_graphs[0].num_loc = setup["graph_size"]
     opts.eval.decoding.strategy = "sample"
     opts.eval.decoding.beam_width = 2
     opts.eval.results_dir = setup["dir"]

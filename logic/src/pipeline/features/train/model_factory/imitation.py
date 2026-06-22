@@ -23,6 +23,16 @@ from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 from logic.src.pipeline.rl.core.imitation import ImitationLearning
 
 
+def _resolve_configs(cfg: Any):
+    """Helper to dynamically resolve env, policy, and model based on the active task."""
+    task = getattr(cfg, "task", "train")
+    task_cfg = getattr(cfg, task, cfg)
+    env_cfg = getattr(task_cfg, "env", getattr(cfg, "env", None))
+    policy_cfg = getattr(task_cfg, "policy", task_cfg)
+    model_cfg = getattr(policy_cfg, "model", getattr(cfg, "model", None))
+    return env_cfg, policy_cfg, model_cfg
+
+
 def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.LightningModule:
     """Create imitation learning module.
 
@@ -35,6 +45,8 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
     Returns:
         Configured ImitationLearning module.
     """
+    env_cfg, _, _ = _resolve_configs(cfg)
+
     # Validate policy config is provided
     if cfg.rl.imitation.policy_config is None:
         raise ValueError("imitation.policy_config must be provided for ImitationLearning")
@@ -47,7 +59,7 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
     return ImitationLearning(
         # ImitationLearning specific
         policy_config=policy_config,
-        env_name=cfg.env.name,
+        env_name=getattr(env_cfg, "name", "vrpp") if env_cfg else "vrpp",
         loss_fn=cfg.rl.imitation.loss_fn,
         seed=cfg.seed,
         device=cfg.device,
@@ -82,6 +94,8 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
     Returns:
         Configured AdaptiveImitation module.
     """
+    env_cfg, _, _ = _resolve_configs(cfg)
+
     # Validate policy config is provided
     if cfg.rl.adaptive_imitation.policy_config is None:
         raise ValueError("adaptive_imitation.policy_config must be provided for AdaptiveImitation")
@@ -94,7 +108,7 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
     return AdaptiveImitation(
         # AdaptiveImitation specific
         policy_config=policy_config,
-        env_name=cfg.env.name,
+        env_name=getattr(env_cfg, "name", "vrpp") if env_cfg else "vrpp",
         il_weight=cfg.rl.adaptive_imitation.il_weight,
         il_decay=cfg.rl.adaptive_imitation.il_decay,
         patience=cfg.rl.adaptive_imitation.patience,
@@ -136,11 +150,14 @@ def _create_critic_helper(policy, cfg: Config) -> Any:
     Returns:
         Initialized critic network.
     """
+    env_cfg, _, model_cfg = _resolve_configs(cfg)
+    enc = getattr(model_cfg, "encoder", None) if model_cfg else None
+
     return create_critic_from_actor(
         policy,
-        env_name=cfg.env.name,
-        embed_dim=cfg.model.encoder.embed_dim,
-        hidden_dim=cfg.model.encoder.hidden_dim,
-        n_layers=cfg.model.encoder.n_layers,
-        n_heads=cfg.model.encoder.n_heads,
+        env_name=getattr(env_cfg, "name", "vrpp") if env_cfg else "vrpp",
+        embed_dim=getattr(enc, "embed_dim", 128) if enc else 128,
+        hidden_dim=getattr(enc, "hidden_dim", 512) if enc else 512,
+        n_layers=getattr(enc, "n_layers", 3) if enc else 3,
+        n_heads=getattr(enc, "n_heads", 8) if enc else 8,
     )
