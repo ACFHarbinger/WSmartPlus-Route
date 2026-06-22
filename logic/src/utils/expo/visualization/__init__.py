@@ -24,26 +24,25 @@ import os
 from typing import Any, List, Union
 
 import torch
-from omegaconf import DictConfig
-
 from logic.src.configs import Config
-from logic.src.tracking.logging.visualization.embeddings import (
-    log_weight_distributions,
-    plot_weight_trajectories,
-    project_node_embeddings,
-)
-from logic.src.tracking.logging.visualization.heatmaps import plot_attention_heatmaps, plot_logit_lens
-from logic.src.tracking.logging.visualization.helpers import MyModelWrapper, get_batch, load_model_instance
-from logic.src.tracking.logging.visualization.landscape import (
-    imitation_loss_fn,
-    plot_loss_landscape,
-    rl_loss_fn,
-)
+from omegaconf import DictConfig
 
 from . import embeddings as embeddings
 from . import heatmaps as heatmaps
 from . import helpers as helpers
 from . import landscape as landscape
+from .embeddings import (
+    log_weight_distributions,
+    plot_weight_trajectories,
+    project_node_embeddings,
+)
+from .heatmaps import plot_attention_heatmaps, plot_logit_lens
+from .helpers import MyModelWrapper, get_batch, load_model_instance
+from .landscape import (
+    imitation_loss_fn,
+    plot_loss_landscape,
+    rl_loss_fn,
+)
 
 __all__ = [
     "visualize_epoch",
@@ -65,7 +64,7 @@ __all__ = [
 ]
 
 
-def visualize_epoch(
+def visualize_epoch(  # noqa: C901
     model: Any, problem: Any, cfg: Union[Config, DictConfig], epoch: int, tb_logger: Any = None
 ) -> None:
     """Main entry point for visualization during training.
@@ -80,19 +79,62 @@ def visualize_epoch(
         epoch: Current training epoch number.
         tb_logger: Optional TensorBoard SummaryWriter. Defaults to None.
     """
-    rl = cfg.rl
-    model_cfg = cfg.model
-
-    viz_modes: List[str] = getattr(rl, "viz_modes", [])
+    rl = getattr(cfg, "rl", None) if not isinstance(cfg, dict) else cfg.get("rl")
+    viz_modes: List[str] = getattr(rl, "viz_modes", []) if rl is not None else []
     if not viz_modes:
         return
 
-    log_dir: str = getattr(rl, "log_dir", "logs")
-    run_name: str = getattr(rl, "run_name", "run")
-    save_dir: str = getattr(rl, "save_dir", "outputs")
-    _train_graph = getattr(getattr(getattr(cfg, "train", None), "env", None), "graph", None)
-    graph_size: int = int(getattr(_train_graph, "num_loc", 50) or 50)
-    temporal_horizon: int = model_cfg.temporal_horizon
+    # Extract temporal horizon and other configs robustly
+    model_cfg = None
+    if not isinstance(cfg, dict):
+        train = getattr(cfg, "train", None)
+        if train is not None:
+            policy = getattr(train, "policy", None)
+            if policy is not None:
+                model_cfg = getattr(policy, "model", None)
+        if model_cfg is None:
+            model_cfg = getattr(cfg, "model", None)
+    else:
+        train = cfg.get("train", {})
+        if isinstance(train, dict):
+            model_cfg = train.get("policy", {}).get("model", cfg.get("model"))
+        else:
+            model_cfg = getattr(getattr(train, "policy", None), "model", cfg.get("model"))
+
+    temporal_horizon = 0
+    if model_cfg is not None:
+        temporal_horizon = (
+            getattr(model_cfg, "temporal_horizon", 0)
+            if not isinstance(model_cfg, dict)
+            else model_cfg.get("temporal_horizon", 0)
+        )
+
+    log_dir: str = getattr(rl, "log_dir", "logs") if not isinstance(rl, dict) else rl.get("log_dir", "logs")
+    run_name: str = getattr(rl, "run_name", "run") if not isinstance(rl, dict) else rl.get("run_name", "run")
+    save_dir: str = getattr(rl, "save_dir", "outputs") if not isinstance(rl, dict) else rl.get("save_dir", "outputs")
+
+    # Resolve graph size
+    graph_size = 50
+    if not isinstance(cfg, dict):
+        _train = getattr(cfg, "train", None)
+        if _train is not None:
+            _env = getattr(_train, "env", None)
+            if _env is not None:
+                _graph = getattr(_env, "graph", None)
+                if _graph is not None:
+                    graph_size = int(getattr(_graph, "num_loc", 50) or 50)
+            # fallback to train.graph
+            _graph2 = getattr(_train, "graph", None)
+            if _graph2 is not None:
+                graph_size = int(getattr(_graph2, "num_loc", 50) or 50)
+    else:
+        train_dict = cfg.get("train", {})
+        if isinstance(train_dict, dict):
+            env_dict = train_dict.get("env", {})
+            if isinstance(env_dict, dict):
+                graph_dict = env_dict.get("graph", train_dict.get("graph", {}))
+                if isinstance(graph_dict, dict):
+                    graph_size = int(graph_dict.get("num_loc", 50) or 50)
 
     viz_output_dir = os.path.join(log_dir, "visualizations")
     os.makedirs(viz_output_dir, exist_ok=True)
@@ -237,7 +279,7 @@ def main():
     elif args.mode in {"loss", "both"}:
         # Standalone mode creates a minimal Config
         standalone_cfg = Config()
-        standalone_cfg.model.temporal_horizon = 0
+        standalone_cfg.train.policy.model.temporal_horizon = 0
         plot_loss_landscape(
             model,
             standalone_cfg,

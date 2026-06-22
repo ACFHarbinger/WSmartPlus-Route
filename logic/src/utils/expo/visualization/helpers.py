@@ -10,16 +10,15 @@ Attributes:
     load_model_instance: Reconstructs a model from a saved state.
 
 Example:
-    >>> from logic.src.tracking.logging.visualization import helpers
+    >>> from logic.src.utils.expo.visualization import helpers
     >>> batch = helpers.get_batch(device, size=50)
 """
 
 import torch
-from torch import nn
-
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.utils.model.problem_factory import load_problem
+from torch import nn
 
 
 def get_batch(device, size=50, batch_size=32, temporal_horizon=0):

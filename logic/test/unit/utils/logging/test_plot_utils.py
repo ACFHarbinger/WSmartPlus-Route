@@ -5,7 +5,7 @@ import torch
 import pytest
 import matplotlib.pyplot as plt
 from unittest.mock import patch, MagicMock
-from logic.src.tracking.logging.plot_utils import (
+from logic.src.utils.expo.plot_utils import (
     draw_graph,
     plot_linechart,
     plot_tsp,
@@ -14,15 +14,15 @@ from logic.src.tracking.logging.plot_utils import (
     plot_attention_maps_wrapper
 )
 
-@patch("logic.src.tracking.logging.plotting.routes.plt")
-@patch("logic.src.tracking.logging.plotting.routes.nx")
+@patch("logic.src.utils.expo.plotting.routes.plt")
+@patch("logic.src.utils.expo.plotting.routes.nx")
 def test_draw_graph(mock_nx, mock_plt):
     """Test graph drawing calls."""
     dm = np.zeros((3, 3))
     draw_graph(dm)
     assert mock_nx.from_numpy_array.called
 
-@patch("logic.src.tracking.logging.plotting.charts.plt")
+@patch("logic.src.utils.expo.plotting.charts.plt")
 def test_plot_linechart_simple(mock_plt):
     """Test generic line chart plotting."""
     log = np.random.randn(5, 6) # 2D log (single policy)
@@ -31,7 +31,7 @@ def test_plot_linechart_simple(mock_plt):
     assert plot_func.called
     assert mock_plt.savefig.called
 
-@patch("logic.src.tracking.logging.plotting.charts.plt")
+@patch("logic.src.utils.expo.plotting.charts.plt")
 def test_plot_linechart_pareto(mock_plt):
     """Test Pareto front calculation and plotting."""
     # Data: (x, y) where x is col 0, y is col 5
@@ -60,9 +60,9 @@ def test_discrete_cmap():
     cmap = discrete_cmap(5, "viridis")
     assert cmap.N == 5
 
-@patch("logic.src.tracking.logging.plotting.routes.plt.cm.get_cmap", side_effect=plt.cm.get_cmap)
-@patch("logic.src.tracking.logging.plotting.routes.plt.figure")
-@patch("logic.src.tracking.logging.plotting.routes.PatchCollection")
+@patch("logic.src.utils.expo.plotting.routes.plt.cm.get_cmap", side_effect=plt.cm.get_cmap)
+@patch("logic.src.utils.expo.plotting.routes.plt.figure")
+@patch("logic.src.utils.expo.plotting.routes.PatchCollection")
 def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     """Test VRP route visualization."""
     data = {
@@ -77,8 +77,8 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     assert ax.quiver.called
     assert mock_pc.called
 
-@patch("logic.src.tracking.logging.plotting.attention.plt")
-@patch("logic.src.tracking.logging.plotting.attention.sns")
+@patch("logic.src.utils.expo.plotting.attention.plt")
+@patch("logic.src.utils.expo.plotting.attention.sns")
 def test_plot_attention_maps(mock_sns, mock_plt, tmp_path):
     """Test attention map wrapper."""
     # attention_weights shape: [layers, heads, batch, size, size]
