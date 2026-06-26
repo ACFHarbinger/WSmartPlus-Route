@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.data.distributions
+src.data.web
 src.data.datasets
 src.data.network
 src.data.generators
