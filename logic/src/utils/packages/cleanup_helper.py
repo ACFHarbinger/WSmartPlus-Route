@@ -319,12 +319,15 @@ def _find_impls_to_delete(
                     to_delete.add(p)
 
 
+_SKIP_DIR_NAMES: set = {".venv", "venv", ".git", "__pycache__", "node_modules", ".mypy_cache", ".pytest_cache"}
+
+
 def _is_effectively_empty(path: Path) -> bool:
     """Return True if directory only contains __init__.py and/or effectively-empty subdirs."""
     if not path.is_dir():
         return False
     for child in path.iterdir():
-        if child.name in ("__pycache__",):
+        if child.name in _SKIP_DIR_NAMES:
             continue
         if child.is_file():
             if child.name != "__init__.py":
@@ -346,9 +349,12 @@ def remove_empty_dirs(root: Path, scan_paths: list) -> None:
         for scan_path in scan_paths:
             if not scan_path.exists() or not scan_path.is_dir():
                 continue
-            # Collect all subdirs, deepest first
+            # Collect all subdirs, deepest first — skip non-project dirs
             subdirs = sorted(
-                [p for p in scan_path.rglob("*") if p.is_dir()],
+                [
+                    p for p in scan_path.rglob("*")
+                    if p.is_dir() and not any(part in _SKIP_DIR_NAMES for part in p.parts)
+                ],
                 key=lambda p: len(p.parts),
                 reverse=True,
             )
