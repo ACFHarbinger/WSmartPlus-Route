@@ -29,27 +29,15 @@ def setup_home_directory(notebook_name):
         return home_dir
 
 
-def import_google_colab_libs():
+def setup_google_colab(notebook_name):
     try:
-        from google.colab import drive, files   # pyright: ignore[reportMissingImports]
-        return drive, files
+        from google.colab import drive, files   # pyrefly: ignore [missing-import]
+
+        # Update the global variable
+        globals()["IN_COLAB"][notebook_name] = True
+        print("Completed setup of Google Colab libraries!")
+        return True, drive, files
     except ImportError:
         print("Google Colab libraries not found. Are you running in a Colab notebook?")
-        return None, None
-
-
-def setup_google_colab(notebook_name):
-    in_colab = False if notebook_name not in IN_COLAB else IN_COLAB[notebook_name]
-    if not in_colab:
-        try:
-            drive, files = import_google_colab_libs()
-
-            # Update the global variable
-            globals()["IN_COLAB"][notebook_name] = True
-            print("Completed setup of Google Colab libraries!")
-            return True, drive, files
-        except Exception:
-            globals()["IN_COLAB"][notebook_name] = False
-            return False, None, None
-    else:
-        return True, *import_google_colab_libs()
+        globals()["IN_COLAB"][notebook_name] = False
+        return False, None, None
