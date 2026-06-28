@@ -368,7 +368,7 @@ algo-export constructors="" selectors="" improvement="" acceptance="" joint="" m
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Skip Build:"      "{{ skip_build }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:"         "{{ dry_run }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
-    uv run python ci/packager.py \
+    .venv/bin/python ci/packager.py \
         $([ -n "{{ constructors }}" ]       && echo "--constructors '{{ constructors }}'"             || true) \
         $([ -n "{{ selectors }}" ]          && echo "--selectors '{{ selectors }}'"                   || true) \
         $([ -n "{{ improvement }}" ]        && echo "--improvement '{{ improvement }}'"               || true) \
