@@ -13,14 +13,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ## Anchor Index
 
-| Section | Topic |
-|---------|-------|
-| [§A — Analytics & Interpretability](#a--analytics--interpretability) | Telemetry, attention maps, policy dashboards, HPO analytics |
-| [§B — Architecture](#b--architecture) | Test coverage, plugin system, logging, type safety, interfaces |
-| [§C — Documentation](#c--documentation) | API docs, architecture diagrams, Jupyter notebooks, CI docs pipeline |
-| [§D — GUI / UX](#d--gui--ux) | Route visualization, training progress, themes, session persistence |
-| [§E — New Features](#e--new-features) | Multi-problem benchmarking, REST API, LLM integration, export formats |
-| [§F — Performance](#f--performance) | Batched inference, GPU memory, test suite speed, simulation throughput |
+| Section                                                              | Topic                                                                  |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [§A — Analytics & Interpretability](#a--analytics--interpretability) | Telemetry, attention maps, policy dashboards, HPO analytics            |
+| [§B — Architecture](#b--architecture)                                | Test coverage, plugin system, logging, type safety, interfaces         |
+| [§C — Documentation](#c--documentation)                              | API docs, architecture diagrams, Jupyter notebooks, CI docs pipeline   |
+| [§D — GUI / UX](#d--gui--ux)                                         | Route visualization, training progress, themes, session persistence    |
+| [§E — New Features](#e--new-features)                                | Multi-problem benchmarking, REST API, LLM integration, export formats  |
+| [§F — Performance](#f--performance)                                  | Batched inference, GPU memory, test suite speed, simulation throughput |
 
 ---
 
@@ -131,17 +131,17 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — Analytics & Interpretability
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
-| §A.3 Option A (PolicyVizMixin → GUI) | Very Low | High | P0 |
-| §A.5 Option A (Optuna plots) | Very Low | Medium | P0 |
-| §A.4 Option A (TrainingHealthCallback) | Low | High | P1 |
-| §A.2 Option C (WandB attention heatmaps) | Low | High | P1 |
-| §A.6 Option A (FailureAnalyzer) | Medium | High | P1 |
-| §A.1 Option A (Matplotlib route viz) | Medium | High | P2 |
-| §A.1 Option E (QGraphicsView canvas) | High | High | P2 |
-| §A.4 Option B (PyHessian) | High | Medium | P3 `[Research]` |
-| §A.6 Option B (counterfactual engine) | Very High | High | P3 `[Research]` |
+| Item                                     | Effort    | Impact | Priority        |
+| ---------------------------------------- | --------- | ------ | --------------- |
+| §A.3 Option A (PolicyVizMixin → GUI)     | Very Low  | High   | P0              |
+| §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0              |
+| §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1              |
+| §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
+| §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1              |
+| §A.1 Option A (Matplotlib route viz)     | Medium    | High   | P2              |
+| §A.1 Option E (QGraphicsView canvas)     | High      | High   | P2              |
+| §A.4 Option B (PyHessian)                | High      | Medium | P3 `[Research]` |
+| §A.6 Option B (counterfactual engine)    | Very High | High   | P3 `[Research]` |
 
 ---
 
@@ -223,7 +223,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - **A** — Enable `--strict` mode for a well-contained subpackage first (`logic/src/utils/`); fix all errors there; expand gradually. Remove `continue-on-error` for that subpackage. `[Quick Win]`
 - **B** — Add `py.typed` marker and ship inline type stubs for the `logic` package.
-- **C** — Use `pyright` (faster, better PyTorch generics support) alongside MyPy; make pyright the blocking check and MyPy the advisory check.
+- **C** — Use `pyright` (faster, better PyTorch generics support) alongside MyPy; make pyright the blocking check and MyPy the advisory check (both pyright and pylance can be used as the engine for type checking using Pyrefly).
 - **D** — Use `beartype` for runtime type enforcement at public API boundaries (interfaces module). Catches issues that static analysis misses.
 
 **Recommendation**: **Option A** for gradual strictness adoption; **Option D** as a runtime safety net for the interfaces layer where type errors cause silent mathematical bugs.
@@ -282,18 +282,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — Architecture
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
-| §B.7 Option A (pydeps CI) | Very Low | Medium | P0 `[Quick Win]` |
-| §B.1 Option C (per-module coverage floors) | Very Low | High | P0 `[Quick Win]` |
-| §B.4 Option A (remove print() calls) | Low | Medium | P0 `[Quick Win]` |
-| §B.8 Option A (BaseWorker) | Low | Medium | P1 `[Quick Win]` |
-| §B.5 Option A (strict MyPy, utils subpackage) | Medium | High | P1 |
-| §B.2 Option C (benchmark visibility) | Low | High | P1 |
-| §B.3 Option D (Hydra policy plugin) | Medium | High | P2 |
-| §B.6 Option B (Hydra env plugin) | Medium | High | P2 |
-| §B.1 Option D (Hypothesis property tests) | High | High | P2 `[Research]` |
-| §B.2 Option A (benchmark regression gate) | Medium | High | P2 |
+| Item                                          | Effort   | Impact | Priority         |
+| --------------------------------------------- | -------- | ------ | ---------------- |
+| §B.7 Option A (pydeps CI)                     | Very Low | Medium | P0 `[Quick Win]` |
+| §B.1 Option C (per-module coverage floors)    | Very Low | High   | P0 `[Quick Win]` |
+| §B.4 Option A (remove print() calls)          | Low      | Medium | P0 `[Quick Win]` |
+| §B.8 Option A (BaseWorker)                    | Low      | Medium | P1 `[Quick Win]` |
+| §B.5 Option A (strict MyPy, utils subpackage) | Medium   | High   | P1               |
+| §B.2 Option C (benchmark visibility)          | Low      | High   | P1               |
+| §B.3 Option D (Hydra policy plugin)           | Medium   | High   | P2               |
+| §B.6 Option B (Hydra env plugin)              | Medium   | High   | P2               |
+| §B.1 Option D (Hypothesis property tests)     | High     | High   | P2 `[Research]`  |
+| §B.2 Option A (benchmark regression gate)     | Medium   | High   | P2               |
 
 ---
 
@@ -413,16 +413,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — Documentation
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
-| §C.3 Option A (CHANGELOG.md) | Very Low | Medium | P0 `[Quick Win]` |
-| §C.2 Option C (ruff D rules) | Very Low | Medium | P0 `[Quick Win]` |
-| §C.4 Option A (Mermaid diagrams) | Low | High | P0 `[Quick Win]` |
-| §C.6 Option A (TROUBLESHOOTING refresh) | Low | Medium | P1 |
-| §C.1 Option A (MkDocs Material) | Medium | High | P1 |
-| §C.7 Option A (docs CI job) | Low | High | P2 (after §C.1) |
-| §C.5 Option A (Jupyter notebooks) | High | High | P2 |
-| §C.5 Option B (nbval CI) | Low | High | P2 (after §C.5) |
+| Item                                    | Effort   | Impact | Priority         |
+| --------------------------------------- | -------- | ------ | ---------------- |
+| §C.3 Option A (CHANGELOG.md)            | Very Low | Medium | P0 `[Quick Win]` |
+| §C.2 Option C (ruff D rules)            | Very Low | Medium | P0 `[Quick Win]` |
+| §C.4 Option A (Mermaid diagrams)        | Low      | High   | P0 `[Quick Win]` |
+| §C.6 Option A (TROUBLESHOOTING refresh) | Low      | Medium | P1               |
+| §C.1 Option A (MkDocs Material)         | Medium   | High   | P1               |
+| §C.7 Option A (docs CI job)             | Low      | High   | P2 (after §C.1)  |
+| §C.5 Option A (Jupyter notebooks)       | High     | High   | P2               |
+| §C.5 Option B (nbval CI)                | Low      | High   | P2 (after §C.5)  |
 
 ---
 
@@ -557,18 +557,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — GUI / UX
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
+| Item                                     | Effort   | Impact | Priority         |
+| ---------------------------------------- | -------- | ------ | ---------------- |
 | §D.3 Option A+B (theme toggle + persist) | Very Low | Medium | P0 `[Quick Win]` |
-| §D.7 Option A (keyboard shortcuts) | Very Low | Medium | P0 `[Quick Win]` |
-| §D.4 Option B (QSettings persistence) | Low | High | P0 |
-| §D.8 Option A+B (toast + tray) | Low | High | P1 |
-| §D.5 Option A+C (cancel + progress) | Medium | High | P1 |
-| §D.2 Option A (live training charts) | Medium | High | P1 |
-| §D.1 Option A (Matplotlib route panel) | Medium | High | P2 |
-| §D.6 Option A (override table) | Medium | High | P2 |
-| §D.1 Option B (QGraphicsView canvas) | High | High | P2 |
-| §D.6 Option B (typed config form) | High | High | P3 |
+| §D.7 Option A (keyboard shortcuts)       | Very Low | Medium | P0 `[Quick Win]` |
+| §D.4 Option B (QSettings persistence)    | Low      | High   | P0               |
+| §D.8 Option A+B (toast + tray)           | Low      | High   | P1               |
+| §D.5 Option A+C (cancel + progress)      | Medium   | High   | P1               |
+| §D.2 Option A (live training charts)     | Medium   | High   | P1               |
+| §D.1 Option A (Matplotlib route panel)   | Medium   | High   | P2               |
+| §D.6 Option A (override table)           | Medium   | High   | P2               |
+| §D.1 Option B (QGraphicsView canvas)     | High     | High   | P2               |
+| §D.6 Option B (typed config form)        | High     | High   | P3               |
 
 ---
 
@@ -690,18 +690,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — New Features
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
-| §E.6 Option B (richer instance generator) | Low | High | P0 |
-| §E.1 Option A (CLI benchmark runner) | Medium | High | P1 |
-| §E.5 Option A (sensor data loader) | Medium | Very High | P1 |
-| §E.7 Option A (transfer eval command) | Low | High | P1 `[Research]` |
-| §E.2 Option B+C (TSPLIB loader) | Medium | Very High | P2 |
-| §E.5 Option B (fill-rate calibration) | Medium | Very High | P2 |
-| §E.4 Option C (contextual bandit policy selection) | Medium | Very High | P2 `[Research]` |
-| §E.3 Option A (FastAPI server) | High | High | P3 |
-| §E.4 Option B (MetaRNN online adaptation) | Very High | Very High | P3 `[Research]` |
-| §E.6 Option C (conditional generator) | Very High | High | P3 `[Research]` |
+| Item                                               | Effort    | Impact    | Priority        |
+| -------------------------------------------------- | --------- | --------- | --------------- |
+| §E.6 Option B (richer instance generator)          | Low       | High      | P0              |
+| §E.1 Option A (CLI benchmark runner)               | Medium    | High      | P1              |
+| §E.5 Option A (sensor data loader)                 | Medium    | Very High | P1              |
+| §E.7 Option A (transfer eval command)              | Low       | High      | P1 `[Research]` |
+| §E.2 Option B+C (TSPLIB loader)                    | Medium    | Very High | P2              |
+| §E.5 Option B (fill-rate calibration)              | Medium    | Very High | P2              |
+| §E.4 Option C (contextual bandit policy selection) | Medium    | Very High | P2 `[Research]` |
+| §E.3 Option A (FastAPI server)                     | High      | High      | P3              |
+| §E.4 Option B (MetaRNN online adaptation)          | Very High | Very High | P3 `[Research]` |
+| §E.6 Option C (conditional generator)              | Very High | High      | P3 `[Research]` |
 
 ---
 
@@ -826,23 +826,23 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — Performance
 
-| Item | Effort | Impact | Priority |
-|------|--------|--------|----------|
-| §F.1 Option A (inference_mode wrapper) | Very Low | High | P0 `[Quick Win]` |
-| §F.2 Option A+C (GPU memory logging) | Very Low | High | P0 `[Quick Win]` |
-| §F.6 Option A (complexity refactor top-10) | Low | Medium | P0 `[Quick Win]` |
-| §F.3 Option C (profile test durations) | Low | High | P1 |
-| §F.4 Option B (DataLoader pinned memory) | Low | High | P1 |
-| §F.7 Option A (CPU sync audit) | Low | High | P1 |
-| §F.3 Option B (fast/full CI split) | Low | High | P1 |
-| §F.1 Option B (torch.compile) | Medium | High | P2 |
-| §F.4 Option A (pkl → pt format) | Low | Medium | P2 |
-| §F.5 Option D (simulation profiling) | Low | High | P2 |
-| §F.5 Option B (Pool.starmap refactor) | Medium | High | P2 |
-| §F.4 Option D (cache distance matrices) | Medium | High | P2 |
-| §F.1 Option D (TensorRT export) | High | Very High | P3 |
-| §F.5 Option A (SharedMemory refactor) | High | High | P3 `[Research]` |
-| §F.5 Option C (GPU-vectorized simulation) | Very High | Very High | P3 `[Research]` |
+| Item                                       | Effort    | Impact    | Priority         |
+| ------------------------------------------ | --------- | --------- | ---------------- |
+| §F.1 Option A (inference_mode wrapper)     | Very Low  | High      | P0 `[Quick Win]` |
+| §F.2 Option A+C (GPU memory logging)       | Very Low  | High      | P0 `[Quick Win]` |
+| §F.6 Option A (complexity refactor top-10) | Low       | Medium    | P0 `[Quick Win]` |
+| §F.3 Option C (profile test durations)     | Low       | High      | P1               |
+| §F.4 Option B (DataLoader pinned memory)   | Low       | High      | P1               |
+| §F.7 Option A (CPU sync audit)             | Low       | High      | P1               |
+| §F.3 Option B (fast/full CI split)         | Low       | High      | P1               |
+| §F.1 Option B (torch.compile)              | Medium    | High      | P2               |
+| §F.4 Option A (pkl → pt format)            | Low       | Medium    | P2               |
+| §F.5 Option D (simulation profiling)       | Low       | High      | P2               |
+| §F.5 Option B (Pool.starmap refactor)      | Medium    | High      | P2               |
+| §F.4 Option D (cache distance matrices)    | Medium    | High      | P2               |
+| §F.1 Option D (TensorRT export)            | High      | Very High | P3               |
+| §F.5 Option A (SharedMemory refactor)      | High      | High      | P3 `[Research]`  |
+| §F.5 Option C (GPU-vectorized simulation)  | Very High | Very High | P3 `[Research]`  |
 
 ---
 
@@ -850,15 +850,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 Several items across sections are tightly coupled and should be sequenced together:
 
-| Cluster | Items | Rationale |
-|---------|-------|-----------|
-| **Plugin System** | §B.3, §B.6 | Policy and env registration should share the same Hydra-based mechanism |
-| **Worker Standardization** | §B.8, §D.5 | `BaseWorker` is a prerequisite for cancellation UX |
-| **Route Visualization** | §A.1, §D.1 | Both need the same spatial rendering component; build once, use twice |
-| **Docs Infrastructure** | §C.1, §C.7 | MkDocs setup is a prerequisite for the CI docs pipeline |
-| **Test Quality** | §B.1, §F.3 | Coverage uplift and test-suite speed are best addressed together |
-| **Telemetry** | §A.3, §A.4 | PolicyVizMixin and TrainingHealthCallback both feed the analysis dashboard |
+| Cluster                    | Items      | Rationale                                                                  |
+| -------------------------- | ---------- | -------------------------------------------------------------------------- |
+| **Plugin System**          | §B.3, §B.6 | Policy and env registration should share the same Hydra-based mechanism    |
+| **Worker Standardization** | §B.8, §D.5 | `BaseWorker` is a prerequisite for cancellation UX                         |
+| **Route Visualization**    | §A.1, §D.1 | Both need the same spatial rendering component; build once, use twice      |
+| **Docs Infrastructure**    | §C.1, §C.7 | MkDocs setup is a prerequisite for the CI docs pipeline                    |
+| **Test Quality**           | §B.1, §F.3 | Coverage uplift and test-suite speed are best addressed together           |
+| **Telemetry**              | §A.3, §A.4 | PolicyVizMixin and TrainingHealthCallback both feed the analysis dashboard |
 
 ---
 
-*This roadmap is a living document. Update item status inline (✅ Done, 🚧 In Progress, ❌ Blocked) and refresh the Effort × Impact matrices each quarter.*
+_This roadmap is a living document. Update item status inline (✅ Done, 🚧 In Progress, ❌ Blocked) and refresh the Effort × Impact matrices each quarter._

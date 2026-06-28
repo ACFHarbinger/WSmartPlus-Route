@@ -13,6 +13,7 @@ Attributes:
     NumpyPickleDataset: NumpyPickle dataset for simulation.
     PandasCsvDataset: PandasCsv dataset for simulation.
     PandasExcelDataset: PandasExcel dataset for simulation.
+    HtmlSimulationDataset: HtmlSimulationDataset dataset for simulation.
     SimulationDataset: Simulation dataset for simulation.
     td_kwargs: Generator dataset for training.
     tensordict_collate_fn: Generator dataset for training.
@@ -43,6 +44,7 @@ from .simulation.npz_dataset import NumpyDictDataset
 from .simulation.pd_csv_dataset import PandasCsvDataset
 from .simulation.pd_xlsx_dataset import PandasExcelDataset
 from .simulation.sim_dataset import SimulationDataset
+from .web.html_sim_dataset import HtmlSimulationDataset
 
 __all__ = [
     "td_kwargs",
@@ -60,5 +62,6 @@ __all__ = [
     "NumpyPickleDataset",
     "PandasExcelDataset",
     "PandasCsvDataset",
+    "HtmlSimulationDataset",
     "GenerativeDataset",
 ]

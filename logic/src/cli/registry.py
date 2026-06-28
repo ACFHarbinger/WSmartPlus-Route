@@ -54,5 +54,4 @@ def get_parser() -> ConfigsParser:
     add_target_args(clean_parser)
 
     # TUI
-
     return parser
