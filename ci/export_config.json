@@ -496,7 +496,7 @@
         "description": "Constraint Programming with Boolean Satisfiability",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/exact_and_decomposition_solvers/constraint_programming_with_boolean_satisfiability",
-        "internal_acronym": "cpbs",
+        "internal_acronym": "cp_sat",
         "subcategory": "exact_and_decomposition_solvers"
       },
       "ESDP": {
@@ -510,7 +510,7 @@
         "description": "Integer L-Shaped Benders Decomposition",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/exact_and_decomposition_solvers/integer_l_shaped_benders_decomposition",
-        "internal_acronym": "ilsbd",
+        "internal_acronym": "ils_bd",
         "subcategory": "exact_and_decomposition_solvers"
       },
       "LBBD": {
@@ -524,7 +524,7 @@
         "description": "Multi-Stage Branch-and-Price-and-Cut with Set Partitioning",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/exact_and_decomposition_solvers/multi_stage_branch_and_price_and_cut_with_set_partition",
-        "internal_acronym": "msbpcsp",
+        "internal_acronym": "ms_bpc_sp",
         "subcategory": "exact_and_decomposition_solvers"
       },
       "PH": {
@@ -538,14 +538,14 @@
         "description": "Scenario Tree Extensive Form",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/exact_and_decomposition_solvers/scenario_tree_extensive_form",
-        "internal_acronym": "stef",
+        "internal_acronym": "st_ef",
         "subcategory": "exact_and_decomposition_solvers"
       },
       "SWCTCF": {
         "description": "Smart Waste Collection Two-Commodity Flow",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow",
-        "internal_acronym": "swctcf",
+        "internal_acronym": "swc_tcf",
         "subcategory": "exact_and_decomposition_solvers"
       },
       "_comment_meta": "Metaheuristic constructors",
@@ -560,14 +560,14 @@
         "description": "ALNS with Inter-Period Operators",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/adaptive_large_neighborhood_search_with_inter_period_operators",
-        "internal_acronym": "alnsipo",
+        "internal_acronym": "alns_ipo",
         "subcategory": "meta_heuristics"
       },
       "ACO": {
         "description": "Ant Colony Optimization (k-Sparse)",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/ant_colony_optimization_k_sparse",
-        "internal_acronym": "acoks",
+        "internal_acronym": "aco_ks",
         "subcategory": "meta_heuristics"
       },
       "ABC": {
@@ -637,21 +637,21 @@
         "description": "HGS with Adaptive Diversity Control",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_diversity_control",
-        "internal_acronym": "hgsadc",
+        "internal_acronym": "hgs_adc",
         "subcategory": "meta_heuristics"
       },
       "HGS_ALNS": {
         "description": "HGS augmented with Adaptive Large Neighborhood Search",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_adaptive_large_neighborhood_search",
-        "internal_acronym": "hgsalns",
+        "internal_acronym": "hgs_alns",
         "subcategory": "meta_heuristics"
       },
       "HGS_RR": {
         "description": "HGS with Ruin-and-Recreate operators",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search_with_ruin_and_recreate",
-        "internal_acronym": "hgsrr",
+        "internal_acronym": "hgs_rr",
         "subcategory": "meta_heuristics"
       },
       "HMLNS": {
@@ -700,49 +700,49 @@
         "description": "Memetic Algorithm with Dual Population",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_dual_population",
-        "internal_acronym": "madp",
+        "internal_acronym": "ma_dp",
         "subcategory": "meta_heuristics"
       },
       "MA_IM": {
         "description": "Memetic Algorithm Island Model",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_island_model",
-        "internal_acronym": "maim",
+        "internal_acronym": "ma_im",
         "subcategory": "meta_heuristics"
       },
       "MA_TBS": {
         "description": "Memetic Algorithm with Tolerance-Based Selection",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/memetic_algorithm_tolerance_based_selection",
-        "internal_acronym": "matbs",
+        "internal_acronym": "ma_ts",
         "subcategory": "meta_heuristics"
       },
       "MACO": {
         "description": "Multi-Period Ant Colony Optimization",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/multi_period_ant_colony_optimization",
-        "internal_acronym": "mpaco",
+        "internal_acronym": "mp_aco",
         "subcategory": "meta_heuristics"
       },
       "MILS": {
         "description": "Multi-Period Iterated Local Search",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/multi_period_iterated_local_search",
-        "internal_acronym": "mpils",
+        "internal_acronym": "mp_ils",
         "subcategory": "meta_heuristics"
       },
       "MPSO": {
         "description": "Multi-Period Particle Swarm Optimization",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/multi_period_particle_swarm_optimization",
-        "internal_acronym": "mppso",
+        "internal_acronym": "mp_pso",
         "subcategory": "meta_heuristics"
       },
       "MSA": {
         "description": "Multi-Period Simulated Annealing",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/multi_period_simulated_annealing",
-        "internal_acronym": "mpsa",
+        "internal_acronym": "mp_sa",
         "subcategory": "meta_heuristics"
       },
       "PSO": {
@@ -756,7 +756,7 @@
         "description": "PSO Distance-Based Algorithm",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization_distance_based_algorithm",
-        "internal_acronym": "psodba",
+        "internal_acronym": "psoda",
         "subcategory": "meta_heuristics"
       },
       "PSO_MA": {
@@ -770,7 +770,7 @@
         "description": "Pheromone-Guided Cooperative Large Neighborhood Search",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search",
-        "internal_acronym": "pgclns",
+        "internal_acronym": "pg_clns",
         "subcategory": "meta_heuristics"
       },
       "QDE": {
@@ -855,7 +855,7 @@
         "description": "Cluster-First Route-Second",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/cluster_first_route_second",
-        "internal_acronym": "cfrs",
+        "internal_acronym": "cf_rs",
         "subcategory": "matheuristics"
       },
       "CGH": {
@@ -876,7 +876,7 @@
         "description": "ILS with RVND and Set Partitioning",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning",
-        "internal_acronym": "ilsrvndsp",
+        "internal_acronym": "ils_rvnd_sp",
         "subcategory": "matheuristics"
       },
       "KS": {
@@ -897,7 +897,7 @@
         "description": "Large Neighborhood Search with MIP",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/large_neighborhood_search_mixed_integer_programming",
-        "internal_acronym": "lnsmip",
+        "internal_acronym": "lns_mip",
         "subcategory": "matheuristics"
       },
       "LKH3": {
@@ -918,21 +918,21 @@
         "description": "Local Branching with VNS",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/local_branching_variable_neighborhood_search",
-        "internal_acronym": "lbvns",
+        "internal_acronym": "lb_vns",
         "subcategory": "matheuristics"
       },
       "POMESIC": {
         "description": "Partial Optimization Metaheuristic Under Special Intensification Conditions",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/partial_optimization_metaheuristic_under_special_intensification_conditions",
-        "internal_acronym": "pomesic",
+        "internal_acronym": "popmusic",
         "subcategory": "matheuristics"
       },
       "RAF_O": {
         "description": "Relax-and-Fix-and-Optimize",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/matheuristics/relax_and_fix_and_optimize",
-        "internal_acronym": "rafo",
+        "internal_acronym": "rfo",
         "subcategory": "matheuristics"
       },
       "RENS": {
@@ -961,21 +961,21 @@
         "description": "Ant Colony Optimization Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic",
-        "internal_acronym": "acohh",
+        "internal_acronym": "aco_hh",
         "subcategory": "hyper_heuristics"
       },
       "GP_HH": {
         "description": "Genetic Programming Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/genetic_programming_hyper_heuristic",
-        "internal_acronym": "gphh",
+        "internal_acronym": "gp_hh",
         "subcategory": "hyper_heuristics"
       },
       "GP_MPHH": {
         "description": "Genetic Programming Multi-Period Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/genetic_programming_multi_period_hyper_heuristic",
-        "internal_acronym": "gpmphh",
+        "internal_acronym": "gp_mp_hh",
         "subcategory": "hyper_heuristics"
       },
       "GIHH": {
@@ -989,14 +989,14 @@
         "description": "Hidden Markov Model Great Deluge Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/hidden_markov_model_great_deluge_hyper_heuristic",
-        "internal_acronym": "hmmgdhh",
+        "internal_acronym": "hmm_gd_hh",
         "subcategory": "hyper_heuristics"
       },
       "HH_USLK": {
         "description": "Hyper-Heuristic US-LK",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/hyper_heuristic_us_lk",
-        "internal_acronym": "hhuslk",
+        "internal_acronym": "hulk",
         "subcategory": "hyper_heuristics"
       },
       "MHH": {
@@ -1010,7 +1010,7 @@
         "description": "Population-Based Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/population_based_hyper_heuristic",
-        "internal_acronym": "pbhh",
+        "internal_acronym": "phh",
         "subcategory": "hyper_heuristics"
       },
       "SHH": {
@@ -1024,7 +1024,7 @@
         "description": "Sequence-Based Selection Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/hyper_heuristics/sequence_based_selection_hyper_heuristic",
-        "internal_acronym": "sbshh",
+        "internal_acronym": "ss_hh",
         "subcategory": "hyper_heuristics"
       },
       "_comment_learn": "Learning-based constructors",
@@ -1032,7 +1032,7 @@
         "description": "Approximate Dynamic Programming with Rollout",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/learning_algorithms/approximate_dynamic_programming_with_rollout",
-        "internal_acronym": "adpr",
+        "internal_acronym": "adp",
         "subcategory": "learning_algorithms"
       },
       "HNA": {
@@ -1053,28 +1053,28 @@
         "description": "RL-guided Adaptive Large Neighborhood Search",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_adaptive_large_neighborhood_search",
-        "internal_acronym": "rlanls",
+        "internal_acronym": "rl_alns",
         "subcategory": "learning_heuristic_algorithms"
       },
       "RL_GDHH": {
         "description": "RL Great Deluge Hyper-Heuristic",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_great_deluge_hyper_heuristic",
-        "internal_acronym": "rlgdhh",
+        "internal_acronym": "rl_gd_hh",
         "subcategory": "learning_heuristic_algorithms"
       },
       "RL_HVPL": {
         "description": "RL Hybrid Volleyball Premier League",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/learning_heuristic_algorithms/reinforcement_learning_hybrid_volleyball_premier_league",
-        "internal_acronym": "rlhvpl",
+        "internal_acronym": "rl_hvpl",
         "subcategory": "learning_heuristic_algorithms"
       },
       "ABPC_HG": {
         "description": "Adaptive Branch-and-Price-and-Cut with Heuristic Guidance",
         "category": "constructor",
         "path": "logic/src/policies/route_construction/learning_matheuristic_algorithms/adaptive_branch_and_price_and_cut_with_heuristic_guidance",
-        "internal_acronym": "abpchg",
+        "internal_acronym": "abpc_hg",
         "subcategory": "learning_matheuristic_algorithms"
       },
       "CALM": {
@@ -1127,6 +1127,41 @@
         "path": "logic/src/policies/selection_and_construction/non_dominated_sorting_biased_random_key_genetic_algorithm",
         "internal_acronym": "ndsbrkga",
         "subcategory": null
+      },
+      "ARCO": {
+        "description": "Adaptive Route Constructor Orchestrator",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/other_algorithms/adaptive_route_constructor_orchestrator",
+        "internal_acronym": "arco",
+        "subcategory": "other_algorithms"
+      },
+      "ES_MCL": {
+        "description": "Evolution Strategy Mu Comma Lambda",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_comma_lambda",
+        "internal_acronym": "es_mcl",
+        "subcategory": "meta_heuristics"
+      },
+      "ES_MKL": {
+        "description": "Evolution Strategy Mu Kappa Lambda",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_kappa_lambda",
+        "internal_acronym": "es_mkl",
+        "subcategory": "meta_heuristics"
+      },
+      "ES_MPL": {
+        "description": "Evolution Strategy Mu Plus Lambda",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/meta_heuristics/evolution_strategy_mu_plus_lambda",
+        "internal_acronym": "es_mpl",
+        "subcategory": "meta_heuristics"
+      },
+      "SRC": {
+        "description": "Sequential Route Constructor",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/other_algorithms/sequential_route_constructor",
+        "internal_acronym": "src",
+        "subcategory": "other_algorithms"
       }
     },
     "selectors": {
