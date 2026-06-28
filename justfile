@@ -688,3 +688,8 @@ db-metrics key="" experiment="":
 # Generic run command
 run *args:
     uv run python main.py {{ args }}
+
+# Commit using the .gitmessage template
+commit message:
+    @echo "Committing with verified Gemini co-author template..."
+    git commit -m "{{message}}"
