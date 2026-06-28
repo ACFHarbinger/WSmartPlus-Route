@@ -155,6 +155,7 @@ def main() -> None:
     root = get_project_root()
 
     # 1. Delete Directories
+    remove_path(root / "logic/src/models/meta")
     remove_path(root / "logic/src/pipeline/rl/meta")
 
     # 2. Delete Config and YAML files

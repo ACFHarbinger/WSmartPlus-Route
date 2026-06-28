@@ -432,7 +432,7 @@ def replace_logger_calls_with_print(file_path: Path):
 
 
 def redirect_logging_imports(file_path: Path):
-    """Redirect imports from logic.src.tracking.logging (moved files only) to logic.src.utils.expo."""
+    """Comment out tracking.logging visualization imports (utils.expo is also removed)."""
     try:
         content = file_path.read_text(errors="ignore")
 
@@ -440,12 +440,21 @@ def redirect_logging_imports(file_path: Path):
         if not re.search(pattern, content):
             return
 
-        print(f"Redirecting logging/visualization imports in: {file_path.relative_to(get_project_root())}")
+        print(f"Commenting out logging/visualization imports in: {file_path.relative_to(get_project_root())}")
 
-        content = re.sub(pattern, r"logic.src.utils.expo.\1", content)
+        content = re.sub(
+            rf"(?m)^(\s*from\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"# \1  # AUTO-REMOVED",
+            content,
+        )
+        content = re.sub(
+            rf"(?m)^(\s*import\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"# \1  # AUTO-REMOVED",
+            content,
+        )
         file_path.write_text(content)
     except Exception as e:
-        print(f"Error redirecting imports in {file_path}: {e}")
+        print(f"Error commenting visualization imports in {file_path}: {e}")
 
 
 def comment_justfile(justfile_path: Path):

@@ -192,11 +192,25 @@ def _match_acronym(name_lower: str, acronym: str) -> bool:
     if name_lower.endswith(f"_{acronym}") or name_lower.startswith(f"{acronym}_") or f"_{acronym}_" in name_lower:
         return True
 
+    # Forward: initials of name_lower == acronym
     parts = name_lower.split("_")
     if len(parts) > 1:
         stop_words = {"and", "or", "with", "for", "the", "of", "to", "in", "on", "at", "by", "from"}
         initials = "".join([part[0] for part in parts if part and part not in stop_words])
         if initials == acronym:
+            return True
+
+    # Reverse: check if name_lower (or its suffix) equals the initials of the acronym.
+    # This handles e.g. "alns" matching "adaptive_large_neighborhood_search" or
+    # "ac_abm" matching "adaptive_boltzmann_metropolis".
+    acronym_parts = [p for p in acronym.split("_") if p]
+    if len(acronym_parts) > 1:
+        acronym_initials = "".join(p[0] for p in acronym_parts)
+        if (
+            name_lower == acronym_initials
+            or name_lower.endswith(f"_{acronym_initials}")
+            or name_lower.startswith(f"{acronym_initials}_")
+        ):
             return True
 
     return False
@@ -303,6 +317,48 @@ def _find_impls_to_delete(
                 matched = _match_acronym(name_lower, acronym)
                 if matched and p.name not in PROTECTED_DIRS:
                     to_delete.add(p)
+
+
+def _is_effectively_empty(path: Path) -> bool:
+    """Return True if directory only contains __init__.py and/or effectively-empty subdirs."""
+    if not path.is_dir():
+        return False
+    for child in path.iterdir():
+        if child.name in ("__pycache__",):
+            continue
+        if child.is_file():
+            if child.name != "__init__.py":
+                return False
+        elif child.is_dir():
+            if not _is_effectively_empty(child):
+                return False
+    return True
+
+
+def remove_empty_dirs(root: Path, scan_paths: list) -> None:
+    """Remove dirs that only contain __init__.py (and/or other empty subdirs).
+
+    Iterates repeatedly until no further removals occur (handles nested emptiness).
+    """
+    changed = True
+    while changed:
+        changed = False
+        for scan_path in scan_paths:
+            if not scan_path.exists() or not scan_path.is_dir():
+                continue
+            # Collect all subdirs, deepest first
+            subdirs = sorted(
+                [p for p in scan_path.rglob("*") if p.is_dir()],
+                key=lambda p: len(p.parts),
+                reverse=True,
+            )
+            for dirpath in subdirs:
+                if dirpath == scan_path:
+                    continue
+                if _is_effectively_empty(dirpath):
+                    print(f"Removing effectively empty dir: {dirpath.relative_to(root)}")
+                    shutil.rmtree(dirpath)
+                    changed = True
 
 
 def clean_by_acronym(
