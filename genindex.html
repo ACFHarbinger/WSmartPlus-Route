@@ -610,6 +610,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1 has-children"><a class="reference internal" href="references/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="references/src/src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -710,7 +711,6 @@ window.runMermaid = runMermaid;</script>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -946,7 +946,11 @@ document.write(`
 </li>
         <li><a href="references/src/src.data.datasets.html#src.data.datasets.__all__">(in module src.data.datasets)</a>
 </li>
+        <li><a href="references/src/src.data.datasets.pytorch.html#src.data.datasets.pytorch.__all__">(in module src.data.datasets.pytorch)</a>
+</li>
         <li><a href="references/src/src.data.datasets.simulation.html#src.data.datasets.simulation.__all__">(in module src.data.datasets.simulation)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html#src.data.datasets.web.__all__">(in module src.data.datasets.web)</a>
 </li>
         <li><a href="references/src/src.data.distributions.html#src.data.distributions.__all__">(in module src.data.distributions)</a>
 </li>
@@ -957,8 +961,6 @@ document.write(`
         <li><a href="references/src/src.data.network.base.html#src.data.network.base.__all__">(in module src.data.network.base)</a>
 </li>
         <li><a href="references/src/src.data.processor.html#src.data.processor.__all__">(in module src.data.processor)</a>
-</li>
-        <li><a href="references/src/src.data.web.html#src.data.web.__all__">(in module src.data.web)</a>
 </li>
         <li><a href="references/src/src.enums.html#src.enums.__all__">(in module src.enums)</a>
 </li>
@@ -1525,6 +1527,8 @@ document.write(`
         <li><a href="references/src/src.utils.target.remover.html#src.utils.target.remover.__all__">(in module src.utils.target.remover)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.cli.gui_parser.html#src.cli.gui_parser.__APP_STYLES">__APP_STYLES (in module src.cli.gui_parser)</a>
+</li>
       <li><a href="references/src/src.cli.base.lowercase_action.html#src.cli.base.lowercase_action.LowercaseAction.__call__">__call__() (src.cli.base.lowercase_action.LowercaseAction method)</a>
 
       <ul>
@@ -1607,6 +1611,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__getitem__">(src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.sim_dataset.html#src.data.datasets.simulation.sim_dataset.SimulationDataset.__getitem__">(src.data.datasets.simulation.sim_dataset.SimulationDataset method)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset.__getitem__">(src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset method)</a>
 </li>
         <li><a href="references/src/src.interfaces.tensor_dict_like.html#src.interfaces.tensor_dict_like.ITensorDictLike.__getitem__">(src.interfaces.tensor_dict_like.ITensorDictLike method)</a>
 </li>
@@ -1695,6 +1701,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.__len__">(src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.sim_dataset.html#src.data.datasets.simulation.sim_dataset.SimulationDataset.__len__">(src.data.datasets.simulation.sim_dataset.SimulationDataset method)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset.__len__">(src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset method)</a>
 </li>
         <li><a href="references/src/src.interfaces.traversable.html#src.interfaces.traversable.ITraversable.__len__">(src.interfaces.traversable.ITraversable method)</a>
 </li>
@@ -2221,6 +2229,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts._build_chart">_build_chart() (in module src.ui.components.alns_charts)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._build_cleanup_kwargs">_build_cleanup_kwargs() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.ui.components.maps.pydeck_animated.html#src.ui.components.maps.pydeck_animated._build_column_data">_build_column_data() (in module src.ui.components.maps.pydeck_animated)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.base.base_routing_policy.html#src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy._build_config">_build_config() (src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy class method)</a>
@@ -2301,8 +2311,12 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.validation.trace_dependencies.html#src.utils.validation.trace_dependencies.DependencyGrapher._build_node_uml">_build_node_uml() (src.utils.validation.trace_dependencies.DependencyGrapher method)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._build_parser">_build_parser() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._build_parser">_build_parser() (in module src.data.datasets.web.dashboard_crawler)</a>
+
+      <ul>
+        <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._build_parser">(in module src.utils.packages.prune_codebase)</a>
 </li>
+      </ul></li>
       <li><a href="references/src/src.pipeline.rl.common.base.module.html#src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper">_build_pbrs_shaper() (src.pipeline.rl.common.base.module.RL4COLitModule method)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy._build_ph_loop">_build_ph_loop() (src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy method)</a>
@@ -2465,6 +2479,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization.html#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization._categorize_bins_by_zone">_categorize_bins_by_zone() (in module src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._CATEGORY_TO_FLAG">_CATEGORY_TO_FLAG (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.pipeline.rl.common.base.data.html#src.pipeline.rl.common.base.data._cfg_get">_cfg_get() (in module src.pipeline.rl.common.base.data)</a>
 </li>
       <li><a href="references/src/src.policies.helpers.operators.inter_route_local_search.exchange_chain.html#src.policies.helpers.operators.inter_route_local_search.exchange_chain._chain_edge_cost">_chain_edge_cost() (in module src.policies.helpers.operators.inter_route_local_search.exchange_chain)</a>
@@ -2557,6 +2573,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.html#src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver._collapse">_collapse() (src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.QDESolver method)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._collect_algorithms_by_category">_collect_algorithms_by_category() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.file_system.html#src.file_system._collect_directories_to_delete">_collect_directories_to_delete() (in module src.file_system)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.html#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic._collect_edges">_collect_edges() (in module src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic)</a>
@@ -2573,7 +2591,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.html#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints">_column_generation_with_constraints() (src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.BranchAndPriceSolver method)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._COLUMN_RENAME">_COLUMN_RENAME (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._COLUMN_RENAME">_COLUMN_RENAME (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.tracking.profiling.timer.html#src.tracking.profiling.timer.MultiStepTimer._commit">_commit() (src.tracking.profiling.timer.MultiStepTimer method)</a>
 </li>
@@ -2863,6 +2881,8 @@ document.write(`
         <li><a href="references/src/src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.html#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy._config_class">(src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga.NDSBRKGAPolicy class method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._CONFIG_PATH">_CONFIG_PATH (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.pipeline.features.train.model_factory.builder.html#src.pipeline.features.train.model_factory.builder._config_to_dict">_config_to_dict() (in module src.pipeline.features.train.model_factory.builder)</a>
 </li>
       <li><a href="references/src/src.tracking.database.shared.html#src.tracking.database.shared._conn">_conn() (in module src.tracking.database.shared)</a>
@@ -3131,6 +3151,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.operators.crossover_recombination.generalized_partition.html#src.policies.helpers.operators.crossover_recombination.generalized_partition._dfs_iterative">_dfs_iterative() (in module src.policies.helpers.operators.crossover_recombination.generalized_partition)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._die">_die() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.differential_evolution.solver.html#src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver._differential_mutation">_differential_mutation() (src.policies.route_construction.meta_heuristics.differential_evolution.solver.DESolver method)</a>
 </li>
       <li><a href="references/src/src.ui.pages.simulation.summary.html#src.ui.pages.simulation.summary._discover_output_dirs">_discover_output_dirs() (in module src.ui.pages.simulation.summary)</a>
@@ -3383,7 +3405,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.solvers_and_matheuristics.separation.engine.html#src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._EXACT_SEP_PERIOD">_EXACT_SEP_PERIOD (src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine attribute)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._EXCLUDED_COL">_EXCLUDED_COL (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._EXCLUDED_COL">_EXCLUDED_COL (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.models.core.hybrid_attention_model.hybrid_two_step_policy.html#src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._execute_refinement_operator">_execute_refinement_operator() (src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy method)</a>
 </li>
@@ -3485,6 +3507,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.ui.services.simulation_analytics.html#src.ui.services.simulation_analytics._filter_entries">_filter_entries() (in module src.ui.services.simulation_analytics)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._filter_files">_filter_files() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.policies.helpers.operators.improvement_descent.steepest_two_opt.html#src.policies.helpers.operators.improvement_descent.steepest_two_opt._find_best_2opt">_find_best_2opt() (in module src.policies.helpers.operators.improvement_descent.steepest_two_opt)</a>
 </li>
       <li><a href="references/src/src.policies.helpers.operators.intra_route_local_search.k_opt.html#src.policies.helpers.operators.intra_route_local_search.k_opt._find_best_config">_find_best_config() (in module src.policies.helpers.operators.intra_route_local_search.k_opt)</a>
@@ -3559,7 +3583,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.solvers_and_matheuristics.separation.engine.html#src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._find_teeth_for_handle">_find_teeth_for_handle() (src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine method)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._find_todos_os_locais_table">_find_todos_os_locais_table() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table">_find_todos_os_locais_table() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.utils.packages.cleanup_helper.html#src.utils.packages.cleanup_helper._find_yaml_to_delete">_find_yaml_to_delete() (in module src.utils.packages.cleanup_helper)</a>
 </li>
@@ -4533,6 +4557,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.models.policies.operators.route.lkh.html#src.models.policies.operators.route.lkh._is_better">_is_better() (in module src.models.policies.operators.route.lkh)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.cleanup_helper.html#src.utils.packages.cleanup_helper._is_effectively_empty">_is_effectively_empty() (in module src.utils.packages.cleanup_helper)</a>
+</li>
       <li><a href="references/src/src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies.html#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies._is_hamiltonian_cycle">_is_hamiltonian_cycle() (in module src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.html#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.BBSolver._is_integer">_is_integer() (src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.BBSolver method)</a>
@@ -4731,9 +4757,11 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.simulations.states.initializing.html#src.pipeline.simulations.states.initializing.InitializingState._load_checkpoint_if_needed">_load_checkpoint_if_needed() (src.pipeline.simulations.states.initializing.InitializingState method)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._load_config">_load_config() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.ui.styles.css.html#src.ui.styles.css._load_css">_load_css() (in module src.ui.styles.css)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._load_html">_load_html() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._load_html">_load_html() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.utils.model.loader.html#src.utils.model.loader._load_hyperparameters">_load_hyperparameters() (in module src.utils.model.loader)</a>
 </li>
@@ -4799,6 +4827,8 @@ document.write(`
         <li><a href="references/src/src.policies.mandatory_selection.selection_dispatcher_thompson.html#src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher._lock">(src.policies.mandatory_selection.selection_dispatcher_thompson.ThompsonDispatcher attribute)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._log">_log() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.tracking.helpers.lightning_helpers.html#src.tracking.helpers.lightning_helpers._log_attention_heatmaps">_log_attention_heatmaps() (in module src.tracking.helpers.lightning_helpers)</a>
 </li>
       <li><a href="references/src/src.tracking.integrations.data_lineage.html#src.tracking.integrations.data_lineage._log_cumulative_bins">_log_cumulative_bins() (in module src.tracking.integrations.data_lineage)</a>
@@ -5109,6 +5139,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy._package_solution">_package_solution() (src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.policy_calm.CALMPolicy method)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._PACKAGES_DIR">_PACKAGES_DIR (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.utils.functions.boolmask.html#src.utils.functions.boolmask._pad_mask">_pad_mask() (in module src.utils.functions.boolmask)</a>
 </li>
       <li><a href="references/src/src.ui.pages.experiment_tracker.html#src.ui.pages.experiment_tracker._PALETTE">_PALETTE (in module src.ui.pages.experiment_tracker)</a>
@@ -5149,7 +5181,7 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.pipeline.simulations.actions.node_selection.html#src.pipeline.simulations.actions.node_selection.MandatorySelectionAction._parse_strategy_item">_parse_strategy_item() (src.pipeline.simulations.actions.node_selection.MandatorySelectionAction method)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler._parse_table">_parse_table() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler._parse_table">_parse_table() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.pipeline.callbacks.simulation.policy_summary.html#src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_traversable_params">_parse_traversable_params() (src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback method)</a>
 </li>
@@ -5293,7 +5325,19 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.operators.perturbation_shaking.kick.html#src.policies.helpers.operators.perturbation_shaking.kick._profit_reinsertion">_profit_reinsertion() (in module src.policies.helpers.operators.perturbation_shaking.kick)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._PROJECT_ROOT">_PROJECT_ROOT (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.destroy.string.html#src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.destroy.string._propagate_string_removal">_propagate_string_removal() (in module src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.destroy.string)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._prune_all_configs_by_prefix">_prune_all_configs_by_prefix() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._prune_all_yaml_by_prefix">_prune_all_yaml_by_prefix() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._prune_entire_impl_dirs">_prune_entire_impl_dirs() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._prune_files">_prune_files() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._prune_subdirs">_prune_subdirs() (in module src.utils.packages.prune_codebase)</a>
 </li>
       <li><a href="references/src/src.utils.validation.trace_dependencies.html#src.utils.validation.trace_dependencies.DependencyGrapher._python_path_to_filepath">_python_path_to_filepath() (src.utils.validation.trace_dependencies.DependencyGrapher method)</a>
 </li>
@@ -5396,6 +5440,8 @@ document.write(`
       <li><a href="references/src/src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.html#src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators._regret_2_repair">_regret_2_repair() (src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.HULKOperators method)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.html#src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy._reliability_score">_reliability_score() (src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.ml_branching.MLBranchingStrategy method)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._remove_constants_init_import">_remove_constants_init_import() (in module src.utils.packages.prune_codebase)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes.html#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings">_remove_invalid_crossings() (in module src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes)</a>
 </li>
@@ -6289,6 +6335,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.operators.destroy_ruin.string.html#src.policies.helpers.operators.destroy_ruin.string._sisr_ruin_pass">_sisr_ruin_pass() (in module src.policies.helpers.operators.destroy_ruin.string)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.cleanup_helper.html#src.utils.packages.cleanup_helper._SKIP_DIR_NAMES">_SKIP_DIR_NAMES (in module src.utils.packages.cleanup_helper)</a>
+</li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller.html#src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller._SlidingWindowStats">_SlidingWindowStats (class in src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.rl_controller)</a>
 </li>
       <li><a href="references/src/src.ui.components.alns_charts.html#src.ui.components.alns_charts.ALNSSnapshotTracker._snapshot">_snapshot() (src.ui.components.alns_charts.ALNSSnapshotTracker method)</a>
@@ -6750,6 +6798,8 @@ document.write(`
       <li><a href="references/src/src.pipeline.rl.common.reward_scaler.html#src.pipeline.rl.common.reward_scaler.RewardScaler._update_welford">_update_welford() (src.pipeline.rl.common.reward_scaler.RewardScaler method)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.hpo.search_spaces.html#src.pipeline.simulations.hpo.search_spaces._VALID_TYPES">_VALID_TYPES (in module src.pipeline.simulations.hpo.search_spaces)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase._validate_acronyms">_validate_acronyms() (in module src.utils.packages.prune_codebase)</a>
 </li>
       <li><a href="references/src/src.utils.docs.check_google_style.html#src.utils.docs.check_google_style.GoogleStyleValidator._validate_function">_validate_function() (src.utils.docs.check_google_style.GoogleStyleValidator method)</a>
 </li>
@@ -7800,8 +7850,6 @@ document.write(`
       <li><a href="references/src/src.enums.registry.html#src.enums.registry.AnyTag">AnyTag (in module src.enums.registry)</a>
 </li>
       <li><a href="references/src/src.enums.policy_tags.html#src.enums.policy_tags.PolicyTag.ANYTIME">ANYTIME (src.enums.policy_tags.PolicyTag attribute)</a>
-</li>
-      <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.APP_STYLES">APP_STYLES (in module src.constants.user_interface)</a>
 </li>
       <li><a href="references/src/src.utils.packages.remove_tracking.html#src.utils.packages.remove_tracking.append_to_class_body">append_to_class_body() (in module src.utils.packages.remove_tracking)</a>
 </li>
@@ -9863,8 +9911,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.pipeline.features.train.html#src.pipeline.features.train.cs">cs (in module src.pipeline.features.train)</a>
 </li>
-      <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.CTRL_C_TIMEOUT">CTRL_C_TIMEOUT (in module src.constants.user_interface)</a>
-</li>
       <li><a href="references/src/src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.html#src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm.cumulative_reward">cumulative_reward (src.policies.route_construction.learning_matheuristic_algorithms.concurrent_adaptive_lagrangian_matheuristic.bandit.BanditArm attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig.current_collection_day">current_collection_day (src.configs.policies.other.mandatory_selection.LookaheadSelectionConfig attribute)</a>
@@ -11463,7 +11509,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.validation.check_nested_imports.html#src.utils.validation.check_nested_imports.extract_all_imports">extract_all_imports() (in module src.utils.validation.check_nested_imports)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler.extract_dataframe">extract_dataframe() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler.extract_dataframe">extract_dataframe() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.policies.helpers.reinforcement_learning.features.context.html#src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor.extract_features">extract_features() (src.policies.helpers.reinforcement_learning.features.context.ContextFeatureExtractor method)</a>
 
@@ -13080,6 +13126,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.utils.packages.remove_callbacks.html#src.utils.packages.remove_callbacks.get_project_root">(in module src.utils.packages.remove_callbacks)</a>
 </li>
+        <li><a href="references/src/src.utils.packages.remove_cli.html#src.utils.packages.remove_cli.get_project_root">(in module src.utils.packages.remove_cli)</a>
+</li>
         <li><a href="references/src/src.utils.packages.remove_data.html#src.utils.packages.remove_data.get_project_root">(in module src.utils.packages.remove_data)</a>
 </li>
         <li><a href="references/src/src.utils.packages.remove_enums.html#src.utils.packages.remove_enums.get_project_root">(in module src.utils.packages.remove_enums)</a>
@@ -13850,6 +13898,8 @@ document.write(`
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.harmony_search.policy_hs.html#src.policies.route_construction.meta_heuristics.harmony_search.policy_hs.HSPolicy">HSPolicy (class in src.policies.route_construction.meta_heuristics.harmony_search.policy_hs)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.harmony_search.solver.html#src.policies.route_construction.meta_heuristics.harmony_search.solver.HSSolver">HSSolver (class in src.policies.route_construction.meta_heuristics.harmony_search.solver)</a>
+</li>
+      <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset">HtmlSimulationDataset (class in src.data.datasets.web.html_sim_dataset)</a>
 </li>
       <li><a href="references/src/src.configs.policies.hulk.html#src.configs.policies.hulk.HULKConfig">HULKConfig (class in src.configs.policies.hulk)</a>
 </li>
@@ -14955,7 +15005,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.html#src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit">LinearSplit (class in src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split)</a>
 </li>
-      <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.LINESTYLES">LINESTYLES (in module src.constants.user_interface)</a>
+      <li><a href="references/src/src.constants.plotting.html#src.constants.plotting.LINESTYLES">LINESTYLES (in module src.constants.plotting)</a>
 </li>
       <li><a href="references/src/src.policies.route_improvement.lkh.html#src.policies.route_improvement.lkh.LinKernighanHelsgaunRouteImprover">LinKernighanHelsgaunRouteImprover (class in src.policies.route_improvement.lkh)</a>
 </li>
@@ -15057,6 +15107,8 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.pd_csv_dataset.html#src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset.load">(src.data.datasets.simulation.pd_csv_dataset.PandasCsvDataset static method)</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset.load">(src.data.datasets.simulation.pd_xlsx_dataset.PandasExcelDataset static method)</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset.load">(src.data.datasets.web.html_sim_dataset.HtmlSimulationDataset class method)</a>
 </li>
         <li><a href="references/src/src.policies.helpers.reinforcement_learning.agents.bandits.base.html#src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.load">(src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent method)</a>
 </li>
@@ -15822,7 +15874,7 @@ document.write(`
       <li><a href="references/src/src.cli.target_parser.html#src.cli.target_parser.main">main() (in module src.cli.target_parser)</a>
 
       <ul>
-        <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler.main">(in module src.data.web.dashboard_crawler)</a>
+        <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler.main">(in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
         <li><a href="references/src/src.pipeline.features.eval.drift_detection.html#src.pipeline.features.eval.drift_detection.main">(in module src.pipeline.features.eval.drift_detection)</a>
 </li>
@@ -15840,7 +15892,11 @@ document.write(`
 </li>
         <li><a href="references/src/src.utils.output.excel_summary.html#src.utils.output.excel_summary.main">(in module src.utils.output.excel_summary)</a>
 </li>
+        <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.main">(in module src.utils.packages.prune_codebase)</a>
+</li>
         <li><a href="references/src/src.utils.packages.remove_callbacks.html#src.utils.packages.remove_callbacks.main">(in module src.utils.packages.remove_callbacks)</a>
+</li>
+        <li><a href="references/src/src.utils.packages.remove_cli.html#src.utils.packages.remove_cli.main">(in module src.utils.packages.remove_cli)</a>
 </li>
         <li><a href="references/src/src.utils.packages.remove_data.html#src.utils.packages.remove_data.main">(in module src.utils.packages.remove_data)</a>
 </li>
@@ -16109,7 +16165,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.memetic_algorithm.policy_ma.html#src.policies.route_construction.meta_heuristics.memetic_algorithm.policy_ma.MAPolicy">MAPolicy (class in src.policies.route_construction.meta_heuristics.memetic_algorithm.policy_ma)</a>
 </li>
-      <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.MARKERS">MARKERS (in module src.constants.user_interface)</a>
+      <li><a href="references/src/src.constants.plotting.html#src.constants.plotting.MARKERS">MARKERS (in module src.constants.plotting)</a>
 </li>
       <li><a href="references/src/src.policies.helpers.operators.sequence_merging.markov_chain_sequence.html#src.policies.helpers.operators.sequence_merging.markov_chain_sequence.markov_fit_from_log">markov_fit_from_log() (in module src.policies.helpers.operators.sequence_merging.markov_chain_sequence)</a>
 </li>
@@ -17479,6 +17535,8 @@ document.write(`
 </li>
         <li><a href="references/src/src.constants.paths.html#module-src.constants.paths">src.constants.paths</a>
 </li>
+        <li><a href="references/src/src.constants.plotting.html#module-src.constants.plotting">src.constants.plotting</a>
+</li>
         <li><a href="references/src/src.constants.routing.html#module-src.constants.routing">src.constants.routing</a>
 </li>
         <li><a href="references/src/src.constants.simulation.html#module-src.constants.simulation">src.constants.simulation</a>
@@ -17526,6 +17584,12 @@ document.write(`
         <li><a href="references/src/src.data.datasets.simulation.pd_xlsx_dataset.html#module-src.data.datasets.simulation.pd_xlsx_dataset">src.data.datasets.simulation.pd_xlsx_dataset</a>
 </li>
         <li><a href="references/src/src.data.datasets.simulation.sim_dataset.html#module-src.data.datasets.simulation.sim_dataset">src.data.datasets.simulation.sim_dataset</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html#module-src.data.datasets.web">src.data.datasets.web</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#module-src.data.datasets.web.dashboard_crawler">src.data.datasets.web.dashboard_crawler</a>
+</li>
+        <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#module-src.data.datasets.web.html_sim_dataset">src.data.datasets.web.html_sim_dataset</a>
 </li>
         <li><a href="references/src/src.data.distributions.html#module-src.data.distributions">src.data.distributions</a>
 </li>
@@ -17604,10 +17668,6 @@ document.write(`
         <li><a href="references/src/src.data.processor.setup.html#module-src.data.processor.setup">src.data.processor.setup</a>
 </li>
         <li><a href="references/src/src.data.processor.transforms.html#module-src.data.processor.transforms">src.data.processor.transforms</a>
-</li>
-        <li><a href="references/src/src.data.web.html#module-src.data.web">src.data.web</a>
-</li>
-        <li><a href="references/src/src.data.web.dashboard_crawler.html#module-src.data.web.dashboard_crawler">src.data.web.dashboard_crawler</a>
 </li>
         <li><a href="references/src/src.enums.html#module-src.enums">src.enums</a>
 </li>
@@ -20645,7 +20705,11 @@ document.write(`
 </li>
         <li><a href="references/src/src.utils.packages.cleanup_helper.html#module-src.utils.packages.cleanup_helper">src.utils.packages.cleanup_helper</a>
 </li>
+        <li><a href="references/src/src.utils.packages.prune_codebase.html#module-src.utils.packages.prune_codebase">src.utils.packages.prune_codebase</a>
+</li>
         <li><a href="references/src/src.utils.packages.remove_callbacks.html#module-src.utils.packages.remove_callbacks">src.utils.packages.remove_callbacks</a>
+</li>
+        <li><a href="references/src/src.utils.packages.remove_cli.html#module-src.utils.packages.remove_cli">src.utils.packages.remove_cli</a>
 </li>
         <li><a href="references/src/src.utils.packages.remove_data.html#module-src.utils.packages.remove_data">src.utils.packages.remove_data</a>
 </li>
@@ -22394,6 +22458,8 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.packages.remove_security.html#src.utils.packages.remove_security.patch_google_maps">patch_google_maps() (in module src.utils.packages.remove_security)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.remove_cli.html#src.utils.packages.remove_cli.patch_logic_init">patch_logic_init() (in module src.utils.packages.remove_cli)</a>
+</li>
       <li><a href="references/src/src.utils.packages.remove_security.html#src.utils.packages.remove_security.patch_parser_dispatch">patch_parser_dispatch() (in module src.utils.packages.remove_security)</a>
 </li>
       <li><a href="references/src/src.utils.packages.remove_security.html#src.utils.packages.remove_security.patch_setup_env">patch_setup_env() (in module src.utils.packages.remove_security)</a>
@@ -22646,7 +22712,7 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.html#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params.plateau_limit">(src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.LKH3Params attribute)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.constants.user_interface.html#src.constants.user_interface.PLOT_COLOURS">PLOT_COLOURS (in module src.constants.user_interface)</a>
+      <li><a href="references/src/src.constants.plotting.html#src.constants.plotting.PLOT_COLOURS">PLOT_COLOURS (in module src.constants.plotting)</a>
 </li>
       <li><a href="references/src/src.constants.dashboard.html#src.constants.dashboard.PLOTLY_LAYOUT_DEFAULTS">PLOTLY_LAYOUT_DEFAULTS (in module src.constants.dashboard)</a>
 </li>
@@ -22878,8 +22944,6 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.html#src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams.position_max">(src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.PSOParams attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.pso.html#src.configs.policies.pso.PSOConfig.position_min">position_min (src.configs.policies.pso.PSOConfig attribute)</a>
 
       <ul>
@@ -22888,6 +22952,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.models.subnets.embeddings.positional.html#src.models.subnets.embeddings.positional.POSITIONAL_EMBEDDING_REGISTRY">POSITIONAL_EMBEDDING_REGISTRY (in module src.models.subnets.embeddings.positional)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy.post_decoder_hook">post_decoder_hook() (src.utils.decoding.base.DecodingStrategy method)</a>
 </li>
       <li><a href="references/src/src.pipeline.rl.core.ppo.html#src.pipeline.rl.core.ppo.PPO">PPO (class in src.pipeline.rl.core.ppo)</a>
@@ -23396,7 +23462,25 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.helpers.solvers_and_matheuristics.branching.tree.html#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.prune_by_bound">prune_by_bound() (src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree method)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_category">prune_category() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.tracking.database.commands.html#src.tracking.database.commands.prune_database">prune_database() (in module src.tracking.database.commands)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_distributions">prune_distributions() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_empty_dirs">prune_empty_dirs() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_envs">prune_envs() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_network">prune_network() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_optional_features">prune_optional_features() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_policies_helpers">prune_policies_helpers() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_sim_datasets">prune_sim_datasets() (in module src.utils.packages.prune_codebase)</a>
+</li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.prune_subnets">prune_subnets() (in module src.utils.packages.prune_codebase)</a>
 </li>
       <li><a href="references/src/src.utils.policy.routes.html#src.utils.policy.routes.prune_unprofitable_routes">prune_unprofitable_routes() (in module src.utils.policy.routes)</a>
 </li>
@@ -23830,6 +23914,16 @@ document.write(`
 </li>
       <li><a href="references/src/src.utils.target.remover.html#src.utils.target.remover.remove_checkpoint_files">remove_checkpoint_files() (in module src.utils.target.remover)</a>
 </li>
+      <li><a href="references/src/src.utils.packages.remove_cli.html#src.utils.packages.remove_cli.remove_constants_init_import">remove_constants_init_import() (in module src.utils.packages.remove_cli)</a>
+
+      <ul>
+        <li><a href="references/src/src.utils.packages.remove_hpo.html#src.utils.packages.remove_hpo.remove_constants_init_import">(in module src.utils.packages.remove_hpo)</a>
+</li>
+        <li><a href="references/src/src.utils.packages.remove_ui.html#src.utils.packages.remove_ui.remove_constants_init_import">(in module src.utils.packages.remove_ui)</a>
+</li>
+      </ul></li>
+      <li><a href="references/src/src.utils.packages.cleanup_helper.html#src.utils.packages.cleanup_helper.remove_empty_dirs">remove_empty_dirs() (in module src.utils.packages.cleanup_helper)</a>
+</li>
       <li><a href="references/src/src.utils.target.remover.html#src.utils.target.remover.remove_fill_history_files">remove_fill_history_files() (in module src.utils.target.remover)</a>
 </li>
       <li><a href="references/src/src.utils.target.remover.html#src.utils.target.remover.remove_from_json_file">remove_from_json_file() (in module src.utils.target.remover)</a>
@@ -23842,6 +23936,8 @@ document.write(`
         <li><a href="references/src/src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.html#src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.remove_local_cuts">(src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport method)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.remove_logic_dev_dirs">remove_logic_dev_dirs() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.tracking.helpers.lightning_helpers.html#src.tracking.helpers.lightning_helpers.remove_monitoring_hooks">remove_monitoring_hooks() (in module src.tracking.helpers.lightning_helpers)</a>
 </li>
       <li><a href="references/src/src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.html#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations.remove_n_bins_consecutive">remove_n_bins_consecutive() (in module src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans_perturbations)</a>
@@ -23856,9 +23952,13 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.random.html#src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.random.remove_n_bins_random">(in module src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.random)</a>
 </li>
       </ul></li>
+      <li><a href="references/src/src.utils.packages.prune_codebase.html#src.utils.packages.prune_codebase.remove_packages_self">remove_packages_self() (in module src.utils.packages.prune_codebase)</a>
+</li>
       <li><a href="references/src/src.utils.packages.cleanup_helper.html#src.utils.packages.cleanup_helper.remove_path">remove_path() (in module src.utils.packages.cleanup_helper)</a>
 
       <ul>
+        <li><a href="references/src/src.utils.packages.remove_cli.html#src.utils.packages.remove_cli.remove_path">(in module src.utils.packages.remove_cli)</a>
+</li>
         <li><a href="references/src/src.utils.packages.remove_data.html#src.utils.packages.remove_data.remove_path">(in module src.utils.packages.remove_data)</a>
 </li>
         <li><a href="references/src/src.utils.packages.remove_enums.html#src.utils.packages.remove_enums.remove_path">(in module src.utils.packages.remove_enums)</a>
@@ -24174,6 +24274,8 @@ document.write(`
       </ul></li>
       <li><a href="references/src/src.interfaces.context.joint_context.html#src.interfaces.context.joint_context.JointSelectionConstructionContext.revenue_scaled">revenue_scaled() (src.interfaces.context.joint_context.JointSelectionConstructionContext method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.RevenueSelectionConfig.revenue_threshold">revenue_threshold (src.configs.policies.other.mandatory_selection.RevenueSelectionConfig attribute)</a>
 </li>
       <li><a href="references/src/src.configs.policies.other.mandatory_selection.html#src.configs.policies.other.mandatory_selection.RevenueSelectionConfig">RevenueSelectionConfig (class in src.configs.policies.other.mandatory_selection)</a>
@@ -24182,8 +24284,6 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.mandatory_selection.selection_revenue.html#src.policies.mandatory_selection.selection_revenue.RevenueThresholdSelection">RevenueThresholdSelection (class in src.policies.mandatory_selection.selection_revenue)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="references/src/src.pipeline.rl.core.losses.kl_divergence_loss.html#src.pipeline.rl.core.losses.kl_divergence_loss.reverse_kl_divergence_loss">reverse_kl_divergence_loss() (in module src.pipeline.rl.core.losses.kl_divergence_loss)</a>
 </li>
       <li><a href="references/src/src.configs.envs.graph.html#src.configs.envs.graph.GraphConfig.reward">reward (src.configs.envs.graph.GraphConfig attribute)</a>
@@ -27921,6 +28021,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.constants.plotting
+
+      <ul>
+        <li><a href="references/src/src.constants.plotting.html#module-src.constants.plotting">module</a>
+</li>
+      </ul></li>
+      <li>
     src.constants.routing
 
       <ul>
@@ -28086,6 +28193,27 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.data.datasets.simulation.sim_dataset.html#module-src.data.datasets.simulation.sim_dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.datasets.web
+
+      <ul>
+        <li><a href="references/src/src.data.datasets.web.html#module-src.data.datasets.web">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.datasets.web.dashboard_crawler
+
+      <ul>
+        <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#module-src.data.datasets.web.dashboard_crawler">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.data.datasets.web.html_sim_dataset
+
+      <ul>
+        <li><a href="references/src/src.data.datasets.web.html_sim_dataset.html#module-src.data.datasets.web.html_sim_dataset">module</a>
 </li>
       </ul></li>
       <li>
@@ -28359,20 +28487,6 @@ document.write(`
 
       <ul>
         <li><a href="references/src/src.data.processor.transforms.html#module-src.data.processor.transforms">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.data.web
-
-      <ul>
-        <li><a href="references/src/src.data.web.html#module-src.data.web">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.data.web.dashboard_crawler
-
-      <ul>
-        <li><a href="references/src/src.data.web.dashboard_crawler.html#module-src.data.web.dashboard_crawler">module</a>
 </li>
       </ul></li>
       <li>
@@ -39004,10 +39118,24 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    src.utils.packages.prune_codebase
+
+      <ul>
+        <li><a href="references/src/src.utils.packages.prune_codebase.html#module-src.utils.packages.prune_codebase">module</a>
+</li>
+      </ul></li>
+      <li>
     src.utils.packages.remove_callbacks
 
       <ul>
         <li><a href="references/src/src.utils.packages.remove_callbacks.html#module-src.utils.packages.remove_callbacks">module</a>
+</li>
+      </ul></li>
+      <li>
+    src.utils.packages.remove_cli
+
+      <ul>
+        <li><a href="references/src/src.utils.packages.remove_cli.html#module-src.utils.packages.remove_cli">module</a>
 </li>
       </ul></li>
       <li>
@@ -40714,7 +40842,7 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.html#src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter.to_closed_tour">(src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.TourAdapter method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler.to_csv">to_csv() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler.to_csv">to_csv() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.tracking.logging.modules.analysis.html#src.tracking.logging.modules.analysis.ResultsDB.to_dataframe">to_dataframe() (src.tracking.logging.modules.analysis.ResultsDB method)</a>
 </li>
@@ -40804,7 +40932,7 @@ document.write(`
         <li><a href="references/src/src.policies.route_construction.other_algorithms.travelling_salesman_problem.params.html#src.policies.route_construction.other_algorithms.travelling_salesman_problem.params.TSPParams.to_dict">(src.policies.route_construction.other_algorithms.travelling_salesman_problem.params.TSPParams method)</a>
 </li>
       </ul></li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler.to_excel">to_excel() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler.to_excel">to_excel() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.interfaces.context.solution_context.html#src.interfaces.context.solution_context.SolutionContext.to_flat_tour">to_flat_tour() (src.interfaces.context.solution_context.SolutionContext method)</a>
 </li>
@@ -40812,7 +40940,7 @@ document.write(`
 </li>
       <li><a href="references/src/src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.chromosome.html#src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.chromosome.Chromosome.to_routes">to_routes() (src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.chromosome.Chromosome method)</a>
 </li>
-      <li><a href="references/src/src.data.web.dashboard_crawler.html#src.data.web.dashboard_crawler.to_simulation_data">to_simulation_data() (in module src.data.web.dashboard_crawler)</a>
+      <li><a href="references/src/src.data.datasets.web.dashboard_crawler.html#src.data.datasets.web.dashboard_crawler.to_simulation_data">to_simulation_data() (in module src.data.datasets.web.dashboard_crawler)</a>
 </li>
       <li><a href="references/src/src.pipeline.simulations.day_context.html#src.pipeline.simulations.day_context.to_slug">to_slug() (in module src.pipeline.simulations.day_context)</a>
 </li>

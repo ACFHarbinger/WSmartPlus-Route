@@ -40,7 +40,7 @@ src.data.datasets.simulation.pd_xlsx_dataset
 ````{py:data} __all__
 :canonical: src.data.datasets.simulation.__all__
 :value: >
-   ['GenerativeDataset']
+   ['GenerativeDataset', 'NumpyDictDataset', 'NumpyPickleDataset', 'PandasCsvDataset', 'PandasExcelData...
 
 ```{autodoc2-docstring} src.data.datasets.simulation.__all__
 ```

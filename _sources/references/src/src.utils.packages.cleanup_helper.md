@@ -47,6 +47,14 @@
   - ```{autodoc2-docstring} src.utils.packages.cleanup_helper._find_impls_to_delete
     :summary:
     ```
+* - {py:obj}`_is_effectively_empty <src.utils.packages.cleanup_helper._is_effectively_empty>`
+  - ```{autodoc2-docstring} src.utils.packages.cleanup_helper._is_effectively_empty
+    :summary:
+    ```
+* - {py:obj}`remove_empty_dirs <src.utils.packages.cleanup_helper.remove_empty_dirs>`
+  - ```{autodoc2-docstring} src.utils.packages.cleanup_helper.remove_empty_dirs
+    :summary:
+    ```
 * - {py:obj}`clean_by_acronym <src.utils.packages.cleanup_helper.clean_by_acronym>`
   - ```{autodoc2-docstring} src.utils.packages.cleanup_helper.clean_by_acronym
     :summary:
@@ -85,6 +93,10 @@
     ```
 * - {py:obj}`IMITATION_POLICIES <src.utils.packages.cleanup_helper.IMITATION_POLICIES>`
   - ```{autodoc2-docstring} src.utils.packages.cleanup_helper.IMITATION_POLICIES
+    :summary:
+    ```
+* - {py:obj}`_SKIP_DIR_NAMES <src.utils.packages.cleanup_helper._SKIP_DIR_NAMES>`
+  - ```{autodoc2-docstring} src.utils.packages.cleanup_helper._SKIP_DIR_NAMES
     :summary:
     ```
 ````
@@ -214,6 +226,31 @@
 :canonical: src.utils.packages.cleanup_helper._find_impls_to_delete
 
 ```{autodoc2-docstring} src.utils.packages.cleanup_helper._find_impls_to_delete
+```
+````
+
+````{py:data} _SKIP_DIR_NAMES
+:canonical: src.utils.packages.cleanup_helper._SKIP_DIR_NAMES
+:type: set
+:value: >
+   None
+
+```{autodoc2-docstring} src.utils.packages.cleanup_helper._SKIP_DIR_NAMES
+```
+
+````
+
+````{py:function} _is_effectively_empty(path: pathlib.Path) -> bool
+:canonical: src.utils.packages.cleanup_helper._is_effectively_empty
+
+```{autodoc2-docstring} src.utils.packages.cleanup_helper._is_effectively_empty
+```
+````
+
+````{py:function} remove_empty_dirs(root: pathlib.Path, scan_paths: list) -> None
+:canonical: src.utils.packages.cleanup_helper.remove_empty_dirs
+
+```{autodoc2-docstring} src.utils.packages.cleanup_helper.remove_empty_dirs
 ```
 ````
 

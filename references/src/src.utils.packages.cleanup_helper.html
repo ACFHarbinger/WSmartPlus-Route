@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,7 +276,6 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -491,6 +491,9 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_yaml_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_yaml_to_delete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_configs_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_configs_to_delete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_impls_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_impls_to_delete()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._SKIP_DIR_NAMES"><code class="docutils literal notranslate"><span class="pre">_SKIP_DIR_NAMES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._is_effectively_empty"><code class="docutils literal notranslate"><span class="pre">_is_effectively_empty()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper.remove_empty_dirs"><code class="docutils literal notranslate"><span class="pre">remove_empty_dirs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper.clean_by_acronym"><code class="docutils literal notranslate"><span class="pre">clean_by_acronym()</span></code></a></li>
 </ul>
 </li>
@@ -540,6 +543,12 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper._find_impls_to_delete" title="src.utils.packages.cleanup_helper._find_impls_to_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_impls_to_delete</span></code></a></p></td>
 <td><p>Scan and find implementations to delete.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper._is_effectively_empty" title="src.utils.packages.cleanup_helper._is_effectively_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_effectively_empty</span></code></a></p></td>
+<td><p>Return True if directory only contains <strong>init</strong>.py and/or effectively-empty subdirs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper.remove_empty_dirs" title="src.utils.packages.cleanup_helper.remove_empty_dirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_empty_dirs</span></code></a></p></td>
+<td><p>Remove dirs that only contain <strong>init</strong>.py (and/or other empty subdirs).</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper.clean_by_acronym" title="src.utils.packages.cleanup_helper.clean_by_acronym"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_by_acronym</span></code></a></p></td>
 <td><p>Find and delete configs, overrides, implementations and clean imports for a given acronym.</p></td>
 </tr>
@@ -570,6 +579,9 @@ document.write(`
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper.IMITATION_POLICIES" title="src.utils.packages.cleanup_helper.IMITATION_POLICIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IMITATION_POLICIES</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.cleanup_helper._SKIP_DIR_NAMES" title="src.utils.packages.cleanup_helper._SKIP_DIR_NAMES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_SKIP_DIR_NAMES</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -668,6 +680,25 @@ document.write(`
 <dd><p>Scan and find implementations to delete.</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.packages.cleanup_helper._SKIP_DIR_NAMES">
+<span class="sig-prename descclassname"><span class="pre">src.utils.packages.cleanup_helper.</span></span><span class="sig-name descname"><span class="pre">_SKIP_DIR_NAMES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span></em><a class="headerlink" href="#src.utils.packages.cleanup_helper._SKIP_DIR_NAMES" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.packages.cleanup_helper._is_effectively_empty">
+<span class="sig-prename descclassname"><span class="pre">src.utils.packages.cleanup_helper.</span></span><span class="sig-name descname"><span class="pre">_is_effectively_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.packages.cleanup_helper._is_effectively_empty" title="Link to this definition">#</a></dt>
+<dd><p>Return True if directory only contains <strong>init</strong>.py and/or effectively-empty subdirs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.packages.cleanup_helper.remove_empty_dirs">
+<span class="sig-prename descclassname"><span class="pre">src.utils.packages.cleanup_helper.</span></span><span class="sig-name descname"><span class="pre">remove_empty_dirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.packages.cleanup_helper.remove_empty_dirs" title="Link to this definition">#</a></dt>
+<dd><p>Remove dirs that only contain <strong>init</strong>.py (and/or other empty subdirs).</p>
+<p>Iterates repeatedly until no further removals occur (handles nested emptiness).</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.packages.cleanup_helper.clean_by_acronym">
 <span class="sig-prename descclassname"><span class="pre">src.utils.packages.cleanup_helper.</span></span><span class="sig-name descname"><span class="pre">clean_by_acronym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acronym</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_prefixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_prefixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.packages.cleanup_helper.clean_by_acronym" title="Link to this definition">#</a></dt>
@@ -742,6 +773,9 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_yaml_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_yaml_to_delete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_configs_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_configs_to_delete()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._find_impls_to_delete"><code class="docutils literal notranslate"><span class="pre">_find_impls_to_delete()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._SKIP_DIR_NAMES"><code class="docutils literal notranslate"><span class="pre">_SKIP_DIR_NAMES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper._is_effectively_empty"><code class="docutils literal notranslate"><span class="pre">_is_effectively_empty()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper.remove_empty_dirs"><code class="docutils literal notranslate"><span class="pre">remove_empty_dirs()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.cleanup_helper.clean_by_acronym"><code class="docutils literal notranslate"><span class="pre">clean_by_acronym()</span></code></a></li>
 </ul>
 </li>

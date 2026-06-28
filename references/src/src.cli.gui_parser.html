@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,7 +276,6 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -474,7 +474,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.__APP_STYLES"><code class="docutils literal notranslate"><span class="pre">__APP_STYLES</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.add_gui_args"><code class="docutils literal notranslate"><span class="pre">add_gui_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.validate_gui_args"><code class="docutils literal notranslate"><span class="pre">validate_gui_args()</span></code></a></li>
 </ul>
@@ -520,8 +522,25 @@ validate_gui_args: Validates and post-processes arguments for gui.src.</p>
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.cli.gui_parser.__APP_STYLES" title="src.cli.gui_parser.__APP_STYLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__APP_STYLES</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.cli.gui_parser.__APP_STYLES">
+<span class="sig-prename descclassname"><span class="pre">src.cli.gui_parser.</span></span><span class="sig-name descname"><span class="pre">__APP_STYLES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.cli.gui_parser.__APP_STYLES" title="Link to this definition">#</a></dt>
+<dd><p>[‘fusion’, ‘windows’, ‘windowsxp’, ‘macintosh’]</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.gui_parser.add_gui_args">
 <span class="sig-prename descclassname"><span class="pre">src.cli.gui_parser.</span></span><span class="sig-name descname"><span class="pre">add_gui_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.cli.gui_parser.add_gui_args" title="Link to this definition">#</a></dt>
@@ -593,7 +612,9 @@ The validated arguments.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.__APP_STYLES"><code class="docutils literal notranslate"><span class="pre">__APP_STYLES</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.add_gui_args"><code class="docutils literal notranslate"><span class="pre">add_gui_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.gui_parser.validate_gui_args"><code class="docutils literal notranslate"><span class="pre">validate_gui_args()</span></code></a></li>
 </ul>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.data.web.dashboard_crawler &#8212; WSmart-Route  documentation</title>
+    <title>src.data.datasets.web &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -62,11 +62,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.web.dashboard_crawler';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.data.datasets.web';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.data.datasets" href="src.data.datasets.html" />
-    <link rel="prev" title="src.data.web" href="src.data.web.html" />
+    <link rel="next" title="src.data.datasets.web.html_sim_dataset" href="src.data.datasets.web.html_sim_dataset.html" />
+    <link rel="prev" title="src.data.datasets" href="src.data.datasets.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,8 +276,7 @@
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
@@ -378,7 +378,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.data.web.dashboard_crawler.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.data.datasets.web.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -462,7 +462,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.data.web.dashboard_crawler</h1>
+    <h1>src.data.datasets.web</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -472,21 +472,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._EXCLUDED_COL"><code class="docutils literal notranslate"><span class="pre">_EXCLUDED_COL</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._COLUMN_RENAME"><code class="docutils literal notranslate"><span class="pre">_COLUMN_RENAME</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._load_html"><code class="docutils literal notranslate"><span class="pre">_load_html()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._find_todos_os_locais_table"><code class="docutils literal notranslate"><span class="pre">_find_todos_os_locais_table()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._parse_table"><code class="docutils literal notranslate"><span class="pre">_parse_table()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.extract_dataframe"><code class="docutils literal notranslate"><span class="pre">extract_dataframe()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_csv"><code class="docutils literal notranslate"><span class="pre">to_csv()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_excel"><code class="docutils literal notranslate"><span class="pre">to_excel()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_simulation_data"><code class="docutils literal notranslate"><span class="pre">to_simulation_data()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._build_parser"><code class="docutils literal notranslate"><span class="pre">_build_parser()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.datasets.web.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -502,63 +492,42 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.web.dashboard_crawler">
-<span id="src-data-web-dashboard-crawler"></span><h1><a class="reference internal" href="#module-src.data.web.dashboard_crawler" title="src.data.web.dashboard_crawler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web.dashboard_crawler</span></code></a><a class="headerlink" href="#module-src.data.web.dashboard_crawler" title="Link to this heading">#</a></h1>
-<p>Crawler for WSmart+ Route HTML dashboards.</p>
-<p>Extracts the “Todos os Locais” table from a dashboard HTML file or URL and
-exposes two usage modes:</p>
-<ul class="simple">
-<li><p>Export to CSV / Excel for offline use.</p></li>
-<li><p>Return (data_df, coordinates_df) tuples compatible with SimulationRepository.</p></li>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.data.datasets.web">
+<span id="src-data-datasets-web"></span><h1><a class="reference internal" href="#module-src.data.datasets.web" title="src.data.datasets.web"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.web</span></code></a><a class="headerlink" href="#module-src.data.datasets.web" title="Link to this heading">#</a></h1>
+<p>Web-based dataset loaders and crawlers for WSmart+ Route.</p>
+<p>This module provides tools for extracting simulation and routing data from
+WSmart+ Route web/HTML dashboards, including the <code class="docutils literal notranslate"><span class="pre">HtmlSimulationDataset</span></code>
+for on-the-fly dashboard-to-simulation conversion.</p>
+<p>Attributes:
+HtmlSimulationDataset: Dataset loader from HTML dashboards.
+extract_dataframe: Low-level parser for HTML table extraction.
+to_csv: Utility to export dashboard to CSV.
+to_excel: Utility to export dashboard to Excel.
+to_simulation_data: Utility to convert dashboard data to standard frames.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.data.datasets.web import HtmlSimulationDataset
+&gt;&gt;&gt; dataset = HtmlSimulationDataset.load(
+…     “path/to/dashboard.html”,
+…     area=”candaval”,
+…     waste_type=”residuo”,
+…     n_days=31
+… )</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.data.datasets.web.html_sim_dataset.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.web.html_sim_dataset</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.data.datasets.web.dashboard_crawler.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.web.dashboard_crawler</span></code></a></li>
 </ul>
-<p>Columns extracted (all except “Viagem / Origem”):
-Local, % vol. atual, % vol. média, Acum. (%/dia), Volume (kg), Nº Cont.,
-Latitude, Longitude</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._load_html" title="src.data.web.dashboard_crawler._load_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_html</span></code></a></p></td>
-<td><p>Return raw HTML from a file path or URL.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._find_todos_os_locais_table" title="src.data.web.dashboard_crawler._find_todos_os_locais_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_todos_os_locais_table</span></code></a></p></td>
-<td><p>Locate the ‘Todos os Locais’ table inside the dashboard HTML.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._parse_table" title="src.data.web.dashboard_crawler._parse_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_table</span></code></a></p></td>
-<td><p>Convert a BeautifulSoup table into a cleaned DataFrame.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler.extract_dataframe" title="src.data.web.dashboard_crawler.extract_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_dataframe</span></code></a></p></td>
-<td><p>Parse the dashboard and return the ‘Todos os Locais’ table as a DataFrame.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler.to_csv" title="src.data.web.dashboard_crawler.to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_csv</span></code></a></p></td>
-<td><p>Export ‘Todos os Locais’ data to a CSV file.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler.to_excel" title="src.data.web.dashboard_crawler.to_excel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_excel</span></code></a></p></td>
-<td><p>Export ‘Todos os Locais’ data to an Excel file.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler.to_simulation_data" title="src.data.web.dashboard_crawler.to_simulation_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_simulation_data</span></code></a></p></td>
-<td><p>Return (data_df, coordinates_df) ready for use with SimulationRepository.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._build_parser" title="src.data.web.dashboard_crawler._build_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_parser</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler.main" title="src.data.web.dashboard_crawler.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 </div>
 </section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._EXCLUDED_COL" title="src.data.web.dashboard_crawler._EXCLUDED_COL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_EXCLUDED_COL</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.data.web.dashboard_crawler._COLUMN_RENAME" title="src.data.web.dashboard_crawler._COLUMN_RENAME"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_COLUMN_RENAME</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.datasets.web.__all__" title="src.data.datasets.web.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -568,105 +537,10 @@ Latitude, Longitude</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._EXCLUDED_COL">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_EXCLUDED_COL</span></span><a class="headerlink" href="#src.data.web.dashboard_crawler._EXCLUDED_COL" title="Link to this definition">#</a></dt>
-<dd><p>‘Viagem / Origem’</p>
+<dt class="sig sig-object py" id="src.data.datasets.web.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.data.datasets.web.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.data.datasets.web.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘extract_dataframe’, ‘to_csv’, ‘to_excel’, ‘to_simulation_data’, ‘HtmlSimulationDataset’]</p>
 </dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._COLUMN_RENAME">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_COLUMN_RENAME</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.data.web.dashboard_crawler._COLUMN_RENAME" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._load_html">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_load_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler._load_html" title="Link to this definition">#</a></dt>
-<dd><p>Return raw HTML from a file path or URL.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._find_todos_os_locais_table">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_find_todos_os_locais_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bs4.BeautifulSoup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bs4.BeautifulSoup</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler._find_todos_os_locais_table" title="Link to this definition">#</a></dt>
-<dd><p>Locate the ‘Todos os Locais’ table inside the dashboard HTML.</p>
-<p>Strategy: find the flow-section whose tab-bar contains a button with the
-text ‘Todos os Locais’, then pick the tab-content inside that section
-whose table header includes ‘Viagem / Origem’.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._parse_table">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_parse_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bs4.BeautifulSoup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler._parse_table" title="Link to this definition">#</a></dt>
-<dd><p>Convert a BeautifulSoup table into a cleaned DataFrame.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler.extract_dataframe">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">extract_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler.extract_dataframe" title="Link to this definition">#</a></dt>
-<dd><p>Parse the dashboard and return the ‘Todos os Locais’ table as a DataFrame.</p>
-<p>Columns: ID, Fill_Pct, Fill_Avg_Pct, Acum_Rate_Pct, Volume_kg,
-N_Containers, Lat, Lng</p>
-<p>Args:
-source: Path to an HTML file or a URL.</p>
-<p>Returns:
-DataFrame with one row per location.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler.to_csv">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler.to_csv" title="Link to this definition">#</a></dt>
-<dd><p>Export ‘Todos os Locais’ data to a CSV file.</p>
-<p>Args:
-source: Path to an HTML file or a URL.
-output_path: Destination CSV file path.
-sep: Column separator (default: comma).</p>
-<p>Returns:
-Absolute path to the written file.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler.to_excel">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">to_excel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Todos</span> <span class="pre">os</span> <span class="pre">Locais'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler.to_excel" title="Link to this definition">#</a></dt>
-<dd><p>Export ‘Todos os Locais’ data to an Excel file.</p>
-<p>Args:
-source: Path to an HTML file or a URL.
-output_path: Destination .xlsx file path.
-sheet_name: Sheet name inside the workbook.</p>
-<p>Returns:
-Absolute path to the written file.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler.to_simulation_data">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">to_simulation_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler.to_simulation_data" title="Link to this definition">#</a></dt>
-<dd><p>Return (data_df, coordinates_df) ready for use with SimulationRepository.</p>
-<p>The tuple mirrors what FileSystemRepository / DatasetRepository return from
-<code class="docutils literal notranslate"><span class="pre">get_simulator_data</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">data_df</span></code>: columns [ID, Stock, Accum_Rate]</p>
-<ul>
-<li><p>Stock      = Fill_Pct / 100  (current fill level in [0, 1])</p></li>
-<li><p>Accum_Rate = Acum_Rate_Pct / 100  (daily fill increment in [0, 1])</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">coordinates_df</span></code>: columns [ID, Lat, Lng]</p></li>
-</ul>
-<p>Args:
-source: Path to an HTML file or a URL.
-n_bins: If provided, randomly sample this many bins (reproducible seed).</p>
-<p>Returns:
-(data_df, coordinates_df)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler._build_parser">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_build_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">argparse.ArgumentParser</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler._build_parser" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.data.web.dashboard_crawler.main">
-<span class="sig-prename descclassname"><span class="pre">src.data.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.data.web.dashboard_crawler.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
 
 </section>
 </section>
@@ -684,20 +558,20 @@ n_bins: If provided, randomly sample this many bins (reproducible seed).</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.data.web.html"
+       href="src.data.datasets.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.data.datasets.html"
+       href="src.data.datasets.web.html_sim_dataset.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets.web.html_sim_dataset</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -717,21 +591,11 @@ n_bins: If provided, randomly sample this many bins (reproducible seed).</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._EXCLUDED_COL"><code class="docutils literal notranslate"><span class="pre">_EXCLUDED_COL</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._COLUMN_RENAME"><code class="docutils literal notranslate"><span class="pre">_COLUMN_RENAME</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._load_html"><code class="docutils literal notranslate"><span class="pre">_load_html()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._find_todos_os_locais_table"><code class="docutils literal notranslate"><span class="pre">_find_todos_os_locais_table()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._parse_table"><code class="docutils literal notranslate"><span class="pre">_parse_table()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.extract_dataframe"><code class="docutils literal notranslate"><span class="pre">extract_dataframe()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_csv"><code class="docutils literal notranslate"><span class="pre">to_csv()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_excel"><code class="docutils literal notranslate"><span class="pre">to_excel()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.to_simulation_data"><code class="docutils literal notranslate"><span class="pre">to_simulation_data()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler._build_parser"><code class="docutils literal notranslate"><span class="pre">_build_parser()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.web.dashboard_crawler.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.datasets.web.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>

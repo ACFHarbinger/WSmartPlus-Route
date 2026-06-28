@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.utils.packages.remove_ui';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.utils.packages.remove_policy_others" href="src.utils.packages.remove_policy_others.html" />
+    <link rel="next" title="src.utils.packages.remove_cli" href="src.utils.packages.remove_cli.html" />
     <link rel="prev" title="src.utils.packages.remove_security" href="src.utils.packages.remove_security.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,7 +276,6 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -475,6 +475,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.remove_constants_init_import"><code class="docutils literal notranslate"><span class="pre">remove_constants_init_import()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.get_project_root"><code class="docutils literal notranslate"><span class="pre">get_project_root()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.remove_path"><code class="docutils literal notranslate"><span class="pre">remove_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.comment_justfile"><code class="docutils literal notranslate"><span class="pre">comment_justfile()</span></code></a></li>
@@ -504,19 +505,22 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.get_project_root" title="src.utils.packages.remove_ui.get_project_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_project_root</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.remove_constants_init_import" title="src.utils.packages.remove_ui.remove_constants_init_import"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_constants_init_import</span></code></a></p></td>
+<td><p>Comment out a wildcard import from logic/src/constants/<strong>init</strong>.py.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.get_project_root" title="src.utils.packages.remove_ui.get_project_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_project_root</span></code></a></p></td>
 <td><p>Find WSmart-Route root directory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.remove_path" title="src.utils.packages.remove_ui.remove_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_path</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.remove_path" title="src.utils.packages.remove_ui.remove_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_path</span></code></a></p></td>
 <td><p>Delete a file or directory safely.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.comment_justfile" title="src.utils.packages.remove_ui.comment_justfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">comment_justfile</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.comment_justfile" title="src.utils.packages.remove_ui.comment_justfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">comment_justfile</span></code></a></p></td>
 <td><p>Comment out Streamlit dashboard command in justfile.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.update_dockerfile" title="src.utils.packages.remove_ui.update_dockerfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_dockerfile</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.update_dockerfile" title="src.utils.packages.remove_ui.update_dockerfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_dockerfile</span></code></a></p></td>
 <td><p>Update Dockerfile ENTRYPOINT to call main.py instead of Streamlit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.main" title="src.utils.packages.remove_ui.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_ui.main" title="src.utils.packages.remove_ui.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -525,6 +529,12 @@ document.write(`
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.packages.remove_ui.remove_constants_init_import">
+<span class="sig-prename descclassname"><span class="pre">src.utils.packages.remove_ui.</span></span><span class="sig-name descname"><span class="pre">remove_constants_init_import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.packages.remove_ui.remove_constants_init_import" title="Link to this definition">#</a></dt>
+<dd><p>Comment out a wildcard import from logic/src/constants/<strong>init</strong>.py.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.packages.remove_ui.get_project_root">
 <span class="sig-prename descclassname"><span class="pre">src.utils.packages.remove_ui.</span></span><span class="sig-name descname"><span class="pre">get_project_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.utils.packages.remove_ui.get_project_root" title="Link to this definition">#</a></dt>
@@ -579,11 +589,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="src.utils.packages.remove_policy_others.html"
+       href="src.utils.packages.remove_cli.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.packages.remove_policy_others</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.packages.remove_cli</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -606,6 +616,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.remove_constants_init_import"><code class="docutils literal notranslate"><span class="pre">remove_constants_init_import()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.get_project_root"><code class="docutils literal notranslate"><span class="pre">get_project_root()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.remove_path"><code class="docutils literal notranslate"><span class="pre">remove_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_ui.comment_justfile"><code class="docutils literal notranslate"><span class="pre">comment_justfile()</span></code></a></li>

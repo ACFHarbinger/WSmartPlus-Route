@@ -24,9 +24,11 @@ src.utils.packages.remove_enums
 src.utils.packages.remove_data
 src.utils.packages.remove_security
 src.utils.packages.remove_ui
+src.utils.packages.remove_cli
 src.utils.packages.remove_policy_others
 src.utils.packages.remove_tracking
 src.utils.packages.cleanup_helper
 src.utils.packages.remove_meta
+src.utils.packages.prune_codebase
 src.utils.packages.remove_models
 ```

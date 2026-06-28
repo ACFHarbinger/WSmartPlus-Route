@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
+src.constants.plotting
 src.constants.data
 src.constants.system
 src.constants.user_interface

@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,7 +276,6 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -472,18 +472,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-design-principles">Visual Design Principles</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#color-palette-rationale">Color Palette Rationale</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.PBAR_WAIT_TIME"><code class="docutils literal notranslate"><span class="pre">PBAR_WAIT_TIME</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.TQDM_COLOURS"><code class="docutils literal notranslate"><span class="pre">TQDM_COLOURS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.MARKERS"><code class="docutils literal notranslate"><span class="pre">MARKERS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.PLOT_COLOURS"><code class="docutils literal notranslate"><span class="pre">PLOT_COLOURS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.LINESTYLES"><code class="docutils literal notranslate"><span class="pre">LINESTYLES</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.CTRL_C_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">CTRL_C_TIMEOUT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.APP_STYLES"><code class="docutils literal notranslate"><span class="pre">APP_STYLES</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -501,49 +494,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.constants.user_interface">
 <span id="src-constants-user-interface"></span><h1><a class="reference internal" href="#module-src.constants.user_interface" title="src.constants.user_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a><a class="headerlink" href="#module-src.constants.user_interface" title="Link to this heading">#</a></h1>
-<section id="visual-design-principles">
-<h2>Visual Design Principles<a class="headerlink" href="#visual-design-principles" title="Link to this heading">#</a></h2>
-<ol class="arabic simple">
-<li><p><strong>Accessibility</strong>: Colorblind-safe palettes, high contrast</p></li>
-<li><p><strong>Consistency</strong>: Same colors for same concepts across CLI/GUI/plots</p></li>
-<li><p><strong>Terminal Safety</strong>: ANSI color compatibility (tqdm, rich)</p></li>
-<li><p><strong>Print Compatibility</strong>: Patterns distinguishable in grayscale</p></li>
-</ol>
-</section>
-<section id="color-palette-rationale">
-<h2>Color Palette Rationale<a class="headerlink" href="#color-palette-rationale" title="Link to this heading">#</a></h2>
-<p>TQDM_COLOURS and PLOT_COLOURS use the 6-color ANSI palette plus black.
-This ensures:</p>
-<ul class="simple">
-<li><p>Terminal emulator compatibility (256-color terminals)</p></li>
-<li><p>Distinct colors for multi-route/multi-policy visualizations</p></li>
-<li><p>Colorblind-safe (avoid red-green alone for critical distinctions)</p></li>
-</ul>
+<p>Constants for simulation progress bar display.</p>
 <p>Attributes:
 PBAR_WAIT_TIME: Progress bar update interval (seconds)
-TQDM_COLOURS: TQDM progress bar color cycling
-MARKERS: Marker shapes for scatter plots and line plots
-PLOT_COLOURS: Plot color palette (matplotlib color names)
-LINESTYLES: Line styles for multi-series plots
-CTRL_C_TIMEOUT: Ctrl+C graceful shutdown timeout (seconds)
-APP_STYLES: Available Qt application styles</p>
-<p>Example:
-&gt;&gt;&gt; from logic.src.constants import PBAR_WAIT_TIME, TQDM_COLOURS, MARKERS, PLOT_COLOURS, LINESTYLES, CTRL_C_TIMEOUT, APP_STYLES
-&gt;&gt;&gt; PBAR_WAIT_TIME
-0.1
-&gt;&gt;&gt; TQDM_COLOURS
-[‘red’, ‘blue’, ‘green’, ‘yellow’, ‘magenta’, ‘cyan’]
-&gt;&gt;&gt; MARKERS
-[‘P’, ‘s’, ‘^’, ‘8’, ‘*’]</p>
-</section>
-<p>Constants related to the User Interface and Visualization.</p>
-<p>This module defines visual styling for terminal output, matplotlib plots, and
-GUI application themes. Used by:</p>
-<ul class="simple">
-<li><p>logic/src/utils/logging/ (progress bars, colored output)</p></li>
-<li><p>logic/src/utils/logging/plotting/ (matplotlib charts)</p></li>
-<li><p>gui/src/windows/main_window.py (PySide6 application style)</p></li>
-</ul>
+TQDM_COLOURS: TQDM progress bar color cycling for parallel workers</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">
@@ -554,21 +508,6 @@ GUI application themes. Used by:</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.constants.user_interface.TQDM_COLOURS" title="src.constants.user_interface.TQDM_COLOURS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TQDM_COLOURS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.user_interface.MARKERS" title="src.constants.user_interface.MARKERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MARKERS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.user_interface.PLOT_COLOURS" title="src.constants.user_interface.PLOT_COLOURS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLOT_COLOURS</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.user_interface.LINESTYLES" title="src.constants.user_interface.LINESTYLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LINESTYLES</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.user_interface.CTRL_C_TIMEOUT" title="src.constants.user_interface.CTRL_C_TIMEOUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CTRL_C_TIMEOUT</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.user_interface.APP_STYLES" title="src.constants.user_interface.APP_STYLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">APP_STYLES</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -585,38 +524,8 @@ GUI application themes. Used by:</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.constants.user_interface.TQDM_COLOURS">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">TQDM_COLOURS</span></span><a class="headerlink" href="#src.constants.user_interface.TQDM_COLOURS" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">TQDM_COLOURS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.user_interface.TQDM_COLOURS" title="Link to this definition">#</a></dt>
 <dd><p>[‘red’, ‘blue’, ‘green’, ‘yellow’, ‘magenta’, ‘cyan’]</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.user_interface.MARKERS">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">MARKERS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.user_interface.MARKERS" title="Link to this definition">#</a></dt>
-<dd><p>[‘P’, ‘s’, ‘^’, ‘8’, ‘*’]</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.user_interface.PLOT_COLOURS">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">PLOT_COLOURS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.user_interface.PLOT_COLOURS" title="Link to this definition">#</a></dt>
-<dd><p>[‘red’, ‘blue’, ‘green’, ‘yellow’, ‘magenta’, ‘cyan’, ‘black’]</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.user_interface.LINESTYLES">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">LINESTYLES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.user_interface.LINESTYLES" title="Link to this definition">#</a></dt>
-<dd><p>[‘dotted’, ‘dashed’, ‘dashdot’, (0, (3, 5, 1, 5, 1, 5)), ‘solid’]</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.user_interface.CTRL_C_TIMEOUT">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">CTRL_C_TIMEOUT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.constants.user_interface.CTRL_C_TIMEOUT" title="Link to this definition">#</a></dt>
-<dd><p>2.0</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.user_interface.APP_STYLES">
-<span class="sig-prename descclassname"><span class="pre">src.constants.user_interface.</span></span><span class="sig-name descname"><span class="pre">APP_STYLES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.user_interface.APP_STYLES" title="Link to this definition">#</a></dt>
-<dd><p>[‘fusion’, ‘windows’, ‘windowsxp’, ‘macintosh’]</p>
 </dd></dl>
 
 </section>
@@ -668,18 +577,11 @@ GUI application themes. Used by:</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-design-principles">Visual Design Principles</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#color-palette-rationale">Color Palette Rationale</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.PBAR_WAIT_TIME"><code class="docutils literal notranslate"><span class="pre">PBAR_WAIT_TIME</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.TQDM_COLOURS"><code class="docutils literal notranslate"><span class="pre">TQDM_COLOURS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.MARKERS"><code class="docutils literal notranslate"><span class="pre">MARKERS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.PLOT_COLOURS"><code class="docutils literal notranslate"><span class="pre">PLOT_COLOURS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.LINESTYLES"><code class="docutils literal notranslate"><span class="pre">LINESTYLES</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.CTRL_C_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">CTRL_C_TIMEOUT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.user_interface.APP_STYLES"><code class="docutils literal notranslate"><span class="pre">APP_STYLES</span></code></a></li>
 </ul>
 </li>
 </ul>

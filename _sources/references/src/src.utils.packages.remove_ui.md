@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`remove_constants_init_import <src.utils.packages.remove_ui.remove_constants_init_import>`
+  - ```{autodoc2-docstring} src.utils.packages.remove_ui.remove_constants_init_import
+    :summary:
+    ```
 * - {py:obj}`get_project_root <src.utils.packages.remove_ui.get_project_root>`
   - ```{autodoc2-docstring} src.utils.packages.remove_ui.get_project_root
     :summary:
@@ -38,6 +42,13 @@
 ````
 
 ### API
+
+````{py:function} remove_constants_init_import(root: pathlib.Path, module_name: str) -> None
+:canonical: src.utils.packages.remove_ui.remove_constants_init_import
+
+```{autodoc2-docstring} src.utils.packages.remove_ui.remove_constants_init_import
+```
+````
 
 ````{py:function} get_project_root() -> pathlib.Path
 :canonical: src.utils.packages.remove_ui.get_project_root

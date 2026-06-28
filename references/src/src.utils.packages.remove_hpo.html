@@ -175,6 +175,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.plotting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
@@ -275,7 +276,6 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.web.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.web</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
@@ -479,6 +479,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.remove_path"><code class="docutils literal notranslate"><span class="pre">remove_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_tasks_init"><code class="docutils literal notranslate"><span class="pre">clean_tasks_init()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_configs_init"><code class="docutils literal notranslate"><span class="pre">clean_configs_init()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.remove_constants_init_import"><code class="docutils literal notranslate"><span class="pre">remove_constants_init_import()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_hydra_dispatch"><code class="docutils literal notranslate"><span class="pre">clean_hydra_dispatch()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
@@ -518,10 +519,13 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.clean_configs_init" title="src.utils.packages.remove_hpo.clean_configs_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_configs_init</span></code></a></p></td>
 <td><p>Clean up root configs/<strong>init</strong>.py imports and dataclass fields.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.clean_hydra_dispatch" title="src.utils.packages.remove_hpo.clean_hydra_dispatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_hydra_dispatch</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.remove_constants_init_import" title="src.utils.packages.remove_hpo.remove_constants_init_import"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_constants_init_import</span></code></a></p></td>
+<td><p>Comment out a wildcard import from logic/src/constants/<strong>init</strong>.py.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.clean_hydra_dispatch" title="src.utils.packages.remove_hpo.clean_hydra_dispatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_hydra_dispatch</span></code></a></p></td>
 <td><p>Remove HPO tasks and logic from hydra_dispatch.py.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.main" title="src.utils.packages.remove_hpo.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.packages.remove_hpo.main" title="src.utils.packages.remove_hpo.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
 <td><p>Perform cleanup of HPO components.</p></td>
 </tr>
 </tbody>
@@ -552,6 +556,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.packages.remove_hpo.clean_configs_init">
 <span class="sig-prename descclassname"><span class="pre">src.utils.packages.remove_hpo.</span></span><span class="sig-name descname"><span class="pre">clean_configs_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.packages.remove_hpo.clean_configs_init" title="Link to this definition">#</a></dt>
 <dd><p>Clean up root configs/<strong>init</strong>.py imports and dataclass fields.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.packages.remove_hpo.remove_constants_init_import">
+<span class="sig-prename descclassname"><span class="pre">src.utils.packages.remove_hpo.</span></span><span class="sig-name descname"><span class="pre">remove_constants_init_import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.packages.remove_hpo.remove_constants_init_import" title="Link to this definition">#</a></dt>
+<dd><p>Comment out a wildcard import from logic/src/constants/<strong>init</strong>.py.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -622,6 +632,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.remove_path"><code class="docutils literal notranslate"><span class="pre">remove_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_tasks_init"><code class="docutils literal notranslate"><span class="pre">clean_tasks_init()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_configs_init"><code class="docutils literal notranslate"><span class="pre">clean_configs_init()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.remove_constants_init_import"><code class="docutils literal notranslate"><span class="pre">remove_constants_init_import()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.clean_hydra_dispatch"><code class="docutils literal notranslate"><span class="pre">clean_hydra_dispatch()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.packages.remove_hpo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>

@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.utils.packages.remove_hpo.clean_configs_init
     :summary:
     ```
+* - {py:obj}`remove_constants_init_import <src.utils.packages.remove_hpo.remove_constants_init_import>`
+  - ```{autodoc2-docstring} src.utils.packages.remove_hpo.remove_constants_init_import
+    :summary:
+    ```
 * - {py:obj}`clean_hydra_dispatch <src.utils.packages.remove_hpo.clean_hydra_dispatch>`
   - ```{autodoc2-docstring} src.utils.packages.remove_hpo.clean_hydra_dispatch
     :summary:
@@ -68,6 +72,13 @@
 :canonical: src.utils.packages.remove_hpo.clean_configs_init
 
 ```{autodoc2-docstring} src.utils.packages.remove_hpo.clean_configs_init
+```
+````
+
+````{py:function} remove_constants_init_import(root: pathlib.Path, module_name: str) -> None
+:canonical: src.utils.packages.remove_hpo.remove_constants_init_import
+
+```{autodoc2-docstring} src.utils.packages.remove_hpo.remove_constants_init_import
 ```
 ````
 

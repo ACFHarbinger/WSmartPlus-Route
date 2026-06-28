@@ -25,7 +25,30 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__APP_STYLES <src.cli.gui_parser.__APP_STYLES>`
+  - ```{autodoc2-docstring} src.cli.gui_parser.__APP_STYLES
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} __APP_STYLES
+:canonical: src.cli.gui_parser.__APP_STYLES
+:type: typing.List[str]
+:value: >
+   ['fusion', 'windows', 'windowsxp', 'macintosh']
+
+```{autodoc2-docstring} src.cli.gui_parser.__APP_STYLES
+```
+
+````
 
 ````{py:function} add_gui_args(parser: typing.Any) -> typing.Any
 :canonical: src.cli.gui_parser.add_gui_args
