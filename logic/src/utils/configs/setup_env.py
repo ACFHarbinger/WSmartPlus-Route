@@ -17,7 +17,12 @@ import gurobipy as gp
 from dotenv import dotenv_values
 
 import logic.src.constants as udef
-from logic.src.utils.security import decrypt_file_data, load_key
+
+try:
+    from logic.src.utils.security import decrypt_file_data, load_key
+    _SECURITY_AVAILABLE = True
+except ImportError:
+    _SECURITY_AVAILABLE = False
 
 
 def setup_env(
@@ -43,7 +48,6 @@ def setup_env(
     if "swc_tcf" in policy:
         params: Dict[str, Any] = {}
         if server:
-
             def convert_int(param: str) -> Union[int, str]:
                 """Helper to convert string parameters to int if possible."""
                 return int(param) if param.isdigit() else param
@@ -51,6 +55,11 @@ def setup_env(
             if gplic_filename is not None:
                 gplic_path: str = os.path.join(udef.ROOT_DIR, "assets", "api", gplic_filename)
                 if symkey_name:
+                    if not _SECURITY_AVAILABLE:
+                        raise RuntimeError(
+                            "symkey_name was provided but the security module is not available. "
+                            "Remove symkey_name or provide the Gurobi license file unencrypted."
+                        )
                     key = load_key(symkey_name=symkey_name, env_filename=env_filename or ".env")
                     data = decrypt_file_data(key, gplic_path)
                 else:

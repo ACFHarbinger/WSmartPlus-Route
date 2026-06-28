@@ -74,7 +74,7 @@ except ImportError:
 if _HAS_VRPY:
 
     class ProfitableVRP(VehicleRoutingProblem):
-        """Type-safe wrapper for VRPy to satisfy Pyright/Pyrefly static analysis.
+        """Type-safe wrapper for VRPy to satisfy Pyrefly static analysis.
 
         Attributes:
             prize_collection (bool): Flag indicating if the VRP is prize-collecting.
@@ -478,7 +478,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         # Apply prize collection logic by modifying edge costs
         if revenue_kg > 0:
             for n in active_nodes:
-                node_prize = float(wastes.get(n, 0.0)) * revenue_kg
+                node_prize = wastes.get(n, 0.0) * revenue_kg
                 node_str = str(n)
                 # Reduce the cost of entering this node by the value of its prize
                 for predecessor in G.predecessors(node_str):

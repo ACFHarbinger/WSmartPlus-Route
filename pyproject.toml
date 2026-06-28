@@ -59,7 +59,6 @@ dev = [
     "mutmut>=2.5.0",
     "rich>=14.1.0",
     "pip>=26.0.1",
-    "pyright>=1.1.408",
     "pyrefly>=0.61.0",
     "pylint>=3.3.9",
 ]
@@ -189,7 +188,7 @@ venv = ".venv"              # The name of the venv folder
 type_checking_mode = "basic"
 include = ["gui", "logic"]
 
-# Ignore rules (Migration of your basedpyright ignores)
+# Ignore rules (Migration of your pyright/pylance ignores)
 ignore = ["**/__init__.py"]
 
 [tool.pyrefly.errors]

@@ -58,7 +58,7 @@ def _flatten_config(cfg: Any) -> dict:  # noqa: C901
 
     curr = cfg
 
-    # Use a type guard to help Pyright
+    # Use a type guard to help Pyright/Pyrefly
     while isinstance(curr, Mapping) and len(curr) == 1:
         # Safer key extraction
         key = next(iter(curr.keys()))

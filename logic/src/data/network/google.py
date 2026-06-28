@@ -21,7 +21,12 @@ import pandas as pd
 from dotenv import dotenv_values
 
 from logic.src.constants import ROOT_DIR
-from logic.src.utils.security import decrypt_file_data, load_key
+
+try:
+    from logic.src.utils.security import decrypt_file_data, load_key
+    _SECURITY_AVAILABLE = True
+except ImportError:
+    _SECURITY_AVAILABLE = False
 
 from .base import DistanceStrategy
 
@@ -51,6 +56,11 @@ class GoogleMapsStrategy(DistanceStrategy):
 
         if api_key == "" and self._eval_kwarg("symkey_name", kwargs):
             assert self._eval_kwarg("gapik_file", kwargs)
+            if not _SECURITY_AVAILABLE:
+                raise RuntimeError(
+                    "symkey_name was provided but the security module is not available. "
+                    "Install it or provide GOOGLE_API_KEY directly in the .env file."
+                )
             sym_key = load_key(kwargs["symkey_name"], kwargs["env_filename"])
             api_key = decrypt_file_data(sym_key, kwargs["gapik_file"])
         elif api_key == "" and self._eval_kwarg("gapik_file", kwargs):
