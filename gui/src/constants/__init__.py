@@ -2,6 +2,7 @@
 GUI Constants.
 """
 
+from .app import APP_STYLES, CTRL_C_TIMEOUT
 from .filesystem import FUNCTION_MAP, OPERATION_MAP
 from .hpo import HPO_METHODS, HPO_METRICS
 from .logging import HEATMAP_METRICS, TARGET_METRICS, WB_MODES
@@ -32,6 +33,9 @@ from .training import BASELINES, LR_SCHEDULERS, OPTIMIZERS
 from .visuals import EDGE_METHODS, VERTEX_METHODS
 
 __all__ = [
+    # app
+    "APP_STYLES",
+    "CTRL_C_TIMEOUT",
     # filesystem
     "FUNCTION_MAP",
     "OPERATION_MAP",

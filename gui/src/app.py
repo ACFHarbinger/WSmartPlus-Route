@@ -7,7 +7,8 @@ import threading
 import traceback
 
 from logic.src.cli import ConfigsParser, add_gui_args, validate_gui_args
-from logic.src.constants import CTRL_C_TIMEOUT, ICON_FILE
+from gui.src.constants import CTRL_C_TIMEOUT
+from logic.src.constants import ICON_FILE
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 

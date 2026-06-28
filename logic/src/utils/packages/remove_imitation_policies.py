@@ -6,7 +6,7 @@ import sys
 # Ensure cleanup_helper is importable
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from cleanup_helper import IMITATION_POLICIES, clean_by_acronym
+from .cleanup_helper import IMITATION_POLICIES, clean_by_acronym
 
 
 def main():
