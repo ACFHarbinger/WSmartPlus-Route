@@ -478,6 +478,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin"><code class="docutils literal notranslate"><span class="pre">BatchMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin.batch_size"><code class="docutils literal notranslate"><span class="pre">BatchMixin.batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._sync_spec_shapes"><code class="docutils literal notranslate"><span class="pre">BatchMixin._sync_spec_shapes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._sync_spec_keys"><code class="docutils literal notranslate"><span class="pre">BatchMixin._sync_spec_keys()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._safe_set_shape"><code class="docutils literal notranslate"><span class="pre">BatchMixin._safe_set_shape()</span></code></a></li>
 </ul>
 </li>
@@ -547,6 +548,15 @@ value: Shape to synchronize with.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.envs.base.batch.BatchMixin._sync_spec_keys">
+<span class="sig-name descname"><span class="pre">_sync_spec_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Size</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.envs.base.batch.BatchMixin._sync_spec_keys" title="Link to this definition">#</a></dt>
+<dd><p>Recursively synchronize spec child keys with the new shape.</p>
+<p>Args:
+spec: Spec to traverse.
+value: Environment batch size.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.envs.base.batch.BatchMixin._safe_set_shape">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_safe_set_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.envs.base.batch.BatchMixin._safe_set_shape" title="Link to this definition">#</a></dt>
 <dd><p>Recursively set shape with error handling.</p>
@@ -612,6 +622,7 @@ shp: New shape.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin"><code class="docutils literal notranslate"><span class="pre">BatchMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin.batch_size"><code class="docutils literal notranslate"><span class="pre">BatchMixin.batch_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._sync_spec_shapes"><code class="docutils literal notranslate"><span class="pre">BatchMixin._sync_spec_shapes()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._sync_spec_keys"><code class="docutils literal notranslate"><span class="pre">BatchMixin._sync_spec_keys()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.batch.BatchMixin._safe_set_shape"><code class="docutils literal notranslate"><span class="pre">BatchMixin._safe_set_shape()</span></code></a></li>
 </ul>
 </li>

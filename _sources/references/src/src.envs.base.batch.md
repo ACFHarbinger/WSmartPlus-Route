@@ -46,6 +46,14 @@
 
 ````
 
+````{py:method} _sync_spec_keys(spec, value: torch.Size) -> None
+:canonical: src.envs.base.batch.BatchMixin._sync_spec_keys
+
+```{autodoc2-docstring} src.envs.base.batch.BatchMixin._sync_spec_keys
+```
+
+````
+
 ````{py:method} _safe_set_shape(s, shp)
 :canonical: src.envs.base.batch.BatchMixin._safe_set_shape
 :staticmethod:
