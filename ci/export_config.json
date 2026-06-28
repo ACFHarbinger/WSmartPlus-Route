@@ -922,6 +922,21 @@
         "internal_acronym": "lasm",
         "subcategory": "learning_matheuristic_algorithms"
       },
+      "_comment_other": "Other/baseline constructors",
+      "TSP": {
+        "description": "Travelling Salesman Problem baseline constructor",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/other_algorithms/travelling_salesman_problem",
+        "internal_acronym": "tsp",
+        "subcategory": "other_algorithms"
+      },
+      "CVRP": {
+        "description": "Capacitated Vehicle Routing Problem baseline constructor",
+        "category": "constructor",
+        "path": "logic/src/policies/route_construction/other_algorithms/capacitated_vehicle_routing_problem",
+        "internal_acronym": "cvrp",
+        "subcategory": "other_algorithms"
+      },
       "_comment_joint": "Joint selection-and-construction",
       "JGO": {
         "description": "Joint Greedy Orienteering",
