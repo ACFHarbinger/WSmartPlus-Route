@@ -112,8 +112,14 @@ def clean_init_file(init_file_path: Path, deleted_stems: list):
         for line in lines:
             should_exclude = False
             for stem in deleted_stems:
+                # Relative import: from .stem / from .stem_policy / from .selection_stem
                 pattern = rf"^\s*from\s+\.({re.escape(stem)}|{re.escape(stem)}_policy|selection_{re.escape(stem)})\b"
                 if re.search(pattern, line):
+                    should_exclude = True
+                    break
+                # Absolute import ending with .stem (e.g. from logic.src.pipeline.rl.core.ppo import ...)
+                pattern_abs = rf"^\s*from\s+[a-zA-Z_][a-zA-Z0-9_.]*\.{re.escape(stem)}\s+import"
+                if re.search(pattern_abs, line):
                     should_exclude = True
                     break
                 pattern2 = rf"^\s*import\s+{re.escape(stem)}\b"
@@ -311,12 +317,16 @@ def _find_impls_to_delete(
                         to_delete.add(p)
                     else:
                         to_delete.add(parent)
+                        # Also register the directory name so parent __init__.py
+                        # imports like `from .directory_name import ...` get cleaned.
+                        deleted_stems.add(parent.name)
 
             elif p.is_dir():
                 name_lower = p.name.lower()
                 matched = _match_acronym(name_lower, acronym)
                 if matched and p.name not in PROTECTED_DIRS:
                     to_delete.add(p)
+                    deleted_stems.add(p.name)
 
 
 _SKIP_DIR_NAMES: set = {".venv", "venv", ".git", "__pycache__", "node_modules", ".mypy_cache", ".pytest_cache"}

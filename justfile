@@ -102,6 +102,9 @@ help: _print_header
     @printf "  {{ green }}pyrefly-logic{{ reset }}              - Pyrefly type checking (logic)\n"
     @printf "  {{ green }}pyrefly-gui{{ reset }}                - Pyrefly type checking (GUI)\n"
     @printf "\n"
+    @printf "{{ yellow }}Algorithm Export:{{ reset }}\n"
+    @printf "  {{ green }}algo-export{{ reset }}                - Run automated algorithm export (creates algo-export branch)\n"
+    @printf "\n"
     @printf "{{ yellow }}Maintenance:{{ reset }}\n"
     @printf "  {{ green }}clean{{ reset }}                      - Remove caches and build artifacts\n"
     @printf "  {{ green }}clean-outputs{{ reset }}              - Remove simulation output files\n"
@@ -332,6 +335,55 @@ cleanup-data datasets="" distributions="" network="":
 # Clean up Security and File System Utilities from the codebase
 cleanup-security:
     uv run python logic/src/utils/packages/remove_security.py
+
+# --- Algorithm Export ---
+
+# Run the automated algorithm export process.
+# Creates an algo-export branch, prunes the codebase to the selected algorithms,
+# writes ci/workflow_config.json, commits, and pushes.
+# CI will automatically trigger package-and-build.yml on push.
+#
+# Usage:
+#   just algo-export                                        # Export all algorithms
+#   just algo-export constructors="SANS,TSP,CVRP,NA,SWCTCF" selectors="MS_LAST_MIN,MS_LOOKAHEAD,MS_REGULAR,MS_SLA" improvement="RI_FTSP,RI_PATH" models="AM" rl_algorithms="RL_REINFORCE" envs="vrpp" sim_datasets="gen_dataset,sim_dataset" distributions="gamma,empirical" network="file" drop_features="META_LEARNING,HPO,EVAL,SECURITY,CALLBACKS,ENUMS,UI_LOGIC,DATA_WEB,CLI,TRACKING"
+#   just algo-export constructors="HGS,ALNS" skip_build="true"
+#   just algo-export constructors="BPC" dry_run="true"
+algo-export constructors="" selectors="" improvement="" acceptance="" joint="" models="" rl_algorithms="" imitation_policies="" drop_features="" envs="" sim_datasets="" distributions="" network="" skip_build="false" dry_run="false":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📦 ALGORITHM EXPORT"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructors:"    "{{ constructors }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selectors:"       "{{ selectors }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improvement:"     "{{ improvement }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:"      "{{ acceptance }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Joint:"           "{{ joint }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Models:"          "{{ models }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "RL Algorithms:"   "{{ rl_algorithms }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Imitation:"       "{{ imitation_policies }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Drop Features:"   "{{ drop_features }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Envs:"            "{{ envs }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Sim Datasets:"    "{{ sim_datasets }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distributions:"   "{{ distributions }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Network:"         "{{ network }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Skip Build:"      "{{ skip_build }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:"         "{{ dry_run }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python ci/packager.py \
+        $([ -n "{{ constructors }}" ]       && echo "--constructors '{{ constructors }}'"             || true) \
+        $([ -n "{{ selectors }}" ]          && echo "--selectors '{{ selectors }}'"                   || true) \
+        $([ -n "{{ improvement }}" ]        && echo "--improvement '{{ improvement }}'"               || true) \
+        $([ -n "{{ acceptance }}" ]         && echo "--acceptance '{{ acceptance }}'"                 || true) \
+        $([ -n "{{ joint }}" ]              && echo "--joint '{{ joint }}'"                           || true) \
+        $([ -n "{{ models }}" ]             && echo "--models '{{ models }}'"                         || true) \
+        $([ -n "{{ rl_algorithms }}" ]      && echo "--rl-algorithms '{{ rl_algorithms }}'"           || true) \
+        $([ -n "{{ imitation_policies }}" ] && echo "--imitation-policies '{{ imitation_policies }}'" || true) \
+        $([ -n "{{ drop_features }}" ]      && echo "--drop-features '{{ drop_features }}'"           || true) \
+        $([ -n "{{ envs }}" ]               && echo "--envs '{{ envs }}'"                             || true) \
+        $([ -n "{{ sim_datasets }}" ]       && echo "--sim-datasets '{{ sim_datasets }}'"             || true) \
+        $([ -n "{{ distributions }}" ]      && echo "--distributions '{{ distributions }}'"           || true) \
+        $([ -n "{{ network }}" ]            && echo "--network '{{ network }}'"                       || true) \
+        $([ "{{ skip_build }}" = "true" ]   && echo "--skip-build"                                    || true) \
+        $([ "{{ dry_run }}" = "true" ]      && echo "--dry-run"                                       || true)
 
 # Usage: just hpo-sim policy=hgs trials=100 method=nsgaii
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
