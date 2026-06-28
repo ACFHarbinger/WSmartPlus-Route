@@ -342,7 +342,7 @@ def _is_effectively_empty(path: Path) -> bool:
         if child.is_file():
             if child.name != "__init__.py":
                 return False
-        elif child.is_dir():
+        elif child.is_dir():  # noqa: SIM102
             if not _is_effectively_empty(child):
                 return False
     return True

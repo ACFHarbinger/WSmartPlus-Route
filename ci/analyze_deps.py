@@ -402,6 +402,212 @@ def _merge_subnet_deps(
 # Main
 # -------------------------------------------------------------------------
 
+def _process_subnet_deps(
+    args: argparse.Namespace,
+    models_cfg: Dict,
+    filtered_model_entries: List[Tuple[str, str, Path]],
+) -> List[str]:
+    """Helper to analyze model subnet dependencies."""
+    changed_models = []
+    if args.skip_models:
+        return changed_models
+
+    print(f"[analyze_deps] Analyzing {len(filtered_model_entries)} model(s) for subnet deps …")
+    for user_acr, _internal, model_dir in filtered_model_entries:
+        print(f"  {user_acr} ({model_dir.name}) …", end=" ", flush=True)
+        discovered = analyze_model(model_dir, verbose=args.verbose)
+        print("done")
+
+        existing_deps = models_cfg[user_acr].get("subnet_deps", {})
+        merged, changed = _merge_subnet_deps(existing_deps, discovered, args.overwrite)
+
+        if changed:
+            changed_models.append(user_acr)
+            if args.dry_run:
+                for cat in _SUBNET_CATS:
+                    old = sorted(existing_deps.get(cat, []))
+                    new = merged[cat]
+                    if old != new:
+                        added = sorted(set(new) - set(old))
+                        removed = sorted(set(old) - set(new))
+                        if added:
+                            print(f"    [{cat}] +{added}")
+                        if removed:
+                            print(f"    [{cat}] -{removed} (overwrite mode)")
+            else:
+                models_cfg[user_acr]["subnet_deps"] = merged
+    return changed_models
+
+
+def _process_embeddings(
+    args: argparse.Namespace,
+    prunable_types: Dict,
+    all_model_entries: List[Tuple[str, str, Path]],
+) -> Tuple[bool, bool]:
+    """Helper to analyze model embedding dependencies."""
+    if args.skip_models:
+        return False, False
+
+    print("[analyze_deps] Analyzing embedding dependencies …")
+    all_env_names = list(
+        prunable_types.get("embeddings", {}).get("env_files", {}).keys()
+    ) or ["vrpp", "cvrpp", "wcvrp", "swcvrp"]
+
+    env_files_map, model_files_map = analyze_embeddings(
+        all_env_names, all_model_entries, verbose=args.verbose
+    )
+
+    emb_cfg = prunable_types.setdefault("embeddings", {})
+    old_env_files = emb_cfg.get("env_files", {})
+    old_model_files = emb_cfg.get("model_files", {})
+
+    if args.overwrite:
+        new_env_files = env_files_map
+        new_model_files = model_files_map
+    else:
+        new_env_files = {
+            env: sorted(set(old_env_files.get(env, [])) | set(files))
+            for env, files in env_files_map.items()
+        }
+        for env, files in old_env_files.items():
+            if env not in new_env_files:
+                new_env_files[env] = files
+        new_model_files = {
+            m: sorted(set(old_model_files.get(m, [])) | set(files))
+            for m, files in model_files_map.items()
+        }
+        for m, files in old_model_files.items():
+            if m not in new_model_files:
+                new_model_files[m] = files
+
+    emb_env_changed = new_env_files != old_env_files
+    emb_mod_changed = new_model_files != old_model_files
+
+    if emb_env_changed or emb_mod_changed:
+        if args.dry_run:
+            if emb_env_changed:
+                print(f"  [embeddings.env_files] would update {sorted(new_env_files.keys())}")
+            if emb_mod_changed:
+                print(f"  [embeddings.model_files] would update {sorted(new_model_files.keys())}")
+        else:
+            emb_cfg["env_files"] = new_env_files
+            emb_cfg["model_files"] = new_model_files
+
+    return emb_env_changed, emb_mod_changed
+
+
+def _process_models(
+    args: argparse.Namespace,
+    config: Dict,
+    prunable_types: Dict,
+) -> Tuple[List[str], bool, bool]:
+    """Analyze model subnet and embedding dependencies."""
+    models_cfg = config.get("algorithms", {}).get("models", {})
+    filter_model_upper = {m.upper() for m in args.models} if args.models else None
+
+    # ------- Build full model entry list -------
+    all_model_entries = []
+    for user_acr, val in models_cfg.items():
+        if user_acr.startswith("_comment") or not isinstance(val, dict):
+            continue
+        internal = val.get("internal_acronym", "")
+        model_path_str = val.get("path", "")
+        model_dir = PROJECT_ROOT / model_path_str if model_path_str else None
+        if model_dir and model_dir.exists():
+            all_model_entries.append((user_acr, internal, model_dir))
+        elif args.verbose:
+            print(f"[analyze_deps] Skipping {user_acr}: dir not found ({model_path_str})")
+
+    filtered_model_entries = (
+        [(u, i, d) for u, i, d in all_model_entries if u.upper() in filter_model_upper]
+        if filter_model_upper else all_model_entries
+    )
+
+    changed_models = _process_subnet_deps(args, models_cfg, filtered_model_entries)
+    emb_env_changed, emb_mod_changed = _process_embeddings(args, prunable_types, all_model_entries)
+
+    return changed_models, emb_env_changed, emb_mod_changed
+
+
+def _process_policies(args: argparse.Namespace, config: Dict) -> bool:
+    """Analyze policy helpers dependencies."""
+    if args.skip_policies or not HELPERS.exists():
+        return False
+
+    filter_cats = {c.lower() for c in args.policy_cats} if args.policy_cats else None
+    filter_acronyms = {a.upper() for a in args.policy_acronyms} if args.policy_acronyms else None
+
+    print("[analyze_deps] Analyzing policy helpers dependencies …")
+    per_policy = analyze_policy_helpers(
+        config,
+        filter_cats=filter_cats,
+        filter_acronyms=filter_acronyms,
+        verbose=args.verbose,
+    )
+    print(f"  Found deps for {len(per_policy)} policies")
+
+    existing_analysis = config.get("policies_helpers_analysis", {})
+    if args.overwrite:
+        new_analysis = dict(existing_analysis)
+        new_analysis.update(per_policy)
+    else:
+        new_analysis = dict(existing_analysis)
+        for acronym, files in per_policy.items():
+            merged_files = sorted(set(existing_analysis.get(acronym, [])) | set(files))
+            new_analysis[acronym] = merged_files
+
+    if new_analysis != existing_analysis:
+        if args.dry_run:
+            added_entries = sorted(set(new_analysis) - set(existing_analysis))
+            changed_entries = [
+                k for k in new_analysis
+                if k in existing_analysis and new_analysis[k] != existing_analysis[k]
+            ]
+            if added_entries:
+                print(f"  Would add {len(added_entries)} new policy entries: {added_entries[:10]}")
+            if changed_entries:
+                print(f"  Would update {len(changed_entries)} existing policy entries")
+        else:
+            config["policies_helpers_analysis"] = new_analysis
+        return True
+
+    return False
+
+
+def _report_and_save(
+    args: argparse.Namespace,
+    config: Dict,
+    changed_models: List[str],
+    emb_env_changed: bool,
+    emb_mod_changed: bool,
+    helpers_changed: bool,
+) -> None:
+    """Write/Report final results."""
+    any_change = changed_models or emb_env_changed or emb_mod_changed or helpers_changed
+
+    if args.dry_run:
+        if changed_models:
+            print(f"\n[analyze_deps] Would update subnet_deps for: {changed_models}")
+        if emb_env_changed or emb_mod_changed:
+            print("[analyze_deps] Would update embeddings maps")
+        if helpers_changed:
+            print("[analyze_deps] Would update policies_helpers_analysis")
+        if not any_change:
+            print("[analyze_deps] No changes needed.")
+    else:
+        if any_change:
+            _save_config(config)
+            print(f"\n[analyze_deps] Updated {CONFIG_FILE.relative_to(PROJECT_ROOT)}")
+            if changed_models:
+                print(f"  Models with updated subnet_deps: {changed_models}")
+            if emb_env_changed or emb_mod_changed:
+                print("  Embeddings maps updated")
+            if helpers_changed:
+                print("  policies_helpers_analysis updated")
+        else:
+            print("[analyze_deps] No changes — export_config.json already up to date.")
+
+
 def main(argv: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser(
         prog="ci/analyze_deps.py",
@@ -430,171 +636,23 @@ def main(argv: Optional[List[str]] = None) -> None:
         sys.exit(1)
 
     config = _load_config()
-    models_cfg = config.get("algorithms", {}).get("models", {})
     subnet_pruning = config.setdefault("subnet_pruning", {})
     prunable_types = subnet_pruning.setdefault("prunable_types", {})
-    filter_model_upper: Optional[Set[str]] = {m.upper() for m in args.models} if args.models else None
 
-    # ------- Build full model entry list (used for embeddings even when filtered) -------
-    all_model_entries: List[Tuple[str, str, Path]] = []
-    for user_acr, val in models_cfg.items():
-        if user_acr.startswith("_comment") or not isinstance(val, dict):
-            continue
-        internal = val.get("internal_acronym", "")
-        model_path_str = val.get("path", "")
-        model_dir = PROJECT_ROOT / model_path_str if model_path_str else None
-        if model_dir and model_dir.exists():
-            all_model_entries.append((user_acr, internal, model_dir))
-        elif args.verbose:
-            print(f"[analyze_deps] Skipping {user_acr}: dir not found ({model_path_str})")
-
-    filtered_model_entries = (
-        [(u, i, d) for u, i, d in all_model_entries if u.upper() in filter_model_upper]
-        if filter_model_upper else all_model_entries
+    changed_models, emb_env_changed, emb_mod_changed = _process_models(
+        args, config, prunable_types
     )
 
-    # ------- Model subnet deps -------
-    changed_models: List[str] = []
+    helpers_changed = _process_policies(args, config)
 
-    if not args.skip_models:
-        print(f"[analyze_deps] Analyzing {len(filtered_model_entries)} model(s) for subnet deps …")
-        for user_acr, _internal, model_dir in filtered_model_entries:
-            print(f"  {user_acr} ({model_dir.name}) …", end=" ", flush=True)
-            discovered = analyze_model(model_dir, verbose=args.verbose)
-            print("done")
-
-            existing_deps = models_cfg[user_acr].get("subnet_deps", {})
-            merged, changed = _merge_subnet_deps(existing_deps, discovered, args.overwrite)
-
-            if changed:
-                changed_models.append(user_acr)
-                if args.dry_run:
-                    for cat in _SUBNET_CATS:
-                        old = sorted(existing_deps.get(cat, []))
-                        new = merged[cat]
-                        if old != new:
-                            added = sorted(set(new) - set(old))
-                            removed = sorted(set(old) - set(new))
-                            if added:
-                                print(f"    [{cat}] +{added}")
-                            if removed:
-                                print(f"    [{cat}] -{removed} (overwrite mode)")
-                else:
-                    models_cfg[user_acr]["subnet_deps"] = merged
-
-        # ------- Embeddings -------
-        print("[analyze_deps] Analyzing embedding dependencies …")
-        all_env_names = list(
-            prunable_types.get("embeddings", {}).get("env_files", {}).keys()
-        ) or ["vrpp", "cvrpp", "wcvrp", "swcvrp"]
-
-        env_files_map, model_files_map = analyze_embeddings(
-            all_env_names, all_model_entries, verbose=args.verbose
-        )
-
-        emb_cfg = prunable_types.setdefault("embeddings", {})
-        old_env_files = emb_cfg.get("env_files", {})
-        old_model_files = emb_cfg.get("model_files", {})
-
-        if args.overwrite:
-            new_env_files = env_files_map
-            new_model_files = model_files_map
-        else:
-            new_env_files = {
-                env: sorted(set(old_env_files.get(env, [])) | set(files))
-                for env, files in env_files_map.items()
-            }
-            for env, files in old_env_files.items():
-                if env not in new_env_files:
-                    new_env_files[env] = files
-            new_model_files = {
-                m: sorted(set(old_model_files.get(m, [])) | set(files))
-                for m, files in model_files_map.items()
-            }
-            for m, files in old_model_files.items():
-                if m not in new_model_files:
-                    new_model_files[m] = files
-
-        emb_env_changed = new_env_files != old_env_files
-        emb_mod_changed = new_model_files != old_model_files
-
-        if emb_env_changed or emb_mod_changed:
-            if args.dry_run:
-                if emb_env_changed:
-                    print(f"  [embeddings.env_files] would update {sorted(new_env_files.keys())}")
-                if emb_mod_changed:
-                    print(f"  [embeddings.model_files] would update {sorted(new_model_files.keys())}")
-            else:
-                emb_cfg["env_files"] = new_env_files
-                emb_cfg["model_files"] = new_model_files
-    else:
-        emb_env_changed = emb_mod_changed = False
-
-    # ------- Policy helpers deps -------
-    helpers_changed = False
-
-    if not args.skip_policies and HELPERS.exists():
-        filter_cats = {c.lower() for c in args.policy_cats} if args.policy_cats else None
-        filter_acronyms = {a.upper() for a in args.policy_acronyms} if args.policy_acronyms else None
-
-        print("[analyze_deps] Analyzing policy helpers dependencies …")
-        per_policy = analyze_policy_helpers(
-            config,
-            filter_cats=filter_cats,
-            filter_acronyms=filter_acronyms,
-            verbose=args.verbose,
-        )
-        print(f"  Found deps for {len(per_policy)} policies")
-
-        existing_analysis = config.get("policies_helpers_analysis", {})
-        if args.overwrite:
-            new_analysis = dict(existing_analysis)
-            new_analysis.update(per_policy)
-        else:
-            new_analysis = dict(existing_analysis)
-            for acronym, files in per_policy.items():
-                merged_files = sorted(set(existing_analysis.get(acronym, [])) | set(files))
-                new_analysis[acronym] = merged_files
-
-        if new_analysis != existing_analysis:
-            helpers_changed = True
-            if args.dry_run:
-                added_entries = sorted(set(new_analysis) - set(existing_analysis))
-                changed_entries = [
-                    k for k in new_analysis
-                    if k in existing_analysis and new_analysis[k] != existing_analysis[k]
-                ]
-                if added_entries:
-                    print(f"  Would add {len(added_entries)} new policy entries: {added_entries[:10]}")
-                if changed_entries:
-                    print(f"  Would update {len(changed_entries)} existing policy entries")
-            else:
-                config["policies_helpers_analysis"] = new_analysis
-
-    # ------- Write -------
-    any_change = changed_models or emb_env_changed or emb_mod_changed or helpers_changed
-
-    if args.dry_run:
-        if changed_models:
-            print(f"\n[analyze_deps] Would update subnet_deps for: {changed_models}")
-        if emb_env_changed or emb_mod_changed:
-            print("[analyze_deps] Would update embeddings maps")
-        if helpers_changed:
-            print("[analyze_deps] Would update policies_helpers_analysis")
-        if not any_change:
-            print("[analyze_deps] No changes needed.")
-    else:
-        if any_change:
-            _save_config(config)
-            print(f"\n[analyze_deps] Updated {CONFIG_FILE.relative_to(PROJECT_ROOT)}")
-            if changed_models:
-                print(f"  Models with updated subnet_deps: {changed_models}")
-            if emb_env_changed or emb_mod_changed:
-                print("  Embeddings maps updated")
-            if helpers_changed:
-                print("  policies_helpers_analysis updated")
-        else:
-            print("[analyze_deps] No changes — export_config.json already up to date.")
+    _report_and_save(
+        args,
+        config,
+        changed_models,
+        emb_env_changed,
+        emb_mod_changed,
+        helpers_changed,
+    )
 
 
 if __name__ == "__main__":
