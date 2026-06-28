@@ -54,8 +54,9 @@ def clean_callbacks_init(init_path: Path, deleted_classes: list) -> None:
         return
     content = init_path.read_text(errors="ignore")
     for cls in deleted_classes:
-        # Comment out import line
-        pattern = rf"(?m)^(\s*from\s+\.\S+\s+import\s+.*{re.escape(cls)}.*)$"
+        # Comment out import line — use [^\s] limited to the module path part so the
+        # pattern anchors correctly to a single line even when preceded by blank lines.
+        pattern = rf"(?m)^(\s*from\s+\.[a-zA-Z0-9_.]+\s+import\s+.*\b{re.escape(cls)}\b.*)$"
         content = re.sub(pattern, r"# \1  # AUTO-REMOVED", content)
         # Remove from __all__
         content = re.sub(rf'"{re.escape(cls)}",?\s*', "", content)

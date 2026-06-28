@@ -105,9 +105,6 @@
       "logic/src/cli",
       "logic/src/constants",
       "logic/src/models/common",
-      "logic/src/models/subnets/modules",
-      "logic/src/models/subnets/other",
-      "logic/src/models/subnets/embeddings",
       "logic/src/pipeline/features/base.py",
       "logic/src/pipeline/features/train",
       "logic/src/pipeline/features/test",
@@ -216,6 +213,13 @@
         "logic/src/file_system.py",
         "logic/parser_dispatch.py"
       ]
+    },
+    "TRACKING": {
+      "description": "Tracking module for logging/visualization (plot_utils, visualize_utils, etc.)",
+      "remove_script": "logic/src/utils/packages/remove_tracking.py",
+      "paths": [
+        "logic/src/tracking"
+      ]
     }
   },
 
@@ -236,6 +240,54 @@
         "base_path": "logic/src/models/subnets/factories",
         "always_keep": ["attention.py", "base.py", "__init__.py"],
         "all_files": ["attention.py", "base.py", "gac.py", "gcn.py", "gfacs.py", "ggac.py", "mdam.py", "mlp.py", "moe.py", "nar.py", "tgc.py"]
+      },
+      "modules": {
+        "base_path": "logic/src/models/subnets/modules",
+        "always_keep": [
+          "activation_function.py", "adapter_base.py", "connections.py",
+          "cross_attention.py", "feed_forward.py", "flash_attention.py",
+          "multi_head_attention.py", "normalization.py", "normalized_activation_function.py",
+          "skip_connection.py", "tsp_adapter.py", "vrp_adapter.py", "__init__.py"
+        ],
+        "all_files": [
+          "activation_function.py", "adapter_base.py", "connections.py",
+          "cross_attention.py", "distance_graph_convolution.py", "dynamic_hyper_connection.py",
+          "efficient_graph_convolution.py", "feed_forward.py", "flash_attention.py",
+          "gated_graph_convolution.py", "glop_factory.py", "graph_convolution.py",
+          "matnet_attention.py", "mdam_attention.py", "moe_dispatcher.py",
+          "moe_feed_forward.py", "moe_layer.py", "mpnn_encoder.py", "mpnn_layer.py",
+          "multi_head_attention.py", "normalization.py", "normalized_activation_function.py",
+          "pointer_attn_moe.py", "polynet_attention.py", "skip_connection.py",
+          "static_hyper_connection.py", "subproblem_mapping.py", "tsp_adapter.py",
+          "vrp_adapter.py"
+        ]
+      },
+      "other": {
+        "base_path": "logic/src/models/subnets/other",
+        "always_keep": ["__init__.py"],
+        "all_files": ["gru_fill_predictor.py", "lstm_fill_predictor.py"]
+      },
+      "embeddings": {
+        "_comment": "Env-specific embedding files pruned when that env is dropped",
+        "base_path": "logic/src/models/subnets/embeddings",
+        "env_files": {
+          "vrpp":  ["vrpp.py", "context/vrpp.py", "state/vrpp.py"],
+          "cvrpp": ["cvrpp.py", "context/cvrpp.py", "edges/cvrpp.py", "state/cvrpp.py"],
+          "wcvrp": ["wcvrp.py", "context/wcvrp.py", "edges/wcvrp.py", "state/wcvrp.py"],
+          "swcvrp": ["state/swcvrp.py"]
+        },
+        "model_files": {
+          "matnet": ["matnet.py"]
+        },
+        "always_keep": [
+          "static.py", "dynamic.py", "__init__.py",
+          "context/base.py", "context/generic.py", "context/__init__.py",
+          "edges/base.py", "edges/none.py", "edges/tsp.py", "edges/__init__.py",
+          "state/env.py", "state/__init__.py",
+          "positional/absolute_positional_embedding.py",
+          "positional/cyclic_positional_embedding.py",
+          "positional/__init__.py"
+        ]
       }
     }
   },
@@ -889,7 +941,7 @@
         "description": "Non-Dominated Sorting Biased Random-Key Genetic Algorithm",
         "category": "joint",
         "path": "logic/src/policies/selection_and_construction/non_dominated_sorting_biased_random_key_genetic_algorithm",
-        "internal_acronym": "ndsbrk_ga",
+        "internal_acronym": "ndsbrkga",
         "subcategory": null
       }
     },
@@ -994,112 +1046,112 @@
         "category": "model",
         "path": "logic/src/models/core/attention_model",
         "internal_acronym": "attention_model",
-        "subnet_deps": { "decoders": ["glimpse", "ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["glimpse", "gat"], "encoders": ["gat"], "factories": [], "modules": [], "other": [] }
       },
       "DACT": {
         "description": "Dual-Aspect Collaborative Transformer",
         "category": "model",
         "path": "logic/src/models/core/dact",
         "internal_acronym": "dact",
-        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"] }
+        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"], "modules": [], "other": [] }
       },
       "DEEPACO": {
         "description": "Deep ACO — neural-guided ant colony",
         "category": "model",
         "path": "logic/src/models/core/deepaco",
         "internal_acronym": "deepaco",
-        "subnet_deps": { "decoders": ["deepaco"], "encoders": ["deepaco"], "factories": [] }
+        "subnet_deps": { "decoders": ["deepaco"], "encoders": ["deepaco"], "factories": [], "modules": ["mpnn_encoder.py", "mpnn_layer.py"], "other": [] }
       },
       "DR_ALNS": {
         "description": "Deep Reinforcement ALNS",
         "category": "model",
         "path": "logic/src/models/core/dr_alns",
         "internal_acronym": "dr_alns",
-        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [], "modules": [], "other": [] }
       },
       "GFACS": {
         "description": "Graph-based Fast Ant Colony Search",
         "category": "model",
         "path": "logic/src/models/core/gfacs",
         "internal_acronym": "gfacs",
-        "subnet_deps": { "decoders": ["ptr"], "encoders": ["gfacs"], "factories": ["gfacs.py"] }
+        "subnet_deps": { "decoders": ["ptr"], "encoders": ["gfacs"], "factories": ["gfacs.py"], "modules": ["mpnn_encoder.py", "mpnn_layer.py"], "other": [] }
       },
       "GLOP": {
         "description": "Global-Local Policy — hierarchical decomposition",
         "category": "model",
         "path": "logic/src/models/core/glop",
         "internal_acronym": "glop",
-        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [], "modules": ["glop_factory.py", "subproblem_mapping.py"], "other": [] }
       },
       "HAM": {
         "description": "Hybrid Attention Model",
         "category": "model",
         "path": "logic/src/models/core/hybrid_attention_model",
         "internal_acronym": "ham",
-        "subnet_deps": { "decoders": ["glimpse", "ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["glimpse", "ptr"], "encoders": ["ptr"], "factories": [], "modules": [], "other": [] }
       },
       "MATNET": {
         "description": "Matrix Encoding Network",
         "category": "model",
         "path": "logic/src/models/core/matnet",
         "internal_acronym": "matnet",
-        "subnet_deps": { "decoders": ["matnet"], "encoders": ["matnet"], "factories": [] }
+        "subnet_deps": { "decoders": ["matnet"], "encoders": ["matnet"], "factories": [], "modules": ["matnet_attention.py"], "other": [] }
       },
       "MDAM": {
         "description": "Multi-Decoder Attention Model",
         "category": "model",
         "path": "logic/src/models/core/mdam",
         "internal_acronym": "mdam",
-        "subnet_deps": { "decoders": ["mdam"], "encoders": ["mdam"], "factories": ["mdam.py"] }
+        "subnet_deps": { "decoders": ["mdam"], "encoders": ["mdam"], "factories": ["mdam.py"], "modules": ["mdam_attention.py"], "other": [] }
       },
       "MOE": {
         "description": "Mixture of Experts routing model",
         "category": "model",
         "path": "logic/src/models/core/moe",
         "internal_acronym": "moe",
-        "subnet_deps": { "decoders": ["ptr"], "encoders": ["moe"], "factories": ["moe.py"] }
+        "subnet_deps": { "decoders": ["ptr"], "encoders": ["moe"], "factories": ["moe.py"], "modules": ["moe_dispatcher.py", "moe_feed_forward.py", "moe_layer.py", "pointer_attn_moe.py"], "other": [] }
       },
       "N2S": {
         "description": "Node2Seq improvement model",
         "category": "model",
         "path": "logic/src/models/core/n2s",
         "internal_acronym": "n2s",
-        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"] }
+        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"], "modules": [], "other": [] }
       },
       "NARGNN": {
         "description": "Non-Autoregressive GNN constructive model",
         "category": "model",
         "path": "logic/src/models/core/nargnn",
         "internal_acronym": "nargnn",
-        "subnet_deps": { "decoders": ["nar"], "encoders": ["nargnn"], "factories": ["nar.py"] }
+        "subnet_deps": { "decoders": ["nar"], "encoders": ["nargnn"], "factories": ["nar.py"], "modules": ["mpnn_encoder.py", "mpnn_layer.py"], "other": [] }
       },
       "NEUOPT": {
         "description": "Neural Optimizer improvement model",
         "category": "model",
         "path": "logic/src/models/core/neuopt",
         "internal_acronym": "neuopt",
-        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"] }
+        "subnet_deps": { "decoders": ["nar"], "encoders": ["ptr"], "factories": ["nar.py"], "modules": [], "other": [] }
       },
       "PN": {
         "description": "Pointer Network (Vinyals et al. 2015)",
         "category": "model",
         "path": "logic/src/models/core/pointer_network",
         "internal_acronym": "pointer_network",
-        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["ptr"], "encoders": ["ptr"], "factories": [], "modules": [], "other": [] }
       },
       "POLYNET": {
         "description": "Polynomial Network encoder",
         "category": "model",
         "path": "logic/src/models/core/polynet",
         "internal_acronym": "polynet",
-        "subnet_deps": { "decoders": ["polynet"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["polynet"], "encoders": ["ptr"], "factories": [], "modules": ["polynet_attention.py"], "other": [] }
       },
       "TAM": {
         "description": "Temporal Attention Model — multi-period aware",
         "category": "model",
         "path": "logic/src/models/core/temporal_attention_model",
         "internal_acronym": "tam",
-        "subnet_deps": { "decoders": ["glimpse", "ptr"], "encoders": ["ptr"], "factories": [] }
+        "subnet_deps": { "decoders": ["glimpse", "ptr"], "encoders": ["ptr"], "factories": [], "modules": [], "other": [] }
       }
     },
     "rl_algorithms": {
@@ -1118,7 +1170,9 @@
       "RL_REINFORCE": { "description": "REINFORCE / policy gradient baseline", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/reinforce.py", "internal_acronym": "reinforce" },
       "RL_SAPO": { "description": "Self-Adaptive Policy Optimization", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/sapo.py", "internal_acronym": "sapo" },
       "RL_STEPWISE_PPO": { "description": "Stepwise PPO with per-step rewards", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/stepwise_ppo.py", "internal_acronym": "stepwise_ppo" },
-      "RL_SYMNCO": { "description": "Symmetric NCO contrastive training", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/symnco.py", "internal_acronym": "symnco" }
+      "RL_SYMNCO": { "description": "Symmetric NCO contrastive training", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/symnco.py", "internal_acronym": "symnco" },
+      "RL_GRPO": { "description": "Group Relative Policy Optimization", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/grpo.py", "internal_acronym": "grpo" },
+      "RL_TIME_TRACKING": { "description": "Time-tracking module for RL pipeline", "category": "rl_algorithm", "path": "logic/src/pipeline/rl/core/time_tracking.py", "internal_acronym": "time_tracking" }
     },
     "imitation_policies": {
       "_comment": "Neural policy types in logic/src/models/policies/",

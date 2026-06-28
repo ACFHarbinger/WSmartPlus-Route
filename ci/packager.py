@@ -191,6 +191,10 @@ def _step_prune(
     selections: Dict[str, Optional[List[str]]],
     drop_features: List[str],
     dry_run: bool,
+    envs: Optional[List[str]] = None,
+    sim_datasets: Optional[List[str]] = None,
+    distributions: Optional[List[str]] = None,
+    network: Optional[List[str]] = None,
 ) -> None:
     if not PRUNE_SCRIPT.exists():
         _die(f"Prune script not found: {PRUNE_SCRIPT}")
@@ -218,6 +222,22 @@ def _step_prune(
     if drop_features:
         cmd.append("--drop-features")
         cmd.extend(drop_features)
+
+    if envs is not None:
+        cmd.append("--envs")
+        cmd.extend(envs)
+
+    if sim_datasets is not None:
+        cmd.append("--sim-datasets")
+        cmd.extend(sim_datasets)
+
+    if distributions is not None:
+        cmd.append("--distributions")
+        cmd.extend(distributions)
+
+    if network is not None:
+        cmd.append("--network")
+        cmd.extend(network)
 
     if dry_run:
         cmd.append("--dry-run")
@@ -353,9 +373,34 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="drop_features",
         help=(
             "Comma/space-separated optional features to REMOVE "
-            "(e.g. 'META_LEARNING,HPO,SECURITY'). "
-            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB."
+            "(e.g. 'META_LEARNING,HPO,SECURITY,TRACKING'). "
+            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB, TRACKING, CLI."
         ),
+    )
+    p.add_argument(
+        "--envs",
+        metavar="ENVS",
+        default=None,
+        help="Comma/space-separated environment names to KEEP (e.g. 'vrpp'). Omit to keep all.",
+    )
+    p.add_argument(
+        "--sim-datasets",
+        metavar="NAMES",
+        default=None,
+        dest="sim_datasets",
+        help="Comma/space-separated simulation dataset stems to KEEP (e.g. 'gen_dataset,sim_dataset').",
+    )
+    p.add_argument(
+        "--distributions",
+        metavar="NAMES",
+        default=None,
+        help="Comma/space-separated distribution stems to KEEP (e.g. 'gamma,empirical').",
+    )
+    p.add_argument(
+        "--network",
+        metavar="NAMES",
+        default=None,
+        help="Comma/space-separated network strategy stems to KEEP (e.g. 'file').",
     )
     p.add_argument(
         "--output-dir", metavar="PATH",
@@ -402,6 +447,17 @@ def main(argv: Optional[List[str]] = None) -> None:
             if f.strip()
         ]
 
+    def _parse_list(raw: Optional[str]) -> Optional[List[str]]:
+        if raw is None:
+            return None
+        parts = [p.strip() for token in raw.split(",") for p in token.split() if p.strip()]
+        return parts  # empty list means "remove all"
+
+    envs = _parse_list(args.envs)
+    sim_datasets = _parse_list(args.sim_datasets)
+    distributions = _parse_list(args.distributions)
+    network = _parse_list(args.network)
+
     _validate_all(selections, known_by_cat)
     if drop_features:
         _validate_features(drop_features, config)
@@ -428,7 +484,15 @@ def main(argv: Optional[List[str]] = None) -> None:
     try:
         # 4. Prune codebase (algorithms + optional features + subnets)
         _log("Step 1/4 — Pruning codebase …")
-        _step_prune(selections, drop_features, dry_run=args.dry_run)
+        _step_prune(
+            selections,
+            drop_features,
+            dry_run=args.dry_run,
+            envs=envs,
+            sim_datasets=sim_datasets,
+            distributions=distributions,
+            network=network,
+        )
 
         # 5. Commit pruned state
         if not args.dry_run and not args.no_commit:
