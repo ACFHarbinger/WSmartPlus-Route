@@ -360,9 +360,7 @@ def _step_zip(
         for part in path.parts:
             if part in _ZIP_EXCLUDE_DIRS:
                 return True
-        if path.suffix in _ZIP_EXCLUDE_SUFFIXES:
-            return True
-        return False
+        return path.suffix in _ZIP_EXCLUDE_SUFFIXES
 
     _log(f"Creating archive: {zip_path}")
     files_added = 0

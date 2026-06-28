@@ -307,7 +307,7 @@ def solve_pricing_step(
 
     added = 0
     for route in routes:
-        if route.reduced_cost > rc_tolerance:
+        if route.reduced_cost > rc_tolerance:  # noqa: SIM102
             if master.add_route(route):
                 added += 1
 

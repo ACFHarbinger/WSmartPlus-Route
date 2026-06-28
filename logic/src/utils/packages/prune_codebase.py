@@ -35,7 +35,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 # ---------------------------------------------------------------------------
 # Path bootstrap — makes cleanup_helper importable when run directly
@@ -206,6 +206,85 @@ def prune_optional_features(
                 _log(f"  Feature '{feature_key}' removed successfully.")
 
 
+def _get_needed_subnet_deps(
+    keep_model_acronyms: List[str],
+    models_cfg: Dict,
+) -> Tuple[Set[str], Set[str], Set[str], Set[str], Set[str]]:
+    """Helper to collect union of required subnet deps across kept models."""
+    needed_decoders: Set[str] = set()
+    needed_encoders: Set[str] = set()
+    needed_factories: Set[str] = set()
+    needed_modules: Set[str] = set()
+    needed_other: Set[str] = set()
+
+    keep_upper = {a.upper() for a in keep_model_acronyms}
+
+    for user_acr, model_entry in models_cfg.items():
+        if user_acr.startswith("_comment"):
+            continue
+        if not isinstance(model_entry, dict):
+            continue
+        if user_acr.upper() not in keep_upper:
+            continue
+        deps = model_entry.get("subnet_deps", {})
+        needed_decoders.update(deps.get("decoders", []))
+        needed_encoders.update(deps.get("encoders", []))
+        needed_factories.update(deps.get("factories", []))
+        needed_modules.update(deps.get("modules", []))
+        needed_other.update(deps.get("other", []))
+
+    return needed_decoders, needed_encoders, needed_factories, needed_modules, needed_other
+
+
+def _prune_embeddings(
+    emb_cfg: Dict,
+    keep_envs: Optional[List[str]],
+    keep_upper: Set[str],
+    emb_base: Path,
+    dry_run: bool,
+) -> None:
+    """Helper to prune embedding files not in kept envs or kept models."""
+    always_keep_emb: Set[str] = set(emb_cfg.get("always_keep", []))
+
+    # Files to keep: always_keep + env_files for kept envs + model_files for kept models
+    keep_emb_files: Set[str] = set(always_keep_emb)
+
+    env_files_map: Dict[str, List[str]] = emb_cfg.get("env_files", {})
+    keep_env_set = {e.lower() for e in (keep_envs or [])} if keep_envs is not None else None
+    if keep_env_set is None:
+        # No env filter — keep all env-specific files
+        for files in env_files_map.values():
+            keep_emb_files.update(files)
+    else:
+        for env_name, files in env_files_map.items():
+            if env_name.lower() in keep_env_set:
+                keep_emb_files.update(files)
+
+    model_files_map: Dict[str, List[str]] = emb_cfg.get("model_files", {})
+    for model_acr_lower, files in model_files_map.items():
+        if model_acr_lower.upper() in keep_upper:
+            keep_emb_files.update(files)
+
+    # Build set of ALL env/model-specific files to know which to delete
+    all_specific_files: Set[str] = set()
+    for files in env_files_map.values():
+        all_specific_files.update(files)
+    for files in model_files_map.values():
+        all_specific_files.update(files)
+
+    for rel_path_str in all_specific_files:
+        if rel_path_str in keep_emb_files:
+            continue
+        target = emb_base / rel_path_str
+        if not target.exists():
+            continue
+        if dry_run:
+            _log(f"  [DRY-RUN] Would remove embedding file: {target.relative_to(_PROJECT_ROOT)}")
+        else:
+            _log(f"  Removing embedding file: {target.relative_to(_PROJECT_ROOT)}")
+            target.unlink()
+
+
 def prune_subnets(
     keep_model_acronyms: Optional[List[str]],
     keep_envs: Optional[List[str]],
@@ -230,28 +309,9 @@ def prune_subnets(
     pruning_cfg = config.get("subnet_pruning", {})
     models_cfg = config.get("algorithms", {}).get("models", {})
 
-    # Collect union of required subnet deps across kept models.
-    needed_decoders: Set[str] = set()
-    needed_encoders: Set[str] = set()
-    needed_factories: Set[str] = set()
-    needed_modules: Set[str] = set()
-    needed_other: Set[str] = set()
-
-    keep_upper = {a.upper() for a in keep_model_acronyms}
-
-    for user_acr, model_entry in models_cfg.items():
-        if user_acr.startswith("_comment"):
-            continue
-        if not isinstance(model_entry, dict):
-            continue
-        if user_acr.upper() not in keep_upper:
-            continue
-        deps = model_entry.get("subnet_deps", {})
-        needed_decoders.update(deps.get("decoders", []))
-        needed_encoders.update(deps.get("encoders", []))
-        needed_factories.update(deps.get("factories", []))
-        needed_modules.update(deps.get("modules", []))
-        needed_other.update(deps.get("other", []))
+    needed_decoders, needed_encoders, needed_factories, needed_modules, needed_other = (
+        _get_needed_subnet_deps(keep_model_acronyms, models_cfg)
+    )
 
     prunable_types = pruning_cfg.get("prunable_types", {})
 
@@ -296,45 +356,8 @@ def prune_subnets(
     emb_cfg = prunable_types.get("embeddings", {})
     if emb_cfg:
         emb_base = _PROJECT_ROOT / emb_cfg.get("base_path", "logic/src/models/subnets/embeddings")
-        always_keep_emb: Set[str] = set(emb_cfg.get("always_keep", []))
-
-        # Files to keep: always_keep + env_files for kept envs + model_files for kept models
-        keep_emb_files: Set[str] = set(always_keep_emb)
-
-        env_files_map: Dict[str, List[str]] = emb_cfg.get("env_files", {})
-        keep_env_set = {e.lower() for e in (keep_envs or [])} if keep_envs is not None else None
-        if keep_env_set is None:
-            # No env filter — keep all env-specific files
-            for files in env_files_map.values():
-                keep_emb_files.update(files)
-        else:
-            for env_name, files in env_files_map.items():
-                if env_name.lower() in keep_env_set:
-                    keep_emb_files.update(files)
-
-        model_files_map: Dict[str, List[str]] = emb_cfg.get("model_files", {})
-        for model_acr_lower, files in model_files_map.items():
-            if model_acr_lower.upper() in keep_upper:
-                keep_emb_files.update(files)
-
-        # Build set of ALL env/model-specific files to know which to delete
-        all_specific_files: Set[str] = set()
-        for files in env_files_map.values():
-            all_specific_files.update(files)
-        for files in model_files_map.values():
-            all_specific_files.update(files)
-
-        for rel_path_str in all_specific_files:
-            if rel_path_str in keep_emb_files:
-                continue
-            target = emb_base / rel_path_str
-            if not target.exists():
-                continue
-            if dry_run:
-                _log(f"  [DRY-RUN] Would remove embedding file: {target.relative_to(_PROJECT_ROOT)}")
-            else:
-                _log(f"  Removing embedding file: {target.relative_to(_PROJECT_ROOT)}")
-                target.unlink()
+        keep_upper = {a.upper() for a in keep_model_acronyms}
+        _prune_embeddings(emb_cfg, keep_envs, keep_upper, emb_base, dry_run)
 
 
 def _prune_subdirs(
