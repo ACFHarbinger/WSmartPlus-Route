@@ -208,6 +208,7 @@ def prune_optional_features(
 
 def prune_subnets(
     keep_model_acronyms: Optional[List[str]],
+    keep_envs: Optional[List[str]],
     config: Dict,
     dry_run: bool,
 ) -> None:
@@ -215,11 +216,14 @@ def prune_subnets(
 
     When *keep_model_acronyms* is None all models are kept → nothing pruned.
     Otherwise, computes the union of ``subnet_deps`` for the kept models and
-    removes encoder/decoder/factory subdirs not in that union.
+    removes encoder/decoder/factory subdirs not in that union.  Also prunes
+    modules/, other/, and embeddings/ using the same dep lists plus env info.
 
     Always-keep entries (``common`` for encoders/decoders, ``attention.py`` and
     ``base.py`` for factories) are never removed.
     """
+    import shutil  # noqa: PLC0415
+
     if keep_model_acronyms is None:
         _log("Subnets: no model selection provided — keeping all subnets.")
         return
@@ -231,6 +235,8 @@ def prune_subnets(
     needed_decoders: Set[str] = set()
     needed_encoders: Set[str] = set()
     needed_factories: Set[str] = set()
+    needed_modules: Set[str] = set()
+    needed_other: Set[str] = set()
 
     keep_upper = {a.upper() for a in keep_model_acronyms}
 
@@ -245,6 +251,8 @@ def prune_subnets(
         needed_decoders.update(deps.get("decoders", []))
         needed_encoders.update(deps.get("encoders", []))
         needed_factories.update(deps.get("factories", []))
+        needed_modules.update(deps.get("modules", []))
+        needed_other.update(deps.get("other", []))
 
     prunable_types = pruning_cfg.get("prunable_types", {})
 
@@ -268,6 +276,66 @@ def prune_subnets(
     always_keep_fac: Set[str] = set(factory_cfg.get("always_keep", ["attention.py", "base.py", "__init__.py"]))
     all_fac_files: List[str] = factory_cfg.get("all_files", [])
     _prune_files(factory_base, all_fac_files, needed_factories | always_keep_fac, "factory", dry_run)
+
+    # --- Prune modules/ files ---
+    modules_cfg = prunable_types.get("modules", {})
+    if modules_cfg:
+        modules_base = _PROJECT_ROOT / modules_cfg.get("base_path", "logic/src/models/subnets/modules")
+        always_keep_mod: Set[str] = set(modules_cfg.get("always_keep", []))
+        all_mod_files: List[str] = modules_cfg.get("all_files", [])
+        _prune_files(modules_base, all_mod_files, needed_modules | always_keep_mod, "module", dry_run)
+
+    # --- Prune other/ files ---
+    other_cfg = prunable_types.get("other", {})
+    if other_cfg:
+        other_base = _PROJECT_ROOT / other_cfg.get("base_path", "logic/src/models/subnets/other")
+        always_keep_oth: Set[str] = set(other_cfg.get("always_keep", []))
+        all_oth_files: List[str] = other_cfg.get("all_files", [])
+        _prune_files(other_base, all_oth_files, needed_other | always_keep_oth, "other subnet", dry_run)
+
+    # --- Prune embeddings/ (env-specific + model-specific files) ---
+    emb_cfg = prunable_types.get("embeddings", {})
+    if emb_cfg:
+        emb_base = _PROJECT_ROOT / emb_cfg.get("base_path", "logic/src/models/subnets/embeddings")
+        always_keep_emb: Set[str] = set(emb_cfg.get("always_keep", []))
+
+        # Files to keep: always_keep + env_files for kept envs + model_files for kept models
+        keep_emb_files: Set[str] = set(always_keep_emb)
+
+        env_files_map: Dict[str, List[str]] = emb_cfg.get("env_files", {})
+        keep_env_set = {e.lower() for e in (keep_envs or [])} if keep_envs is not None else None
+        if keep_env_set is None:
+            # No env filter — keep all env-specific files
+            for files in env_files_map.values():
+                keep_emb_files.update(files)
+        else:
+            for env_name, files in env_files_map.items():
+                if env_name.lower() in keep_env_set:
+                    keep_emb_files.update(files)
+
+        model_files_map: Dict[str, List[str]] = emb_cfg.get("model_files", {})
+        for model_acr_lower, files in model_files_map.items():
+            if model_acr_lower.upper() in keep_upper:
+                keep_emb_files.update(files)
+
+        # Build set of ALL env/model-specific files to know which to delete
+        all_specific_files: Set[str] = set()
+        for files in env_files_map.values():
+            all_specific_files.update(files)
+        for files in model_files_map.values():
+            all_specific_files.update(files)
+
+        for rel_path_str in all_specific_files:
+            if rel_path_str in keep_emb_files:
+                continue
+            target = emb_base / rel_path_str
+            if not target.exists():
+                continue
+            if dry_run:
+                _log(f"  [DRY-RUN] Would remove embedding file: {target.relative_to(_PROJECT_ROOT)}")
+            else:
+                _log(f"  Removing embedding file: {target.relative_to(_PROJECT_ROOT)}")
+                target.unlink()
 
 
 def _prune_subdirs(
@@ -331,14 +399,23 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
     import shutil  # noqa: PLC0415
 
     targets = [
+        # Dev subdirs
         _PROJECT_ROOT / "logic" / "benchmark",
         _PROJECT_ROOT / "logic" / "docs",
         _PROJECT_ROOT / "logic" / "examples",
         _PROJECT_ROOT / "logic" / "test",
         _PROJECT_ROOT / "logic" / "src" / "py.typed",
-        # testing.py is only used by logic/test/ (removed above); plotting.py
-        # is only used by the expo/output utilities (always removed from shared_always).
-        # stats.py is removed by remove_cli.py since it is CLI-only.
+        # Hydra tracking configs always removed (tracking module is always dropped)
+        _PROJECT_ROOT / "logic" / "configs" / "tracking",
+        # Slurm task yaml not needed in exported builds
+        _PROJECT_ROOT / "logic" / "configs" / "tasks" / "slurm.yaml",
+        # Utils subdirs that are dev/expo/output only (not needed at runtime)
+        _PROJECT_ROOT / "logic" / "src" / "utils" / "docs",
+        _PROJECT_ROOT / "logic" / "src" / "utils" / "expo",
+        _PROJECT_ROOT / "logic" / "src" / "utils" / "output",
+        _PROJECT_ROOT / "logic" / "src" / "utils" / "target",
+        _PROJECT_ROOT / "logic" / "src" / "utils" / "validation",
+        # Constants only used by removed subsystems (stats removed by remove_cli.py)
         _PROJECT_ROOT / "logic" / "src" / "constants" / "testing.py",
         _PROJECT_ROOT / "logic" / "src" / "constants" / "plotting.py",
     ]
@@ -374,6 +451,79 @@ def remove_packages_self(dry_run: bool) -> None:
     else:
         _log(f"  Self-removing packages dir: {packages_dir.relative_to(_PROJECT_ROOT)}")
         shutil.rmtree(packages_dir)
+
+
+def _prune_all_yaml_by_prefix(
+    yaml_dirs: List[str],
+    yaml_prefixes: Optional[List[str]],
+    dry_run: bool,
+) -> None:
+    """Delete ALL yaml files matching any of the prefixes (used when keeping zero algorithms)."""
+    for d in yaml_dirs:
+        dir_path = _PROJECT_ROOT / d
+        if not dir_path.exists():
+            continue
+        for yaml_file in dir_path.glob("**/*.yaml"):
+            name = yaml_file.stem.lower()
+            should_delete = False
+            if yaml_prefixes:
+                for prefix in yaml_prefixes:
+                    if name == prefix or name.startswith(f"{prefix}_"):
+                        should_delete = True
+                        break
+            else:
+                should_delete = True
+            if should_delete:
+                if dry_run:
+                    _log(f"  [DRY-RUN] Would remove yaml: {yaml_file.relative_to(_PROJECT_ROOT)}")
+                else:
+                    _log(f"  Removing yaml: {yaml_file.relative_to(_PROJECT_ROOT)}")
+                    yaml_file.unlink()
+
+
+def _prune_all_configs_by_prefix(
+    config_dirs: List[str],
+    config_prefixes: Optional[List[str]],
+    dry_run: bool,
+) -> None:
+    """Delete all non-__init__ .py configs (used when keeping zero algorithms in a category)."""
+    for d in config_dirs:
+        dir_path = _PROJECT_ROOT / d
+        if not dir_path.exists():
+            continue
+        for py_file in dir_path.glob("**/*.py"):
+            if py_file.name == "__init__.py":
+                continue
+            name = py_file.stem.lower()
+            should_delete = False
+            if config_prefixes:
+                for prefix in config_prefixes:
+                    if name == prefix or name.startswith(f"{prefix}_"):
+                        should_delete = True
+                        break
+            else:
+                should_delete = True
+            if should_delete:
+                if dry_run:
+                    _log(f"  [DRY-RUN] Would remove config: {py_file.relative_to(_PROJECT_ROOT)}")
+                else:
+                    _log(f"  Removing config: {py_file.relative_to(_PROJECT_ROOT)}")
+                    py_file.unlink()
+
+
+def _prune_entire_impl_dirs(impl_dirs: List[str], dry_run: bool) -> None:
+    """Remove entire implementation directories when all algorithms in a category are dropped."""
+    import shutil  # noqa: PLC0415
+
+    for d in impl_dirs:
+        dir_path = _PROJECT_ROOT / d
+        if not dir_path.exists():
+            continue
+        if dry_run:
+            _log(f"  [DRY-RUN] Would remove entire impl dir: {dir_path.relative_to(_PROJECT_ROOT)}")
+        else:
+            _log(f"  Removing entire impl dir: {dir_path.relative_to(_PROJECT_ROOT)}")
+            shutil.rmtree(dir_path)
 
 
 def prune_category(
@@ -421,6 +571,23 @@ def prune_category(
     cleanup_kwargs = _build_cleanup_kwargs(category_key, config)
     pruned = 0
 
+    # When removing ALL algorithms, use bulk deletion (faster and handles
+    # yaml files whose names don't derive cleanly from internal acronyms).
+    if not keep_upper:
+        _log(f"  All algorithms removed — using bulk deletion for '{category_key}'.")
+        _prune_all_yaml_by_prefix(
+            cleanup_kwargs["yaml_dirs"],
+            cleanup_kwargs.get("yaml_prefixes"),
+            dry_run,
+        )
+        _prune_all_configs_by_prefix(
+            cleanup_kwargs["config_dirs"],
+            cleanup_kwargs.get("config_prefixes"),
+            dry_run,
+        )
+        _prune_entire_impl_dirs(cleanup_kwargs["impl_dirs"], dry_run)
+        return len(to_prune)
+
     for user_acr in to_prune:
         internal_acr = known[user_acr]
         if dry_run:
@@ -431,6 +598,159 @@ def prune_category(
         pruned += 1
 
     return pruned
+
+
+def prune_envs(keep_envs: Optional[List[str]], dry_run: bool) -> None:
+    """Prune environment files not in keep_envs.
+
+    Removes routing/*.py, tasks/*.py, and configs/envs/*.yaml for each
+    environment not in the keep set.  Updates __init__.py files in affected dirs.
+    """
+    if keep_envs is None:
+        _log("Envs: no --envs flag — keeping all environments.")
+        return
+
+    from cleanup_helper import clean_init_file  # noqa: PLC0415
+
+    keep_set = {e.lower() for e in keep_envs}
+    _log(f"Envs: keeping {sorted(keep_set) or ['(none)']}")
+
+    impl_subdirs = [
+        _PROJECT_ROOT / "logic" / "src" / "envs" / "routing",
+        _PROJECT_ROOT / "logic" / "src" / "envs" / "tasks",
+    ]
+    yaml_dir = _PROJECT_ROOT / "logic" / "configs" / "envs"
+
+    # Collect deletions
+    to_delete = []
+    affected_init_dirs: Set[Path] = set()
+
+    for sub in impl_subdirs:
+        if not sub.exists():
+            continue
+        affected_init_dirs.add(sub)
+        for p in sub.glob("*.py"):
+            if p.name in ("__init__.py", "base.py"):
+                continue
+            if p.stem.lower() not in keep_set:
+                to_delete.append(p)
+
+    if yaml_dir.exists():
+        for p in yaml_dir.glob("*.yaml"):
+            if p.stem.lower() not in keep_set:
+                to_delete.append(p)
+
+    for path in to_delete:
+        if dry_run:
+            _log(f"  [DRY-RUN] Would remove env file: {path.relative_to(_PROJECT_ROOT)}")
+        else:
+            _log(f"  Removing env file: {path.relative_to(_PROJECT_ROOT)}")
+            path.unlink()
+
+    if not dry_run:
+        deleted_stems = {p.stem for p in to_delete if p.suffix == ".py"}
+        for d in affected_init_dirs:
+            init_file = d / "__init__.py"
+            if init_file.exists():
+                clean_init_file(init_file, list(deleted_stems))
+
+
+def _filter_files(
+    dir_path: Path,
+    keep_names: List[str],
+    label: str,
+    dry_run: bool,
+    protected_names: Optional[Set[str]] = None,
+) -> None:
+    """Delete .py files in dir_path whose stem doesn't match any keep_names substring."""
+    from cleanup_helper import clean_init_file  # noqa: PLC0415
+
+    if not dir_path.exists():
+        return
+    deleted_stems: Set[str] = set()
+    for p in dir_path.glob("*.py"):
+        if p.name == "__init__.py":
+            continue
+        if protected_names and p.name in protected_names:
+            continue
+        stem = p.stem.lower()
+        keep = any(name in stem or stem in name for name in keep_names)
+        if not keep:
+            deleted_stems.add(p.stem)
+            if dry_run:
+                _log(f"  [DRY-RUN] Would remove {label}: {p.relative_to(_PROJECT_ROOT)}")
+            else:
+                _log(f"  Removing {label}: {p.relative_to(_PROJECT_ROOT)}")
+                p.unlink()
+    if not dry_run and deleted_stems:
+        init = dir_path / "__init__.py"
+        if init.exists():
+            clean_init_file(init, list(deleted_stems))
+
+
+def prune_sim_datasets(keep_names: Optional[List[str]], dry_run: bool) -> None:
+    """Filter simulation/web datasets, leaving pytorch/ untouched."""
+    if keep_names is None:
+        return
+    _log(f"Sim datasets: keeping {keep_names or ['(none)']}")
+    import shutil  # noqa: PLC0415
+
+    datasets_dir = _PROJECT_ROOT / "logic" / "src" / "data" / "datasets"
+    for sub in ("simulation", "web"):
+        sub_dir = datasets_dir / sub
+        if not sub_dir.exists():
+            continue
+        _filter_files(sub_dir, keep_names, f"{sub} dataset", dry_run)
+    # Remove the web dir entirely if nothing in it was kept
+    web_dir = datasets_dir / "web"
+    if not dry_run and web_dir.exists():
+        remaining = [p for p in web_dir.glob("*.py") if p.name != "__init__.py"]
+        if not remaining:
+            shutil.rmtree(web_dir)
+            _log("  Removed empty web dataset dir")
+
+
+def prune_distributions(keep_names: Optional[List[str]], dry_run: bool) -> None:
+    """Filter distribution files."""
+    if keep_names is None:
+        return
+    _log(f"Distributions: keeping {keep_names or ['(none)']}")
+    dist_dir = _PROJECT_ROOT / "logic" / "src" / "data" / "distributions"
+    _filter_files(dist_dir, keep_names, "distribution", dry_run, protected_names={"base.py"})
+
+
+def prune_network(keep_names: Optional[List[str]], dry_run: bool) -> None:
+    """Filter network strategy files."""
+    if keep_names is None:
+        return
+    _log(f"Network strategies: keeping {keep_names or ['(none)']}")
+    net_dir = _PROJECT_ROOT / "logic" / "src" / "data" / "network"
+    _filter_files(net_dir, keep_names, "network strategy", dry_run)
+
+
+def prune_empty_dirs(dry_run: bool) -> None:
+    """Remove directories that have become effectively empty after pruning."""
+    from cleanup_helper import remove_empty_dirs  # noqa: PLC0415
+
+    scan_roots = [
+        _PROJECT_ROOT / "logic" / "src" / "policies",
+        _PROJECT_ROOT / "logic" / "src" / "models",
+        _PROJECT_ROOT / "logic" / "src" / "pipeline",
+        _PROJECT_ROOT / "logic" / "src" / "data",
+        _PROJECT_ROOT / "logic" / "src" / "envs",
+        _PROJECT_ROOT / "logic" / "configs",
+    ]
+
+    existing = [p for p in scan_roots if p.exists()]
+    if not existing:
+        return
+
+    if dry_run:
+        _log("  [DRY-RUN] Would prune effectively-empty directories.")
+        return
+
+    _log("  Pruning effectively-empty directories …")
+    remove_empty_dirs(_PROJECT_ROOT, existing)
 
 
 # ---------------------------------------------------------------------------
@@ -515,9 +835,38 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="drop_features",
         help=(
             "Optional pipeline features to REMOVE (e.g. META_LEARNING HPO SECURITY). "
-            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB. "
-            "Omitting this flag keeps all features."
+            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, "
+            "DATA_WEB, TRACKING, CLI. Omitting this flag keeps all features."
         ),
+    )
+    p.add_argument(
+        "--envs",
+        nargs="*",
+        metavar="ENV",
+        default=None,
+        help="Environment names to KEEP (e.g. vrpp). Others are removed. Omit to keep all.",
+    )
+    p.add_argument(
+        "--sim-datasets",
+        nargs="*",
+        metavar="NAME",
+        default=None,
+        dest="sim_datasets",
+        help="Simulation dataset stems to KEEP (e.g. gen_dataset sim_dataset). Pytorch left untouched.",
+    )
+    p.add_argument(
+        "--distributions",
+        nargs="*",
+        metavar="NAME",
+        default=None,
+        help="Distribution stems to KEEP (e.g. gamma empirical).",
+    )
+    p.add_argument(
+        "--network",
+        nargs="*",
+        metavar="NAME",
+        default=None,
+        help="Network strategy stems to KEEP (e.g. file).",
     )
     p.add_argument(
         "--dry-run",
@@ -576,9 +925,14 @@ def main(argv: Optional[List[str]] = None) -> None:
     _log("Pruning model subnets …")
     prune_subnets(
         keep_model_acronyms=category_keeps.get("model"),
+        keep_envs=args.envs,
         config=config,
         dry_run=args.dry_run,
     )
+
+    # Prune environments.
+    _log("Pruning environments …")
+    prune_envs(keep_envs=args.envs, dry_run=args.dry_run)
 
     # Drop optional pipeline features on request.
     drop_features: List[str] = [f.upper() for f in (args.drop_features or [])]
@@ -588,9 +942,24 @@ def main(argv: Optional[List[str]] = None) -> None:
     else:
         _log("No optional features dropped (use --drop-features to remove META_LEARNING, HPO, etc.).")
 
-    # Remove dev-only logic/ subdirs (benchmark, docs, examples, test, py.typed).
+    # Filter data/distributions/network (runs before self-destruct so scripts are still available).
+    if args.sim_datasets is not None:
+        _log("Filtering simulation datasets …")
+        prune_sim_datasets(keep_names=args.sim_datasets, dry_run=args.dry_run)
+    if args.distributions is not None:
+        _log("Filtering distributions …")
+        prune_distributions(keep_names=args.distributions, dry_run=args.dry_run)
+    if args.network is not None:
+        _log("Filtering network strategies …")
+        prune_network(keep_names=args.network, dry_run=args.dry_run)
+
+    # Remove dev-only logic/ subdirs (benchmark, docs, examples, test, utils/expo, …).
     _log("Removing dev-only logic/ subdirectories …")
     remove_logic_dev_dirs(dry_run=args.dry_run)
+
+    # Clean up directories that became effectively empty after all the above deletions.
+    _log("Pruning effectively-empty directories …")
+    prune_empty_dirs(dry_run=args.dry_run)
 
     # Self-destruct: remove this packages dir last so all remove_*.py scripts are
     # available for the entire pruning run.
