@@ -79,8 +79,44 @@ on:
         description: >
           Optional pipeline features to REMOVE (comma-separated).
           Leave blank to retain all features.
-          Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB.
-          Example: META_LEARNING,HPO,SECURITY
+          Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB, CLI, TRACKING.
+          Example: META_LEARNING,HPO,SECURITY,CLI,TRACKING
+        required: false
+        default: ""
+        type: string
+
+      envs:
+        description: >
+          Environment names to KEEP (comma-separated).
+          Leave blank to keep all environments.
+          Example: vrpp
+        required: false
+        default: ""
+        type: string
+
+      sim_datasets:
+        description: >
+          Simulation dataset stems to KEEP (comma-separated).
+          Pytorch datasets are always kept. Leave blank to keep all.
+          Example: gen_dataset,sim_dataset
+        required: false
+        default: ""
+        type: string
+
+      distributions:
+        description: >
+          Data distribution stems to KEEP (comma-separated).
+          base.py is always kept. Leave blank to keep all.
+          Example: gamma,empirical
+        required: false
+        default: ""
+        type: string
+
+      network:
+        description: >
+          Network graph loading strategy stems to KEEP (comma-separated).
+          Leave blank to keep all.
+          Example: file
         required: false
         default: ""
         type: string
@@ -208,6 +244,10 @@ jobs:
           add_arg "--rl-algorithms"      "${{ inputs.rl_algorithms }}"
           add_arg "--imitation-policies" "${{ inputs.imitation_policies }}"
           add_arg "--drop-features"      "${{ inputs.drop_features }}"
+          add_arg "--envs"               "${{ inputs.envs }}"
+          add_arg "--sim-datasets"       "${{ inputs.sim_datasets }}"
+          add_arg "--distributions"      "${{ inputs.distributions }}"
+          add_arg "--network"            "${{ inputs.network }}"
 
           if [ "${{ inputs.skip_build }}" = "true" ]; then
             ARGS="$ARGS --skip-build"
@@ -295,6 +335,10 @@ jobs:
           echo "| RL Algorithms     | \`${{ inputs.rl_algorithms || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Imitation Policies| \`${{ inputs.imitation_policies || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Drop Features     | \`${{ inputs.drop_features || '(none)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environments      | \`${{ inputs.envs || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Sim Datasets      | \`${{ inputs.sim_datasets || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Distributions     | \`${{ inputs.distributions || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Network Strategy  | \`${{ inputs.network || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Skip Build        | \`${{ inputs.skip_build }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Dry Run           | \`${{ inputs.dry_run }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
