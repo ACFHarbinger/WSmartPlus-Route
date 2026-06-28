@@ -674,15 +674,12 @@ def _filter_files(
         if protected_names and p.name in protected_names:
             continue
         stem = p.stem.lower()
-        # Match if stem equals name, stem ends with _name (e.g. "statistical_gamma"→"gamma"),
-        # or stem starts with name_ — but NOT if name is merely a substring at an arbitrary
-        # position (which would make "sim_dataset" falsely match "html_sim_dataset").
-        def _matches(stem: str, name: str) -> bool:
-            return (
-                stem == name
-                or stem.endswith("_" + name)
-                or stem.startswith(name + "_")
-            )
+        # Match if stem equals name exactly, OR — for single-word names only (no "_") —
+        # if the stem ends with "_name" (e.g. "statistical_gamma"→"gamma").
+        # Multi-word names like "sim_dataset" require an exact match to avoid
+        # "html_sim_dataset" being kept when only "sim_dataset" is requested.
+        def _matches(s: str, name: str) -> bool:
+            return s == name or ("_" not in name and s.endswith("_" + name))
         keep = any(_matches(stem, name.lower()) for name in keep_names)
         if not keep:
             deleted_stems.add(p.stem)
