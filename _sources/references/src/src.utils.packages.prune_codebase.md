@@ -43,6 +43,14 @@
   - ```{autodoc2-docstring} src.utils.packages.prune_codebase.prune_optional_features
     :summary:
     ```
+* - {py:obj}`_get_needed_subnet_deps <src.utils.packages.prune_codebase._get_needed_subnet_deps>`
+  - ```{autodoc2-docstring} src.utils.packages.prune_codebase._get_needed_subnet_deps
+    :summary:
+    ```
+* - {py:obj}`_prune_embeddings <src.utils.packages.prune_codebase._prune_embeddings>`
+  - ```{autodoc2-docstring} src.utils.packages.prune_codebase._prune_embeddings
+    :summary:
+    ```
 * - {py:obj}`prune_subnets <src.utils.packages.prune_codebase.prune_subnets>`
   - ```{autodoc2-docstring} src.utils.packages.prune_codebase.prune_subnets
     :summary:
@@ -234,6 +242,20 @@
 :canonical: src.utils.packages.prune_codebase.prune_optional_features
 
 ```{autodoc2-docstring} src.utils.packages.prune_codebase.prune_optional_features
+```
+````
+
+````{py:function} _get_needed_subnet_deps(keep_model_acronyms: typing.List[str], models_cfg: typing.Dict) -> typing.Tuple[typing.Set[str], typing.Set[str], typing.Set[str], typing.Set[str], typing.Set[str]]
+:canonical: src.utils.packages.prune_codebase._get_needed_subnet_deps
+
+```{autodoc2-docstring} src.utils.packages.prune_codebase._get_needed_subnet_deps
+```
+````
+
+````{py:function} _prune_embeddings(emb_cfg: typing.Dict, keep_envs: typing.Optional[typing.List[str]], keep_upper: typing.Set[str], emb_base: pathlib.Path, dry_run: bool) -> None
+:canonical: src.utils.packages.prune_codebase._prune_embeddings
+
+```{autodoc2-docstring} src.utils.packages.prune_codebase._prune_embeddings
 ```
 ````
 
