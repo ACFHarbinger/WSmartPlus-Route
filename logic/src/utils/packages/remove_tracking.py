@@ -3,7 +3,6 @@
 import re
 import shutil
 from pathlib import Path
-from typing import Any
 
 
 def get_project_root() -> Path:
@@ -443,12 +442,12 @@ def redirect_logging_imports(file_path: Path):
         print(f"Commenting out logging/visualization imports in: {file_path.relative_to(get_project_root())}")
 
         content = re.sub(
-            rf"(?m)^(\s*from\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"(?m)^(\s*from\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
             r"# \1  # AUTO-REMOVED",
             content,
         )
         content = re.sub(
-            rf"(?m)^(\s*import\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"(?m)^(\s*import\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
             r"# \1  # AUTO-REMOVED",
             content,
         )

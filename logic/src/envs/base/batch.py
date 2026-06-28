@@ -59,22 +59,60 @@ class BatchMixin:
             value: Shape to synchronize with.
         """
         if hasattr(self, "reward_spec"):
-            self._safe_set_shape(self.reward_spec, (*value, 1))
+            if hasattr(self.reward_spec, "values"):
+                for v in self.reward_spec.values():
+                    self._safe_set_shape(v, (*value, 1))
+                self._safe_set_shape(self.reward_spec, value)
+            else:
+                self._safe_set_shape(self.reward_spec, (*value, 1))
+
         if hasattr(self, "done_spec"):
-            self._safe_set_shape(self.done_spec, (*value, 1))
+            if hasattr(self.done_spec, "values"):
+                for v in self.done_spec.values():
+                    self._safe_set_shape(v, (*value, 1))
+                self._safe_set_shape(self.done_spec, value)
+            else:
+                self._safe_set_shape(self.done_spec, (*value, 1))
+
+        if hasattr(self, "full_done_spec"):
+            if hasattr(self.full_done_spec, "values"):
+                for v in self.full_done_spec.values():
+                    self._safe_set_shape(v, (*value, 1))
+                self._safe_set_shape(self.full_done_spec, value)
+            else:
+                self._safe_set_shape(self.full_done_spec, (*value, 1))
+
+        if hasattr(self, "full_reward_spec"):
+            if hasattr(self.full_reward_spec, "values"):
+                for v in self.full_reward_spec.values():
+                    self._safe_set_shape(v, (*value, 1))
+                self._safe_set_shape(self.full_reward_spec, value)
+            else:
+                self._safe_set_shape(self.full_reward_spec, (*value, 1))
 
         for spec_name in ["observation_spec", "action_spec", "input_spec", "output_spec"]:
             with contextlib.suppress(KeyError, AttributeError, IndexError):
                 spec = getattr(self, spec_name, None)
                 if spec is None:
                     continue
-                if hasattr(spec, "shape"):
-                    with contextlib.suppress(ValueError, RuntimeError):
-                        spec.shape = value
-                if hasattr(spec, "items"):
-                    for k, v in spec.items():
-                        if k in ["done", "terminated", "truncated", "reward"]:
-                            self._safe_set_shape(v, (*value, 1))
+                self._sync_spec_keys(spec, value)
+                self._safe_set_shape(spec, value)
+
+    def _sync_spec_keys(self, spec, value: torch.Size) -> None:
+        """Recursively synchronize spec child keys with the new shape.
+
+        Args:
+            spec: Spec to traverse.
+            value: Environment batch size.
+        """
+        if spec is None:
+            return
+        if hasattr(spec, "items"):
+            for k, v in spec.items():
+                if k in ["done", "terminated", "truncated", "reward"]:
+                    self._safe_set_shape(v, (*value, 1))
+                else:
+                    self._sync_spec_keys(v, value)
 
     @staticmethod
     def _safe_set_shape(s, shp):
@@ -86,9 +124,15 @@ class BatchMixin:
         """
         if s is None:
             return
+        locked = getattr(s, "locked", False)
+        if locked:
+            s._is_locked = False
         try:
             s.shape = shp
         except (ValueError, RuntimeError):
             if hasattr(s, "items"):
                 for v in s.values():
                     BatchMixin._safe_set_shape(v, shp)
+        finally:
+            if locked:
+                s._is_locked = True

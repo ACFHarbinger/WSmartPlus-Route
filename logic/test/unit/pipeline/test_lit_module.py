@@ -40,7 +40,7 @@ def test_lit_module_save_weights(lit_setup, tmp_path):
     assert os.path.exists(str(tmp_path / "args.json"))
 
     # Check loading to verify format
-    data = torch.load(path)
+    data = torch.load(path, weights_only=False)
     assert "state_dict" in data
     assert "hparams" in data
 
