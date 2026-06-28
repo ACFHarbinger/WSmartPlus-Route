@@ -517,7 +517,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         dist_dir: Path
         if args.skip_build:
             _log("Step 3/4 — Build step skipped (--skip-build).")
-            dist_dir = PROJECT_ROOT / "dist"
+            dist_dir = PROJECT_ROOT / "dist" / "_nonexistent_skip_build"
         else:
             _log("Step 3/4 — Building executable with PyInstaller …")
             dist_dir = _step_build(dry_run=args.dry_run)
