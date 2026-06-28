@@ -5,7 +5,6 @@ Removes directories, configs, and config registrations associated with HPO.
 
 import re
 import shutil
-import sys
 from pathlib import Path
 
 
@@ -46,7 +45,7 @@ def clean_configs_init(init_path: Path, class_names: list, field_names: list) ->
     content = init_path.read_text(errors="ignore")
     for cls in class_names:
         # Remove from .tasks import line
-        pattern = rf"(?m)^(\s*from\s+\.tasks\s+import\s+.*)$"
+        pattern = r"(?m)^(\s*from\s+\.tasks\s+import\s+.*)$"
         match = re.search(pattern, content)
         if match:
             line = match.group(1)

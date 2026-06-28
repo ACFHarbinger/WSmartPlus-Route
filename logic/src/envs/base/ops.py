@@ -19,7 +19,7 @@ from typing import Any, Optional, cast
 
 import torch
 from tensordict import TensorDictBase
-from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
+from torchrl.data import Categorical, TensorSpec, UnboundedContinuous
 
 
 class OpsMixin:
@@ -44,11 +44,9 @@ class OpsMixin:
         # Cast to TensorSpec to satisfy Pyrefly in cases of multiple inheritance
         # Ensure shape is a torch.Size object
         self.done_spec = cast(
-            TensorSpec, DiscreteTensorSpec(n=2, shape=torch.Size((*batch_size, 1)), dtype=torch.bool, device=device)
+            TensorSpec, Categorical(n=2, shape=torch.Size((*batch_size, 1)), dtype=torch.bool, device=device)
         )
-        self.reward_spec = cast(
-            TensorSpec, UnboundedContinuousTensorSpec(shape=torch.Size((*batch_size, 1)), device=device)
-        )
+        self.reward_spec = cast(TensorSpec, UnboundedContinuous(shape=torch.Size((*batch_size, 1)), device=device))
 
     def step(self, tensordict: TensorDictBase) -> TensorDictBase:
         """

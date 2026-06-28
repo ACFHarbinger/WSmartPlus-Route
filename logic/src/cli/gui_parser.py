@@ -19,7 +19,7 @@ from logic.src.cli.base import LowercaseAction
 
 # Defined here to avoid importing from gui (logic must never import from GUI).
 # The full list lives in gui/src/constants/app.py for GUI-side use.
-__APP_STYLES: List[str] = ["fusion", "windows", "windowsxp", "macintosh"]
+_APP_STYLES: List[str] = ["fusion", "windows", "windowsxp", "macintosh"]
 
 
 def add_gui_args(parser: Any) -> Any:

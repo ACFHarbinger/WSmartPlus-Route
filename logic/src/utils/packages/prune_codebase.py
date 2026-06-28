@@ -161,7 +161,7 @@ def prune_optional_features(
     unknown = set(drop_features) - known_features
     if unknown:
         _log(
-            f"WARNING: Unknown optional features (will be ignored): "
+            "WARNING: Unknown optional features (will be ignored): "
             + ", ".join(sorted(unknown))
         )
 
@@ -222,7 +222,6 @@ def prune_subnets(
     Always-keep entries (``common`` for encoders/decoders, ``attention.py`` and
     ``base.py`` for factories) are never removed.
     """
-    import shutil  # noqa: PLC0415
 
     if keep_model_acronyms is None:
         _log("Subnets: no model selection provided — keeping all subnets.")
