@@ -1,0 +1,308 @@
+name: Algorithm Export — Package & Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      constructors:
+        description: >
+          Route construction algorithm acronyms to keep (comma-separated).
+          Leave blank to retain all constructors.
+          Example: HGS,ALNS,BPC
+        required: false
+        default: ""
+        type: string
+
+      selectors:
+        description: >
+          Mandatory selection policy acronyms to keep (comma-separated).
+          Leave blank to retain all selectors.
+          Example: MS_REGULAR,MS_PPK,MS_SAVINGS
+        required: false
+        default: ""
+        type: string
+
+      improvement:
+        description: >
+          Route improvement operator acronyms to keep (comma-separated).
+          Leave blank to retain all improvement operators.
+          Example: RI_OROPT,RI_S2OPT,RI_GLS
+        required: false
+        default: ""
+        type: string
+
+      acceptance:
+        description: >
+          Acceptance criteria acronyms to keep (comma-separated).
+          Leave blank to retain all acceptance criteria.
+          Example: AC_GD,AC_OI,AC_BMC
+        required: false
+        default: ""
+        type: string
+
+      joint:
+        description: >
+          Joint selection-and-construction acronyms to keep (comma-separated).
+          Leave blank to retain all joint methods.
+          Example: JGO,JSA
+        required: false
+        default: ""
+        type: string
+
+      models:
+        description: >
+          Neural model architecture acronyms to keep (comma-separated).
+          Leave blank to retain all models.
+          Example: AM,TAM,MDAM
+        required: false
+        default: ""
+        type: string
+
+      rl_algorithms:
+        description: >
+          RL training algorithm acronyms to keep (comma-separated).
+          Leave blank to retain all RL algorithms.
+          Example: RL_REINFORCE,RL_PPO
+        required: false
+        default: ""
+        type: string
+
+      imitation_policies:
+        description: >
+          Imitation learning policy acronyms to keep (comma-separated).
+          Leave blank to retain all imitation policies.
+          Example: IP_HGS,IP_ALNS
+        required: false
+        default: ""
+        type: string
+
+      drop_features:
+        description: >
+          Optional pipeline features to REMOVE (comma-separated).
+          Leave blank to retain all features.
+          Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB.
+          Example: META_LEARNING,HPO,SECURITY
+        required: false
+        default: ""
+        type: string
+
+      skip_build:
+        description: Skip the PyInstaller build step (source-only export).
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+      dry_run:
+        description: >
+          Dry run — validate and log all steps without modifying files or git state.
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+# Prevent concurrent export runs to avoid branch conflicts.
+concurrency:
+  group: algo-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    name: Export Selected Algorithms
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: write   # Needed to create and push the export branch.
+
+    steps:
+      # ------------------------------------------------------------------ #
+      # 1. Checkout                                                          #
+      # ------------------------------------------------------------------ #
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Full history so branch creation works cleanly.
+
+      # ------------------------------------------------------------------ #
+      # 2. System dependencies                                               #
+      # ------------------------------------------------------------------ #
+      - name: Install system packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            tree \
+            jq \
+            zip \
+            upx-ucl
+          echo "System packages installed."
+
+      # ------------------------------------------------------------------ #
+      # 3. Python + uv                                                       #
+      # ------------------------------------------------------------------ #
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Sync Python environment
+        run: uv sync --frozen
+        env:
+          UV_SYSTEM_PYTHON: "1"
+
+      # PyInstaller must be available in the environment.
+      - name: Ensure PyInstaller is installed
+        run: uv run python -m pip install pyinstaller --quiet
+
+      # ------------------------------------------------------------------ #
+      # 4. Configure git identity for the export commit                      #
+      # ------------------------------------------------------------------ #
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ------------------------------------------------------------------ #
+      # 5. Validate ci/export_config.json is present                        #
+      # ------------------------------------------------------------------ #
+      - name: Validate export config
+        run: |
+          if [ ! -f ci/export_config.json ]; then
+            echo "ERROR: ci/export_config.json not found." >&2
+            exit 1
+          fi
+          echo "ci/export_config.json found. Known categories:"
+          jq -r '.categories | keys[]' ci/export_config.json
+
+      # ------------------------------------------------------------------ #
+      # 6. Build packager arguments                                         #
+      # ------------------------------------------------------------------ #
+      # Each optional input is forwarded only when the user provided a value.
+      - name: Build packager argument string
+        id: build_args
+        run: |
+          ARGS=""
+
+          add_arg() {
+            local flag="$1"
+            local value="$2"
+            if [ -n "$value" ]; then
+              ARGS="$ARGS $flag '$value'"
+            fi
+          }
+
+          add_arg "--constructors"       "${{ inputs.constructors }}"
+          add_arg "--selectors"          "${{ inputs.selectors }}"
+          add_arg "--improvement"        "${{ inputs.improvement }}"
+          add_arg "--acceptance"         "${{ inputs.acceptance }}"
+          add_arg "--joint"              "${{ inputs.joint }}"
+          add_arg "--models"             "${{ inputs.models }}"
+          add_arg "--rl-algorithms"      "${{ inputs.rl_algorithms }}"
+          add_arg "--imitation-policies" "${{ inputs.imitation_policies }}"
+          add_arg "--drop-features"      "${{ inputs.drop_features }}"
+
+          if [ "${{ inputs.skip_build }}" = "true" ]; then
+            ARGS="$ARGS --skip-build"
+          fi
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          ARGS="$ARGS --output-dir dist/exports"
+
+          echo "packager_args=$ARGS" >> "$GITHUB_OUTPUT"
+          echo "Packager args: $ARGS"
+
+      # ------------------------------------------------------------------ #
+      # 7. Run packager.py                                                   #
+      # ------------------------------------------------------------------ #
+      - name: Run packager
+        run: |
+          eval uv run python ci/packager.py ${{ steps.build_args.outputs.packager_args }}
+        env:
+          # Suppress Qt and other GUI-related imports that may fail in CI.
+          QT_QPA_PLATFORM: offscreen
+          # Prevent Weights & Biases from prompting for login.
+          WANDB_MODE: disabled
+          # Keep PyInstaller from requiring a display.
+          DISPLAY: ""
+
+      # ------------------------------------------------------------------ #
+      # 8. Locate the produced archive                                       #
+      # ------------------------------------------------------------------ #
+      - name: Locate export archive
+        id: find_archive
+        run: |
+          ARCHIVE=$(find dist/exports -name "wsmart_route_export_*.zip" \
+                    -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
+          if [ -z "$ARCHIVE" ]; then
+            echo "ERROR: No export archive found in dist/exports/." >&2
+            ls -la dist/exports/ || true
+            exit 1
+          fi
+          echo "archive_path=$ARCHIVE" >> "$GITHUB_OUTPUT"
+          echo "archive_name=$(basename $ARCHIVE)" >> "$GITHUB_OUTPUT"
+          echo "Found archive: $ARCHIVE ($(du -sh $ARCHIVE | cut -f1))"
+
+      # ------------------------------------------------------------------ #
+      # 9. Upload artifact                                                   #
+      # ------------------------------------------------------------------ #
+      - name: Upload export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.find_archive.outputs.archive_name }}
+          path: ${{ steps.find_archive.outputs.archive_path }}
+          retention-days: 30
+          if-no-files-found: error
+
+      # ------------------------------------------------------------------ #
+      # 10. Upload retained-files tree as a separate artifact                #
+      # ------------------------------------------------------------------ #
+      - name: Upload retained logic file tree
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retained_logic_files_${{ github.run_id }}
+          path: retained_logic_files.txt
+          retention-days: 30
+          if-no-files-found: warn
+
+      # ------------------------------------------------------------------ #
+      # 11. Summary                                                          #
+      # ------------------------------------------------------------------ #
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## WSmart-Route Algorithm Export" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Input | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Constructors      | \`${{ inputs.constructors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Selectors         | \`${{ inputs.selectors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Improvement       | \`${{ inputs.improvement || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Acceptance        | \`${{ inputs.acceptance || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Joint             | \`${{ inputs.joint || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Models            | \`${{ inputs.models || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| RL Algorithms     | \`${{ inputs.rl_algorithms || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Imitation Policies| \`${{ inputs.imitation_policies || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Drop Features     | \`${{ inputs.drop_features || '(none)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Skip Build        | \`${{ inputs.skip_build }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dry Run           | \`${{ inputs.dry_run }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f retained_logic_files.txt ]; then
+            echo "<details><summary>Retained logic/src tree</summary>" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat retained_logic_files.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "</details>" >> "$GITHUB_STEP_SUMMARY"
+          fi

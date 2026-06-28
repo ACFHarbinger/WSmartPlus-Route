@@ -68,6 +68,19 @@ def clean_configs_init(init_path: Path, class_names: list, field_names: list) ->
     init_path.write_text(content)
 
 
+def remove_constants_init_import(root: Path, module_name: str) -> None:
+    """Comment out a wildcard import from logic/src/constants/__init__.py."""
+    init_path = root / "logic/src/constants/__init__.py"
+    if not init_path.exists():
+        return
+    content = init_path.read_text(errors="ignore")
+    pattern = rf"(?m)^(from logic\.src\.constants\.{re.escape(module_name)} import \*.*)$"
+    new_content = re.sub(pattern, r"# \1  # AUTO-REMOVED", content)
+    if new_content != content:
+        print(f"Updated constants/__init__.py: commented out {module_name} import")
+        init_path.write_text(new_content)
+
+
 def clean_hydra_dispatch(dispatch_path: Path) -> None:
     """Remove HPO tasks and logic from hydra_dispatch.py."""
     if not dispatch_path.exists():
@@ -116,6 +129,10 @@ def main() -> None:
 
     # 4. Clean up hydra_dispatch.py
     clean_hydra_dispatch(root / "logic/hydra_dispatch.py")
+
+    # 5. Remove HPO constants and update constants/__init__.py
+    remove_path(root / "logic/src/constants/hpo.py")
+    remove_constants_init_import(root, "hpo")
 
     print("=== HPO Cleanup Complete ===\n")
 

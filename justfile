@@ -1,4 +1,4 @@
-# WSmart-Route Justfile
+# WSmart+ Route Framework - Justfile
 
 red := '\033[0;31m'
 green := '\033[0;32m'
@@ -38,7 +38,84 @@ hpo_improver_kw := ""
 policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
 
 #policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
+# --- Header ---
+
+# A private recipe for the WSmart+ Route header (hidden from just --list)
+[private]
+_print_header:
+    @printf "{{ blue }}╔══════════════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ blue }}║                  WSmart+ Route Framework Control                     ║{{ reset }}\n"
+    @printf "{{ blue }}╚══════════════════════════════════════════════════════════════════════╝{{ reset }}\n"
+
+# --- Help ---
+
+# Print available commands with descriptions
+help: _print_header
+    @printf "\n"
+    @printf "{{ cyan }}Usage:{{ reset }} just <recipe> [variable=value]\n"
+    @printf "\n"
+    @printf "{{ yellow }}Setup & Environment:{{ reset }}\n"
+    @printf "  {{ green }}setup{{ reset }}                      - Initialize environment and install dependencies\n"
+    @printf "  {{ green }}sync{{ reset }}                       - Sync dependencies with uv.lock\n"
+    @printf "  {{ green }}install{{ reset }}                    - Install dependencies via pip\n"
+    @printf "\n"
+    @printf "{{ yellow }}Task Execution:{{ reset }}\n"
+    @printf "  {{ green }}train{{ reset }}                      - Train a model (problem=vrpp model=am)\n"
+    @printf "  {{ green }}eval{{ reset }}                       - Evaluate a trained model\n"
+    @printf "  {{ green }}test-sim{{ reset }}                   - Run multi-day simulator test\n"
+    @printf "  {{ green }}gen-data{{ reset }}                   - Generate a dataset\n"
+    @printf "  {{ green }}gui{{ reset }}                        - Launch the PySide6 GUI\n"
+    @printf "  {{ green }}hpo-sim{{ reset }}                    - Run simulation policy HPO\n"
+    @printf "\n"
+    @printf "{{ yellow }}Script Runners:{{ reset }}\n"
+    @printf "  {{ green }}run-train{{ reset }}                  - Execute scripts/train.sh\n"
+    @printf "  {{ green }}run-eval{{ reset }}                   - Execute scripts/evaluation.sh\n"
+    @printf "  {{ green }}run-gen-data{{ reset }}               - Execute scripts/gen_data.sh\n"
+    @printf "  {{ green }}run-meta{{ reset }}                   - Execute scripts/meta_train.sh\n"
+    @printf "  {{ green }}run-hpo{{ reset }}                    - Execute scripts/hyperparam_optim.sh\n"
+    @printf "  {{ green }}run-sim{{ reset }}                    - Execute scripts/test_sim.sh\n"
+    @printf "\n"
+    @printf "{{ yellow }}Codebase Cleanup:{{ reset }}\n"
+    @printf "  {{ green }}cleanup-route-constructors{{ reset }} - Remove route constructor components\n"
+    @printf "  {{ green }}cleanup-policy-others{{ reset }}      - Remove other policy components\n"
+    @printf "  {{ green }}cleanup-envs{{ reset }}               - Remove environment components\n"
+    @printf "  {{ green }}cleanup-models{{ reset }}             - Remove model components\n"
+    @printf "  {{ green }}cleanup-rl-algorithms{{ reset }}      - Remove RL algorithm components\n"
+    @printf "  {{ green }}cleanup-imitation-policies{{ reset }} - Remove imitation learning policies\n"
+    @printf "  {{ green }}cleanup-hpo{{ reset }}                - Remove HPO components\n"
+    @printf "  {{ green }}cleanup-meta{{ reset }}               - Remove Meta-RL components\n"
+    @printf "  {{ green }}cleanup-eval{{ reset }}               - Remove evaluation components\n"
+    @printf "  {{ green }}cleanup-callbacks{{ reset }}          - Remove callback components\n"
+    @printf "  {{ green }}cleanup-tracking{{ reset }}           - Remove tracking components\n"
+    @printf "  {{ green }}cleanup-ui{{ reset }}                 - Remove UI components\n"
+    @printf "  {{ green }}cleanup-enums{{ reset }}              - Remove enums and GlobalRegistry\n"
+    @printf "  {{ green }}cleanup-data{{ reset }}               - Remove dataset components\n"
+    @printf "  {{ green }}cleanup-security{{ reset }}           - Remove security components\n"
+    @printf "\n"
+    @printf "{{ yellow }}Codebase Validation:{{ reset }}\n"
+    @printf "  {{ green }}lint{{ reset }}                       - Check code quality with ruff\n"
+    @printf "  {{ green }}format{{ reset }}                     - Format code with ruff\n"
+    @printf "  {{ green }}test{{ reset }}                       - Run all tests\n"
+    @printf "  {{ green }}test-fast{{ reset }}                  - Run fast unit tests\n"
+    @printf "  {{ green }}test-logic{{ reset }}                 - Run logic backend tests\n"
+    @printf "  {{ green }}test-gui{{ reset }}                   - Run GUI tests\n"
+    @printf "  {{ green }}pyrefly-logic{{ reset }}              - Pyrefly type checking (logic)\n"
+    @printf "  {{ green }}pyrefly-gui{{ reset }}                - Pyrefly type checking (GUI)\n"
+    @printf "\n"
+    @printf "{{ yellow }}Maintenance:{{ reset }}\n"
+    @printf "  {{ green }}clean{{ reset }}                      - Remove caches and build artifacts\n"
+    @printf "  {{ green }}clean-outputs{{ reset }}              - Remove simulation output files\n"
+    @printf "  {{ green }}package{{ reset }}                    - Build executable with PyInstaller\n"
+    @printf "\n"
+    @printf "{{ cyan }}Variables:{{ reset }} problem={{ purple }}vrpp{{ reset }}  model={{ purple }}am{{ reset }}  area={{ purple }}riomaior{{ reset }}  seed={{ purple }}42{{ reset }}\n"
+
 # --- Setup & Environment ---
+
+# Initialize environment and install all dependencies
+setup: _print_header
+    @printf "{{ blue }}Setting up environment with uv...{{ reset }}\n"
+    uv sync --all-groups --all-extras
+    @printf "{{ green }}Environment ready.{{ reset }}\n"
 
 # Sync dependencies using uv
 sync:
@@ -48,9 +125,9 @@ sync:
 install:
     uv pip install -r requirements.txt || uv pip install -e .
 
-# Generate executable
+# Build stripped-simulator executable (run after pruning)
 package:
-    uv run pyinstaller simulator.spec
+    uv run pyinstaller ci/simulator.spec --clean
 
 # --- Primary Execution Commands (Hydra-based) ---
 # Train a model with Hydra configs

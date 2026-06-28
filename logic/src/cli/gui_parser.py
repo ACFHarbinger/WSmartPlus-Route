@@ -13,10 +13,13 @@ Example:
     {'app_style': 'fusion', 'test_only': False}
 """
 
-from typing import Any
+from typing import Any, List
 
 from logic.src.cli.base import LowercaseAction
-from logic.src.constants import APP_STYLES
+
+# Defined here to avoid importing from gui (logic must never import from GUI).
+# The full list lives in gui/src/constants/app.py for GUI-side use.
+__APP_STYLES: List[str] = ["fusion", "windows", "windowsxp", "macintosh"]
 
 
 def add_gui_args(parser: Any) -> Any:
@@ -55,7 +58,7 @@ def validate_gui_args(args: Any) -> Any:
         The validated arguments.
     """
     args = args.copy()
-    assert args.get("app_style") in [None] + APP_STYLES, (
-        f"Invalid application style '{args.get('app_style')}' - app_style value must be: {[None] + APP_STYLES}"
+    assert args.get("app_style") in [None] + _APP_STYLES, (
+        f"Invalid application style '{args.get('app_style')}' - app_style value must be: {[None] + _APP_STYLES}"
     )
     return args

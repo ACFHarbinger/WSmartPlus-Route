@@ -100,7 +100,7 @@ def filter_datasets(root: Path, keep_names: List[str]):
     print(f"\nFiltering datasets (keeping: {keep_names})...")
     deleted_modules = set()
 
-    for sub in ["pytorch", "simulation"]:
+    for sub in ["pytorch", "simulation", "web"]:
         sub_dir = datasets_dir / sub
         if not sub_dir.exists():
             continue

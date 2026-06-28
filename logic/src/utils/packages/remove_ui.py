@@ -5,6 +5,19 @@ import shutil
 from pathlib import Path
 
 
+def remove_constants_init_import(root: Path, module_name: str) -> None:
+    """Comment out a wildcard import from logic/src/constants/__init__.py."""
+    init_path = root / "logic/src/constants/__init__.py"
+    if not init_path.exists():
+        return
+    content = init_path.read_text(errors="ignore")
+    pattern = rf"(?m)^(from logic\.src\.constants\.{re.escape(module_name)} import \*.*)$"
+    new_content = re.sub(pattern, r"# \1  # AUTO-REMOVED", content)
+    if new_content != content:
+        print(f"Updated constants/__init__.py: commented out {module_name} import")
+        init_path.write_text(new_content)
+
+
 def get_project_root() -> Path:
     """Find WSmart-Route root directory."""
     return Path(__file__).resolve().parents[4]
@@ -63,10 +76,15 @@ def main():
         root / "logic/src/utils/ui",
         root / "logic/dashboard_entry.py",
         root / "logic/test/unit/ui",
+        root / "logic/configs/ui",
+        root / "logic/src/constants/dashboard.py",
     ]
 
     for path in to_delete:
         remove_path(path)
+
+    # Update constants/__init__.py to remove dashboard import
+    remove_constants_init_import(root, "dashboard")
 
     # 2. Modify justfile
     comment_justfile(root / "justfile")

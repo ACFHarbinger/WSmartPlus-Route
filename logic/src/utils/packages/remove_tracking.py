@@ -526,6 +526,7 @@ def main():
         root / "logic/src/tracking/profiling",
         root / "logic/src/tracking/validation",
         root / "logic/src/tracking/viz_mixin.py",
+        root / "logic/configs/tracking",
     ]
 
     for path in to_delete:
