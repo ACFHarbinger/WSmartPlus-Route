@@ -1,6 +1,12 @@
 name: Algorithm Export — Package & Build
 
 on:
+  # Automatically triggered when packager.py pushes an algo-export branch.
+  push:
+    branches:
+      - 'algo-export*'
+
+  # Manual trigger (reads inputs instead of ci/workflow_config.json).
   workflow_dispatch:
     inputs:
       constructors:
@@ -148,6 +154,8 @@ concurrency:
 jobs:
   export:
     name: Export Selected Algorithms
+    # Only run on algo-export branches of the private repo (same guard as sync-to-public).
+    if: github.repository == 'ACFHarbinger/WSmart-Route'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -219,9 +227,58 @@ jobs:
           jq -r '.categories | keys[]' ci/export_config.json
 
       # ------------------------------------------------------------------ #
-      # 6. Build packager arguments                                         #
+      # 6. Load parameters                                                   #
+      # When triggered by a push to an algo-export branch, parameters are   #
+      # read from ci/workflow_config.json (written by packager.py locally). #
+      # When triggered manually, workflow_dispatch inputs are used instead.  #
       # ------------------------------------------------------------------ #
-      # Each optional input is forwarded only when the user provided a value.
+      - name: Load parameters
+        id: params
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            CONFIG=ci/workflow_config.json
+            if [ ! -f "$CONFIG" ]; then
+              echo "ERROR: $CONFIG not found on this branch." >&2
+              exit 1
+            fi
+            echo "Reading parameters from $CONFIG"
+            echo "constructors=$(jq -r '.constructors // ""'       $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "selectors=$(jq -r '.selectors // ""'             $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "improvement=$(jq -r '.improvement // ""'         $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "acceptance=$(jq -r '.acceptance // ""'           $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "joint=$(jq -r '.joint // ""'                     $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "models=$(jq -r '.models // ""'                   $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "rl_algorithms=$(jq -r '.rl_algorithms // ""'     $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "imitation_policies=$(jq -r '.imitation_policies // ""' $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "drop_features=$(jq -r '.drop_features // ""'     $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "envs=$(jq -r '.envs // ""'                       $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "sim_datasets=$(jq -r '.sim_datasets // ""'       $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "distributions=$(jq -r '.distributions // ""'     $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "network=$(jq -r '.network // ""'                 $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "skip_build=$(jq -r '.skip_build // false'        $CONFIG)" >> "$GITHUB_OUTPUT"
+            echo "dry_run=$(jq -r '.dry_run // false'              $CONFIG)" >> "$GITHUB_OUTPUT"
+          else
+            echo "Reading parameters from workflow_dispatch inputs"
+            echo "constructors=${{ inputs.constructors }}"       >> "$GITHUB_OUTPUT"
+            echo "selectors=${{ inputs.selectors }}"             >> "$GITHUB_OUTPUT"
+            echo "improvement=${{ inputs.improvement }}"         >> "$GITHUB_OUTPUT"
+            echo "acceptance=${{ inputs.acceptance }}"           >> "$GITHUB_OUTPUT"
+            echo "joint=${{ inputs.joint }}"                     >> "$GITHUB_OUTPUT"
+            echo "models=${{ inputs.models }}"                   >> "$GITHUB_OUTPUT"
+            echo "rl_algorithms=${{ inputs.rl_algorithms }}"     >> "$GITHUB_OUTPUT"
+            echo "imitation_policies=${{ inputs.imitation_policies }}" >> "$GITHUB_OUTPUT"
+            echo "drop_features=${{ inputs.drop_features }}"     >> "$GITHUB_OUTPUT"
+            echo "envs=${{ inputs.envs }}"                       >> "$GITHUB_OUTPUT"
+            echo "sim_datasets=${{ inputs.sim_datasets }}"       >> "$GITHUB_OUTPUT"
+            echo "distributions=${{ inputs.distributions }}"     >> "$GITHUB_OUTPUT"
+            echo "network=${{ inputs.network }}"                 >> "$GITHUB_OUTPUT"
+            echo "skip_build=${{ inputs.skip_build }}"           >> "$GITHUB_OUTPUT"
+            echo "dry_run=${{ inputs.dry_run }}"                 >> "$GITHUB_OUTPUT"
+          fi
+
+      # ------------------------------------------------------------------ #
+      # 7. Build packager arguments                                         #
+      # ------------------------------------------------------------------ #
       - name: Build packager argument string
         id: build_args
         run: |
@@ -235,35 +292,37 @@ jobs:
             fi
           }
 
-          add_arg "--constructors"       "${{ inputs.constructors }}"
-          add_arg "--selectors"          "${{ inputs.selectors }}"
-          add_arg "--improvement"        "${{ inputs.improvement }}"
-          add_arg "--acceptance"         "${{ inputs.acceptance }}"
-          add_arg "--joint"              "${{ inputs.joint }}"
-          add_arg "--models"             "${{ inputs.models }}"
-          add_arg "--rl-algorithms"      "${{ inputs.rl_algorithms }}"
-          add_arg "--imitation-policies" "${{ inputs.imitation_policies }}"
-          add_arg "--drop-features"      "${{ inputs.drop_features }}"
-          add_arg "--envs"               "${{ inputs.envs }}"
-          add_arg "--sim-datasets"       "${{ inputs.sim_datasets }}"
-          add_arg "--distributions"      "${{ inputs.distributions }}"
-          add_arg "--network"            "${{ inputs.network }}"
+          add_arg "--constructors"       "${{ steps.params.outputs.constructors }}"
+          add_arg "--selectors"          "${{ steps.params.outputs.selectors }}"
+          add_arg "--improvement"        "${{ steps.params.outputs.improvement }}"
+          add_arg "--acceptance"         "${{ steps.params.outputs.acceptance }}"
+          add_arg "--joint"              "${{ steps.params.outputs.joint }}"
+          add_arg "--models"             "${{ steps.params.outputs.models }}"
+          add_arg "--rl-algorithms"      "${{ steps.params.outputs.rl_algorithms }}"
+          add_arg "--imitation-policies" "${{ steps.params.outputs.imitation_policies }}"
+          add_arg "--drop-features"      "${{ steps.params.outputs.drop_features }}"
+          add_arg "--envs"               "${{ steps.params.outputs.envs }}"
+          add_arg "--sim-datasets"       "${{ steps.params.outputs.sim_datasets }}"
+          add_arg "--distributions"      "${{ steps.params.outputs.distributions }}"
+          add_arg "--network"            "${{ steps.params.outputs.network }}"
 
-          if [ "${{ inputs.skip_build }}" = "true" ]; then
+          if [ "${{ steps.params.outputs.skip_build }}" = "true" ]; then
             ARGS="$ARGS --skip-build"
           fi
 
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
             ARGS="$ARGS --dry-run"
           fi
 
-          ARGS="$ARGS --output-dir dist/exports"
+          # In CI the codebase is already pruned (algo-export branch); skip
+          # the branch-creation and commit steps — just build the zip.
+          ARGS="$ARGS --no-commit --output-dir dist/exports"
 
           echo "packager_args=$ARGS" >> "$GITHUB_OUTPUT"
           echo "Packager args: $ARGS"
 
       # ------------------------------------------------------------------ #
-      # 7. Run packager.py                                                   #
+      # 8. Run packager.py                                                   #
       # ------------------------------------------------------------------ #
       - name: Run packager
         run: |
@@ -277,7 +336,7 @@ jobs:
           DISPLAY: ""
 
       # ------------------------------------------------------------------ #
-      # 8. Locate the produced archive                                       #
+      # 9. Locate the produced archive                                       #
       # ------------------------------------------------------------------ #
       - name: Locate export archive
         id: find_archive
@@ -294,7 +353,7 @@ jobs:
           echo "Found archive: $ARCHIVE ($(du -sh $ARCHIVE | cut -f1))"
 
       # ------------------------------------------------------------------ #
-      # 9. Upload artifact                                                   #
+      # 10. Upload artifact                                                  #
       # ------------------------------------------------------------------ #
       - name: Upload export artifact
         uses: actions/upload-artifact@v4
@@ -305,7 +364,7 @@ jobs:
           if-no-files-found: error
 
       # ------------------------------------------------------------------ #
-      # 10. Upload retained-files tree as a separate artifact                #
+      # 11. Upload retained-files tree as a separate artifact               #
       # ------------------------------------------------------------------ #
       - name: Upload retained logic file tree
         if: always()
@@ -317,7 +376,7 @@ jobs:
           if-no-files-found: warn
 
       # ------------------------------------------------------------------ #
-      # 11. Summary                                                          #
+      # 12. Summary                                                          #
       # ------------------------------------------------------------------ #
       - name: Write job summary
         if: always()
@@ -326,21 +385,21 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Input | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Constructors      | \`${{ inputs.constructors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Selectors         | \`${{ inputs.selectors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Improvement       | \`${{ inputs.improvement || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Acceptance        | \`${{ inputs.acceptance || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Joint             | \`${{ inputs.joint || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Models            | \`${{ inputs.models || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| RL Algorithms     | \`${{ inputs.rl_algorithms || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Imitation Policies| \`${{ inputs.imitation_policies || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Drop Features     | \`${{ inputs.drop_features || '(none)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Environments      | \`${{ inputs.envs || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Sim Datasets      | \`${{ inputs.sim_datasets || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Distributions     | \`${{ inputs.distributions || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Network Strategy  | \`${{ inputs.network || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Skip Build        | \`${{ inputs.skip_build }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Dry Run           | \`${{ inputs.dry_run }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Constructors       | \`${{ steps.params.outputs.constructors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Selectors          | \`${{ steps.params.outputs.selectors || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Improvement        | \`${{ steps.params.outputs.improvement || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Acceptance         | \`${{ steps.params.outputs.acceptance || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Joint              | \`${{ steps.params.outputs.joint || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Models             | \`${{ steps.params.outputs.models || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| RL Algorithms      | \`${{ steps.params.outputs.rl_algorithms || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Imitation Policies | \`${{ steps.params.outputs.imitation_policies || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Drop Features      | \`${{ steps.params.outputs.drop_features || '(none)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environments       | \`${{ steps.params.outputs.envs || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Sim Datasets       | \`${{ steps.params.outputs.sim_datasets || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Distributions      | \`${{ steps.params.outputs.distributions || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Network Strategy   | \`${{ steps.params.outputs.network || '(all)' }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Skip Build         | \`${{ steps.params.outputs.skip_build }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dry Run            | \`${{ steps.params.outputs.dry_run }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f retained_logic_files.txt ]; then
             echo "<details><summary>Retained logic/src tree</summary>" >> "$GITHUB_STEP_SUMMARY"
