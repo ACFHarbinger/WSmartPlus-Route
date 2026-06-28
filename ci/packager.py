@@ -179,7 +179,17 @@ def _commit_pruned_state(branch_name: str, selections: Dict[str, Optional[List[s
     result = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=PROJECT_ROOT)
     if result.returncode == 0:
         _log("No changes to commit after pruning (nothing was pruned).")
-    else:
+        return
+
+    # First commit attempt — pre-commit hooks may auto-fix files (e.g. trailing whitespace).
+    # If they do, the commit fails but the fixes are applied; re-stage and retry once.
+    commit_result = subprocess.run(
+        ["git", "commit", "-m", msg],
+        cwd=PROJECT_ROOT,
+    )
+    if commit_result.returncode != 0:
+        _log("Pre-commit hook modified files — re-staging and retrying commit …")
+        _run(["git", "add", "-A"])
         _run(["git", "commit", "-m", msg])
 
 
