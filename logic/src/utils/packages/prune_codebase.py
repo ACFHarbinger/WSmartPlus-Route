@@ -728,6 +728,84 @@ def prune_network(keep_names: Optional[List[str]], dry_run: bool) -> None:
     _filter_files(net_dir, keep_names, "network strategy", dry_run)
 
 
+def prune_policies_helpers(
+    category_keeps: Dict[str, Optional[List[str]]],
+    all_by_category: Dict[str, Dict[str, str]],
+    config: Dict,
+    dry_run: bool,
+) -> None:
+    """Remove files in policies/helpers/ that are not needed by any kept policy.
+
+    Uses the ``policies_helpers_analysis`` section written by ``ci/analyze_deps.py``.
+    ``__init__.py`` files are never removed.  Skips entirely if the analysis
+    section is absent (run ``python ci/analyze_deps.py`` to populate it).
+    """
+    analysis = config.get("policies_helpers_analysis", {})
+    if not analysis:
+        _log(
+            "  policies_helpers_analysis not found in config — skipping helpers pruning.\n"
+            "  Run 'python ci/analyze_deps.py' to populate it."
+        )
+        return
+
+    helpers_base = _PROJECT_ROOT / "logic" / "src" / "policies" / "helpers"
+    if not helpers_base.exists():
+        return
+
+    # Policy categories that contribute helpers deps (internal keys from _CATEGORY_TO_FLAG)
+    _POLICY_CAT_KEYS = ("constructor", "selector", "improvement", "acceptance")
+
+    # Gather the kept acronyms across all policy categories
+    kept_acronyms: Set[str] = set()
+    for cat_key in _POLICY_CAT_KEYS:
+        keep_list = category_keeps.get(cat_key)
+        if keep_list is None:
+            # None → flag not provided → keep ALL in this category
+            kept_acronyms.update(all_by_category.get(cat_key, {}).keys())
+        else:
+            kept_acronyms.update(k.upper() for k in keep_list if k)
+
+    if not kept_acronyms:
+        _log("  No policies kept — removing all non-init helpers files.")
+
+    # Build union of needed helpers files from the analysis
+    needed: Set[str] = set()
+    unanalyzed: List[str] = []
+    for acr in kept_acronyms:
+        if acr in analysis:
+            needed.update(analysis[acr])
+        else:
+            unanalyzed.append(acr)
+
+    if unanalyzed:
+        _log(
+            f"  WARNING: {len(unanalyzed)} kept policies have no helpers analysis entry.\n"
+            f"  Run 'python ci/analyze_deps.py' to refresh, then re-run the packager.\n"
+            f"  Skipping helpers pruning to avoid breaking un-analyzed policies."
+        )
+        return
+
+    # Remove .py files in helpers/ not in needed (__init__.py always kept)
+    all_helpers_files = sorted(
+        p for p in helpers_base.rglob("*.py")
+        if "__pycache__" not in p.parts and not p.name.startswith("__")
+    )
+
+    removed = 0
+    for f in all_helpers_files:
+        rel = f.relative_to(helpers_base).as_posix()
+        if rel not in needed:
+            if dry_run:
+                _log(f"  [DRY-RUN] Would remove: {f.relative_to(_PROJECT_ROOT)}")
+            else:
+                _log(f"  Removing: {f.relative_to(_PROJECT_ROOT)}")
+                f.unlink()
+                removed += 1
+
+    if not dry_run:
+        _log(f"  Removed {removed} unused helpers files.")
+
+
 def prune_empty_dirs(dry_run: bool) -> None:
     """Remove directories that have become effectively empty after pruning."""
     from cleanup_helper import remove_empty_dirs  # noqa: PLC0415
@@ -920,6 +998,15 @@ def main(argv: Optional[List[str]] = None) -> None:
             config=config,
             dry_run=args.dry_run,
         )
+
+    # Prune policies/helpers/ based on pre-computed per-policy dep analysis.
+    _log("Pruning policies/helpers/ …")
+    prune_policies_helpers(
+        category_keeps=category_keeps,
+        all_by_category=all_by_category,
+        config=config,
+        dry_run=args.dry_run,
+    )
 
     # Prune model-specific subnets after the model category is decided.
     _log("Pruning model subnets …")
