@@ -5,7 +5,7 @@ from logic.src.models.policies.hybrid_volleyball_premier_league import Vectorize
 def test_vectorized_hvpl():
     batch_size = 2
     num_nodes = 10
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
 
     # 1. Setup mock data
     td = TensorDict({
@@ -20,7 +20,8 @@ def test_vectorized_hvpl():
         n_teams=3,
         max_iterations=2,
         alns_iterations=10,
-        time_limit=5.0
+        time_limit=5.0,
+        device=device,
     ).to(device)
 
     # 3. Forward pass

@@ -9,7 +9,7 @@ from tensordict import TensorDict
 @pytest.mark.unit
 def test_random_local_search_policy_basic():
     """Test the RandomLocalSearchPolicy forward pass with default settings."""
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     batch_size = 2
     num_nodes = 8
 
@@ -44,7 +44,7 @@ def test_random_local_search_policy_basic():
 @pytest.mark.unit
 def test_random_local_search_policy_custom_probs():
     """Test with custom operator probabilities (e.g. only 2-opt)."""
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     batch_size = 1
     num_nodes = 5
 
