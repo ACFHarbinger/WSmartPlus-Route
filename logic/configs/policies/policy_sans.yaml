@@ -94,7 +94,8 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
+    mandatory_selection:
+      { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
     # VRPP Settings
     vrpp: true
 
@@ -179,7 +180,8 @@ lac:
     engine: og
     combination: a
     time_limit: 60
-    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
+    mandatory_selection:
+      { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
     # VRPP Settings
     vrpp: true
 
@@ -197,7 +199,8 @@ lac:
     engine: og
     combination: b
     time_limit: 60
-    mandatory_selection: { "other/ms_lookahead.yaml": ["default"] }
+    mandatory_selection:
+      { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
     # VRPP Settings
     vrpp: true
 
