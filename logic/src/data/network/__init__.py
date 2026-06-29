@@ -138,8 +138,16 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
                         },
                     )
             return distance_matrix
+        elif method == "file":
+            raise FileNotFoundError(
+                f"Distance matrix file not found: {matrix_path}\n"
+                "Generate it first with:\n"
+                "  uv run python scripts/gen_dist_matrix.py "
+                f"--area <area> --waste-type <type> --method gmaps "
+                f"--dm-filepath {os.path.basename(matrix_path)}"
+            )
         else:
-            # Prepare for saving
+            # Prepare for saving after computation
             os.makedirs(os.path.dirname(matrix_path), exist_ok=True)
             with open(matrix_path, mode="w", newline="") as matrix_f:
                 matrix_f.write(",".join(map(str, coords["ID"].to_numpy())) + "\n")
