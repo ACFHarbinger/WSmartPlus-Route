@@ -31,7 +31,7 @@ import numpy as np
 from loguru import logger
 
 import logic.src.constants as udef
-from logic.src.utils.io.files import read_json
+from logic.src.utils.input.files import read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:

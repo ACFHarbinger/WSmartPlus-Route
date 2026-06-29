@@ -16,8 +16,17 @@ Example:
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import matplotlib.pyplot as plt  # noqa: F401
+import pandas as pd
+import wandb
+from omegaconf import DictConfig
+
+from logic.src.configs import Config
+from logic.src.utils.expo.log_visualization import plot_training_logs
 
 from .json_formatter import JsonFormatter
 from .logstash_handler import LogstashTcpHandler
@@ -105,3 +114,48 @@ def log_benchmark_metric(
         "type": "performance_benchmark",
     }
     logger.info(f"Benchmark: {benchmark}", extra={"extra_fields": extra})
+
+
+def log_training(
+    loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config, DictConfig], plot_logs: bool = False
+) -> Union[List[str], Tuple[List[str], str, List[int], pd.DataFrame, str, str]]:
+    """Logs comprehensive training history to Parquet, WandB, and generates Plots.
+
+    Args:
+        loss_keys: List of loss column names.
+        table_df: DataFrame containing training stats.
+        cfg: Root Hydra configuration with training and RL parameters.
+        plot_logs: Whether to generate plots. Defaults to False.
+
+    Returns:
+        Optional[List[str]]: List of paths to generated plots, or None if plotting is disabled.
+    """
+    rl = cfg.rl
+
+    log_dir: str = getattr(rl, "log_dir", "logs")
+    save_dir: str = getattr(rl, "save_dir", "outputs")
+    checkpoints_dir: str = getattr(rl, "checkpoints_dir", "outputs")
+    wandb_mode: str = getattr(rl, "wandb_mode", "disabled")
+    _run_name: str = getattr(rl, "run_name", "run")  # noqa: F841
+
+    output_dir: str = os.path.join(
+        log_dir,
+        os.path.relpath(save_dir, start=checkpoints_dir),
+    )
+    os.makedirs(output_dir, exist_ok=True)
+    table_df.to_parquet(os.path.join(output_dir, "table.parquet"), engine="pyarrow")
+
+    swapped_df: pd.DataFrame = table_df.swaplevel(axis=1)
+    swapped_df.columns = ["_".join(col).strip() for col in swapped_df.columns]
+    if wandb_mode != "disabled":
+        wandb_table: Any = wandb.Table(dataframe=swapped_df)
+        wandb.log({"training_table": wandb_table})
+
+    train = cfg.train
+    xname: str = "day" if train.train_time else "epoch"
+    x_values: List[int] = list(range(table_df.shape[0]))
+    return (
+        plot_training_logs(loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
+        if plot_logs
+        else (loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
+    )

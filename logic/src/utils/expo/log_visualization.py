@@ -3,7 +3,7 @@
 Separated from log_utils to isolate heavy plotting dependencies (matplotlib).
 
 Attributes:
-    log_training: Logs training history to Parquet, WandB, and generates Plots.
+    plot_training_logs: Plots logged training history (mean and std dev per metric type).
     log_plot: Execution function for saving static plots.
 
 Example:
@@ -12,56 +12,40 @@ Example:
 """
 
 import os
-from typing import Any, List, Union
+from typing import Any, List
 
-import logic.src.constants as udef
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wandb
-from logic.src.configs import Config
-from omegaconf import DictConfig
+
+import logic.src.constants as udef
 
 
-def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config, DictConfig]) -> None:
-    """Logs comprehensive training history to Parquet, WandB, and generates Plots.
+def plot_training_logs(
+    loss_keys: List[str], xname: str, x_values: List[int], swapped_df: pd.DataFrame, output_dir: str, wandb_mode: str
+) -> List[str]:
+    """Plots logged training history (mean and std dev per metric type).
 
     Args:
         loss_keys: List of loss column names.
-        table_df: DataFrame containing training stats.
-        cfg: Root Hydra configuration with training and RL parameters.
+        xname: Name of the x-axis.
+        x_values: Values of the x-axis.
+        swapped_df: DataFrame containing training stats.
+        output_dir: Directory to save the plots.
+        wandb_mode: WandB mode (disabled, online, offline).
+
+    Returns:
+        List[str]: List of paths to the generated plots.
     """
-    train = cfg.train
-    rl = cfg.rl
-
-    xname: str = "day" if train.train_time else "epoch"
-    x_values: List[int] = list(range(table_df.shape[0]))
-
-    log_dir: str = getattr(rl, "log_dir", "logs")
-    save_dir: str = getattr(rl, "save_dir", "outputs")
-    checkpoints_dir: str = getattr(rl, "checkpoints_dir", "outputs")
-    wandb_mode: str = getattr(rl, "wandb_mode", "disabled")
-    _run_name: str = getattr(rl, "run_name", "run")  # noqa: F841
-
-    output_dir: str = os.path.join(
-        log_dir,
-        os.path.relpath(save_dir, start=checkpoints_dir),
-    )
-    os.makedirs(output_dir, exist_ok=True)
-    table_df.to_parquet(os.path.join(output_dir, "table.parquet"), engine="pyarrow")
-    swapped_df: pd.DataFrame = table_df.swaplevel(axis=1)
-    swapped_df.columns = ["_".join(col).strip() for col in swapped_df.columns]
-    if wandb_mode != "disabled":
-        wandb_table: Any = wandb.Table(dataframe=swapped_df)
-        wandb.log({"training_table": wandb_table})
-
+    fig_paths: List[str] = []
     for l_id, l_key in enumerate(loss_keys):
-        mean_loss: np.ndarray = swapped_df[f"mean_{l_key}"].to_numpy()
-        std_loss: np.ndarray = swapped_df[f"std_{l_key}"].to_numpy()
+        mean_loss: np.ndarray = swapped_df[f"mean_{l_key}"].to_numpy()  # pyrefly: ignore [bad-assignment]
+        std_loss: np.ndarray = swapped_df[f"std_{l_key}"].to_numpy()  # pyrefly: ignore [bad-assignment]
         if np.all(mean_loss == std_loss):
             continue
-        max_loss: np.ndarray = swapped_df[f"max_{l_key}"].to_numpy()
-        min_loss: np.ndarray = swapped_df[f"min_{l_key}"].to_numpy()
+        max_loss: np.ndarray = swapped_df[f"max_{l_key}"].to_numpy()  # pyrefly: ignore [bad-assignment]
+        min_loss: np.ndarray = swapped_df[f"min_{l_key}"].to_numpy()  # pyrefly: ignore [bad-assignment]
         lower_bound: np.ndarray = np.maximum(mean_loss - std_loss, min_loss)
         upper_bound: np.ndarray = np.minimum(mean_loss + std_loss, max_loss)
 
@@ -87,6 +71,8 @@ def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config
         plt.close(fig)
         if wandb_mode != "disabled":
             wandb.log({label: wandb.Image(fig_path)})
+        fig_paths.append(fig_path)
+    return fig_paths
 
 
 def log_plot(visualize: bool = False, **kwargs: Any) -> None:

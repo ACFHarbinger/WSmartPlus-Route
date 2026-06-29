@@ -329,9 +329,7 @@ def comment_tracking_imports(file_path: Path):
         print(f"Removing tracking imports from: {file_path.relative_to(get_project_root())}")
 
         needs_dummy_hook = False
-        if re.search(
-            r"from logic\.src\.tracking\.hooks(?:\.attention_hooks)?\s+import\s+add_attention_hooks", content
-        ):
+        if re.search(r"from logic\.src\.tracking\.hooks(?:\.attention_hooks)?\s+import\s+add_attention_hooks", content):
             needs_dummy_hook = True
             content = re.sub(
                 r"from logic\.src\.tracking\.hooks(?:\.attention_hooks)?\s+import\s+add_attention_hooks",
@@ -407,9 +405,7 @@ def replace_logger_calls_with_print(file_path: Path):
         )
 
         content = re.sub(r"(?m)^(\s*from\s+logic\.src\.tracking\.logging\b.*)$", r"# \1  # AUTO-REMOVED", content)
-        content = re.sub(
-            r"(?m)^(\s*\w+\s*=\s*get_pylogger\([^)]*\).*)$", r"# \1  # AUTO-REMOVED", content
-        )
+        content = re.sub(r"(?m)^(\s*\w+\s*=\s*get_pylogger\([^)]*\).*)$", r"# \1  # AUTO-REMOVED", content)
 
         log_levels = ("debug", "info", "warning", "error", "exception", "fatal", "critical")
         for var in var_names:
@@ -430,30 +426,77 @@ def replace_logger_calls_with_print(file_path: Path):
         print(f"Error replacing logger calls in {file_path}: {e}")
 
 
-def redirect_logging_imports(file_path: Path):
-    """Comment out tracking.logging visualization imports (utils.expo is also removed)."""
+def remove_tracking_logging(file_path: Path):
+    """Remove the tracking.logging module directory and comment out its uses across the codebase."""
+    root = get_project_root()
+    tracking_logging_dir = root / "logic/src/tracking/logging"
+    if tracking_logging_dir.exists():
+        remove_path(tracking_logging_dir)
+
+    test_logging_dir = root / "logic/test/unit/utils/logging"
+    if test_logging_dir.exists():
+        remove_path(test_logging_dir)
+
     try:
+        if not file_path.exists():
+            return
         content = file_path.read_text(errors="ignore")
 
-        pattern = r"logic\.src\.tracking\.logging\.(plot_utils|visualize_utils|log_visualization|plotting|visualization)"
+        pattern = r"logic\.src\.tracking\.logging\b"
         if not re.search(pattern, content):
             return
 
-        print(f"Commenting out logging/visualization imports in: {file_path.relative_to(get_project_root())}")
+        print(f"Commenting out tracking.logging imports in: {file_path.relative_to(get_project_root())}")
 
         content = re.sub(
-            r"(?m)^(\s*from\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"(?m)^(\s*from\s+logic\.src\.tracking\.logging\b.*)$",
             r"# \1  # AUTO-REMOVED",
             content,
         )
         content = re.sub(
-            r"(?m)^(\s*import\s+logic\.src\.tracking\.logging\.(?:plot_utils|visualize_utils|log_visualization|plotting|visualization)\b.*)$",
+            r"(?m)^(\s*import\s+logic\.src\.tracking\.logging\b.*)$",
             r"# \1  # AUTO-REMOVED",
             content,
         )
         file_path.write_text(content)
     except Exception as e:
-        print(f"Error commenting visualization imports in {file_path}: {e}")
+        print(f"Error removing tracking.logging in {file_path}: {e}")
+
+
+def clean_expo_submodule(file_path: Path):
+    """Clean the newly organized visualization and plotting submodule located at logic/src/utils/expo."""
+    root = get_project_root()
+    expo_dir = root / "logic/src/utils/expo"
+    if expo_dir.exists():
+        remove_path(expo_dir)
+
+    test_expo_dir = root / "logic/test/unit/utils/expo"
+    if test_expo_dir.exists():
+        remove_path(test_expo_dir)
+
+    try:
+        if not file_path.exists():
+            return
+        content = file_path.read_text(errors="ignore")
+
+        if "logic.src.utils.expo" not in content:
+            return
+
+        print(f"Commenting out expo imports in: {file_path.relative_to(get_project_root())}")
+
+        content = re.sub(
+            r"(?m)^(\s*from\s+logic\.src\.utils\.expo\b.*)$",
+            r"# \1  # AUTO-REMOVED",
+            content,
+        )
+        content = re.sub(
+            r"(?m)^(\s*import\s+logic\.src\.utils\.expo\b.*)$",
+            r"# \1  # AUTO-REMOVED",
+            content,
+        )
+        file_path.write_text(content)
+    except Exception as e:
+        print(f"Error cleaning expo submodule in {file_path}: {e}")
 
 
 def comment_justfile(justfile_path: Path):
@@ -535,6 +578,9 @@ def main():
         root / "logic/src/tracking/validation",
         root / "logic/src/tracking/viz_mixin.py",
         root / "logic/configs/tracking",
+        root / "logic/test/unit/utils/logging",
+        root / "logic/src/utils/expo",
+        root / "logic/test/unit/utils/expo",
     ]
 
     for path in to_delete:
@@ -560,7 +606,8 @@ def main():
         else:
             comment_tracking_imports(p)
 
-        redirect_logging_imports(p)
+        remove_tracking_logging(p)
+        clean_expo_submodule(p)
 
     clean_test_functions(root / "logic/test/unit/utils/functions/test_functions.py")
 

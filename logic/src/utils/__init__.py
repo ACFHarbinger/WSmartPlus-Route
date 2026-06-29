@@ -9,6 +9,7 @@ Contains helper modules for:
 - Environment and model setup.
 
 Attributes:
+    actions: Tensor actions/operations utilities
     configs: Configuration utilities
     data: Data processing utilities
     decoding: Decoding utilities
@@ -17,12 +18,11 @@ Attributes:
     graph: Graph utilities
     io: Input/Output utilities
     model: Model utilities
-    ops: Operations utilities
     output: Output utilities
     policy: Policy utilities
     security: Security utilities
     tasks: Task utilities
-    ui: UI utilities
+    ui: Streamlit User Interface (UI) utilities
     validation: Validation utilities
 
 Example:

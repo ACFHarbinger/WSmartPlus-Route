@@ -272,7 +272,7 @@
       ]
     },
     "TRACKING": {
-      "description": "Tracking module for logging/visualization (plot_utils, visualize_utils, etc.)",
+      "description": "Tracking module for logging data, model, and algorithm changes",
       "remove_script": "logic/src/utils/packages/remove_tracking.py",
       "paths": [
         "logic/src/tracking"

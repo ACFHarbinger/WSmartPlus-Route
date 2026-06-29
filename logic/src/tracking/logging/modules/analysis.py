@@ -35,7 +35,7 @@ from rich.table import Table
 
 import logic.src.constants as udef
 from logic.src.tracking.logging.modules.storage import update_policy_log_section
-from logic.src.utils.io.files import compose_dirpath, read_json
+from logic.src.utils.input.files import compose_dirpath, read_json
 
 # ── Policy slug component vocabularies (ordered longest → shortest) ────────────
 # Used by _parse_slug to decompose a full slug into its four named parts.

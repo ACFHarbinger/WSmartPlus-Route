@@ -22,7 +22,7 @@ from torch import nn
 from torch_geometric.data import Batch, Data
 from torch_geometric.data.data import BaseData
 
-from logic.src.utils.ops import (
+from logic.src.utils.actions import (
     get_distance_matrix,
     get_full_graph_edge_index,
     sparsify_graph,
