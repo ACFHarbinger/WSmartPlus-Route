@@ -99,7 +99,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # route improvement
     # ---------------------------------------------------------------------
-    - route_improvement: { "other/ri_cls.yaml": ["default"] }
+    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
     # No route improvement needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 

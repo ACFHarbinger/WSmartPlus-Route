@@ -48,6 +48,11 @@ clean-outputs:
     rm -rf assets/output/
     rm -rf assets/tracking/
 
+# Remove checkpoints/ subdirs and log_realtime*.jsonl files from every leaf of assets/output/
+clean-large-outputs:
+    find assets/output -type d -name "checkpoints" -exec rm -rf {} +
+    find assets/output -type f -name "log_realtime*.jsonl" -exec rm -f {} +
+
 # Clean up Route Constructor configs and implementations
 
 # Usage: just reducer::cleanup-route-constructors acronyms="alns,bpc"

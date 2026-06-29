@@ -135,6 +135,10 @@ clean: helper::_print_header
 clean-outputs: helper::_print_header
     just reducer::clean-outputs
 
+# Remove large outputs (checkpoints and realtime logs)
+clean-large-outputs: helper::_print_header
+    just reducer::clean-large-outputs
+
 # Build stripped-simulator executable (run after pruning)
 package: helper::_print_header
     just infrastructure::package

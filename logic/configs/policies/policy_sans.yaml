@@ -98,7 +98,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: { "other/ri_cls.yaml": ["default"] }
+    route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
 
   # ===========================================================================
   # ORIGINAL ENGINE: LAC (Look-Ahead Collection) - Variant A
@@ -121,7 +121,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: { "other/ri_ftsp.yaml": ["default"] }
+    route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
@@ -155,7 +155,7 @@ sans:
     # VRPP Settings
     vrpp: true
 
-    route_improvement: { "other/ri_ftsp.yaml": ["default"] }
+    route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
     # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
