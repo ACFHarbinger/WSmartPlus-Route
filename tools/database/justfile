@@ -1,5 +1,6 @@
 # WSmart+ Route — Database: tracking database management
 
+set unstable := true
 set working-directory := '../..'
 
 # Print an overview of experiments, runs, and record counts
@@ -15,6 +16,7 @@ db-compact:
     uv run python -m logic.src.tracking.database compact
 
 # Remove stale runs
+
 # Usage: just database::db-prune older_than=7 status=failed experiment=AM-VRPP-50
 db-prune older_than="30" status="failed" experiment="" dry_run="":
     uv run python -m logic.src.tracking.database prune \
@@ -24,6 +26,7 @@ db-prune older_than="30" status="failed" experiment="" dry_run="":
         {{ if dry_run != "" { "--dry-run" } else { "" } }}
 
 # Export a run to JSON
+
 # Usage: just database::db-export run_id=a1b2c3d4 output=run.json
 db-export run_id="" experiment="" output="" latest="":
     uv run python -m logic.src.tracking.database export \
@@ -33,12 +36,14 @@ db-export run_id="" experiment="" output="" latest="":
         {{ if latest != "" { "--latest" } else { "" } }}
 
 # Show comprehensive database statistics
+
 # Usage: just database::db-stats experiment=AM-VRPP-50
 db-stats experiment="":
     uv run python -m logic.src.tracking.database stats \
         {{ if experiment != "" { "--experiment " + experiment } else { "" } }}
 
 # Show per-metric statistics
+
 # Usage: just database::db-metrics key=train/cost experiment=AM-VRPP-50
 db-metrics key="" experiment="":
     uv run python -m logic.src.tracking.database metrics \

@@ -1,5 +1,6 @@
 # WSmart+ Route — Benchmark: performance and mutation testing
 
+set unstable := true
 set working-directory := '../..'
 
 # Run performance benchmarks

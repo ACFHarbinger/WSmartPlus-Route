@@ -1,5 +1,6 @@
 # WSmart+ Route — Reducer: codebase cleanup and maintenance
 
+set unstable := true
 set working-directory := '../..'
 
 cyan := '\033[0;36m'
@@ -7,6 +8,16 @@ yellow := '\033[0;33m'
 purple := '\033[0;35m'
 bold := '\033[1m'
 reset := '\033[0m'
+
+# Default variables
+
+results_dir := "assets/output/30_days/riomaior_100"
+distribution := ""
+constructor := ""
+ms_strategy := ""
+improver := ""
+dry_run := "false"
+quiet := "false"
 
 # Clean caches and build artifacts
 clean:
@@ -142,3 +153,36 @@ cleanup-data datasets="" distributions="" network="":
 # Clean up Security and File System Utilities
 cleanup-security:
     uv run python logic/src/utils/package/remove_security.py
+
+# Remove targeted simulation runs from output artefacts
+# Usage:
+#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 distribution=emp constructor=alns
+#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 improver=ftsp dry_run=true
+# Parameters:
+#   results_dir  — path to the output folder (required)
+#   distribution — space-separated distribution tags  (emp gamma1 gamma2 gamma3)
+#   constructor  — route constructor(s)               (alns hgs aco_hh bpc psoma …)
+#   ms_strategy  — mandatory-selection strategy/ies   (lookahead last_minute regular)
+#   improver     — route improver(s)                  (ftsp rls rds none …)
+#   dry_run      — set to "true" to preview without deleting (default: false)
+#   quiet        — set to "true" to suppress per-item output (default: false)
+
+clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING SIMULATION RESULTS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Results Dir:" "{{ results_dir }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructor:" "{{ constructor }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "MS Strategy:" "{{ ms_strategy }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:" "{{ dry_run }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python -m logic.src.cli.output_parser clean \
+        --results-dir {{ results_dir }} \
+        $([ -n "{{ distribution }}" ] && echo "--distribution {{ distribution }}" || true) \
+        $([ -n "{{ constructor }}" ] && echo "--constructor {{ constructor }}" || true) \
+        $([ -n "{{ ms_strategy }}" ] && echo "--ms-strategy {{ ms_strategy }}" || true) \
+        $([ -n "{{ improver }}" ] && echo "--improver {{ improver }}" || true) \
+        $([ "{{ dry_run }}" = "true" ] && echo "--dry-run" || true) \
+        $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)

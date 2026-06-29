@@ -1,5 +1,6 @@
 # WSmart+ Route — Validation: static analysis and codebase health checks
 
+set unstable := true
 set working-directory := '../..'
 
 # Pyrefly type checking for logic
@@ -61,6 +62,7 @@ check-type-coverage sort="coverage" limit="40":
         --sort {{ sort }} --limit {{ limit }}
 
 # Generate interactive module-level import graph (opens in browser)
+
 # Use depth=N to collapse to top-N package levels; set html= to change output path.
 module-graph html="module_graph.html" depth="10":
     uv run python logic/src/utils/validation/visualize_module_graph.py ./logic/src \

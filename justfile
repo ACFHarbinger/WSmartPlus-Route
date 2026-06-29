@@ -1,5 +1,7 @@
 # WSmart+ Route Framework - Justfile
 
+set unstable := true
+
 red := '\033[0;31m'
 green := '\033[0;32m'
 yellow := '\033[0;33m'
@@ -38,7 +40,6 @@ hpo_selection_kw := ""
 hpo_acceptance_kw := ""
 hpo_improver_kw := ""
 policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
-
 results_dir := "assets/output/30_days/riomaior_100"
 distribution := ""
 constructor := ""
@@ -90,10 +91,6 @@ eval model_path="" dataset="" problem=problem strategy=strategy: helper::_print_
 test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num_loc sim_distribution=sim_distribution: helper::_print_header
     just controller::test-sim policies={{ policies }} area={{ area }} samples={{ samples }} n_cores={{ n_cores }} num_loc={{ num_loc }} sim_distribution={{ sim_distribution }}
 
-# Remove targeted simulation runs from output artefacts
-clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet: helper::_print_header
-    just controller::clean-results results_dir={{ results_dir }} distribution={{ distribution }} constructor={{ constructor }} ms_strategy={{ ms_strategy }} improver={{ improver }} dry_run={{ dry_run }} quiet={{ quiet }}
-
 # Run simulation policy HPO
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples: helper::_print_header
     just controller::hpo-sim policy={{ policy }} trials={{ trials }} method={{ method }} workers={{ workers }} selection={{ selection }} acceptance={{ acceptance }} improver={{ improver }} policy_kw={{ policy_kw }} selection_kw={{ selection_kw }} acceptance_kw={{ acceptance_kw }} improver_kw={{ improver_kw }} area={{ area }} samples={{ samples }}
@@ -133,6 +130,10 @@ clean: helper::_print_header
 # Remove simulation output files
 clean-outputs: helper::_print_header
     just reducer::clean-outputs
+
+# Remove targeted simulation runs from output artefacts
+clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet: helper::_print_header
+    just reducer::clean-results results_dir={{ results_dir }} distribution={{ distribution }} constructor={{ constructor }} ms_strategy={{ ms_strategy }} improver={{ improver }} dry_run={{ dry_run }} quiet={{ quiet }}
 
 # Build stripped-simulator executable (run after pruning)
 package: helper::_print_header

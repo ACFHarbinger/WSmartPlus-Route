@@ -79,7 +79,7 @@ Our comprehensive documentation covers every aspect of the WSmart+ Route system:
 
 | Document                                          | Description                                                                                                                             | Target Audience                          |
 | :------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
-| **[AGENTS.md](AGENTS.md)**                        | Complete registry of neural models, classical policies, and environment physics. The AI assistant guide for understanding the codebase. | Researchers, ML Engineers, AI Assistants |
+| **[AGENTS.md](docs/AGENTS.md)**                   | Complete registry of neural models, classical policies, and environment physics. The AI assistant guide for understanding the codebase. | Researchers, ML Engineers, AI Assistants |
 | **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**       | High-level system design, data flow diagrams, design patterns, and module boundaries.                                                   | Architects, Senior Developers            |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)**            | Code style, Git workflow, PR process, and development guidelines.                                                                       | Contributors                             |
 | **[DEVELOPMENT.md](docs/DEVELOPMENT.md)**         | Environment setup, CLI reference, development workflows, and debugging guides.                                                          | Developers                               |
@@ -227,15 +227,15 @@ We provide a comprehensive library of neural architectures and classical policie
 
 ### Neural Models
 
-| Model                   | Architecture                  | Use Case                                      |
-| ----------------------- | ----------------------------- | --------------------------------------------- |
-| **AttentionModel (AM)** | Transformer (Encoder-Decoder) | General-purpose constructive routing          |
-| **MandatorySelectionManager**       | GNN + RNN                     | High-level temporal gating for HRL            |
-| **TemporalAM**          | Transformer                   | Time-dependent attention mechanism            |
-| **MetaRNN**             | RNN/LSTM                      | Meta-learning for distribution generalization |
-| **DeepDecoderAM**       | Deep Transformer              | Enhanced decoder for large instances          |
-| **PointerNetwork**      | RNN + Attention               | Traditional pointer mechanism baseline        |
-| **TransGCN**            | Transformer + GCN             | Hybrid spatial-sequential encoding            |
+| Model                         | Architecture                  | Use Case                                      |
+| ----------------------------- | ----------------------------- | --------------------------------------------- |
+| **AttentionModel (AM)**       | Transformer (Encoder-Decoder) | General-purpose constructive routing          |
+| **MandatorySelectionManager** | GNN + RNN                     | High-level temporal gating for HRL            |
+| **TemporalAM**                | Transformer                   | Time-dependent attention mechanism            |
+| **MetaRNN**                   | RNN/LSTM                      | Meta-learning for distribution generalization |
+| **DeepDecoderAM**             | Deep Transformer              | Enhanced decoder for large instances          |
+| **PointerNetwork**            | RNN + Attention               | Traditional pointer mechanism baseline        |
+| **TransGCN**                  | Transformer + GCN             | Hybrid spatial-sequential encoding            |
 
 ### Graph Encoders
 
