@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from logic.src.utils.packages.cleanup_helper import (
+from logic.src.utils.package.cleanup_helper import (
     _match_acronym,
     clean_init_file,
     clean_factory_file,
@@ -32,7 +32,7 @@ class TestCleanupComponents(unittest.TestCase):
         self.assertFalse(_match_acronym("random_policy", "alns"))
         self.assertFalse(_match_acronym("base_policy", "bpc"))
 
-    @patch("logic.src.utils.packages.cleanup_helper.Path.exists", return_value=True)
+    @patch("logic.src.utils.package.cleanup_helper.Path.exists", return_value=True)
     def test_clean_init_file(self, mock_exists):
         """Test clean_init_file comments out correct import and registry lines."""
         mock_path = MagicMock(spec=Path)
@@ -61,7 +61,7 @@ class TestCleanupComponents(unittest.TestCase):
         self.assertIn("#     'alns': ALNS,  # AUTO-CLEANED", written_content)
         self.assertIn("'bpc': BPC", written_content)
 
-    @patch("logic.src.utils.packages.cleanup_helper.Path.exists", return_value=True)
+    @patch("logic.src.utils.package.cleanup_helper.Path.exists", return_value=True)
     def test_clean_factory_file(self, mock_exists):
         """Test clean_factory_file comments out factory entries."""
         mock_path = MagicMock(spec=Path)
@@ -83,10 +83,10 @@ class TestCleanupComponents(unittest.TestCase):
         self.assertIn("#     'alns',  # AUTO-CLEANED", written_content)
         self.assertIn("'bpc'", written_content)
 
-    @patch("logic.src.utils.packages.cleanup_helper.get_project_root")
-    @patch("logic.src.utils.packages.cleanup_helper.remove_path")
-    @patch("logic.src.utils.packages.cleanup_helper.clean_init_file")
-    @patch("logic.src.utils.packages.cleanup_helper.clean_factory_file")
+    @patch("logic.src.utils.package.cleanup_helper.get_project_root")
+    @patch("logic.src.utils.package.cleanup_helper.remove_path")
+    @patch("logic.src.utils.package.cleanup_helper.clean_init_file")
+    @patch("logic.src.utils.package.cleanup_helper.clean_factory_file")
     def test_clean_by_acronym_scans_and_deletes(
         self, mock_clean_factory, mock_clean_init, mock_remove, mock_get_root
     ):
