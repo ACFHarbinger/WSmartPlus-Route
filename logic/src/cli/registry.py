@@ -15,7 +15,8 @@ from logic.src.cli.base import ConfigsParser
 from logic.src.cli.benchmark_parser import add_benchmark_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args
-from logic.src.cli.target_parser import add_target_args
+from logic.src.cli.output_parser import add_output_args
+from logic.src.cli.target_parser import add_ms_update_args, add_ri_update_args
 from logic.src.cli.ts_parser import add_test_suite_args
 
 
@@ -51,7 +52,21 @@ def get_parser() -> ConfigsParser:
         "clean_results",
         help="Remove targeted simulation runs from output artefacts",
     )
-    add_target_args(clean_parser)
+    add_output_args(clean_parser)
+
+    # Update mandatory-selection config overrides
+    update_ms_parser = subparsers.add_parser(
+        "update_ms",
+        help="Batch-update mandatory_selection overrides in policy YAML files",
+    )
+    add_ms_update_args(update_ms_parser)
+
+    # Update route-improvement config overrides
+    update_ri_parser = subparsers.add_parser(
+        "update_ri",
+        help="Batch-update route_improvement overrides in policy YAML files",
+    )
+    add_ri_update_args(update_ri_parser)
 
     # TUI
     return parser

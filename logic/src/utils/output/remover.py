@@ -10,7 +10,7 @@ from all simulation output artefacts:
 
 Usage::
 
-    from logic.src.utils.target.remover import PolicyFilter, remove_targeted_runs
+    from logic.src.utils.output.remover import PolicyFilter, remove_targeted_runs
 
     filt = PolicyFilter(
         distributions=["emp"],
@@ -41,7 +41,7 @@ import os
 import re
 from typing import List, Optional
 
-from logic.src.utils.target.matcher import (
+from logic.src.utils.output.matcher import (
     PolicyFilter,
     display_name_matches_filter,
     slug_matches_filter,
