@@ -127,7 +127,7 @@ sim:
     dm_filepath: "osm_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
     focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
     load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz"
-    save_updated_dm: "gmaps_distmat.csv"
+    save_updated_dm: "osm_distmat.csv"
 
   # Policies to run
   policies:
