@@ -192,7 +192,7 @@
     "description": "Pipeline features that have a dedicated remove_*.py script. Each is KEPT by default unless the caller explicitly drops it via --drop-features.",
     "META_LEARNING": {
       "description": "Meta-RL and Hierarchical RL (MetaRNN, HRL manager-worker)",
-      "remove_script": "logic/src/utils/packages/remove_meta.py",
+      "remove_script": "logic/src/utils/package/remove_meta.py",
       "paths": [
         "logic/src/models/meta",
         "logic/src/pipeline/rl/meta",
@@ -203,7 +203,7 @@
     },
     "HPO": {
       "description": "Hyperparameter optimisation (Optuna / Ray Tune)",
-      "remove_script": "logic/src/utils/packages/remove_hpo.py",
+      "remove_script": "logic/src/utils/package/remove_hpo.py",
       "paths": [
         "logic/src/pipeline/rl/hpo",
         "logic/src/pipeline/simulations/hpo",
@@ -215,7 +215,7 @@
     },
     "EVAL": {
       "description": "Model evaluation pipeline feature",
-      "remove_script": "logic/src/utils/packages/remove_eval.py",
+      "remove_script": "logic/src/utils/package/remove_eval.py",
       "paths": [
         "logic/src/pipeline/features/eval",
         "logic/src/configs/tasks/eval.py",
@@ -224,7 +224,7 @@
     },
     "SECURITY": {
       "description": "Symmetric-key cryptography utilities (file encryption, key management)",
-      "remove_script": "logic/src/utils/packages/remove_security.py",
+      "remove_script": "logic/src/utils/package/remove_security.py",
       "paths": [
         "logic/src/utils/security",
         "logic/src/cli/fs_parser.py"
@@ -232,7 +232,7 @@
     },
     "CALLBACKS": {
       "description": "Training and simulation callbacks (model summary, display, Reptile, speed monitor)",
-      "remove_script": "logic/src/utils/packages/remove_callbacks.py",
+      "remove_script": "logic/src/utils/package/remove_callbacks.py",
       "paths": [
         "logic/src/pipeline/callbacks/pytorch",
         "logic/src/pipeline/callbacks/simulation"
@@ -240,14 +240,14 @@
     },
     "ENUMS": {
       "description": "GlobalRegistry enum tags (model_tags, policy_tags, environment_tags, etc.)",
-      "remove_script": "logic/src/utils/packages/remove_enums.py",
+      "remove_script": "logic/src/utils/package/remove_enums.py",
       "paths": [
         "logic/src/enums"
       ]
     },
     "UI_LOGIC": {
       "description": "Logic-layer UI utilities (Streamlit dashboard, dashboard entry point)",
-      "remove_script": "logic/src/utils/packages/remove_ui.py",
+      "remove_script": "logic/src/utils/package/remove_ui.py",
       "paths": [
         "logic/src/ui",
         "logic/src/utils/ui",
@@ -263,7 +263,7 @@
     },
     "CLI": {
       "description": "Parser-based CLI entry point (logic/src/cli/, parser_dispatch.py)",
-      "remove_script": "logic/src/utils/packages/remove_cli.py",
+      "remove_script": "logic/src/utils/package/remove_cli.py",
       "paths": [
         "logic/src/cli",
         "logic/parser_dispatch.py"
@@ -271,7 +271,7 @@
     },
     "TRACKING": {
       "description": "Tracking module for logging data, model, and algorithm changes",
-      "remove_script": "logic/src/utils/packages/remove_tracking.py",
+      "remove_script": "logic/src/utils/package/remove_tracking.py",
       "paths": [
         "logic/src/tracking"
       ]

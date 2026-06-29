@@ -3,13 +3,13 @@ Utilities to convert YAML configuration files to environment variables.
 
 Attributes:
     to_bash_value: Convert a Python value to a Bash-friendly string representation.
-    load_config: Load a YAML configuration file and recursively merge its defaults.
+    load_yaml_env: Load a YAML configuration file and recursively merge its defaults.
     deep_merge: Deeply merge source dictionary into target dictionary.
     main: Main entry point to convert YAML files to environment variables.
 
 Example:
     to_bash_value(value)
-    load_config(config_path)
+    load_yaml_env(config_path)
     deep_merge(target, source)
 """
 
@@ -52,7 +52,7 @@ def to_bash_value(value: Any) -> str:
         return f'"{str(value)}"'
 
 
-def load_config(config_path: str) -> dict:
+def load_yaml_env(config_path: str) -> dict:
     """Load a YAML configuration file and recursively merge its defaults.
 
     Args:
@@ -92,7 +92,7 @@ def load_config(config_path: str) -> dict:
                     # Look for file in the same configs/ folder structure
                     sub_config_path = os.path.join(config_dir, folder, f"{filename}.yaml")
                     if os.path.exists(sub_config_path):
-                        sub_config = load_config(sub_config_path)
+                        sub_config = load_yaml_env(sub_config_path)
                         final_merged.update(sub_config)
                     else:
                         print(f"Warning: Default config {sub_config_path} not found.", file=sys.stderr)
@@ -122,7 +122,7 @@ def deep_merge(target: dict, source: dict) -> dict:
             and target.get(key) is not None
             and isinstance(target.get(key), ITraversable)
         ):
-            deep_merge(target[key], value)
+            deep_merge(target[key], value) # pyrefly: ignore [bad-argument-type]
         else:
             target[key] = value
     return target
@@ -145,7 +145,7 @@ def main() -> None:
     final_config = {}  # type: ignore[var-annotated]
 
     for config_path in sys.argv[1:]:
-        config = load_config(config_path)
+        config = load_yaml_env(config_path)
         deep_merge(final_config, config)
 
     def flatten_dict(d, parent_key="", sep="_"):

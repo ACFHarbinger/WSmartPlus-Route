@@ -1346,7 +1346,7 @@ class StateMyProblem(BaseState):
 **Step 3: Register Problem**
 
 ```python
-# logic/src/utils/setup_utils.py
+# logic/src/utils/infrastructure/setup_sims.py
 from logic.src.problems.my_problem import MyProblem
 
 PROBLEM_REGISTRY = {

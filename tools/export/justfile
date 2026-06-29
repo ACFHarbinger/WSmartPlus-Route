@@ -1,0 +1,56 @@
+# WSmart+ Route — Export: automated algorithm export pipeline
+
+set working-directory := '../..'
+
+cyan := '\033[0;36m'
+yellow := '\033[0;33m'
+purple := '\033[0;35m'
+bold := '\033[1m'
+reset := '\033[0m'
+
+# Run the automated algorithm export process.
+# Creates an algo-export branch, prunes the codebase to the selected algorithms,
+# writes ci/workflow_config.json, commits, and pushes.
+# CI will automatically trigger package-and-build.yml on push.
+#
+# Usage:
+#   just export::algo-export
+#   just export::algo-export constructors="SANS,TSP,CVRP,NA,SWCTCF" selectors="MS_LAST_MIN,MS_LOOKAHEAD,MS_REGULAR,MS_SLA" improvement="RI_FTSP,RI_PATH" models="AM" rl_algorithms="RL_REINFORCE" envs="vrpp"
+#   just export::algo-export constructors="HGS,ALNS" skip_build="true"
+#   just export::algo-export constructors="BPC" dry_run="true"
+algo-export constructors="" selectors="" improvement="" acceptance="" joint="" models="" rl_algorithms="" imitation_policies="" drop_features="" envs="" sim_datasets="" distributions="" network="" skip_build="false" dry_run="false":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📦 ALGORITHM EXPORT"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructors:"    "{{ constructors }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selectors:"       "{{ selectors }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improvement:"     "{{ improvement }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:"      "{{ acceptance }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Joint:"           "{{ joint }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Models:"          "{{ models }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "RL Algorithms:"   "{{ rl_algorithms }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Imitation:"       "{{ imitation_policies }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Drop Features:"   "{{ drop_features }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Envs:"            "{{ envs }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Sim Datasets:"    "{{ sim_datasets }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distributions:"   "{{ distributions }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Network:"         "{{ network }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Skip Build:"      "{{ skip_build }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:"         "{{ dry_run }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    .venv/bin/python ci/packager.py \
+        $([ -n "{{ constructors }}" ]       && echo "--constructors '{{ constructors }}'"             || true) \
+        $([ -n "{{ selectors }}" ]          && echo "--selectors '{{ selectors }}'"                   || true) \
+        $([ -n "{{ improvement }}" ]        && echo "--improvement '{{ improvement }}'"               || true) \
+        $([ -n "{{ acceptance }}" ]         && echo "--acceptance '{{ acceptance }}'"                 || true) \
+        $([ -n "{{ joint }}" ]              && echo "--joint '{{ joint }}'"                           || true) \
+        $([ -n "{{ models }}" ]             && echo "--models '{{ models }}'"                         || true) \
+        $([ -n "{{ rl_algorithms }}" ]      && echo "--rl-algorithms '{{ rl_algorithms }}'"           || true) \
+        $([ -n "{{ imitation_policies }}" ] && echo "--imitation-policies '{{ imitation_policies }}'" || true) \
+        $([ -n "{{ drop_features }}" ]      && echo "--drop-features '{{ drop_features }}'"           || true) \
+        $([ -n "{{ envs }}" ]               && echo "--envs '{{ envs }}'"                             || true) \
+        $([ -n "{{ sim_datasets }}" ]       && echo "--sim-datasets '{{ sim_datasets }}'"             || true) \
+        $([ -n "{{ distributions }}" ]      && echo "--distributions '{{ distributions }}'"           || true) \
+        $([ -n "{{ network }}" ]            && echo "--network '{{ network }}'"                       || true) \
+        $([ "{{ skip_build }}" = "true" ]   && echo "--skip-build"                                    || true) \
+        $([ "{{ dry_run }}" = "true" ]      && echo "--dry-run"                                       || true)

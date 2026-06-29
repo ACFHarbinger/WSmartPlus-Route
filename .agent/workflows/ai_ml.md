@@ -5,6 +5,7 @@ description: When working on Deep Reinforcement Learning models, OR solvers, or 
 You are an **AI Research Scientist** specialized in Neural Combinatorial Optimization (NCO). You work within the **WSmart+ Route** framework, bridging PyTorch agents with Gurobi/Hexaly solvers.
 
 ## Core Directives
+
 1.  **Framework Compliance**:
     - Use **PyTorch 2.2.2** for all neural components.
     - Use **Gurobi 11+** or **Hexaly** for exact/heuristic baselines.
@@ -13,7 +14,7 @@ You are an **AI Research Scientist** specialized in Neural Combinatorial Optimiz
 2.  **Architectural Integrity (`AGENTS.md` Sec 6)**:
     - **Normalization**: Do NOT use `nn.LayerNorm` directly. Use `logic.src.models.modules.normalization` to ensure consistency across the 1M token context.
     - **Masking**: You MUST implement invalid move prevention using `logic.src.utils.boolmask.py`.
-    - **Tensors**: Explicitly handle device placement using `logic.src.utils.configs.setup_utils.py` to target NVIDIA RTX 4080/3090ti.
+    - **Tensors**: Explicitly handle device placement using `logic.src.utils.infrastructure.setup_sims.py` to target NVIDIA RTX 4080/3090ti.
 
 3.  **Reinforcement Learning Standards**:
     - **Algorithms**: Default to **REINFORCE** or **PPO** with **POMO** baselines.

@@ -1,0 +1,58 @@
+# WSmart+ Route — Helper: general-purpose commands and shortcuts
+
+set working-directory := '../..'
+
+red := '\033[0;31m'
+green := '\033[0;32m'
+yellow := '\033[0;33m'
+blue := '\033[0;34m'
+purple := '\033[0;35m'
+cyan := '\033[0;36m'
+bold := '\033[1m'
+reset := '\033[0m'
+
+[private]
+_print_header:
+    @printf "{{ blue }}╔══════════════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ blue }}║                  WSmart+ Route Framework Control                     ║{{ reset }}\n"
+    @printf "{{ blue }}╚══════════════════════════════════════════════════════════════════════╝{{ reset }}\n"
+
+# Print available commands with descriptions
+help:
+    @printf "\n"
+    @printf "{{ cyan }}Usage:{{ reset }} just <module>::<recipe> [variable=value]\n"
+    @printf "\n"
+    @printf "{{ yellow }}Modules:{{ reset }}\n"
+    @printf "  {{ green }}infrastructure{{ reset }}   - setup, sync, install, package\n"
+    @printf "  {{ green }}controller{{ reset }}       - train, eval, test-sim, clean-results, hpo-sim, gen-data\n"
+    @printf "  {{ green }}reducer{{ reset }}          - clean, clean-outputs, cleanup-*\n"
+    @printf "  {{ green }}ui{{ reset }}               - gui, dashboard, docker-build, docker-dashboard\n"
+    @printf "  {{ green }}test{{ reset }}             - test, test-fast, test-logic, test-gui, test-marker\n"
+    @printf "  {{ green }}ci{{ reset }}               - lint, format, build-docs\n"
+    @printf "  {{ green }}validation{{ reset }}       - pyrefly-*, check-*, count-loc, tree-loc, module-graph\n"
+    @printf "  {{ green }}benchmark{{ reset }}        - benchmark, mutation-test, mutation-report\n"
+    @printf "  {{ green }}script{{ reset }}           - run-train, run-eval, run-gen-data, run-meta, run-hpo, run-sim\n"
+    @printf "  {{ green }}export{{ reset }}           - algo-export\n"
+    @printf "  {{ green }}database{{ reset }}         - db-inspect, db-clean, db-compact, db-prune, db-export, db-stats\n"
+    @printf "  {{ green }}helper{{ reset }}           - help, run, commit\n"
+    @printf "\n"
+    @printf "{{ cyan }}Examples:{{ reset }}\n"
+    @printf "  just controller::train problem=wcvrp model=am\n"
+    @printf "  just controller::test-sim policies=alns,hgs area=figueiradafoz\n"
+    @printf "  just reducer::clean\n"
+    @printf "  just test::test-fast\n"
+    @printf "  just export::algo-export constructors=SANS,HGS\n"
+    @printf "\n"
+    @printf "{{ cyan }}Shorthands (root justfile):{{ reset }}\n"
+    @printf "  just train / just test-sim / just gui / just clean / just lint\n"
+    @printf "\n"
+    @printf "{{ cyan }}Variables:{{ reset }} problem={{ purple }}vrpp{{ reset }}  model={{ purple }}am{{ reset }}  area={{ purple }}figueiradafoz{{ reset }}  seed={{ purple }}42{{ reset }}\n"
+
+# Generic run command — pass any main.py arguments directly
+run *args:
+    uv run python main.py {{ args }}
+
+# Commit using the .gitmessage template
+commit message:
+    @echo "Committing with verified Gemini co-author template..."
+    git commit -m "{{ message }}"

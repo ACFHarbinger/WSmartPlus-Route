@@ -35,7 +35,7 @@ from logic.src.pipeline.simulations.day_context import SimulationDayContext, run
 from logic.src.pipeline.simulations.states.base.base import SimState
 from logic.src.pipeline.simulations.states.finishing import FinishingState
 from logic.src.tracking.logging.log_utils import final_simulation_summary
-from logic.src.utils.configs.setup_utils import get_graph_config
+from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
 if TYPE_CHECKING:
     from .base import SimulationContext
@@ -167,7 +167,7 @@ class RunningState(SimState):
             graph_size=sim.graph.num_loc,
             full_policy=ctx.pol_name,
             policy_name=ctx.pol_name,
-            display_name=display_name,
+            display_name=display_name, # pyrefly: ignore [bad-argument-type]
             bins=ctx.bins,
             new_data=ctx.new_data,
             coords=ctx.coords,
@@ -240,5 +240,5 @@ class RunningState(SimState):
                     "policy": ctx.pol_name,
                     "sample_id": ctx.sample_id,
                 }
-                return cumulative_metrics
+                return cumulative_metrics # pyrefly: ignore [bad-return]
         return {}

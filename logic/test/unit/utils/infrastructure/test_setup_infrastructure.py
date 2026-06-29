@@ -1,12 +1,12 @@
-"""Tests for setup_utils.py."""
+"""Tests for setup_sims.py."""
 
 from unittest.mock import MagicMock, patch
 
 import torch
 
-from logic.src.utils.configs.setup_env import setup_env
-from logic.src.utils.configs.setup_worker import setup_model
-from logic.src.utils.configs.setup_manager import setup_hrl_manager
+from logic.src.utils.infrastructure.setup_env import setup_env
+from logic.src.utils.infrastructure.setup_worker import setup_model
+from logic.src.utils.infrastructure.setup_manager import setup_hrl_manager
 import os
 
 

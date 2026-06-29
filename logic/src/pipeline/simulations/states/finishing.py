@@ -29,7 +29,7 @@ from logic.src.tracking.logging.log_utils import (
     display_simulation_summary_table,
     update_policy_log_section,
 )
-from logic.src.utils.configs.setup_utils import get_graph_config
+from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -106,7 +106,7 @@ class FinishingState(SimState):
 
         # Log the fill-history export as a "save" dataset event
         with contextlib.suppress(Exception):
-            run = get_active_run()
+            run = get_active_run() # pyrefly: ignore [not-callable]
             if run is not None:
                 excel_path = os.path.join(
                     ctx.results_dir,
@@ -159,7 +159,7 @@ class FinishingState(SimState):
 
                 # If this is the last task, aggregate everything and print the comparative table
                 if finished == task_count and task_count > 0:
-                    from logic.src.utils.configs.setup_utils import get_pol_name
+                    from logic.src.utils.infrastructure.setup_sims import get_pol_name
 
                     all_aggregated_results = {}
                     policies = sim.full_policies
@@ -214,7 +214,7 @@ def _log_result_artifacts(ctx: Any, sim: Any, log_path: str) -> None:
         log_path: Path to the per-policy log file.
     """
     with contextlib.suppress(Exception):
-        run = get_active_run()
+        run = get_active_run() # pyrefly: ignore [not-callable]
         if run is None:
             return
 

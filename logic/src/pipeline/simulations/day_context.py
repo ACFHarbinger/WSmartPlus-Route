@@ -231,7 +231,7 @@ def resolve_policy_display_name(policy: Any, sim_cfg: Any) -> Tuple[str, str]:
         Tuple of (pol_id_orig, display_name)
     """
     from logic.src.utils.configs.config_loader import load_config
-    from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
+    from logic.src.utils.infrastructure.setup_sims import deep_sanitize, get_pol_name
 
     pol_id_orig = get_pol_name(policy)
     sanitized_policy = deep_sanitize(policy)
@@ -634,7 +634,7 @@ def get_daily_results(
         else:
             dlog["mandatory_nodes"] = []
         # Use iloc as node indices from the environment correspond to row positions in the coordinates DataFrame
-        dlog["tour"] = [0] + coordinates.iloc[ids]["ID"].tolist() + [0]
+        dlog["tour"] = [0] + coordinates.iloc[ids]["ID"].tolist() + [0] # pyrefly: ignore [bad-index]
     else:
         dlog["kg"] = 0
         dlog["ncol"] = 0

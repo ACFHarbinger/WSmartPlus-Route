@@ -1,0 +1,144 @@
+# WSmart+ Route — Reducer: codebase cleanup and maintenance
+
+set working-directory := '../..'
+
+cyan := '\033[0;36m'
+yellow := '\033[0;33m'
+purple := '\033[0;35m'
+bold := '\033[1m'
+reset := '\033[0m'
+
+# Clean caches and build artifacts
+clean:
+    find . -type d -name ".pytest_cache" -exec rm -rf {} +
+    find . -type d -name "__pycache__" -exec rm -rf {} +
+    find . -type d -name ".ruff_cache" -exec rm -rf {} +
+    find . -type d -name ".mypy_cache" -exec rm -rf {} +
+    find . -type d -name ".hypothesis" -exec rm -rf {} +
+    find . -type f -name "coverage.json" -exec rm {} +
+    find . -type f -name "coverage.xml" -exec rm {} +
+    find . -type f -name ".coverage" -exec rm {} +
+    rm -rf *.egg-info
+    rm -rf logs/
+    rm -rf dist/
+    rm -rf temp/
+    rm -rf build/
+    rm -rf wandb/
+    rm -rf mlruns/
+    rm -rf scratch/
+    rm -rf outputs/
+    rm -rf checkpoints/
+    rm -rf model_weights/
+    # Remove all empty directories recursively
+    find . -type d -empty -delete
+
+# Remove simulation output and tracking artefacts
+clean-outputs:
+    rm -rf assets/output/
+    rm -rf assets/tracking/
+
+# Clean up Route Constructor configs and implementations
+
+# Usage: just reducer::cleanup-route-constructors acronyms="alns,bpc"
+cleanup-route-constructors acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING ROUTE CONSTRUCTORS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_route_constructors.py "{{ acronyms }}"
+
+# Clean up other Policy configs and implementations
+
+# Usage: just reducer::cleanup-policy-others acronyms="bmc,regular"
+cleanup-policy-others acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING OTHER POLICIES"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_policy_others.py "{{ acronyms }}"
+
+# Clean up Environment (Envs) configs and implementations
+
+# Usage: just reducer::cleanup-envs acronyms="vrpp"
+cleanup-envs acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING ENVIRONMENTS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_envs.py "{{ acronyms }}"
+
+# Clean up Model configs and implementations
+
+# Usage: just reducer::cleanup-models acronyms="am"
+cleanup-models acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING MODELS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_models.py "{{ acronyms }}"
+
+# Clean up RL Training Algorithm configs and implementations
+
+# Usage: just reducer::cleanup-rl-algorithms acronyms="ppo"
+cleanup-rl-algorithms acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING RL ALGORITHMS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_rl_algorithms.py "{{ acronyms }}"
+
+# Clean up Route Constructor policies used for Imitation Learning
+
+# Usage: just reducer::cleanup-imitation-policies acronyms="aco"
+cleanup-imitation-policies acronyms="":
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING IMITATION POLICIES"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acronyms:" "{{ acronyms }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python logic/src/utils/package/remove_imitation_policies.py "{{ acronyms }}"
+
+# Clean up HPO config files and implementations
+cleanup-hpo:
+    uv run python logic/src/utils/package/remove_hpo.py
+
+# Clean up Meta-RL config files and implementations
+cleanup-meta:
+    uv run python logic/src/utils/package/remove_meta.py
+
+# Clean up Evaluation config files and implementations
+cleanup-eval:
+    uv run python logic/src/utils/package/remove_eval.py
+
+# Clean up Callback implementations
+
+# Usage: just reducer::cleanup-callbacks keep_list="logging,checkpoint"
+cleanup-callbacks keep_list="":
+    uv run python logic/src/utils/package/remove_callbacks.py "{{ keep_list }}"
+
+# Clean up Tracking components and databases
+cleanup-tracking:
+    uv run python logic/src/utils/package/remove_tracking.py
+
+# Clean up UI components
+cleanup-ui:
+    uv run python logic/src/utils/package/remove_ui.py
+
+# Clean up Enums and the GlobalRegistry
+cleanup-enums:
+    uv run python logic/src/utils/package/remove_enums.py
+
+# Clean up Datasets, Distributions, and Network Strategies
+
+# Usage: just reducer::cleanup-data datasets="baseline" distributions="uniform" network="euclidean"
+cleanup-data datasets="" distributions="" network="":
+    uv run python logic/src/utils/package/remove_data.py --datasets "{{ datasets }}" --distributions "{{ distributions }}" --network "{{ network }}"
+
+# Clean up Security and File System Utilities
+cleanup-security:
+    uv run python logic/src/utils/package/remove_security.py

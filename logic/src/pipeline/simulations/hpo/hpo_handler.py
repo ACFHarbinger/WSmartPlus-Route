@@ -60,7 +60,7 @@ from logic.src.pipeline.simulations.repository import (
     set_repository_from_path,
 )
 from logic.src.pipeline.simulations.simulator import sequential_simulations
-from logic.src.utils.configs.setup_utils import get_graph_config
+from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
 # Suppress verbose warnings from BoTorch for cleaner logs
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -177,7 +177,7 @@ class HPOSimulationHandler:
                 with open(db_path, "a"):
                     pass
 
-    def get_objective(self, lock: Any, data_size: int) -> Callable[[optuna.Trial], Union[float, List[float]]]:
+    def get_objective(self, lock: Any, data_size: int) -> Callable[[optuna.Trial], Union[float, List[float], Tuple[float]]]:
         """Creates the Optuna objective closure.
 
         Args:
@@ -191,7 +191,7 @@ class HPOSimulationHandler:
 
         def objective_fn(trial: optuna.Trial) -> Union[float, List[float]]:
             # Use the existing functional objective but wrapped in the class state.
-            return objective(trial, self.cfg, data_size, lock)
+            return objective(trial, self.cfg, data_size, lock) # pyrefly: ignore [bad-return]
 
         return objective_fn
 
@@ -215,7 +215,7 @@ class HPOSimulationHandler:
             evaluator = FanovaImportanceEvaluator(n_trees=64, max_depth=64)
 
             def target_fn(t: FrozenTrial) -> float:
-                return float(t.values[target_idx] if t.values else t.value)
+                return float(t.values[target_idx] if t.values else t.value) # pyrefly: ignore [bad-argument-type]
 
             importances = optuna.importance.get_param_importances(self.study, evaluator=evaluator, target=target_fn)
 
@@ -237,7 +237,7 @@ class HPOSimulationHandler:
             best_trials = self.study.best_trials
             logger.info(f"--- Pareto Front ({len(best_trials)} optimal configs) ---")
             for _i, trial in enumerate(best_trials):
-                metrics_str = " | ".join(f"{n}: {v:.4f}" for n, v in zip(self.metric_names, trial.values, strict=False))
+                metrics_str = " | ".join(f"{n}: {v:.4f}" for n, v in zip(self.metric_names, trial.values, strict=False)) # pyrefly: ignore [bad-argument-type]
                 logger.info(f"Trial {trial.number} -> {metrics_str}")
         except Exception:
             if self.study.best_trial:
@@ -436,7 +436,7 @@ def objective(  # noqa: C901
             sample_idx_ls=sample_idx_ls,
             model_weights_path="",
             lock=lock,
-            callback=iterative_callback,
+            callback=iterative_callback, # pyrefly: ignore [bad-argument-type]
         )
 
         if not log:
@@ -674,7 +674,7 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
 
         # Report the trial closest to the ideal point (normalised L1 distance).
         best_trial = _select_pareto_representative(pareto_trials, directions)
-        best_values = list(best_trial.values) if best_trial else []
+        best_values = list(best_trial.values) if best_trial else [] # pyrefly: ignore [bad-argument-type]
 
         if run is not None and best_trial:
             run.log_params({f"hpo/best/{k}": v for k, v in best_trial.params.items()})
@@ -702,7 +702,7 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
             run.set_tag("mode", "single_objective")
             run.flush()
 
-        return best_value
+        return best_value # pyrefly: ignore [bad-return]
 
 
 # ---------------------------------------------------------------------------
@@ -740,7 +740,7 @@ def _select_pareto_representative(
     signed: List[List[float]] = []
     for t in pareto_trials:
         row = []
-        for _j, (v, d) in enumerate(zip(t.values, directions, strict=False)):
+        for _j, (v, d) in enumerate(zip(t.values, directions, strict=False)): # pyrefly: ignore [bad-argument-type]
             row.append(-v if d == "minimize" else v)
         signed.append(row)
 

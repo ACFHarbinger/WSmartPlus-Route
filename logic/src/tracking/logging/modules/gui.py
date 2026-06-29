@@ -24,7 +24,7 @@ import pandas as pd
 from omegaconf import OmegaConf
 
 import logic.src.constants as udef
-from logic.src.utils.configs.setup_utils import deep_sanitize
+from logic.src.utils.infrastructure.setup_sims import deep_sanitize
 
 # Set up Jinja environment and pre-load the template for performance
 template_dir = os.path.dirname(os.path.abspath(__file__))
@@ -68,7 +68,7 @@ def send_daily_output_to_gui(
     coords_lookup = None
     if isinstance(coordinates, pd.DataFrame):
         coords_lookup = coordinates.copy()
-        coords_lookup.columns = [str(c).upper().strip() for c in coords_lookup.columns]
+        coords_lookup.columns = [c.upper().strip() for c in coords_lookup.columns]
 
     # Output full coordinates map only on day 1 to act as a structural lookup in the UI
     if day == 1:
@@ -89,13 +89,13 @@ def send_daily_output_to_gui(
     )
 
     # Tour bin indices: 0-indexed bin IDs visited in route order (excluding depot)
-    tour_indices = [int(idx) - 1 for idx in tour if int(idx) > 0]
+    tour_indices = [idx - 1 for idx in tour if idx > 0]
     full_payload["tour_indices"] = tour_indices
 
     if mandatory is not None:
         # Map 1-based bin IDs (logic) to 0-based GUI IDs (indices)
         # Bins are i=1..N, Depot is i=0 (skipped)
-        mapped_mandatory = [int(i) - 1 for i in mandatory if int(i) > 0]
+        mapped_mandatory = [i - 1 for i in mandatory if i > 0]
         full_payload.update({"mandatory": mapped_mandatory})
 
     full_payload = deep_sanitize(full_payload)
@@ -193,7 +193,7 @@ def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) ->
         Dict[str, Any]: Formatted dictionary for GUI map rendering.
     """
     try:
-        node_idx_int = int(node_idx)
+        node_idx_int = node_idx
     except (ValueError, TypeError):
         return {"id": node_idx}
 
@@ -218,8 +218,8 @@ def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) ->
         row = coords_lookup.iloc[node_idx_int]
         lat, lon = _get_lat_lon(row)
         if lat is not None and lon is not None:
-            point_data["lat"] = float(lat)
-            point_data["lng"] = float(lon)
+            point_data["lat"] = lat
+            point_data["lng"] = lon
 
             # 2. Render the popup using the pre-loaded template
             # This removes the hardcoded HTML tags from the Python file

@@ -19,20 +19,22 @@ python main.py train_lightning experiment=hpo env.name=wcvrp
 
 ### Key Hydra Config Overrides
 
-| Override | Values | Effect |
-|----------|--------|--------|
-| `model` | `am`, `tam`, `ddam` | Architecture |
-| `env.name` | `vrpp`, `wcvrp`, `scwcvrp` | Problem type |
-| `env.num_loc` | `20`, `50`, `100`, `150` | Graph size |
-| `train.n_epochs` | integer | Training duration |
-| `train.batch_size` | integer | Batch size (tune for VRAM) |
-| `train.lr` | float | Learning rate |
+| Override           | Values                     | Effect                     |
+| ------------------ | -------------------------- | -------------------------- |
+| `model`            | `am`, `tam`, `ddam`        | Architecture               |
+| `env.name`         | `vrpp`, `wcvrp`, `scwcvrp` | Problem type               |
+| `env.num_loc`      | `20`, `50`, `100`, `150`   | Graph size                 |
+| `train.n_epochs`   | integer                    | Training duration          |
+| `train.batch_size` | integer                    | Batch size (tune for VRAM) |
+| `train.lr`         | float                      | Learning rate              |
 
 ### Config Sanitization (CRITICAL — AGENTS.md §6.1)
+
 When passing Hydra configs to Lightning modules:
+
 ```python
 # CORRECT
-from logic.src.utils.configs.setup_utils import deep_sanitize
+from logic.src.utils.infrastructure.setup_sims import deep_sanitize
 common_kwargs = deep_sanitize(cfg.rl)
 common_kwargs["env"] = env   # inject after sanitize
 model = MyModule(**common_kwargs)
@@ -54,6 +56,7 @@ python main.py gen_data test --problem vrpp --graph_sizes 20 50 --seed 1234
 ## Comparing Against Baselines
 
 Run simulation with neural agent alongside classical solvers:
+
 ```bash
 python main.py test_sim \
   --policies neural_agent gurobi alns hgs \
@@ -63,17 +66,18 @@ python main.py test_sim \
 
 ## Batch Size Guidelines (VRAM)
 
-| VRAM | `env.num_loc=50` | `env.num_loc=100` |
-|------|-----------------|------------------|
-| 8 GB | 64–128 | 32–64 |
-| 12 GB | 256 | 128 |
-| 24 GB | 512–1024 | 256–512 |
+| VRAM  | `env.num_loc=50` | `env.num_loc=100` |
+| ----- | ---------------- | ----------------- |
+| 8 GB  | 64–128           | 32–64             |
+| 12 GB | 256              | 128               |
+| 24 GB | 512–1024         | 256–512           |
 
 ## Experiment Tracking
 
 Set `WANDB_API_KEY` to log runs to Weights & Biases automatically.
 
 ## Guardrails
+
 - Use `uv run` prefix or activate `.venv` before any `python main.py` command.
 - Set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` for large graph training.
 - Model weights must go under `assets/model_weights/` — do NOT commit large files; use Git LFS.

@@ -188,7 +188,7 @@ from torch_geometric.nn import GATConv
 
 # Local imports - absolute
 from logic.src.models.modules import MultiHeadAttention
-from logic.src.utils.configs.setup_utils import get_device
+from logic.src.utils.configs.setup_sims import get_device
 
 # Local imports - relative (within same package only)
 from .encoder import GATEncoder
@@ -613,7 +613,7 @@ GUI Layer (gui/) ──depends on──▶ Logic Layer (logic/)
 
 1. Create `logic/src/tasks/my_problem/problem_my.py`
 2. Implement `BaseProblem` interface
-3. Register in `logic/src/utils/setup_utils.py`
+3. Register in `logic/src/utils/infrastructure/setup_sims.py`
 4. Write tests in `logic/test/test_problems.py`
 
 ### 8.3 Design Patterns

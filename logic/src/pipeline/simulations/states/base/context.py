@@ -142,7 +142,7 @@ class SimulationContext:
         raw_policy = policies[pol_id]
 
         # Use robust utility to extract policy name and ensure config is a plain dict
-        from logic.src.utils.configs.setup_utils import deep_sanitize
+        from logic.src.utils.infrastructure.setup_sims import deep_sanitize
 
         self.pol_cfg = deep_sanitize(raw_policy)
 

@@ -22,12 +22,13 @@ You are a Senior Operations Research Engineer implementing a new routing policy 
 - [ ] Implement required abstract methods from the base class.
 - [ ] Apply invalid-move masking using `logic/src/utils/functions/boolmask.py` for any node selection logic.
 - [ ] Add a `params.py` with a `@dataclass` config class if the policy has hyperparameters.
-- [ ] Use `get_device()` from `logic/src/utils/configs/setup_utils.py` — never hardcode `.cuda()`.
+- [ ] Use `get_device()` from `logic/src/utils/infrastructure/setup_sims.py` — never hardcode `.cuda()`.
 - [ ] Add type hints (`from typing import ...`) on all public methods.
 
 ## BPC-Specific Rules (if implementing exact solver)
 
 Follow AGENTS.md §6.1 strictly:
+
 1. Phase I Farkas pricing must resolve LP infeasibility before Phase II normal pricing.
 2. Use `reduced_cost` improvements only — never rank columns by raw profit.
 3. Compute Lagrangian bounds (`z_UB`) only after local CG convergence.
@@ -36,6 +37,7 @@ Follow AGENTS.md §6.1 strictly:
 ## Testing
 
 After implementation, write unit tests in `logic/test/unit/policies/test_<policy_name>.py`:
+
 - Test feasibility of returned solution (capacity, route length constraints).
 - Test edge cases: single node, all nodes skipped, zero-profit nodes.
 - Mock Gurobi/Hexaly calls in unit tests to keep CI fast.
