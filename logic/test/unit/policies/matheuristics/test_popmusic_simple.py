@@ -57,7 +57,7 @@ def test_popmusic_lifo_order():
     dist_matrix = np.zeros((4, 4))
     for i in range(4):
         for j in range(4):
-            dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values)
+            dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values) # pyrefly: ignore [no-matching-overload, unsupported-operation]
 
     data = {
         "coords": coords,

@@ -1,13 +1,13 @@
 import json
 import os
 import pytest
-from logic.src.utils.target.matcher import (
+from logic.src.utils.output.matcher import (
     PolicyFilter,
     _parse_slug,
     slug_matches_filter,
     display_name_matches_filter,
 )
-from logic.src.utils.target.remover import (
+from logic.src.utils.output.remover import (
     remove_from_json_file,
     remove_from_jsonl_file,
     remove_checkpoint_files,

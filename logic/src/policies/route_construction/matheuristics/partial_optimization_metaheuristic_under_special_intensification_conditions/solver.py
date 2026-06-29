@@ -46,6 +46,7 @@ Architectural notes (four-issue refactor):
 
 Attributes:
     run_popmusic: Entry point for the POPMUSIC solver.
+    find_route_neighbors: KDTree-based nearest-route neighbor lookup.
 
 Example:
     >>> solver = POPSolver(
@@ -473,6 +474,37 @@ def _route_centroid(
     if not customers:
         return coord_array[0].copy()
     return coord_array[customers].mean(axis=0)
+
+
+def find_route_neighbors(
+    seed_idx: int,
+    centroids: List[np.ndarray],
+    k: int = 5,
+    kdtree: Any = None,
+    k_prox: int = 10,
+) -> List[int]:
+    """
+    Find the k nearest route neighbors of a seed route using a KDTree.
+
+    Queries the KDTree for k_prox candidates around the seed centroid, then
+    returns the k nearest indices (including the seed itself at position 0,
+    since KDTree includes the query point).
+
+    Args:
+        seed_idx: Index of the seed route in centroids.
+        centroids: List of route centroid coordinate arrays.
+        k: Number of neighbors to return (including the seed itself).
+        kdtree: Pre-built scipy.spatial.KDTree over the centroid coordinates.
+        k_prox: Number of candidates to fetch from the KDTree before selecting k.
+
+    Returns:
+        List of route indices (length <= k), sorted by ascending distance.
+    """
+    n_query = min(k_prox, len(centroids))
+    _, indices = kdtree.query(np.asarray(centroids[seed_idx]), k=n_query)
+    if np.ndim(indices) == 0:
+        return [int(indices)]
+    return list(indices[:k])
 
 
 # ---------------------------------------------------------------------------
