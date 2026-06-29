@@ -141,31 +141,3 @@ def discover_and_aggregate() -> pd.DataFrame:
             all_rows.append(row)
 
     return pd.DataFrame(all_rows)
-
-
-def main() -> None:
-    """Main execution entry point."""
-    print("Collecting simulation results...")
-    df = discover_and_aggregate()
-
-    if df.empty:
-        print("No simulation data found.")
-        return
-
-    output_path = os.path.join(ROOT_DIR, "assets", "output", "simulation_summary.xlsx")
-    print(f"Found {len(df)} policy entries. Exporting to Excel...")
-
-    # Sort for readability
-    cols_priority = ["SourceDir", "Distribution", "Policy"]
-    df = df.sort_values(cols_priority)
-
-    # Save to Excel
-    try:
-        df.to_excel(output_path, index=False)
-        print(f"SUCCESS: Summary saved to {output_path}")
-    except Exception as e:
-        print(f"ERROR: Failed to save Excel file: {e}")
-
-
-if __name__ == "__main__":
-    main()

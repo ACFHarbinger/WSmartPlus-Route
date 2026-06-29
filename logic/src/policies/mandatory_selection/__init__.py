@@ -48,7 +48,7 @@ Example:
 
 from logic.src.interfaces import IMandatorySelectionStrategy
 from logic.src.interfaces.context import SelectionContext
-from logic.src.models.policies.selection import (
+from logic.src.policies.vector.selection import (
     CombinedSelector,
     LastMinuteSelector,
     LookaheadSelector,

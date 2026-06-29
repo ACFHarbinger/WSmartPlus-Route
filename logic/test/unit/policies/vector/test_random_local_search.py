@@ -1,6 +1,6 @@
 import pytest
 import torch
-from logic.src.models.policies.random_local_search import (
+from logic.src.policies.vector.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from tensordict import TensorDict

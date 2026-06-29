@@ -1,7 +1,7 @@
 """Policy Visualization Dispatcher.
 
 This module provides a unified UI entry-point for rendering telemetry
-captured by :class:`~logic.src.models.policies.viz_mixin.PolicyVizMixin`.
+captured by :class:`~logic.src.policies.vector.viz_mixin.PolicyVizMixin`.
 It automatically dispatches to algorithm-specific renderers based on
 detected data signatures.
 

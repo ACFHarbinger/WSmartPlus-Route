@@ -7,7 +7,7 @@ from tensordict import TensorDict
 from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
-from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
+from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 

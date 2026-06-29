@@ -32,7 +32,7 @@ try:
 except ImportError:
     torch = None  # type: ignore[assignment]
 
-from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
+from logic.src.policies.vector.adaptive_large_neighborhood_search import VectorizedALNS
 
 # ---------------------------------------------------------------------------
 # Tracked ALNS subclass (zero-interference, opt-in)
@@ -334,7 +334,7 @@ def _build_chart(
     smooth_window: int,
     height: int,
     colors: List[str],
-) -> Optional[go.Figure]:
+) -> Optional[go.Figure]:  # pyrefly: ignore [missing-attribute]
     """Builds a Plotly line or stacked-area chart for an operator group.
 
     Args:

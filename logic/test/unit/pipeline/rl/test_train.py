@@ -65,7 +65,7 @@ class TestTrainingOrchestration:
         mock_trainer = mock_trainer_cls.return_value
         mock_trainer.callback_metrics = {"val/reward": torch.tensor(0.5)}
 
-        reward = run_training(cfg)
+        reward = run_training(cfg) # pyrefly: ignore [bad-argument-type]
 
         assert reward == 0.5
         mock_create.assert_called_once()

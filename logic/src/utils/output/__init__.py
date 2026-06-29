@@ -40,6 +40,7 @@ Attributes:
     excel_summary: Utility to aggregate simulation results JSONs into a single Excel log.
 """
 
+from .excel_summary import discover_and_aggregate
 from .matcher import PolicyFilter, slug_matches_filter
 from .remover import (
     remove_checkpoint_files,
@@ -50,6 +51,7 @@ from .remover import (
 )
 
 __all__ = [
+    "discover_and_aggregate",
     "PolicyFilter",
     "slug_matches_filter",
     "remove_targeted_runs",
