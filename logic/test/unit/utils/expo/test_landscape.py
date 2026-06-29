@@ -63,7 +63,7 @@ def test_rl_loss_fn(mock_model):
     mock_model.set_strategy.assert_called_with("greedy")
 
 @patch("logic.src.utils.expo.landscape.get_batch")
-@patch("logic.src.models.policies.local_search.vectorized_two_opt")
+@patch("logic.src.policies.vector.local_search.vectorized_two_opt")
 @patch("logic.src.utils.expo.landscape.loss_landscapes.random_plane")
 @patch("logic.src.utils.expo.landscape.plt")
 def test_plot_loss_landscape(mock_plt, mock_random_plane, mock_two_opt, mock_get_batch, mock_model, tmp_path):
@@ -108,7 +108,7 @@ def test_rl_loss_fn_exception_handling(mock_model, tmp_path, mocker):
     # Mock random_plane to raise exception
     mocker.patch("loss_landscapes.random_plane", side_effect=Exception("Test Error"))
     mocker.patch("logic.src.utils.expo.landscape.get_batch", return_value={"dist": torch.zeros((1, 5, 5))})
-    mocker.patch("logic.src.models.policies.local_search.vectorized_two_opt", return_value=torch.zeros((16, 51), dtype=torch.long))
+    mocker.patch("logic.src.policies.vector.local_search.vectorized_two_opt", return_value=torch.zeros((16, 51), dtype=torch.long))
 
     # Should not raise exception
     plot_loss_landscape(mock_model, opts, output_dir)

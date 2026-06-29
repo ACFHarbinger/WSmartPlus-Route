@@ -25,10 +25,10 @@ from torch import nn
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
-from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
-from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy
-from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS
-from logic.src.models.policies.operators import (
+from logic.src.policies.vector.adaptive_large_neighborhood_search import VectorizedALNS
+from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
+from logic.src.policies.vector.hybrid_genetic_search import VectorizedHGS
+from logic.src.policies.vector.operators import (
     vectorized_cluster_removal,
     vectorized_cross_exchange,
     vectorized_ejection_chain,

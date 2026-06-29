@@ -2093,7 +2093,7 @@ $$ \nabla\_{\theta_M} \mathcal{L} = \mathbb{E} [ \min(r_t(\theta) \hat{A}_t, \te
 
 | Parameter        | Default    | Description                                    |
 | :--------------- | :--------- | :--------------------------------------------- |
-| `selection_topk` | 50         | The Manager picks up to 50 "mandatory" nodes.    |
+| `selection_topk` | 50         | The Manager picks up to 50 "mandatory" nodes.  |
 | `gate_range`     | [0.5, 0.9] | The dynamic range of the fill-level threshold. |
 
 ---
@@ -5194,7 +5194,7 @@ The evaluator uses the unified interface in this directory to compare the three 
 #### Creating a Unified Policy
 
 ```python
-from logic.src.models.policies import ModelFactory
+from logic.src.policies.vector import ModelFactory
 
 ## Same interface, different worlds
 am_policy = ModelFactory.assemble("am", weights="./best.pt")
@@ -5331,7 +5331,7 @@ Standard HGS (like the Vidal implementation) is single-threaded. WSmart-Route's 
 ### 🧪 Usage Example
 
 ```python
-from logic.src.models.policies.hgs import VectorizedHGS
+from logic.src.policies.vector.hgs import VectorizedHGS
 
 ## 1. Initialize solver for 5 seconds per batch
 solver = VectorizedHGS(time_limit=5.0)
@@ -5496,7 +5496,7 @@ In our **Vectorized Operator**:
 ### 🧪 Usage Example: Manual Refinement
 
 ```python
-from logic.src.models.policies.operators import TwoOptOperator
+from logic.src.policies.vector.operators import TwoOptOperator
 
 ## 1. Start with a random tour
 tour = torch.arange(100).unsqueeze(0)
@@ -5609,7 +5609,7 @@ The `ManagerSelection` policy is the primary entry point for the **HRL Manager**
 ### 🧪 Usage Example
 
 ```python
-from logic.src.models.policies.selection import RevenuePolicy
+from logic.src.policies.vector.selection import RevenuePolicy
 
 ## Configure for 2x distance penalty
 select_logic = RevenuePolicy(profit_exponent=2.0)
@@ -5726,7 +5726,7 @@ The `RewardNormalizer` is critical for `CriticNetwork` training. By sharing this
 #### Using a Shared Schedule for Search
 
 ```python
-from logic.src.models.policies.shared import CosineSchedule
+from logic.src.policies.vector.shared import CosineSchedule
 
 ## 1. Warm up for 100 steps, then cool down
 temp_logic = CosineSchedule(start=1.0, end=0.01, total_steps=1000)
@@ -6039,10 +6039,10 @@ $$ \theta*k = \text{MLP}*{hyper}( \text{Context}\_k ) $$
 
 #### Component Discovery
 
-| Parameter        | Default | Recommended | Description                                  |
-| :--------------- | :------ | :---------- | :------------------------------------------- |
+| Parameter        | Default | Recommended | Description                                    |
+| :--------------- | :------ | :---------- | :--------------------------------------------- |
 | `aux_dim`        | 32      | 16 - 64     | Latent dimension of auxiliary/helpers vectors. |
-| `use_diagnostic` | `False` | -           | Enable to log attention maps to TensorBoard. |
+| `use_diagnostic` | `False` | -           | Enable to log attention maps to TensorBoard.   |
 
 ---
 

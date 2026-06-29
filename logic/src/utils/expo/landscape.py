@@ -186,7 +186,7 @@ def plot_loss_landscape(
     Returns:
         None
     """
-    from logic.src.models.policies.local_search import vectorized_two_opt
+    from logic.src.policies.vector.local_search import vectorized_two_opt
 
     print("Computing Loss Landscape...")
     os.makedirs(output_dir, exist_ok=True)

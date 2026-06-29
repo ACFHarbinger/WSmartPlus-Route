@@ -4,16 +4,16 @@ Unit tests for vectorized policy implementations (Local Search, HGS, Split).
 
 import pytest
 import torch
-from logic.src.models.policies.adaptive_large_neighborhood_search import (
+from logic.src.policies.vector.adaptive_large_neighborhood_search import (
     VectorizedALNS,
 )
-from logic.src.models.policies.hgs_core.evaluation import calc_broken_pairs_distance
-from logic.src.models.policies.hybrid_genetic_search import (
+from logic.src.policies.vector.hgs_core.evaluation import calc_broken_pairs_distance
+from logic.src.policies.vector.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
     vectorized_ordered_crossover,
 )
-from logic.src.models.policies.operators import (
+from logic.src.policies.vector.operators import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,
@@ -21,7 +21,7 @@ from logic.src.models.policies.operators import (
     vectorized_two_opt,
     vectorized_two_opt_star,
 )
-from logic.src.models.policies.shared.linear import (
+from logic.src.policies.vector.shared.linear import (
     vectorized_linear_split,
 )
 from tensordict.tensordict import TensorDict
@@ -231,7 +231,7 @@ class TestVectorizedPolicies:
     def test_alns_policy_forward(self):
         """Test the ALNSPolicy wrapper forward function."""
         import torch.nn as nn
-        from logic.src.models.policies.adaptive_large_neighborhood_search import (
+        from logic.src.policies.vector.adaptive_large_neighborhood_search import (
             VectorizedALNS,
         )
 

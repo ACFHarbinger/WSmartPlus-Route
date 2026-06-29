@@ -227,7 +227,6 @@
       "remove_script": "logic/src/utils/packages/remove_security.py",
       "paths": [
         "logic/src/utils/security",
-        "logic/src/file_system.py",
         "logic/src/cli/fs_parser.py"
       ]
     },
@@ -263,11 +262,10 @@
       ]
     },
     "CLI": {
-      "description": "Parser-based CLI entry point (logic/src/cli/, parser_dispatch.py, file_system.py)",
+      "description": "Parser-based CLI entry point (logic/src/cli/, parser_dispatch.py)",
       "remove_script": "logic/src/utils/packages/remove_cli.py",
       "paths": [
         "logic/src/cli",
-        "logic/src/file_system.py",
         "logic/parser_dispatch.py"
       ]
     },

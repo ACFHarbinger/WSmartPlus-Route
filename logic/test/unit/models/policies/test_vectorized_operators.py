@@ -1,6 +1,6 @@
 import pytest
 import torch
-from logic.src.models.policies.operators import (
+from logic.src.policies.vector.operators import (
     vectorized_greedy_insertion,
     vectorized_random_removal,
     vectorized_regret_k_insertion,

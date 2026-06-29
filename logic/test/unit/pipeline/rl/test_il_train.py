@@ -5,14 +5,14 @@ from typing import Any
 
 import pytest
 import torch
-from logic.src.models.policies.hgs_core.evaluation import calc_broken_pairs_distance
-from logic.src.models.policies.hybrid_genetic_search import (
+from logic.src.policies.vector.hgs_core.evaluation import calc_broken_pairs_distance
+from logic.src.policies.vector.hybrid_genetic_search import (
     VectorizedHGS,
     VectorizedPopulation,
     vectorized_linear_split,
     vectorized_ordered_crossover,
 )
-from logic.src.models.policies.local_search import (
+from logic.src.policies.vector.local_search import (
     vectorized_relocate,
     vectorized_swap,
     vectorized_swap_star,

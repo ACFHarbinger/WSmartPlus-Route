@@ -15,7 +15,7 @@ from logic.src.cli.base import ConfigsParser
 from logic.src.cli.benchmark_parser import add_benchmark_args
 from logic.src.cli.fs_parser import add_files_args
 from logic.src.cli.gui_parser import add_gui_args
-from logic.src.cli.output_parser import add_output_args
+from logic.src.cli.output_parser import add_excel_summary_args, add_output_args
 from logic.src.cli.target_parser import add_ms_update_args, add_ri_update_args
 from logic.src.cli.ts_parser import add_test_suite_args
 
@@ -53,6 +53,13 @@ def get_parser() -> ConfigsParser:
         help="Remove targeted simulation runs from output artefacts",
     )
     add_output_args(clean_parser)
+
+    # Excel summary
+    excel_parser = subparsers.add_parser(
+        "excel_summary",
+        help="Aggregate simulation results into a single Excel summary",
+    )
+    add_excel_summary_args(excel_parser)
 
     # Update mandatory-selection config overrides
     update_ms_parser = subparsers.add_parser(

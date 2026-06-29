@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from tensordict import TensorDict
 
-from logic.src.models.policies.random_local_search import (
+from logic.src.policies.vector.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.tracking.logging.structured_logging import log_benchmark_metric

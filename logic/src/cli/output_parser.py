@@ -1,9 +1,9 @@
-"""CLI parser for removing targeted simulation runs.
+"""CLI parser for output artefact operations.
 
-Integrates with the WSmart+ Route CLI registry as the ``clean_results``
-sub-command, and can also be run standalone::
+Integrates with the WSmart+ Route CLI registry as the ``clean_results`` and
+``excel_summary`` sub-commands, and can also be run standalone::
 
-    # Via main CLI
+    # Remove targeted simulation runs via main CLI
     python main.py clean_results \\
         --results-dir assets/output/30_days/riomaior_100 \\
         --distribution emp \\
@@ -11,25 +11,38 @@ sub-command, and can also be run standalone::
         --improver ftsp \\
         --dry-run
 
-    # Standalone
-    uv run python -m logic.src.cli.output_parser \\
+    # Aggregate simulation results into Excel via main CLI
+    python main.py excel_summary
+    python main.py excel_summary --output-path my_summary.xlsx --dirs 31_days/riomaior_104
+
+    # Standalone with subcommands
+    uv run python -m logic.src.cli.output_parser clean \\
         --results-dir assets/output/30_days/riomaior_100 \\
         --ms-strategy lookahead --distribution gamma3
 
-All filter options are optional; an omitted option matches *any* value.
+    uv run python -m logic.src.cli.output_parser excel
+    uv run python -m logic.src.cli.output_parser excel --output-path my_summary.xlsx
+
+All filter options for ``clean`` are optional; an omitted option matches *any* value.
 Multiple values can be passed to the same option (space-separated).
 
 Attributes:
-    add_output_args: Register arguments on an existing sub-parser.
-    main: Standalone CLI entry point.
+    add_output_args: Register ``clean_results`` arguments on an existing sub-parser.
+    add_excel_summary_args: Register ``excel_summary`` arguments on an existing sub-parser.
+    main: Standalone CLI entry point with ``clean`` / ``excel`` subcommands.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
+from logic.src.constants import ROOT_DIR
+from logic.src.utils.output.excel_summary import discover_and_aggregate
 from logic.src.utils.output.remover import PolicyFilter, remove_targeted_runs
+
+_DEFAULT_EXCEL_OUTPUT = os.path.join(ROOT_DIR, "assets", "output", "simulation_summary.xlsx")
 
 
 def add_output_args(parser: argparse.ArgumentParser) -> None:
@@ -93,6 +106,34 @@ def add_output_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_excel_summary_args(parser: argparse.ArgumentParser) -> None:
+    """Register ``excel_summary`` arguments on *parser*.
+
+    Args:
+        parser: An :class:`argparse.ArgumentParser` (or sub-parser) to populate.
+    """
+    parser.add_argument(
+        "--output-path",
+        default=_DEFAULT_EXCEL_OUTPUT,
+        metavar="PATH",
+        help=(
+            f"Destination ``.xlsx`` file.  "
+            f"Defaults to '{_DEFAULT_EXCEL_OUTPUT}'."
+        ),
+    )
+    parser.add_argument(
+        "--dirs",
+        nargs="+",
+        default=[],
+        metavar="DIR",
+        help=(
+            "Whitelist of sub-directories under assets/output/ to include, "
+            "e.g. '31_days/riomaior_104 30_days/riomaior_104'.  "
+            "When omitted, all directories are scanned."
+        ),
+    )
+
+
 def _run_from_namespace(args: argparse.Namespace) -> int:
     """Execute the clean-results action from parsed *args*.
 
@@ -133,8 +174,44 @@ def _run_from_namespace(args: argparse.Namespace) -> int:
     return 0 if removed else 1
 
 
+def _run_excel_summary_from_namespace(args: argparse.Namespace) -> int:
+    """Execute the excel-summary action from parsed *args*.
+
+    Args:
+        args: Parsed namespace produced by :func:`add_excel_summary_args`.
+
+    Returns:
+        Exit code (0 = success, 1 = no data found or save error).
+    """
+    import logic.src.utils.output.excel_summary as _es
+
+    if getattr(args, "dirs", None):
+        _es.SELECTED_DIRS = list(args.dirs)
+
+    print("Collecting simulation results...")
+    df = discover_and_aggregate()
+
+    if df.empty:
+        print("No simulation data found.")
+        return 1
+
+    output_path = args.output_path
+    print(f"Found {len(df)} policy entries. Exporting to Excel...")
+
+    cols_priority = ["SourceDir", "Distribution", "Policy"]
+    df = df.sort_values(cols_priority)
+
+    try:
+        df.to_excel(output_path, index=False)
+        print(f"SUCCESS: Summary saved to {output_path}")
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to save Excel file: {e}", file=sys.stderr)
+        return 1
+
+
 def main(argv=None) -> int:
-    """Standalone CLI entry point.
+    """Standalone CLI entry point with ``clean`` / ``excel`` subcommands.
 
     Args:
         argv: Argument list (defaults to ``sys.argv[1:]``).
@@ -145,15 +222,33 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m logic.src.cli.output_parser",
         description=(
-            "Remove targeted simulation runs from WSmart+ Route output artefacts.\n\n"
-            "Each filter option is OR-matched within its category and AND-matched "
-            "across categories.  Omitting a category matches everything."
+            "WSmart+ Route output artefact utilities.\n\n"
+            "  clean  — remove targeted simulation runs\n"
+            "  excel  — aggregate results into an Excel summary"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    add_output_args(parser)
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
+
+    clean_parser = subparsers.add_parser(
+        "clean",
+        help="Remove targeted simulation runs from output artefacts",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    add_output_args(clean_parser)
+
+    excel_parser = subparsers.add_parser(
+        "excel",
+        help="Aggregate simulation results into a single Excel summary",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    add_excel_summary_args(excel_parser)
+
     args = parser.parse_args(argv)
-    return _run_from_namespace(args)
+
+    if args.subcommand == "clean":
+        return _run_from_namespace(args)
+    return _run_excel_summary_from_namespace(args)
 
 
 if __name__ == "__main__":

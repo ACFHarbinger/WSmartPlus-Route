@@ -26,9 +26,12 @@ import traceback
 import argparse
 
 from logic.benchmark.benchmark_suite import run_benchmarks
-from logic.src.cli.output_parser import _run_from_namespace as _run_clean_results
+from logic.src.cli.output_parser import (
+    _run_excel_summary_from_namespace,
+    _run_from_namespace as _run_clean_results,
+)
 from logic.src.cli.target_parser import _run_ms_from_namespace, _run_ri_from_namespace
-from logic.src.file_system import (
+from logic.src.cli.fs_parser import (
     delete_file_system_entries,
     perform_cryptographic_operations,
     update_file_system_entries,
@@ -180,6 +183,8 @@ def parser_entry_point(args) -> None:
                 run_benchmarks(opts)
             elif comm == "clean_results":
                 exit_code = _run_clean_results(argparse.Namespace(**opts))
+            elif comm == "excel_summary":
+                exit_code = _run_excel_summary_from_namespace(argparse.Namespace(**opts))
             elif comm == "update_ms":
                 exit_code = _run_ms_from_namespace(argparse.Namespace(**opts))
             elif comm == "update_ri":
