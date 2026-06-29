@@ -118,7 +118,7 @@ sim:
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
-    n_days: 90
+    n_days: 30
     num_loc: 350
     n_samples: 1
     area: "figueiradafoz"
