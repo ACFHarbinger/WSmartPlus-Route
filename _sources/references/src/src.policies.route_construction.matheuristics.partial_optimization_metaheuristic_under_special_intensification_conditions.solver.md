@@ -39,6 +39,10 @@
   - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid
     :summary:
     ```
+* - {py:obj}`find_route_neighbors <src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors
+    :summary:
+    ```
 * - {py:obj}`_assemble_subproblem <src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem>`
   - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._assemble_subproblem
     :summary:
@@ -110,6 +114,13 @@
 :canonical: src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._route_centroid
+```
+````
+
+````{py:function} find_route_neighbors(seed_idx: int, centroids: typing.List[numpy.ndarray], k: int = 5, kdtree: typing.Any = None, k_prox: int = 10) -> typing.List[int]
+:canonical: src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.find_route_neighbors
 ```
 ````
 
