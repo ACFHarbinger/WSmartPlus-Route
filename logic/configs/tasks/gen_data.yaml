@@ -35,58 +35,72 @@ data:
 
   # Graphs Configuration
   graphs:
-    - num_loc: 20
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_20V_1N_plastic.json"
-      start_day: 0
-      n_days: 90
-      vertex_method: "mmn"
-      distance_method: "gmaps"
-      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    - num_loc: 50
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_50V_1N_plastic.json"
-      start_day: 0
-      n_days: 90
-      vertex_method: "mmn"
-      distance_method: "gmaps"
-      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    - num_loc: 100
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_100V_1N_plastic.json"
-      start_day: 0
-      n_days: 90
-      vertex_method: "mmn"
-      distance_method: "gmaps"
-      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
-    - num_loc: 170
-      n_samples: 1
-      area: "riomaior"
-      waste_type: "plastic"
-      focus_size: 1
-      focus_graph: "graphs_170V_1N_plastic.json"
-      start_day: 0
-      n_days: 90
-      vertex_method: "mmn"
-      distance_method: "gmaps"
-      dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # --- Rio Maior (commented out: datasets already exist) ---
+    # - num_loc: 20
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_20V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 50
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_50V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 100
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_100V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 170
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_170V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+
+    # --- Figueira da Foz — plastic 350 bins (gamma3) ---
     - num_loc: 350
       n_samples: 1
       area: "figueiradafoz"
-      waste_type: "paper"
-      focus_size: 0
-      focus_graph: null
+      waste_type: "plastic"
+      focus_size: 1
+      focus_graph: "graphs_350V_1N_plastic.json"
+      start_day: 0
+      n_days: 30
+      vertex_method: "mmn"
+      distance_method: "file"
+      dm_filepath: "gmaps_distmat_plastic[figueiradafoz].csv"
+    - num_loc: 350
+      n_samples: 1
+      area: "figueiradafoz"
+      waste_type: "plastic"
+      focus_size: 1
+      focus_graph: "graphs_350V_1N_plastic.json"
       start_day: 0
       n_days: 90
       vertex_method: "mmn"
       distance_method: "file"
-      dm_filepath: "gmaps_distmat_paper[figueiradafoz].csv"
+      dm_filepath: "gmaps_distmat_plastic[figueiradafoz].csv"

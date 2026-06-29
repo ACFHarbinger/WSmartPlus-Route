@@ -15,7 +15,9 @@ problem := "vrpp"
 model := "am"
 encoder := "gat"
 decoder := "glimpse"
-area := "riomaior"
+area := "figueiradafoz"
+num_loc := "350"
+sim_distribution := "gamma3"
 batch_size := "64"
 temporal_horizon := "0"
 samples := "1"
@@ -174,19 +176,23 @@ eval model_path="" dataset="" problem=problem strategy=strategy:
 
 # Run simulator testing with Hydra configs
 
-# Usage: just test-sim policies="vrpp,alns" area=riomaior
-test-sim policies=policies area=area samples=samples n_cores=n_cores:
+# Usage: just test-sim policies="vrpp,alns" area=figueiradafoz num_loc=350 sim_distribution=gamma3
+test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num_loc sim_distribution=sim_distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num Loc:" "{{ num_loc }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ sim_distribution }}"
     @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py test_sim \
         sim.policies=[{{ policies }}] \
         sim.n_samples={{ samples }} \
         sim.graph.area={{ area }} \
+        sim.graph.num_loc={{ num_loc }} \
+        sim.data_distribution={{ sim_distribution }} \
         sim.cpu_cores={{ n_cores }}
 
 # Remove targeted simulation runs from output artefacts.
@@ -429,6 +435,29 @@ gen-data problem=problem:
     @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
     uv run python main.py gen_data \
         data.problem={{ problem }}
+
+# Generate test-simulator data for Figueira da Foz plastic (350 bins, gamma3, 30 + 90 days)
+#
+# Prerequisites:
+#   1. gmaps_distmat_plastic[figueiradafoz].csv must exist in data/wsr_simulator/distance_matrix/
+#      Generate it with:
+#        uv run python scripts/gen_dist_matrix.py \
+#            --area figueiradafoz --waste-type plastic \
+#            --method gmaps --dm-filepath "gmaps_distmat_plastic[figueiradafoz].csv"
+#      (requires GOOGLE_API_KEY set in env/vars.env)
+#
+# Usage: just gen-data-figfoz-plastic
+gen-data-figfoz-plastic:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING FIGFOZ PLASTIC DATASETS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "figueiradafoz"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Waste type:" "plastic"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num loc:" "350"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "gamma3"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "30 + 90"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py gen_data
 
 # Launch the GUI
 gui:
