@@ -169,6 +169,7 @@ exclude = [
 [tool.uv.sources]
 hexaly = { index = "hexaly_package" }
 torch_scatter = { index = "pyg" }
+torch_sparse = { index = "pyg" }
 
 [[tool.uv.index]]
 name = "hexaly_package"
@@ -176,7 +177,7 @@ url = "https://pip.hexaly.com"
 
 [[tool.uv.index]]
 name = "pyg"
-url = "https://data.pyg.org/whl/torch-2.2.2+cu121.html"
+url = "https://data.pyg.org/whl/torch-2.12.1+cu130.html"
 format = "flat"
 
 [tool.pyrefly]

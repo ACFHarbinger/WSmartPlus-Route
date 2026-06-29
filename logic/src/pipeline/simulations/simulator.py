@@ -510,6 +510,9 @@ def sequential_simulations(  # noqa: C901
                     )
                     overall_progress.update()
 
+            except CheckpointError:
+                # Skip broken checkpoints
+                pass
             except BaseException as e:
                 # If it's an Optuna pruning signal, re-raise it immediately
                 if "optuna" in sys.modules:
@@ -525,12 +528,19 @@ def sequential_simulations(  # noqa: C901
                 )
                 traceback.print_exc(file=sys.stderr)
 
+                # Append to failed_log so test suites and callers know it failed
+                failed_log.append(
+                    {
+                        "policy": pol_name,
+                        "sample": sample_id,
+                        "error": str(e),
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+
                 # Also print a pointer to the log file on the REAL stderr
                 if hasattr(sys.stderr, "filename"):
                     print(f"Detailed traceback available in: {sys.stderr.filename}", file=sys.__stderr__ or sys.stderr)
-            except CheckpointError:
-                # Skip broken checkpoints
-                pass
 
         if sim.graph.n_samples >= 1:
             if sim.resume:

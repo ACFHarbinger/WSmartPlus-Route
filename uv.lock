@@ -7856,32 +7856,30 @@ wheels = [
 
 [[package]]
 name = "torch-scatter"
-version = "2.1.2+pt22cu121"
-source = { registry = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" }
+version = "2.1.2+pt212cu130"
+source = { registry = "https://data.pyg.org/whl/torch-2.12.1+cu130.html" }
 wheels = [
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp310-cp310-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp310-cp310-win_amd64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp311-cp311-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp311-cp311-win_amd64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp312-cp312-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_scatter-2.1.2%2Bpt22cu121-cp312-cp312-win_amd64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_scatter-2.1.2%2Bpt212cu130-cp310-cp310-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_scatter-2.1.2%2Bpt212cu130-cp311-cp311-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_scatter-2.1.2%2Bpt212cu130-cp312-cp312-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_scatter-2.1.2%2Bpt212cu130-cp313-cp313-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_scatter-2.1.2%2Bpt212cu130-cp314-cp314-linux_x86_64.whl" },
 ]
 
 [[package]]
 name = "torch-sparse"
-version = "0.6.18+pt22cu121"
-source = { registry = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" }
+version = "0.6.18+pt212cu130"
+source = { registry = "https://data.pyg.org/whl/torch-2.12.1+cu130.html" }
 dependencies = [
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 wheels = [
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp310-cp310-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp310-cp310-win_amd64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp311-cp311-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp311-cp311-win_amd64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp312-cp312-linux_x86_64.whl" },
-    { url = "https://data.pyg.org/whl/torch-2.2.0%2Bcu121/torch_sparse-0.6.18%2Bpt22cu121-cp312-cp312-win_amd64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_sparse-0.6.18%2Bpt212cu130-cp310-cp310-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_sparse-0.6.18%2Bpt212cu130-cp311-cp311-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_sparse-0.6.18%2Bpt212cu130-cp312-cp312-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_sparse-0.6.18%2Bpt212cu130-cp313-cp313-linux_x86_64.whl" },
+    { url = "https://data.pyg.org/whl/torch-2.12.0%2Bcu130/torch_sparse-0.6.18%2Bpt212cu130-cp314-cp314-linux_x86_64.whl" },
 ]
 
 [[package]]
@@ -8723,8 +8721,8 @@ requires-dist = [
     { name = "tensordict", specifier = "==0.13.0" },
     { name = "torch", specifier = "==2.12.1" },
     { name = "torch-geometric", specifier = ">=2.3.1" },
-    { name = "torch-scatter", specifier = ">=2.1.2", index = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" },
-    { name = "torch-sparse", specifier = ">=0.6.18" },
+    { name = "torch-scatter", specifier = ">=2.1.2", index = "https://data.pyg.org/whl/torch-2.12.1+cu130.html" },
+    { name = "torch-sparse", specifier = ">=0.6.18", index = "https://data.pyg.org/whl/torch-2.12.1+cu130.html" },
     { name = "torch-tb-profiler", marker = "extra == 'gpu'", specifier = ">=0.4.3" },
     { name = "torchrl", specifier = "==0.13.2" },
     { name = "torchvision", specifier = "==0.27.1" },
