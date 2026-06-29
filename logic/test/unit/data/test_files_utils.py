@@ -1,9 +1,9 @@
-"""Tests for io/files.py."""
+"""Tests for utils/input/files.py."""
 
 import json
 import os
 
-from logic.src.utils.io.files import compose_dirpath, extract_zip, read_json, zip_directory
+from logic.src.utils.input.files import compose_dirpath, extract_zip, read_json, zip_directory
 
 
 def test_read_json(tmp_path):

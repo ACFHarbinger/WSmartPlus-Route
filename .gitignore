@@ -481,3 +481,6 @@ assets/output/**/*.jsonl
 !logic/src/utils/packages/**.py
 !logic/src/utils/validation/target/
 !logic/src/pipeline/simulations/checkpoints/
+
+# Tests to include
+!logic/test/unit/utils/packages/**.py

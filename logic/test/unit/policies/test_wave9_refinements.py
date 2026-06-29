@@ -45,7 +45,7 @@ def test_cfrs_seed_selection():
     dist_matrix = np.zeros((5, 5))
     for i in range(5):
         for j in range(5):
-            dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values)
+            dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values) # pyrefly: ignore [no-matching-overload, unsupported-operation]
 
     clusters = fisher_jaikumar_clustering(
         coords, mandatory, k=2, wastes=wastes, capacity=20, R=10, C=1, distance_matrix=dist_matrix

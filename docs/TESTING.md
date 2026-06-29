@@ -72,7 +72,7 @@ WSmart-Route/
 │       │   ├── eval_fixtures.py     # Evaluation fixtures
 │       │   ├── file_system_fixtures.py
 │       │   ├── integration_fixtures.py
-│       │   ├── io_fixtures.py
+│       │   ├── input_fixtures.py
 │       │   ├── model_fixtures.py    # Neural model fixtures
 │       │   ├── mrl_fixtures.py      # Meta-RL fixtures
 │       │   ├── policy_aux_fixtures.py
@@ -277,7 +277,7 @@ pytest_plugins = [
     "logic.test.fixtures.integration_fixtures",
     "logic.test.fixtures.eval_fixtures",
     "logic.test.fixtures.file_system_fixtures",
-    "logic.test.fixtures.io_fixtures",
+    "logic.test.fixtures.input_fixtures",
     "logic.test.fixtures.policy_aux_fixtures",
     "logic.test.fixtures.vectorized_policy_fixtures",
 ]

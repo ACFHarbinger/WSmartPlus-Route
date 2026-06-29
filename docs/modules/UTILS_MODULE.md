@@ -18,7 +18,7 @@
 7.  [**Function Utilities**](#7-function-utilities)
 8.  [**Graph Utilities**](#8-graph-utilities)
 9.  [**PyTorch Hooks**](#9-pytorch-hooks)
-10. [**IO Utilities**](#10-io-utilities)
+10. [**Input Utilities**](#10-input-utilities)
 11. [**Logging Utilities**](#11-logging-utilities)
 12. [**Model Utilities**](#12-model-utilities)
 13. [**Operations Utilities**](#13-operations-utilities)
@@ -62,6 +62,7 @@ from logic.src.utils import configs, data, hooks
 
 ```
 logic/src/utils/
+├── actions/          # Specialized tensor operations
 ├── configs/          # Configuration and setup management
 ├── data/             # Data generation and loading
 ├── decoding/         # Action selection strategies
@@ -69,10 +70,9 @@ logic/src/utils/
 ├── functions/        # Low-level mathematical utilities
 ├── graph/            # Graph construction and algorithms
 ├── hooks/            # PyTorch training monitors
-├── io/               # File operations and I/O
+├── input/            # File operations and input utilities
 ├── logging/          # Multi-layered logging system
 ├── model/            # Model loading and checkpointing
-├── ops/              # Specialized tensor operations
 ├── security/         # Cryptography and key management
 ├── tasks/            # RL loss functions and optimizers
 ├── ui/               # Frontend integration utilities
@@ -83,14 +83,14 @@ logic/src/utils/
 
 ```mermaid
 graph TD
-    A[configs] --> B[model]
-    A --> C[data]
-    B --> D[functions]
-    C --> D
-    E[decoding] --> D
-    F[hooks] --> G[logging]
-    H[ops] --> I[graph]
-    J[security] --> K[io]
+    A[actions] --> B[graph]
+    C[configs] --> D[model]
+    C --> E[data]
+    D --> F[functions]
+    E --> F
+    G[decoding] --> F
+    H[hooks] --> I[logging]
+    J[security] --> K[input]
 ```
 
 ---
@@ -1164,9 +1164,9 @@ restore_optimizer_step(optimizer, hook_data)
 
 ---
 
-## 10. IO Utilities
+## 10. Input Utilities
 
-**Module**: `logic/src/utils/io/`
+**Module**: `logic/src/utils/input/`
 
 Robust file operations, data splitting, and dictionary processing.
 
@@ -1175,7 +1175,7 @@ Robust file operations, data splitting, and dictionary processing.
 #### File Operations (`files.py`)
 
 ```python
-from logic.src.utils.io.files import read_json, zip_directory, extract_zip
+from logic.src.utils.input.files import read_json, zip_directory, extract_zip
 import threading
 
 # Thread-safe JSON reading
@@ -1196,7 +1196,7 @@ extract_zip("logs.zip", dest_dir="extracted_logs/")
 #### Concurrent Access (`locking.py`)
 
 ```python
-from logic.src.utils.io.locking import read_output
+from logic.src.utils.input.locking import read_output
 
 # Thread-safe experiment output reading
 policy_results = read_output(
@@ -1210,7 +1210,7 @@ policy_results = read_output(
 #### File Splitting (`splitting.py`)
 
 ```python
-from logic.src.utils.io.splitting import split_file, calculate_chunks
+from logic.src.utils.input.splitting import split_file, calculate_chunks
 
 # Split large CSV into smaller parts
 parts = split_file(
@@ -1229,7 +1229,7 @@ chunk_size = calculate_chunks(
 #### Dictionary Processing (`dict_processing.py`)
 
 ```python
-from logic.src.utils.io.dict_processing import process_dict_two_inputs
+from logic.src.utils.input.dict_processing import process_dict_two_inputs
 
 # Recursively process dictionary values
 process_dict_two_inputs(
@@ -1245,7 +1245,7 @@ process_dict_two_inputs(
 #### Batch File Processing (`file_processing.py`)
 
 ```python
-from logic.src.utils.io.file_processing import process_pattern_files
+from logic.src.utils.input.file_processing import process_pattern_files
 
 # Process all JSON files matching pattern
 def update_version(data):
@@ -1263,7 +1263,7 @@ process_pattern_files(
 #### Preview Changes (`preview.py`)
 
 ```python
-from logic.src.utils.io.preview import preview_dict_two_inputs
+from logic.src.utils.input.preview import preview_dict_two_inputs
 
 # Simulate changes without writing
 preview_dict_two_inputs(
@@ -1279,7 +1279,7 @@ preview_dict_two_inputs(
 #### Value Processing (`value_processing.py`)
 
 ```python
-from logic.src.utils.io.value_processing import format_number
+from logic.src.utils.input.value_processing import format_number
 
 # Format large numbers
 formatted = format_number(1234567.89)  # "1.23M"
@@ -1289,7 +1289,7 @@ formatted = format_number(1234.56)     # "1.23k"
 #### Statistics Aggregation (`statistics.py`)
 
 ```python
-from logic.src.utils.io.statistics import aggregate_logs
+from logic.src.utils.input.statistics import aggregate_logs
 
 # Aggregate statistics from multiple log files
 stats = aggregate_logs(
@@ -1604,9 +1604,9 @@ is_valid = validate_config(config, required_keys=['encoder', 'decoder'])
 
 ---
 
-## 13. Operations Utilities
+## 13. Actions/Operations Utilities
 
-**Module**: `logic/src/utils/ops/`
+**Module**: `logic/src/utils/actions/`
 
 Specialized mathematical and tensor operations for VRP and RL.
 
@@ -1615,7 +1615,7 @@ Specialized mathematical and tensor operations for VRP and RL.
 #### Distance Calculations (`distance.py`)
 
 ```python
-from logic.src.utils.ops.distance import (
+from logic.src.utils.actions.distance import (
     get_distance_matrix,
     get_tour_length,
     get_open_tour_length
@@ -1635,7 +1635,7 @@ path_length = get_open_tour_length(path_coords)
 #### Graph Construction (`graph.py`)
 
 ```python
-from logic.src.utils.ops.graph import (
+from logic.src.utils.actions.graph import (
     nearest_neighbor_graph,
     get_full_graph_edge_index
 )
@@ -1653,7 +1653,7 @@ full_edge_index = get_full_graph_edge_index(num_node=20)
 #### Probabilistic Operations (`probabilistic.py`)
 
 ```python
-from logic.src.utils.ops.probabilistic import calculate_entropy
+from logic.src.utils.actions.probabilistic import calculate_entropy
 
 # Shannon entropy for exploration regularization
 # H = -Σ p log p
@@ -1664,7 +1664,7 @@ loss = policy_loss - entropy_coef * entropy
 #### Tensor Operations (`tensor.py`)
 
 ```python
-from logic.src.utils.ops.tensor import unbatchify_and_gather
+from logic.src.utils.actions.tensor import unbatchify_and_gather
 
 # Multi-start decoding result handling
 # [batch * starts, ...] -> [batch, ...]
@@ -1678,7 +1678,7 @@ best_results = unbatchify_and_gather(
 #### POMO Operations (`pomo.py`)
 
 ```python
-from logic.src.utils.ops.pomo import (
+from logic.src.utils.actions.pomo import (
     augment_coordinates,
     apply_dihedral_group
 )
@@ -2129,7 +2129,7 @@ for handle in grad_hooks['handles']:
 from logic.src.utils.model import load_model
 from logic.src.utils.data import load_dataset
 from logic.src.utils.decoding import Greedy, BeamSearch
-from logic.src.utils.ops.distance import get_tour_length
+from logic.src.utils.actions.distance import get_tour_length
 from logic.src.utils.logging.plotting.routes import plot_vrp_solution
 
 # Load pre-trained model
@@ -2184,7 +2184,7 @@ print(f"Average improvement (Beam vs Greedy): {avg_improvement:.2f}%")
 from logic.src.utils.configs import setup_env
 from logic.src.utils.data import load_area_and_waste_type_params
 from logic.src.utils.logging import get_pylogger, send_daily_output_to_gui
-from logic.src.utils.io import read_json, save_json
+from logic.src.utils.input import read_json, save_json
 from logic.src.utils.ui import get_map_center
 
 # Setup logger
@@ -2402,7 +2402,7 @@ from logic.src.utils.logging import get_pylogger, log_values
 from logic.src.utils.model import load_model, load_problem
 
 # Operations
-from logic.src.utils.ops.distance import get_distance_matrix, get_tour_length
+from logic.src.utils.actions.distance import get_distance_matrix, get_tour_length
 
 # Security
 from logic.src.utils.security import encrypt_file_data, generate_key
@@ -2413,18 +2413,19 @@ from logic.src.utils.security import encrypt_file_data, generate_key
 | Module     | Depends On                   | Used By                    |
 | ---------- | ---------------------------- | -------------------------- |
 | `configs`  | `model`, `data`, `functions` | Training scripts, pipeline |
-| `data`     | `functions`, `ops`           | Environments, dataloaders  |
-| `decoding` | `functions`, `ops`           | Models, evaluation         |
+| `data`     | `functions`, `actions`       | Environments, dataloaders  |
+| `decoding` | `functions`, `actions`       | Models, evaluation         |
 | `hooks`    | `logging`                    | Training monitoring        |
-| `logging`  | `io`, `ui`                   | All training/simulation    |
+| `logging`  | `input`, `ui`                | All training/simulation    |
 | `model`    | `configs`, `functions`       | Evaluation, inference      |
-| `ops`      | `graph`                      | Models, data processing    |
-| `security` | `io`                         | Data protection            |
+| `actions`  | `graph`                      | Models, data processing    |
+| `security` | `input`                      | Data protection            |
 
 ### File Size Reference
 
 | Sub-module | Files | Approx. LOC | Complexity |
 | ---------- | ----- | ----------- | ---------- |
+| actions    | 6     | 600         | Medium     |
 | configs    | 8     | 1,200       | Medium     |
 | data       | 10    | 1,500       | Medium     |
 | decoding   | 6     | 800         | High       |
@@ -2432,10 +2433,9 @@ from logic.src.utils.security import encrypt_file_data, generate_key
 | functions  | 10    | 1,000       | Medium     |
 | graph      | 4     | 500         | Low        |
 | hooks      | 5     | 1,400       | Medium     |
-| io         | 10    | 1,200       | Low        |
+| input      | 10    | 1,200       | Low        |
 | logging    | 15    | 2,000       | High       |
 | model      | 6     | 800         | Medium     |
-| ops        | 6     | 600         | Medium     |
 | security   | 3     | 400         | Low        |
 | tasks      | 4     | 500         | Medium     |
 | ui         | 1     | 200         | Low        |
