@@ -92,7 +92,7 @@ data:
       n_days: 30
       vertex_method: "mmn"
       distance_method: "file"
-      dm_filepath: "gmaps_distmat_plastic[figueiradafoz].csv"
+      dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
     - num_loc: 350
       n_samples: 1
       area: "figueiradafoz"
@@ -103,4 +103,4 @@ data:
       n_days: 90
       vertex_method: "mmn"
       distance_method: "file"
-      dm_filepath: "gmaps_distmat_plastic[figueiradafoz].csv"
+      dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
