@@ -7,8 +7,10 @@ from logic.src.models.subnets.modules.activation_function import ActivationFunct
 from logic.src.models.subnets.modules.distance_graph_convolution import (
     DistanceAwareGraphConvolution,
 )
+import pytest
 from logic.src.models.subnets.modules.efficient_graph_convolution import (
     EfficientGraphConvolution,
+    PYG_AVAILABLE,
 )
 from logic.src.models.subnets.modules.feed_forward import FeedForward
 from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
@@ -81,6 +83,10 @@ class TestDistanceAwareGraphConvolution:
         assert out.shape == (batch, nodes, out_feat)
 
 
+@pytest.mark.skipif(
+    not PYG_AVAILABLE,
+    reason="torch_geometric and torch_sparse are required for EGC",
+)
 class TestEfficientGraphConvolution:
     """Tests for EfficientGraphConvolution."""
 
