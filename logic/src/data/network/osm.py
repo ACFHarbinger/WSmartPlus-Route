@@ -1,30 +1,30 @@
 """
-Strategy for computing distances using OpenStreetMap.
+Strategy for computing distances using OpenStreetMap via OSRM.
 
 Attributes:
-    OSMStrategy: Strategy for computing distances using OpenStreetMap (OSMnx).
+    OSMStrategy: Strategy for computing road distances via the OSRM Table API.
 
 Example:
-    >>> from logic.src.data.network.osm import OSMStrategy
-    >>> strategy = OSMStrategy()
-    >>> strategy.calculate(pd.DataFrame({"Lng": [0, 1], "Lat": [0, 1]}))
-    array([[0.        , 111.31949079],
-           [111.31949079, 0.        ]])
+    from logic.src.data.network.osm import OSMStrategy
+    strategy = OSMStrategy()
+    strategy.calculate(pd.DataFrame({"Lng": [-8.81, -8.82], "Lat": [40.15, 40.16]}))
 """
 
 from typing import Any
 
 import numpy as np
-import osmnx as ox
 import pandas as pd
-from networkx import MultiDiGraph
-from tqdm import tqdm
+import requests
 
 from .base import DistanceStrategy
 
 
 class OSMStrategy(DistanceStrategy):
-    """Strategy for computing distances using OpenStreetMap road network.
+    """Strategy for computing road distances via the OSRM Table API (no key required).
+
+    Batches coordinates into chunks of FREE_SIZE // 2 sources and FREE_SIZE // 2
+    destinations per request, keeping the total coordinate count within the
+    FREE_SIZE limit imposed by the public OSRM demo server.
 
     Attributes:
         None
@@ -32,60 +32,49 @@ class OSMStrategy(DistanceStrategy):
 
     def calculate(self, coords: pd.DataFrame, **kwargs: Any) -> np.ndarray:
         """
-        Computes road network distances using OpenStreetMap (OSMnx).
+        Computes road distances using the OSRM Table API.
 
         Args:
-            coords: DataFrame with coordinates (must contain 'ID', 'lat', 'lng' columns).
-            kwargs: Additional arguments for the distance strategy.
+            coords: DataFrame with coordinates (must contain 'Lat', 'Lng' columns).
+            kwargs: Additional arguments (unused, accepted for interface compatibility).
 
         Returns:
-            Distance matrix as a NumPy array.
+            np.ndarray: Distance matrix in kilometres.
         """
-        if "graph" in kwargs and isinstance(kwargs["graph"], MultiDiGraph):
-            GG = kwargs["graph"]
-        elif self._eval_kwarg("download_method", kwargs) and kwargs["download_method"] == "bbox":
-            bounding_box = (
-                coords["Lat"].max(),
-                coords["Lat"].min(),
-                coords["Lng"].max(),
-                coords["Lng"].min(),
-            )
-            GG = ox.graph_from_bbox(bounding_box, network_type="drive")
-        else:
-            GG = None
+        _OSRM_URL = "http://router.project-osrm.org/table/v1/driving"
+        FREE_SIZE = 100  # max coordinates per OSRM table request
 
+        half = FREE_SIZE // 2
         size = len(coords)
         distance_matrix = np.zeros((size, size))
 
-        # Iterative calculation
-        for id_i, row_i in tqdm(
-            coords.iterrows(),
-            total=size,
-            desc="Outer Loop",
-            disable=not kwargs.get("verbose", False),
-        ):
-            for id_j, row_j in tqdm(
-                coords.iterrows(),
-                total=size,
-                desc="Inner Loop",
-                leave=False,
-                disable=not kwargs.get("verbose", False),
-            ):
-                if id_i != id_j:
-                    coords_i = (row_i["Lat"], row_i["Lng"])
-                    coords_j = (row_j["Lat"], row_j["Lng"])
+        # OSRM expects lng,lat order (opposite of lat,lng)
+        lnglat = coords[["Lng", "Lat"]].values.tolist()
+        for i in range(0, size, half):
+            src_slice = list(range(i, min(i + half, size)))
+            for j in range(0, size, half):
+                dst_slice = list(range(j, min(j + half, size)))
 
-                    # This part looks slow if GG is None, but keeping original logic
-                    G = GG if GG is not None else ox.graph_from_point(coords_i, dist=10000, network_type="drive")
-                    bin_i = ox.distance.nearest_nodes(G, coords_i[1], coords_i[0])
-                    bin_j = ox.distance.nearest_nodes(G, coords_j[1], coords_j[0])
-                    try:
-                        length = ox.shortest_path(G, bin_i, bin_j, weight="length")
-                        if length:
-                            distance_matrix[id_i, id_j] = sum(length) / 10_000_000_000
-                        else:
-                            distance_matrix[id_i, id_j] = float("inf")
-                    except Exception:
-                        distance_matrix[id_i, id_j] = float("inf")
+                # Deduplicate so diagonal blocks (src == dst) don't exceed the limit
+                all_idx = list(dict.fromkeys(src_slice + dst_slice))
+                local = {g: l for l, g in enumerate(all_idx)}
+
+                coords_str = ";".join(f"{lnglat[k][0]},{lnglat[k][1]}" for k in all_idx)
+                src_param = ";".join(str(local[k]) for k in src_slice)
+                dst_param = ";".join(str(local[k]) for k in dst_slice)
+
+                resp = requests.get(
+                    f"{_OSRM_URL}/{coords_str}",
+                    params={"sources": src_param, "destinations": dst_param, "annotations": "distance"},
+                    timeout=60,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+
+                for r, si in enumerate(src_slice):
+                    for c, dj in enumerate(dst_slice):
+                        val = data["distances"][r][c]
+                        if val is not None:
+                            distance_matrix[si, dj] = val / 1000  # metres → km
 
         return distance_matrix

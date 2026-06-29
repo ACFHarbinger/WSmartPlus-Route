@@ -17,6 +17,7 @@ import json
 import os
 from typing import Any, List, Optional, Tuple, cast
 
+import numpy as np
 import pandas as pd
 
 import logic.src.constants as udef
@@ -182,8 +183,8 @@ class FileSystemRepository(SimulationRepository):
                 data, bins_coordinates = self._get_both_areas_data(d_dir, number_of_bins, src_area)
 
             # Final filtering/sorting common to all
-            data = cast(pd.DataFrame, data[data["ID"].isin(bins_coordinates["ID"])])
-            bins_coordinates = cast(pd.DataFrame, bins_coordinates[bins_coordinates["ID"].isin(data["ID"])])
+            data = data[data["ID"].isin(bins_coordinates["ID"])]
+            bins_coordinates = bins_coordinates[bins_coordinates["ID"].isin(data["ID"])]
 
             data = data.sort_values(by="ID").reset_index(drop=True)
             bins_coordinates = bins_coordinates.sort_values(by="ID").reset_index(drop=True)
@@ -267,7 +268,7 @@ class FileSystemRepository(SimulationRepository):
                     if run is not None:
                         run.log_params(
                             {
-                                "data.waste_filter": str(wtype),
+                                "data.waste_filter": wtype,
                                 "data.bins_before_waste_filter": _n_before,
                                 "data.bins_after_waste_filter": len(coords_tmp),
                             }
@@ -297,6 +298,19 @@ class FileSystemRepository(SimulationRepository):
         assert number_of_bins <= 1094, f"Number of bins for area {src_area} must be <= 1094"
         coords_tmp = pd.read_csv(os.path.join(d_dir, "coordinates", "out_info[figdafoz].csv"))
         coords_tmp = coords_tmp.rename(columns={"Latitude": "Lat", "Longitude": "Lng"})
+        # Coordinates are stored without decimal points (e.g. 401484222222222 instead of
+        # 40.1484222222222). Recover the decimal value by counting digits: a lat in the
+        # 40.xxx range has 2 integer digits, so divide by 10^(total_digits - 2); a lng
+        # in the -8.xxx range has 1 integer digit, so divide by 10^(total_digits - 1).
+        def _decode_coord(s: pd.Series, integer_digits: int) -> pd.Series:
+            v = s.astype(float)
+            abs_v = v.abs().replace(0, 1)
+            total_digits = np.floor(np.log10(abs_v)) + 1
+            scale = (total_digits - integer_digits).clip(lower=0)
+            return v / (10.0 ** scale)
+
+        coords_tmp["Lat"] = _decode_coord(coords_tmp["Lat"], 2)
+        coords_tmp["Lng"] = _decode_coord(coords_tmp["Lng"], 1)
         if wtype:
             _n_before = len(coords_tmp)
             coords_tmp = coords_tmp[coords_tmp["description"] == wtype]
@@ -305,7 +319,7 @@ class FileSystemRepository(SimulationRepository):
                 if run is not None:
                     run.log_params(
                         {
-                            "data.waste_filter": str(wtype),
+                            "data.waste_filter": wtype,
                             "data.bins_before_waste_filter": _n_before,
                             "data.bins_after_waste_filter": len(coords_tmp),
                         }
@@ -375,7 +389,7 @@ class FileSystemRepository(SimulationRepository):
             bins_coordinates = pd.concat([bins_coordinates, coords_tmp])
             data = pd.concat([data, data_tmp])
 
-        return cast(pd.DataFrame, data), cast(pd.DataFrame, bins_coordinates)
+        return data, cast(pd.DataFrame, bins_coordinates)
 
     def _preprocess_county_date(self, data: pd.DataFrame, date_str: str = "Date") -> pd.DataFrame:
         """Preprocess county date.
