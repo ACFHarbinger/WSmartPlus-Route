@@ -1,5 +1,6 @@
 # WSmart+ Route — Helper: general-purpose commands and shortcuts
 
+set unstable := true
 set working-directory := '../..'
 
 red := '\033[0;31m'

@@ -1,5 +1,6 @@
 # WSmart+ Route — Script: shell script runners
 
+set unstable := true
 set working-directory := '../..'
 
 # Run training script (scripts/train.sh)

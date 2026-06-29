@@ -1,5 +1,6 @@
 # WSmart+ Route — CI: linting, formatting, and docs
 
+set unstable := true
 set working-directory := '../..'
 
 # Check code quality with ruff (auto-fix)

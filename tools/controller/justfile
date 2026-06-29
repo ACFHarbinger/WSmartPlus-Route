@@ -1,5 +1,6 @@
 # WSmart+ Route — Controller: Hydra-based execution commands
 
+set unstable := true
 set working-directory := '../..'
 
 cyan := '\033[0;36m'
@@ -9,6 +10,7 @@ bold := '\033[1m'
 reset := '\033[0m'
 
 # Default variables
+
 problem := "vrpp"
 model := "am"
 encoder := "gat"
@@ -23,7 +25,6 @@ seed := "42"
 strategy := "greedy"
 n_cores := "20"
 policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
-
 hpo_policy := "bpc"
 hpo_method := "nsgaii"
 hpo_workers := "1"
@@ -37,15 +38,8 @@ hpo_selection_kw := ""
 hpo_acceptance_kw := ""
 hpo_improver_kw := ""
 
-results_dir := "assets/output/30_days/riomaior_100"
-distribution := ""
-constructor := ""
-ms_strategy := ""
-improver := ""
-dry_run := "false"
-quiet := "false"
-
 # Train a model with Hydra configs
+
 # Usage: just controller::train problem=wcvrp model=am
 train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -64,6 +58,7 @@ train problem=problem model=model encoder=encoder decoder=decoder batch_size=bat
         train.batch_size={{ batch_size }}
 
 # Run model evaluation with Hydra configs
+
 # Usage: just controller::eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp strategy=greedy
 eval model_path="" dataset="" problem=problem strategy=strategy:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -82,6 +77,7 @@ eval model_path="" dataset="" problem=problem strategy=strategy:
         eval.decoding.strategy={{ strategy }}
 
 # Run simulator testing with Hydra configs
+
 # Usage: just controller::test-sim policies="vrpp,alns" area=figueiradafoz num_loc=350 sim_distribution=gamma3
 test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num_loc sim_distribution=sim_distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -101,41 +97,8 @@ test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num
         sim.data_distribution={{ sim_distribution }} \
         sim.cpu_cores={{ n_cores }}
 
-# Remove targeted simulation runs from output artefacts
-#
-# Usage:
-#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 distribution=emp constructor=alns
-#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 improver=ftsp dry_run=true
-#
-# Parameters:
-#   results_dir  — path to the output folder (required)
-#   distribution — space-separated distribution tags  (emp gamma1 gamma2 gamma3)
-#   constructor  — route constructor(s)               (alns hgs aco_hh bpc psoma …)
-#   ms_strategy  — mandatory-selection strategy/ies   (lookahead last_minute regular)
-#   improver     — route improver(s)                  (ftsp rls rds none …)
-#   dry_run      — set to "true" to preview without deleting (default: false)
-#   quiet        — set to "true" to suppress per-item output (default: false)
-clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING SIMULATION RESULTS"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Results Dir:" "{{ results_dir }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructor:" "{{ constructor }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "MS Strategy:" "{{ ms_strategy }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:" "{{ dry_run }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
-    uv run python -m logic.src.cli.output_parser clean \
-        --results-dir {{ results_dir }} \
-        $([ -n "{{ distribution }}" ] && echo "--distribution {{ distribution }}" || true) \
-        $([ -n "{{ constructor }}" ] && echo "--constructor {{ constructor }}" || true) \
-        $([ -n "{{ ms_strategy }}" ] && echo "--ms-strategy {{ ms_strategy }}" || true) \
-        $([ -n "{{ improver }}" ] && echo "--improver {{ improver }}" || true) \
-        $([ "{{ dry_run }}" = "true" ] && echo "--dry-run" || true) \
-        $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)
-
 # Run simulation policy HPO
+
 # Usage: just controller::hpo-sim policy=hgs trials=100 method=nsgaii
 hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
@@ -170,6 +133,7 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
         hpo_sim.graph.n_samples={{ samples }}
 
 # Generate data with Hydra configs
+
 # Usage: just controller::gen-data wcvrp
 gen-data problem=problem:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
