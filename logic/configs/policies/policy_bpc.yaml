@@ -48,7 +48,7 @@ bpc:
     - time_limit: 60.0
       # Full wall-clock budget.
 
-    - route_improvement: { "other/ri_cls.yaml": ["default"] }
+    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
 
     # -------------------------------------------------------------------------
     # Branch-and-Bound Search Strategy
