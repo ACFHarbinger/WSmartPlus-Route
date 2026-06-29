@@ -13,7 +13,6 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.policies
 src.models.core
 src.models.meta
 src.models.common

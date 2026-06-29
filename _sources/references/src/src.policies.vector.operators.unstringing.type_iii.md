@@ -1,0 +1,64 @@
+# {py:mod}`src.policies.vector.operators.unstringing.type_iii`
+
+```{py:module} src.policies.vector.operators.unstringing.type_iii
+```
+
+```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`vectorized_type_iii_unstringing <src.policies.vector.operators.unstringing.type_iii.vectorized_type_iii_unstringing>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii.vectorized_type_iii_unstringing
+    :summary:
+    ```
+* - {py:obj}`_find_best_type_iii_move <src.policies.vector.operators.unstringing.type_iii._find_best_type_iii_move>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._find_best_type_iii_move
+    :summary:
+    ```
+* - {py:obj}`_evaluate_type_iii_move <src.policies.vector.operators.unstringing.type_iii._evaluate_type_iii_move>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._evaluate_type_iii_move
+    :summary:
+    ```
+* - {py:obj}`_apply_type_iii_move <src.policies.vector.operators.unstringing.type_iii._apply_type_iii_move>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._apply_type_iii_move
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} vectorized_type_iii_unstringing(tours: torch.Tensor, distance_matrix: torch.Tensor, max_iterations: int = 50, sample_size: int = 50, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.policies.vector.operators.unstringing.type_iii.vectorized_type_iii_unstringing
+
+```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii.vectorized_type_iii_unstringing
+```
+````
+
+````{py:function} _find_best_type_iii_move(tour: torch.Tensor, dist: torch.Tensor, valid_indices: torch.Tensor, sample_size: int, device: torch.device, generator: typing.Optional[torch.Generator] = None) -> typing.Tuple[float, typing.Optional[typing.Tuple[int, int, int, int]]]
+:canonical: src.policies.vector.operators.unstringing.type_iii._find_best_type_iii_move
+
+```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._find_best_type_iii_move
+```
+````
+
+````{py:function} _evaluate_type_iii_move(tour: torch.Tensor, dist: torch.Tensor, i: int, k: int, j: int, l: int, N: int) -> float
+:canonical: src.policies.vector.operators.unstringing.type_iii._evaluate_type_iii_move
+
+```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._evaluate_type_iii_move
+```
+````
+
+````{py:function} _apply_type_iii_move(tour: torch.Tensor, i: int, k: int, j: int, l: int) -> torch.Tensor
+:canonical: src.policies.vector.operators.unstringing.type_iii._apply_type_iii_move
+
+```{autodoc2-docstring} src.policies.vector.operators.unstringing.type_iii._apply_type_iii_move
+```
+````

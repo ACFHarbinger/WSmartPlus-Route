@@ -23,6 +23,7 @@ src.cli.base
 :maxdepth: 1
 
 src.cli.ts_parser
+src.cli.output_parser
 src.cli.benchmark_parser
 src.cli.target_parser
 src.cli.registry

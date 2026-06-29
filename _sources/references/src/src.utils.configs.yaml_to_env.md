@@ -19,8 +19,8 @@
   - ```{autodoc2-docstring} src.utils.configs.yaml_to_env.to_bash_value
     :summary:
     ```
-* - {py:obj}`load_config <src.utils.configs.yaml_to_env.load_config>`
-  - ```{autodoc2-docstring} src.utils.configs.yaml_to_env.load_config
+* - {py:obj}`load_yaml_env <src.utils.configs.yaml_to_env.load_yaml_env>`
+  - ```{autodoc2-docstring} src.utils.configs.yaml_to_env.load_yaml_env
     :summary:
     ```
 * - {py:obj}`deep_merge <src.utils.configs.yaml_to_env.deep_merge>`
@@ -42,10 +42,10 @@
 ```
 ````
 
-````{py:function} load_config(config_path: str) -> dict
-:canonical: src.utils.configs.yaml_to_env.load_config
+````{py:function} load_yaml_env(config_path: str) -> dict
+:canonical: src.utils.configs.yaml_to_env.load_yaml_env
 
-```{autodoc2-docstring} src.utils.configs.yaml_to_env.load_config
+```{autodoc2-docstring} src.utils.configs.yaml_to_env.load_yaml_env
 ```
 ````
 

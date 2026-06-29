@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NeuralHeuristicHybrid(neural_policy: logic.src.models.common.autoregressive.policy.AutoregressivePolicy, heuristic_policy: typing.Union[logic.src.models.policies.alns.VectorizedALNS, logic.src.models.policies.hgs.VectorizedHGS], **kwargs: typing.Any)
+`````{py:class} NeuralHeuristicHybrid(neural_policy: logic.src.models.common.autoregressive.policy.AutoregressivePolicy, heuristic_policy: typing.Union[logic.src.policies.vector.alns.VectorizedALNS, logic.src.policies.vector.hgs.VectorizedHGS], **kwargs: typing.Any)
 :canonical: src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`

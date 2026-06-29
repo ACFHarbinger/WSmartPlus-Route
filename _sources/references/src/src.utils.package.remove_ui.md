@@ -1,0 +1,86 @@
+# {py:mod}`src.utils.package.remove_ui`
+
+```{py:module} src.utils.package.remove_ui
+```
+
+```{autodoc2-docstring} src.utils.package.remove_ui
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`remove_constants_init_import <src.utils.package.remove_ui.remove_constants_init_import>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.remove_constants_init_import
+    :summary:
+    ```
+* - {py:obj}`get_project_root <src.utils.package.remove_ui.get_project_root>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.get_project_root
+    :summary:
+    ```
+* - {py:obj}`remove_path <src.utils.package.remove_ui.remove_path>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.remove_path
+    :summary:
+    ```
+* - {py:obj}`comment_justfile <src.utils.package.remove_ui.comment_justfile>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.comment_justfile
+    :summary:
+    ```
+* - {py:obj}`update_dockerfile <src.utils.package.remove_ui.update_dockerfile>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.update_dockerfile
+    :summary:
+    ```
+* - {py:obj}`main <src.utils.package.remove_ui.main>`
+  - ```{autodoc2-docstring} src.utils.package.remove_ui.main
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} remove_constants_init_import(root: pathlib.Path, module_name: str) -> None
+:canonical: src.utils.package.remove_ui.remove_constants_init_import
+
+```{autodoc2-docstring} src.utils.package.remove_ui.remove_constants_init_import
+```
+````
+
+````{py:function} get_project_root() -> pathlib.Path
+:canonical: src.utils.package.remove_ui.get_project_root
+
+```{autodoc2-docstring} src.utils.package.remove_ui.get_project_root
+```
+````
+
+````{py:function} remove_path(path: pathlib.Path)
+:canonical: src.utils.package.remove_ui.remove_path
+
+```{autodoc2-docstring} src.utils.package.remove_ui.remove_path
+```
+````
+
+````{py:function} comment_justfile(justfile_path: pathlib.Path)
+:canonical: src.utils.package.remove_ui.comment_justfile
+
+```{autodoc2-docstring} src.utils.package.remove_ui.comment_justfile
+```
+````
+
+````{py:function} update_dockerfile(dockerfile_path: pathlib.Path)
+:canonical: src.utils.package.remove_ui.update_dockerfile
+
+```{autodoc2-docstring} src.utils.package.remove_ui.update_dockerfile
+```
+````
+
+````{py:function} main()
+:canonical: src.utils.package.remove_ui.main
+
+```{autodoc2-docstring} src.utils.package.remove_ui.main
+```
+````

@@ -13,11 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.configs.setup_worker
-src.utils.configs.setup_env
 src.utils.configs.config_loader
-src.utils.configs.setup_manager
-src.utils.configs.setup_utils
 src.utils.configs.yaml_to_env
 ```
 
@@ -40,7 +36,7 @@ src.utils.configs.yaml_to_env
 ````{py:data} __all__
 :canonical: src.utils.configs.__all__
 :value: >
-   ['setup_env', 'setup_hrl_manager', 'setup_model']
+   ['load_yaml_config', 'load_xml_config', 'load_config', 'to_bash_value', 'load_yaml_env', 'deep_merge...
 
 ```{autodoc2-docstring} src.utils.configs.__all__
 ```

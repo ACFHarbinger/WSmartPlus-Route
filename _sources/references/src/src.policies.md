@@ -20,6 +20,7 @@ src.policies.acceptance_criteria
 src.policies.helpers
 src.policies.selection_and_construction
 src.policies.route_construction
+src.policies.vector
 ```
 
 ## Package Contents

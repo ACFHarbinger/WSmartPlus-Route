@@ -27,6 +27,10 @@
   - ```{autodoc2-docstring} src.tracking.logging.structured_logging.log_benchmark_metric
     :summary:
     ```
+* - {py:obj}`log_training <src.tracking.logging.structured_logging.log_training>`
+  - ```{autodoc2-docstring} src.tracking.logging.structured_logging.log_training
+    :summary:
+    ```
 ````
 
 ### API
@@ -49,5 +53,12 @@
 :canonical: src.tracking.logging.structured_logging.log_benchmark_metric
 
 ```{autodoc2-docstring} src.tracking.logging.structured_logging.log_benchmark_metric
+```
+````
+
+````{py:function} log_training(loss_keys: typing.List[str], table_df: pandas.DataFrame, cfg: typing.Union[logic.src.configs.Config, omegaconf.DictConfig], plot_logs: bool = False) -> typing.Union[typing.List[str], typing.Tuple[typing.List[str], str, typing.List[int], pandas.DataFrame, str, str]]
+:canonical: src.tracking.logging.structured_logging.log_training
+
+```{autodoc2-docstring} src.tracking.logging.structured_logging.log_training
 ```
 ````

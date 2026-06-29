@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.target.matcher
-src.utils.target.remover
+src.utils.target.ms_updater
+src.utils.target.ri_updater
 ```
 
 ## Package Contents
@@ -36,7 +36,7 @@ src.utils.target.remover
 ````{py:data} __all__
 :canonical: src.utils.target.__all__
 :value: >
-   ['PolicyFilter', 'slug_matches_filter', 'remove_targeted_runs', 'remove_from_json_file', 'remove_fro...
+   ['update_mandatory_selection', 'update_route_improvement', 'list_available_ms_strategies', 'list_ava...
 
 ```{autodoc2-docstring} src.utils.target.__all__
 ```

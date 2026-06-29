@@ -27,12 +27,3 @@ src.tracking
 src.interfaces
 src.cli
 ```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.file_system
-```

@@ -35,6 +35,22 @@
   - ```{autodoc2-docstring} src.cli.fs_parser.validate_file_system_args
     :summary:
     ```
+* - {py:obj}`perform_cryptographic_operations <src.cli.fs_parser.perform_cryptographic_operations>`
+  - ```{autodoc2-docstring} src.cli.fs_parser.perform_cryptographic_operations
+    :summary:
+    ```
+* - {py:obj}`update_file_system_entries <src.cli.fs_parser.update_file_system_entries>`
+  - ```{autodoc2-docstring} src.cli.fs_parser.update_file_system_entries
+    :summary:
+    ```
+* - {py:obj}`delete_file_system_entries <src.cli.fs_parser.delete_file_system_entries>`
+  - ```{autodoc2-docstring} src.cli.fs_parser.delete_file_system_entries
+    :summary:
+    ```
+* - {py:obj}`_collect_directories_to_delete <src.cli.fs_parser._collect_directories_to_delete>`
+  - ```{autodoc2-docstring} src.cli.fs_parser._collect_directories_to_delete
+    :summary:
+    ```
 ````
 
 ### API
@@ -71,5 +87,33 @@
 :canonical: src.cli.fs_parser.validate_file_system_args
 
 ```{autodoc2-docstring} src.cli.fs_parser.validate_file_system_args
+```
+````
+
+````{py:function} perform_cryptographic_operations(opts: typing.Dict[str, typing.Any]) -> None
+:canonical: src.cli.fs_parser.perform_cryptographic_operations
+
+```{autodoc2-docstring} src.cli.fs_parser.perform_cryptographic_operations
+```
+````
+
+````{py:function} update_file_system_entries(opts: typing.Dict[str, typing.Any]) -> int
+:canonical: src.cli.fs_parser.update_file_system_entries
+
+```{autodoc2-docstring} src.cli.fs_parser.update_file_system_entries
+```
+````
+
+````{py:function} delete_file_system_entries(opts: typing.Dict[str, typing.Any]) -> int
+:canonical: src.cli.fs_parser.delete_file_system_entries
+
+```{autodoc2-docstring} src.cli.fs_parser.delete_file_system_entries
+```
+````
+
+````{py:function} _collect_directories_to_delete(opts: typing.Dict[str, typing.Any])
+:canonical: src.cli.fs_parser._collect_directories_to_delete
+
+```{autodoc2-docstring} src.cli.fs_parser._collect_directories_to_delete
 ```
 ````

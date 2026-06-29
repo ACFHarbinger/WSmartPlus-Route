@@ -129,7 +129,7 @@
 
 ````
 
-````{py:method} get_objective(lock: typing.Any, data_size: int) -> typing.Callable[[optuna.Trial], typing.Union[float, typing.List[float]]]
+````{py:method} get_objective(lock: typing.Any, data_size: int) -> typing.Callable[[optuna.Trial], typing.Union[float, typing.List[float], typing.Tuple[float]]]
 :canonical: src.pipeline.simulations.hpo.hpo_handler.HPOSimulationHandler.get_objective
 
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler.HPOSimulationHandler.get_objective

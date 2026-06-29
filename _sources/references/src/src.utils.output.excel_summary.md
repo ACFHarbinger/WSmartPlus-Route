@@ -27,10 +27,6 @@
   - ```{autodoc2-docstring} src.utils.output.excel_summary.discover_and_aggregate
     :summary:
     ```
-* - {py:obj}`main <src.utils.output.excel_summary.main>`
-  - ```{autodoc2-docstring} src.utils.output.excel_summary.main
-    :summary:
-    ```
 ````
 
 ### Data
@@ -104,12 +100,5 @@
 :canonical: src.utils.output.excel_summary.discover_and_aggregate
 
 ```{autodoc2-docstring} src.utils.output.excel_summary.discover_and_aggregate
-```
-````
-
-````{py:function} main() -> None
-:canonical: src.utils.output.excel_summary.main
-
-```{autodoc2-docstring} src.utils.output.excel_summary.main
 ```
 ````
