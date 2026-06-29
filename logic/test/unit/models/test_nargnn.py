@@ -1,13 +1,21 @@
 """Tests for NARGNN model."""
 
+import pytest
 import torch
 from tensordict import TensorDict
 from unittest.mock import MagicMock
 
 from logic.src.models.core.nargnn import NARGNN
 from logic.src.models.core.nargnn.policy import NARGNNPolicy
+from logic.src.models.subnets.encoders.nargnn.gnn_layer import BatchNorm, scatter_mean
+
+PYG_AVAILABLE = BatchNorm is not None and scatter_mean is not None
 
 
+@pytest.mark.skipif(
+    not PYG_AVAILABLE,
+    reason="torch_geometric and torch_scatter are required for NARGNN",
+)
 class TestNARGNN:
     """Tests for NARGNN Model and Policy."""
 
