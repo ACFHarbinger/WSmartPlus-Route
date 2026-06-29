@@ -23,7 +23,11 @@ import pprint
 import sys
 import traceback
 
+import argparse
+
 from logic.benchmark.benchmark_suite import run_benchmarks
+from logic.src.cli.output_parser import _run_from_namespace as _run_clean_results
+from logic.src.cli.target_parser import _run_ms_from_namespace, _run_ri_from_namespace
 from logic.src.file_system import (
     delete_file_system_entries,
     perform_cryptographic_operations,
@@ -174,6 +178,12 @@ def parser_entry_point(args) -> None:
                 exit_code = run_app_gui(opts)
             elif comm == "benchmark":
                 run_benchmarks(opts)
+            elif comm == "clean_results":
+                exit_code = _run_clean_results(argparse.Namespace(**opts))
+            elif comm == "update_ms":
+                exit_code = _run_ms_from_namespace(argparse.Namespace(**opts))
+            elif comm == "update_ri":
+                exit_code = _run_ri_from_namespace(argparse.Namespace(**opts))
             else:
                 assert comm == "test_suite"
                 run_test_suite(opts)

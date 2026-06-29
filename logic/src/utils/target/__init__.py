@@ -1,54 +1,61 @@
-"""Targeted simulation run removal utilities.
+"""Policy YAML config-override update utilities.
 
 Quick start::
 
-    from logic.src.utils.target import PolicyFilter, remove_targeted_runs
+    from logic.src.utils.target import update_mandatory_selection, update_route_improvement
 
-    # Remove all 'emp' ALNS runs from a results directory
-    remove_targeted_runs(
-        results_dir="assets/output/30_days/riomaior_100",
-        policy_filter=PolicyFilter(
-            distributions=["emp"],
-            constructors=["alns"],
-        ),
+    # Switch all standard constructors to service-level mandatory selection
+    update_mandatory_selection(
+        constructors=["aco_hh", "alns", "bpc", "hgs"],
+        ms_yaml="ms_service_level",
+        keys=["service_level1", "service_level2"],
+    )
+
+    # Switch all standard constructors to fast-TSP route improvement
+    update_route_improvement(
+        constructors=["aco_hh", "alns", "bpc", "hgs"],
+        ri_yaml="ri_ftsp",
+        keys=["ftsp"],
     )
 
     # Dry-run to preview
-    removed = remove_targeted_runs(
-        results_dir="assets/output/30_days/riomaior_100",
-        policy_filter=PolicyFilter(improvers=["ftsp"]),
+    update_mandatory_selection(
+        constructors=["sans"],
+        ms_yaml="ms_last_minute",
+        keys=["last_minute_cf70", "last_minute_cf90"],
         dry_run=True,
     )
 
 CLI usage::
 
-    python -m logic.src.utils.target.cli --help
+    python -m logic.src.cli.target_parser ms --help
+    python -m logic.src.cli.target_parser ri --help
 
 Attributes:
-    PolicyFilter: Dataclass specifying which runs to target.
-    remove_targeted_runs: Remove matching artefacts from a results directory.
-    remove_from_json_file: Remove matching keys from a JSON file.
-    remove_from_jsonl_file: Remove matching lines from a JSONL file.
-    remove_checkpoint_files: Delete matching checkpoint pkl files.
-    remove_fill_history_files: Delete matching XLSX fill-history files.
-    slug_matches_filter: Test whether a policy slug matches a filter.
+    update_mandatory_selection: Batch-update mandatory_selection in policy YAML files.
+    update_route_improvement: Batch-update route_improvement in policy YAML files.
+    list_available_ms_strategies: List available mandatory-selection strategy file stems.
+    list_available_ri_improvers: List available route-improver file stems.
+    list_strategy_keys: List top-level keys defined in a strategy file.
+    list_improver_keys: List top-level keys defined in an improver file.
 """
 
-from .matcher import PolicyFilter, slug_matches_filter
-from .remover import (
-    remove_checkpoint_files,
-    remove_fill_history_files,
-    remove_from_json_file,
-    remove_from_jsonl_file,
-    remove_targeted_runs,
+from .ms_updater import (
+    list_available_ms_strategies,
+    list_strategy_keys,
+    update_mandatory_selection,
+)
+from .ri_updater import (
+    list_available_ri_improvers,
+    list_improver_keys,
+    update_route_improvement,
 )
 
 __all__ = [
-    "PolicyFilter",
-    "slug_matches_filter",
-    "remove_targeted_runs",
-    "remove_from_json_file",
-    "remove_from_jsonl_file",
-    "remove_checkpoint_files",
-    "remove_fill_history_files",
+    "update_mandatory_selection",
+    "update_route_improvement",
+    "list_available_ms_strategies",
+    "list_available_ri_improvers",
+    "list_strategy_keys",
+    "list_improver_keys",
 ]
