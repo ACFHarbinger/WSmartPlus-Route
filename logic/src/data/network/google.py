@@ -66,21 +66,22 @@ class GoogleMapsStrategy(DistanceStrategy):
         elif api_key == "" and self._eval_kwarg("gapik_file", kwargs):
             with open(kwargs["gapik_file"], "r") as gapik_file:
                 api_key = gapik_file.read()
-        else:
-            assert api_key is not None and api_key != "", "Google API key not found."
 
-        gmaps = googlemaps.Client(key=api_key)
+        # Free tier (no key): 10×10 batches (100 element limit per request).
+        # Paid tier (key present): 25×25 batches (625 element limit per request).
+        FREE_SIZE = 10
+        PAID_SIZE = 25
+        batch_size = FREE_SIZE if not api_key else PAID_SIZE
+
+        gmaps = googlemaps.Client(key=api_key) if api_key else googlemaps.Client()
         size = len(coords)
         distance_matrix = np.zeros((size, size))
-
-        FREE_SIZE = 10
         src = dst = coords[["Lat", "Lng"]].values.tolist()
 
-        # Batch processing
-        for id_i in range(0, size, FREE_SIZE):
-            for id_j in range(0, size, FREE_SIZE):
-                origins = src[id_i : id_i + FREE_SIZE]
-                dests = dst[id_j : id_j + FREE_SIZE]
+        for id_i in range(0, size, batch_size):
+            for id_j in range(0, size, batch_size):
+                origins = src[id_i : id_i + batch_size]
+                dests = dst[id_j : id_j + batch_size]
                 response = cast(Any, gmaps).distance_matrix(origins, dests, mode="driving", units="metric")
                 for row_id, row in enumerate(response["rows"]):
                     for col_id, elem in enumerate(row["elements"]):
