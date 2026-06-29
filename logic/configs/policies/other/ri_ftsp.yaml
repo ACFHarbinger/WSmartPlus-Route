@@ -31,4 +31,4 @@ ftsp:
     - "fast_tsp"
 
   # Fast TSP parameters
-  time_limit: 15.0
+  time_limit: 30.0
