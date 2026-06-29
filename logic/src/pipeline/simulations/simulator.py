@@ -59,7 +59,7 @@ from logic.src.tracking.logging.log_utils import (
     update_policy_log_section,
 )
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
-from logic.src.utils.configs.setup_utils import get_pol_name
+from logic.src.utils.infrastructure.setup_sims import get_pol_name
 
 try:
     import logic.src.tracking as wst
@@ -548,15 +548,15 @@ def sequential_simulations(  # noqa: C901
                     str(ROOT_DIR),
                     sim.graph.n_days,
                     sim.graph.num_loc,
-                    sim.output_dir,
+                    sim.output_dir, # pyrefly: ignore [bad-argument-type]
                     sim.graph.area,
                     sim.graph.waste_type,
-                    sim.data_distribution,
-                    _run_name,
-                    nsamples=sim.graph.n_samples,
-                    policies=[pol_name],
-                    keys=SIM_METRICS,
-                    lock=lock,
+                    sim.data_distribution, # pyrefly: ignore [bad-argument-type]
+                    _run_name, # pyrefly: ignore [bad-argument-count]
+                    nsamples=sim.graph.n_samples, # pyrefly: ignore [bad-keyword-argument]
+                    policies=[pol_name], # pyrefly: ignore [bad-keyword-argument]
+                    keys=SIM_METRICS, # pyrefly: ignore [bad-keyword-argument]
+                    lock=lock, # pyrefly: ignore [bad-keyword-argument]
                 )
                 if res_log:
                     log.update(res_log)

@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import logic.src.constants as udef
 from logic.src.configs import Config
 from logic.src.tracking.logging.log_utils import output_stats
-from logic.src.utils.configs.setup_utils import get_pol_name
+from logic.src.utils.infrastructure.setup_sims import get_pol_name
 
 try:
     from logic.src.tracking.core.run import get_active_run

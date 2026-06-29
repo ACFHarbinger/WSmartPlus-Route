@@ -3249,7 +3249,7 @@ classDiagram
   }
   class setup_manager {
   }
-  class setup_utils {
+  class setup_sims {
   }
   class setup_worker {
   }
@@ -4894,12 +4894,12 @@ classDiagram
   parallel_runner --> monitor
   parallel_runner --> results_handler
   parallel_runner --> simulator
-  parallel_runner --> setup_utils
+  parallel_runner --> setup_sims
   parallel_runner --> simulation_utils
   results_handler --> configs
   results_handler --> run
   results_handler --> log_utils
-  results_handler --> setup_utils
+  results_handler --> setup_sims
   validation --> configs
   validation --> constants
   zenml_sim_pipeline --> configs
@@ -5212,7 +5212,7 @@ classDiagram
   simulator --> run
   simulator --> log_utils
   simulator --> logger_writer
-  simulator --> setup_utils
+  simulator --> setup_sims
   states --> base
   states --> context
   states --> finishing
@@ -5223,7 +5223,7 @@ classDiagram
   context --> constants
   context --> base
   context --> initializing
-  context --> setup_utils
+  context --> setup_sims
   finishing --> constants
   finishing --> processor
   finishing --> base
@@ -7621,7 +7621,7 @@ classDiagram
   modules --> metrics
   modules --> storage
   analysis --> files
-  gui --> setup_utils
+  gui --> setup_sims
   metrics --> configs
   storage --> files
   plotting --> attention

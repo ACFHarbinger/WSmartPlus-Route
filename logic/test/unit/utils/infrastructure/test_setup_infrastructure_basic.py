@@ -1,11 +1,11 @@
 from unittest.mock import MagicMock, patch
 import torch
-from logic.src.utils.configs.setup_env import setup_env
-from logic.src.utils.configs.setup_worker import setup_model
+from logic.src.utils.infrastructure.setup_env import setup_env
+from logic.src.utils.infrastructure.setup_worker import setup_model
 
 
-class TestSetupUtils:
-    """Class for setup_utils tests."""
+class TestSetupSims:
+    """Class for setup_sims tests."""
 
     @patch("logic.src.utils.model.loader.load_model")
     def test_setup_model_am(self, mock_load):

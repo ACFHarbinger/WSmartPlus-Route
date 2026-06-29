@@ -1,0 +1,194 @@
+# WSmart+ Route — Controller: Hydra-based execution commands
+
+set working-directory := '../..'
+
+cyan := '\033[0;36m'
+yellow := '\033[0;33m'
+purple := '\033[0;35m'
+bold := '\033[1m'
+reset := '\033[0m'
+
+# Default variables
+problem := "vrpp"
+model := "am"
+encoder := "gat"
+decoder := "glimpse"
+area := "figueiradafoz"
+num_loc := "350"
+sim_distribution := "gamma3"
+batch_size := "64"
+temporal_horizon := "0"
+samples := "1"
+seed := "42"
+strategy := "greedy"
+n_cores := "20"
+policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
+
+hpo_policy := "bpc"
+hpo_method := "nsgaii"
+hpo_workers := "1"
+hpo_selection := ""
+hpo_acceptance := ""
+hpo_improver := ""
+hpo_trials := "10"
+hpo_samples := "5"
+hpo_policy_kw := "max_cg_iterations"
+hpo_selection_kw := ""
+hpo_acceptance_kw := ""
+hpo_improver_kw := ""
+
+results_dir := "assets/output/30_days/riomaior_100"
+distribution := ""
+constructor := ""
+ms_strategy := ""
+improver := ""
+dry_run := "false"
+quiet := "false"
+
+# Train a model with Hydra configs
+# Usage: just controller::train problem=wcvrp model=am
+train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model:" "{{ model }} ({{ encoder }})"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Batch Size:" "{{ batch_size }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" && \
+    uv run python main.py train \
+        envs={{ problem }} \
+        models={{ model }} \
+        model.encoder.type={{ encoder }} \
+        hpo.n_trials=0 \
+        train.batch_size={{ batch_size }}
+
+# Run model evaluation with Hydra configs
+# Usage: just controller::eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp strategy=greedy
+eval model_path="" dataset="" problem=problem strategy=strategy:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📊 STARTING MODEL EVALUATION"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model Path:" "{{ model_path }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset:" "{{ dataset }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Strategy:" "{{ strategy }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py eval \
+        eval.policy.model.load_path={{ model_path }} \
+        eval.datasets=[{{ dataset }}] \
+        eval.problem={{ problem }} \
+        eval.val_size={{ samples }} \
+        eval.decoding.strategy={{ strategy }}
+
+# Run simulator testing with Hydra configs
+# Usage: just controller::test-sim policies="vrpp,alns" area=figueiradafoz num_loc=350 sim_distribution=gamma3
+test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num_loc sim_distribution=sim_distribution:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num Loc:" "{{ num_loc }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ sim_distribution }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py test_sim \
+        sim.policies=[{{ policies }}] \
+        sim.n_samples={{ samples }} \
+        sim.graph.area={{ area }} \
+        sim.graph.num_loc={{ num_loc }} \
+        sim.data_distribution={{ sim_distribution }} \
+        sim.cpu_cores={{ n_cores }}
+
+# Remove targeted simulation runs from output artefacts
+#
+# Usage:
+#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 distribution=emp constructor=alns
+#   just controller::clean-results results_dir=assets/output/30_days/riomaior_100 improver=ftsp dry_run=true
+#
+# Parameters:
+#   results_dir  — path to the output folder (required)
+#   distribution — space-separated distribution tags  (emp gamma1 gamma2 gamma3)
+#   constructor  — route constructor(s)               (alns hgs aco_hh bpc psoma …)
+#   ms_strategy  — mandatory-selection strategy/ies   (lookahead last_minute regular)
+#   improver     — route improver(s)                  (ftsp rls rds none …)
+#   dry_run      — set to "true" to preview without deleting (default: false)
+#   quiet        — set to "true" to suppress per-item output (default: false)
+clean-results results_dir=results_dir distribution=distribution constructor=constructor ms_strategy=ms_strategy improver=improver dry_run=dry_run quiet=quiet:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧹 CLEANING SIMULATION RESULTS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Results Dir:" "{{ results_dir }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ distribution }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructor:" "{{ constructor }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "MS Strategy:" "{{ ms_strategy }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:" "{{ dry_run }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python -m logic.src.cli.output_parser clean \
+        --results-dir {{ results_dir }} \
+        $([ -n "{{ distribution }}" ] && echo "--distribution {{ distribution }}" || true) \
+        $([ -n "{{ constructor }}" ] && echo "--constructor {{ constructor }}" || true) \
+        $([ -n "{{ ms_strategy }}" ] && echo "--ms-strategy {{ ms_strategy }}" || true) \
+        $([ -n "{{ improver }}" ] && echo "--improver {{ improver }}" || true) \
+        $([ "{{ dry_run }}" = "true" ] && echo "--dry-run" || true) \
+        $([ "{{ quiet }}" = "true" ] && echo "--quiet" || true)
+
+# Run simulation policy HPO
+# Usage: just controller::hpo-sim policy=hgs trials=100 method=nsgaii
+hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy:" "{{ policy }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Method:" "{{ method }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Trials:" "{{ trials }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Workers:" "{{ workers }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection:" "{{ selection }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:" "{{ acceptance }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy KW:" "{{ policy_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection KW:" "{{ selection_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance KW:" "{{ acceptance_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver KW:" "{{ improver_kw }}"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py hpo_sim tracking=hpo_sim \
+        hpo_sim.policy_name={{ policy }} \
+        hpo_sim.n_trials={{ trials }} \
+        hpo_sim.method={{ method }} \
+        hpo_sim.num_workers={{ workers }} \
+        hpo_sim.selection_name={{ selection }} \
+        hpo_sim.acceptance_name={{ acceptance }} \
+        hpo_sim.improver_name={{ improver }} \
+        hpo_sim.policy_keywords={{ policy_kw }} \
+        hpo_sim.selection_keywords={{ selection_kw }} \
+        hpo_sim.acceptance_keywords={{ acceptance_kw }} \
+        hpo_sim.improver_keywords={{ improver_kw }} \
+        hpo_sim.graph.area={{ area }} \
+        hpo_sim.graph.n_samples={{ samples }}
+
+# Generate data with Hydra configs
+# Usage: just controller::gen-data wcvrp
+gen-data problem=problem:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py gen_data \
+        data.problem={{ problem }}
+
+# Generate test-simulator data for Figueira da Foz plastic (350 bins, gamma3, 30 + 90 days)
+gen-data-figfoz-plastic:
+    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING FIGFOZ PLASTIC DATASETS"
+    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "figueiradafoz"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Waste type:" "plastic"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num loc:" "350"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "gamma3"
+    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "30 + 90"
+    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    uv run python main.py gen_data

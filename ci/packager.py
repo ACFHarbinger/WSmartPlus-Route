@@ -5,7 +5,7 @@ End-to-end pipeline that:
 1. Validates user-requested algorithm acronyms against ``ci/export_config.json``.
 2. Creates a timestamped git branch (``algo-export-YYYYMMDD_HHMMSS``).
 3. Prunes all unselected algorithms from the working tree via
-   ``logic/src/utils/packages/prune_codebase.py``.
+   ``logic/src/utils/package/prune_codebase.py``.
 4. Optionally drops pipeline features (META_LEARNING, HPO, EVAL, SECURITY, …).
 5. Writes a tree listing of retained ``logic/src/`` files to
    ``retained_logic_files.txt``.
@@ -49,7 +49,7 @@ from typing import Any, Dict, List, Optional, Set
 # Project root — packager.py lives at ci/, one level below the repo root.
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent  # WSmart-Route/
-PRUNE_SCRIPT = PROJECT_ROOT / "logic" / "src" / "utils" / "packages" / "prune_codebase.py"
+PRUNE_SCRIPT = PROJECT_ROOT / "logic" / "src" / "utils" / "package" / "prune_codebase.py"
 SPEC_FILE = PROJECT_ROOT / "ci" / "simulator.spec"
 CONFIG_FILE = PROJECT_ROOT / "ci" / "export_config.json"
 LOGIC_SRC = PROJECT_ROOT / "logic" / "src"

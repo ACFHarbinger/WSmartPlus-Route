@@ -293,9 +293,10 @@ action = torch.multinomial(probs, 1)
 
 The BPC solver (`logic/src/policies/branch_and_price_and_cut/`) rigorously implements **Barnhart, Hane, and Vance (2000)** for ODIMCF problems.
 **Strict Rules**:
-1. **Phase I/II Constraints**: Farkas pricing MUST be explicitly resolved before normal pricing to guarantee initial LP feasibility. 
+
+1. **Phase I/II Constraints**: Farkas pricing MUST be explicitly resolved before normal pricing to guarantee initial LP feasibility.
 2. **Mathematical Accuracy**: Subproblems must only inject columns using mathematically sound `reduced_cost` improvements; NEVER rank by raw initial profit.
-3. **Bound Timing**: Lagrangian exact bounds ($z_{UB}$) must only be computed *after* local Column Generation convergence.
+3. **Bound Timing**: Lagrangian exact bounds ($z_{UB}$) must only be computed _after_ local Column Generation convergence.
 4. **Cut Global Archival**: Cuts (e.g., Edge Clique) must be archived centrally (`GlobalCutPool`) and re-injected automatically at descendent B&B nodes.
 
 #### Activation Scaling
@@ -342,10 +343,10 @@ python main.py test_suite --module test_problems
 
 #### GPU Offloading
 
-Ensure tensors are explicitly moved to device using `setup_utils.py`:
+Ensure tensors are explicitly moved to device using `setup_sims.py`:
 
 ```python
-from logic.src.utils.configs.setup_utils import get_device
+from logic.src.utils.configs.setup_sims import get_device
 
 device = get_device(cuda_enabled=True)
 tensor = tensor.to(device)
@@ -469,7 +470,7 @@ To reduce ambiguity and maintain consistency across high-performance tensor code
     ```
 2.  **Weight Matrices**: Use prefix `W_` for learnable parameters (e.g., `W_query`, `W_out`).
 3.  **Tensor Flattening**: Use underscore for clarity (e.g., `h_flat` instead of `hflat`).
-4.  **Device-Awareness**: Use `setup_utils.get_device()` to avoid hardcoding `.cuda()`.
+4.  **Device-Awareness**: Use `setup_sims.get_device()` to avoid hardcoding `.cuda()`.
 
 ---
 

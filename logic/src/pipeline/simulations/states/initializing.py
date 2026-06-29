@@ -41,10 +41,10 @@ from logic.src.pipeline.simulations.states.running import RunningState
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
-from logic.src.utils.configs.setup_env import setup_env
-from logic.src.utils.configs.setup_manager import setup_hrl_manager
-from logic.src.utils.configs.setup_utils import get_graph_config
-from logic.src.utils.configs.setup_worker import setup_model
+from logic.src.utils.infrastructure.setup_env import setup_env
+from logic.src.utils.infrastructure.setup_manager import setup_hrl_manager
+from logic.src.utils.infrastructure.setup_sims import get_graph_config
+from logic.src.utils.infrastructure.setup_worker import setup_model
 
 if TYPE_CHECKING:
     from logic.src.pipeline.simulations.states.base.base import SimulationContext
@@ -211,7 +211,7 @@ class InitializingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
-        from logic.src.utils.configs.setup_utils import get_graph_config
+        from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
         graph = get_graph_config(sim)
         capacities, _, _, _, _ = load_area_and_waste_type_params(graph.area, graph.waste_type)
@@ -241,8 +241,8 @@ class InitializingState(SimState):
         """
         # If policy config was not correctly loaded in __init__ (common when passing paths in config_path)
         # we re-link it here from the correctly loaded context config registry.
-        if not ctx.pol_cfg and ctx.pol_id_orig in ctx.config:
-            ctx.pol_cfg = ctx.config[ctx.pol_id_orig]
+        if not ctx.pol_cfg and ctx.pol_id_orig in ctx.config:  # pyrefly: ignore [not-iterable]
+            ctx.pol_cfg = ctx.config[ctx.pol_id_orig]  # pyrefly: ignore [unsupported-operation]
 
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
@@ -344,7 +344,7 @@ class InitializingState(SimState):
             depot: Depot location information.
         """
         sim = ctx.cfg.sim
-        from logic.src.utils.configs.setup_utils import get_graph_config
+        from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
         graph = get_graph_config(sim)
 
@@ -418,7 +418,7 @@ class InitializingState(SimState):
             ctx: The simulation context object.
         """
         sim = ctx.cfg.sim
-        from logic.src.utils.configs.setup_utils import get_graph_config
+        from logic.src.utils.infrastructure.setup_sims import get_graph_config
 
         graph = get_graph_config(sim)
         data_dist = sim.data_distribution

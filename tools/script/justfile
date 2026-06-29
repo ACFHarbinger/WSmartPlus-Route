@@ -1,0 +1,27 @@
+# WSmart+ Route — Script: shell script runners
+
+set working-directory := '../..'
+
+# Run training script (scripts/train.sh)
+run-train:
+    bash scripts/train.sh
+
+# Run evaluation script (scripts/evaluation.sh)
+run-eval:
+    bash scripts/evaluation.sh
+
+# Run data generation script (scripts/gen_data.sh)
+run-gen-data:
+    bash scripts/gen_data.sh
+
+# Run meta-training script (scripts/meta_train.sh)
+run-meta:
+    bash scripts/meta_train.sh
+
+# Run HPO script (scripts/hyperparam_optim.sh)
+run-hpo:
+    bash scripts/hyperparam_optim.sh
+
+# Run simulation script (scripts/test_sim.sh)
+run-sim:
+    bash scripts/test_sim.sh

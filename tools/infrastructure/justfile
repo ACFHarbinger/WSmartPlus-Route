@@ -1,0 +1,25 @@
+# WSmart+ Route — Infrastructure: environment setup and packaging
+
+set working-directory := '../..'
+
+green := '\033[0;32m'
+blue := '\033[0;34m'
+reset := '\033[0m'
+
+# Initialize environment and install all dependencies
+setup:
+    @printf "{{ blue }}Setting up environment with uv...{{ reset }}\n"
+    uv sync --all-groups --all-extras
+    @printf "{{ green }}Environment ready.{{ reset }}\n"
+
+# Sync dependencies using uv
+sync:
+    uv sync --all-groups --all-extras
+
+# Install dependencies via pip
+install:
+    uv pip install -r requirements.txt || uv pip install -e .
+
+# Build stripped-simulator executable (run after pruning)
+package:
+    uv run pyinstaller ci/simulator.spec --clean

@@ -2,22 +2,30 @@
 Configuration utilities module.
 
 Attributes:
-    setup_env: Sets up the environment for the simulation.
-    setup_hrl_manager: Initializes and loads the Manager model for Hierarchical RL.
-    setup_model: Sets up and loads a specific model based on policy.
+    load_yaml_config: Load a YAML configuration file.
+    load_xml_config: Load an XML configuration file.
+    load_config: Load a configuration file.
+    to_bash_value: Convert a Python value to a Bash-friendly string.
+    load_yaml_env: Load a YAML configuration file and recursively merge its defaults.
+    deep_merge: Deeply merge source dictionary into target dictionary.
 
 Example:
-    setup_env(sim_cfg, device)
-    setup_hrl_manager(sim_cfg, device)
-    setup_model("policy_name", "path/to/models", {"policy_name": "model.pt"}, device, lock)
+    load_yaml_config("path/to/config.yaml")
+    load_xml_config("path/to/config.xml")
+    load_config("path/to/config.yaml")
+    to_bash_value("value")
+    load_yaml_env("path/to/config.yaml")
+    deep_merge(target, source)
 """
 
-from .setup_env import setup_env
-from .setup_manager import setup_hrl_manager
-from .setup_worker import setup_model
+from .config_loader import load_yaml_config, load_xml_config, load_config
+from .yaml_to_env import to_bash_value, load_yaml_env, deep_merge
 
 __all__ = [
-    "setup_env",
-    "setup_hrl_manager",
-    "setup_model",
+    "load_yaml_config",
+    "load_xml_config",
+    "load_config",
+    "to_bash_value",
+    "load_yaml_env",
+    "deep_merge",
 ]

@@ -1,0 +1,15 @@
+# WSmart+ Route — CI: linting, formatting, and docs
+
+set working-directory := '../..'
+
+# Check code quality with ruff (auto-fix)
+lint:
+    uv run ruff check . --fix --exclude ".venv"
+
+# Format code with ruff
+format:
+    uv run ruff format . --exclude ".venv"
+
+# Build Sphinx HTML documentation
+build-docs:
+    cd logic/docs && uv run make html
