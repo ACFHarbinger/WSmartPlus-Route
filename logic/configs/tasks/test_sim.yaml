@@ -111,7 +111,7 @@ sim:
   no_cuda: false
   problem: "vrpp"
   output_dir: "output"
-  run_name: "lm_ftsp"
+  run_name: "la_ftsp"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   data_distribution: "gamma3"
