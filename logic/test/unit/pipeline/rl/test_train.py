@@ -17,6 +17,7 @@ class TestTrainingOrchestration:
     def test_create_model_reinforce(self):
         """Verify create_model creates a REINFORCE LightningModule."""
         cfg = Config()
+        cfg.device = "cpu"
         cfg.rl.algorithm = "reinforce"
         cfg.train.policy.model.name = "am"
 
@@ -32,6 +33,7 @@ class TestTrainingOrchestration:
     def test_create_model_ppo(self):
         """Verify create_model creates a PPO LightningModule."""
         cfg = Config()
+        cfg.device = "cpu"
         cfg.rl.algorithm = "ppo"
         cfg.train.policy.model.name = "am"
 
@@ -50,6 +52,7 @@ class TestTrainingOrchestration:
         """Verify run_training initializes model and calls trainer.fit."""
         from omegaconf import OmegaConf
         cfg = OmegaConf.create(cast(Any, Config()))
+        cfg.device = "cpu"
         # Reduce data size to prevent hanging
         if not cfg.train.env.curriculum_graphs:
             from logic.src.configs.envs.graph import GraphConfig
@@ -77,6 +80,7 @@ class TestTrainingOrchestration:
             # Convert to DictConfig to allow overriding with mocks if needed,
             # or just use plain objects.
             cfg_dict = cast(Dict[str, Any], OmegaConf.to_container(OmegaConf.create(cast(Any, cfg)), resolve=True))
+            cfg_dict["device"] = "cpu"
             cfg_dict["rl"]["algorithm"] = algo
             cfg_dict["train"]["policy"]["model"]["name"] = "am"
 
@@ -106,6 +110,7 @@ class TestTrainingOrchestration:
     def test_run_hpo_optuna(self):
         """Verify run_hpo calls OptunaHPO runner."""
         cfg = Config()
+        cfg.device = "cpu"
         cfg.hpo.method = "tpe"
 
         with patch("logic.src.pipeline.features.train.hpo.OptunaHPO") as mock_optuna_cls:
@@ -126,7 +131,7 @@ class TestWSTrainer:
     def test_wstrainer_init_defaults(self):
         """Verify WSTrainer sets up default callbacks and loggers."""
         with patch("logic.src.pipeline.rl.common.WSTrainer._create_default_logger"):
-            trainer = WSTrainer(max_epochs=5)
+            trainer = WSTrainer(max_epochs=5, accelerator="cpu")
             assert trainer.max_epochs == 5
             # Check for ModelCheckpoint and RichProgressBar in callbacks
             callback_types = [type(c) for c in cast(Any, trainer).callbacks]
@@ -141,7 +146,7 @@ class TestWSTrainer:
         from pytorch_lightning.loggers import Logger
 
         custom_logger = MagicMock(spec=Logger)
-        trainer = WSTrainer(logger=custom_logger)
+        trainer = WSTrainer(logger=custom_logger, accelerator="cpu")
         assert trainer.logger == custom_logger
 
 

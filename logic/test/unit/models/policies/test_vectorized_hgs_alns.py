@@ -5,7 +5,7 @@ from logic.src.models.policies.hgs_alns import VectorizedHGSALNS
 def test_vectorized_hgs_alns():
     batch_size = 2
     num_nodes = 10
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
 
     # Mock data
     td = TensorDict({

@@ -23,6 +23,7 @@ class TestIntegrationTraining:
     def test_run_training_integration(self, problem_name, tmp_path):
         """Test standard training orchestration with real entry point (mocked trainer)."""
         cfg = Config()
+        cfg.device = "cpu"
         cfg.train.env.name = problem_name
         if not cfg.train.env.curriculum_graphs:
             cfg.train.env.curriculum_graphs.append(GraphConfig())

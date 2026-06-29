@@ -173,7 +173,7 @@ class TestVectorizedPolicies:
     @pytest.mark.unit
     def test_vectorized_alns_basic(self):
         """Test VectorizedALNS on a small synthetic batch."""
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = "cpu"
         batch_size = 4
         num_nodes = 11  # 1 depot + 10 nodes
 
@@ -280,7 +280,7 @@ class TestVectorizedPolicies:
                     "reward": -costs # Transformation to reward
                 }
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = "cpu"
         batch_size = 2
         num_nodes = 6
 
