@@ -91,9 +91,19 @@ def test_popmusic_lifo_order():
             return [[0, 1, 0]], 100.0  # Big improvement
         return [[0, seed_idx, 0]], 0.0  # No improvement
 
+    def mock_init(*args, **kwargs):
+        # Return 4 routes, dummy centers, and a G_cluster that links 3 to 2.
+        routes = [[0, 1, 0], [0, 2, 0], [0, 3, 0], [0, 1, 0]]
+        centers = np.zeros((4, 2))
+        G = {0: [1], 1: [0], 2: [3], 3: [2]}
+        return routes, centers, G
+
     with patch(
         "logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem",
         side_effect=mock_optimize,
+    ), patch(
+        "logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._initialize_pmedian",
+        side_effect=mock_init,
     ):
         run_popmusic(**data, subproblem_size=2, seed_strategy="lifo")
 
