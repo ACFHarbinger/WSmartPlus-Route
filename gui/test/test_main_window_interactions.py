@@ -40,14 +40,16 @@ class TestMainWindowInteractions:
         main_window.preview.setPlainText("python main.py simulated")
 
         # Patch mediator safely to prevent side effects during run command
-        with patch.object(main_window, "mediator", MagicMock()):
-            with patch("PySide6.QtWidgets.QMessageBox.information") as mock_info:
-                main_window.run_command()
+        with (
+            patch.object(main_window, "mediator", MagicMock()),
+            patch("PySide6.QtWidgets.QMessageBox.information") as mock_info,
+        ):
+            main_window.run_command()
 
-                mock_info.assert_called()
-                args = mock_info.call_args[0]
-                assert "Command Simulation" in args[1]
-                assert "python main.py simulated" in args[2]
+            mock_info.assert_called()
+            args = mock_info.call_args[0]
+            assert "Command Simulation" in args[1]
+            assert "python main.py simulated" in args[2]
 
     @patch("gui.src.windows.main.process.QProcess")
     def test_run_command_real_execution(self, MockProcess, main_window):
@@ -61,10 +63,11 @@ class TestMainWindowInteractions:
         process_instance.waitForStarted.return_value = True
 
         # Mock results window to avoid it popping up
-        with patch("gui.src.windows.main.process.SimulationResultsWindow"):
-            # Patch mediator safely
-            with patch.object(main_window, "mediator", MagicMock()):
-                main_window.run_command()
+        with (
+            patch("gui.src.windows.main.process.SimulationResultsWindow"),
+            patch.object(main_window, "mediator", MagicMock()),
+        ):
+            main_window.run_command()
 
         assert process_instance.start.called
         call_args = process_instance.start.call_args
@@ -92,9 +95,10 @@ class TestMainWindowInteractions:
         orig_input = main_window.tab_manager.analysis_tabs_map["Input Analysis"]
         orig_output = main_window.tab_manager.analysis_tabs_map["Output Analysis"]
 
-        with patch.object(orig_input, "shutdown") as mock_input_shutdown, patch.object(
-            orig_output, "shutdown"
-        ) as mock_output_shutdown:
+        with (
+            patch.object(orig_input, "shutdown") as mock_input_shutdown,
+            patch.object(orig_output, "shutdown") as mock_output_shutdown,
+        ):
             # Trigger close event with a real event object
             event = QCloseEvent()
             main_window.closeEvent(event)
