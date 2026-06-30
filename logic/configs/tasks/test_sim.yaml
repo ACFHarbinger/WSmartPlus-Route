@@ -114,12 +114,12 @@ sim:
   run_name: "lm_ftsp"
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
-  data_distribution: "emp"
+  data_distribution: "gamma3"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
     n_days: 30
-    num_loc: 100
+    num_loc: 170
     n_samples: 1
     area: "riomaior"
     waste_type: "plastic"
