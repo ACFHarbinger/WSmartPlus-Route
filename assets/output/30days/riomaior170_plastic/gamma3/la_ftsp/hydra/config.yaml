@@ -492,7 +492,7 @@ sim:
     num_loc: 170
     waste_type: plastic
     vertex_method: mmn
-    distance_method: ogd
+    distance_method: file
     dm_filepath: gmaps_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv
     save_updated_dm: gmaps_distmat.csv
     edge_threshold: '0'
@@ -603,6 +603,7 @@ device: cuda
 experiment_name: null
 task: test_sim
 run_name: null
+start: 0
 p:
   hgs_adc:
     hgs_adc:
@@ -2193,11 +2194,11 @@ p:
         time_limit: 60
         mandatory_selection:
           other/ms_lookahead.yaml:
-          - default
+          - lookahead
         vrpp: true
         route_improvement:
           other/ri_ftsp.yaml:
-          - default
+          - ftsp
         params:
         - 500
         - 75
@@ -2212,11 +2213,11 @@ p:
         time_limit: 60
         mandatory_selection:
           other/ms_lookahead.yaml:
-          - default
+          - lookahead
         vrpp: true
         route_improvement:
           other/ri_ftsp.yaml:
-          - default
+          - ftsp
         params:
         - 2000
         - 75
@@ -2232,7 +2233,7 @@ p:
         time_limit: 60
         mandatory_selection:
           other/ms_lookahead.yaml:
-          - default
+          - lookahead
         vrpp: true
         route_improvement: []
         params:
@@ -2249,7 +2250,7 @@ p:
         time_limit: 60
         mandatory_selection:
           other/ms_lookahead.yaml:
-          - default
+          - lookahead
         vrpp: true
         route_improvement: []
         params:

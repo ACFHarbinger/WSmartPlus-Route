@@ -3,12 +3,6 @@
 set unstable := true
 set working-directory := '../..'
 
-cyan := '\033[0;36m'
-yellow := '\033[0;33m'
-purple := '\033[0;35m'
-bold := '\033[1m'
-reset := '\033[0m'
-
 # Run the automated algorithm export process.
 # Creates an algo-export branch, prunes the codebase to the selected algorithms,
 # writes ci/workflow_config.json, commits, and pushes.
@@ -21,25 +15,25 @@ reset := '\033[0m'
 
 # just export::algo-export constructors="BPC" dry_run="true"
 algo-export constructors="" selectors="" improvement="" acceptance="" joint="" models="" rl_algorithms="" imitation_policies="" drop_features="" envs="" sim_datasets="" distributions="" network="" skip_build="false" dry_run="false":
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📦 ALGORITHM EXPORT"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Constructors:"    "{{ constructors }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selectors:"       "{{ selectors }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improvement:"     "{{ improvement }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:"      "{{ acceptance }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Joint:"           "{{ joint }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Models:"          "{{ models }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "RL Algorithms:"   "{{ rl_algorithms }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Imitation:"       "{{ imitation_policies }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Drop Features:"   "{{ drop_features }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Envs:"            "{{ envs }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Sim Datasets:"    "{{ sim_datasets }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distributions:"   "{{ distributions }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Network:"         "{{ network }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Skip Build:"      "{{ skip_build }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-18s{{ reset }} {{ purple }}%-39s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dry Run:"         "{{ dry_run }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "📦 ALGORITHM EXPORT"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Constructors:"    "{{ constructors }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Selectors:"       "{{ selectors }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Improvement:"     "{{ improvement }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Acceptance:"      "{{ acceptance }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Joint:"           "{{ joint }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Models:"          "{{ models }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "RL Algorithms:"   "{{ rl_algorithms }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Imitation:"       "{{ imitation_policies }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Drop Features:"   "{{ drop_features }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Envs:"            "{{ envs }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Sim Datasets:"    "{{ sim_datasets }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Distributions:"   "{{ distributions }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Network:"         "{{ network }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Skip Build:"      "{{ skip_build }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-18s\033[0m \033[0;35m%-39s\033[0m \033[0;36m║\033[0m\n" "Dry Run:"         "{{ dry_run }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     .venv/bin/python ci/packager.py \
         $([ -n "{{ constructors }}" ]       && echo "--constructors '{{ constructors }}'"             || true) \
         $([ -n "{{ selectors }}" ]          && echo "--selectors '{{ selectors }}'"                   || true) \
