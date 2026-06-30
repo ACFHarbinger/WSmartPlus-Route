@@ -115,13 +115,15 @@ hydra:
     - sim.policies=[aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf]
     - sim.n_samples=1
     - sim.graph.area=riomaior
+    - sim.graph.num_loc=170
+    - sim.data_distribution=gamma3
     - sim.cpu_cores=20
     - tasks=test_sim
     - task=test_sim
   job:
     name: hydra_dispatch
     chdir: null
-    override_dirname: sim.cpu_cores=20,sim.graph.area=riomaior,sim.n_samples=1,sim.policies=[aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf],task=test_sim,tasks=test_sim
+    override_dirname: sim.cpu_cores=20,sim.data_distribution=gamma3,sim.graph.area=riomaior,sim.graph.num_loc=170,sim.n_samples=1,sim.policies=[aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf],task=test_sim,tasks=test_sim
     id: ???
     num: ???
     config_name: config
@@ -149,7 +151,7 @@ hydra:
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /home/pkhunter/Repositories/WSmart-Route/outputs/2026-05-25/14-48-51
+    output_dir: /home/pkhunter/Repositories/WSmart-Route/outputs/2026-06-30/03-42-12
     choices:
       tasks: test_sim
       policies@p.vpl: policy_vpl
