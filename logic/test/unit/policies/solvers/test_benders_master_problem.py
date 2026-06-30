@@ -20,6 +20,22 @@ if GUROBI_AVAILABLE:
 else:
     GRB = MagicMock()
 
+
+def _has_gurobi_license() -> bool:
+    try:
+        import gurobipy as _gp
+        _m = _gp.Model("_check")
+        _m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+_needs_license = pytest.mark.skipif(
+    not _has_gurobi_license(),
+    reason="Requires a valid Gurobi license",
+)
+
 @pytest.fixture
 def vrpp_instance():
     dist_matrix = np.array([
@@ -40,6 +56,7 @@ def test_master_problem_gurobi_missing():
         with pytest.raises(ImportError, match="Gurobi \\(gurobipy\\) is required"):
             MasterProblem(model, params)
 
+@_needs_license
 def test_master_problem_basic_flow(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -70,6 +87,7 @@ def test_master_problem_basic_flow(vrpp_instance):
     assert isinstance(theta_hat, float)
     assert isinstance(obj, float)
 
+@_needs_license
 def test_master_problem_solve_no_solution(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -91,6 +109,7 @@ def test_master_problem_solve_no_solution(vrpp_instance):
     assert theta_hat == params.theta_lower_bound
     assert obj == float("inf")
 
+@_needs_license
 def test_lazy_constraint_callback_integer_cuts(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -138,6 +157,7 @@ def test_lazy_constraint_callback_integer_cuts(vrpp_instance):
         mock_model.cbLazy.assert_called()
         assert master.stats["capacity_cuts"] == 1.0
 
+@_needs_license
 def test_lazy_constraint_callback_fractional_cuts(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -181,6 +201,7 @@ def test_lazy_constraint_callback_fractional_cuts(vrpp_instance):
         master._add_fractional_cuts(mock_model)
         mock_model.cbCut.assert_called()
 
+@_needs_license
 def test_lazy_constraint_callback_dispatcher(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -201,6 +222,7 @@ def test_lazy_constraint_callback_dispatcher(vrpp_instance):
         master._lazy_constraint_callback(mock_model, GRB.Callback.MIPNODE)
         mock_add_frac.assert_called_with(mock_model)
 
+@_needs_license
 def test_inventory_master_problem(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
@@ -243,6 +265,7 @@ def test_inventory_master_problem(vrpp_instance):
     assert len(inv_plan) == 4
     assert len(col_plan) == 4
 
+@_needs_license
 def test_inventory_master_problem_no_solution(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)

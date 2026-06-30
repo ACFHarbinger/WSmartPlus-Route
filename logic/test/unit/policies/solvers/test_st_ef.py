@@ -8,7 +8,19 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.scena
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import GUROBI_AVAILABLE
 
 
-@pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for ST-EF solver")
+def _has_gurobi_license() -> bool:
+    if not GUROBI_AVAILABLE:
+        return False
+    try:
+        import gurobipy as _gp
+        _m = _gp.Model("_check")
+        _m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not _has_gurobi_license(), reason="Gurobi license not available for ST-EF solver")
 def test_st_ef_basic():
     """Test ST-EF policy on a tiny instance."""
     n_nodes = 3
@@ -82,7 +94,7 @@ def test_st_ef_basic():
     print(f"Total Cost: {cost:.2f}")
     print(f"Expected Value: {search_ctx.construction_metrics['expected_profit']:.2f}") # pyrefly: ignore [bad-index]
 
-@pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for ST-EF solver")
+@pytest.mark.skipif(not _has_gurobi_license(), reason="Gurobi license not available for ST-EF solver")
 def test_st_ef_no_waste():
     """Test ST-EF policy when there's nothing to collect."""
     n_nodes = 3

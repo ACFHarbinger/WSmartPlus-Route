@@ -2,6 +2,22 @@ import numpy as np
 import pytest
 from unittest.mock import MagicMock
 
+
+def _has_gurobi_license() -> bool:
+    try:
+        import gurobipy as _gp
+        _m = _gp.Model("_check")
+        _m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+_needs_license = pytest.mark.skipif(
+    not _has_gurobi_license(),
+    reason="Requires a valid Gurobi license",
+)
+
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine import (
     run_ms_bpc_sp,
     _detect_cycles,
@@ -36,6 +52,7 @@ def ms_bpc_instance():
     C = 1.0
     return dist_matrix, wastes, capacity, R, C
 
+@_needs_license
 def test_ms_bpc_default(ms_bpc_instance):
     dist, wastes, cap, R, C = ms_bpc_instance
     params = MSBPCSPParams(max_cg_iterations=5, max_bb_nodes=5)
@@ -50,6 +67,7 @@ def test_ms_bpc_ryan_foster_invalid_cover():
     with pytest.raises(RuntimeError, match="Mathematical Exactness Violation: Ryan-Foster branching requires strict Set Partitioning"):
         _apply_branching_to_master(master, [], branching_strategy="ryan_foster")
 
+@_needs_license
 def test_ms_bpc_cg_at_root_only(ms_bpc_instance):
     dist, wastes, cap, R, C = ms_bpc_instance
     params = MSBPCSPParams(max_cg_iterations=5, max_bb_nodes=5, cg_at_root_only=True)

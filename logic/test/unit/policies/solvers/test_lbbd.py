@@ -1,8 +1,27 @@
 import numpy as np
+import pytest
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd import LBBDPolicy
 from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode, ScenarioGenerator
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 
+
+def _has_gurobi_license() -> bool:
+    try:
+        import gurobipy as _gp
+        _m = _gp.Model("_check")
+        _m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+_needs_license = pytest.mark.skipif(
+    not _has_gurobi_license(),
+    reason="Requires a valid Gurobi license",
+)
+
+
+@_needs_license
 def test_lbbd_basic():
     # Toy problem: 3 nodes (0=depot, 1, 2)
     dist_matrix = np.array([
@@ -47,6 +66,7 @@ def test_lbbd_basic():
     assert updated_md_ctx is not None
     assert "iterations" in updated_md_ctx.extra
 
+@_needs_license
 def test_lbbd_infeasibility_nogood():
     # Make nodes very far or capacity very small to trigger nogood cuts
     dist_matrix = np.array([
