@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Define the file to watch
+DB_FILE="assets/tracking/tracking.db"
+
+# Check if the database file is in the staging area
+if git diff --cached --name-only | grep -q "$DB_FILE"; then
+    echo "Large database file detected in commit. Sharding $DB_FILE..."
+
+    # Run your python sharding script
+    uv run python logic/scripts/shard_db.py
+
+    # Add the resulting shards to the commit
+    git add assets/tracking/shards/
+
+    # Optional: If you want to prevent the monolithic .db file from being committed
+    # effectively, you can remove it from staging so only the shards persist
+    git rm --cached "$DB_FILE"
+
+    echo "Sharding complete. Shards staged."
+fi

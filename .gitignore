@@ -464,9 +464,12 @@ mcp.json
 mlruns/
 outputs/
 test_logs/
-checkpoints/
 test_tracking/
+
+# Large output files
+checkpoints/
 assets/output/**/*.jsonl
+assets/tracking/tracking.db
 
 # Assets to include
 !assets/logs
