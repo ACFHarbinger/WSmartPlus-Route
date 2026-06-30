@@ -3,15 +3,11 @@
 set unstable := true
 set working-directory := '../..'
 
-green := '\033[0;32m'
-blue := '\033[0;34m'
-reset := '\033[0m'
-
 # Initialize environment and install all dependencies
 setup:
-    @printf "{{ blue }}Setting up environment with uv...{{ reset }}\n"
+    @printf "\033[0;34mSetting up environment with uv...\033[0m\n"
     uv sync --all-groups --all-extras
-    @printf "{{ green }}Environment ready.{{ reset }}\n"
+    @printf "\033[0;32mEnvironment ready.\033[0m\n"
 
 # Sync dependencies using uv
 sync:

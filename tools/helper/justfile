@@ -3,51 +3,42 @@
 set unstable := true
 set working-directory := '../..'
 
-red := '\033[0;31m'
-green := '\033[0;32m'
-yellow := '\033[0;33m'
-blue := '\033[0;34m'
-purple := '\033[0;35m'
-cyan := '\033[0;36m'
-bold := '\033[1m'
-reset := '\033[0m'
-
 [private]
 _print_header:
-    @printf "{{ blue }}╔══════════════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ blue }}║                  WSmart+ Route Framework Control                     ║{{ reset }}\n"
-    @printf "{{ blue }}╚══════════════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    @printf "\033[0;34m╔══════════════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;34m║                  WSmart+ Route Framework Control                     ║\033[0m\n"
+    @printf "\033[0;34m╚══════════════════════════════════════════════════════════════════════╝\033[0m\n"
 
 # Print available commands with descriptions
 help:
     @printf "\n"
-    @printf "{{ cyan }}Usage:{{ reset }} just <module>::<recipe> [variable=value]\n"
+    @printf "\033[0;36mUsage:\033[0m just <module>::<recipe> [variable=value]\n"
     @printf "\n"
-    @printf "{{ yellow }}Modules:{{ reset }}\n"
-    @printf "  {{ green }}infrastructure{{ reset }}   - setup, sync, install, package\n"
-    @printf "  {{ green }}controller{{ reset }}       - train, eval, test-sim, clean-results, hpo-sim, gen-data\n"
-    @printf "  {{ green }}reducer{{ reset }}          - clean, clean-outputs, cleanup-*\n"
-    @printf "  {{ green }}ui{{ reset }}               - gui, dashboard, docker-build, docker-dashboard\n"
-    @printf "  {{ green }}test{{ reset }}             - test, test-fast, test-logic, test-gui, test-marker\n"
-    @printf "  {{ green }}ci{{ reset }}               - lint, format, build-docs\n"
-    @printf "  {{ green }}validation{{ reset }}       - pyrefly-*, check-*, count-loc, tree-loc, module-graph\n"
-    @printf "  {{ green }}benchmark{{ reset }}        - benchmark, mutation-test, mutation-report\n"
-    @printf "  {{ green }}script{{ reset }}           - run-train, run-eval, run-gen-data, run-meta, run-hpo, run-sim\n"
-    @printf "  {{ green }}export{{ reset }}           - algo-export\n"
-    @printf "  {{ green }}database{{ reset }}         - db-inspect, db-clean, db-compact, db-prune, db-export, db-stats\n"
-    @printf "  {{ green }}helper{{ reset }}           - help, run, commit\n"
+    @printf "\033[0;33mModules:\033[0m\n"
+    @printf "  \033[0;32minfrastructure\033[0m   - setup, sync, install, package\n"
+    @printf "  \033[0;32mcontroller\033[0m       - train, eval, test-sim, clean-results, hpo-sim, gen-data\n"
+    @printf "  \033[0;32mreducer\033[0m          - clean, clean-outputs, cleanup-*\n"
+    @printf "  \033[0;32mui\033[0m               - gui, dashboard, docker-build, docker-dashboard\n"
+    @printf "  \033[0;32mtest\033[0m             - test, test-fast, test-logic, test-gui, test-marker\n"
+    @printf "  \033[0;32mci\033[0m               - lint, format, build-docs\n"
+    @printf "  \033[0;32mvalidation\033[0m       - pyrefly-*, check-*, count-loc, tree-loc, module-graph\n"
+    @printf "  \033[0;32mbenchmark\033[0m        - benchmark, mutation-test, mutation-report\n"
+    @printf "  \033[0;32mscript\033[0m           - run-train, run-eval, run-gen-data, run-meta, run-hpo, run-sim\n"
+    @printf "  \033[0;32mexport\033[0m           - algo-export\n"
+    @printf "  \033[0;32mdatabase\033[0m         - db-inspect, db-clean, db-compact, db-prune, db-export, db-stats\n"
+    @printf "  \033[0;32mhelper\033[0m           - help, run, commit\n"
     @printf "\n"
-    @printf "{{ cyan }}Examples:{{ reset }}\n"
+    @printf "\033[0;36mExamples:\033[0m\n"
     @printf "  just controller::train problem=wcvrp model=am\n"
     @printf "  just controller::test-sim policies=alns,hgs area=figueiradafoz\n"
     @printf "  just reducer::clean\n"
     @printf "  just test::test-fast\n"
     @printf "  just export::algo-export constructors=SANS,HGS\n"
     @printf "\n"
-    @printf "{{ cyan }}Shorthands (root justfile):{{ reset }}\n"
+    @printf "\033[0;36mShorthands (root justfile):\033[0m\n"
     @printf "  just train / just test-sim / just gui / just clean / just lint\n"
     @printf "\n"
-    @printf "{{ cyan }}Variables:{{ reset }} problem={{ purple }}vrpp{{ reset }}  model={{ purple }}am{{ reset }}  area={{ purple }}figueiradafoz{{ reset }}  seed={{ purple }}42{{ reset }}\n"
+    @printf "\033[0;36mVariables:\033[0m problem=\033[0;35mvrpp\033[0m  model=\033[0;35mam\033[0m  area=\033[0;35mfigueiradafoz\033[0m  seed=\033[0;35m42\033[0m\n"
 
 # Generic run command — pass any main.py arguments directly
 run *args:

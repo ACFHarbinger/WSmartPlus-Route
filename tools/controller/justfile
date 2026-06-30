@@ -3,52 +3,17 @@
 set unstable := true
 set working-directory := '../..'
 
-cyan := '\033[0;36m'
-yellow := '\033[0;33m'
-purple := '\033[0;35m'
-bold := '\033[1m'
-reset := '\033[0m'
-
-# Default variables
-
-problem := "vrpp"
-model := "am"
-encoder := "gat"
-decoder := "glimpse"
-area := "figueiradafoz"
-num_loc := "350"
-sim_distribution := "gamma3"
-batch_size := "64"
-temporal_horizon := "0"
-samples := "1"
-seed := "42"
-strategy := "greedy"
-n_cores := "20"
-policies := "aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf"
-hpo_policy := "bpc"
-hpo_method := "nsgaii"
-hpo_workers := "1"
-hpo_selection := ""
-hpo_acceptance := ""
-hpo_improver := ""
-hpo_trials := "10"
-hpo_samples := "5"
-hpo_policy_kw := "max_cg_iterations"
-hpo_selection_kw := ""
-hpo_acceptance_kw := ""
-hpo_improver_kw := ""
-
 # Train a model with Hydra configs
 
 # Usage: just controller::train problem=wcvrp model=am
-train problem=problem model=model encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model:" "{{ model }} ({{ encoder }})"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Batch Size:" "{{ batch_size }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+train problem="" model="" encoder="" decoder="" batch_size="" temporal_horizon="":
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "🚀 STARTING HYDRA TRAINING SESSION"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Problem:" "{{ problem }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Model:" "{{ model }} ({{ encoder }})"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Batch Size:" "{{ batch_size }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" && \
     uv run python main.py train \
         envs={{ problem }} \
@@ -60,15 +25,15 @@ train problem=problem model=model encoder=encoder decoder=decoder batch_size=bat
 # Run model evaluation with Hydra configs
 
 # Usage: just controller::eval model_path=./weights/best.pt dataset=data/test.pkl problem=wcvrp strategy=greedy
-eval model_path="" dataset="" problem=problem strategy=strategy:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📊 STARTING MODEL EVALUATION"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Model Path:" "{{ model_path }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Dataset:" "{{ dataset }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Strategy:" "{{ strategy }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+eval model_path="" dataset="" problem="" strategy="" samples="":
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "📊 STARTING MODEL EVALUATION"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Model Path:" "{{ model_path }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Dataset:" "{{ dataset }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Problem:" "{{ problem }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Strategy:" "{{ strategy }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python main.py eval \
         eval.policy.model.load_path={{ model_path }} \
         eval.datasets=[{{ dataset }}] \
@@ -79,16 +44,16 @@ eval model_path="" dataset="" problem=problem strategy=strategy:
 # Run simulator testing with Hydra configs
 
 # Usage: just controller::test-sim policies="vrpp,alns" area=figueiradafoz num_loc=350 sim_distribution=gamma3
-test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num_loc sim_distribution=sim_distribution:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🧪 STARTING SIMULATION TESTING"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policies:" "{{ policies }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num Loc:" "{{ num_loc }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "{{ sim_distribution }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Samples:" "{{ samples }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+test-sim policies="" area="" samples="" n_cores="" num_loc="" sim_distribution="":
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "🧪 STARTING SIMULATION TESTING"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Policies:" "{{ policies }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Area:" "{{ area }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Num Loc:" "{{ num_loc }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Distribution:" "{{ sim_distribution }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Samples:" "{{ samples }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python main.py test_sim \
         sim.policies=[{{ policies }}] \
         sim.n_samples={{ samples }} \
@@ -100,23 +65,23 @@ test-sim policies=policies area=area samples=samples n_cores=n_cores num_loc=num
 # Run simulation policy HPO
 
 # Usage: just controller::hpo-sim policy=hgs trials=100 method=nsgaii
-hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_workers selection=hpo_selection acceptance=hpo_acceptance improver=hpo_improver policy_kw=hpo_policy_kw selection_kw=hpo_selection_kw acceptance_kw=hpo_acceptance_kw improver_kw=hpo_improver_kw area=area samples=hpo_samples:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🔍 STARTING SIMULATION POLICY HPO"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy:" "{{ policy }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Method:" "{{ method }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Trials:" "{{ trials }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Workers:" "{{ workers }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection:" "{{ selection }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance:" "{{ acceptance }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver:" "{{ improver }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Policy KW:" "{{ policy_kw }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Selection KW:" "{{ selection_kw }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Acceptance KW:" "{{ acceptance_kw }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Improver KW:" "{{ improver_kw }}"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "{{ area }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+hpo-sim policy="" trials="" method="" workers="" selection="" acceptance="" improver="" policy_kw="" selection_kw="" acceptance_kw="" improver_kw="" area="" samples="":
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "🔍 STARTING SIMULATION POLICY HPO"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Policy:" "{{ policy }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Method:" "{{ method }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Trials:" "{{ trials }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Workers:" "{{ workers }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Selection:" "{{ selection }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acceptance:" "{{ acceptance }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Improver:" "{{ improver }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Policy KW:" "{{ policy_kw }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Selection KW:" "{{ selection_kw }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acceptance KW:" "{{ acceptance_kw }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Improver KW:" "{{ improver_kw }}"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Area:" "{{ area }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python main.py hpo_sim tracking=hpo_sim \
         hpo_sim.policy_name={{ policy }} \
         hpo_sim.n_trials={{ trials }} \
@@ -135,24 +100,24 @@ hpo-sim policy=hpo_policy trials=hpo_trials method=hpo_method workers=hpo_worker
 # Generate data with Hydra configs
 
 # Usage: just controller::gen-data wcvrp
-gen-data problem=problem:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Problem:" "{{ problem }}"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+gen-data problem="":
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "📁 GENERATING DATASET"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Problem:" "{{ problem }}"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python main.py gen_data \
         data.problem={{ problem }}
 
 # Generate test-simulator data for Figueira da Foz plastic (350 bins, gamma3, 30 + 90 days)
 gen-data-figfoz-plastic:
-    @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING FIGFOZ PLASTIC DATASETS"
-    @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Area:" "figueiradafoz"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Waste type:" "plastic"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Num loc:" "350"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Distribution:" "gamma3"
-    @printf "{{ cyan }}║{{ reset }} {{ yellow }}%-15s{{ reset }} {{ purple }}%-42s{{ reset }} {{ cyan }}║{{ reset }}\n" "Days:" "30 + 90"
-    @printf "{{ cyan }}╚════════════════════════════════════════════════════════════╝{{ reset }}\n"
+    @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "📁 GENERATING FIGFOZ PLASTIC DATASETS"
+    @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Area:" "figueiradafoz"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Waste type:" "plastic"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Num loc:" "350"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Distribution:" "gamma3"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Days:" "30 + 90"
+    @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python main.py gen_data
