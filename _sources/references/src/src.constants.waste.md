@@ -27,6 +27,10 @@
   - ```{autodoc2-docstring} src.constants.waste.CRITICAL_FILL_THRESHOLD
     :summary:
     ```
+* - {py:obj}`COUNTY_ALIASES <src.constants.waste.COUNTY_ALIASES>`
+  - ```{autodoc2-docstring} src.constants.waste.COUNTY_ALIASES
+    :summary:
+    ```
 ````
 
 ### API
@@ -60,6 +64,16 @@
    0.9
 
 ```{autodoc2-docstring} src.constants.waste.CRITICAL_FILL_THRESHOLD
+```
+
+````
+
+````{py:data} COUNTY_ALIASES
+:canonical: src.constants.waste.COUNTY_ALIASES
+:value: >
+   None
+
+```{autodoc2-docstring} src.constants.waste.COUNTY_ALIASES
 ```
 
 ````
