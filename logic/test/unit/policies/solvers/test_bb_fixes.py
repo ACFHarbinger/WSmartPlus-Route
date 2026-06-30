@@ -169,8 +169,20 @@ def test_fix_6_dfj_directed_cut():
         return 0.0
     model.cbGetSolution = mock_cbGetSolution
 
-    import networkx as nx
-    with patch('networkx.connected_components') as mock_comp:
+    class _FakeLinExpr:
+        """Minimal stand-in for gurobipy.LinExpr that supports >= comparison."""
+        def __ge__(self, rhs):
+            class _FakeConstr:
+                def __str__(self):
+                    return f"expr >= {rhs}"
+            return _FakeConstr()
+
+    _qs_path = (
+        "logic.src.policies.route_construction"
+        ".exact_and_decomposition_solvers.branch_and_bound.dfj.quicksum"
+    )
+    with patch(_qs_path, return_value=_FakeLinExpr()), \
+         patch('networkx.connected_components') as mock_comp:
         mock_comp.return_value = [{1, 2}, {0}, {3}]
 
         _dfj_callback(model, GRB.Callback.MIPSOL)

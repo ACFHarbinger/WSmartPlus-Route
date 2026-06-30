@@ -1,5 +1,6 @@
 import numpy as np
 import gurobipy as gp
+import pytest
 from typing import cast
 from gurobipy import GRB
 
@@ -8,6 +9,17 @@ from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import _column_generation_loop, BPCPruningException
 from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import CuttingPlaneEngine
 
+
+def _has_gurobi_license() -> bool:
+    try:
+        _m = gp.Model("_check")
+        _m.dispose()
+        return True
+    except Exception:
+        return False
+
+
+@pytest.mark.skipif(not _has_gurobi_license(), reason="Requires a valid Gurobi license")
 def test_set_partitioning_enforcement():
     """Verify that mandatory nodes use == 1.0 and duals are unrestricted."""
     n_nodes = 3

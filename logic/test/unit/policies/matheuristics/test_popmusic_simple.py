@@ -6,28 +6,34 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Mock missing dependencies to allow importing solver without triggering the whole tree
+# Mock missing dependencies to allow importing solver without triggering the whole tree.
+# Save originals and restore them immediately after the import so the mocks do not
+# leak into other test modules loaded later in the same pytest session.
 from unittest.mock import MagicMock
-sys.modules["alns"] = MagicMock()
-sys.modules["alns.accept"] = MagicMock()
-sys.modules["alns.select"] = MagicMock()
-sys.modules["alns.stop"] = MagicMock()
-sys.modules["gurobipy"] = MagicMock()
-sys.modules["hexaly"] = MagicMock()
-sys.modules["pyvrp"] = MagicMock()
-sys.modules["vrpy"] = MagicMock()
-sys.modules["fast_tsp"] = MagicMock()
-sys.modules["googlemaps"] = MagicMock()
-sys.modules["geopy"] = MagicMock()
-sys.modules["geopandas"] = MagicMock()
-sys.modules["osmnx"] = MagicMock()
-sys.modules["shapely"] = MagicMock()
+
+_MOCK_MODULES = [
+    "alns", "alns.accept", "alns.select", "alns.stop",
+    "gurobipy",
+    "hexaly", "pyvrp", "vrpy", "fast_tsp",
+    "googlemaps", "geopy", "geopandas", "osmnx", "shapely",
+]
+_SAVED_MODULES = {m: sys.modules.pop(m, None) for m in _MOCK_MODULES}
+for _m in _MOCK_MODULES:
+    sys.modules[_m] = MagicMock()
 
 # Add project root to path
 sys.path.append(os.path.abspath("."))
 
 from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import run_popmusic, find_route_neighbors
 from scipy.spatial import KDTree
+
+# Restore original modules now that the import above has completed.
+for _m, _orig in _SAVED_MODULES.items():
+    if _orig is None:
+        sys.modules.pop(_m, None)
+    else:
+        sys.modules[_m] = _orig
+del _MOCK_MODULES, _SAVED_MODULES, _m, _orig
 
 def test_find_route_neighbors_kdtree():
     print("Testing KD-Tree neighbor search...")
@@ -79,7 +85,7 @@ def test_popmusic_lifo_order():
             return [[0, 1, 0]], 100.0  # Big improvement
         return [[0, seed_idx, 0]], 0.0 # No improvement
 
-    with patch("logic.src.policies.popmusic.solver._optimize_subproblem", side_effect=mock_optimize):
+    with patch("logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem", side_effect=mock_optimize):
         run_popmusic(**data, subproblem_size=2, seed_strategy="lifo")
 
     print(f"Call order: {call_order}")
