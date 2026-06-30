@@ -94,7 +94,7 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+    mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
@@ -117,7 +117,7 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+    mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
@@ -151,7 +151,7 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+    mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
@@ -179,7 +179,7 @@ lac:
     engine: og
     combination: a
     time_limit: 60
-    mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+    mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
@@ -197,7 +197,7 @@ lac:
     engine: og
     combination: b
     time_limit: 60
-    mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }
+    mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
     # VRPP Settings
     vrpp: true
 
