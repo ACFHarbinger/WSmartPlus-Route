@@ -1,101 +1,139 @@
-import sys
-import pytest
+import ast
+
+# 7. Test trace_dependencies
+import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+# 4. Test check_circular_imports
+from logic.src.utils.validation.check_circular_imports import (
+    build_graph,
+    file_to_module,
+    generate_html,
+    resolve_to_module,
+    tarjan_sccs,
+)
+from logic.src.utils.validation.check_circular_imports import (
+    main as main_circular,
+)
+
+# 9. Test check_interface_compliance
+from logic.src.utils.validation.check_interface_compliance import (
+    base_name,
+    build_registry,
+    check_compliance,
+    collect_python_files,
+    get_implemented_methods,
+    get_required_abstract_methods,
+    has_decorator,
+)
+from logic.src.utils.validation.check_interface_compliance import (
+    main as main_compliance,
+)
+from logic.src.utils.validation.check_nested_imports import (
+    analyze_file as analyze_nested,
+)
+
+# 3. Test check_nested_imports
+from logic.src.utils.validation.check_nested_imports import (
+    is_constant_expression,
+    is_constant_guarded_if,
+    is_header_assignment,
+    is_header_setup_call,
+    is_import_error_try_block,
+    is_suppress_import_error_block,
+    is_type_checking_block,
+)
+from logic.src.utils.validation.check_nested_imports import (
+    main as main_nested,
+)
+from logic.src.utils.validation.check_nested_imports import (
+    print_stats_table as print_stats_nested,
+)
+from logic.src.utils.validation.check_relative_imports import (
+    analyze_file as analyze_relative,
+)
 
 # 1. Test check_relative_imports
 from logic.src.utils.validation.check_relative_imports import (
     format_relative_import,
-    analyze_file as analyze_relative,
-    print_stats_table as print_stats_relative,
+)
+from logic.src.utils.validation.check_relative_imports import (
     main as main_relative,
+)
+from logic.src.utils.validation.check_relative_imports import (
+    print_stats_table as print_stats_relative,
 )
 
 # 2. Test check_unused_imports
 from logic.src.utils.validation.check_unused_imports import (
     analyze_file as analyze_unused,
+)
+from logic.src.utils.validation.check_unused_imports import (
     main as main_unused,
 )
-
-# 3. Test check_nested_imports
-from logic.src.utils.validation.check_nested_imports import (
-    is_type_checking_block,
-    is_import_error_try_block,
-    is_suppress_import_error_block,
-    is_constant_expression,
-    is_header_assignment,
-    is_constant_guarded_if,
-    is_header_setup_call,
-    analyze_file as analyze_nested,
-    print_stats_table as print_stats_nested,
-    main as main_nested,
-)
-
-# 4. Test check_circular_imports
-from logic.src.utils.validation.check_circular_imports import (
-    file_to_module,
-    collect_module_map,
-    resolve_to_module,
-    build_graph,
-    tarjan_sccs,
-    generate_html,
-    main as main_circular,
+from logic.src.utils.validation.count_loc import (
+    analyze_file as analyze_count,
 )
 
 # 5. Test count_loc
 from logic.src.utils.validation.count_loc import (
     get_docstring_lines as get_doc_count,
-    analyze_file as analyze_count,
+)
+from logic.src.utils.validation.count_loc import (
     group_by_directory as group_count,
+)
+from logic.src.utils.validation.count_loc import (
     main as main_count,
+)
+from logic.src.utils.validation.trace_dependencies import (
+    ASTScopeVisitor,
+    DependencyGrapher,
+)
+from logic.src.utils.validation.trace_dependencies import (
+    main as main_trace,
 )
 
 # 6. Test tree_loc
 from logic.src.utils.validation.tree_loc import (
     analyze_file as analyze_tree,
-    print_tree,
+)
+from logic.src.utils.validation.tree_loc import (
     main as main_tree,
 )
-
-# 7. Test trace_dependencies
-import os
-import ast
-from logic.src.utils.validation.trace_dependencies import (
-    ASTScopeVisitor,
-    DependencyGrapher,
-    main as main_trace,
+from logic.src.utils.validation.tree_loc import (
+    print_tree,
 )
 
 # 8. Test visualize_module_graph
 from logic.src.utils.validation.visualize_module_graph import (
-    file_to_module,
+    build_graph as build_graph_visualize,
+)
+from logic.src.utils.validation.visualize_module_graph import (
     collect_module_map,
-    resolve_to_module,
-    build_graph,
-    get_layer,
-    find_violations,
     condense_to_packages,
+    find_violations,
+    get_layer,
+)
+from logic.src.utils.validation.visualize_module_graph import (
+    file_to_module as file_to_module_visualize,
+)
+from logic.src.utils.validation.visualize_module_graph import (
     generate_html as generate_html_visualize,
+)
+from logic.src.utils.validation.visualize_module_graph import (
     main as main_visualize,
 )
-
-# 9. Test check_interface_compliance
-from logic.src.utils.validation.check_interface_compliance import (
-    collect_python_files,
-    base_name,
-    has_decorator,
-    parse_file,
-    build_registry,
-    get_required_abstract_methods,
-    get_implemented_methods,
-    check_compliance,
-    main as main_compliance,
+from logic.src.utils.validation.visualize_module_graph import (
+    resolve_to_module as resolve_to_module_visualize,
 )
-
 
 
 def test_relative_imports_format():
     import ast
+
     node = ast.parse("from . import a, b as c").body[0]
     assert format_relative_import(node) == "from . import a, b as c"
 
@@ -180,6 +218,7 @@ def test_unused_imports_main(tmp_path, capsys):
 
 def test_nested_imports_helpers():
     import ast
+
     node_tc = ast.parse("if TYPE_CHECKING:\n    import sys").body[0]
     assert is_type_checking_block(node_tc)
 
@@ -424,8 +463,10 @@ def test_trace_dependencies_main(tmp_path):
     a_py = tmp_path / "a.py"
     a_py.write_text("class Target:\n    pass\n")
 
-    with patch("sys.argv", ["trace_dependencies.py", str(tmp_path), str(a_py), "Target"]), \
-         patch("logic.src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph") as mock_gen:
+    with (
+        patch("sys.argv", ["trace_dependencies.py", str(tmp_path), str(a_py), "Target"]),
+        patch("logic.src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph") as mock_gen,
+    ):
         main_trace()
         mock_gen.assert_called_once_with(os.path.abspath(str(a_py)), "Target")
 
@@ -436,14 +477,14 @@ def test_visualize_module_graph_helpers(tmp_path):
     filepath.parent.mkdir(parents=True, exist_ok=True)
     filepath.write_text("class Helper:\n    pass\n")
 
-    assert file_to_module(filepath, root) == "logic.src.utils.helper"
+    assert file_to_module_visualize(filepath, root) == "logic.src.utils.helper"
 
     m_map = collect_module_map(root, set())
     assert "logic.src.utils.helper" in m_map
 
     known = {"a.b.c", "d.e"}
-    assert resolve_to_module("c", 1, "a.b.d", known) == "a.b.c"
-    assert resolve_to_module("d.e", 0, "a.b.d", known) == "d.e"
+    assert resolve_to_module_visualize("c", 1, "a.b.d", known) == "a.b.c"
+    assert resolve_to_module_visualize("d.e", 0, "a.b.d", known) == "d.e"
 
     layer, color = get_layer("logic.src.utils.helper", [("logic", "Logic", "#123")])
     assert layer == "Logic"
@@ -463,7 +504,7 @@ def test_visualize_module_graph_build_and_violations(tmp_path):
     a.write_text("import gui.b\n")
     b.write_text("pass\n")
 
-    graph = build_graph(root, set())
+    graph = build_graph_visualize(root, set())
     assert "logic.a" in graph
     assert "gui.b" in graph
 
@@ -497,16 +538,17 @@ def test_visualize_module_graph_main(tmp_path):
     a = root / "a.py"
     a.write_text("pass\n")
 
-    with patch("sys.argv", ["visualize_module_graph.py", str(root), "--no-html"]), \
-         pytest.raises(SystemExit) as exc:
+    with patch("sys.argv", ["visualize_module_graph.py", str(root), "--no-html"]), pytest.raises(SystemExit) as exc:
         main_visualize()
     assert exc.value.code == 0
 
 
 # --- Tests for check_interface_compliance ---
 
+
 def test_compliance_base_name():
     import ast
+
     assert base_name(ast.Name(id="MyBase")) == "MyBase"
     assert base_name(ast.Attribute(attr="MyAttr")) == "MyAttr"
     assert base_name(ast.Constant(value=42)) == ""
@@ -514,21 +556,10 @@ def test_compliance_base_name():
 
 def test_compliance_has_decorator():
     import ast
-    func1 = ast.FunctionDef(
-        name="foo",
-        decorator_list=[ast.Name(id="abstractmethod")],
-        body=[]
-    )
-    func2 = ast.FunctionDef(
-        name="bar",
-        decorator_list=[ast.Attribute(attr="abstractmethod")],
-        body=[]
-    )
-    func3 = ast.FunctionDef(
-        name="baz",
-        decorator_list=[],
-        body=[]
-    )
+
+    func1 = ast.FunctionDef(name="foo", decorator_list=[ast.Name(id="abstractmethod")], body=[])
+    func2 = ast.FunctionDef(name="bar", decorator_list=[ast.Attribute(attr="abstractmethod")], body=[])
+    func3 = ast.FunctionDef(name="baz", decorator_list=[], body=[])
     assert has_decorator(func1, "abstractmethod") is True
     assert has_decorator(func2, "abstractmethod") is True
     assert has_decorator(func3, "abstractmethod") is False
@@ -549,7 +580,7 @@ def test_compliance_collect_python_files(tmp_path):
 
 def test_compliance_flow(tmp_path):
     interface_py = tmp_path / "interface.py"
-    interface_py.write_text('''
+    interface_py.write_text("""
 from abc import ABC, abstractmethod
 
 class MyInterface(ABC):
@@ -560,10 +591,10 @@ class MyInterface(ABC):
     @abstractmethod
     def required_two(self):
         pass
-''')
+""")
 
     concrete_py = tmp_path / "concrete.py"
-    concrete_py.write_text('''
+    concrete_py.write_text("""
 from interface import MyInterface
 
 class CompliantClass(MyInterface):
@@ -576,7 +607,7 @@ class CompliantClass(MyInterface):
 class NonCompliantClass(MyInterface):
     def required_one(self):
         return 1
-''')
+""")
 
     files = [interface_py, concrete_py]
     registry = build_registry(files)
@@ -609,17 +640,16 @@ class NonCompliantClass(MyInterface):
 def test_compliance_main_success(mock_exit, tmp_path):
     mock_exit.side_effect = SystemExit
     interface_py = tmp_path / "interface.py"
-    interface_py.write_text('''
+    interface_py.write_text("""
 from abc import ABC, abstractmethod
 class MyInterface(ABC):
     @abstractmethod
     def run(self): pass
 class Concrete(MyInterface):
     def run(self): pass
-''')
+""")
 
-    with patch("sys.argv", ["check_interface_compliance.py", str(tmp_path)]), \
-         pytest.raises(SystemExit):
+    with patch("sys.argv", ["check_interface_compliance.py", str(tmp_path)]), pytest.raises(SystemExit):
         main_compliance()
     mock_exit.assert_called_once_with(0)
 
@@ -628,17 +658,16 @@ class Concrete(MyInterface):
 def test_compliance_main_failure(mock_exit, tmp_path):
     mock_exit.side_effect = SystemExit
     interface_py = tmp_path / "interface.py"
-    interface_py.write_text('''
+    interface_py.write_text("""
 from abc import ABC, abstractmethod
 class MyInterface(ABC):
     @abstractmethod
     def run(self): pass
 class Concrete(MyInterface):
     pass
-''')
+""")
 
-    with patch("sys.argv", ["check_interface_compliance.py", str(tmp_path)]), \
-         pytest.raises(SystemExit):
+    with patch("sys.argv", ["check_interface_compliance.py", str(tmp_path)]), pytest.raises(SystemExit):
         main_compliance()
     mock_exit.assert_called_once_with(1)
 
@@ -646,16 +675,17 @@ class Concrete(MyInterface):
 @patch("sys.exit")
 def test_compliance_main_non_existent_dir(mock_exit):
     mock_exit.side_effect = SystemExit
-    with patch("sys.argv", ["check_interface_compliance.py", "non_existent_directory_abc"]), \
-         pytest.raises(SystemExit):
-         main_compliance()
+    with patch("sys.argv", ["check_interface_compliance.py", "non_existent_directory_abc"]), pytest.raises(SystemExit):
+        main_compliance()
     mock_exit.assert_called_once_with(1)
 
 
 # --- Tests for check_embedded_languages.py ---
 
+
 def test_embedded_languages_detect():
     from logic.src.utils.validation.check_embedded_languages import detect_language
+
     assert detect_language("") == ""
     assert detect_language("short") == ""
     assert detect_language("<html><body>Hello</body></html>") == "HTML"
@@ -666,7 +696,9 @@ def test_embedded_languages_detect():
 
 def test_embedded_languages_get_docstring_lines():
     import ast
+
     from logic.src.utils.validation.check_embedded_languages import get_docstring_lines
+
     code = '''
 def my_func():
     """This is a docstring
@@ -685,7 +717,9 @@ def my_func():
 
 def test_embedded_languages_visitor():
     import ast
+
     from logic.src.utils.validation.check_embedded_languages import EmbeddedCodeVisitor
+
     code = 'html_str = "<div>hello</div>"'
     tree = ast.parse(code)
     visitor = EmbeddedCodeVisitor(doc_lines=set())
@@ -704,12 +738,13 @@ def test_embedded_languages_visitor():
 
 def test_embedded_languages_analyze_file(tmp_path):
     from logic.src.utils.validation.check_embedded_languages import analyze_file
+
     py_file = tmp_path / "test_embed.py"
-    py_file.write_text('''
+    py_file.write_text("""
 def run():
     js = "console.log(123);"
     html = "<html><body></body></html>"
-''')
+""")
     findings = analyze_file(py_file)
     assert len(findings) == 2
     langs = [f[1] for f in findings]
@@ -725,6 +760,7 @@ def run():
 @patch("sys.exit")
 def test_embedded_languages_main(mock_exit, tmp_path):
     from logic.src.utils.validation.check_embedded_languages import main as main_embedded
+
     # Create clean file
     py_file = tmp_path / "clean.py"
     py_file.write_text("def my_func():\n    return 1\n")
@@ -746,10 +782,12 @@ def test_embedded_languages_main(mock_exit, tmp_path):
 
 # --- Tests for check_multi_classes.py ---
 
+
 def test_multi_classes_get_top_level_classes(tmp_path):
     from logic.src.utils.validation.check_multi_classes import get_top_level_classes
+
     py_file = tmp_path / "classes.py"
-    py_file.write_text('''
+    py_file.write_text("""
 class A:
     pass
 
@@ -759,7 +797,7 @@ class _B:
 def func():
     class Nested:
         pass
-''')
+""")
     classes = get_top_level_classes(py_file)
     assert classes == ["A", "_B"]
 
@@ -772,6 +810,7 @@ def func():
 @patch("sys.exit")
 def test_multi_classes_main(mock_exit, tmp_path):
     from logic.src.utils.validation.check_multi_classes import main as main_multi_classes
+
     mock_exit.side_effect = SystemExit
 
     # 1. Clean run (at most 1 class)
@@ -780,8 +819,7 @@ def test_multi_classes_main(mock_exit, tmp_path):
     py_file = dir_clean / "clean.py"
     py_file.write_text("class A:\n    pass\n")
 
-    with patch("sys.argv", ["check_multi_classes.py", str(dir_clean)]), \
-         pytest.raises(SystemExit):
+    with patch("sys.argv", ["check_multi_classes.py", str(dir_clean)]), pytest.raises(SystemExit):
         main_multi_classes()
     mock_exit.assert_called_once_with(0)
 
@@ -793,8 +831,7 @@ def test_multi_classes_main(mock_exit, tmp_path):
 
     # Clear previous mock calls
     mock_exit.reset_mock()
-    with patch("sys.argv", ["check_multi_classes.py", str(dir_viol)]), \
-         pytest.raises(SystemExit):
+    with patch("sys.argv", ["check_multi_classes.py", str(dir_viol)]), pytest.raises(SystemExit):
         main_multi_classes()
     mock_exit.assert_called_once_with(1)
 
@@ -805,17 +842,19 @@ def test_multi_classes_main(mock_exit, tmp_path):
     py_file_3.write_text("class A:\n    pass\nclass _B:\n    pass\n")
 
     mock_exit.reset_mock()
-    with patch("sys.argv", ["check_multi_classes.py", str(dir_priv), "--ignore-private"]), \
-         pytest.raises(SystemExit):
+    with patch("sys.argv", ["check_multi_classes.py", str(dir_priv), "--ignore-private"]), pytest.raises(SystemExit):
         main_multi_classes()
     mock_exit.assert_called_once_with(0)
 
 
 # --- Tests for check_type_coverage.py ---
 
+
 def test_type_coverage_analyze_function():
     import ast
+
     from logic.src.utils.validation.check_type_coverage import analyze_function
+
     # Full annotation
     node1 = ast.parse("def f(x: int) -> str: pass").body[0]
     assert analyze_function(node1) == (1, 1, True)
@@ -839,8 +878,9 @@ def test_type_coverage_analyze_function():
 
 def test_type_coverage_analyze_file(tmp_path):
     from logic.src.utils.validation.check_type_coverage import analyze_file
+
     py_file = tmp_path / "cov.py"
-    py_file.write_text('''
+    py_file.write_text("""
 def f1(x: int) -> str:
     pass
 
@@ -849,7 +889,7 @@ def f2(x):
 
 def f3():
     pass
-''')
+""")
     stats = analyze_file(py_file)
     assert stats["funcs"] == 3
     assert stats["full"] == 1
@@ -864,6 +904,7 @@ def f3():
 
 def test_type_coverage_markup():
     from logic.src.utils.validation.check_type_coverage import _coverage_markup
+
     assert _coverage_markup(0, 0) == "[dim]—[/dim]"
     assert "green" in _coverage_markup(9, 10)
     assert "yellow" in _coverage_markup(7, 10)
@@ -872,18 +913,19 @@ def test_type_coverage_markup():
 
 def test_type_coverage_main(tmp_path):
     from logic.src.utils.validation.check_type_coverage import main as main_type_coverage
+
     # Create test files
     py_file1 = tmp_path / "test_cov1.py"
-    py_file1.write_text('''
+    py_file1.write_text("""
 def f1(x: int) -> str: pass
 def f2(x: int) -> str: pass
-''')
+""")
 
     py_file2 = tmp_path / "test_cov2.py"
-    py_file2.write_text('''
+    py_file2.write_text("""
 def f1(x): pass
 def f2(x): pass
-''')
+""")
 
     with patch("sys.argv", ["check_type_coverage.py", str(tmp_path), "--limit", "2", "--min-funcs", "2"]):
         main_type_coverage()

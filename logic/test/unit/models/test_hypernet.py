@@ -88,7 +88,7 @@ class TestHypernetworkOptimizer:
 
         # Verify parameters updated
         any_changed = False
-        for p1, p2 in zip(initial_params, optimizer.hypernetwork.parameters()):
+        for p1, p2 in zip(initial_params, optimizer.hypernetwork.parameters(), strict=False):
             if not torch.equal(p1, p2):
                 any_changed = True
                 break

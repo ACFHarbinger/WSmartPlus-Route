@@ -8,9 +8,9 @@ import tempfile
 import zipfile
 from unittest.mock import MagicMock, mock_open, patch
 
-import pandas as pd
 import logic.src.utils.input as input_utils
-from logic.src.utils.input import locking, dict_processing, file_processing, value_processing, statistics
+import pandas as pd
+from logic.src.utils.input import dict_processing, file_processing, locking, statistics, value_processing
 from logic.src.utils.input.preview import (
     preview_changes,
     preview_file_changes,
@@ -398,12 +398,14 @@ class TestPreview:
             mock_glob.return_value = ["f1.json"]
 
             # We need to mock open/json load
-            with patch("builtins.open", new_callable=mock_open, read_data='{"a": 1}'):
-                with patch("logic.src.utils.input.preview.find_single_input_values") as mock_find:
-                    mock_find.return_value = [("entry.val", 10)]
+            with (
+                patch("builtins.open", new_callable=mock_open, read_data='{"a": 1}'),
+                patch("logic.src.utils.input.preview.find_single_input_values") as mock_find,
+            ):
+                mock_find.return_value = [("entry.val", 10)]
 
-                    with patch("builtins.print"):
-                        preview_pattern_files_statistics("root", process_func=lambda x: sum(x))
+                with patch("builtins.print"):
+                    preview_pattern_files_statistics("root", process_func=lambda x: sum(x))
 
                     assert mock_find.called
 
@@ -457,7 +459,9 @@ class TestInputProcessing:
 
         data = {"policy1": {"km": 10.0, "waste": 50.0}}
         # process_func takes (old_val, update_val)
-        modified = dict_processing.process_dict_of_dicts(data, output_key="km", process_func=lambda x, y: x * 2, update_val=0)
+        modified = dict_processing.process_dict_of_dicts(
+            data, output_key="km", process_func=lambda x, y: x * 2, update_val=0
+        )
         assert modified
         assert data["policy1"]["km"] == 20.0
 
@@ -466,7 +470,9 @@ class TestInputProcessing:
 
         data = {"policy1": {"km": [10.0, 20.0], "waste": 50.0}}
         # process_func takes (old_val, update_val)
-        modified = dict_processing.process_dict_of_dicts(data, output_key="km", process_func=lambda x, y: x + 5, update_val=0)
+        modified = dict_processing.process_dict_of_dicts(
+            data, output_key="km", process_func=lambda x, y: x + 5, update_val=0
+        )
         assert modified
         assert data["policy1"]["km"] == [15.0, 25.0]
 
@@ -475,7 +481,9 @@ class TestInputProcessing:
 
         data = [{"policy1": {"km": 10.0}}, {"policy2": {"km": 20.0}}]
         # process_func takes (old_val, update_val)
-        modified = dict_processing.process_list_of_dicts(data, output_key="km", process_func=lambda x, y: x / 2, update_val=0)
+        modified = dict_processing.process_list_of_dicts(
+            data, output_key="km", process_func=lambda x, y: x / 2, update_val=0
+        )
         assert modified
         assert data[0]["policy1"]["km"] == 5.0
         assert data[1]["policy2"]["km"] == 10.0

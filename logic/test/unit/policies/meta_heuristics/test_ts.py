@@ -4,9 +4,10 @@ Unit tests for Tabu Search (TS) policy.
 
 import numpy as np
 import pandas as pd
-from logic.src.policies.route_construction.meta_heuristics.tabu_search.policy_ts import TSPolicy
-from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver import TSSolver, TSParams
 from logic.src.configs.policies.ts import TSConfig
+from logic.src.policies.route_construction.meta_heuristics.tabu_search.policy_ts import TSPolicy
+from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver import TSParams, TSSolver
+
 
 def test_ts_solver_instantiation():
     """Test that TSSolver can be instantiated without import errors."""
@@ -39,8 +40,6 @@ def test_ts_policy_execution(mocker):
         [20, 15, 0, 10],
         [15, 25, 10, 0]
     ])
-    wastes = {1: 30.0, 2: 40.0, 3: 50.0}
-    capacity = 100.0
 
     config = TSConfig(
         max_iterations=5,

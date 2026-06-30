@@ -1,7 +1,9 @@
-import pytest
 import numpy as np
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat import CPSATPolicy
-from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode, ScenarioGenerator
+from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat import (
+    CPSATPolicy,
+)
+
 
 def test_cp_sat_basic():
     # Toy problem: 3 nodes (0=depot, 1, 2)

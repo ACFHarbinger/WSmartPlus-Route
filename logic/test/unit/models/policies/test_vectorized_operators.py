@@ -7,6 +7,7 @@ from logic.src.policies.vector.operators import (
     vectorized_worst_removal,
 )
 
+
 @pytest.fixture
 def data():
     B, N = 5, 20

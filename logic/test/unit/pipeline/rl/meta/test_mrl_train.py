@@ -335,7 +335,7 @@ class TestRewardWeightOptimizer:
         optimizer = rwo_setup
 
         # Add sufficient data
-        for i in range(10):
+        for _i in range(10):
             optimizer.update_histories([1.0, 1.0, 1.0], 1.0)
 
         loss = optimizer.meta_learning_step()
@@ -353,7 +353,7 @@ class TestRewardWeightOptimizer:
         assert torch.equal(w, optimizer.current_weights)
 
         # Add history
-        for i in range(5):
+        for _i in range(5):
             optimizer.update_histories([1.0, 1.0, 1.0], 1.0)
 
         w_new = optimizer.recommend_weights()

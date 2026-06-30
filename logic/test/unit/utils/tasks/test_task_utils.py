@@ -1,8 +1,9 @@
 """Tests for task utility functions."""
 
+from typing import cast
+
 import numpy as np
 import torch
-from typing import cast
 from logic.src.utils.tasks.task_utils import calculate_edges, make_instance_generic
 
 

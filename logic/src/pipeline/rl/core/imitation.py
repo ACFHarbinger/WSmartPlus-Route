@@ -32,12 +32,6 @@ from logic.src.configs.rl.policies import (
     ILSConfig,
     RLSConfig,
 )
-from logic.src.policies.vector.alns import VectorizedALNS
-from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
-from logic.src.policies.vector.hgs import VectorizedHGS
-from logic.src.policies.vector.hgs_alns import VectorizedHGSALNS
-from logic.src.policies.vector.iterated_local_search import IteratedLocalSearchPolicy
-from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from logic.src.pipeline.rl.core.losses import (
     js_divergence_loss,
@@ -46,6 +40,12 @@ from logic.src.pipeline.rl.core.losses import (
     reverse_kl_divergence_loss,
     weighted_nll_loss,
 )
+from logic.src.policies.vector.alns import VectorizedALNS
+from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
+from logic.src.policies.vector.hgs import VectorizedHGS
+from logic.src.policies.vector.hgs_alns import VectorizedHGSALNS
+from logic.src.policies.vector.iterated_local_search import IteratedLocalSearchPolicy
+from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
 from logic.src.utils.data.rl_utils import safe_td_copy
 
 

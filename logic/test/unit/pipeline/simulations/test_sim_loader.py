@@ -1,20 +1,18 @@
 """Unit tests for simulation loader and context."""
 
-import os
 import json
-import torch
-import pytest
-import numpy as np
-import pandas as pd
-from unittest.mock import MagicMock, patch, mock_open
+import os
+from unittest.mock import patch
 
+import pandas as pd
 from logic.src.pipeline.simulations.day_context import SimulationDayContext
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
-    load_indices,
     load_depot,
-    load_simulator_data
+    load_indices,
+    load_simulator_data,
 )
+
 
 def test_simulation_day_context_mapping():
     """Test SimulationDayContext dataclass and Mapping interface."""

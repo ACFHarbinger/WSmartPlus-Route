@@ -1,12 +1,10 @@
 
-import pytest
-import torch
 import torch.nn as nn
-from unittest.mock import MagicMock
 from logic.src.models.meta.hrl_manager import MandatoryManager
 from logic.src.models.meta.hrl_manager.temporal_encoder import TemporalEncoder
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.models.subnets.factories.gcn import GCNComponentFactory
+
 
 class TestManagerConfigurableEncoders:
 

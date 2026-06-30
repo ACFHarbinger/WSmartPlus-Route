@@ -7,8 +7,14 @@ Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import HGSRRSolver, HGSRRParams
+from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import (
+    GIHHParams,
+    GIHHSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import (
+    HGSRRParams,
+    HGSRRSolver,
+)
 
 
 class TestPolicyComparison:
@@ -56,7 +62,7 @@ class TestPolicyComparison:
         arch_gihh = solver_gihh.solve()
         assert arch_gihh, "GIHH Solver returned empty archive"
         best_sol_gihh = max(arch_gihh, key=lambda s: s.profit)
-        routes_gihh, profit_gihh, cost_gihh = best_sol_gihh.routes, best_sol_gihh.profit, solver_gihh._cost(best_sol_gihh.routes)
+        routes_gihh, _profit_gihh, _cost_gihh = best_sol_gihh.routes, best_sol_gihh.profit, solver_gihh._cost(best_sol_gihh.routes)
 
         # Both should produce valid solutions
         assert isinstance(routes_hgs_rr, list)

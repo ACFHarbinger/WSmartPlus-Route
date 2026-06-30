@@ -6,8 +6,8 @@ Integration tests for training workflows.
 import pytest
 import torch
 from logic.src.envs import VRPPEnv, WCVRPEnv
-from logic.src.policies.vector import AttentionModelPolicy
 from logic.src.pipeline.rl.core import A2C, PPO, REINFORCE
+from logic.src.policies.vector import AttentionModelPolicy
 from pytorch_lightning import Trainer
 
 

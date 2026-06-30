@@ -1,10 +1,14 @@
-import pytest
-import numpy as np
-
 from typing import List, Optional
-from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
-from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+
+import numpy as np
+import pytest
 from logic.src.policies.helpers.local_search.local_search_base import LocalSearch
+from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import (
+    ILSRVNDSPSolver,
+)
+from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import (
+    ILSRVNDSPParams,
+)
 
 
 class MockLocalSearch(LocalSearch):

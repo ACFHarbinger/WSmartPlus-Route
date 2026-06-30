@@ -1,8 +1,7 @@
 """Unit tests for the Bins class in logic/src/pipeline/simulations/bins.py."""
 
+
 import numpy as np
-import pytest
-from unittest.mock import MagicMock, patch
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.bins.prediction import predict_days_to_overflow
 

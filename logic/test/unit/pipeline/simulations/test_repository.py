@@ -1,9 +1,8 @@
-import os
-import json
-import pytest
-import pandas as pd
 from unittest.mock import MagicMock, patch
+
 import logic.src.pipeline.simulations.repository as repo_module
+import pandas as pd
+import pytest
 from logic.src.pipeline.simulations.repository.base import SimulationRepository
 from logic.src.pipeline.simulations.repository.filesystem import FileSystemRepository
 
@@ -262,6 +261,7 @@ def test_dataset_repository():
     }
     fake_dataset = [fake_sample_0, fake_sample_1]
 
+    # pyrefly: ignore [bad-argument-type]
     repo = DatasetRepository(fake_dataset, sample_id=0)
     assert repo._sample is fake_sample_0
 

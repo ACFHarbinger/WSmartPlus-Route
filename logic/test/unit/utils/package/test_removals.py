@@ -205,7 +205,7 @@ class TestRemovals(unittest.TestCase):
 
     def test_security_cleanups(self) -> None:
         """Test file modifications in Security removal script."""
-        from logic.src.utils.package.remove_security import patch_setup_env, patch_google_maps
+        from logic.src.utils.package.remove_security import patch_google_maps, patch_setup_env
 
         mock_file = MagicMock(spec=Path)
         mock_file.exists.return_value = True

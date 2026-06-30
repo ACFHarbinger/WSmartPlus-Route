@@ -141,21 +141,23 @@ class TestSimulationDataMapper:
         configs = {"problem": "vrpp"}
         device = torch.device("cpu")
 
-        with patch(
-            "logic.src.pipeline.simulations.repository.load_area_and_waste_type_params", return_value=(100, 1, 1, 1, 1)
+        with (
+            patch(
+                "logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
+                return_value=(100, 1, 1, 1, 1),
+            ),
+            patch("logic.src.data.processor.mapper.get_adj_knn", return_value=np.ones((1, 1))),
         ):
-            # KNN edges
-            with patch("logic.src.data.processor.mapper.get_adj_knn", return_value=np.ones((1, 1))):
-                data, (edges, dm), profit = mapper.process_model_input(
-                    coords,
-                    dist_matrix,
-                    device,
-                    "mmn",
-                    configs,
-                    edge_threshold=0.5,  # > 0
-                    edge_method="knn",
-                    area="a",
-                    waste_type="w",
-                    adj_matrix=None,
-                )
-                assert edges is not None
+            data, (edges, dm), profit = mapper.process_model_input(
+                coords,
+                dist_matrix,
+                device,
+                "mmn",
+                configs,
+                edge_threshold=0.5,  # > 0
+                edge_method="knn",
+                area="a",
+                waste_type="w",
+                adj_matrix=None,
+            )
+            assert edges is not None

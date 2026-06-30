@@ -1,29 +1,28 @@
 """Unit tests for HPO base classes and search spaces."""
 
-import os
-import json
 import dataclasses
-import pytest
-from typing import Dict, List, Optional, Any, Union
+import json
+from typing import Any, List, Union
 from unittest.mock import MagicMock, patch
 
 import optuna
+import pytest
 from logic.src.configs import Config
 from logic.src.pipeline.simulations.hpo.base import (
     PolicyHPOBase,
     _build_grid_from_search_space,
 )
 from logic.src.pipeline.simulations.hpo.search_spaces import (
-    validate_search_space,
-    load_all_search_spaces,
-    get_component_search_space,
-    compose_search_space,
-    get_search_space,
     _extract_params_from_config,
+    compose_search_space,
+    generate_acceptance_criteria_rules,
+    generate_mandatory_selection_jobs,
     generate_policy_filters,
     generate_route_improvement_interceptors,
-    generate_mandatory_selection_jobs,
-    generate_acceptance_criteria_rules,
+    get_component_search_space,
+    get_search_space,
+    load_all_search_spaces,
+    validate_search_space,
 )
 
 
@@ -173,7 +172,9 @@ class TestPolicyHPOBase:
 class TestSearchSpaces:
     @pytest.mark.unit
     def test_validate_search_space_func(self) -> None:
-        errors = validate_search_space({"_comment": "metadata", "valid_p": {"type": "float", "low": 0.0, "high": 1.0}}, "dummy")
+        errors = validate_search_space(
+            {"_comment": "metadata", "valid_p": {"type": "float", "low": 0.0, "high": 1.0}}, "dummy"
+        )
         assert len(errors) == 0
 
         errors = validate_search_space({"bad_spec": "not_a_dict"}, "dummy")
@@ -224,10 +225,22 @@ class TestSearchSpaces:
         assert get_component_search_space("filter", "non_existent") == {}
 
     @pytest.mark.unit
-    @patch("logic.src.pipeline.simulations.hpo.search_spaces.FILTER_SPACES", {"test_filter": {"p": {"type": "float", "low": 0.0, "high": 1.0}}})
-    @patch("logic.src.pipeline.simulations.hpo.search_spaces.INTERCEPTOR_SPACES", {"test_interceptor": {"p": {"type": "int", "low": 1, "high": 10}}})
-    @patch("logic.src.pipeline.simulations.hpo.search_spaces.JOB_SPACES", {"test_job": {"p": {"type": "categorical", "choices": ["a"]}}})
-    @patch("logic.src.pipeline.simulations.hpo.search_spaces.RULE_SPACES", {"test_rule": {"p": {"type": "float", "low": 0.0, "high": 1.0}}})
+    @patch(
+        "logic.src.pipeline.simulations.hpo.search_spaces.FILTER_SPACES",
+        {"test_filter": {"p": {"type": "float", "low": 0.0, "high": 1.0}}},
+    )
+    @patch(
+        "logic.src.pipeline.simulations.hpo.search_spaces.INTERCEPTOR_SPACES",
+        {"test_interceptor": {"p": {"type": "int", "low": 1, "high": 10}}},
+    )
+    @patch(
+        "logic.src.pipeline.simulations.hpo.search_spaces.JOB_SPACES",
+        {"test_job": {"p": {"type": "categorical", "choices": ["a"]}}},
+    )
+    @patch(
+        "logic.src.pipeline.simulations.hpo.search_spaces.RULE_SPACES",
+        {"test_rule": {"p": {"type": "float", "low": 0.0, "high": 1.0}}},
+    )
     def test_compose_search_space(self) -> None:
         composed = compose_search_space(
             job="test_job",
@@ -248,15 +261,23 @@ class TestSearchSpaces:
         assert composed_kw == {}
 
     @pytest.mark.unit
-    @patch("logic.src.pipeline.simulations.hpo.search_spaces.POLICY_SEARCH_SPACES", {"test_policy": {"p": {"type": "float", "low": 0.0, "high": 1.0}}})
+    @patch(
+        "logic.src.pipeline.simulations.hpo.search_spaces.POLICY_SEARCH_SPACES",
+        {"test_policy": {"p": {"type": "float", "low": 0.0, "high": 1.0}}},
+    )
     def test_get_search_space(self) -> None:
         space = get_search_space("test_policy")
         assert "p" in space
 
-        with pytest.raises(ValueError, match="has 1 error"):
-            # Mock invalid spec
-            with patch("logic.src.pipeline.simulations.hpo.search_spaces.POLICY_SEARCH_SPACES", {"test_policy": {"p": {"type": "float", "low": 5.0, "high": 1.0}}}):
-                get_search_space("test_policy")
+        # Mock invalid spec
+        with (
+            patch(
+                "logic.src.pipeline.simulations.hpo.search_spaces.POLICY_SEARCH_SPACES",
+                {"test_policy": {"p": {"type": "float", "low": 5.0, "high": 1.0}}},
+            ),
+            pytest.raises(ValueError, match="has 1 error"),
+        ):
+            get_search_space("test_policy")
 
     @pytest.mark.unit
     def test_extract_params_from_config(self) -> None:

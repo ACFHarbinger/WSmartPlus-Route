@@ -239,12 +239,15 @@ def load_grid_base(
         GridBase object.
     """
     from logic.src.constants.paths import ROOT_DIR
+    from logic.src.constants.waste import COUNTY_ALIASES
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 
     if data_dir is None:
         data_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
 
     src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
+    src_area = COUNTY_ALIASES.get(src_area, src_area)
+
     waste_csv = f"out_rate_crude[{src_area}].csv"
     info_csv = f"out_info[{src_area}].csv"
 

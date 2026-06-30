@@ -1,11 +1,11 @@
 import pytest
 import torch
-from tensordict import TensorDict
-
 from logic.src.models.core.hybrid_attention_model.hybrid_two_step_policy import (
     HybridTwoStagePolicy,
     ImprovementStepDecoder,
 )
+from tensordict import TensorDict
+
 
 @pytest.fixture
 def dummy_td():

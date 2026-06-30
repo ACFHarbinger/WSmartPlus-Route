@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import pytest
 
-from unittest.mock import patch
 from gui.src.tabs.hyperparam_optim import HyperParamOptimParserTab
 
 

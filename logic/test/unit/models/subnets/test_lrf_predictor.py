@@ -3,6 +3,7 @@ import pytest
 import torch
 from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 
+
 class TestLRFPredictor:
     @pytest.fixture
     def predictor(self):

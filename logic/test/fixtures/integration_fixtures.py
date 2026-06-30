@@ -45,7 +45,6 @@ def train_opts(tmp_path):
         "w_overflows": 100.0,
         "w_lost": 10.0,
         "w_penalty": 0.0,
-        "w_waste": 0.0,
         "mrl_method": "cb",
         "hpo_method": "gs",
     }
@@ -127,9 +126,13 @@ def setup_sim_data(tmp_path, mocker):
     mocker.patch("logic.src.pipeline.simulations.bins.base.ROOT_DIR", str(tmp_path))
     mocker.patch("logic.src.pipeline.simulations.repository.ROOT_DIR", str(tmp_path))
     # Mock fast_tsp to avoid solver crashes with dummy data
-    mocker.patch("logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 0])
+    mocker.patch(
+        "logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.fast_tsp.find_tour",
+        return_value=[0, 1, 0],
+    )
     # Instantiate a real FileSystemRepository and patch the global singleton
     from logic.src.pipeline.simulations.repository import FileSystemRepository
+
     repo = FileSystemRepository(data_root_dir=str(tmp_path))
     # Patch the _REPOSITORY in the module
     mocker.patch("logic.src.pipeline.simulations.repository._REPOSITORY", repo)
@@ -225,7 +228,13 @@ def base_vrpp_data():
     binsids = [0, 1, 2, 3, 4, 5]
     mandatory_nodes = [2, 4]  # Bin IDs (index in dist_matrix)
 
-    return {"bins": bins, "dist_matrix": dist_matrix, "values": values, "binsids": binsids, "mandatory_nodes": mandatory_nodes}
+    return {
+        "bins": bins,
+        "dist_matrix": dist_matrix,
+        "values": values,
+        "binsids": binsids,
+        "mandatory_nodes": mandatory_nodes,
+    }
 
 
 @pytest.fixture
@@ -245,9 +254,9 @@ def parity_instance():
     ]
     values = {
         "Q": 1000.0,  # Large capacity to allow visiting all
-        "R": 1.0,     # Revenue per unit
+        "R": 1.0,  # Revenue per unit
         "B": 1.0,
-        "C": 1.0,     # Cost per unit distance
+        "C": 1.0,  # Cost per unit distance
         "V": 1.0,
         "Omega": 0.0,
         "delta": 0.0,
@@ -256,10 +265,4 @@ def parity_instance():
     binsids = [0, 1, 2, 3, 4, 5]
     mandatory = []  # No forced nodes, let profit drive it
 
-    return {
-        "bins": bins,
-        "dist_matrix": dist_matrix,
-        "values": values,
-        "binsids": binsids,
-        "mandatory": mandatory
-    }
+    return {"bins": bins, "dist_matrix": dist_matrix, "values": values, "binsids": binsids, "mandatory": mandatory}

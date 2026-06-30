@@ -3,9 +3,6 @@ Tests for N2S Model and Policy.
 """
 
 import pytest
-import torch
-from tensordict import TensorDict
-
 from logic.src.envs.tsp_kopt import TSPkoptEnv
 from logic.src.models.core.n2s import N2S
 from logic.src.models.core.n2s.policy import N2SPolicy

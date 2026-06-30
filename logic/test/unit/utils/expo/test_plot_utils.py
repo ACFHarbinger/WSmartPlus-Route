@@ -1,18 +1,18 @@
 """Unit tests for plotting utilities."""
 
-import numpy as np
-import torch
+from unittest.mock import MagicMock, patch
 
 import matplotlib.pyplot as plt
-from unittest.mock import patch, MagicMock
+import numpy as np
+import torch
 from logic.src.utils.expo import (
-    draw_graph,
-    plot_linechart,
-    plot_tsp,
     discrete_cmap,
+    draw_graph,
+    plot_attention_maps_wrapper,
+    plot_linechart,
     plot_vehicle_routes,
-    plot_attention_maps_wrapper
 )
+
 
 @patch("logic.src.utils.expo.routes.plt")
 @patch("logic.src.utils.expo.routes.nx")
@@ -22,14 +22,16 @@ def test_draw_graph(mock_nx, mock_plt):
     draw_graph(dm)
     assert mock_nx.from_numpy_array.called
 
+
 @patch("logic.src.utils.expo.charts.plt")
 def test_plot_linechart_simple(mock_plt):
     """Test generic line chart plotting."""
-    log = np.random.randn(5, 6) # 2D log (single policy)
+    log = np.random.randn(5, 6)  # 2D log (single policy)
     plot_func = MagicMock()
     plot_linechart("out.png", log, plot_func, ["pol1"])
     assert plot_func.called
     assert mock_plt.savefig.called
+
 
 @patch("logic.src.utils.expo.charts.plt")
 def test_plot_linechart_pareto(mock_plt):
@@ -37,9 +39,12 @@ def test_plot_linechart_pareto(mock_plt):
     # Data: (x, y) where x is col 0, y is col 5
     # Let's make 3 points: (1, 10), (2, 20), (3, 5)
     log = np.zeros((3, 6))
-    log[0, 0] = 1; log[0, 5] = 10
-    log[1, 0] = 2; log[1, 5] = 20
-    log[2, 0] = 3; log[2, 5] = 5
+    log[0, 0] = 1
+    log[0, 5] = 10
+    log[1, 0] = 2
+    log[1, 5] = 20
+    log[2, 0] = 3
+    log[2, 5] = 5
 
     # (1, 10) is not dominated by (2, 20) because 1 < 2.
     # (2, 20) dominates (1, 10)? No, x should be minimized, y maximized.
@@ -55,10 +60,12 @@ def test_plot_linechart_pareto(mock_plt):
     # res is list of dominants: [1, 1, 0]
     assert res[0] == [1, 1, 0]
 
+
 def test_discrete_cmap():
     """Test colormap discretization."""
     cmap = discrete_cmap(5, "viridis")
     assert cmap.N == 5
+
 
 @patch("logic.src.utils.expo.routes.plt.cm.get_cmap", side_effect=plt.cm.get_cmap)
 @patch("logic.src.utils.expo.routes.plt.figure")
@@ -68,7 +75,7 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     data = {
         "depot": torch.tensor([0.5, 0.5]),
         "loc": torch.tensor([[0.1, 0.1], [0.2, 0.2]]),
-        "waste": torch.tensor([0.1, 0.2])
+        "waste": torch.tensor([0.1, 0.2]),
     }
     # Route: 0 -> 1 -> 2 -> 0 represented as [0, 1, 2, 0]
     route = torch.tensor([0, 1, 2, 0])
@@ -76,6 +83,7 @@ def test_plot_vehicle_routes(mock_pc, mock_fig, mock_get_cmap):
     plot_vehicle_routes(data, route, ax, visualize_waste=True)
     assert ax.quiver.called
     assert mock_pc.called
+
 
 @patch("logic.src.utils.expo.attention.plt")
 @patch("logic.src.utils.expo.attention.sns")
@@ -87,14 +95,14 @@ def test_plot_attention_maps(mock_sns, mock_plt, tmp_path):
     exec_func = MagicMock()
 
     plot_attention_maps_wrapper(
-        str(tmp_path), # home_dir
-        30, # ndays
-        50, # nbins
-        "out", # output_dir
-        "area", # area
+        str(tmp_path),  # home_dir
+        30,  # ndays
+        50,  # nbins
+        "out",  # output_dir
+        "area",  # area
         attention_dict=attn_dict,
         model_name="model",
-        execution_function=exec_func
+        execution_function=exec_func,
     )
 
     assert mock_sns.heatmap.called

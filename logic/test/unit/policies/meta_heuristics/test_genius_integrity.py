@@ -3,9 +3,9 @@ Integration tests for GENIUS solver integrity.
 """
 
 import numpy as np
-import pytest
-from logic.src.policies.route_construction.meta_heuristics.genius.solver import GENIUSSolver
 from logic.src.policies.route_construction.meta_heuristics.genius.params import GENIUSParams
+from logic.src.policies.route_construction.meta_heuristics.genius.solver import GENIUSSolver
+
 
 def test_genius_node_conservation():
     """Verify that nodes are not lost during GENIUS US iterations."""

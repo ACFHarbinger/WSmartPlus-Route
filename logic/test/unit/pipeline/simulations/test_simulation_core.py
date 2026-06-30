@@ -1,7 +1,8 @@
 import pytest
 import torch  # noqa: F401
-from logic.src.pipeline.simulations.simulator import single_simulation, sequential_simulations
 from logic.src.pipeline.simulations.checkpoints import CheckpointError
+from logic.src.pipeline.simulations.simulator import sequential_simulations, single_simulation
+
 
 class TestSimulation:
     """Integration tests for high-level simulation orchestration."""

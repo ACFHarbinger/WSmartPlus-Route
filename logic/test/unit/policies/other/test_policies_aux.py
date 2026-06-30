@@ -13,15 +13,15 @@ import random
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import evolution, individual
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import params as hgs_params
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import split as split_module
 from logic.src.policies.helpers.local_search import local_search_base
 
 # HGS and ALNS auxiliary imports
 from logic.src.policies.helpers.operators import destroy_ruin as destroy_operators
 from logic.src.policies.helpers.operators import recreate_repair as repair_operators
 from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import evolution, individual
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import params as hgs_params
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import split as split_module
 
 # Look-ahead auxiliary imports
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.check import (

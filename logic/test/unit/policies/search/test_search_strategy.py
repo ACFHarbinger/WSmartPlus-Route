@@ -1,11 +1,13 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from logic.src.policies.helpers.solvers_and_matheuristics.search.search_strategy import (
-    create_search_strategy,
     BestFirstSearch,
     DepthFirstSearch,
     HybridSearchStrategy,
+    create_search_strategy,
 )
+
 
 def test_best_first_search() -> None:
     strategy = BestFirstSearch()

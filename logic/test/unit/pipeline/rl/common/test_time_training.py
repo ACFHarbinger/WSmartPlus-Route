@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import pytest
 import torch
 from logic.src.pipeline.rl.common.epoch import apply_time_step, prepare_epoch
 from tensordict import TensorDict

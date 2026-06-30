@@ -139,10 +139,15 @@ class Bins:
         self.collectlevl = np.ones((n)) * 80
         self.data_dir = data_dir
         self.indices = np.array(indices) if indices is not None else np.arange(n)
-        try:
-            self.grid = load_grid_base(self.indices, area, data_dir) if grid is None else grid
-        except FileNotFoundError:
-            self.grid = None  # type: ignore[assignment]
+        if grid is not None:
+            self.grid = grid
+        else:
+            try:
+                self.grid = load_grid_base(self.indices, area, data_dir)
+            except FileNotFoundError:
+                if sample_dist == "emp":
+                    raise  # GridBase already provides the specific file path in the message
+                self.grid = None  # type: ignore[assignment]
 
         if sample_dist == "emp":
             self.dist_param1 = self.grid.get_mean_rate()

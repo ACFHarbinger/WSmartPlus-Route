@@ -1,8 +1,15 @@
 
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch
-from logic.src.pipeline.simulations.actions import MandatorySelectionAction, FillAction, CollectAction, RouteImprovementAction
+from logic.src.pipeline.simulations.actions import (
+    CollectAction,
+    FillAction,
+    MandatorySelectionAction,
+    RouteImprovementAction,
+)
+
 
 class SimpleContext(dict):
     def __getattr__(self, name):

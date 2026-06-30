@@ -1,6 +1,8 @@
-import torch
 from unittest.mock import MagicMock, patch
+
+import torch
 from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
+
 
 class TestLexSort:
     """Class for lexsort tests."""

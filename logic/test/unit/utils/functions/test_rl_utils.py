@@ -1,9 +1,9 @@
 """Unit tests for rl.py."""
 
 import torch
-import pytest
-from tensordict import TensorDict
 from logic.src.utils.functions.rl import ensure_tensordict
+from tensordict import TensorDict
+
 
 def test_ensure_tensordict_from_dict():
     """Test converting a simple dict to TensorDict."""

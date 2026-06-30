@@ -1,11 +1,12 @@
-import torch
-import torch.nn as nn
-from tensordict import TensorDict
-import pytest
 from unittest.mock import MagicMock
 
-from logic.src.pipeline.rl.core.stepwise_ppo import StepwisePPO
+import pytest
+import torch
+import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
+from logic.src.pipeline.rl.core.stepwise_ppo import StepwisePPO
+from tensordict import TensorDict
+
 
 class MockPolicy(nn.Module):
     def __init__(self):

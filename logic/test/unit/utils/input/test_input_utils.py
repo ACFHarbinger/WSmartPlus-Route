@@ -4,6 +4,7 @@ from logic.src.utils.input import (
     process_list_of_dicts,
 )
 
+
 class TestInputProcessing:
     """
     Tests for input/processing.py module (preserved from original test_utils.py).

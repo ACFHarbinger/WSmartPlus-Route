@@ -4,8 +4,12 @@ Unit tests for the Scenario-Tree Extensive Form (ST-EF) policy.
 
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form import ScenarioTreeExtensiveFormPolicy
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import GUROBI_AVAILABLE
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form import (
+    ScenarioTreeExtensiveFormPolicy,
+)
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
+    GUROBI_AVAILABLE,
+)
 
 
 def _has_gurobi_license() -> bool:
@@ -52,10 +56,10 @@ def test_st_ef_basic():
     policy = ScenarioTreeExtensiveFormPolicy(config=config)
 
     # Inject ScenarioTree and MultiDayContext for Multi-Period Policy
-    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
     from logic.src.interfaces.context.multi_day_context import (
         MultiDayContext,
     )
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
 
     generator = ScenarioGenerator(seed=42, horizon=2)
     # n_nodes is 3 (0=depot, 1, 2)
@@ -119,10 +123,10 @@ def test_st_ef_no_waste():
     policy = ScenarioTreeExtensiveFormPolicy(config=config)
 
     # Inject ScenarioTree and MultiDayContext for Multi-Period Policy
-    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
     from logic.src.interfaces.context.multi_day_context import (
         MultiDayContext,
     )
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
 
     generator = ScenarioGenerator(seed=42, horizon=2)
     wastes_arr = np.zeros(n_nodes)

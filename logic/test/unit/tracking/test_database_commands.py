@@ -1,14 +1,11 @@
 """Unit tests for the tracking database management commands."""
 
-import os
-import sys
 import sqlite3
-import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-import logic.src.tracking.database.shared as shared
 import logic.src.tracking.database.commands as commands
+import logic.src.tracking.database.shared as shared
+import pytest
 
 # Determine schema path relative to this test file
 SCHEMA_PATH = Path(__file__).parents[3] / "src/tracking/core/schema.sql"

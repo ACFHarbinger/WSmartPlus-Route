@@ -1,9 +1,10 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch
-
 from logic.src.policies.helpers.reinforcement_learning.ks_aco_qlearning import KSparseACOQLSolver
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
+
 
 class MockRLParams:
     qlearning_epsilon_decay_step = 1

@@ -4,7 +4,9 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.base import RouteConstructorRegistry
-from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp import CVRPPolicy
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp import (
+    CVRPPolicy,
+)
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp import TSPPolicy
 
 

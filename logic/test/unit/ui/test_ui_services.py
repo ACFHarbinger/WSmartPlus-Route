@@ -1,15 +1,41 @@
 import sys
-import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-import pytest
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
+
+# Import targets
+from logic.src.ui.services.benchmark_loader import (
+    get_benchmark_log_path,
+    get_unique_benchmarks,
+    load_benchmark_data,
+)
+from logic.src.ui.services.log_parser import (
+    DayLogEntry,
+    aggregate_metrics_by_day,
+    filter_entries,
+    get_day_range,
+    get_unique_policies,
+    get_unique_samples,
+    parse_day_log_line,
+    parse_log_file,
+    stream_log_file,
+)
+from logic.src.ui.services.simulation_analytics import (
+    compute_cumulative_stats,
+    compute_day_deltas,
+    compute_summary_statistics,
+    get_metric_history,
+)
+
 
 # --- Mock Streamlit ---
 def mock_cache_decorator(*args, **kwargs):
     def decorator(func):
         return func
+
     return decorator
+
 
 if "streamlit" not in sys.modules:
     mock_st = MagicMock()
@@ -20,39 +46,13 @@ else:
     if isinstance(mock_st, MagicMock):
         mock_st.cache_data = mock_cache_decorator
 
-# Import targets
-from logic.src.ui.services.log_parser import (
-    DayLogEntry,
-    parse_day_log_line,
-    parse_log_file,
-    stream_log_file,
-    get_unique_policies,
-    get_unique_samples,
-    filter_entries,
-    get_day_range,
-    aggregate_metrics_by_day,
-)
-
-from logic.src.ui.services.simulation_analytics import (
-    compute_cumulative_stats,
-    compute_day_deltas,
-    compute_summary_statistics,
-    get_metric_history,
-)
-
-from logic.src.ui.services.benchmark_loader import (
-    get_benchmark_log_path,
-    load_benchmark_data,
-    get_unique_benchmarks,
-)
-
-
 # ==========================================
 # 1. Tests for log_parser.py
 # ==========================================
 
+
 def test_parse_day_log_line_valid():
-    line = "GUI_DAY_LOG_START:greedy,0,1,{\"profit\": 12.5, \"overflows\": 2}"
+    line = 'GUI_DAY_LOG_START:greedy,0,1,{"profit": 12.5, "overflows": 2}'
     entry = parse_day_log_line(line)
     assert entry is not None
     assert entry.policy == "greedy"
@@ -75,8 +75,8 @@ def test_parse_day_log_line_invalid():
 def test_parse_log_file(tmp_path):
     log_file = tmp_path / "sim.jsonl"
     log_content = (
-        "GUI_DAY_LOG_START:greedy,0,1,{\"profit\": 10, \"all_bin_coords\": [[1.0, 2.0]]}\n"
-        "GUI_DAY_LOG_START:greedy,0,2,{\"profit\": 15}\n"
+        'GUI_DAY_LOG_START:greedy,0,1,{"profit": 10, "all_bin_coords": [[1.0, 2.0]]}\n'
+        'GUI_DAY_LOG_START:greedy,0,2,{"profit": 15}\n'
     )
     log_file.write_text(log_content)
 
@@ -95,9 +95,9 @@ def test_parse_log_file_non_existent():
 def test_stream_log_file(tmp_path):
     log_file = tmp_path / "sim.jsonl"
     log_content = (
-        "GUI_DAY_LOG_START:greedy,0,1,{\"profit\": 10, \"all_bin_coords\": [[1.0, 2.0]]}\n"
-        "GUI_DAY_LOG_START:greedy,0,2,{\"profit\": 15}\n"
-        "GUI_DAY_LOG_START:greedy,0,3,{\"profit\": 20}\n"
+        'GUI_DAY_LOG_START:greedy,0,1,{"profit": 10, "all_bin_coords": [[1.0, 2.0]]}\n'
+        'GUI_DAY_LOG_START:greedy,0,2,{"profit": 15}\n'
+        'GUI_DAY_LOG_START:greedy,0,3,{"profit": 20}\n'
     )
     log_file.write_text(log_content)
 
@@ -163,6 +163,7 @@ def test_aggregate_metrics_by_day():
 # 2. Tests for simulation_analytics.py
 # ==========================================
 
+
 def test_compute_cumulative_stats():
     # Empty
     assert compute_cumulative_stats([]) == {}
@@ -225,6 +226,7 @@ def test_get_metric_history():
 # 3. Tests for benchmark_loader.py
 # ==========================================
 
+
 def test_get_benchmark_log_path():
     p = get_benchmark_log_path()
     assert isinstance(p, Path)
@@ -233,7 +235,9 @@ def test_get_benchmark_log_path():
 
 def test_load_benchmark_data_non_existent():
     # Force file path to check a mock nonexistent one
-    with patch("logic.src.ui.services.benchmark_loader.get_benchmark_log_path", return_value=Path("non_existent.jsonl")):
+    with patch(
+        "logic.src.ui.services.benchmark_loader.get_benchmark_log_path", return_value=Path("non_existent.jsonl")
+    ):
         df = load_benchmark_data()
         assert df.empty
 
@@ -241,8 +245,8 @@ def test_load_benchmark_data_non_existent():
 def test_load_benchmark_data_exists(tmp_path):
     log_file = tmp_path / "benchmarks.jsonl"
     log_content = (
-        "{\"type\": \"performance_benchmark\", \"timestamp\": \"2026-06-21T20:00:00Z\", \"benchmark\": \"TamModel\", \"level\": \"L1\", \"message\": \"test\", \"metrics\": {\"latency\": 5.2}, \"metadata\": {\"device\": \"cuda\"}}\n"
-        "{\"type\": \"other_type\", \"timestamp\": \"2026-06-21T21:00:00Z\"}\n"
+        '{"type": "performance_benchmark", "timestamp": "2026-06-21T20:00:00Z", "benchmark": "TamModel", "level": "L1", "message": "test", "metrics": {"latency": 5.2}, "metadata": {"device": "cuda"}}\n'
+        '{"type": "other_type", "timestamp": "2026-06-21T21:00:00Z"}\n'
         "invalid_json_here\n"
     )
     log_file.write_text(log_content)

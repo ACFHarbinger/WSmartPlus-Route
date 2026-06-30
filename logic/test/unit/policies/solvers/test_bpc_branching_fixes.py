@@ -1,11 +1,12 @@
 import numpy as np
-from logic.src.policies.helpers.solvers_and_matheuristics import Route
 from logic.src.policies.helpers.solvers_and_matheuristics import (
-    EdgeBranching,
-    RyanFosterBranching,
     BranchNode,
-    EdgeBranchingConstraint
+    EdgeBranching,
+    EdgeBranchingConstraint,
+    Route,
+    RyanFosterBranching,
 )
+
 
 def test_edge_branching_partition_logic():
     """Verify that EdgeBranching finds two fractional arcs and partitions on them."""
@@ -90,8 +91,11 @@ def test_edge_branching_no_partition():
 
 def test_bpc_policy_adapter_profit_alignment():
     """Verify that BPCPolicy._run_solver correctly interprets solver output."""
-    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import patch
+
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import (
+        BPCPolicy,
+    )
 
     policy = BPCPolicy()
 

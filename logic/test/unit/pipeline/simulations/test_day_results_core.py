@@ -1,7 +1,7 @@
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 from logic.src.pipeline.simulations.day_context import get_daily_results
+
 
 class TestDayResults:
     """Class for daily results calculation tests."""

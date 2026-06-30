@@ -1,13 +1,12 @@
 """Tests for setup_sims.py."""
 
+import os
 from unittest.mock import MagicMock, patch
 
 import torch
-
 from logic.src.utils.infrastructure.setup_env import setup_env
-from logic.src.utils.infrastructure.setup_worker import setup_model
 from logic.src.utils.infrastructure.setup_manager import setup_hrl_manager
-import os
+from logic.src.utils.infrastructure.setup_worker import setup_model
 
 
 def test_setup_env_non_vrpp():
@@ -22,7 +21,7 @@ def test_setup_env_gurobi_local(tmp_path):
 
     with patch("logic.src.constants.ROOT_DIR", str(tmp_path)), \
          patch("os.path.exists", return_value=True), \
-         patch("gurobipy.Env") as mock_env:
+         patch("gurobipy.Env"):
         setup_env("swc_tcf", server=False, gplic_filename="gurobi.lic")
         assert os.environ["GRB_LICENSE_FILE"].endswith("gurobi.lic")
 

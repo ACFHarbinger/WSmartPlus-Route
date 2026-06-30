@@ -7,8 +7,10 @@ from tensordict import TensorDict
 from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import (
+    run_swc_tcf_optimizer,
+)
 from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 def get_dummy_model(device="cpu"):
@@ -133,10 +135,7 @@ def run_benchmarks(args):
     device_arg = args.get("device", "auto")
     output_file = args.get("output")
 
-    if device_arg == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    else:
-        device = device_arg
+    device = ("cuda" if torch.cuda.is_available() else "cpu") if device_arg == "auto" else device_arg
 
     results = {}  # type: ignore[var-annotated]
 

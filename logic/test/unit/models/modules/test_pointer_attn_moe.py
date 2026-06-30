@@ -3,6 +3,7 @@ import pytest
 import torch
 from logic.src.models.subnets.modules.pointer_attn_moe import PointerAttnMoE
 
+
 class TestPointerAttnMoE:
     @pytest.fixture
     def setup_data(self):

@@ -1,11 +1,16 @@
 import sys
 from unittest.mock import MagicMock
 
+from logic.src.ui.components.policy_viz import render_policy_viz
+
+
 # Set up mock streamlit
 def mock_cache_decorator(*args, **kwargs):
     def decorator(func):
         return func
+
     return decorator
+
 
 if "streamlit" not in sys.modules:
     mock_st = MagicMock()
@@ -16,22 +21,21 @@ else:
     if isinstance(mock_st, MagicMock):
         mock_st.cache_data = mock_cache_decorator
 
+
 # Dynamically return appropriate number of columns
 def mock_columns(num_or_spec):
-    if isinstance(num_or_spec, int):
-        num = num_or_spec
-    else:
-        num = len(num_or_spec)
+    num = num_or_spec if isinstance(num_or_spec, int) else len(num_or_spec)
     return [MagicMock() for _ in range(num)]
+
 
 mock_st.columns = mock_columns
 
-from logic.src.ui.components.policy_viz import render_policy_viz
 
 def test_render_policy_viz_empty():
     mock_st.reset_mock()
     render_policy_viz({})
     mock_st.info.assert_called_once()
+
 
 def test_render_policy_viz_alns():
     mock_st.reset_mock()
@@ -49,6 +53,7 @@ def test_render_policy_viz_alns():
     mock_st.subheader.assert_called_with("ALNS Test")
     mock_st.plotly_chart.assert_called()
 
+
 def test_render_policy_viz_hgs():
     mock_st.reset_mock()
     viz_data = {
@@ -62,6 +67,7 @@ def test_render_policy_viz_hgs():
     render_policy_viz(viz_data)
     mock_st.plotly_chart.assert_called()
 
+
 def test_render_policy_viz_aco():
     mock_st.reset_mock()
     viz_data = {
@@ -73,6 +79,7 @@ def test_render_policy_viz_aco():
     }
     render_policy_viz(viz_data)
     mock_st.plotly_chart.assert_called()
+
 
 def test_render_policy_viz_ils():
     mock_st.reset_mock()
@@ -86,6 +93,7 @@ def test_render_policy_viz_ils():
     render_policy_viz(viz_data)
     mock_st.plotly_chart.assert_called()
 
+
 def test_render_policy_viz_selector():
     mock_st.reset_mock()
     viz_data = {
@@ -96,6 +104,7 @@ def test_render_policy_viz_selector():
     render_policy_viz(viz_data)
     mock_st.plotly_chart.assert_called()
 
+
 def test_render_policy_viz_rls_op_name():
     mock_st.reset_mock()
     viz_data = {
@@ -105,6 +114,7 @@ def test_render_policy_viz_rls_op_name():
     }
     render_policy_viz(viz_data)
     mock_st.plotly_chart.assert_called()
+
 
 def test_render_policy_viz_rls_no_op_name():
     mock_st.reset_mock()

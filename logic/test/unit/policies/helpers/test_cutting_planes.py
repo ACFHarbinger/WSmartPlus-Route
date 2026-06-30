@@ -1,34 +1,33 @@
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pytest
-import gurobipy as gp
-from unittest.mock import MagicMock, patch
-from typing import Set, Dict, List, Tuple
-
-from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.helpers.solvers_and_matheuristics import Route
 from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
+    BasicFleetCoverEngine,
+    CompositeCuttingPlaneEngine,
     CuttingPlaneEngine,
-    RoundedCapacityCutEngine,
-    SubsetRowCutEngine,
     EdgeCliqueCutEngine,
     KnapsackCoverEngine,
-    BasicFleetCoverEngine,
-    PhysicalCapacityLCIEngine,
-    SaturatedArcLCIEngine,
-    RoundedMultistarCutEngine,
-    MinCutInequalityEngine,
-    TriangleCliqueCutEngine,
     LimitedMemoryRank1CutEngine,
+    MinCutInequalityEngine,
     NodeProfitBoundEngine,
     PathEliminationEngine,
+    PhysicalCapacityLCIEngine,
+    RoundedCapacityCutEngine,
+    RoundedMultistarCutEngine,
+    SaturatedArcLCIEngine,
+    SubsetRowCutEngine,
+    TriangleCliqueCutEngine,
     create_cutting_plane_engine,
-    CompositeCuttingPlaneEngine,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
 )
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+
 
 @pytest.fixture
 def base_vrpp_model() -> VRPPModel:

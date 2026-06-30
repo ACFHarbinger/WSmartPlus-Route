@@ -2,13 +2,13 @@
 Tests for PPO algorithm implementation.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
-from unittest.mock import MagicMock, patch
-
 from logic.src.pipeline.rl.core.ppo import PPO
+from tensordict import TensorDict
 
 
 class MockModel(nn.Module):
@@ -51,7 +51,7 @@ class TestPPO:
         critic = MockModel() # Real nn.Module
 
         # Determine device
-        device = torch.device("cpu")
+        torch.device("cpu")
 
         module = PPO(
             env=env,

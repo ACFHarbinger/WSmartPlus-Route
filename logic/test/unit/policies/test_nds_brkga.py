@@ -3,6 +3,7 @@ Tests for NDS-BRKGA.
 """
 
 import os
+
 import numpy as np
 import pytest
 
@@ -10,21 +11,28 @@ import pytest
 # to avoid descriptor creation errors if another test imports protobuf.
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params import NDSBRKGAParams
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.chromosome import Chromosome, compute_adaptive_thresholds
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.objectives import (
-    evaluate_chromosome,
-    evaluate_population,
-    compute_overflow_risk,
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.chromosome import (
+    Chromosome,
+    compute_adaptive_thresholds,
+)
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.crossover import (
+    biased_crossover,
 )
 from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.nsga2 import (
     fast_non_dominated_sort,
-    crowding_distance,
-    select_elite_nsga2,
 )
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.crossover import biased_crossover
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.population import Population
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga import NDSBRKGAPolicy
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.objectives import (
+    compute_overflow_risk,
+)
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.params import (
+    NDSBRKGAParams,
+)
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga import (
+    NDSBRKGAPolicy,
+)
+from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.population import (
+    Population,
+)
 
 
 @pytest.fixture
@@ -58,7 +66,7 @@ def test_chromosome_decoding(mock_nds_problem):
     """Test that chromosome decodes to valid selection and routes."""
     data = mock_nds_problem
     n_bins = len(data["current_fill"])
-    params = NDSBRKGAParams()
+    NDSBRKGAParams()
 
     # 2N keys
     keys = np.random.rand(2 * n_bins)

@@ -1,14 +1,17 @@
-import pytest
-import numpy as np
-import gurobipy as gp
-from gurobipy import GRB
-from typing import Dict, Any, Set, List, cast, Optional, Tuple, Union
-from unittest.mock import MagicMock, patch, PropertyMock
+import contextlib
+from typing import cast
+from unittest.mock import MagicMock, patch
 
+import gurobipy as gp
+import numpy as np
+from gurobipy import GRB
 from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz import BBSolver
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import _dfj_callback
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz import BBSolver
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import (
+    BranchAndBoundPolicy,
+)
+
 
 def test_fix_1_root_initialization():
     """Fix 1: Root node must be initialized with bound=inf."""
@@ -17,10 +20,8 @@ def test_fix_1_root_initialization():
     solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, 0.001)
 
     with patch('logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.Node') as mock_node:
-        try:
+        with contextlib.suppress(BaseException):
             solver.solve()
-        except:
-            pass
         assert mock_node.call_args_list[0][1]['bound'] == float('inf')
 
 def test_fix_2_pruning_maximization():
@@ -219,6 +220,7 @@ def test_fix_8_strong_branching_state_restoration():
 def test_fix_10_node_field_comment():
     """Fix 10: Verify node.py field comment reflects maximization."""
     import inspect
+
     from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
     source = inspect.getsource(Node)
     assert "upper bound for maximization" in source.lower()

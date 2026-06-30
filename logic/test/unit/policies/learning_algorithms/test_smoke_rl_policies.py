@@ -3,8 +3,12 @@ import numpy as np
 
 def test_rl_alns_solver():
     print("\n=== Testing RLALNSSolver ===")
-    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
-    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params import (
+        RLALNSParams,
+    )
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver import (
+        RLALNSSolver,
+    )
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
@@ -18,7 +22,7 @@ def test_rl_alns_solver():
 
     for algo in algos:
         print(f"Testing with algorithm: {algo}")
-        from logic.src.configs.policies.other import RLConfig, BanditConfig
+        from logic.src.configs.policies.other import BanditConfig, RLConfig
         rl_config = RLConfig(
             agent_type="bandit",
             bandit=BanditConfig(algorithm=algo)

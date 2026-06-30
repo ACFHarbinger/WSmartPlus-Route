@@ -1,6 +1,7 @@
 import torch
-from tensordict import TensorDict
 from logic.src.policies.vector.hgs import VectorizedHGS
+from tensordict import TensorDict
+
 
 def test_vectorized_hgs():
     batch_size = 2

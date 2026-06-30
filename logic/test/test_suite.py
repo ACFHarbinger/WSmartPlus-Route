@@ -54,6 +54,53 @@ class PyTestRunner:
         test_files = list(self.test_dir.glob("test_*.py"))
         return [f.stem for f in test_files]
 
+    def __build_pytest_target(
+        self,
+        modules: Optional[List[str]] = None,
+        test_class: Optional[str] = None,
+        test_method: Optional[str] = None,
+    ) -> List[str]:
+        """Build pytest target string."""
+        cmd_suffix = []
+        if test_method:
+            # Specific test method (requires module or searches all)
+            if modules:
+                for module in modules:
+                    test_file = TEST_MODULES.get(module, f"test_{module}.py")
+                    target = str(self.test_dir / test_file)
+                    if test_class:
+                        cmd_suffix.append(f"{target}::{test_class}::{test_method}")
+                    else:
+                        cmd_suffix.append(f"{target}::-k {test_method}")
+            else:
+                cmd_suffix.append(str(self.test_dir))
+                if test_class:
+                    cmd_suffix.extend(["-k", f"{test_class} and {test_method}"])
+                else:
+                    cmd_suffix.extend(["-k", test_method])
+
+        elif test_class:
+            # Specific test class
+            if modules:
+                for module in modules:
+                    test_file = TEST_MODULES.get(module, f"test_{module}.py")
+                    cmd_suffix.append(f"{self.test_dir / test_file}::{test_class}")
+            else:
+                cmd_suffix.append(str(self.test_dir))
+                cmd_suffix.extend(["-k", test_class])
+
+        elif modules:
+            # Specific modules
+            for module in modules:
+                test_file = TEST_MODULES.get(module, f"test_{module}.py")
+                cmd_suffix.append(str(self.test_dir / test_file))
+
+        else:
+            # All tests
+            cmd_suffix.append(str(self.test_dir))
+
+        return cmd_suffix
+
     def _build_pytest_command(
         self,
         modules: Optional[List[str]] = None,
@@ -72,43 +119,9 @@ class PyTestRunner:
         """Build pytest command with specified options"""
         cmd = ["pytest"]
 
-        # Determine test targets
-        if test_method:
-            # Specific test method (requires module or searches all)
-            if modules:
-                for module in modules:
-                    test_file = TEST_MODULES.get(module, f"test_{module}.py")
-                    target = str(self.test_dir / test_file)
-                    if test_class:
-                        cmd.append(f"{target}::{test_class}::{test_method}")
-                    else:
-                        cmd.append(f"{target}::-k {test_method}")
-            else:
-                cmd.append(str(self.test_dir))
-                if test_class:
-                    cmd.extend(["-k", f"{test_class} and {test_method}"])
-                else:
-                    cmd.extend(["-k", test_method])
-
-        elif test_class:
-            # Specific test class
-            if modules:
-                for module in modules:
-                    test_file = TEST_MODULES.get(module, f"test_{module}.py")
-                    cmd.append(f"{self.test_dir / test_file}::{test_class}")
-            else:
-                cmd.append(str(self.test_dir))
-                cmd.extend(["-k", test_class])
-
-        elif modules:
-            # Specific modules
-            for module in modules:
-                test_file = TEST_MODULES.get(module, f"test_{module}.py")
-                cmd.append(str(self.test_dir / test_file))
-
-        else:
-            # All tests
-            cmd.append(str(self.test_dir))
+        # Determine test target
+        target = self.__build_pytest_target(modules, test_class, test_method)
+        cmd.extend(target)
 
         # Add pytest options
         if verbose:

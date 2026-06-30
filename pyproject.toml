@@ -216,13 +216,8 @@ line-length = 120
 target-version = "py310"
 exclude = [
     "notebooks/",
-    "logic/test/",
-    "gui/test/",
-    "logic/docs/",
-    "gui/docs/",
-    "logic/benchmark/",
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
-    "logic/src/pipeline/simulations/wsmart_bin_analysis/python",
+    "logic/docs/*.md",
+    "gui/docs/*.md",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/notebooks",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/export/notebooks",
     "assets/",

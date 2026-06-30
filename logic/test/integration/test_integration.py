@@ -8,11 +8,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 import torch
 from logic.src.configs import Config
-from logic.src.envs.problems import VRPP, WCVRP
 from logic.src.configs.envs.graph import GraphConfig
-from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
+from logic.src.envs.problems import VRPP, WCVRP
 from logic.src.pipeline.features.train import run_training
 from logic.src.pipeline.simulations.simulator import sequential_simulations
+from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
 from omegaconf import OmegaConf
 
 

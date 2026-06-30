@@ -5,12 +5,12 @@ Unit tests for the Progressive Hedging (PH) policy.
 import numpy as np
 import pytest
 from logic.src.configs.policies import PHConfig
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging import ProgressiveHedgingPolicy
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
-
-
-from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode
 from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging import (
+    ProgressiveHedgingPolicy,
+)
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for subproblems")
@@ -35,7 +35,7 @@ def test_ph_convergence_small():
 
     # Build ScenarioTree
     root = ScenarioTreeNode(day=0, wastes=np.zeros(n_nodes), probability=1.0)
-    for i, data in enumerate(scenarios_data):
+    for _i, data in enumerate(scenarios_data):
         w = np.zeros(n_nodes)
         for node, val in data.items():
             w[node] = val
@@ -48,21 +48,14 @@ def test_ph_convergence_small():
     revenue = 1.0
     cost_unit = 1.0
 
-    config = PHConfig(
-        rho=0.1,
-        max_iterations=10,
-        convergence_tol=0.05,
-        sub_solver="bc",
-        verbose=True,
-        seed=42
-    )
+    config = PHConfig(rho=0.1, max_iterations=10, convergence_tol=0.05, sub_solver="bc", verbose=True, seed=42)
 
     policy = ProgressiveHedgingPolicy(config=config)
 
     # Wrap in ProblemContext
     problem = ProblemContext(
         distance_matrix=dist_matrix,
-        wastes=scenarios_data[0].copy(), # Root wastes
+        wastes=scenarios_data[0].copy(),  # Root wastes
         fill_rate_means=np.zeros(n_nodes),
         fill_rate_stds=np.zeros(n_nodes),
         capacity=capacity,
@@ -72,7 +65,7 @@ def test_ph_convergence_small():
         horizon=1,
         mandatory=[],
         locations=np.zeros((n_nodes, 2)),
-        scenario_tree=tree
+        scenario_tree=tree,
     )
 
     # Execute

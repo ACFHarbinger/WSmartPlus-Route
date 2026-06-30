@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import pytest
 
-from unittest.mock import patch
 from gui.src.constants import VERTEX_METHODS
 from gui.src.tabs.test_simulator.ts_advanced import TestSimAdvancedTab
 

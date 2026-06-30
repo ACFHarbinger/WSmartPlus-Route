@@ -1,21 +1,22 @@
-import numpy as np
-import pytest
 from unittest.mock import MagicMock, patch
 
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem import (
-    MasterProblem,
-    InventoryMasterProblem,
-    GUROBI_AVAILABLE,
-)
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params import ILSBDParams
-from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+import numpy as np
+import pytest
 from logic.src.policies.helpers.solvers_and_matheuristics import (
     CapacityCut,
     PCSubtourEliminationCut,
 )
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem import (
+    GUROBI_AVAILABLE,
+    InventoryMasterProblem,
+    MasterProblem,
+)
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params import (
+    ILSBDParams,
+)
 
 if GUROBI_AVAILABLE:
-    import gurobipy as gp
     from gurobipy import GRB
 else:
     GRB = MagicMock()
@@ -24,6 +25,7 @@ else:
 def _has_gurobi_license() -> bool:
     try:
         import gurobipy as _gp
+
         _m = _gp.Model("_check")
         _m.dispose()
         return True
@@ -36,25 +38,29 @@ _needs_license = pytest.mark.skipif(
     reason="Requires a valid Gurobi license",
 )
 
+
 @pytest.fixture
 def vrpp_instance():
-    dist_matrix = np.array([
-        [0.0, 10.0, 15.0],
-        [10.0, 0.0, 5.0],
-        [15.0, 5.0, 0.0]
-    ])
+    dist_matrix = np.array([[0.0, 10.0, 15.0], [10.0, 0.0, 5.0], [15.0, 5.0, 0.0]])
     wastes = {1: 50.0, 2: 30.0}
     capacity = 100.0
     return dist_matrix, wastes, capacity
+
 
 def test_master_problem_gurobi_missing():
     dist_matrix = np.zeros((2, 2))
     model = VRPPModel(n_nodes=2, cost_matrix=dist_matrix, wastes={}, capacity=100.0)
     params = ILSBDParams()
 
-    with patch("logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.GUROBI_AVAILABLE", False):
-        with pytest.raises(ImportError, match="Gurobi \\(gurobipy\\) is required"):
-            MasterProblem(model, params)
+    with (
+        patch(
+            "logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.GUROBI_AVAILABLE",
+            False,
+        ),
+        pytest.raises(ImportError, match="Gurobi \\(gurobipy\\) is required"),
+    ):
+        MasterProblem(model, params)
+
 
 @_needs_license
 def test_master_problem_basic_flow(vrpp_instance):
@@ -87,6 +93,7 @@ def test_master_problem_basic_flow(vrpp_instance):
     assert isinstance(theta_hat, float)
     assert isinstance(obj, float)
 
+
 @_needs_license
 def test_master_problem_solve_no_solution(vrpp_instance):
     dist, wastes, cap = vrpp_instance
@@ -108,6 +115,7 @@ def test_master_problem_solve_no_solution(vrpp_instance):
     assert y_hat == {1: 0.0, 2: 0.0}
     assert theta_hat == params.theta_lower_bound
     assert obj == float("inf")
+
 
 @_needs_license
 def test_lazy_constraint_callback_integer_cuts(vrpp_instance):
@@ -157,6 +165,7 @@ def test_lazy_constraint_callback_integer_cuts(vrpp_instance):
         mock_model.cbLazy.assert_called()
         assert master.stats["capacity_cuts"] == 1.0
 
+
 @_needs_license
 def test_lazy_constraint_callback_fractional_cuts(vrpp_instance):
     dist, wastes, cap = vrpp_instance
@@ -176,7 +185,7 @@ def test_lazy_constraint_callback_fractional_cuts(vrpp_instance):
 
     mock_model = MagicMock()
     mock_model.cbGetNodeRel.side_effect = lambda vars: [0.5] * len(vars)
-    mock_model.cbGet.return_value = 10 # node count
+    mock_model.cbGet.return_value = 10  # node count
 
     # 1. Test PC-SEC 2.1
     with patch.object(master.separator, "separate_fractional", return_value=[cut_2_1]):
@@ -201,6 +210,7 @@ def test_lazy_constraint_callback_fractional_cuts(vrpp_instance):
         master._add_fractional_cuts(mock_model)
         mock_model.cbCut.assert_called()
 
+
 @_needs_license
 def test_lazy_constraint_callback_dispatcher(vrpp_instance):
     dist, wastes, cap = vrpp_instance
@@ -222,25 +232,25 @@ def test_lazy_constraint_callback_dispatcher(vrpp_instance):
         master._lazy_constraint_callback(mock_model, GRB.Callback.MIPNODE)
         mock_add_frac.assert_called_with(mock_model)
 
+
 @_needs_license
 def test_inventory_master_problem(vrpp_instance):
     dist, wastes, cap = vrpp_instance
     model = VRPPModel(n_nodes=3, cost_matrix=dist, wastes=wastes, capacity=cap, num_vehicles=2)
     params = ILSBDParams(verbose=False)
 
-    demand_matrix = np.array([
-        [10.0, 20.0],
-        [15.0, 25.0]
-    ])
+    demand_matrix = np.array([[10.0, 20.0], [15.0, 25.0]])
     bin_capacities = np.array([100.0, 100.0])
     initial_inventory = np.array([10.0, 20.0])
 
     # Test pre-build error
     inv_master = InventoryMasterProblem(
-        model, params, horizon=2,
+        model,
+        params,
+        horizon=2,
         demand_matrix=demand_matrix,
         bin_capacities=bin_capacities,
-        initial_inventory=initial_inventory
+        initial_inventory=initial_inventory,
     )
     with pytest.raises(RuntimeError, match="must be called before build_inventory"):
         inv_master.build_inventory()
@@ -249,7 +259,7 @@ def test_inventory_master_problem(vrpp_instance):
     inv_master.build_inventory()
 
     # Check variables created
-    assert len(inv_master._I_vars) == 4 # 2 nodes * 2 days
+    assert len(inv_master._I_vars) == 4  # 2 nodes * 2 days
     assert len(inv_master._q_vars) == 4
     assert len(inv_master._s_vars) == 4
 
@@ -264,6 +274,7 @@ def test_inventory_master_problem(vrpp_instance):
     assert isinstance(col_plan, dict)
     assert len(inv_plan) == 4
     assert len(col_plan) == 4
+
 
 @_needs_license
 def test_inventory_master_problem_no_solution(vrpp_instance):

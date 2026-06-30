@@ -7,16 +7,23 @@ that can be used across all test files.
 
 import os
 import shutil
+import sqlite3
 import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+import torch
+
+
 # Global setup for mock streamlit to handle cache decorators correctly before any imports
 def mock_cache_decorator(*args, **kwargs):
     def decorator(func):
         return func
+
     return decorator
+
 
 if "streamlit" not in sys.modules:
     mock_st = MagicMock()
@@ -32,12 +39,10 @@ else:
         if not hasattr(mock_st, "session_state") or isinstance(mock_st.session_state, MagicMock):
             mock_st.session_state = {}
 
-import pytest
-import torch
-import sqlite3
 
 # Global interception of sqlite3.connect to prevent updates to the production tracking.db
 _original_sqlite3_connect = sqlite3.connect
+
 
 def _test_safe_sqlite3_connect(database, *args, **kwargs):
     if isinstance(database, (str, Path)):
@@ -47,6 +52,7 @@ def _test_safe_sqlite3_connect(database, *args, **kwargs):
             test_dir.mkdir(exist_ok=True, parents=True)
             database = str(test_dir / "tracking.db")
     return _original_sqlite3_connect(database, *args, **kwargs)
+
 
 sqlite3.connect = _test_safe_sqlite3_connect
 

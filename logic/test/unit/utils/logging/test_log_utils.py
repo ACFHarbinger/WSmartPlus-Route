@@ -1,4 +1,3 @@
-from logic.src.utils.expo.log_visualization import plot_training_logs
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -12,8 +11,8 @@ from logic.src.tracking.logging.log_utils import (
     output_stats,
     runs_per_policy,
 )
-from omegaconf import OmegaConf
 from logic.src.tracking.logging.structured_logging import log_training
+from omegaconf import OmegaConf
 
 
 class TestLogUtils:

@@ -4,12 +4,20 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import (
+    BPCPolicy,
+)
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import (
+    SWCTCFPolicy,
+)
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import (
+    ALNSPolicy,
+)
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
-from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import SWCTCFPolicy
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans import (
+    SANSPolicy,
+)
 
 
 class MockBins:

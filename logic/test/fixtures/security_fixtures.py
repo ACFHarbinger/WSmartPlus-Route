@@ -4,8 +4,10 @@ Fixtures for security and cryptography tests.
 
 import base64
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 
 @pytest.fixture
 def mock_crypto_env():

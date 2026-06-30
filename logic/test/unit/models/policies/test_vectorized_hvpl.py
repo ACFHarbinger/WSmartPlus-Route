@@ -1,6 +1,7 @@
 import torch
-from tensordict import TensorDict
 from logic.src.policies.vector.hybrid_volleyball_premier_league import VectorizedHVPL
+from tensordict import TensorDict
+
 
 def test_vectorized_hvpl():
     batch_size = 2

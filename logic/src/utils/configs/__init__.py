@@ -18,8 +18,8 @@ Example:
     deep_merge(target, source)
 """
 
-from .config_loader import load_yaml_config, load_xml_config, load_config
-from .yaml_to_env import to_bash_value, load_yaml_env, deep_merge
+from .config_loader import load_config, load_xml_config, load_yaml_config
+from .yaml_to_env import deep_merge, load_yaml_env, to_bash_value
 
 __all__ = [
     "load_yaml_config",

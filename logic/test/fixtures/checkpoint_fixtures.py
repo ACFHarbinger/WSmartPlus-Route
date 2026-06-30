@@ -3,8 +3,10 @@ Fixtures for the Simulator pipeline - Checkpoint fixtures.
 """
 
 import os
+
 import pytest
 from logic.src.pipeline.simulations.checkpoints.persistence import SimulationCheckpoint
+
 
 @pytest.fixture
 def basic_checkpoint(mocker, tmp_path):

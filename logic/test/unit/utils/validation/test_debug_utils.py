@@ -1,6 +1,8 @@
 from unittest.mock import MagicMock, patch
+
 import pytest
 from logic.src.utils.validation.debug_utils import watch
+
 
 class TestDebugUtils:
     """Class for debug_utils tests."""

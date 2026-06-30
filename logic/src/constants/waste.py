@@ -75,3 +75,11 @@ WASTE_TYPES: Dict[str, str] = {
 # - Look-ahead search (triggers preventive collection)
 # Industry standard: 0.8-0.9. WSmart+ uses 0.9 to balance cost vs overflow risk.
 CRITICAL_FILL_THRESHOLD: float = 0.9  # 90% capacity
+
+
+# County aliases for WSmart+ Route datasets
+COUNTY_ALIASES = {
+    "riomaior": "riomaior",
+    "figueiradafoz": "figdafoz",
+    "mixrmbac": "rmbac",
+}

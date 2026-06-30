@@ -6,8 +6,11 @@ This module tests the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) poli
 
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import HGSRRSolver, HGSRRParams
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import (
+    HGSRRParams,
+    HGSRRSolver,
+)
 
 
 class TestHGSRRPolicy:

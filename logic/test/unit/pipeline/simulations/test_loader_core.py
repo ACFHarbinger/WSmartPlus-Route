@@ -1,7 +1,5 @@
-import pytest
 import pandas as pd
-import numpy as np
-
+import pytest
 from logic.src.constants import ROOT_DIR
 from logic.src.pipeline.simulations.repository import (
     load_area_and_waste_type_params,
@@ -10,12 +8,13 @@ from logic.src.pipeline.simulations.repository import (
     load_simulator_data,
 )
 
+
 class TestLoader:
     """Class for data loading tests."""
 
     @pytest.fixture(autouse=True)
     def setup_repo(self):
-        from logic.src.pipeline.simulations.repository import set_repository, FileSystemRepository
+        from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
         set_repository(FileSystemRepository(ROOT_DIR))
 
     @pytest.mark.unit

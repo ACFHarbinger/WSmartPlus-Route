@@ -1,11 +1,33 @@
+from unittest.mock import MagicMock
+
 import numpy as np
 import pytest
-from unittest.mock import MagicMock
+from logic.src.policies.helpers.solvers_and_matheuristics import (
+    Route,
+    VRPPMasterProblem,
+)
+from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
+    FleetSizeBranchingConstraint,
+    NodeVisitationBranchingConstraint,
+)
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine import (
+    _apply_branching_to_master,
+    _compute_lr_bound_at_node,
+    _detect_cycles,
+    _is_solution_integer,
+    _perform_strong_branching,
+    _reset_master_constraints,
+    run_ms_bpc_sp,
+)
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.params import (
+    MSBPCSPParams,
+)
 
 
 def _has_gurobi_license() -> bool:
     try:
         import gurobipy as _gp
+
         _m = _gp.Model("_check")
         _m.dispose()
         return True
@@ -18,39 +40,16 @@ _needs_license = pytest.mark.skipif(
     reason="Requires a valid Gurobi license",
 )
 
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine import (
-    run_ms_bpc_sp,
-    _detect_cycles,
-    _is_solution_integer,
-    _reset_master_constraints,
-    _apply_branching_to_master,
-    _perform_strong_branching,
-    _compute_lr_bound_at_node,
-    MSBPCSPPruningException,
-)
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.params import MSBPCSPParams
-from logic.src.policies.helpers.solvers_and_matheuristics import (
-    Route,
-    VRPPMasterProblem,
-)
-from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
-    FleetSizeBranchingConstraint,
-    NodeVisitationBranchingConstraint,
-)
 
 @pytest.fixture
 def ms_bpc_instance():
-    dist_matrix = np.array([
-        [0, 10, 10, 20],
-        [10, 0, 5, 15],
-        [10, 5, 0, 10],
-        [20, 15, 10, 0]
-    ])
-    wastes = {1: 5.0, 2: 5.0, 3: 5.0} # Total 15
+    dist_matrix = np.array([[0, 10, 10, 20], [10, 0, 5, 15], [10, 5, 0, 10], [20, 15, 10, 0]])
+    wastes = {1: 5.0, 2: 5.0, 3: 5.0}  # Total 15
     capacity = 10.0
     R = 10.0
     C = 1.0
     return dist_matrix, wastes, capacity, R, C
+
 
 @_needs_license
 def test_ms_bpc_default(ms_bpc_instance):
@@ -60,12 +59,16 @@ def test_ms_bpc_default(ms_bpc_instance):
     assert len(routes) >= 0
     assert isinstance(cost, float)
 
+
 def test_ms_bpc_ryan_foster_invalid_cover():
     master = MagicMock(spec=VRPPMasterProblem)
     master.model = MagicMock()
     master.strict_set_partitioning = False
-    with pytest.raises(RuntimeError, match="Mathematical Exactness Violation: Ryan-Foster branching requires strict Set Partitioning"):
+    with pytest.raises(
+        RuntimeError, match="Mathematical Exactness Violation: Ryan-Foster branching requires strict Set Partitioning"
+    ):
         _apply_branching_to_master(master, [], branching_strategy="ryan_foster")
+
 
 @_needs_license
 def test_ms_bpc_cg_at_root_only(ms_bpc_instance):
@@ -74,10 +77,12 @@ def test_ms_bpc_cg_at_root_only(ms_bpc_instance):
     routes, cost = run_ms_bpc_sp(dist, wastes, cap, R, C, params=params)
     assert len(routes) >= 0
 
+
 def test_detect_cycles():
     assert _detect_cycles([0, 1, 2, 3, 0]) == []
     assert _detect_cycles([0, 1, 2, 1, 3, 0]) == [(1, 2, 1)]
     assert _detect_cycles([0, 1, 2, 3, 2, 0]) == [(2, 3, 2)]
+
 
 def test_is_solution_integer():
     r1 = Route(nodes=[1, 2], cost=2.0, revenue=12.0, load=5.0, node_coverage={1, 2})
@@ -93,6 +98,7 @@ def test_is_solution_integer():
     # Overlapping nodes visited more than once in sum (binary variables cover node twice)
     r3 = Route(nodes=[2, 3], cost=2.0, revenue=10.0, load=5.0, node_coverage={2, 3})
     assert _is_solution_integer([r1, r3], {0: 1.0, 1: 1.0}) is False
+
 
 def test_reset_master_constraints():
     master = MagicMock(spec=VRPPMasterProblem)
@@ -123,6 +129,7 @@ def test_reset_master_constraints():
     assert c1.RHS == 1.0
     assert c2.RHS == 1.0
 
+
 def test_apply_branching_to_master():
     master = MagicMock(spec=VRPPMasterProblem)
     master.model = MagicMock()
@@ -132,7 +139,7 @@ def test_apply_branching_to_master():
     master.strict_set_partitioning = True
     master.routes = [
         Route(nodes=[1, 2], cost=2.0, revenue=10.0, load=5.0, node_coverage={1, 2}),
-        Route(nodes=[2, 3], cost=2.0, revenue=10.0, load=5.0, node_coverage={2, 3})
+        Route(nodes=[2, 3], cost=2.0, revenue=10.0, load=5.0, node_coverage={2, 3}),
     ]
 
     v1 = MagicMock()
@@ -153,6 +160,7 @@ def test_apply_branching_to_master():
     _apply_branching_to_master(master, [bc1, bc2], branching_strategy="divergence")
     master.model.update.assert_called()
 
+
 def test_perform_strong_branching():
     master = MagicMock(spec=VRPPMasterProblem)
     master.model = MagicMock()
@@ -162,9 +170,7 @@ def test_perform_strong_branching():
     v1 = MagicMock()
     v1.UB = 1.0
     master.lambda_vars = [v1]
-    master.routes = [
-        Route(nodes=[1, 2], cost=2.0, revenue=10.0, load=5.0, node_coverage={1, 2})
-    ]
+    master.routes = [Route(nodes=[1, 2], cost=2.0, revenue=10.0, load=5.0, node_coverage={1, 2})]
 
     master.save_basis.return_value = ("basis",)
 
@@ -178,12 +184,9 @@ def test_perform_strong_branching():
     assert res[0] in (1, 2)
     master.restore_basis.assert_called()
 
+
 def test_compute_lr_bound_at_node():
-    dist_matrix = np.array([
-        [0, 10, 15],
-        [10, 0, 5],
-        [15, 5, 0]
-    ])
+    dist_matrix = np.array([[0, 10, 15], [10, 0, 5], [15, 5, 0]])
     wastes = {1: 5.0, 2: 5.0}
     params = MSBPCSPParams()
     ub, lam, visited = _compute_lr_bound_at_node(
@@ -197,7 +200,7 @@ def test_compute_lr_bound_at_node():
         params=params,
         time_budget=2.0,
         env=None,
-        recorder=None
+        recorder=None,
     )
     assert isinstance(ub, float)
     assert isinstance(lam, float)

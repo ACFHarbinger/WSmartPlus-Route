@@ -1,40 +1,43 @@
 """Unit tests for security utils."""
 
 import base64
-import os
 import pickle
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import mock_open, patch
 
-import pytest
 from cryptography.fernet import Fernet
-
 from logic.src.utils.security import (
-    generate_key, load_key, encrypt_file_data, decrypt_file_data,
-    encode_data, encrypt_directory, decrypt_directory
+    decrypt_directory,
+    decrypt_file_data,
+    encode_data,
+    encrypt_directory,
+    encrypt_file_data,
+    generate_key,
+    load_key,
 )
 
 
 def test_generate_key(mock_crypto_dotenv):
     """Test key generation."""
-    with patch("logic.src.utils.security.keys.set_key") as mock_set:
-        with patch("logic.src.utils.security.keys.open", mock_open()) as m:
-            with patch("os.makedirs"):
-                key, salt = generate_key(symkey_name="test_key")
+    with (
+        patch("logic.src.utils.security.keys.set_key") as mock_set,
+        patch("logic.src.utils.security.keys.open", mock_open()),
+        patch("os.makedirs"),
+    ):
+        key, salt = generate_key(symkey_name="test_key")
 
-                assert isinstance(key, bytes)
-                assert isinstance(salt, bytes)
-                assert len(key) > 0
-                assert mock_set.call_count >= 3 # SALT, LEN, ITER
+        assert isinstance(key, bytes)
+        assert isinstance(salt, bytes)
+        assert len(key) > 0
+        assert mock_set.call_count >= 3  # SALT, LEN, ITER
 
 
 def test_load_key_from_env(mock_crypto_env):
     """Test loading key from environment."""
-    with patch("logic.src.utils.security.keys.ROOT_DIR", "/tmp"):
-        with patch("logic.src.utils.security.keys.load_dotenv"):
-            key = load_key()
-            assert isinstance(key, bytes)
-            # Fernet key must be 32 base64-encoded bytes
-            assert len(base64.urlsafe_b64decode(key)) == 32
+    with patch("logic.src.utils.security.keys.ROOT_DIR", "/tmp"), patch("logic.src.utils.security.keys.load_dotenv"):
+        key = load_key()
+        assert isinstance(key, bytes)
+        # Fernet key must be 32 base64-encoded bytes
+        assert len(base64.urlsafe_b64decode(key)) == 32
 
 
 def test_encryption_decryption_roundtrip():

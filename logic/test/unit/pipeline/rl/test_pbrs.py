@@ -14,18 +14,15 @@ Tests verify:
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 import torch
-from tensordict import TensorDict
-
 from logic.src.pipeline.rl.common.pbrs_wrapper import (
     PBRSShaper,
     get_potential_fn,
     get_potential_vrpp,
 )
-
+from tensordict import TensorDict
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -268,8 +265,8 @@ class TestPBRSShaperCore:
     def test_batch_shaping_applies_per_instance(self):
         """Each instance in the batch gets its own shaping bonus."""
         B = 4
-        waste = [[1.0] * 4] * B     # total=4 per instance
-        collected_initial = [0.0] * B
+        [[1.0] * 4] * B     # total=4 per instance
+        [0.0] * B
         collected_final = [1.0, 2.0, 3.0, 4.0]  # Φ = 0.25, 0.5, 0.75, 1.0
 
         td_initial = TensorDict(

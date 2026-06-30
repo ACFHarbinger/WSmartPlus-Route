@@ -1,6 +1,6 @@
 import pytest
-import pandas as pd
 from logic.src.pipeline.simulations.day_context import run_day
+
 
 class TestDay:
     """Class for daily execution tests."""
