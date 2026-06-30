@@ -4,12 +4,12 @@ import pickle
 import numpy as np
 import pytest
 import torch
+from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.envs.problems import VRPP
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.pipeline.features.eval import eval_dataset
-from logic.src.configs import Config
 
 
 @pytest.fixture
@@ -174,7 +174,6 @@ def test_eval_dataset_integration(temp_eval_setup):
     opts.eval.decoding.beam_width = 0
 
     # device configuration
-    device = "cpu"
     opts.device = "cpu"
 
     # Run evaluation
@@ -213,7 +212,6 @@ def test_eval_dataset_sampling_integration(temp_eval_setup):
     opts.eval.overwrite = True
 
     # device configuration
-    device = "cpu"
     opts.device = "cpu"
 
     # Run evaluation

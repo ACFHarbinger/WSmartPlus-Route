@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from logic.src.pipeline.simulations.bins import Bins
 
+
 @pytest.fixture
 def basic_bins(tmp_path, mock_bins_params_loader):
     """Returns a basic Bins instance for testing."""

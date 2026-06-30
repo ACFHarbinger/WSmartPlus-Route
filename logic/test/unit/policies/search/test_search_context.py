@@ -2,14 +2,14 @@
 Unit tests for functional SearchContext tracking.
 """
 
-import pytest
 from logic.src.interfaces.context.search_context import (
-    SearchContext,
-    SearchPhase,
-    merge_context,
-    SelectionMetrics,
+    AcceptanceMetrics,
     ConstructionMetrics,
     ImprovementMetrics,
+    SearchContext,
+    SearchPhase,
+    SelectionMetrics,
+    merge_context,
 )
 
 
@@ -61,14 +61,10 @@ def test_full_flow():
     ctx = SearchContext.initialize({"strategy": "Learned"})
 
     # 2. Construction
-    ctx = merge_context(
-        ctx, phase=SearchPhase.CONSTRUCTION, construction_metrics={"algorithm": "AM", "profit": 50.0}
-    )
+    ctx = merge_context(ctx, phase=SearchPhase.CONSTRUCTION, construction_metrics={"algorithm": "AM", "profit": 50.0})
 
     # 3. Improvement
-    ctx = merge_context(
-        ctx, phase=SearchPhase.IMPROVEMENT, improvement_metrics={"algorithm": "LS", "best_delta": -5.0}
-    )
+    ctx = merge_context(ctx, phase=SearchPhase.IMPROVEMENT, improvement_metrics={"algorithm": "LS", "best_delta": -5.0})
 
     assert ctx.selection_metrics["strategy"] == "Learned"
     assert ctx.construction_metrics["algorithm"] == "AM"

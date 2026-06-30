@@ -1,24 +1,23 @@
 """Unit tests for the HPO simulation handler and objective functions."""
 
 import os
-import sqlite3
-import pytest
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import optuna
-from omegaconf import OmegaConf
+import pytest
 from logic.src.configs import Config
 from logic.src.constants import SIM_METRICS
 from logic.src.pipeline.simulations.hpo.hpo_handler import (
-    _metric_direction,
-    _extract_metric,
     HPOSimulationHandler,
-    objective,
-    worker,
-    run_hpo_sim,
+    _extract_metric,
+    _metric_direction,
     _select_pareto_representative,
+    objective,
+    run_hpo_sim,
+    worker,
 )
+from omegaconf import OmegaConf
 
 
 class TestHPOHandlerUtilities:

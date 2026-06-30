@@ -1,8 +1,8 @@
 import json
-import os
 from unittest.mock import MagicMock, patch
-import torch
+
 from logic.src.utils.model.loader import load_model
+
 
 class TestLoadModel:
     """Class for load_model tests."""

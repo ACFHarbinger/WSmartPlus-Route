@@ -2,12 +2,15 @@
 Verification tests for Wave 9 refinements (GA, CFRS, HULK).
 """
 
-import pytest
 import numpy as np
 import pandas as pd
-from logic.src.policies.route_construction.meta_heuristics.genetic_algorithm.solver import GASolver, GAParams
-from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import fisher_jaikumar_clustering
-from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk import HULKSolver, HULKParams
+import pytest
+from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk import HULKParams, HULKSolver
+from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import (
+    fisher_jaikumar_clustering,
+)
+from logic.src.policies.route_construction.meta_heuristics.genetic_algorithm.solver import GAParams, GASolver
+
 
 @pytest.fixture
 def mock_vrpp_data():

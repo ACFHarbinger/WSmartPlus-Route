@@ -1,18 +1,17 @@
 """Unit tests for Evidently-based data drift detection module."""
 
-import os
 import pickle
-import pytest
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, MagicMock
-
+import pytest
 from logic.src.pipeline.features.eval.drift_detection import (
-    load_and_flatten,
-    _npz_to_dataframe,
     _check_evidently,
-    run_drift_detection,
+    _npz_to_dataframe,
+    load_and_flatten,
     run_column_drift_suite,
+    run_drift_detection,
 )
 
 
@@ -71,9 +70,8 @@ def temp_files(tmp_path):
 @pytest.mark.unit
 def test_check_evidently():
     # Should not raise unless evidently is None (tested via patch if needed)
-    with patch("logic.src.pipeline.features.eval.drift_detection.evidently", None):
-        with pytest.raises(ImportError):
-            _check_evidently()
+    with patch("logic.src.pipeline.features.eval.drift_detection.evidently", None), pytest.raises(ImportError):
+        _check_evidently()
 
 
 @pytest.mark.unit

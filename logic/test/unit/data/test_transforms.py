@@ -1,13 +1,13 @@
 """Tests for data augmentation transforms."""
 
 import torch
-from tensordict import TensorDict
 from logic.src.data.processor.transforms import (
+    StateAugmentation,
     batchify,
     dihedral_8_augmentation,
     symmetric_augmentation,
-    StateAugmentation,
 )
+from tensordict import TensorDict
 
 
 def test_batchify():

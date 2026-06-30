@@ -1,8 +1,10 @@
 
-import torch
-import pytest
 from typing import Any, cast
+
+import pytest
+import torch
 from logic.src.utils.functions import boolmask
+
 
 class TestBoolMask:
     def test_pad_mask(self):
@@ -36,7 +38,6 @@ class TestBoolMask:
         assert (mask == restored_mask).all()
 
     def test_long_scatter(self):
-        size = 128
         # Use batch size 1
         n_nodes = 100
         bool_mask = torch.zeros(n_nodes, dtype=torch.uint8).unsqueeze(0) # (1, 100)

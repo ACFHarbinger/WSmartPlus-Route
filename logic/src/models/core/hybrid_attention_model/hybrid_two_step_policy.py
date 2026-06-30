@@ -25,6 +25,8 @@ from torch import nn
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
+from logic.src.models.subnets.embeddings import get_init_embedding
+from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
 from logic.src.policies.vector.adaptive_large_neighborhood_search import VectorizedALNS
 from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
 from logic.src.policies.vector.hybrid_genetic_search import VectorizedHGS
@@ -52,8 +54,6 @@ from logic.src.policies.vector.operators import (
     vectorized_type_iv_unstringing,
     vectorized_worst_removal,
 )
-from logic.src.models.subnets.embeddings import get_init_embedding
-from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
 
 from .improvement_step_decoder import ImprovementStepDecoder
 

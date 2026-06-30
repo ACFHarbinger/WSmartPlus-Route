@@ -2,9 +2,9 @@
 
 import pytest
 import torch
-from tensordict import TensorDict
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.symnco import SymNCO
+from tensordict import TensorDict
 
 
 class MockEnv:
@@ -21,7 +21,7 @@ class MockPolicy(torch.nn.Module):
         self.n_aug = n_aug
 
     def forward(self, td, env, strategy="sampling", num_starts=None, **kwargs):
-        bs = td.batch_size[0]
+        td.batch_size[0]
         n_s = num_starts if num_starts is not None else self.n_start
         # reward: [batch * n_aug * n_s]
         # SymNCO receives td which might already be augmented

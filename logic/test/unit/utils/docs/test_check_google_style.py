@@ -1,10 +1,8 @@
 """Unit tests for the Google Style Docstring Validator check_google_style.py."""
 
-import sys
-import os
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import pytest
 from logic.src.utils.docs.check_google_style import (
     GoogleStyleValidator,
     analyze_file,

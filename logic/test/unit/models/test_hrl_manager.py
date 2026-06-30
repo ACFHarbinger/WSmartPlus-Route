@@ -1,6 +1,6 @@
 import torch
-import pytest
 from logic.src.models.meta.hrl_manager import MandatoryManager
+
 
 def test_gatlst_manager_init():
     manager = MandatoryManager(

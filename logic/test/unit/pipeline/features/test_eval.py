@@ -1,11 +1,10 @@
 """Tests for evaluation pipeline."""
 
-import torch
 from unittest.mock import MagicMock
-from torch.utils.data import DataLoader, TensorDataset
 
+import torch
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy
-from logic.src.pipeline.features.eval.evaluators import GreedyEval, SamplingEval, AugmentationEval
+from logic.src.pipeline.features.eval.evaluators import AugmentationEval, GreedyEval, SamplingEval
 
 
 class TestEvaluation:

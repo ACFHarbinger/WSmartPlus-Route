@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+import pytest
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
+from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+
 
 @pytest.fixture
 def instance_data():

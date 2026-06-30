@@ -1,16 +1,12 @@
 """Unit tests for heatmaps.py."""
 
 import os
-import torch
-import pytest
-import numpy as np
-import matplotlib.pyplot as plt
 from unittest.mock import MagicMock, patch
 
-from logic.src.utils.expo.heatmaps import (
-    plot_attention_heatmaps,
-    plot_logit_lens
-)
+import pytest
+import torch
+from logic.src.utils.expo.heatmaps import plot_attention_heatmaps, plot_logit_lens
+
 
 @pytest.fixture
 def mock_model():

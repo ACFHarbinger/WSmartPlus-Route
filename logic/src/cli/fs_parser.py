@@ -30,7 +30,6 @@ from typing import Any, Dict, Tuple
 
 from logic.src.cli.base import ConfigsParser, UpdateFunctionMapActionFactory
 from logic.src.constants import FS_COMMANDS, ROOT_DIR
-
 from logic.src.utils.input.file_processing import process_file, process_pattern_files
 from logic.src.utils.input.files import confirm_proceed
 from logic.src.utils.input.preview import (

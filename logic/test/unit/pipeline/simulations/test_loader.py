@@ -1,7 +1,5 @@
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
-import logic.src.constants as udef
-import pandas as pd
 import pytest
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,

@@ -1,17 +1,17 @@
 """Tests for distribution utilities."""
 
+from unittest.mock import MagicMock
+
 import torch
-import pytest
 from logic.src.data.distributions import (
     Cluster,
-    Mixed,
+    Empirical,
+    Gamma,
     GaussianMixture,
     MixDistribution,
+    Mixed,
     MixMultiDistributions,
-    Gamma,
-    Empirical,
 )
-from unittest.mock import MagicMock
 
 
 class TestDistributions:
@@ -76,7 +76,7 @@ class TestDistributions:
 
     def test_empirical_with_data(self):
         """Verify Empirical with mock data."""
-        batch, num_loc, dim = 2, 5, 2
+        batch, _num_loc, _dim = 2, 5, 2
         mock_data = torch.ones(10, 5, 2) * 0.5
         dist = Empirical(dataset=mock_data).set_sampling_method("sample_tensor")
 

@@ -1,19 +1,19 @@
 import json
-import os
-import pytest
+
 from logic.src.utils.output.matcher import (
     PolicyFilter,
     _parse_slug,
-    slug_matches_filter,
     display_name_matches_filter,
+    slug_matches_filter,
 )
 from logic.src.utils.output.remover import (
-    remove_from_json_file,
-    remove_from_jsonl_file,
     remove_checkpoint_files,
     remove_fill_history_files,
+    remove_from_json_file,
+    remove_from_jsonl_file,
     remove_targeted_runs,
 )
+
 
 def test_parse_slug():
     # Test lookahead_aco_hh_custom_ftsp_emp

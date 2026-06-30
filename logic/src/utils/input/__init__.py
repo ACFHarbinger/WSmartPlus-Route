@@ -47,10 +47,10 @@ from .dict_processing import (
     process_list_two_inputs,
 )
 from .file_processing import process_file, process_pattern_files
-from .files import read_json, zip_directory, extract_zip, confirm_proceed, compose_dirpath
+from .files import compose_dirpath, confirm_proceed, extract_zip, read_json, zip_directory
 from .locking import read_output
-from .preview import preview_changes, preview_file_changes, preview_pattern_files_statistics, preview_file_statistics
-from .splitting import split_file, chunk_zip_content, reassemble_files
+from .preview import preview_changes, preview_file_changes, preview_file_statistics, preview_pattern_files_statistics
+from .splitting import chunk_zip_content, reassemble_files, split_file
 from .statistics import process_file_statistics, process_pattern_files_statistics
 from .value_processing import find_single_input_values, find_two_input_values
 

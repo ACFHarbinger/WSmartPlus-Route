@@ -1,24 +1,21 @@
 """Unit tests for storage.py."""
 
-import os
 import json
+import os
 import pickle
-import threading
-import torch
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 from logic.src.tracking.logging.modules.storage import (
     _convert_numpy,
     _sort_log,
-    sort_log,
     log_to_json,
-    log_to_json2,
     log_to_pickle,
+    setup_system_logger,
+    sort_log,
     update_log,
-    setup_system_logger
 )
+
 
 def test_convert_numpy():
     """Test conversion of numpy types to standard python types for JSON."""

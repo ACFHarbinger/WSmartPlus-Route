@@ -1,19 +1,16 @@
 from typing import cast
-
 from unittest.mock import MagicMock
 
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset
-from tensordict import TensorDict
 from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
 from logic.src.models.core.attention_model import AttentionModel
-from logic.src.models.subnets.modules.moe_layer import MoE
-from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
 from logic.src.models.core.moe import MoEAttentionModel, MoETemporalAttentionModel
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
+from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
+from logic.src.models.subnets.modules.moe_layer import MoE
 from logic.src.pipeline.rl.common.baselines import (
     CriticBaseline as CriticBaseline,
 )
@@ -30,6 +27,8 @@ from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
 from logic.src.policies.route_construction.learning_algorithms.neural_agent import NeuralAgent
+from tensordict import TensorDict
+from torch.utils.data import Dataset
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0

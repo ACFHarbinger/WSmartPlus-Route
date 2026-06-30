@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+
 import torch
 from logic.src.utils.infrastructure.setup_env import setup_env
 from logic.src.utils.infrastructure.setup_worker import setup_model

@@ -7,10 +7,10 @@ from unittest.mock import MagicMock
 import pytest
 import torch
 from logic.src.models.core.attention_model import AttentionModel
-from logic.src.models.meta.hrl_manager import MandatoryManager
-from logic.src.models.subnets.factories.base import NeuralComponentFactory
-from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.core.temporal_attention_model.model import TemporalAttentionModel
+from logic.src.models.meta.hrl_manager import MandatoryManager
+from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
+from logic.src.models.subnets.factories.base import NeuralComponentFactory
 
 
 @pytest.fixture

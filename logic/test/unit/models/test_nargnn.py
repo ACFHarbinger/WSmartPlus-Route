@@ -1,13 +1,13 @@
 """Tests for NARGNN model."""
 
-import pytest
-import torch
-from tensordict import TensorDict
 from unittest.mock import MagicMock
 
+import pytest
+import torch
 from logic.src.models.core.nargnn import NARGNN
 from logic.src.models.core.nargnn.policy import NARGNNPolicy
 from logic.src.models.subnets.encoders.nargnn.gnn_layer import BatchNorm, scatter_mean
+from tensordict import TensorDict
 
 PYG_AVAILABLE = BatchNorm is not None and scatter_mean is not None
 

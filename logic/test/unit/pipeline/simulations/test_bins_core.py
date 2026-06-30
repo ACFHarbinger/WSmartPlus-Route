@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from logic.src.pipeline.simulations.bins import Bins
 
+
 class TestBins:
     """Class for Bins tests."""
 

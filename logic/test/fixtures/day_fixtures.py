@@ -3,11 +3,13 @@ Fixtures for the Simulator pipeline - Day fixtures.
 """
 
 from unittest.mock import MagicMock
+
 import numpy as np
 import pandas as pd
 import pytest
 import torch
 from logic.src.pipeline.simulations.day_context import SimulationDayContext
+
 
 @pytest.fixture
 def mock_run_day_deps(mocker):

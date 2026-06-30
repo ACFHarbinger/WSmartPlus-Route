@@ -6,8 +6,8 @@ registered, instantiable, and executable via the main RouteConstructorFactory.
 """
 
 import os
+
 import pytest
-import numpy as np
 
 # Set environment variable for protobuf compatibility
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
@@ -34,9 +34,7 @@ def test_factory_instantiation(solver_name):
     policy = RouteConstructorFactory.get_adapter(solver_name)
 
     # Check that it's the correct policy class (not an adapter)
-    from logic.src.policies.selection_and_construction import (
-        NDSBRKGAPolicy, JointSAPolicy, JointGreedyPolicy
-    )
+    from logic.src.policies.selection_and_construction import JointGreedyPolicy, JointSAPolicy, NDSBRKGAPolicy
     expected_classes = {
         "nds_brkga": NDSBRKGAPolicy,
         "jsa": JointSAPolicy,

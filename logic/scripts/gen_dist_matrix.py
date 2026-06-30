@@ -30,24 +30,22 @@ import argparse
 import os
 import sys
 
+import pandas as pd
+
 # Ensure project root is on sys.path when running directly
-_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if _root not in sys.path:
     sys.path.insert(0, _root)
 
-import numpy as np
-import pandas as pd
-
-from logic.src.constants import ROOT_DIR
-from logic.src.data.network import (
+from logic.src.constants import ROOT_DIR  # noqa: E402
+from logic.src.data.network import (  # noqa: E402
     EuclideanStrategy,
-    FileStrategy,
     GeodesicStrategy,
     GoogleMapsStrategy,
     HaversineStrategy,
     OSMStrategy,
 )
-from logic.src.pipeline.simulations.repository import (
+from logic.src.pipeline.simulations.repository import (  # noqa: E402
     load_depot,
     load_simulator_data,
     set_repository_from_path,
@@ -119,9 +117,7 @@ def main() -> None:
     dm = strategy.calculate(coords, env_filename=args.env_file)
 
     # ── Save in project-standard format ──────────────────────────────────────
-    out_path = os.path.join(
-        ROOT_DIR, "data", "wsr_simulator", "distance_matrix", args.dm_filepath
-    )
+    out_path = os.path.join(ROOT_DIR, "data", "wsr_simulator", "distance_matrix", args.dm_filepath)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     print(f"Saving → {out_path}")
     with open(out_path, "w") as f:

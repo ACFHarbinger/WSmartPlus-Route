@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
 from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
+from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
+
 
 @pytest.fixture
 def sample_data():
@@ -48,7 +49,9 @@ def test_bpc_custom_engine(sample_data):
     dist, wastes, cap = sample_data
     # Wrap in a tiny trial config
     values = {"time_limit": 10, "max_cg_iterations": 2}
-    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
+        run_bpc,
+    )
 
     routes, cost = run_bpc(dist, wastes, cap, R=1.0, C=1.0, values=values)
 

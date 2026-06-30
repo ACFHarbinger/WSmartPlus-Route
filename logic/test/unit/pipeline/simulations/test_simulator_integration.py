@@ -1,10 +1,10 @@
 
-import pytest
-import torch
-import numpy as np
 import unittest.mock as mock
 
 import logic.src.pipeline.simulations.simulator as simulator
+import numpy as np
+import pytest
+import torch
 from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig

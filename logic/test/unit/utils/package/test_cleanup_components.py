@@ -2,15 +2,16 @@
 
 import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from logic.src.utils.package.cleanup_helper import (
+    PROTECTED_DIRS,
     _match_acronym,
-    clean_init_file,
-    clean_factory_file,
     clean_by_acronym,
-    PROTECTED_DIRS
+    clean_factory_file,
+    clean_init_file,
 )
+
 
 class TestCleanupComponents(unittest.TestCase):
     """Test cases for component cleanup functions."""

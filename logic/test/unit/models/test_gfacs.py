@@ -1,12 +1,11 @@
 """Tests for GFACS model."""
 
-import torch
-from tensordict import TensorDict
 from unittest.mock import MagicMock
 
+import torch
 from logic.src.models.core.gfacs import GFACS
 from logic.src.models.core.gfacs.policy import GFACSPolicy
-from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder
+from tensordict import TensorDict
 
 
 class TestGFACS:

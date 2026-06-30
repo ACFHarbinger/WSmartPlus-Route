@@ -1,13 +1,12 @@
 """Unit tests for the tracking database stats and metrics subcommands."""
 
-import os
 import sqlite3
-import pytest
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
-import logic.src.tracking.database.shared as shared
 import logic.src.tracking.database.cmd_stats as cmd_stats
+import logic.src.tracking.database.shared as shared
+import pytest
 
 SCHEMA_PATH = Path(__file__).parents[3] / "src/tracking/core/schema.sql"
 

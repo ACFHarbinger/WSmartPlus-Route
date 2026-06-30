@@ -4,17 +4,17 @@ import pytest
 import torch
 import torch.nn as nn
 from logic.src.utils.functions import (
-    move_to,
-    get_path_until_string,
     compute_in_batches,
     do_batch_rep,
+    get_path_until_string,
+    move_to,
 )
 from logic.src.utils.model import (
-    parse_softmax_temperature,
-    load_data,
-    torch_load_cpu,
     get_inner_model,
+    load_data,
     load_problem,
+    parse_softmax_temperature,
+    torch_load_cpu,
 )
 
 

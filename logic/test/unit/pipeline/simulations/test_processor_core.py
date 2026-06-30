@@ -1,10 +1,11 @@
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 from logic.src.data.processor import (
-    setup_df,
     process_model_data,
+    setup_df,
 )
+
 
 class TestProcessor:
     """Class for data processing tests."""

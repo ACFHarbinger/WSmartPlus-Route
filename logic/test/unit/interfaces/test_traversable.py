@@ -1,7 +1,9 @@
 
+from typing import Any, Iterator
+
 import pytest
-from typing import Any, Dict, Iterator, Optional
 from logic.src.interfaces.traversable import ITraversable
+
 
 def test_dict_is_traversable():
     """Verify that a standard dictionary matches the ITraversable protocol."""

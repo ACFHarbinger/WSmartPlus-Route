@@ -1,20 +1,19 @@
 """Unit tests for processing.py."""
 
-import os
 import json
+import os
 
 from logic.src.utils.input import (
-    process_dict_of_dicts,
-    process_list_of_dicts,
-    process_dict_two_inputs,
-    process_list_two_inputs,
     find_single_input_values,
     find_two_input_values,
-    process_pattern_files,
+    process_dict_of_dicts,
+    process_dict_two_inputs,
     process_file,
-    process_pattern_files_statistics,
-    process_file_statistics
+    process_file_statistics,
+    process_list_of_dicts,
+    process_pattern_files,
 )
+
 
 def test_process_dict_of_dicts():
     """Test updating values in a dict of dicts."""
@@ -49,7 +48,8 @@ def test_process_dict_two_inputs():
         "s2": {"km": [20, 40], "time": [2, 4]}
     }
     # Speed = km / time
-    div = lambda x, y: x / y
+    def div(x, y):
+        return x / y
     div.__name__ = "/"
 
     modified = process_dict_two_inputs(data, "km", "time", "speed", div)

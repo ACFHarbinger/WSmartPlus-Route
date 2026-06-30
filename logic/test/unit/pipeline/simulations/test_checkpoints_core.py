@@ -1,7 +1,8 @@
 import os
+
 import pytest
-from logic.src.pipeline.simulations.checkpoints.persistence import SimulationCheckpoint
 from logic.src.pipeline.simulations.checkpoints.manager import CheckpointError, checkpoint_manager
+
 
 class TestCheckpoints:
     """Class for SimulationCheckpoint tests."""
@@ -42,12 +43,12 @@ class TestCheckpoints:
     @pytest.mark.unit
     def test_checkpoint_error_handling(self, basic_checkpoint, mocker):
         """Test error handling during checkpoint operations using manager."""
+
         def failing_task():
             raise ValueError("Test error")
 
-        with pytest.raises(CheckpointError) as excinfo:
-            with checkpoint_manager(basic_checkpoint, 1, lambda: {"state": 1}):
-                failing_task()
+        with pytest.raises(CheckpointError) as excinfo, checkpoint_manager(basic_checkpoint, 1, lambda: {"state": 1}):
+            failing_task()
 
         assert "Test error" in str(excinfo.value)
         # CheckpointError stores the error_result dict

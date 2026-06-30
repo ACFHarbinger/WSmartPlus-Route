@@ -1,8 +1,9 @@
-import pandas as pd
 from unittest.mock import patch
-from omegaconf import OmegaConf
-from logic.src.utils.expo.log_visualization import plot_training_logs
+
+import pandas as pd
 from logic.src.tracking.logging.structured_logging import log_training
+from logic.src.utils.expo.log_visualization import plot_training_logs
+from omegaconf import OmegaConf
 
 
 class TestLogVisualization:

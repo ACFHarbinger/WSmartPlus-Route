@@ -13,21 +13,21 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import torch
-from omegaconf import OmegaConf
 from logic.src.utils.expo import (
-    plot_linechart,
-    plot_tsp,
-    plot_vehicle_routes,
     get_batch,
     imitation_loss_fn,
     log_weight_distributions,
     main,
     plot_attention_heatmaps,
+    plot_linechart,
+    plot_tsp,
+    plot_vehicle_routes,
     plot_weight_trajectories,
     project_node_embeddings,
     rl_loss_fn,
     visualize_epoch,
 )
+from omegaconf import OmegaConf
 
 # ============================================================================
 # Core Visualization Utils Tests

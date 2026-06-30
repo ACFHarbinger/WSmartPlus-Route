@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, patch
 
 import torch
-
 from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig

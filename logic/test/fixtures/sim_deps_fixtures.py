@@ -3,10 +3,11 @@ Fixtures for the Simulator pipeline - Dependency fixtures.
 """
 
 from unittest.mock import MagicMock
+
 import numpy as np
 import pandas as pd
 import pytest
-import statistics
+
 
 @pytest.fixture
 def mock_sim_dependencies(mocker, tmp_path, mock_bins_instance):

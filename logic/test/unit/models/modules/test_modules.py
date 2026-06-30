@@ -2,34 +2,34 @@
 
 from unittest.mock import MagicMock
 
-import torch
-from logic.src.models.subnets.modules.activation_function import ActivationFunction
-from logic.src.models.subnets.modules.distance_graph_convolution import (
-    DistanceAwareGraphConvolution,
-)
 import pytest
-from logic.src.models.subnets.modules.efficient_graph_convolution import (
-    EfficientGraphConvolution,
-    PYG_AVAILABLE,
-)
-from logic.src.models.subnets.modules.feed_forward import FeedForward
-from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
-from logic.src.models.subnets.modules.graph_convolution import GraphConvolution
-from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
-from logic.src.models.subnets.modules.cross_attention import (
-    MultiHeadCrossAttention,
-)
-from logic.src.models.subnets.modules.normalization import Normalization
-from logic.src.models.subnets.modules.normalized_activation_function import (
-    NormalizedActivationFunction,
-)
+import torch
+from logic.src.models.subnets.embeddings.positional import pos_init_embedding
 from logic.src.models.subnets.embeddings.positional.absolute_positional_embedding import (
     AbsolutePositionalEmbedding,
 )
 from logic.src.models.subnets.embeddings.positional.cyclic_positional_embedding import (
     CyclicPositionalEmbedding,
 )
-from logic.src.models.subnets.embeddings.positional import pos_init_embedding
+from logic.src.models.subnets.modules.activation_function import ActivationFunction
+from logic.src.models.subnets.modules.cross_attention import (
+    MultiHeadCrossAttention,
+)
+from logic.src.models.subnets.modules.distance_graph_convolution import (
+    DistanceAwareGraphConvolution,
+)
+from logic.src.models.subnets.modules.efficient_graph_convolution import (
+    PYG_AVAILABLE,
+    EfficientGraphConvolution,
+)
+from logic.src.models.subnets.modules.feed_forward import FeedForward
+from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
+from logic.src.models.subnets.modules.graph_convolution import GraphConvolution
+from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
+from logic.src.models.subnets.modules.normalization import Normalization
+from logic.src.models.subnets.modules.normalized_activation_function import (
+    NormalizedActivationFunction,
+)
 from logic.src.models.subnets.modules.skip_connection import SkipConnection
 
 

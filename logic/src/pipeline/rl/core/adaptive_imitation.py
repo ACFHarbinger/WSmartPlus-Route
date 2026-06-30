@@ -31,12 +31,6 @@ from logic.src.configs.rl.policies import (
     ILSConfig,
     RLSConfig,
 )
-from logic.src.policies.vector.alns import VectorizedALNS
-from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
-from logic.src.policies.vector.hgs import VectorizedHGS
-from logic.src.policies.vector.hgs_alns import VectorizedHGSALNS
-from logic.src.policies.vector.iterated_local_search import IteratedLocalSearchPolicy
-from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
 from logic.src.pipeline.rl.core.losses import (
     kl_divergence_loss,
     nll_loss,
@@ -44,6 +38,12 @@ from logic.src.pipeline.rl.core.losses import (
     weighted_nll_loss,
 )
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
+from logic.src.policies.vector.alns import VectorizedALNS
+from logic.src.policies.vector.ant_colony_system import VectorizedACOPolicy
+from logic.src.policies.vector.hgs import VectorizedHGS
+from logic.src.policies.vector.hgs_alns import VectorizedHGSALNS
+from logic.src.policies.vector.iterated_local_search import IteratedLocalSearchPolicy
+from logic.src.policies.vector.random_local_search import RandomLocalSearchPolicy
 
 
 class AdaptiveImitation(REINFORCE):

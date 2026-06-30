@@ -2,14 +2,12 @@
 
 import pytest
 import torch
-from tensordict import TensorDict
 from logic.src.envs.generators import (
-    get_generator,
-    VRPPGenerator,
-    WCVRPGenerator,
     SCWCVRPGenerator,
     TSPGenerator,
-    Generator
+    VRPPGenerator,
+    WCVRPGenerator,
+    get_generator,
 )
 
 
@@ -45,6 +43,7 @@ class TestGeneratorsBase:
         # Callable
         def my_dist(bs, n):
             return torch.ones(*bs, n, 2)
+
         gen_callable = VRPPGenerator(num_loc=10, loc_distribution=my_dist)
         locs_callable = gen_callable._generate_locations((2,))
         assert torch.all(locs_callable == 1.0)
@@ -89,7 +88,7 @@ class TestVRPPGenerator:
         td_u = gen_u(10)
         assert td_u["waste"].shape == (10, 50)
 
-    def test_waste_distributions(self):
+    def test_waste_distance_distribution(self):
         """Test distance correlated waste."""
         gen = VRPPGenerator(waste_distribution="dist")
         td = gen(5)

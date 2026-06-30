@@ -1,5 +1,7 @@
 import numpy as np
-from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl import HVPLPolicy
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl import (
+    HVPLPolicy,
+)
 
 
 def test_subset_dimensions():
@@ -37,7 +39,7 @@ def test_hvpl_respects_subset():
     # We will check if the default configuration results in a tour restricted to mandatory
     dist_matrix = np.ones((11, 11))
     np.fill_diagonal(dist_matrix, 0)
-    wastes = {i: 50.0 for i in range(1, 11)}
+    {i: 50.0 for i in range(1, 11)}
     mandatory = [2, 4, 6]
 
     config = {

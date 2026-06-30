@@ -1,12 +1,14 @@
 """Tests for Branch-and-Bound policy."""
 
-from typing import cast, Callable
-from unittest.mock import patch, MagicMock
+from typing import Callable, cast
+from unittest.mock import patch
 
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import (
+    BranchAndBoundPolicy,
+)
 
 
 class MockBins:
@@ -76,7 +78,6 @@ class TestBBPolicy:
     @pytest.mark.integration
     def test_bb_solver_integration(self, bb_test_data, check_license, backend):
         """Integration test with Gurobi (requires license)."""
-        import gurobipy
         policy = RouteConstructorRegistry.get("bb")
         assert policy is not None
         instance = policy()

@@ -14,22 +14,19 @@ import random
 
 import numpy as np
 import pytest
-
-from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree import to_callable, _mutate
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params import GPHHParams
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver import GPHHSolver
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree import (
+    _TERMINALS,
     ConstantNode,
     FunctionNode,
-    GPNode,
     TerminalNode,
-    _TERMINALS,
     _collect_mutable_points,
     _mutate,
     _random_tree,
     _subtree_crossover,
+    to_callable,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -394,7 +391,7 @@ class TestKNNCandidateList:
         """KNN list length must be ≤ candidate_list_size."""
         nodes = list(range(1, 5))
         knn = GPHHSolver._build_knn(dist_5, nodes, k=3)
-        for n, neighbours in knn.items():
+        for _n, neighbours in knn.items():
             assert len(neighbours) <= 3
 
     def test_knn_self_excluded(self, dist_5):

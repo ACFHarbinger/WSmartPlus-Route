@@ -1,9 +1,9 @@
 """Unit tests for the attention capture hooks in tracking hooks."""
 
-import torch
 import pytest
-from torch import nn
+import torch
 from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
+from torch import nn
 
 
 class DummyAttentionModule(nn.Module):

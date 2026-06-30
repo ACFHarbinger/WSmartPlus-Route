@@ -7,9 +7,14 @@ Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut import BranchAndCutPolicy, VRPPModel
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import construct_initial_solution
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut import (
+    BranchAndCutPolicy,
+    VRPPModel,
+)
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import (
+    construct_initial_solution,
+)
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")

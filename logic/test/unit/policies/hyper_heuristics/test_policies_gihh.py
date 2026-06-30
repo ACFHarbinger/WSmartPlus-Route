@@ -6,8 +6,11 @@ This module tests the Hyper-Heuristic with Two Guidance Indicators (GIHH) policy
 
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
+from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import (
+    GIHHParams,
+    GIHHSolver,
+)
 
 
 class TestGIHHPolicy:
@@ -57,9 +60,9 @@ class TestGIHHPolicy:
         assert isinstance(arch, list)
         if arch:
             best_sol = max(arch, key=lambda s: s.profit)
-            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+            routes, _profit, _cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
         else:
-            routes, profit, cost = [], 0.0, 0.0
+            routes, _profit, _cost = [], 0.0, 0.0
 
         # Check capacity for each route
         for route in routes:
@@ -76,9 +79,9 @@ class TestGIHHPolicy:
         assert isinstance(arch, list)
         if arch:
             best_sol = max(arch, key=lambda s: s.profit)
-            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+            routes, _profit, _cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
         else:
-            routes, profit, cost = [], 0.0, 0.0
+            routes, _profit, _cost = [], 0.0, 0.0
 
         # Check that mandatory nodes are visited
         visited_nodes = set()
@@ -143,9 +146,9 @@ class TestGIHHPolicy:
         assert isinstance(arch, list)
         if arch:
             best_sol = max(arch, key=lambda s: s.profit)
-            routes, profit, cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
+            routes, profit, _cost = best_sol.routes, best_sol.profit, solver._cost(best_sol.routes)
         else:
-            routes, profit, cost = [], 0.0, 0.0
+            routes, profit, _cost = [], 0.0, 0.0
 
         assert isinstance(routes, list)
         assert isinstance(profit, float)

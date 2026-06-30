@@ -1,15 +1,14 @@
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch
-from typing import Set, Dict, List, Tuple
-
-from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.helpers.solvers_and_matheuristics.separation.engine import SeparationEngine
 from logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality import (
     CapacityCut,
     PCSubtourEliminationCut,
-    CombInequality,
 )
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+
 
 @pytest.fixture
 def base_vrpp_model() -> VRPPModel:

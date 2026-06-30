@@ -1,6 +1,5 @@
 """Tests for CLI argument parsing utilities."""
 
-import copy
 import sys
 from unittest.mock import patch
 
@@ -129,7 +128,7 @@ class TestConfigsParser:
     def test_error_message(self, capsys):
         """Test error message printing"""
         parser = ConfigsParser()
-        with pytest.raises(Exception):
+        with pytest.raises(RuntimeError):
             parser.error_message("Test error", print_help=False)
         captured = capsys.readouterr()
         assert "Test error" in captured.out
@@ -218,17 +217,15 @@ class TestFileSystemCommand:
     def test_missing_fs_subcommand(self):
         """Test error when no file system subcommand is provided"""
         # Scenario: User enters 'file_system' but forgets 'update', 'delete', or 'cryptography'
-        with patch.object(sys, "argv", ["script.py", "file_system"]):
-            with pytest.raises(SystemExit):
-                parse_params()
+        with patch.object(sys, "argv", ["script.py", "file_system"]), pytest.raises(SystemExit):
+            parse_params()
 
     @pytest.mark.file_system
     def test_invalid_fs_subcommand(self):
         """Test error when an invalid file system subcommand is provided"""
         # Scenario: User enters a subcommand that doesn't exist
-        with patch.object(sys, "argv", ["script.py", "file_system", "destroy"]):
-            with pytest.raises(SystemExit):
-                parse_params()
+        with patch.object(sys, "argv", ["script.py", "file_system", "destroy"]), pytest.raises(SystemExit):
+            parse_params()
 
     @pytest.mark.file_system
     def test_fs_update_mutual_exclusivity(self, base_file_system_update_args):
@@ -250,11 +247,11 @@ class TestFileSystemCommand:
             patch("logic.src.cli.base.update_function_factory.OPERATION_MAP", {"op_test": 1}),
             patch("logic.src.cli.base.update_function_factory.STATS_FUNCTION_MAP", {"stat_test": 1}),
             patch.object(sys, "argv", args),
+            pytest.raises(AssertionError, match="mutually exclusive"),
         ):
             # Expect AssertionError: "'update_operation' and 'stats_function' arguments are mutually exclusive"
             # note: parse_params catches the AssertionError and re-raises it via error_message()
-            with pytest.raises(AssertionError, match="mutually exclusive"):
-                parse_params()
+            parse_params()
 
     @pytest.mark.file_system
     def test_fs_input_keys_multiple(self, base_file_system_update_args):
@@ -264,9 +261,6 @@ class TestFileSystemCommand:
             command, args_dict = parse_params()
             assert command == ("file_system", "update")
             assert args_dict["input_keys"] == ["key1", "key2", "key3"]
-
-
-
 
 
 class TestGUICommand:

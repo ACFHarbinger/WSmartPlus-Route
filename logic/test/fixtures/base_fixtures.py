@@ -5,7 +5,6 @@ Fixtures for the Simulator pipeline - Base fixtures.
 from multiprocessing import Lock, Value
 
 import pytest
-
 from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig

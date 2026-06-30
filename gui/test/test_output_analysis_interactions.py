@@ -23,10 +23,12 @@ class TestOutputAnalysisInteractions:
         mock_data = {"policy1_emp": {"profit": 100, "cost": 50}, "policy2_emp": {"profit": 200, "cost": 40}}
 
         # Mock file selection and opening
-        with patch("PySide6.QtWidgets.QFileDialog.getOpenFileNames", return_value=(["/path/to/res.json"], "filter")):
-            with patch("builtins.open", mock_open(read_data=json.dumps(mock_data))):
-                with patch("os.path.basename", return_value="res.json"):
-                    output_tab.load_files()
+        with (
+            patch("PySide6.QtWidgets.QFileDialog.getOpenFileNames", return_value=(["/path/to/res.json"], "filter")),
+            patch("builtins.open", mock_open(read_data=json.dumps(mock_data))),
+            patch("os.path.basename", return_value="res.json"),
+        ):
+            output_tab.load_files()
 
         # Verify data structure
         assert output_tab.state.json_data is not None

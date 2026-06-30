@@ -1,8 +1,61 @@
 import sys
-import os
-import io
-import pytest
 from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pandas as pd
+import torch
+
+# Import targets
+from logic.src.ui.pages.data_explorer import (
+    _collect_td_metadata,
+    _lazy_load_td_tensor,
+    _load_json_file,
+    _load_jsonl_file,
+    _load_npz_file,
+    _load_td_file,
+    _load_td_from_path,
+    _load_uploaded_file,
+    _pivot_json_data,
+    _process_raw_to_dfs,
+    _render_correlation_tab,
+    _render_raw_data_tab,
+    _render_sidebar_controls,
+    _render_statistics_tab,
+    _resolve_selected_df,
+    _safe_nunique,
+    _td_tensor_to_df,
+    _try_vrpp_split,
+    render_data_explorer,
+)
+from logic.src.ui.pages.data_explorer_charts import (
+    _find_td_table,
+    _has_distribution_meta,
+    _numeric_columns,
+    _render_area_chart,
+    _render_line_bar_chart,
+    _render_scatter_chart,
+    _render_selected_chart,
+    _render_td_coord_section,
+    _render_td_dist_section,
+    _render_td_overview_tab,
+    _render_visualization_tab,
+    _resolve_column,
+    _unique_distributions,
+)
+from logic.src.ui.pages.experiment_tracker import (
+    _fmt_size,
+    _render_artifacts,
+    _render_dataset_events,
+    _render_metric_explorer,
+    _render_params_table,
+    _render_run_comparison,
+    _render_run_detail,
+    _render_run_table,
+    _render_tracker_sidebar,
+    render_experiment_tracker,
+)
+from logic.src.ui.pages.experiment_tracker_mlflow import _render_mlflow_explorer
+from logic.src.ui.pages.experiment_tracker_zenml import _render_zenml_pipelines
 
 # --- Setup Mock Streamlit ---
 if "streamlit" in sys.modules and isinstance(sys.modules["streamlit"], MagicMock):
@@ -28,15 +81,19 @@ mock_st.checkbox.return_value = False
 mock_st.number_input.return_value = 0
 mock_st.text_input.return_value = ""
 
+
 # Mock context managers for streamlit
 class MockContextManager:
     def __enter__(self):
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+
 mock_st.spinner.return_value = MockContextManager()
 mock_st.expander.return_value = MockContextManager()
+
 
 def mock_columns(spec):
     count = spec if isinstance(spec, int) else len(spec)
@@ -48,70 +105,15 @@ def mock_columns(spec):
         cols.append(col)
     return cols
 
+
 mock_st.columns = mock_columns
 mock_st.tabs = mock_columns
 mock_st.segmented_control = MagicMock(return_value="Raw Data")
 
-import numpy as np
-import pandas as pd
-import torch
-
-# Import targets
-from logic.src.ui.pages.data_explorer import (
-    _td_tensor_to_df,
-    _collect_td_metadata,
-    _load_td_file,
-    _process_raw_to_dfs,
-    _try_vrpp_split,
-    _pivot_json_data,
-    _load_json_file,
-    _load_jsonl_file,
-    _load_npz_file,
-    _load_uploaded_file,
-    _load_td_from_path,
-    _lazy_load_td_tensor,
-    _safe_nunique,
-    _render_raw_data_tab,
-    _render_statistics_tab,
-    _render_correlation_tab,
-    _render_sidebar_controls,
-    _resolve_selected_df,
-    render_data_explorer,
-)
-
-from logic.src.ui.pages.data_explorer_charts import (
-    _resolve_column,
-    _numeric_columns,
-    _has_distribution_meta,
-    _unique_distributions,
-    _render_visualization_tab,
-    _render_line_bar_chart,
-    _render_scatter_chart,
-    _render_area_chart,
-    _render_selected_chart,
-    _find_td_table,
-    _render_td_coord_section,
-    _render_td_dist_section,
-    _render_td_overview_tab,
-)
-
-from logic.src.ui.pages.experiment_tracker import (
-    _render_run_table,
-    _render_run_detail,
-    _render_params_table,
-    _render_metric_explorer,
-    _render_run_comparison,
-    _render_artifacts,
-    _render_dataset_events,
-    _fmt_size,
-    _render_tracker_sidebar,
-    render_experiment_tracker,
-)
-
-
 # =====================================================================
 # Tests for data_explorer.py
 # =====================================================================
+
 
 def test_td_tensor_to_df():
     # 1D
@@ -194,12 +196,7 @@ def test_process_raw_to_dfs():
 
 
 def test_try_vrpp_split():
-    df = pd.DataFrame({
-        0: [[1, 2]],
-        1: [[3, 4]],
-        2: [[[5, 6]]],
-        3: [10.0]
-    })
+    df = pd.DataFrame({0: [[1, 2]], 1: [[3, 4]], 2: [[[5, 6]]], 3: [10.0]})
     result = _try_vrpp_split(df)
     assert result is not None
     keys = [item[0] for item in result]
@@ -341,8 +338,7 @@ def test_render_data_explorer():
     mock_st.session_state.clear()
 
     # 1. No input
-    with patch("streamlit.radio", return_value="Upload file"), \
-         patch("streamlit.file_uploader", return_value=None):
+    with patch("streamlit.radio", return_value="Upload file"), patch("streamlit.file_uploader", return_value=None):
         render_data_explorer()
 
     # 2. Upload file path
@@ -350,17 +346,20 @@ def test_render_data_explorer():
     uploaded_file.name = "test.csv"
     uploaded_file.size = 100
 
-    with patch("streamlit.radio", return_value="Upload file"), \
-         patch("streamlit.file_uploader", return_value=uploaded_file), \
-         patch("pandas.read_csv", return_value=pd.DataFrame({"a": [1, 2]})), \
-         patch("streamlit.selectbox", return_value="test.csv (2x1)"), \
-         patch("streamlit.segmented_control", return_value="Raw Data"):
+    with (
+        patch("streamlit.radio", return_value="Upload file"),
+        patch("streamlit.file_uploader", return_value=uploaded_file),
+        patch("pandas.read_csv", return_value=pd.DataFrame({"a": [1, 2]})),
+        patch("streamlit.selectbox", return_value="test.csv (2x1)"),
+        patch("streamlit.segmented_control", return_value="Raw Data"),
+    ):
         render_data_explorer()
 
 
 # =====================================================================
 # Tests for data_explorer_charts.py
 # =====================================================================
+
 
 def test_resolve_column():
     columns = ["a", 1, "b"]
@@ -386,8 +385,10 @@ def test_unique_distributions():
 
 def test_render_visualization_tab():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-    with patch("streamlit.selectbox", side_effect=["Line Chart", "a", "b"]), \
-         patch("streamlit.multiselect", return_value=["b"]):
+    with (
+        patch("streamlit.selectbox", side_effect=["Line Chart", "a", "b"]),
+        patch("streamlit.multiselect", return_value=["b"]),
+    ):
         _render_visualization_tab(df)
 
 
@@ -430,8 +431,7 @@ def test_find_td_table():
 def test_render_td_coord_section():
     tables = {"coords (2x3x2)": pd.DataFrame({"x": [1, 2], "y": [3, 4], "sample_id": [0, 1]})}
     # Single Sample
-    with patch("streamlit.selectbox", return_value="Single Sample"), \
-         patch("streamlit.number_input", return_value=0):
+    with patch("streamlit.selectbox", return_value="Single Sample"), patch("streamlit.number_input", return_value=0):
         _render_td_coord_section(tables, ["coords"], ["depot"])
 
     # All Samples
@@ -451,7 +451,17 @@ def test_render_td_overview_tab():
         "coord_keys": ["coords"],
         "depot_keys": ["depot"],
         "scalar_keys": ["scalar"],
-        "summary_rows": [{"Key": "coords", "Shape": "(10, 5, 2)", "Dtype": "float32", "Min": 0.0, "Max": 1.0, "Mean": 0.5, "Std": 0.1}],
+        "summary_rows": [
+            {
+                "Key": "coords",
+                "Shape": "(10, 5, 2)",
+                "Dtype": "float32",
+                "Min": 0.0,
+                "Max": 1.0,
+                "Mean": 0.5,
+                "Std": 0.1,
+            }
+        ],
     }
     tables = {
         "coords (10x5x2)": pd.DataFrame({"x": [1, 2], "y": [3, 4], "sample_id": [0, 1]}),
@@ -464,6 +474,7 @@ def test_render_td_overview_tab():
 # Tests for experiment_tracker.py
 # =====================================================================
 
+
 def test_fmt_size():
     assert _fmt_size(None) == "—"
     assert _fmt_size("bad") == "—"
@@ -474,7 +485,14 @@ def test_fmt_size():
 
 def test_render_run_table():
     runs = [
-        {"id": "uuid12345678", "experiment_name": "exp1", "run_type": "train", "status": "COMPLETED", "start_time": "12:00", "end_time": "12:05"},
+        {
+            "id": "uuid12345678",
+            "experiment_name": "exp1",
+            "run_type": "train",
+            "status": "COMPLETED",
+            "start_time": "12:00",
+            "end_time": "12:05",
+        },
     ]
     # No match filter
     val = _render_run_table(runs, "sim")
@@ -490,10 +508,7 @@ def test_render_run_table():
 @patch("logic.src.ui.pages.experiment_tracker.load_run_params")
 def test_render_run_detail(mock_params, mock_tags):
     mock_tags.return_value = {"tag1": "val1"}
-    mock_params.return_value = {
-        "lr": 0.001,
-        "policy_params/policy1/s0/epochs": 10
-    }
+    mock_params.return_value = {"lr": 0.001, "policy_params/policy1/s0/epochs": 10}
     _render_run_detail("uuid1234")
 
 
@@ -519,8 +534,10 @@ def test_render_run_comparison(mock_metrics, mock_keys):
     mock_keys.return_value = ["loss"]
     mock_metrics.return_value = pd.DataFrame({"step": [1, 2], "value": [0.5, 0.4]})
 
-    with patch("streamlit.multiselect", return_value=["r1  run1", "r2  run2"]), \
-         patch("streamlit.selectbox", return_value="loss"):
+    with (
+        patch("streamlit.multiselect", return_value=["r1  run1", "r2  run2"]),
+        patch("streamlit.selectbox", return_value="loss"),
+    ):
         _render_run_comparison(runs)
 
 
@@ -539,7 +556,7 @@ def test_render_dataset_events(mock_events):
             "shape": "(100, 2)",
             "size_bytes": 2048,
             "timestamp": "12:00",
-            "metadata": '{"source_file": "loader.py", "source_line": 42, "variable_name": "data"}'
+            "metadata": '{"source_file": "loader.py", "source_line": 42, "variable_name": "data"}',
         }
     ]
     _render_dataset_events("uuid1234")
@@ -572,8 +589,6 @@ def test_render_experiment_tracker(
 # Tests for experiment_tracker_mlflow.py & experiment_tracker_zenml.py
 # =====================================================================
 
-from logic.src.ui.pages.experiment_tracker_mlflow import _render_mlflow_explorer
-from logic.src.ui.pages.experiment_tracker_zenml import _render_zenml_pipelines
 
 @patch("logic.src.ui.pages.experiment_tracker_mlflow.load_mlflow_runs")
 @patch("logic.src.ui.pages.experiment_tracker_mlflow.list_mlflow_metric_keys")
@@ -584,18 +599,22 @@ def test_render_mlflow_explorer(mock_history, mock_keys, mock_runs):
     _render_mlflow_explorer("http://uri", "exp")
 
     # Case 2: Yes runs
-    df_runs = pd.DataFrame({
-        "run_id": ["r1"],
-        "params.lr": ["0.01"],
-        "metric.loss": [0.5],
-    })
+    df_runs = pd.DataFrame(
+        {
+            "run_id": ["r1"],
+            "params.lr": ["0.01"],
+            "metric.loss": [0.5],
+        }
+    )
     mock_runs.return_value = df_runs
     mock_keys.return_value = ["loss"]
     mock_history.return_value = pd.DataFrame({"step": [1, 2], "value": [0.5, 0.4]})
 
-    with patch("streamlit.selectbox", return_value="r1"), \
-         patch("streamlit.multiselect", return_value=["loss"]), \
-         patch("streamlit.expander", return_value=MockContextManager()):
+    with (
+        patch("streamlit.selectbox", return_value="r1"),
+        patch("streamlit.multiselect", return_value=["loss"]),
+        patch("streamlit.expander", return_value=MockContextManager()),
+    ):
         _render_mlflow_explorer("http://uri", "exp")
 
 
@@ -607,9 +626,7 @@ def test_render_zenml_pipelines(mock_steps, mock_runs):
     _render_zenml_pipelines()
 
     # Case 2: Yes runs
-    mock_runs.return_value = [
-        {"id": "zen12345678", "pipeline": "my_pipe", "status": "completed"}
-    ]
+    mock_runs.return_value = [{"id": "zen12345678", "pipeline": "my_pipe", "status": "completed"}]
     mock_steps.return_value = [
         {"step_name": "load_data", "status": "completed"},
         {"step_name": "train", "status": "failed"},

@@ -1,17 +1,13 @@
 """Unit tests for landscape.py."""
 
 import os
-import torch
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
 
-from logic.src.utils.expo.landscape import (
-    imitation_loss_fn,
-    rl_loss_fn,
-    plot_loss_landscape
-)
+import pytest
+import torch
+from logic.src.utils.expo.landscape import imitation_loss_fn, plot_loss_landscape, rl_loss_fn
 from omegaconf import OmegaConf
+
 
 @pytest.fixture
 def mock_model():

@@ -1,6 +1,7 @@
-import pytest
 import numpy as np
+import pytest
 from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
+
 
 class TestNetwork:
     """Class for network and distance matrix tests."""

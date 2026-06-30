@@ -1,17 +1,16 @@
 """Tests for Non-Autoregressive models."""
 
-import torch
-import pytest
-from tensordict import TensorDict
 from unittest.mock import MagicMock
 
-from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
-from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
+import pytest
+import torch
 from logic.src.models.common.non_autoregressive.decoder import NonAutoregressiveDecoder
+from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
 from logic.src.models.core.deepaco.model import DeepACO
 from logic.src.models.core.deepaco.policy import DeepACOPolicy
 from logic.src.models.subnets.decoders.deepaco.decoder import ACODecoder
 from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
+from tensordict import TensorDict
 
 
 class TestNonAutoregressiveBase:

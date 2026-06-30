@@ -1,26 +1,23 @@
 """Tests for policy implementations and solver engines."""
 
-import math
 
 from typing import Callable, cast
 from unittest.mock import patch
 
-import pandas as pd
 import numpy as np
 import pytest
 from logic.src.policies import run_hgs
-from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
 from logic.src.policies.route_construction.base import RouteConstructorRegistry
-from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes
-
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import (
+    BPCPolicy,
+)
 from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import (
     ILSRVNDSPPolicy,
 )
-from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
-from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
-from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route, get_route_cost
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import (
+    ALNSPolicy,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
 
 
 class MockBins:

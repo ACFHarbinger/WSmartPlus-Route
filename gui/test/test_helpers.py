@@ -80,9 +80,8 @@ def test_file_tailer_worker(mock_exists, mock_file):
     class BreakLoop(Exception):
         pass
 
-    with patch("time.sleep", side_effect=BreakLoop):
-        with pytest.raises(BreakLoop):
-            worker.tail_file()
+    with patch("time.sleep", side_effect=BreakLoop), pytest.raises(BreakLoop):
+        worker.tail_file()
 
     # This verifies it entered the loop and tried to sleep or work.
     # Testing the read logic specifically:

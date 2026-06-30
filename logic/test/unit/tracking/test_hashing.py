@@ -1,6 +1,5 @@
 """Unit tests for the hashing utilities in tracking validation."""
 
-import os
 import pytest
 from logic.src.tracking.validation.hashing import hash_bytes, hash_file
 

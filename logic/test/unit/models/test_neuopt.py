@@ -3,9 +3,6 @@ Tests for NeuOpt Model and Policy.
 """
 
 import pytest
-import torch
-from tensordict import TensorDict
-
 from logic.src.envs.tsp_kopt import TSPkoptEnv
 from logic.src.models.core.neuopt import NeuOpt
 from logic.src.models.core.neuopt.policy import NeuOptPolicy

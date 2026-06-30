@@ -1,22 +1,22 @@
 """Unit tests for graph_utils.py."""
 
+from unittest.mock import MagicMock
+
+import networkx as nx
 import numpy as np
 import torch
-import pytest
-from unittest.mock import MagicMock
-import networkx as nx
-
 from logic.src.utils.graph import (
-    generate_adj_matrix,
-    get_edge_idx_dist,
-    sort_by_pairs,
-    get_adj_knn,
     adj_to_idx,
-    idx_to_adj,
-    tour_to_adj,
+    find_longest_path,
+    generate_adj_matrix,
+    get_adj_knn,
     get_adj_osm,
-    find_longest_path
+    get_edge_idx_dist,
+    idx_to_adj,
+    sort_by_pairs,
+    tour_to_adj,
 )
+
 
 def test_generate_adj_matrix_random():
     """Test random adjacency matrix generation."""
@@ -116,7 +116,7 @@ def test_find_longest_path():
     # 0 -> 1 (w=5)
     # 1 -> 2 (w=10)
     # 0 -> 2 (w=2)
-    dist = torch_full = torch.full((3, 3), float("-inf"))
+    dist = torch.full((3, 3), float("-inf"))
     dist[0, 1] = 5.0
     dist[1, 2] = 10.0
     dist[0, 2] = 2.0

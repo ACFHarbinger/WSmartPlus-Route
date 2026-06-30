@@ -1,9 +1,8 @@
 """Unit tests for tasks/losses.py."""
 
 import torch
-import torch.nn.functional as F
-import pytest
 from logic.src.utils.tasks import losses
+
 
 def test_problem_symmetricity_loss_zeros():
     """Test symmetry loss with identical rewards (zero advantage)."""
