@@ -43,7 +43,7 @@ bpc:
     # -------------------------------------------------------------------------
     # Infrastructure
     # -------------------------------------------------------------------------
-    - mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
+    - mandatory_selection: { "other/ms_service_level.yaml": ["service_level1", "service_level2"] }
 
     - time_limit: 60.0
       # Full wall-clock budget.
