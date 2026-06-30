@@ -119,5 +119,5 @@ psoma:
   mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
   # Node selection strategy for waste collection problems
 
-  route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+  route_improvement: { "other/ri_cls.yaml": ["default"] }
 # =============================================================================
