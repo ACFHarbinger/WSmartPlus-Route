@@ -17,7 +17,7 @@ Supported methods
 
 Usage
 -----
-    uv run python scripts/gen_dist_matrix.py \\
+    uv run python logic/scripts/gen_dist_matrix.py \\
         --area figueiradafoz \\
         --waste-type plastic \\
         --method gmaps \\
