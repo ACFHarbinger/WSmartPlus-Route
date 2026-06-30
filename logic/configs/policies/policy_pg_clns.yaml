@@ -83,5 +83,5 @@ pg_clns:
     - profit_aware_operators: true
     - vrpp: true
     - mandatory_selection: { "other/ms_lookahead.yaml": ["lookahead"] }
-    - route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }
+    - route_improvement: { "other/ri_cls.yaml": ["default"] }
 # =============================================================================

@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("../../"))
 project = "WSmart-Route"
 copyright = "2026, ACFHarbinger"
 author = "ACFHarbinger"
-
+release = "1.1.0"
 
 sys.path.insert(0, os.path.abspath("../../.."))  # project root
 sys.path.insert(0, os.path.abspath("../.."))  # logic directory
