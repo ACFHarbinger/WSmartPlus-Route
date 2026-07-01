@@ -50,6 +50,16 @@ fmt-rust:
 preview: build
     npm --prefix app run preview
 
+# ── Lint / Analysis ──────────────────────────────────────────────────────────
+
+# Run Cargo Clippy (Rust linter) — fails on any warning
+clippy:
+    cd app/src-tauri && cargo clippy -- -D warnings
+
+# Check for outdated npm dependencies
+outdated:
+    npm --prefix app outdated
+
 # ── Dependencies ─────────────────────────────────────────────────────────────
 
 # Update all JS/TS dependencies to their latest allowed versions

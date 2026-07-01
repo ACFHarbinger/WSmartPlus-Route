@@ -120,7 +120,8 @@ export type AppMode =
   | "data_gen"          // Data Generation Wizard   — §G.11
   | "config_editor"     // Configuration Editor     — §G.13
   | "output_browser"    // Output Browser           — §G.14
-  | "settings";         // App Settings
+  | "eval_runner"       // Evaluation Runner        — §G.12
+  | "settings";         // App Settings             — §G.19
 
 export interface NavSection {
   label: string;

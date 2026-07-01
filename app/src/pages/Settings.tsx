@@ -1,5 +1,5 @@
 /**
- * Settings — persistent app configuration.
+ * Settings — persistent app configuration (§G.19).
  *
  * Stores all values in the Zustand persist store (Tauri Store plugin under the hood)
  * so they survive app restarts.
@@ -8,14 +8,43 @@
  *   Project Root    — the repo root where main.py lives; used by all launchers
  *   Python Path     — override the auto-detected Python executable (blank = auto)
  *   Theme           — dark / light
+ *
+ * Validation:
+ *   - Project Root: Rust `validate_project_root` checks that main.py exists
+ *   - Python Path:  Rust `probe_python` runs `<path> --version` and returns version string
  */
 import { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, Save } from "lucide-react";
+import { CheckCircle, FolderOpen, Save, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 
 const VERSION = "0.1.0";
+
+type ValidationState = "idle" | "checking" | "ok" | "error";
+
+interface FieldValidation {
+  state: ValidationState;
+  message: string;
+}
+
+const IDLE: FieldValidation = { state: "idle", message: "" };
+
+function ValidationBadge({ v }: { v: FieldValidation }) {
+  if (v.state === "idle" || v.state === "checking") return null;
+  const ok = v.state === "ok";
+  return (
+    <p
+      className={`flex items-center gap-1.5 text-xs mt-1 ${
+        ok ? "text-accent-success" : "text-accent-danger"
+      }`}
+    >
+      {ok ? <CheckCircle size={11} /> : <XCircle size={11} />}
+      {v.message}
+    </p>
+  );
+}
 
 export function Settings() {
   const {
@@ -27,27 +56,82 @@ export function Settings() {
     setTheme,
   } = useAppStore();
 
-  // Local drafts so the user can cancel
+  // Local drafts so the user can discard
   const [draftRoot, setDraftRoot] = useState(projectRoot);
   const [draftPython, setDraftPython] = useState(pythonPath);
   const [draftTheme, setDraftTheme] = useState(theme);
 
+  const [rootValidation, setRootValidation] = useState<FieldValidation>(IDLE);
+  const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
+
+  const isDirty =
+    draftRoot.trim() !== projectRoot ||
+    draftPython.trim() !== pythonPath ||
+    draftTheme !== theme;
+
   const pickRoot = async () => {
     const path = (await open({ directory: true })) as string | null;
-    if (path) setDraftRoot(path);
+    if (path) {
+      setDraftRoot(path);
+      setRootValidation(IDLE);
+    }
   };
 
-  const save = () => {
+  const validateRoot = async () => {
+    const path = draftRoot.trim();
+    if (!path) {
+      setRootValidation({ state: "error", message: "Path is required" });
+      return false;
+    }
+    setRootValidation({ state: "checking", message: "" });
+    try {
+      const msg = await invoke<string>("validate_project_root", { path });
+      setRootValidation({ state: "ok", message: msg });
+      return true;
+    } catch (e) {
+      setRootValidation({ state: "error", message: String(e) });
+      return false;
+    }
+  };
+
+  const validatePython = async () => {
+    const pythonPath = draftPython.trim();
+    if (!pythonPath) {
+      // Empty means auto-detect — skip validation
+      setPythonValidation(IDLE);
+      return true;
+    }
+    setPythonValidation({ state: "checking", message: "" });
+    try {
+      const version = await invoke<string>("probe_python", { pythonPath });
+      setPythonValidation({ state: "ok", message: version });
+      return true;
+    } catch (e) {
+      setPythonValidation({ state: "error", message: String(e) });
+      return false;
+    }
+  };
+
+  const save = async () => {
+    const rootOk = await validateRoot();
+    const pythonOk = await validatePython();
+    if (!rootOk || !pythonOk) {
+      toast.error("Fix validation errors before saving");
+      return;
+    }
     setProjectRoot(draftRoot.trim());
     setPythonPath(draftPython.trim());
     setTheme(draftTheme);
     toast.success("Settings saved");
   };
 
-  const isDirty =
-    draftRoot !== projectRoot ||
-    draftPython !== pythonPath ||
-    draftTheme !== theme;
+  const discard = () => {
+    setDraftRoot(projectRoot);
+    setDraftPython(pythonPath);
+    setDraftTheme(theme);
+    setRootValidation(IDLE);
+    setPythonValidation(IDLE);
+  };
 
   return (
     <div className="max-w-xl space-y-6">
@@ -63,7 +147,11 @@ export function Settings() {
             type="text"
             className="input-base flex-1 font-mono text-xs"
             value={draftRoot}
-            onChange={(e) => setDraftRoot(e.target.value)}
+            onChange={(e) => {
+              setDraftRoot(e.target.value);
+              setRootValidation(IDLE);
+            }}
+            onBlur={validateRoot}
             placeholder="/path/to/WSmart-Route"
             spellCheck={false}
           />
@@ -77,9 +165,10 @@ export function Settings() {
         </div>
         {!draftRoot && (
           <p className="text-xs text-accent-warning">
-            Required — simulation and training launchers will be disabled without this.
+            Required — launchers will be disabled without this.
           </p>
         )}
+        <ValidationBadge v={rootValidation} />
       </div>
 
       {/* Python Executable */}
@@ -87,22 +176,22 @@ export function Settings() {
         <h2 className="text-sm font-semibold text-gray-200">Python Executable</h2>
         <p className="text-xs text-canvas-muted">
           Leave blank to auto-detect: Studio checks{" "}
-          <code className="font-mono text-xs">&lt;project&gt;/.venv/bin/python</code> first,
-          then <code className="font-mono text-xs">python3</code> on PATH.
+          <code className="font-mono text-xs">&lt;project&gt;/.venv/bin/python</code>{" "}
+          (uv venv) first, then <code className="font-mono text-xs">python3</code> on PATH.
         </p>
         <input
           type="text"
-          className="input-base font-mono text-xs"
+          className="input-base font-mono text-xs w-full"
           value={draftPython}
-          onChange={(e) => setDraftPython(e.target.value)}
+          onChange={(e) => {
+            setDraftPython(e.target.value);
+            setPythonValidation(IDLE);
+          }}
+          onBlur={validatePython}
           placeholder="(auto-detect)"
           spellCheck={false}
         />
-        {draftPython && (
-          <p className="text-xs text-canvas-muted">
-            Will use <code className="font-mono">{draftPython}</code> for all subprocess spawns.
-          </p>
-        )}
+        <ValidationBadge v={pythonValidation} />
       </div>
 
       {/* Theme */}
@@ -132,7 +221,7 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Save */}
+      {/* Save / Discard */}
       <div className="flex items-center gap-3">
         <button
           onClick={save}
@@ -143,14 +232,7 @@ export function Settings() {
           Save Settings
         </button>
         {isDirty && (
-          <button
-            onClick={() => {
-              setDraftRoot(projectRoot);
-              setDraftPython(pythonPath);
-              setDraftTheme(theme);
-            }}
-            className="btn-ghost text-sm"
-          >
+          <button onClick={discard} className="btn-ghost text-sm">
             Discard
           </button>
         )}
@@ -161,10 +243,7 @@ export function Settings() {
         <p className="font-semibold text-gray-300 text-sm">About WSmart-Route Studio</p>
         <p>Version: <span className="font-mono">{VERSION}</span></p>
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
-        <p>
-          ROADMAP:{" "}
-          <code className="font-mono">docs/moon/ROADMAP.md §G</code>
-        </p>
+        <p>ROADMAP: <code className="font-mono">docs/moon/ROADMAP.md §G</code></p>
       </div>
     </div>
   );

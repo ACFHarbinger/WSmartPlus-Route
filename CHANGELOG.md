@@ -11,6 +11,38 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fourth pass
+
+Fourth implementation pass: Evaluation Runner page (§G.12), full DataGeneration form (§G.11),
+Settings validation with Rust backend probes, `tools/app/justfile` Clippy/outdated recipes,
+and `studio-check`/`studio-clippy` root shorthands.
+
+**Rust backend**
+- `commands/system.rs` — new module with two commands:
+  - `validate_project_root(path)`: checks path exists, is a directory, and contains `main.py`
+  - `probe_python(python_path)`: runs `<path> --version`, handles Python 2 (stderr) and 3 (stdout), returns version string
+- `lib.rs` — registers `validate_project_root` and `probe_python`; imports `system` module
+
+**React frontend**
+- `pages/EvaluationRunner.tsx` — new: dynamic checkpoint list (add/remove/file-picker), dataset path picker, problem/strategy/device/val_size selects, multi-checkpoint launch (one process per checkpoint, tagged by filename), Advanced Overrides, command preview, results placeholder (§G.12)
+- `pages/DataGeneration.tsx` — rewritten: problem selector, distribution checkboxes (Gamma-3/Empirical), dataset type selector, overwrite toggle, graph form (area/num_loc/n_samples/n_days), Advanced Overrides, command preview; Hydra args mirror `gen_data.yaml` (§G.11)
+- `pages/Settings.tsx` — validation wiring: `onBlur` and pre-save calls to `validate_project_root` and `probe_python`; inline `CheckCircle`/`XCircle` badges; save blocked on validation errors
+- `types/index.ts` — `"eval_runner"` added to `AppMode` union
+- `components/layout/Sidebar.tsx` — `"Evaluation Runner"` entry added to Launch section; `ClipboardList` icon
+- `components/layout/TopBar.tsx` — `"Evaluation Runner"` title added to TITLES map
+- `App.tsx` — `EvaluationRunner` import and router case added
+
+#### Build tooling
+
+- `tools/app/justfile` — added `clippy` (`cargo clippy -- -D warnings`) and `outdated` (`npm outdated`) recipes
+- Root `justfile` — added `studio-check` (→ `app::check`) and `studio-clippy` (→ `app::clippy`) shorthands
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — §G.11 additional items checked (full form); §G.12 marked 🚧 In Progress with completed items; §G.19 additional items checked (validation commands)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — third pass
 
 Third implementation pass: full-featured Simulation Launcher and Training Hub forms, tabular
