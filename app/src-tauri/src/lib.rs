@@ -16,6 +16,8 @@ pub fn run() {
             data::list_output_dirs,
             data::list_training_runs,
             data::load_training_metrics,
+            data::read_text_file,
+            data::list_dir,
             // Simulation file watcher
             sim_watcher::start_sim_watcher,
             sim_watcher::stop_sim_watcher,

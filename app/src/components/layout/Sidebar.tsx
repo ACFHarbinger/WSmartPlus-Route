@@ -46,6 +46,13 @@ const NAV: NavSection[] = [
       { mode: "data_gen", label: "Data Generation" },
     ],
   },
+  {
+    label: "Files",
+    items: [
+      { mode: "output_browser", label: "Output Browser" },
+      { mode: "config_editor", label: "Config Editor" },
+    ],
+  },
 ];
 
 const ICON: Record<AppMode, React.ReactNode> = {

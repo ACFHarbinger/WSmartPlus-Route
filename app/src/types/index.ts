@@ -68,6 +68,13 @@ export interface ProcessEntry {
   logLines: string[];
 }
 
+export interface ProcessSpawned {
+  id: string;
+  command: string;
+  pid: number;
+  start_time: number;
+}
+
 export interface StdoutLine {
   id: string;
   line: string;
@@ -77,6 +84,21 @@ export interface StatusUpdate {
   id: string;
   status: ProcessStatus;
   exit_code?: number;
+}
+
+export interface DirEntry {
+  name: string;
+  path: string;
+  is_dir: boolean;
+  size_bytes: number;
+  extension: string;
+}
+
+export interface OutputDir {
+  name: string;
+  path: string;
+  created_at: string;
+  size_bytes: number;
 }
 
 // ── App navigation ───────────────────────────────────────────────────────────

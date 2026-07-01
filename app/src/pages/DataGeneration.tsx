@@ -3,9 +3,9 @@
  * Ports the PySide6 data generation tab.
  */
 import { useCallback, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Play } from "lucide-react";
 import { useAppStore } from "../store/app";
+import { useSpawnProcess } from "../hooks/useSpawnProcess";
 
 const SCRIPTS = [
   { id: "gen_dataset", label: "Generate Dataset", args: ["scripts/generate_dataset.py"] },
@@ -17,28 +17,19 @@ export function DataGeneration() {
   const { projectRoot } = useAppStore();
   const [selected, setSelected] = useState<string>(SCRIPTS[0].id);
   const [extraArgs, setExtraArgs] = useState("");
-  const [launching, setLaunching] = useState(false);
+  const { spawn, launching } = useSpawnProcess();
 
   const launch = useCallback(async () => {
     if (!projectRoot) return;
     const script = SCRIPTS.find((s) => s.id === selected);
     if (!script) return;
-    setLaunching(true);
-    try {
-      const extra = extraArgs
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-      const id = `${selected}_${Date.now()}`;
-      await invoke("spawn_python_process", {
-        id,
-        pythonArgs: [...script.args, ...extra],
-        workingDir: projectRoot,
-      });
-    } finally {
-      setLaunching(false);
-    }
-  }, [projectRoot, selected, extraArgs]);
+    const extra = extraArgs.split("\n").map((l) => l.trim()).filter(Boolean);
+    await spawn({
+      id: `${selected}_${Date.now()}`,
+      pythonArgs: [...script.args, ...extra],
+      workingDir: projectRoot,
+    });
+  }, [projectRoot, selected, extraArgs, spawn]);
 
   return (
     <div className="space-y-4 max-w-2xl">

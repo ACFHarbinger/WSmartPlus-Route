@@ -29,6 +29,16 @@ pub struct ProcessEntry {
     pub exit_code: Option<i32>,
 }
 
+/// Emitted immediately after a process is spawned so the frontend can
+/// register the process in its store before any stdout lines arrive.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ProcessSpawned {
+    pub id: String,
+    pub command: String,
+    pub pid: u32,
+    pub start_time: u64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StdoutLine {
     pub id: String,
@@ -57,7 +67,7 @@ pub async fn spawn_python_process(
     working_dir: String,
     app: AppHandle,
 ) -> Result<u32, String> {
-    let python = which_python();
+    let python = which_python(&working_dir);
     let mut cmd = Command::new(&python);
     cmd.args(&python_args)
         .current_dir(&working_dir)
@@ -73,6 +83,22 @@ pub async fn spawn_python_process(
         let mut reg = registry().lock().unwrap();
         reg.insert(id.clone(), (pid, cancel_tx));
     }
+
+    // Notify the frontend immediately so it can register this process in its store
+    let command_str = format!("{} {}", python, python_args.join(" "));
+    let start_time = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64;
+    let _ = app.emit(
+        "process:spawn",
+        ProcessSpawned {
+            id: id.clone(),
+            command: command_str,
+            pid,
+            start_time,
+        },
+    );
 
     let task_id = id.clone();
     let task_app = app.clone();
@@ -157,8 +183,23 @@ pub fn list_processes() -> Vec<String> {
         .collect()
 }
 
-fn which_python() -> String {
-    for candidate in &["python3", "python", ".venv/bin/python", "venv/bin/python"] {
+/// Resolve the Python executable to use for spawning subprocesses.
+///
+/// Priority order:
+///   1. `<working_dir>/.venv/bin/python`  — uv-managed venv (Linux/macOS)
+///   2. `<working_dir>/.venv/Scripts/python.exe` — uv-managed venv (Windows)
+///   3. `python3` / `python` on PATH — system fallback
+fn which_python(working_dir: &str) -> String {
+    let candidates = [
+        format!("{working_dir}/.venv/bin/python"),
+        format!("{working_dir}/.venv/Scripts/python.exe"),
+    ];
+    for candidate in &candidates {
+        if std::path::Path::new(candidate).exists() {
+            return candidate.clone();
+        }
+    }
+    for candidate in &["python3", "python"] {
         if std::process::Command::new(candidate)
             .arg("--version")
             .output()

@@ -158,3 +158,48 @@ pub fn load_training_metrics(
     }
     load_csv_file(metrics_path.to_string_lossy().to_string()).map(|f| f.rows)
 }
+
+/// Read any text file (YAML, TOML, plain-text log) and return its content as a string.
+/// Used by ConfigEditor and OutputBrowser to display file contents without a CSV parser.
+#[tauri::command]
+pub fn read_text_file(path: String) -> Result<String, String> {
+    std::fs::read_to_string(&path).map_err(|e| format!("{e}: {path}"))
+}
+
+/// List all files (non-recursive) inside a directory, returning name + extension + size.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DirEntry {
+    pub name: String,
+    pub path: String,
+    pub is_dir: bool,
+    pub size_bytes: u64,
+    pub extension: String,
+}
+
+#[tauri::command]
+pub fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
+    let base = Path::new(&path);
+    if !base.exists() {
+        return Ok(vec![]);
+    }
+    let mut entries: Vec<DirEntry> = std::fs::read_dir(base)
+        .map_err(|e| e.to_string())?
+        .filter_map(|e| e.ok())
+        .map(|e| {
+            let p = e.path();
+            let meta = std::fs::metadata(&p).ok();
+            DirEntry {
+                name: e.file_name().to_string_lossy().to_string(),
+                path: p.to_string_lossy().to_string(),
+                is_dir: p.is_dir(),
+                size_bytes: meta.map(|m| m.len()).unwrap_or(0),
+                extension: p
+                    .extension()
+                    .map(|x| x.to_string_lossy().to_string())
+                    .unwrap_or_default(),
+            }
+        })
+        .collect();
+    entries.sort_by(|a, b| b.is_dir.cmp(&a.is_dir).then(a.name.cmp(&b.name)));
+    Ok(entries)
+}

@@ -11,7 +11,39 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
-#### WSmart-Route Studio — Tauri App (`app/`)
+#### WSmart-Route Studio — Tauri App (`app/`) — continued
+
+Second implementation pass: completes all page stubs, wires process lifecycle events, adds
+Config Editor (§G.13) and Output Browser (§G.14), and introduces `tools/app/justfile`.
+
+**Rust backend additions**
+- `data::read_text_file` — reads any text file (YAML, JSON, plain text) as a `String`; used by ConfigEditor and OutputBrowser
+- `data::list_dir` — lists files and subdirectories in a path; returns `DirEntry` with `name`, `path`, `is_dir`, `size_bytes`, `extension`
+- `process::ProcessSpawned` event — emitted immediately when a process is spawned (before any stdout); frontend registers the process in the store automatically via `useProcessMonitor`
+- `process::which_python` — now resolves `<workingDir>/.venv/bin/python` first (uv-managed project venv), then `.venv/Scripts/python.exe` (Windows), then system PATH
+
+**React frontend additions**
+- `hooks/useSpawnProcess.ts` — wraps `spawn_python_process` invoke with loading state and `sonner` toasts; used by all three launcher pages
+- `hooks/useProcessMonitor.ts` — now subscribes to `process:spawn` (new) in addition to `process:stdout` and `process:status`; process is registered in the store on spawn, not on first stdout line
+- `pages/ConfigEditor.tsx` — Raw / Table / Diff view modes for any YAML/TOML config file; flat YAML parser; "Copy Overrides" button via `navigator.clipboard`; Diff view highlights changed keys between two files (e.g. `pruned_config.yaml` from two runs)
+- `pages/OutputBrowser.tsx` — three-pane layout: run list (`list_output_dirs`), file tree (`list_dir`, lazy-loads subdirs), file viewer (CSV table up to 200 rows; raw text for YAML/JSON/log); arbitrary directory picker via Tauri dialog
+- `components/layout/Sidebar.tsx` — added "Files" section with Output Browser and Config Editor entries
+- `types/index.ts` — added `ProcessSpawned`, `DirEntry`, `OutputDir` interfaces
+- Updated `SimulationLauncher`, `TrainingHub`, `DataGeneration` to use `useSpawnProcess` (removes direct `invoke` calls and manual state management)
+
+#### Build tooling
+
+- `tools/app/justfile` — new just module with `install`, `dev`, `tauri-dev`, `build`, `check`, `clean-js`, `clean-rust`, `clean` recipes
+- Root `justfile` — added `mod app 'tools/app'` and shorthands: `just studio` (→ `app::tauri-dev`), `just studio-build` (→ `app::build`), `just studio-install` (→ `app::install`)
+- `tools/helper/justfile` — updated help text to list `app` module and `just studio` shorthand
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — marked §G.0, §G.9–§G.15 as 🚧 In Progress with completed items checked; remaining items clearly separated
+
+---
+
+#### WSmart-Route Studio — Tauri App (`app/`) — initial scaffold
 
 Initial scaffold and core implementation of the WSmart-Route Studio desktop app,
 a Tauri 2.0 + React 19 replacement for the PySide6 GUI and the Streamlit dashboard.
