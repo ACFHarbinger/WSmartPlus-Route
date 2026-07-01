@@ -4,36 +4,26 @@
  * Uses the Rust `spawn_python_process` command so stdout streams to ProcessMonitor.
  */
 import { useCallback, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Play } from "lucide-react";
 import { useAppStore } from "../store/app";
+import { useSpawnProcess } from "../hooks/useSpawnProcess";
 
 const DEFAULT_OVERRIDES = `seed=42\ntask=test_sim\n`;
 
 export function SimulationLauncher() {
   const { projectRoot } = useAppStore();
   const [overrides, setOverrides] = useState(DEFAULT_OVERRIDES);
-  const [launching, setLaunching] = useState(false);
+  const { spawn, launching } = useSpawnProcess();
 
   const launch = useCallback(async () => {
     if (!projectRoot) return;
-    setLaunching(true);
-    try {
-      const overrideArgs = overrides
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-
-      const id = `sim_${Date.now()}`;
-      await invoke("spawn_python_process", {
-        id,
-        pythonArgs: ["main.py", "test_sim", ...overrideArgs],
-        workingDir: projectRoot,
-      });
-    } finally {
-      setLaunching(false);
-    }
-  }, [projectRoot, overrides]);
+    const overrideArgs = overrides.split("\n").map((l) => l.trim()).filter(Boolean);
+    await spawn({
+      id: `sim_${Date.now()}`,
+      pythonArgs: ["main.py", "test_sim", ...overrideArgs],
+      workingDir: projectRoot,
+    });
+  }, [projectRoot, overrides, spawn]);
 
   return (
     <div className="space-y-4 max-w-2xl">

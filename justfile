@@ -50,6 +50,7 @@ quiet := "false"
 
 # --- Submodules ---
 
+mod app 'tools/app'
 mod benchmark 'tools/benchmark'
 mod ci 'tools/ci'
 mod controller 'tools/controller'
@@ -114,6 +115,18 @@ gui: helper::_print_header
 # Launch the Streamlit dashboard
 dashboard: helper::_print_header
     just ui::dashboard
+
+# Launch WSmart-Route Studio (Tauri desktop app — native window, hot-reload)
+studio: helper::_print_header
+    just app::tauri-dev
+
+# Build a WSmart-Route Studio release binary (installer in app/src-tauri/target/release/bundle/)
+studio-build: helper::_print_header
+    just app::build
+
+# Install Studio JS/TS dependencies (run once after checkout)
+studio-install: helper::_print_header
+    just app::install
 
 # Run fast unit tests (use `just test::test` for the full suite)
 test-fast: helper::_print_header

@@ -1,0 +1,50 @@
+# WSmart+ Route — App: WSmart-Route Studio (Tauri 2.0 + React 19 desktop app)
+#
+# All commands are run from the repo root (working-directory := '../..').
+# The Tauri app source lives in app/ and the Rust backend in app/src-tauri/.
+
+set unstable := true
+set working-directory := '../..'
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
+
+# Install JS/TS dependencies (run once after checkout or after package.json changes)
+install:
+    npm --prefix app install
+
+# ── Development ──────────────────────────────────────────────────────────────
+
+# Start Vite dev server only — opens in the default browser, no native shell
+# Useful for rapid UI iteration without rebuilding the Rust backend.
+dev:
+    npm --prefix app run dev
+
+# Start full Tauri dev build — native window with Vite hot-reload
+# Rebuilds the Rust backend on first run; subsequent rebuilds are incremental.
+tauri-dev:
+    cd app && npm run tauri -- dev
+
+# ── Production ────────────────────────────────────────────────────────────────
+
+# Build a release binary (creates an installer in app/src-tauri/target/release/bundle/)
+build:
+    cd app && npm run tauri -- build
+
+# ── Code quality ─────────────────────────────────────────────────────────────
+
+# Type-check the TypeScript frontend without emitting files
+check:
+    npm --prefix app exec -- tsc --noEmit
+
+# ── Cleanup ───────────────────────────────────────────────────────────────────
+
+# Remove installed JS dependencies (node_modules) and Vite dist output
+clean-js:
+    rm -rf app/node_modules app/dist
+
+# Remove the Rust build cache (slow — only needed when Cargo.toml changes)
+clean-rust:
+    rm -rf app/src-tauri/target
+
+# Remove all build artifacts (JS + Rust)
+clean: clean-js clean-rust

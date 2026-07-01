@@ -3,9 +3,9 @@
  * Ports the PySide6 RL training tab.
  */
 import { useCallback, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Play } from "lucide-react";
 import { useAppStore } from "../store/app";
+import { useSpawnProcess } from "../hooks/useSpawnProcess";
 
 const MODES = ["train", "hpo", "eval"] as const;
 type Mode = (typeof MODES)[number];
@@ -20,7 +20,7 @@ export function TrainingHub() {
   const { projectRoot } = useAppStore();
   const [mode, setMode] = useState<Mode>("train");
   const [overrides, setOverrides] = useState(DEFAULT_ARGS.train);
-  const [launching, setLaunching] = useState(false);
+  const { spawn, launching } = useSpawnProcess();
 
   const onModeChange = (m: Mode) => {
     setMode(m);
@@ -29,23 +29,13 @@ export function TrainingHub() {
 
   const launch = useCallback(async () => {
     if (!projectRoot) return;
-    setLaunching(true);
-    try {
-      const overrideArgs = overrides
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-
-      const id = `${mode}_${Date.now()}`;
-      await invoke("spawn_python_process", {
-        id,
-        pythonArgs: ["main.py", mode, ...overrideArgs],
-        workingDir: projectRoot,
-      });
-    } finally {
-      setLaunching(false);
-    }
-  }, [projectRoot, mode, overrides]);
+    const overrideArgs = overrides.split("\n").map((l) => l.trim()).filter(Boolean);
+    await spawn({
+      id: `${mode}_${Date.now()}`,
+      pythonArgs: ["main.py", mode, ...overrideArgs],
+      workingDir: projectRoot,
+    });
+  }, [projectRoot, mode, overrides, spawn]);
 
   return (
     <div className="space-y-4 max-w-2xl">

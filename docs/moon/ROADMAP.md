@@ -878,19 +878,17 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.0 — Phase 0: Foundation & Tooling
+### §G.0 — Phase 0: Foundation & Tooling 🚧
 
 **Goal**: Establish the project scaffold, dev environment, and data pipeline so all subsequent phases have a stable base.
 
-- [ ] Bootstrap Tauri 2.0 project (`studio/src-tauri/` + React/TypeScript frontend)
-- [ ] Configure Tailwind CSS with dark theme defaults (`#1a1a2e` background) and `data-theme` toggle (§D.3)
-- [ ] Set up Rust workspace with required crates: `arrow`, `parquet`, `ndarray-npy`, `serde`, `tokio`
-- [ ] Define Arrow IPC schema for simulation log rows (`city`, `N`, `dist`, `improver`, `strategy`, `constructor`, `overflows`, `kgkm`, `km`, `profit`, `kg`, `reward`, `ncol`, `kg_lost`)
-- [ ] Implement Rust backend command: load `public/global/simulation/simulation_summary.csv` → Arrow IPC stream
-- [ ] Implement Rust backend command: load `public/global/datasets/` CSVs → Arrow IPC stream
-- [ ] Wire frontend to receive Arrow buffers via Tauri `invoke` (bypassing JSON serialization)
+- [x] Bootstrap Tauri 2.0 project (`app/src-tauri/` + React/TypeScript frontend); window 1600×1000, min 1200×700
+- [x] Configure Tailwind CSS with dark theme defaults (`canvas-*` / `accent-*` palette) and `dark:` class toggle (§D.3)
+- [x] Set up Rust backend with `tauri 2.0`, `tauri-plugin-{notification,store,dialog,shell}`, `serde`, `tokio`, `csv`, `anyhow`
+- [x] Implement Tauri Store plugin setup for session and theme persistence (§D.3, §D.4)
+- [x] `tools/app/justfile` — dev/build/check/clean commands; wired to root justfile as `just studio`, `just studio-build`, `just studio-install`
+- [ ] Arrow IPC schema for simulation log rows and Rust CSV → Arrow IPC stream (deferred; current JSON-over-invoke is sufficient for Phase 0)
 - [ ] Spawn DuckDB-Wasm in a Web Worker; ingest simulation Arrow stream on app load
-- [ ] Implement Tauri Store plugin setup for session and theme persistence (§D.3, §D.4)
 - [ ] Verify end-to-end latency: CSV → Rust → Arrow → DuckDB-Wasm in < 500 ms
 
 ---
@@ -1066,52 +1064,53 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.9 — Phase 9: Simulation Launcher & Run Manager
+### §G.9 — Phase 9: Simulation Launcher & Run Manager 🚧
 
 **Goal**: Port the PySide6 simulation tab to Tauri/React and add the improvements identified in §D.
 
+- [x] React form: Hydra override textarea → `spawn_python_process main.py test_sim <overrides>`
+- [x] Rust backend: spawn `main.py test_sim <overrides>` via `tokio::process::Command`; `process:spawn` event emitted on start; stdout streamed as `process:stdout` events
+- [x] Cancel button: sends cancel signal via `tokio::sync::watch` channel (§D.5)
+- [x] Toast notification on launch success / failure (§D.8) via `useSpawnProcess` hook
 - [ ] React form: problem type selector (VRPP / WCVRP / SCWCVRP), number of days, graph size / dataset path, random seed, device selector
-- [ ] Policy selection panel: multi-select list of all registered policies (from §B.3 plugin registry); drag-and-drop ordering for policy priority
+- [ ] Policy selection panel: multi-select list of all registered policies (from §B.3 plugin registry)
 - [ ] "Advanced Overrides" collapsible panel: key-value table for arbitrary Hydra overrides (§D.6 Option A)
-- [ ] Rust backend: spawn `main.py test_sim <overrides>` as a managed child process via `tokio::process::Command`
-- [ ] Stream subprocess stdout to React via Tauri events (infrastructure shared with §G.15)
-- [ ] Live status display: current day, overflow count, kg/km so far (parsed from structured JSON log)
-- [ ] Cancel button: sends SIGTERM to child process, updates status to "Cancelled" (§D.5)
-- [ ] On completion: auto-navigate to the analytics dashboard with the new run pre-loaded
-- [ ] Session persistence for all form values via Tauri Store plugin (§D.4)
-- [ ] Toast notification on completion / failure (§D.8)
+- [ ] Live status display: current day, overflow count, kg/km so far (parsed from `sim:day_update` events)
+- [ ] On completion: auto-navigate to the Simulation Monitor with the new log pre-loaded
+- [ ] Session persistence for form values via Tauri Store plugin (§D.4)
 
 ---
 
-### §G.10 — Phase 10: Training & HPO Launch Hub
+### §G.10 — Phase 10: Training & HPO Launch Hub 🚧
 
 **Goal**: Port the PySide6 reinforcement learning/training tab to Tauri/React.
 
-- [ ] React form: model architecture selector (AM / TAM / DDAM / MoE), problem type, graph size, training epochs, batch size, learning rate
-- [ ] Checkpoint path picker with file system browser (Tauri dialog plugin)
-- [ ] WandB project / run name fields; toggle WandB logging on/off
-- [ ] HPO mode toggle: configure Optuna / DEHB sweeps with trial count and search space (collapsible)
-- [ ] "Advanced Overrides" panel for arbitrary Hydra training overrides (§D.6)
-- [ ] Rust backend: spawn `main.py train <overrides>` as a managed child process
-- [ ] Live training progress panel (§D.2): epoch counter, ECharts live loss/reward line chart, ETA label, progress element
-- [ ] Gradient norm and entropy metrics displayed as sparklines (from structured JSON log)
-- [ ] Cancel button: SIGTERM to training process (§D.5)
+- [x] Mode selector: train / hpo / eval
+- [x] Hydra override textarea → `spawn_python_process main.py <mode> <overrides>`
+- [x] Cancel and toast notifications via `useSpawnProcess` hook (§D.5, §D.8)
+- [ ] React form: model architecture, problem type, graph size, epochs, batch size, learning rate
+- [ ] Checkpoint path picker (Tauri dialog plugin)
+- [ ] WandB project / run name fields; WandB toggle
+- [ ] HPO mode: Optuna sweep config (trial count, search space)
+- [ ] Live training progress panel (§D.2): ECharts live loss/reward from `process:stdout` JSON
+- [ ] Gradient norm and entropy sparklines
 - [ ] On completion: open checkpoint directory in the Output Browser (§G.14)
-- [ ] Session persistence and toast notifications (§D.4, §D.8)
+- [ ] Session persistence via Tauri Store plugin (§D.4)
 
 ---
 
-### §G.11 — Phase 11: Data Generation Wizard
+### §G.11 — Phase 11: Data Generation Wizard 🚧
 
 **Goal**: Port the PySide6 data generation tab to Tauri/React.
 
-- [ ] React form: problem type, graph sizes (multi-select), num_instances per split (train/val/test), distribution type (Gamma-3 / Empirical), output directory
-- [ ] TSPLIB source option: select `.vrp` file via Tauri dialog; convert to framework format (§E.2)
-- [ ] Sensor data source option: select sensor CSV file; calibrate parameters (§E.5)
-- [ ] Preview panel: show sample generated instance statistics (node count, demand histogram, distance distribution)
-- [ ] Rust backend: spawn `main.py gen_data <overrides>` as a managed child process
+- [x] Script selector (generate_dataset / generate_bins / generate_routes) + extra CLI args textarea
+- [x] `spawn_python_process` integration via `useSpawnProcess`; cancel and toasts
+- [ ] React form: problem type, graph sizes (multi-select), num_instances per split, distribution type, output directory
+- [ ] TSPLIB source option (select `.vrp` file via Tauri dialog)
+- [ ] Sensor data source option
+- [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
 - [ ] Live progress: instances generated / total, elapsed time, estimated completion
-- [ ] Cancel and session persistence (§D.4, §D.5)
+- [ ] Session persistence (§D.4)
 
 ---
 
@@ -1128,23 +1127,31 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.13 — Phase 13: Configuration Editor (Hydra YAML)
+### §G.13 — Phase 13: Configuration Editor (Hydra YAML) 🚧
 
 **Goal**: Provide a full-featured Hydra configuration editor so users never need to touch config files manually.
 
-- [ ] Load the resolved Hydra config tree for any task (by running `main.py <task> --cfg job`) and parse into a typed React form
-- [ ] Three editor modes: Form (generated from OmegaConf schema with type-appropriate widgets), Table (§D.6 Option A), and YAML (Monaco Editor, §D.6 Option C)
-- [ ] Changes in any mode sync to the other modes in real time
-- [ ] "Save as YAML" button: write config to a named override file in `logic/configs/overrides/`
-- [ ] "Apply to Launcher" button: populate the active launcher panel (simulation / training / data gen) with the edited values
-- [ ] Config diff view: compare current config against the last-used config for a given run (loaded from `pruned_config.yaml`)
+- [x] Three editor modes: Raw (editable textarea), Table (flat key-value, YAML parsed), Diff (compare two YAML files side-by-side)
+- [x] File picker via Tauri dialog (YAML / TOML / CFG)
+- [x] "Copy Overrides" button: serialises flat key=value lines to clipboard via `navigator.clipboard`
+- [x] Config diff view: highlights changed keys between primary and comparison file (e.g. `pruned_config.yaml` from two different runs)
+- [x] Rust `read_text_file` command for loading any text file
+- [ ] Load the resolved Hydra config tree via `main.py <task> --cfg job` (subprocess integration)
+- [ ] Form mode: type-appropriate widgets generated from OmegaConf schema
+- [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
+- [ ] "Save as YAML" button: write edited config to `logic/configs/overrides/`
+- [ ] "Apply to Launcher" button: populate the active launcher panel with the edited values
 
 ---
 
-### §G.14 — Phase 14: Output Browser & Session Management
+### §G.14 — Phase 14: Output Browser & Session Management 🚧
 
 **Goal**: Replace the PySide6 file system tab with a native file browser tailored to WSmart-Route's output directory structure.
 
+- [x] Run list panel: `list_output_dirs` with name, path, created_at, size
+- [x] File tree: `list_dir` command; lazy-loads subdirectory contents on expand; `Folder`/`FileText`/`File` icons by extension
+- [x] File viewer: CSV files load via `load_csv_file` (table with 200-row preview); text/YAML/JSON via `read_text_file` (syntax-highlighted pre block)
+- [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`)
 - [ ] Directory tree view: browse `assets/output/` with structured display (run name → hydra/ → pruned_config.yaml, simulation logs)
 - [ ] Run metadata panel: display `pruned_config.yaml` as a formatted card (task, seed, policies, distribution, graph size)
 - [ ] Log file viewer: open any `.json` or `.csv` output file with syntax highlighting
@@ -1155,12 +1162,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.15 — Phase 15: Real-Time Process Monitor & Log Viewer
+### §G.15 — Phase 15: Real-Time Process Monitor & Log Viewer 🚧
 
 **Goal**: Provide a unified view of all running and recently completed processes, replacing the PySide6 file-tailer pattern.
 
+- [x] `ProcessRegistry` in Rust: global `OnceLock<Arc<Mutex<HashMap<String, (u32, Sender<bool>)>>>>`
+- [x] `process:spawn` event emitted immediately after spawn (id, command, pid, start_time); `useProcessMonitor` hook registers process in store
+- [x] `process:stdout` events for each stdout/stderr line; stored in per-process `logLines` (capped at 2000)
+- [x] `process:status` event on completion/cancel/failure with exit code
+- [x] Process list panel: status badge, command, inline log viewer (last 50 lines), cancel button
+- [x] `cancel_process` Tauri command: sends `true` via watch channel → `child.kill()`
+- [x] `which_python` resolves `<workingDir>/.venv/bin/python` first (uv-managed venv), then system PATH
 - [ ] Process list panel: table of all active/completed Studio-spawned processes (PID, task type, start time, status, duration)
-- [ ] Rust backend: maintain a `ProcessRegistry` — on each `tokio::process::Command` spawn, register PID, task name, and a `status_tx: Sender<ProcessStatus>` channel
 - [ ] Live log viewer: select any process from the list; Rust streams its stdout/stderr lines to React via Tauri events; display in a virtualized list with auto-scroll-to-bottom toggle
 - [ ] Structured log parsing: if the process emits JSON-formatted log lines, parse and highlight fields (level, message, metrics) with colour coding
 - [ ] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers

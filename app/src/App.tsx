@@ -18,6 +18,8 @@ import { ProcessMonitor } from "./pages/ProcessMonitor";
 import { SimulationLauncher } from "./pages/SimulationLauncher";
 import { TrainingHub } from "./pages/TrainingHub";
 import { DataGeneration } from "./pages/DataGeneration";
+import { ConfigEditor } from "./pages/ConfigEditor";
+import { OutputBrowser } from "./pages/OutputBrowser";
 
 function ActivePage() {
   const mode = useAppStore((s) => s.mode);
@@ -47,6 +49,10 @@ function ActivePage() {
       return <TrainingHub />;
     case "data_gen":
       return <DataGeneration />;
+    case "config_editor":
+      return <ConfigEditor />;
+    case "output_browser":
+      return <OutputBrowser />;
     default:
       return <SimulationMonitor />;
   }
