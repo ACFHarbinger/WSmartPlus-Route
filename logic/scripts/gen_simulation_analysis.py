@@ -358,13 +358,8 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
         if s == "LA":
             return "#4e88d9"
         if s == "LM":
-            cf = row["cf"]
-            try:
-                return "#e05c5c" if float(cf) < 80 else "#e09020"
-            except (ValueError, TypeError):
-                return "#e09020"
-        sv = str(row["sl_var"]) if not (isinstance(row["sl_var"], float) and np.isnan(row["sl_var"])) else ""
-        return "#5cb85c" if sv == "SL1" else "#20a020"
+            return "#e05c5c" if str(row["cf"]) == "CF70" else "#e09020"
+        return "#20b2aa" if str(row["sl_var"]) == "SL1" else "#20a020"
 
     def get_marker(row):
         if "Figueira" in str(row["city"]): return "D"
@@ -407,7 +402,7 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
             mpatches.Patch(color="#4e88d9", label="LA"),
             mpatches.Patch(color="#e05c5c", label="LM-CF70"),
             mpatches.Patch(color="#e09020", label="LM-CF90"),
-            mpatches.Patch(color="#5cb85c", label="SL-SL1"),
+            mpatches.Patch(color="#20b2aa", label="SL-SL1"),
             mpatches.Patch(color="#20a020", label="SL-SL2"),
             plt.Line2D([0],[0], color="white", linestyle="--", linewidth=2, label="Pareto front"),
         ]
