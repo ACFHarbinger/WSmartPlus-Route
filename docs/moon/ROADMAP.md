@@ -1,11 +1,11 @@
 # WSmart+ Route — Moon Roadmap
 
-> **Version**: 1.0  
-> **Last Updated**: June 2026  
+> **Version**: 1.1  
+> **Last Updated**: July 2026  
 > **Status**: Living Document — updated each sprint  
-> **Scope**: Logic layer (`logic/src/`), GUI layer (`gui/src/`), CI/CD, documentation
+> **Scope**: Logic layer (`logic/src/`), GUI layer (migrating from `gui/src/` PySide6 → Tauri), CI/CD, documentation
 
-This document captures medium-to-long-horizon improvements for the WSmart+ Route framework across six dimensions: Analytics & Interpretability, Architecture, Documentation, GUI/UX, New Features, and Performance. Each item follows a **Pain → Options → Recommendation** structure with effort/impact tags.
+This document captures medium-to-long-horizon improvements for the WSmart+ Route framework across seven dimensions: Analytics & Interpretability, Architecture, Documentation, GUI/UX, New Features, Performance, and the WSmart-Route Studio Tauri application. Each item follows a **Pain → Options → Recommendation** structure with effort/impact tags.
 
 Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]` depends on another item
 
@@ -21,6 +21,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | [§D — GUI / UX](#d--gui--ux)                                         | Route visualization, training progress, themes, session persistence    |
 | [§E — New Features](#e--new-features)                                | Multi-problem benchmarking, REST API, LLM integration, export formats  |
 | [§F — Performance](#f--performance)                                  | Batched inference, GPU memory, test suite speed, simulation throughput |
+| [§G — WSmart-Route Studio](#g--wsmart-route-studio)                  | Tauri 2.0 app: analytics, geospatial, ML introspection, launcher UIs  |
 
 ---
 
@@ -32,13 +33,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Options**
 
-- **A** — Embed a Matplotlib FigureCanvas panel inside the existing `analysis/` GUI tab; render depot, nodes, edges, and colour-code routes per vehicle. Low friction, already uses FigureCanvas in `input_analysis.py`.
-- **B** — Export solutions to GeoJSON and open them in a browser via Folium/Leaflet, decoupled from the Qt event loop.
+- **A** — Add an ECharts panel inside the Studio analysis view: render depot, nodes, edges, and colour-code routes per vehicle using an ECharts `custom` series or a lightweight 2D canvas renderer. Low friction, consistent with the rest of the Studio tech stack.
+- **B** — Export solutions to GeoJSON and open them in a browser via Folium/Leaflet, decoupled from the application.
 - **C** — Use Plotly Dash as a standalone web dashboard, running in a background process launched from `main.py`.
 - **D** — Integrate `rerun.io` for a time-scrubbing 2-D trajectory viewer (works well with simulation day-by-day replay).
-- **E** — Add a pure-PySide6 `QGraphicsScene`/`QGraphicsView` canvas with zoom, pan, and node tooltips.
+- **E** — Use the deck.gl `PathLayer` + `ScatterplotLayer` inside the Studio's geospatial view (§G Phase 3) — the same WebGL renderer used for geospatial routing, repurposed for abstract Cartesian coordinates with the OrbitView camera.
 
-**Recommendation**: **Option A first** (lowest cost, reuses existing matplotlib integration), then **Option E** as the production-quality widget — `QGraphicsView` scales better and stays in the same process. Option D is interesting for multi-day simulation replay but requires an external runtime.
+**Recommendation**: **Option A first** (lowest cost, consistent with Studio stack), then **Option E** as the production-quality widget — deck.gl scales better and integrates with the Studio's geospatial phase. Option D is interesting for multi-day simulation replay but requires an external runtime.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -50,12 +51,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Options**
 
-- **A** — Hook `nn.MultiheadAttention` outputs with forward hooks; buffer the last batch's attention tensors in a ring-buffer on the model object. Visualize as a heatmap in the GUI analysis tab.
+- **A** — Hook `nn.MultiheadAttention` outputs with forward hooks; buffer the last batch's attention tensors in a ring-buffer on the model object. Visualize as a heatmap in the Studio ML introspection phase (§G Phase 5).
 - **B** — Integrate `BertViz`-style row-column attention visualizer adapted for graph problems (node × node matrix).
 - **C** — Log attention weights to WandB / TensorBoard as image summaries during evaluation; no GUI integration needed.
 - **D** — Export attention weights to `.npz` per inference call and build a separate offline viewer script.
 
-**Recommendation**: **Option C** for fast iteration (zero GUI work), then **Option A** for the GUI integration once Option C has validated that the data is interpretable. Option B is academic-grade but requires a browser runtime.
+**Recommendation**: **Option C** for fast iteration (zero GUI work), then **Option A** for the Studio integration once Option C has validated that the data is interpretable. Option B is academic-grade but requires a browser runtime.
 
 **Effort × Impact**: Low effort (Option C) → Medium effort (Option A) / High impact
 
@@ -67,8 +68,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Options**
 
-- **A** — Wire `get_viz_data()` output into the existing `analysis/` tab: after a simulation run, populate a QTableView / matplotlib bar chart with per-policy metrics (cost trajectories, improvement curves). `[Quick Win]`
-- **B** — Emit ring-buffer snapshots over a `QueueListener` + `SocketHandler` to a TUI panel refreshed at 2 Hz while the simulation runs.
+- **A** — Wire `get_viz_data()` output into the Studio's analytics view: after a simulation run, populate an ECharts bar chart with per-policy metrics (cost trajectories, improvement curves). Synergises with §G Phase 1. `[Quick Win]`
+- **B** — Emit ring-buffer snapshots over a WebSocket / Tauri event channel to a React panel refreshed at 2 Hz while the simulation runs. Synergises with §G Phase 15 (Real-Time Process Monitor).
 - **C** — Persist ring-buffer dumps to a SQLite database (`assets/telemetry.db`) and query them across runs for cross-policy trending.
 - **D** — Push telemetry to Prometheus and visualize in Grafana (overkill for single-machine runs).
 
@@ -86,7 +87,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - **A** — Add a `TrainingHealthCallback` (Lightning callback) that raises structured warnings when: gradient norm > 100, reward moving average stagnates for > 50 epochs, entropy < threshold. Log to the structured logging system.
 - **B** — Use `PyHessian` to compute the top-K Hessian eigenvalues of the policy network periodically; log sharpness as a training health proxy. `[Research]`
-- **C** — Visualize the loss landscape slice (perturbation method) after training completes; save as a PNG artefact to `assets/analysis/`.
+- **C** — Visualize the loss landscape slice (perturbation method) after training completes; save as a PNG artefact to `assets/analysis/`. See §G Phase 5 for the Studio's 3D loss landscape viewer.
 - **D** — Add gradient norm and entropy to the existing WandB sweep metrics so Optuna / DEHB can prune unhealthy runs early.
 
 **Recommendation**: **Option A** is a mandatory baseline — training health guardrails belong in every production RL pipeline. **Option D** pairs naturally with HPO (already integrated) and costs one additional metric log line. **Option B/C** are research-grade extras.
@@ -102,7 +103,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Options**
 
 - **A** — Use `optuna.visualization` (already a transitive dependency) to render parallel-coordinates and importances plots; export to `assets/hpo_reports/`. `[Quick Win]`
-- **B** — Add a dedicated HPO Analysis tab in the GUI wrapping the Optuna visualization calls in a QWebEngineView (Plotly HTML output).
+- **B** — Add a dedicated HPO Analysis panel in the Studio (§G Phase 10) wrapping the Optuna visualization calls in a native WebView or exporting Plotly HTML to be rendered inline.
 - **C** — Export all trial results to a Pandas DataFrame; add a `hpo_summary.ipynb` notebook template that loads and plots them.
 - **D** — Integrate SHAP to compute hyperparameter contribution scores across trials. `[Research]`
 
@@ -120,10 +121,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - **A** — Add a `FailureAnalyzer` class to `logic/src/pipeline/simulations/` that, after each day, compares predicted vs. actual bin fill levels, flags bins that caused overflow, and writes a structured summary to the day's JSON log entry.
 - **B** — Build a counterfactual engine: re-run the day with the optimal policy (Gurobi) whenever a heuristic fails, and log the gap. `[Research]`
-- **C** — Visualize the failure mode as a route-diff overlay in the GUI (bins that were skipped vs. bins that overflowed highlighted in red). Depends on §A.1.
+- **C** — Visualize the failure mode as a route-diff overlay in the Studio geospatial view (§G Phase 3): bins that were skipped vs. bins that overflowed highlighted in red. Depends on §A.1.
 - **D** — Use causal inference (DoWhy) to identify which features (fill_rate, capacity, graph_size) most predict failure across simulation episodes. `[Research]`
 
-**Recommendation**: **Option A** is purely additive and requires no new dependencies — pure logic in the existing simulator. **Option C** is the natural follow-on once §A.1 is implemented.
+**Recommendation**: **Option A** is purely additive and requires no new dependencies — pure logic in the existing simulator. **Option C** is the natural follow-on once §G Phase 3 is implemented.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -133,13 +134,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 | Item                                     | Effort    | Impact | Priority        |
 | ---------------------------------------- | --------- | ------ | --------------- |
-| §A.3 Option A (PolicyVizMixin → GUI)     | Very Low  | High   | P0              |
+| §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0              |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0              |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1              |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1              |
-| §A.1 Option A (Matplotlib route viz)     | Medium    | High   | P2              |
-| §A.1 Option E (QGraphicsView canvas)     | High      | High   | P2              |
+| §A.1 Option A (ECharts route viz)        | Medium    | High   | P2              |
+| §A.1 Option E (deck.gl PathLayer)        | High      | High   | P2              |
 | §A.4 Option B (PyHessian)                | High      | Medium | P3 `[Research]` |
 | §A.6 Option B (counterfactual engine)    | Very High | High   | P3 `[Research]` |
 
@@ -183,11 +184,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §B.3 — Policy Plugin System
 
-**Pain**: Adding a new classical policy (e.g., a new metaheuristic) requires modifying multiple files: the policy registry, the CLI argument parser, the GUI dropdown list, and the simulation runner. There is no single registration point.
+**Pain**: Adding a new classical policy (e.g., a new metaheuristic) requires modifying multiple files: the policy registry, the CLI argument parser, the Studio dropdown list, and the simulation runner. There is no single registration point.
 
 **Options**
 
-- **A** — Define a `@register_policy(name, problem_types)` decorator that writes to a module-level dict in `logic/src/policies/__init__.py`; CLI and GUI query this dict at runtime. `[Quick Win]`
+- **A** — Define a `@register_policy(name, problem_types)` decorator that writes to a module-level dict in `logic/src/policies/__init__.py`; CLI and Studio query this dict at runtime. `[Quick Win]`
 - **B** — Use Python entry points (`pyproject.toml` `[project.entry-points]`) for full plugin isolation; external packages can register policies without modifying the core codebase.
 - **C** — Use a YAML-driven policy manifest (`assets/configs/policies.yaml`) that maps names to fully-qualified class paths; load via `importlib`.
 - **D** — Use Hydra's `_target_` instantiation pattern (already in use for models) to register and instantiate policies, achieving consistency with the existing config system.
@@ -234,11 +235,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §B.6 — Environment Plugin System (Analogous to §B.3)
 
-**Pain**: Adding a new problem environment (e.g., a new VRP variant) requires modifying `logic/src/envs/problems.py`, the CLI parser, the data generator, and the GUI environment selector — no single registration point.
+**Pain**: Adding a new problem environment (e.g., a new VRP variant) requires modifying `logic/src/envs/problems.py`, the CLI parser, the data generator, and the Studio environment selector — no single registration point.
 
 **Options**
 
-- **A** — Define a `@register_env(name, problem_class)` decorator and a central env registry; CLI/GUI consult it at startup.
+- **A** — Define a `@register_env(name, problem_class)` decorator and a central env registry; CLI/Studio consult it at startup.
 - **B** — Use Hydra `_target_` pattern: each env is a config group entry under `conf/env/`, instantiated via `hydra.utils.instantiate()`. Fully consistent with existing model instantiation.
 - **C** — Define a `ProblemManifest` dataclass that each env module exports; a loader discovers them via `importlib.metadata`.
 
@@ -264,36 +265,38 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §B.8 — Worker Thread Base Class Standardization
+### §B.8 — Async Task & Worker Standardization
 
-**Pain**: GUI background workers (`data_loader_worker.py`, `chart_worker.py`, `file_tailer_worker.py`) each implement `QThread` independently with inconsistent error propagation, progress signal patterns, and cancellation logic.
+**Pain**: The existing PySide6 GUI background workers (`data_loader_worker.py`, `chart_worker.py`, `file_tailer_worker.py`) each implement `QThread` independently with inconsistent error propagation, progress signal patterns, and cancellation logic. During the Tauri migration (§G), these Qt-specific workers are replaced; however, the Python logic layer still spawns background operations (data loading, simulation orchestration, training) that need consistent cancellation and progress-reporting contracts.
 
 **Options**
 
-- **A** — Define a `BaseWorker(QThread)` in `gui/src/helpers/base_worker.py` with: `progress = Signal(int)`, `error = Signal(str)`, `result = Signal(object)`, `_cancelled: bool`, and a `cancel()` method. Subclasses override `run_task()`. `[Quick Win]`
-- **B** — Switch to `QThreadPool` + `QRunnable` for short-lived tasks; `QThread` only for persistent workers (file tailer).
-- **C** — Use Python `concurrent.futures.ThreadPoolExecutor` managed by a Qt-aware bridge class.
+- **A** — For the transitional PySide6 GUI: define a `BaseWorker(QThread)` in `gui/src/helpers/base_worker.py` with: `progress = Signal(int)`, `error = Signal(str)`, `result = Signal(object)`, `_cancelled: bool`, and a `cancel()` method. Subclasses override `run_task()`. Superseded once §G Phase 15 is complete. `[Quick Win]`
+- **B** — For the Tauri backend: define a Rust `AsyncTask` trait with `run()`, `cancel()`, and a `progress_channel: Sender<f32>`. All long-running Rust commands implement this trait; progress events are forwarded to the frontend via Tauri's event system.
+- **C** — For the Python logic layer: introduce a `BackgroundTask` protocol class with `run()`, `cancel()`, `on_progress(callback)` methods used consistently across simulation, training, and data generation entry points. The Tauri backend's Rust layer calls the Python subprocess and receives structured progress lines from stdout.
+- **D** — Use Python `concurrent.futures.ThreadPoolExecutor` managed by a Rust-aware bridge class that maps futures to Tauri async commands.
 
-**Recommendation**: **Option A** is the right Qt idiom and eliminates the current boilerplate fragmentation with minimal refactor cost.
+**Recommendation**: **Option A** for the PySide6 transitional period, **Option B + C** for the Tauri architecture. The Rust trait (B) standardizes the Tauri command layer; the Python protocol (C) standardizes the subprocess-facing API so Rust can stream progress without format-specific parsing.
 
-**Effort × Impact**: Low effort / Medium impact
+**Effort × Impact**: Low effort (Option A) / Medium effort (B + C) / High impact
 
 ---
 
 ### Effort × Impact Matrix — Architecture
 
-| Item                                          | Effort   | Impact | Priority         |
-| --------------------------------------------- | -------- | ------ | ---------------- |
-| §B.7 Option A (pydeps CI)                     | Very Low | Medium | P0 `[Quick Win]` |
-| §B.1 Option C (per-module coverage floors)    | Very Low | High   | P0 `[Quick Win]` |
-| §B.4 Option A (remove print() calls)          | Low      | Medium | P0 `[Quick Win]` |
-| §B.8 Option A (BaseWorker)                    | Low      | Medium | P1 `[Quick Win]` |
-| §B.5 Option A (strict MyPy, utils subpackage) | Medium   | High   | P1               |
-| §B.2 Option C (benchmark visibility)          | Low      | High   | P1               |
-| §B.3 Option D (Hydra policy plugin)           | Medium   | High   | P2               |
-| §B.6 Option B (Hydra env plugin)              | Medium   | High   | P2               |
-| §B.1 Option D (Hypothesis property tests)     | High     | High   | P2 `[Research]`  |
-| §B.2 Option A (benchmark regression gate)     | Medium   | High   | P2               |
+| Item                                                    | Effort   | Impact | Priority                  |
+| ------------------------------------------------------- | -------- | ------ | ------------------------- |
+| §B.7 Option A (pydeps CI)                               | Very Low | Medium | P0 `[Quick Win]`          |
+| §B.1 Option C (per-module coverage floors)              | Very Low | High   | P0 `[Quick Win]`          |
+| §B.4 Option A (remove print() calls)                    | Low      | Medium | P0 `[Quick Win]`          |
+| §B.8 Option A (BaseWorker, transitional)                | Low      | Medium | P1 `[Quick Win]`          |
+| §B.5 Option A (strict MyPy, utils subpackage)           | Medium   | High   | P1                        |
+| §B.2 Option C (benchmark visibility)                    | Low      | High   | P1                        |
+| §B.8 Option B+C (Tauri async trait + Python protocol)   | Medium   | High   | P2 `[Blocked]` §G Phase 0 |
+| §B.3 Option D (Hydra policy plugin)                     | Medium   | High   | P2                        |
+| §B.6 Option B (Hydra env plugin)                        | Medium   | High   | P2                        |
+| §B.1 Option D (Hypothesis property tests)               | High     | High   | P2 `[Research]`           |
+| §B.2 Option A (benchmark regression gate)               | Medium   | High   | P2                        |
 
 ---
 
@@ -350,11 +353,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §C.4 — Architecture Diagrams as Code (Mermaid)
 
-**Pain**: `docs/ARCHITECTURE.md` describes the system in prose. There are no visual diagrams showing the data flow from CLI → Pipeline → Environment → Model → Policy, or the GUI mediator pattern, making onboarding slow.
+**Pain**: `docs/ARCHITECTURE.md` describes the system in prose. There are no visual diagrams showing the data flow from CLI → Pipeline → Environment → Model → Policy, or the Studio mediator pattern, making onboarding slow.
 
 **Options**
 
-- **A** — Embed Mermaid flowcharts directly in `docs/ARCHITECTURE.md`; GitHub renders them natively in Markdown. Add: training data flow, inference pipeline, simulation orchestration, and GUI mediator diagrams. `[Quick Win]`
+- **A** — Embed Mermaid flowcharts directly in `docs/ARCHITECTURE.md`; GitHub renders them natively in Markdown. Add: training data flow, inference pipeline, simulation orchestration, Studio architecture diagrams. `[Quick Win]`
 - **B** — Use `diagrams` (Python-as-code diagram library) to generate PNG architecture diagrams; commit the PNGs and Python sources.
 - **C** — Use PlantUML for class diagrams of the interfaces layer; integrate into the MkDocs build (depends on §C.1).
 
@@ -382,11 +385,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §C.6 — Troubleshooting & Compatibility Docs Refresh
 
-**Pain**: `docs/TROUBLESHOOTING.md` and `docs/COMPATIBILITY.md` exist but their content is unclear (referenced in `CLAUDE.md` but not validated in this audit). CUDA version conflicts, Gurobi license errors, and PySide6 display backend issues are the most common friction points for new contributors.
+**Pain**: `docs/TROUBLESHOOTING.md` and `docs/COMPATIBILITY.md` exist but their content is unclear. CUDA version conflicts, Gurobi license errors, and display backend issues are the most common friction points for new contributors. With the Tauri migration, new Studio-specific setup steps (Rust toolchain, Node.js, Tauri CLI) must also be documented.
 
 **Options**
 
-- **A** — Audit both files; add sections for: Gurobi 11+ license setup, CUDA 12.x / PyTorch 2.2 compatibility matrix, `QT_QPA_PLATFORM=xcb` fix, `uv sync` common errors, and HGS/PyVRP installation issues.
+- **A** — Audit both files; add sections for: Gurobi 11+ license setup, CUDA 12.x / PyTorch 2.2 compatibility matrix, `uv sync` common errors, HGS/PyVRP installation issues, and Tauri/Rust toolchain setup (`cargo tauri dev` prerequisites, Node.js version requirements).
 - **B** — Add a `scripts/diagnose.sh` script that checks all critical dependencies and prints a structured health report.
 
 **Recommendation**: **Option A + B** in parallel — one improves static docs, the other gives developers a live diagnostic tool.
@@ -428,17 +431,21 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ## D — GUI / UX
 
+> **Context**: The existing PySide6/Qt GUI (`gui/src/`) is being migrated to WSmart-Route Studio, a Tauri 2.0 application (§G). The requirements in this section remain valid; the implementation guidance is updated to reflect the new Tauri/React/TypeScript stack. All references to Qt-specific APIs (QApplication, QThread, QSettings, QWidget subclasses, etc.) have been replaced with their Tauri/React equivalents.
+
+---
+
 ### §D.1 — Route Visualization Panel
 
-**Pain**: The GUI's analysis tab shows dataset statistics and fill-rate charts, but has no panel for visualizing computed routes. After running a simulation or evaluation, users must read JSON output to understand what routes were computed.
+**Pain**: The Studio's analysis views show dataset statistics and fill-rate charts, but have no panel for visualizing computed routes. After running a simulation or evaluation, users must read JSON output to understand what routes were computed.
 
 **Options**
 
-- **A** — Add a `RouteVizTab` (or panel inside the existing `analysis/` tab) with a Matplotlib canvas: plot depot (star), customer nodes (circles sized by demand), and route edges (colour per vehicle). Load routes from simulation JSON output. Synergises with §A.1.
-- **B** — Implement a `QGraphicsView`-based canvas (`RoutePainter`) that supports zoom, pan, and node tooltip with fill level / demand. Better UX, more code.
-- **C** — Open an external browser to a locally-served Plotly map each time the user clicks "Visualize". Zero Qt widget work but breaks the desktop-app UX.
+- **A** — Add a `RouteViz` React component in the Studio using ECharts `custom` series or a 2D `<canvas>` renderer: plot depot (star), customer nodes (circles sized by demand), and route edges (colour per vehicle). Load routes from simulation JSON output. Synergises with §A.1.
+- **B** — Use the deck.gl `PathLayer` + `ScatterplotLayer` already integrated for the geospatial phase (§G Phase 3) in Cartesian OrbitView mode — repurpose the same renderer for abstract coordinate systems.
+- **C** — Open routes in an external browser tab via a locally-served Plotly map each time the user clicks "Visualize". Breaks the desktop-app UX.
 
-**Recommendation**: **Option A** immediately, **Option B** as the production upgrade. Option C is a fallback only.
+**Recommendation**: **Option A** immediately (pure React, no additional dependencies), **Option B** as the production upgrade once §G Phase 3 (deck.gl) is in place.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -446,15 +453,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.2 — Training Progress Enhancements
 
-**Pain**: The `reinforcement_learning/` tab shows training progress via a file-tailer (reading stdout logs), but the UX is a plain `QTextEdit`. There is no live loss curve, no epoch progress bar, and no ETA display.
+**Pain**: The Studio's training launcher shows progress via a streamed log view (reading subprocess stdout), but the UX is a plain text area. There is no live loss curve, no epoch progress bar, and no ETA display.
 
 **Options**
 
-- **A** — Parse the structured JSON log emitted by the training pipeline and update: a Matplotlib live-updating loss/reward chart (redraw every N seconds), a `QProgressBar` for epoch progress, and a computed ETA label. `[Quick Win]` for the progress bar; more work for live chart.
-- **B** — Add a `TrainingMetricsWorker` (using `BaseWorker` from §B.8) that reads from the WandB run API in real time and populates the chart.
-- **C** — Embed a `QWebEngineView` that renders the live WandB dashboard. Requires a browser runtime in the Qt process.
+- **A** — Parse the structured JSON log emitted by the training pipeline inside the Rust backend; forward parsed metric events to React via Tauri's event system (`emit` / `listen`). Update: a live ECharts line chart (loss / reward curves), a `<progress>` element for epoch progress, and a computed ETA label. The file-watch approach in §G Phase 15 (Real-Time Process Monitor) provides the streaming infrastructure. `[Quick Win]` for the progress bar; more work for the live chart.
+- **B** — Add a Rust `TrainingMetricsWatcher` that watches the WandB run directory for new log entries and forwards them to the React frontend as Tauri events.
+- **C** — Embed the live WandB dashboard URL in a Tauri WebView panel. Requires an active WandB connection.
 
-**Recommendation**: **Option A** — parse structured logs (already JSON-formatted) for zero external dependency. The `file_tailer_worker.py` already tails logs; add a JSON parser layer on top.
+**Recommendation**: **Option A** — parse structured logs (already JSON-formatted) via the Tauri file-watch event system. Zero external dependency; consistent with §G Phase 15 infrastructure.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -462,15 +469,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.3 — Dark / Light Theme Toggle
 
-**Pain**: The `gui/src/styles/themes/` directory already contains `dark.py` and `light.py` theme modules, but there is no runtime toggle exposed to the user. The application appears to launch with a hardcoded theme.
+**Pain**: The Studio uses a fixed dark theme. There is no runtime toggle exposed to the user, and the system theme preference is not respected.
 
 **Options**
 
-- **A** — Add a theme selector to the application menu bar (`View → Theme → Dark / Light`); apply via `QApplication.setStyleSheet()` at runtime. `[Quick Win]`
-- **B** — Persist the selected theme to a user preferences file (`assets/preferences.json`) so it is restored on next launch. Synergises with §D.4.
-- **C** — Add a system-theme-following mode using `QStyleHints.colorScheme()` (Qt 6.5+).
+- **A** — Implement a theme toggle in the Studio's settings panel using Tailwind CSS `dark:` variant classes combined with a root `data-theme` attribute toggled via React state. Persist selection to `localStorage`. `[Quick Win]`
+- **B** — Use the Tauri Store plugin (`@tauri-apps/plugin-store`) to persist the theme preference so it is restored across app restarts. Synergises with §D.4.
+- **C** — Add a system-theme-following mode using the CSS `prefers-color-scheme` media query; detect the system preference on startup and switch automatically.
 
-**Recommendation**: **Option A + B** together — both are trivial once the theme infrastructure exists.
+**Recommendation**: **Option A + B** together — both are trivial once Tailwind dark mode is configured, and Store plugin persistence is a one-liner.
 
 **Effort × Impact**: Very Low effort / Medium impact `[Quick Win]`
 
@@ -478,15 +485,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.4 — Session Persistence
 
-**Pain**: When the GUI is closed and re-opened, all configured parameters (problem type, model path, dataset path, number of days, policy selections) are reset to defaults. Users must reconfigure every session.
+**Pain**: When the Studio is closed and re-opened, all configured parameters (problem type, model path, dataset path, number of days, policy selections) are reset to defaults. Users must reconfigure every session.
 
 **Options**
 
-- **A** — Serialize the current widget state (all combo-box selections, line-edit values, checkbox states) to `assets/last_session.json` on `closeEvent()`; restore on startup. `[Quick Win]`
-- **B** — Use `QSettings` (platform-native key-value store) for the same purpose — no manual JSON I/O.
-- **C** — Allow users to name and save multiple "session profiles" (e.g., "VRPP-50-nodes", "WCVRP-simulation").
+- **A** — Persist the current form state (all input values, selected options) using Zustand's `persist` middleware with `localStorage` as the storage backend. Restore on app mount. `[Quick Win]`
+- **B** — Use the Tauri Store plugin (`@tauri-apps/plugin-store`) for cross-platform native key-value persistence — writes to an OS-appropriate config directory rather than browser storage. More robust than localStorage for a desktop app.
+- **C** — Allow users to name and save multiple "session profiles" (e.g., "VRPP-50-nodes", "WCVRP-simulation") and switch between them from a dropdown.
 
-**Recommendation**: **Option B** first (idiomatic Qt, one-liner per widget), **Option C** for power users.
+**Recommendation**: **Option B** first (idiomatic Tauri, writes to a proper config path), **Option C** for power users.
 
 **Effort × Impact**: Low effort / High impact
 
@@ -494,15 +501,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.5 — Progress & Cancellation for Long Operations
 
-**Pain**: Data generation, training, and simulation runs can take hours. Users have no mechanism to cancel a running operation without killing the process, and there is no progress indicator for operations that don't emit epoch-level logs.
+**Pain**: Data generation, training, and simulation runs can take hours. Users have no mechanism to cancel a running operation without force-quitting the app, and there is no progress indicator for operations that don't emit epoch-level logs.
 
 **Options**
 
-- **A** — Add a `cancel()` method to all `QThread` workers (standardized by §B.8's `BaseWorker`); expose a "Cancel" button in the GUI that calls it. Use `threading.Event` to signal workers. `[Quick Win]`
-- **B** — For multiprocessing-based operations (simulation uses `multiprocessing`), use a `multiprocessing.Event` or `Manager().Event()` as a shared cancellation flag.
-- **C** — Show a modal `QProgressDialog` with a cancel button for operations with known total steps; show an indeterminate spinner for open-ended operations.
+- **A** — Add a cancel mechanism: the Rust backend spawns each long-running Python process via `tokio::process::Command`; a `cancel` Tauri command sends SIGTERM (or Windows equivalent) to the child process. A React "Cancel" button invokes this command. Implements the Rust `AsyncTask` trait from §B.8 Option B.
+- **B** — For multiprocessing-based operations (simulation uses `multiprocessing`), pass a cancellation flag via a shared file sentinel (`assets/.cancel_flag`) that the Python side polls; the Rust backend creates/removes the file on cancel request.
+- **C** — Show a React modal progress dialog for operations with known total steps; show an indeterminate spinner for open-ended operations. Subscribe to Tauri progress events (emitted by §G Phase 15 infrastructure) to update the progress bar.
 
-**Recommendation**: **Option A + C** — the `BaseWorker` from §B.8 provides the cancel mechanism; the progress dialog provides the UX.
+**Recommendation**: **Option A + C** — the Tauri command (A) provides the cancel mechanism; the React progress modal (C) provides the UX. Option B as a fallback for multiprocessing operations where SIGTERM does not propagate to worker processes.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -510,15 +517,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.6 — Configuration Panel for Hydra Overrides
 
-**Pain**: The GUI exposes only a subset of the available Hydra configuration options. Advanced users who want to override `train.batch_size`, `model.embedding_dim`, or `env.num_loc` must edit config files or use the CLI — bypassing the GUI entirely.
+**Pain**: The Studio exposes only a subset of available Hydra configuration options. Advanced users who want to override `train.batch_size`, `model.embedding_dim`, or `env.num_loc` must edit config files or use the CLI — bypassing the Studio entirely.
 
 **Options**
 
-- **A** — Add an "Advanced" collapsible panel (`QGroupBox`) in each tab that renders a `QTableWidget` of key-value overrides. Users can add/edit/delete rows; the worker translates them to Hydra override strings (`key=value`). `[Quick Win]`
-- **B** — Parse the Hydra config schema (`OmegaConf`) at runtime and generate a typed form (dropdowns for enums, sliders for numeric ranges, checkboxes for bools).
-- **C** — Show a raw YAML editor (`QPlainTextEdit`) that is passed directly as a Hydra config file.
+- **A** — Add an "Advanced Overrides" collapsible section in each launcher panel (simulation, training, data gen) rendering a React table of key-value rows. Users can add/edit/delete rows; the Rust backend translates them to Hydra override strings (`key=value`) appended to the subprocess call. `[Quick Win]`
+- **B** — Parse the Hydra config schema (via `OmegaConf.to_yaml`) at startup and generate a typed React form using `react-hook-form` + `zod` for validation: dropdowns for string enums, sliders for bounded numerics, checkboxes for bools.
+- **C** — Embed a Monaco Editor YAML panel that is passed directly as a Hydra config override file — maximum power, minimal guardrails.
 
-**Recommendation**: **Option A** for immediate usefulness (generic override table), **Option B** as the polished version once the config schema introspection is stable.
+**Recommendation**: **Option A** for immediate usefulness (generic override table, one afternoon of work), **Option B** as the polished version once the config schema introspection is stable, **Option C** for expert users who prefer raw YAML access.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -526,14 +533,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.7 — Keyboard Shortcuts & Command Palette
 
-**Pain**: All GUI operations require mouse clicks. Power users running repeated experiments have no keyboard-driven workflow.
+**Pain**: All Studio operations require mouse clicks. Power users running repeated experiments have no keyboard-driven workflow.
 
 **Options**
 
-- **A** — Assign `QShortcut` bindings to common actions: `Ctrl+R` (run), `Ctrl+S` (save config), `Ctrl+.` (cancel), `Ctrl+T` (switch tab). Add a "Shortcuts" entry to the Help menu. `[Quick Win]`
-- **B** — Implement a command palette (`Ctrl+Shift+P`) backed by a `QListView` of all registered actions + their shortcuts; filter by typing. Qt 6 has no built-in command palette, so this requires a custom floating widget.
+- **A** — Register global keyboard shortcuts in React using `react-hotkeys-hook` (in-window shortcuts) or `@tauri-apps/plugin-global-shortcut` (OS-level shortcuts): `Ctrl+R` (run), `Ctrl+.` (cancel), `Ctrl+1`–`Ctrl+9` (switch tabs), `Ctrl+S` (save config). Display shortcuts in a Help overlay. `[Quick Win]`
+- **B** — Implement a command palette (`Ctrl+Shift+P`) as a floating React component (`cmdk` library or equivalent) backed by a registry of all Studio actions; filter by typing. Particularly useful as the Studio grows beyond 10 top-level views.
 
-**Recommendation**: **Option A** first (one `QShortcut` call per action), **Option B** if the GUI grows beyond 10 top-level tabs.
+**Recommendation**: **Option A** first (one `useHotkeys` call per action), **Option B** once the Studio has more than one launcher and multiple analytics views.
 
 **Effort × Impact**: Very Low effort / Medium impact `[Quick Win]`
 
@@ -541,15 +548,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### §D.8 — Toast Notifications for Background Completions
 
-**Pain**: When a training job or data generation task finishes in the background, there is no notification. Users must switch to the output tab to check if the job completed.
+**Pain**: When a training job or data generation task finishes in the background, there is no notification. Users must check the process monitor tab to see if the job completed.
 
 **Options**
 
-- **A** — Implement a `ToastNotification` overlay widget (`QLabel` with slide-in animation, auto-dismiss after 5s) shown in the bottom-right corner on job completion/failure. `[Quick Win]`
-- **B** — Use the system tray (`QSystemTrayIcon`) to show a native OS notification balloon.
-- **C** — Play an OS sound notification via `QSoundEffect`.
+- **A** — Use a React toast library (`sonner` or `react-hot-toast`) for in-app notifications: auto-dismissing toasts in the bottom-right corner for job completion, failure, and warnings. Triggered by Tauri events from the process monitor. `[Quick Win]`
+- **B** — Use the Tauri notification plugin (`@tauri-apps/plugin-notification`) to display a native OS notification when a job finishes and the Studio window is not in focus.
+- **C** — Play an OS sound via the Tauri shell plugin on job completion.
 
-**Recommendation**: **Option A + B** — the in-app toast for when the app is in focus, system tray notification for when the user switches away.
+**Recommendation**: **Option A + B** — the React toast for when the window is focused, Tauri native notification for when the user has switched away. Option C is optional polish.
 
 **Effort × Impact**: Low effort / High impact
 
@@ -557,18 +564,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ### Effort × Impact Matrix — GUI / UX
 
-| Item                                     | Effort   | Impact | Priority         |
-| ---------------------------------------- | -------- | ------ | ---------------- |
-| §D.3 Option A+B (theme toggle + persist) | Very Low | Medium | P0 `[Quick Win]` |
-| §D.7 Option A (keyboard shortcuts)       | Very Low | Medium | P0 `[Quick Win]` |
-| §D.4 Option B (QSettings persistence)    | Low      | High   | P0               |
-| §D.8 Option A+B (toast + tray)           | Low      | High   | P1               |
-| §D.5 Option A+C (cancel + progress)      | Medium   | High   | P1               |
-| §D.2 Option A (live training charts)     | Medium   | High   | P1               |
-| §D.1 Option A (Matplotlib route panel)   | Medium   | High   | P2               |
-| §D.6 Option A (override table)           | Medium   | High   | P2               |
-| §D.1 Option B (QGraphicsView canvas)     | High     | High   | P2               |
-| §D.6 Option B (typed config form)        | High     | High   | P3               |
+| Item                                        | Effort   | Impact | Priority                          |
+| ------------------------------------------- | -------- | ------ | --------------------------------- |
+| §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]`                  |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]`                  |
+| §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0                                |
+| §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1                                |
+| §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1                                |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1                                |
+| §D.1 Option A (ECharts route panel)         | Medium   | High   | P2                                |
+| §D.6 Option A (override table)              | Medium   | High   | P2                                |
+| §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 `[Blocked]` §G Phase 3        |
+| §D.6 Option B (typed config form)           | High     | High   | P3                                |
 
 ---
 
@@ -582,9 +589,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - **A** — Add a `benchmark` subcommand to `main.py` that: runs a configurable matrix of (policy × problem × graph_size), collects metrics, and writes a unified `benchmark_report.csv` and Markdown table. `[Quick Win]`
 - **B** — Integrate with `ray[tune]` sweep (already a dependency) to parallelize the benchmark matrix across CPU cores.
-- **C** — Add a "Benchmark" tab to the GUI (synergises with §A.5) that configures the matrix via checkboxes and shows a live results table.
+- **C** — Add a "Benchmark" tab to the Studio (synergises with §A.5) that configures the matrix via checkboxes and shows a live results table.
 
-**Recommendation**: **Option A** for the CLI benchmark runner, **Option C** for GUI-accessible results.
+**Recommendation**: **Option A** for the CLI benchmark runner, **Option C** for Studio-accessible results.
 
 **Effort × Impact**: Medium effort / High impact
 
@@ -846,18 +853,440 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
+## G — WSmart-Route Studio
+
+> WSmart-Route Studio is the Tauri 2.0 desktop application that replaces the existing PySide6 GUI and extends it with deep analytics visualization, geospatial routing replay, ML introspection, and an OLAP query interface. The §D section above defines the UX requirements these phases must satisfy. The Studio is the primary interface for all user-facing operations: launching simulations and training runs, generating data, executing scripts, browsing results, and performing post-hoc analysis.
+
+**Technology Stack**
+
+| Concern | Technology |
+| --- | --- |
+| Desktop shell | Tauri 2.0 (Rust backend + native WebView) |
+| Frontend framework | React 19 + TypeScript |
+| Styling | Tailwind CSS |
+| Data serialization | Apache Arrow IPC (zero-copy Rust ↔ JS) |
+| In-browser OLAP | DuckDB-Wasm (Web Worker) |
+| 2D charts | Apache ECharts |
+| Geospatial rendering | deck.gl (WebGL, TripsLayer, OrbitView) |
+| Graph visualization | Sigma.js v4 + Graphology / Cosmograph |
+| 3D ML visualization | React Three Fiber (Three.js) |
+| Tensor I/O (Rust) | ndarray-npy crate |
+| State management | Zustand |
+| Process management | tokio::process (Rust), Tauri event system |
+| Config persistence | Tauri Store plugin |
+| OS notifications | Tauri notification plugin |
+
+---
+
+### §G.0 — Phase 0: Foundation & Tooling
+
+**Goal**: Establish the project scaffold, dev environment, and data pipeline so all subsequent phases have a stable base.
+
+- [ ] Bootstrap Tauri 2.0 project (`studio/src-tauri/` + React/TypeScript frontend)
+- [ ] Configure Tailwind CSS with dark theme defaults (`#1a1a2e` background) and `data-theme` toggle (§D.3)
+- [ ] Set up Rust workspace with required crates: `arrow`, `parquet`, `ndarray-npy`, `serde`, `tokio`
+- [ ] Define Arrow IPC schema for simulation log rows (`city`, `N`, `dist`, `improver`, `strategy`, `constructor`, `overflows`, `kgkm`, `km`, `profit`, `kg`, `reward`, `ncol`, `kg_lost`)
+- [ ] Implement Rust backend command: load `public/global/simulation/simulation_summary.csv` → Arrow IPC stream
+- [ ] Implement Rust backend command: load `public/global/datasets/` CSVs → Arrow IPC stream
+- [ ] Wire frontend to receive Arrow buffers via Tauri `invoke` (bypassing JSON serialization)
+- [ ] Spawn DuckDB-Wasm in a Web Worker; ingest simulation Arrow stream on app load
+- [ ] Implement Tauri Store plugin setup for session and theme persistence (§D.3, §D.4)
+- [ ] Verify end-to-end latency: CSV → Rust → Arrow → DuckDB-Wasm in < 500 ms
+
+---
+
+### §G.1 — Phase 1: Statistical Overview Dashboard (ECharts 2D)
+
+**Goal**: Reproduce and extend the existing static `simulation_analysis.md` charts as interactive ECharts panels.
+
+#### 1.1 KPI Summary Bar / Box Charts
+- [ ] Mean ± std overflows per constructor, grouped by mandatory-selection strategy
+- [ ] Mean ± std kg/km per constructor, grouped by city/scale
+- [ ] Interactive brushing: selecting a bar cross-filters all panels on the dashboard
+
+#### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
+- [ ] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS
+- [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
+- [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
+- [ ] Computed Pareto front drawn as white dashed step line
+- [ ] Log-scale toggle (symlog X) for the same view
+- [ ] Hover tooltip: all config values + KPI values
+
+#### 1.3 Policy Configuration Heatmaps
+- [ ] Heatmap split by distribution (Gamma-3 vs Empirical)
+- [ ] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350)
+- [ ] Cell value = mean overflows or mean kg/km (toggle)
+- [ ] Color gradient from dark (worst) to bright (best)
+
+#### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
+- [ ] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit
+- [ ] Each of the 480 simulation logs rendered as a polyline
+- [ ] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL)
+- [ ] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs
+- [ ] Color polylines by mandatory-selection strategy
+
+#### 1.5 Constructor Ranking Chart
+- [ ] Horizontal bar chart, bars growing left-to-right (bottom-up ordering)
+- [ ] Rank by mean kg/km across all configurations
+- [ ] Error bars showing std deviation
+
+#### 1.6 Secondary Log-Scale Views
+- [ ] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges)
+- [ ] City Comparison section uses log scale only (not outlier removal) to preserve extreme values
+
+---
+
+### §G.2 — Phase 2: Hierarchical Drill-Down (Sunburst / Treemap)
+
+**Goal**: Enable macro → micro navigation from algorithm family level down to individual config variants.
+
+- [ ] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor
+- [ ] Angular span mapped to accumulated profit; color gradient = kg/km efficiency
+- [ ] Click on any segment fires DuckDB-Wasm filter query
+- [ ] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant)
+- [ ] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions
+- [ ] Breadcrumb trail showing current filter path; click to navigate back up
+- [ ] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst)
+
+---
+
+### §G.3 — Phase 3: Geospatial Routing Visualization (deck.gl)
+
+**Goal**: Animate the physical routes constructed by each algorithm over the real-world city graphs.
+
+#### 3.1 Base Map Layer
+- [ ] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles)
+- [ ] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files
+- [ ] Render nodes as ScatterplotLayer: radius ∝ profit value, color = fill level / overflow status
+- [ ] Render depot as distinct marker
+- [ ] Pan/zoom/tilt with 3D perspective
+
+#### 3.2 Route Animation (TripsLayer)
+- [ ] Parse per-day route files from simulation output into timestamped coordinate arrays
+- [ ] Feed routes into deck.gl TripsLayer with vehicle-color-coded trails
+- [ ] Timeline slider: step through 30-day simulation day by day
+- [ ] Playback controls: play / pause / speed multiplier
+- [ ] Multi-vehicle rendering with distinct color coding per vehicle
+
+#### 3.3 Algorithm Comparison Mode
+- [ ] Side-by-side view: BPC routes vs ACO_HH routes on same map
+- [ ] Toggle visibility per policy
+- [ ] Overlay profit nodes that were skipped (dimmed) vs visited (bright)
+
+#### 3.4 Non-Geographic Cartesian Mode (OrbitView)
+- [ ] Switch between geographic (Mercator) and abstract Cartesian coordinate system
+- [ ] OrbitView camera: orbit, pan, zoom a 3D point cloud
+- [ ] Used for normalized/synthetic datasets where coordinates are not GPS
+
+---
+
+### §G.4 — Phase 4: Topological Graph Analytics (Sigma.js / Cosmograph)
+
+**Goal**: Visualize the raw optimization graph structure, pheromone trails, and node-edge weights.
+
+- [ ] Load distance matrix from `assets/` as a weighted edge list
+- [ ] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance
+- [ ] Force-directed layout (ForceAtlas2) via Graphology
+- [ ] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration
+- [ ] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes
+- [ ] Dynamic re-layout when filter applied: clusters emerge based on algorithm prioritization
+- [ ] Cosmograph alternative for large dense graphs (N=350)
+- [ ] Timeline slider synced with route animation to show pheromone evolution over iterations
+
+---
+
+### §G.5 — Phase 5: Machine Learning Introspection Dashboard
+
+**Goal**: Expose the internals of trained neural CO models (Attention Models, Routing Transformers).
+
+#### 5.1 TensorDict Data Pipeline
+- [ ] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate
+- [ ] Memory-map large tensor files (avoid full RAM load)
+- [ ] Stream specific tensor slices to frontend over Arrow IPC on demand
+
+#### 5.2 3D Loss Landscape Visualization (React Three Fiber)
+- [ ] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions
+- [ ] Export 2D grid of loss values as `.npz`
+- [ ] React Three Fiber: render grid as `InstancedMesh` continuous 3D topography
+- [ ] Color gradient: low loss = deep blue, high loss = bright red
+- [ ] Camera: orbit, zoom, perspective controls
+- [ ] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned)
+- [ ] Project exact-solver solutions (BPC optimum) as a marker on the landscape
+- [ ] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical)
+
+#### 5.3 Attention Weight Visualization (Sigma.js overlay)
+- [ ] Load attention weight matrices from TensorDict for a selected simulation step
+- [ ] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude
+- [ ] Query/Key/Value color coding per attention head
+- [ ] Timeline slider: step through sequential decoding steps
+- [ ] Sparse Routing Transformer mode: show only top-k attention connections (spherical k-means clusters)
+- [ ] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions
+- [ ] Side-by-side vs overlay toggle
+
+---
+
+### §G.6 — Phase 6: OLAP Data Cube Explorer
+
+**Goal**: Give the researcher a free-form SQL/pivot interface backed by DuckDB-Wasm for custom analysis queries.
+
+- [ ] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror)
+- [ ] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier
+- [ ] Result grid with sortable columns and export to CSV
+- [ ] Auto-chart: map query result columns to ECharts chart type suggestions
+- [ ] Pivot table UI: drag dimensions/measures onto row/column/value wells
+- [ ] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally
+
+---
+
+### §G.7 — Phase 7: Integrated Workflow & UX Polish
+
+**Goal**: Connect all analytics phases into a single cohesive analytical narrative flow, and satisfy all §D UX requirements.
+
+- [ ] App-level navigation: Overview → Drill-Down → Geospatial → Graph → ML → Query → Launchers
+- [ ] Global filter state management (Zustand): any filter applied in one view propagates to all others
+- [ ] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking)
+- [ ] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4)
+- [ ] Keyboard shortcuts: `G` = geospatial, `P` = parallel coords, `M` = ML dashboard, `Q` = query, `Ctrl+R` = run, `Ctrl+.` = cancel (§D.7)
+- [ ] React toast notifications + Tauri OS notifications for background job completion (§D.8)
+- [ ] Responsive layout for different screen sizes (primary target: 2560×1440 research workstation)
+- [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
+- [ ] Export: any chart exportable as PNG/SVG; any table exportable as CSV/Parquet
+
+---
+
+### §G.8 — Phase 8: Data Export & Packaging
+
+**Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
+
+- [ ] Python export script: `logic/scripts/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a single `.wsroute` bundle (zipped Parquet + Arrow IPC)
+- [ ] Rust backend: open `.wsroute` bundle directly (no separate file management)
+- [ ] Tauri bundler: produce signed `.deb`/`.AppImage` (Linux), `.dmg` (macOS), `.msi` (Windows) distributables
+- [ ] Auto-update via Tauri updater plugin
+- [ ] Integration test: round-trip export → import → verify all simulation rows load correctly
+
+---
+
+### §G.9 — Phase 9: Simulation Launcher & Run Manager
+
+**Goal**: Port the PySide6 simulation tab to Tauri/React and add the improvements identified in §D.
+
+- [ ] React form: problem type selector (VRPP / WCVRP / SCWCVRP), number of days, graph size / dataset path, random seed, device selector
+- [ ] Policy selection panel: multi-select list of all registered policies (from §B.3 plugin registry); drag-and-drop ordering for policy priority
+- [ ] "Advanced Overrides" collapsible panel: key-value table for arbitrary Hydra overrides (§D.6 Option A)
+- [ ] Rust backend: spawn `main.py test_sim <overrides>` as a managed child process via `tokio::process::Command`
+- [ ] Stream subprocess stdout to React via Tauri events (infrastructure shared with §G.15)
+- [ ] Live status display: current day, overflow count, kg/km so far (parsed from structured JSON log)
+- [ ] Cancel button: sends SIGTERM to child process, updates status to "Cancelled" (§D.5)
+- [ ] On completion: auto-navigate to the analytics dashboard with the new run pre-loaded
+- [ ] Session persistence for all form values via Tauri Store plugin (§D.4)
+- [ ] Toast notification on completion / failure (§D.8)
+
+---
+
+### §G.10 — Phase 10: Training & HPO Launch Hub
+
+**Goal**: Port the PySide6 reinforcement learning/training tab to Tauri/React.
+
+- [ ] React form: model architecture selector (AM / TAM / DDAM / MoE), problem type, graph size, training epochs, batch size, learning rate
+- [ ] Checkpoint path picker with file system browser (Tauri dialog plugin)
+- [ ] WandB project / run name fields; toggle WandB logging on/off
+- [ ] HPO mode toggle: configure Optuna / DEHB sweeps with trial count and search space (collapsible)
+- [ ] "Advanced Overrides" panel for arbitrary Hydra training overrides (§D.6)
+- [ ] Rust backend: spawn `main.py train <overrides>` as a managed child process
+- [ ] Live training progress panel (§D.2): epoch counter, ECharts live loss/reward line chart, ETA label, progress element
+- [ ] Gradient norm and entropy metrics displayed as sparklines (from structured JSON log)
+- [ ] Cancel button: SIGTERM to training process (§D.5)
+- [ ] On completion: open checkpoint directory in the Output Browser (§G.14)
+- [ ] Session persistence and toast notifications (§D.4, §D.8)
+
+---
+
+### §G.11 — Phase 11: Data Generation Wizard
+
+**Goal**: Port the PySide6 data generation tab to Tauri/React.
+
+- [ ] React form: problem type, graph sizes (multi-select), num_instances per split (train/val/test), distribution type (Gamma-3 / Empirical), output directory
+- [ ] TSPLIB source option: select `.vrp` file via Tauri dialog; convert to framework format (§E.2)
+- [ ] Sensor data source option: select sensor CSV file; calibrate parameters (§E.5)
+- [ ] Preview panel: show sample generated instance statistics (node count, demand histogram, distance distribution)
+- [ ] Rust backend: spawn `main.py gen_data <overrides>` as a managed child process
+- [ ] Live progress: instances generated / total, elapsed time, estimated completion
+- [ ] Cancel and session persistence (§D.4, §D.5)
+
+---
+
+### §G.12 — Phase 12: Evaluation Runner
+
+**Goal**: Port the PySide6 evaluation tab and expose multi-checkpoint comparison.
+
+- [ ] React form: checkpoint path(s) — multi-select for cross-model comparison, dataset path, eval instances count, device
+- [ ] Policy comparison mode: evaluate multiple checkpoints on the same dataset in sequence; display results in a side-by-side table
+- [ ] Rust backend: spawn `main.py eval <overrides>` for each selected checkpoint
+- [ ] Results grid: tour cost, runtime, gap-to-BPC, gap-to-Gurobi (if available)
+- [ ] "Export to CSV" button for result grids
+- [ ] "Open in Analytics" button pre-loads eval results into the analytics dashboard
+
+---
+
+### §G.13 — Phase 13: Configuration Editor (Hydra YAML)
+
+**Goal**: Provide a full-featured Hydra configuration editor so users never need to touch config files manually.
+
+- [ ] Load the resolved Hydra config tree for any task (by running `main.py <task> --cfg job`) and parse into a typed React form
+- [ ] Three editor modes: Form (generated from OmegaConf schema with type-appropriate widgets), Table (§D.6 Option A), and YAML (Monaco Editor, §D.6 Option C)
+- [ ] Changes in any mode sync to the other modes in real time
+- [ ] "Save as YAML" button: write config to a named override file in `logic/configs/overrides/`
+- [ ] "Apply to Launcher" button: populate the active launcher panel (simulation / training / data gen) with the edited values
+- [ ] Config diff view: compare current config against the last-used config for a given run (loaded from `pruned_config.yaml`)
+
+---
+
+### §G.14 — Phase 14: Output Browser & Session Management
+
+**Goal**: Replace the PySide6 file system tab with a native file browser tailored to WSmart-Route's output directory structure.
+
+- [ ] Directory tree view: browse `assets/output/` with structured display (run name → hydra/ → pruned_config.yaml, simulation logs)
+- [ ] Run metadata panel: display `pruned_config.yaml` as a formatted card (task, seed, policies, distribution, graph size)
+- [ ] Log file viewer: open any `.json` or `.csv` output file with syntax highlighting
+- [ ] Simulation result summary: on selecting a run directory, automatically compute and display KPI summary (total overflows, mean kg/km, profit) without opening the full analytics dashboard
+- [ ] "Open in Analytics" button: load the selected run into the analytics dashboard (§G.1–§G.6)
+- [ ] "Compare runs": multi-select two or more runs; open the analytics dashboard with both loaded for comparison
+- [ ] Session profiles (§D.4 Option C): save named snapshots of launcher form state; load from the Output Browser sidebar
+
+---
+
+### §G.15 — Phase 15: Real-Time Process Monitor & Log Viewer
+
+**Goal**: Provide a unified view of all running and recently completed processes, replacing the PySide6 file-tailer pattern.
+
+- [ ] Process list panel: table of all active/completed Studio-spawned processes (PID, task type, start time, status, duration)
+- [ ] Rust backend: maintain a `ProcessRegistry` — on each `tokio::process::Command` spawn, register PID, task name, and a `status_tx: Sender<ProcessStatus>` channel
+- [ ] Live log viewer: select any process from the list; Rust streams its stdout/stderr lines to React via Tauri events; display in a virtualized list with auto-scroll-to-bottom toggle
+- [ ] Structured log parsing: if the process emits JSON-formatted log lines, parse and highlight fields (level, message, metrics) with colour coding
+- [ ] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers
+- [ ] Cancel any running process (§D.5): button in the process list row; sends SIGTERM
+- [ ] Toast notification on process completion / failure (§D.8)
+- [ ] Process history: persist last 50 completed process entries to Tauri Store; display in the list even after app restart
+
+---
+
+### §G.16 — Phase 16: Simulation Digital Twin Page
+
+**Goal**: Full Streamlit `simulation` mode parity — real-time map, KPI dashboard, tour visualization, and bin-fill heatmap — superseding the basic SimulationMonitor scaffold implemented in Phase 0.
+
+Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,tour,summary_sections}.py`, `logic/src/ui/services/simulation_analytics.py`
+
+- [ ] **KPI dashboard** (`kpi.py` parity): primary group (profit, distance, waste, overflows) and secondary group (collections, waste lost, efficiency, cost); day-over-day delta badges; configurable KPI group visibility toggle
+- [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
+- [ ] **Bin-fill strip chart**: horizontal bar per bin showing fill level vs. capacity; sorted by fill descending; highlight overflowing bins in red
+- [ ] **Tour table**: tabular view of the tour sequence (bin ID, fill %, lat/lng, collected/skipped)
+- [ ] **Daily metrics chart**: ECharts `line` chart of each KPI across all days; policy selector to overlay multiple policies on the same axes
+- [ ] **Day scrubber**: the current range-input slider promoted to a polished day-scrubber with forward/rewind controls and an "auto-follow latest" toggle (locks slider to the last emitted day)
+- [ ] **Policy / Sample multi-select**: replace single dropdown with a multi-select component so multiple policies or samples can be overlaid simultaneously
+- [ ] **Streamlit parity check**: verify all fields from `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` are represented
+
+---
+
+### §G.17 — Phase 17: Training Monitor Page
+
+**Goal**: Full Streamlit `training` mode parity — training run discovery, Lightning CSV metrics, hyperparameter inspection, and multi-run comparison.
+
+Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/training_charts.py`, `logic/src/ui/services/data_loader.py`
+
+- [ ] **Run discovery** (`discover_training_runs` parity): recursively scan `<projectRoot>/logs/` for Lightning log directories; detect `metrics.csv`, `hparams.yaml`, `checkpoints/`; display last-modified timestamp
+- [ ] **Metrics CSV loading**: parse Lightning `metrics.csv` columns (`epoch`, `step`, `train_loss`, `val_loss`, `reward`, `entropy_loss`, `grad_norm`, `lr`); handle NaN rows (Lightning emits NaN for columns not logged in every step)
+- [ ] **Loss/reward chart** (`training_charts.py` parity): dual-axis ECharts line chart (loss on left axis, reward on right); smooth curves; epoch-granularity toggle vs. step-granularity
+- [ ] **Learning rate schedule chart**: `lr` column as a step-level sparkline below the main chart
+- [ ] **Hyperparameter panel**: parse `hparams.yaml` and display as a collapsible key-value table; support nested dicts (e.g., `model.embed_dim`)
+- [ ] **Multi-run overlay**: check two or more runs; overlay their loss curves on the same chart with per-run colour coding (matches `COLORS` array in `AlgorithmComparison`)
+- [ ] **Live training mode**: if a run is actively being written (last-modified < 30 s ago), subscribe to `process:stdout` for that training process ID and append parsed `metrics.csv` rows without re-reading the whole file
+- [ ] **Checkpoint browser**: list checkpoints under `checkpoints/` with epoch number and file size; "Load in Evaluation Runner" button (§G.12)
+
+---
+
+### §G.18 — Phase 18: Experiment & HPO Tracker
+
+**Goal**: Full Streamlit `experiment_tracker` and `hpo_tracker` mode parity — MLflow/ZenML run browser, Optuna study visualization, and cross-experiment comparison.
+
+Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src/ui/pages/experiment_tracker_charts.py`, `logic/src/ui/pages/hpo_tracker.py`
+
+- [ ] **MLflow run table** (`experiment_tracker.py` parity): Rust queries the local MLflow tracking server via its REST API (`mlflow.list_experiments`, `mlflow.search_runs`); display runs with params, metrics, tags, artifact path
+- [ ] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line or bar series; supports metric name selector and axis normalization toggle
+- [ ] **ZenML pipeline view** (if ZenML is configured): list recent pipeline runs and their step DAG; display step durations as a Gantt-style chart
+- [ ] **Optuna study browser** (`hpo_tracker.py` parity): Rust calls Optuna's RDB storage via Python subprocess (`optuna.load_study`); serialize trials to JSON; display:
+  - Parallel coordinates plot (`echarts` `parallel` series) across all hyperparameter dimensions
+  - Optimization history scatter plot (trial number vs. objective value)
+  - Parameter importance bar chart (from `optuna.importance.get_param_importances`)
+- [ ] **Best-trial highlight**: mark the best trial in all charts; "Copy best params" button writes the trial's `params` dict as a Hydra override file
+- [ ] **Cross-study comparison**: load two Optuna studies (e.g., two different algorithm HPO runs); overlay their optimization history curves; compare best-trial distributions
+- [ ] **Tauri WebView embed fallback**: if the MLflow UI is running locally, add an optional embedded WebView tab that renders the MLflow dashboard at `http://localhost:5000`; guarded behind a feature flag in `tauri.conf.json`
+
+---
+
+### §G — Dependency Map
+
+```
+Phase 0  →  All phases
+Phase 1  →  Phase 2, Phase 6
+Phase 2  →  Phase 7
+Phase 3  →  Phase 4
+Phase 4  →  Phase 5 (pheromone + attention share Sigma.js)
+Phase 5  →  Phase 7
+Phase 6  →  Phase 7
+Phase 7  →  Phase 8
+Phase 15 →  Phase 9, Phase 10, Phase 11, Phase 12, Phase 16 (all share process streaming)
+Phase 9  →  Phase 14 (on-completion navigates to Output Browser)
+Phase 10 →  Phase 14 (on-completion opens checkpoint in Output Browser)
+Phase 13 →  Phase 9, Phase 10, Phase 11, Phase 12 (config editor feeds all launchers)
+Phase 14 →  Phase 1 (analytics dashboard load)
+Phase 16 →  Phase 3 (map uses deck.gl from §G.3)
+Phase 17 →  Phase 10 (training hub spawns; monitor reads)
+Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs)
+```
+
+---
+
+### Effort × Impact Matrix — WSmart-Route Studio
+
+| Phase | Description | Effort | Impact | Priority |
+| --- | --- | --- | --- | --- |
+| §G.0 | Foundation & Tooling | High | Very High | P0 |
+| §G.15 | Real-Time Process Monitor | Medium | Very High | P0 `[Blocked]` §G.0 |
+| §G.9 | Simulation Launcher | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |
+| §G.10 | Training & HPO Hub | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |
+| §G.13 | Configuration Editor | Medium | High | P1 `[Blocked]` §G.0 |
+| §G.14 | Output Browser | Medium | High | P1 `[Blocked]` §G.0 |
+| §G.1 | Statistical Dashboard | High | High | P1 `[Blocked]` §G.0 |
+| §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.0, §G.15 |
+| §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.0, §G.15 |
+| §G.7 | UX Polish | Medium | High | P2 `[Blocked]` §G.1 |
+| §G.2 | Drill-Down Sunburst | Medium | High | P2 `[Blocked]` §G.1 |
+| §G.3 | Geospatial deck.gl | High | High | P2 `[Blocked]` §G.0 |
+| §G.6 | OLAP Explorer | Medium | High | P2 `[Blocked]` §G.1 |
+| §G.4 | Graph Topology | Medium | Medium | P3 `[Blocked]` §G.3 |
+| §G.8 | Export & Packaging | Medium | High | P3 `[Blocked]` §G.7 |
+| §G.5 | ML Introspection | High | High | P3 `[Blocked]` §G.4 |
+| §G.16 | Simulation Digital Twin | High | Very High | P1 `[Blocked]` §G.0, §G.3 |
+| §G.17 | Training Monitor | Medium | Very High | P1 `[Blocked]` §G.0, §G.10 |
+| §G.18 | Experiment & HPO Tracker | High | High | P2 `[Blocked]` §G.1, §G.17 |
+
+---
+
 ## Cross-Cutting Themes
 
 Several items across sections are tightly coupled and should be sequenced together:
 
-| Cluster                    | Items      | Rationale                                                                  |
-| -------------------------- | ---------- | -------------------------------------------------------------------------- |
-| **Plugin System**          | §B.3, §B.6 | Policy and env registration should share the same Hydra-based mechanism    |
-| **Worker Standardization** | §B.8, §D.5 | `BaseWorker` is a prerequisite for cancellation UX                         |
-| **Route Visualization**    | §A.1, §D.1 | Both need the same spatial rendering component; build once, use twice      |
-| **Docs Infrastructure**    | §C.1, §C.7 | MkDocs setup is a prerequisite for the CI docs pipeline                    |
-| **Test Quality**           | §B.1, §F.3 | Coverage uplift and test-suite speed are best addressed together           |
-| **Telemetry**              | §A.3, §A.4 | PolicyVizMixin and TrainingHealthCallback both feed the analysis dashboard |
+| Cluster                        | Items                          | Rationale                                                                                |
+| ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------- |
+| **Plugin System**              | §B.3, §B.6                     | Policy and env registration should share the same Hydra-based mechanism                  |
+| **Async Worker Contract**      | §B.8, §D.5, §G.15              | Rust AsyncTask trait + Python BackgroundTask protocol are prerequisites for cancel UX    |
+| **Route Visualization**        | §A.1, §D.1, §G.3               | All three need the same spatial renderer; deck.gl in §G.3 is the shared base             |
+| **Docs Infrastructure**        | §C.1, §C.7                     | MkDocs setup is a prerequisite for the CI docs pipeline                                  |
+| **Test Quality**               | §B.1, §F.3                     | Coverage uplift and test-suite speed are best addressed together                         |
+| **Telemetry**                  | §A.3, §A.4                     | PolicyVizMixin and TrainingHealthCallback both feed the Studio analytics dashboard        |
+| **Config System**              | §B.3, §B.6, §D.6, §G.13        | Plugin registry + Hydra `_target_` + Studio config editor all depend on a clean config schema |
+| **Process Streaming**          | §G.9, §G.10, §G.11, §G.12, §G.15, §G.16 | All launchers share the same Rust→React stdout streaming infrastructure from §G.15 |
+| **Streamlit Parity**           | §G.16, §G.17, §G.18            | These three phases are a 1:1 port of the three most-used Streamlit modes; complete before removing Streamlit dependency |
 
 ---
 
