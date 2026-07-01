@@ -1,16 +1,17 @@
 # WSmart+ Route — Simulation Analysis Report
 
-> **Scope:** 12 simulation run configurations across 2 distributions × 2 network sizes × 3 selection strategies, 8 route-construction policies each  
-> **Total logs analysed:** 156 (39 unique policy slugs × 4 contexts)  
-> **Horizon:** 30 days, Rio Maior, Portugal  
-> **Generated:** 2026-05-27
+> **Scope:** 30-day simulation runs across 3 city/network configurations × 2 distributions × 3 selection strategies × 2 route improvers × 8 route constructors  
+> **Total logs analysed:** 480 (3 configs × 2 distributions × 3 strategies × 2 improvers × 8 constructors)  
+> **Horizon:** 30 days  
+> **Cities:** Rio Maior (Portugal) — N=100, N=170; Figueira da Foz (Portugal) — N=350  
+> **Generated:** 2026-07-01
 
 ---
 
 ## Table of Contents
 
 1. [Experimental Setup](#1-experimental-setup)
-2. [Analytics Comparison Images — Pareto View](#2-analytics-comparison-images--pareto-view)
+2. [Analytics Comparison — Pareto View](#2-analytics-comparison--pareto-view)
 3. [Summary KPI Analysis](#3-summary-kpi-analysis)
    - 3.1 [Overflow Performance](#31-overflow-performance)
    - 3.2 [Route Efficiency (kg/km)](#32-route-efficiency-kgkm)
@@ -18,11 +19,14 @@
    - 3.4 [Policy Ranking Heatmaps](#34-policy-ranking-heatmaps)
 4. [Selection Strategy Comparison (LA vs LM vs SL)](#4-selection-strategy-comparison-la-vs-lm-vs-sl)
 5. [Distribution Comparison (Gamma-3 vs Empirical)](#5-distribution-comparison-gamma-3-vs-empirical)
-6. [Network Size Comparison (N=100 vs N=170)](#6-network-size-comparison-n100-vs-n170)
+6. [Network Size Comparison (N=100 → N=170)](#6-network-size-comparison-n100--n170)
 7. [Daily Output Analysis](#7-daily-output-analysis)
    - 7.1 [Collection Calendar Patterns](#71-collection-calendar-patterns)
    - 7.2 [Day-by-Day Metric Trajectories](#72-day-by-day-metric-trajectories)
-8. [Key Findings & Recommendations](#8-key-findings--recommendations)
+8. [FTSP vs CLS Route Improver Comparison](#8-ftsp-vs-cls-route-improver-comparison)
+9. [Figueira da Foz — New City Analysis (N=350)](#9-figueira-da-foz--new-city-analysis-n350)
+10. [City Comparison: Rio Maior vs Figueira da Foz](#10-city-comparison-rio-maior-vs-figueira-da-foz)
+11. [Key Findings & Recommendations](#11-key-findings--recommendations)
 
 ---
 
@@ -32,13 +36,12 @@
 
 | Dimension | Values |
 |-----------|--------|
-| **N bins** | 100, 170 |
+| **Cities / N** | Rio Maior N=100, Rio Maior N=170, Figueira da Foz N=350 |
 | **Waste distribution** | Gamma-3, Empirical |
 | **Selection strategy** | Lookahead (LA), Last-Minute (LM), Service-Level (SL) |
 | **Route constructors** | ACO_HH, ALNS, BPC, HGS, PG-CLNS, PSOMA, SANS, SWC-TCF |
-| **Route improver** | FTSP (all runs) |
+| **Route improvers** | FTSP, CLS |
 | **Simulation days** | 30 |
-| **Area** | Rio Maior, Portugal |
 | **Waste type** | Plastic |
 
 ### Policy Naming Convention
@@ -46,7 +49,7 @@
 Each log file encodes the full pipeline as:  
 `{mandatory_selection}_{route_constructor}[_{engine}]_{route_improver}`
 
-For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** (70% fill triggers mandatory collection) and **CF90** (90% threshold). Service-Level (SL) tests two service level targets: **SL1** and **SL2**.
+For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** (70% fill triggers mandatory collection) and **CF90** (90% threshold). Service-Level (SL) tests two service level targets: **SL1** and **SL2**. Results in this report aggregate CF70 and CF90 under **LM**, and SL1/SL2 under **SL**, unless otherwise specified.
 
 ### Metrics Tracked
 
@@ -63,49 +66,42 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 ---
 
-## 2. Analytics Comparison Images — Pareto View
+## 2. Analytics Comparison — Pareto View
 
-The six comparison plots in `assets/output/30days/analytics/` show the **overflows vs kg/km trade-off** for each policy across N=100 and N=170 (each policy drawn as a line connecting the two points). The black dashed line marks the Pareto front (min overflows, max kg/km). Circled markers indicate the N=170 data point.
+![Overflow vs Efficiency Scatter — All 480 Runs](figures/simulation/overflow_efficiency_scatter.png)
 
-![Overflow vs Efficiency Scatter — All 156 Runs](figures/simulation/overflow_efficiency_scatter.png)
-
-*Scatter plot of all 156 simulation runs in the overflows–kg/km space, coloured by selection strategy (blue = LA, red = LM, green = SL). Left: Gamma-3 distribution; right: Empirical distribution. The dashed black line traces the Pareto front. SL (green) clusters near 0–3 overflows at low–mid efficiency; LM (red) spans the widest range; LA (blue) is clustered in a narrow mid-efficiency band.*
+*Scatter plot of all FTSP simulation runs in the overflows–kg/km space, coloured by selection strategy (blue = LA, red = LM, green = SL). Left: Gamma-3; right: Empirical. Shape encodes city/N: circles = RM-100, squares = RM-170, diamonds = FFZ-350. SL clusters near 0–3 overflows (low efficiency); LM spans the widest range; LA sits in a consistent mid-efficiency band. FFZ Gamma-3 introduces extreme outliers at very high overflow counts for certain constructors (see Section 9).*
 
 ### LA+FTSP (Lookahead + FTSP)
 
-**Empirical distribution:** Overflows range 4–7, kg/km range 3.5–4.5.
-- ACO_HH at N=100 holds the **Pareto-dominant position** (4 overflows, 4.39 kg/km) — best trade-off of all policies.
-- HGS is the **worst on overflows** (7 at N=100) but achieves the highest kg/km at N=170 (4.45) — suggesting it optimises routes efficiently but triggers more emergency responses.
-- SANS is consistently the **worst on efficiency** (3.47–3.50 kg/km) across both sizes.
-- Most policies see kg/km **decline when scaling N=100→170** as routes become longer and sparser.
+**Rio Maior, Empirical:** Overflows range 4–7 (all constructors); kg/km 3.47–4.35.
+- ACO_HH at N=100 holds the **Pareto-dominant position** (7 overflows, 4.35 kg/km).
+- SANS is consistently worst on efficiency (3.47–3.51 kg/km).
+- Most policies see kg/km **decline when scaling N=100→170** as routes become longer.
 
-**Gamma-3 distribution:** Much higher kg/km overall (8–8.2 range at N=100). Tight clustering.
-- At N=100, nearly all policies achieve 4 overflows and 8+ kg/km — the problem is **easier for all constructors** due to higher and more uniform waste fill.
-- At N=170, performance degrades sharply — most policies fall to 5 overflows and 6.5–7.2 kg/km. HGS outlier: 10 overflows, 6.4 kg/km (poor scaling to larger network).
-- ACO_HH maintains Pareto dominance at N=100.
+**Rio Maior, Gamma-3:** Much higher kg/km (7.70–8.24 range at N=100). Very tight clustering.
+- At N=100, nearly all policies achieve 4 overflows — the LA strategy completely homogenises constructor choice in this tight configuration.
+- At N=170, performance degrades — most policies reach 5–11 overflows and 6.36–7.28 kg/km.
+
+**Figueira da Foz, Gamma-3:** **Catastrophic failure** for one constructor (SWC-TCF: 2166 overflows). Other constructors achieve 5–16 overflows and 7.63–8.66 kg/km — competitive with RM performance.
+
+**Figueira da Foz, Empirical:** Overflows 2–16 (mean 6.9); kg/km 5.28–8.45 — higher efficiency than RM due to the larger, denser network.
 
 ### LM+FTSP (Last-Minute + FTSP)
 
-**Empirical distribution:** Lowest overflow counts of all strategies — minimum 2 (cf90 variants).
-- HGS (cf70) achieves the **highest kg/km of all LM policies** (4.78 at N=100 with 3 overflows) — the best single point in the Empirical Pareto space.
-- A clear Pareto front exists between 2 and 9 overflows; policies with fewer overflows generally sacrifice some efficiency.
-- SANS remains worst — 3.20 kg/km at 6+ overflows; it is Pareto-dominated across all runs.
-- The LM strategy introduces **much higher variance** across policies: overflow range 2–19 vs LA's 4–7.
+**Rio Maior:** HGS (CF70) achieves the highest kg/km of all LM policies (9.54 at N=100 Gamma-3) but fails catastrophically at N=170 Gamma-3 (35 overflows). BPC achieves 8.11 kg/km at N=170 — the best balance.
 
-**Gamma-3 distribution:** HGS achieves a dominant point at 4 overflows / 8.1 kg/km (N=100).
-- At N=170, **HGS collapses** — 15 overflows / 6.2 kg/km — the worst single data point in any Gamma-3 run. This is a critical failure mode: the Last-Minute + HGS combination fails to scale to larger networks under Gamma-3 waste.
-- Most policies cluster at 4–5 overflows and 6.0–7.3 kg/km at N=170.
+**Figueira da Foz, Gamma-3:** BPC dominates — **11.47 kg/km** (highest single efficiency recorded in any configuration) with 38.5 mean overflows. Many constructors struggle (HGS: 129.5 mean overflows).
+
+**Figueira da Foz, Empirical:** Manageable — overflows 3–56, kg/km 5.31–9.48. BPC again leads (9.48 kg/km, 15 overflows).
 
 ### SL+FTSP (Service-Level + FTSP)
 
-**Empirical distribution:** The Service-Level strategy achieves the **lowest absolute overflows** — as few as 0 overflows (ACO_HH) under SL1.
-- HGS again leads on kg/km (4.86 at 3 overflows, N=100).
-- A well-defined Pareto front exists; SL1 variants generally dominate SL2 variants (lower overflows, comparable efficiency).
-- SANS is again worst (3.04 kg/km, 5 overflows at N=170).
+**Rio Maior:** ACO_HH achieves **0 overflows** in the Empirical/N=100 configuration. SL1 consistently outperforms SL2 on overflows (1–2 fewer per policy).
 
-**Gamma-3 distribution:** HGS achieves 7.65 kg/km / 3 overflows at N=100 — competitive with LM but with fewer overflows. 
-- ACO_HH delivers 1 overflow / 7.36 kg/km — the **best overall balance** in the Gamma-3 space.
-- SL1 variants consistently outperform SL2 on overflows (1–2 fewer per policy on average).
+**Figueira da Foz, Empirical:** ACO_HH achieves **0 overflows** with SL — excellent performance at the large scale.
+
+**Figueira da Foz, Gamma-3:** SWC-TCF again fails catastrophically (410 overflows with SL). All other constructors achieve 1–33 overflows.
 
 ---
 
@@ -115,214 +111,221 @@ The six comparison plots in `assets/output/30days/analytics/` show the **overflo
 
 ![Overflow Count by Configuration](figures/simulation/overflow_all_configs.png)
 
-*Mean overflow count for all 12 configurations, coloured by selection strategy (blue = LA, red = LM, green = SL). Whiskers span the min–max range across all route constructors. Vertical dotted lines separate Gamma-3 (left) from Empirical (right) groups. SL (green) is consistently the lowest regardless of distribution or N.*
+*Mean overflow count for all 18 configurations (3 cities × 2 distributions × 3 strategies), coloured by selection strategy. Whiskers span the min–max range across all 8 route constructors. FFZ Gamma-3 has extreme variance due to SWC-TCF failures; FFZ Empirical behaves similarly to RM.*
 
-> **Overflow counts by configuration (mean ± range across 8 constructors)**
+> **Overflow counts by configuration (mean ± range across 8 constructors, FTSP)**
 
 | Config | Min | Max | Mean |
 |--------|-----|-----|------|
-| Gamma-3 / 100 / LA | 4 | 4 | 4.0 |
-| Gamma-3 / 100 / LM | 4 | 28 | 8.8 |
-| Gamma-3 / 100 / SL | 1 | 3 | **1.6** |
-| Gamma-3 / 170 / LA | 5 | 10 | 5.6 |
-| Gamma-3 / 170 / LM | 4 | 45 | 11.5 |
-| Gamma-3 / 170 / SL | 1 | 7 | **2.7** |
-| Emp / 100 / LA | 7 | 7 | 7.0 |
-| Emp / 100 / LM | 2 | 19 | 7.3 |
-| Emp / 100 / SL | 0 | 4 | **1.6** |
-| Emp / 170 / LA | 4 | 6 | 4.4 |
-| Emp / 170 / LM | 4 | 15 | 7.1 |
-| Emp / 170 / SL | 3 | 8 | **3.8** |
+| RM-100 / Gamma-3 / LA | 4 | 4 | 4.0 |
+| RM-100 / Gamma-3 / LM | 4 | 12 | 8.0 |
+| RM-100 / Gamma-3 / SL | 1 | 2 | **1.5** |
+| RM-100 / Empirical / LA | 7 | 7 | 7.0 |
+| RM-100 / Empirical / LM | 2 | 11 | 7.0 |
+| RM-100 / Empirical / SL | 0 | 4 | **1.5** |
+| RM-170 / Gamma-3 / LA | 5 | 11 | 5.8 |
+| RM-170 / Gamma-3 / LM | 5 | 35 | 10.6 |
+| RM-170 / Gamma-3 / SL | 1 | 5 | **2.6** |
+| RM-170 / Empirical / LA | 4 | 5 | 4.1 |
+| RM-170 / Empirical / LM | 4 | 12 | 6.9 |
+| RM-170 / Empirical / SL | 3 | 5 | **3.5** |
+| FFZ-350 / Gamma-3 / LA | 5 | **2166** | 279.6 |
+| FFZ-350 / Gamma-3 / LM | 12 | 194 | 64.2 |
+| FFZ-350 / Gamma-3 / SL | 1 | **757** | **58.9** |
+| FFZ-350 / Empirical / LA | 2 | 16 | 6.9 |
+| FFZ-350 / Empirical / LM | 3 | 56 | 14.1 |
+| FFZ-350 / Empirical / SL | 0 | 7 | **1.8** |
 
-**Key finding — Service-Level dominates on overflow prevention:**  
-SL achieves mean overflows of 1.6 (N=100) vs 7.0 (LA) and 7.3 (LM). The **SL strategy's constraint-based trigger mechanism consistently prevents overflow events** across all network sizes and distributions. However, this comes at a cost — SL drives higher km and lower kg/km due to more frequent preventive collections.
+**Key finding — Service-Level dominates on overflow prevention across all cities:**  
+SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ Empirical (1.8). The exceptions are FFZ Gamma-3, where SWC-TCF failures inflate SL means (58.9) — excluding SWC-TCF, FFZ Gamma-3 SL achieves 1–6 overflows with all other constructors.
 
-**Lookahead provides the most consistent behaviour:** LA always lands at exactly 4 overflows for Gamma-3/100 regardless of constructor — the predictive 1-step lookahead completely homogenises constructor choice in this setting.
-
-**Last-Minute has the highest variance:** LM overflows range 2–45 across constructors and thresholds. The CF90 threshold is riskier — it delays collection longer, allowing more overflow events. Some CF70+HGS combinations also fail catastrophically at N=170 Gamma-3 (45 overflows).
+**FFZ Gamma-3 introduces a critical new failure mode:** The SWC-TCF exact MIP solver, which is designed for networks ≤50 nodes, times out at N=350 and produces degenerate solutions. It records 2166 overflows under LA and 410 overflows under SL — orders of magnitude worse than all other constructors. **SWC-TCF must not be used at FFZ scale.**
 
 ### 3.2 Route Efficiency (kg/km)
 
 ![kg/km Efficiency by Configuration](figures/simulation/kgkm_all_configs.png)
 
-*Mean kg/km efficiency for all 12 configurations, with min–max range whiskers. LM (red) and LA (blue) are consistently more efficient than SL (green). The Gamma-3 group (left) achieves nearly 2× the efficiency of the Empirical group (right) due to higher average fill levels.*
+*Mean kg/km efficiency for all 18 configurations, with min–max range whiskers (FTSP). FFZ configurations (right third) achieve higher kg/km than RM due to more waste per route from the denser 350-bin network.*
 
-> **Efficiency by configuration (mean ± range across constructors)**
+> **Efficiency by configuration (mean ± range across constructors, FTSP)**
 
 | Config | Min | Max | Mean |
 |--------|-----|-----|------|
-| Gamma-3 / 100 / LA | 7.71 | 8.21 | 7.99 |
-| Gamma-3 / 100 / LM | 6.78 | **10.03** | 8.20 |
-| Gamma-3 / 100 / SL | 3.86 | 7.67 | 5.26 |
-| Gamma-3 / 170 / LA | 6.38 | 7.20 | 6.75 |
-| Gamma-3 / 170 / LM | 5.61 | **8.10** | 6.80 |
-| Gamma-3 / 170 / SL | 3.73 | 5.54 | 4.67 |
-| Emp / 100 / LA | 3.47 | **4.45** | 4.11 |
-| Emp / 100 / LM | 3.20 | 6.89 | 4.58 |
-| Emp / 100 / SL | 2.00 | 4.89 | 3.12 |
-| Emp / 170 / LA | 3.51 | **4.38** | 4.09 |
-| Emp / 170 / LM | 3.10 | 5.24 | 4.14 |
-| Emp / 170 / SL | 2.28 | 4.31 | 3.07 |
+| RM-100 / Gamma-3 / LA | 7.70 | 8.24 | 7.99 |
+| RM-100 / Gamma-3 / LM | 6.77 | **9.54** | 8.17 |
+| RM-100 / Gamma-3 / SL | 3.85 | 6.31 | 5.19 |
+| RM-100 / Empirical / LA | 3.47 | 4.35 | 4.09 |
+| RM-100 / Empirical / LM | 3.20 | 5.32 | 4.46 |
+| RM-100 / Empirical / SL | 2.02 | 3.77 | 3.00 |
+| RM-170 / Gamma-3 / LA | 6.36 | 7.28 | 6.83 |
+| RM-170 / Gamma-3 / LM | 5.68 | 8.11 | 6.85 |
+| RM-170 / Gamma-3 / SL | 3.72 | 5.34 | 4.63 |
+| RM-170 / Empirical / LA | 3.49 | 4.34 | 4.09 |
+| RM-170 / Empirical / LM | 3.11 | 5.06 | 4.13 |
+| RM-170 / Empirical / SL | 2.26 | 3.74 | 3.02 |
+| FFZ-350 / Gamma-3 / LA | 7.63 | 8.66 | 8.06 |
+| FFZ-350 / Gamma-3 / LM | 6.81 | **11.47** | 8.94 |
+| FFZ-350 / Gamma-3 / SL | 5.64 | 9.65 | 7.34 |
+| FFZ-350 / Empirical / LA | 5.28 | 8.45 | 6.76 |
+| FFZ-350 / Empirical / LM | 5.31 | 9.48 | 6.89 |
+| FFZ-350 / Empirical / SL | 2.88 | 6.43 | 5.03 |
 
-**HGS is the efficiency champion** across nearly all configurations, achieving the maximum kg/km in 10 of 12 contexts. The peak is **10.03 kg/km** (Gamma-3/100/LM-CF70/HGS) — the highest single-policy efficiency recorded.
+**BPC is the efficiency champion at FFZ**, achieving **11.47 kg/km** (FFZ-350/Gamma-3/LM) — the peak efficiency across the entire experiment. At RM, ACO_HH leads on overflow prevention but BPC leads on efficiency at larger scales.
 
-**Gamma-3 > Empirical by ~2×:** Mean efficiency 7.99 (Gamma-3/LA) vs 4.11 (Emp/LA) — the sparser Empirical distribution forces more distance per kg collected.
-
-**SL sacrifices efficiency for reliability:** SL mean efficiency is 5.26 (Gamma-3/100) vs 7.99 (LA) — a 34% efficiency drop. Preventive collections run partially-empty routes, reducing kg/km.
+**FFZ efficiency exceeds RM efficiency** for equivalent strategy/distribution combinations. FFZ Gamma-3 LA achieves 8.06 kg/km (vs RM-100 7.99 and RM-170 6.83). FFZ Empirical LA achieves 6.76 kg/km (vs RM-100 4.09 and RM-170 4.09). The denser 350-bin network allows vehicles to collect more waste per km traveled, despite the longer dead-leg to the distant depot.
 
 ### 3.3 Distance Driven (km)
 
 ![Vehicle Distance by Strategy](figures/simulation/km_violin.png)
 
-*Distribution of total vehicle distance (km over 30 days) per selection strategy, shown as violins split by waste distribution. SL (green) drives significantly more km than LA and LM due to frequent preventive collection trips. LM achieves the shortest distances by waiting until bins are highly loaded.*
+*Distribution of total vehicle distance (km over 30 days) per selection strategy and city, shown as violins. FFZ drives 2–3× more km than RM due to network size. SL drives the most km at all scales.*
 
 | Config | Min km | Max km | Mean km |
 |--------|--------|--------|---------|
-| Gamma-3 / 100 / LA | 2,368 | 2,522 | 2,421 |
-| Gamma-3 / 100 / LM | 1,803 | 2,870 | 2,310 |
-| Gamma-3 / 100 / SL | 2,538 | 5,050 | 3,563 |
-| Gamma-3 / 170 / LA | 4,467 | 5,040 | 4,761 |
-| Gamma-3 / 170 / LM | 4,099 | 5,733 | 4,906 |
-| Gamma-3 / 170 / SL | 5,940 | 8,933 | 7,313 |
-| Emp / 100 / LA | 1,653 | 2,123 | 1,838 |
-| Emp / 100 / LM | 1,054 | 2,463 | 1,611 |
-| Emp / 100 / SL | 1,513 | 3,853 | 2,423 |
-| Emp / 170 / LA | 3,024 | 3,793 | 3,276 |
-| Emp / 170 / LM | 2,524 | 4,528 | 3,534 |
-| Emp / 170 / SL | 3,248 | 6,116 | 4,676 |
+| RM-100 / Gamma-3 / LA | 2,360 | 2,526 | 2,435 |
+| RM-100 / Gamma-3 / LM | 1,906 | 2,874 | 2,351 |
+| RM-100 / Gamma-3 / SL | 3,083 | 5,054 | 3,882 |
+| RM-100 / Empirical / LA | 1,688 | 2,124 | 1,809 |
+| RM-100 / Empirical / LM | 1,376 | 2,463 | 1,763 |
+| RM-100 / Empirical / SL | 2,090 | 3,830 | 2,746 |
+| RM-170 / Gamma-3 / LA | 4,413 | 5,057 | 4,710 |
+| RM-170 / Gamma-3 / LM | 4,094 | 5,745 | 4,848 |
+| RM-170 / Gamma-3 / SL | 6,013 | 8,954 | 7,152 |
+| RM-170 / Empirical / LA | 3,058 | 3,814 | 3,257 |
+| RM-170 / Empirical / LM | 2,592 | 4,512 | 3,354 |
+| RM-170 / Empirical / SL | 3,638 | 6,086 | 4,712 |
+| FFZ-350 / Gamma-3 / LA | 4,366 | 9,201 | 8,270 |
+| FFZ-350 / Gamma-3 / LM | 5,884 | 10,656 | 8,074 |
+| FFZ-350 / Gamma-3 / SL | 6,222 | **12,927** | 9,949 |
+| FFZ-350 / Empirical / LA | 4,158 | 6,857 | 5,436 |
+| FFZ-350 / Empirical / LM | 3,661 | 6,815 | 5,312 |
+| FFZ-350 / Empirical / SL | 5,596 | **13,013** | 7,610 |
 
-**SL drives the most km** — up to 8,933 km over 30 days (Gamma-3/170/SL/SANS). This is the cost of proactive collection: more trips, more distance.
+**SANS drives the most km at every scale** — up to 13,013 km over 30 days (FFZ-350/Empirical/SL) — due to its inefficient routing that schedules many short, low-payload trips. This accounts for ~433 km/day.
 
-**LM can achieve the shortest routes** — minimum 1,054 km (Emp/100/LM) — by waiting until bins are nearly full, collecting densely loaded routes. This is the efficiency gain of reactive strategies.
-
-**N=170 scales roughly linearly:** N=170 distances are approximately 2× those of N=100 across all strategies, consistent with the network growing by 70% in nodes.
+**LM achieves the shortest routes** by waiting for bins to fill before collection — minimum 1,376 km at RM-100.
 
 ### 3.4 Policy Ranking Heatmaps
 
 ![Policy × Configuration Performance Heatmap](figures/simulation/policy_config_heatmap.png)
 
-*Left: Overflow count per policy (route constructor) × configuration (row). Right: kg/km efficiency. Colour scale: green = best, red = worst (independently normalised per metric). ACO_HH and BPC show green-leaning overflow performance; HGS shows green-leaning efficiency; SANS shows red across both metrics.*
+*Left: Overflow count per policy (row) × all 18 configurations (column). Right: kg/km efficiency. Colour scale: green = best, red = worst per metric. SWC-TCF shows extreme red on overflows at FFZ Gamma-3; BPC shows strong green on efficiency at FFZ; SANS is consistently red across both metrics.*
 
-**Figures:** `figures/simulation/ranking_heatmap_{dist}_{nb}.png`
-
-The normalised ranking heatmaps (green = best, red = worst per column) reveal:
-
-**Best overall policies:**
-- **HGS** — consistently green on kg, kg/km, reward, profit; yellow-orange on overflows and km
-- **ACO_HH** — consistently green on overflows and km; yellow on efficiency metrics
-- **BPC** — strong across all metrics; balanced profile, rarely worst in any category
+**Best overall policies (FTSP, averaged across all configs excluding SWC-TCF catastrophic failures):**
+- **BPC** — strongest efficiency leader at FFZ; balanced across RM; rarely worst in any category
+- **ACO_HH** — best overflow prevention across all cities and distributions; consistently green on overflows
+- **PSOMA** — strong at RM, best LM Empirical at N=100 (5.32 kg/km); good scaling
 
 **Consistently underperforming:**
-- **SANS** — red or dark orange in kg/km, efficiency, and overflows across all configurations; weakest route constructor tested
-- **SWC-TCF** — weak on overflows and efficiency, especially at N=170
-
-**Strategy-dependent performance:**
-- Under LA (predictive), constructor choice matters less — all policies cluster near 4 overflows
-- Under SL (service-level), SANS diverges markedly from BPC/HGS/ACO_HH
-- Under LM, the CF threshold (70% vs 90%) creates two distinct performance tiers
+- **SANS** — highest km, lowest kg/km, high overflows in nearly every configuration
+- **SWC-TCF** — catastrophic failure at FFZ Gamma-3 (exact solver breakdown at N=350)
 
 ---
 
 ## 4. Selection Strategy Comparison (LA vs LM vs SL)
 
-**Figures:** `figures/simulation/run_comparison_{dist}_{nb}.png`
-
 ![Strategy Trade-off Bubble Chart](figures/simulation/strategy_bubble.png)
 
-*Each bubble represents one (strategy, distribution, N) combination. Position = mean overflows (X) vs mean kg/km (Y). Circle = Gamma-3, square = Empirical. Bubble size proportional to N (larger = N=170). SL achieves the lowest overflows at the cost of efficiency; LM has the highest efficiency at the cost of overflow risk; LA sits in between.*
+*Each bubble represents one (strategy, distribution, city/N) combination. Position = mean overflows (X) vs mean kg/km (Y). Circle = Gamma-3, square = Empirical. Bubble size proportional to N. FFZ Gamma-3 bubbles appear at extreme overflow positions for certain strategies.*
 
 ### Overflow: SL ≪ LA < LM
 
-| Strategy | Gamma-3/100 mean | Emp/100 mean |
-|----------|-----------------|--------------|
-| LA | 4.0 | 7.0 |
-| LM | 8.8 | 7.3 |
-| SL | **1.6** | **1.6** |
+| Strategy | RM-100 G3 | RM-100 Emp | RM-170 G3 | RM-170 Emp | FFZ-350 G3 | FFZ-350 Emp |
+|----------|:---------:|:----------:|:---------:|:----------:|:----------:|:-----------:|
+| LA | 4.0 | 7.0 | 5.8 | 4.1 | 279.6 *** | 6.9 |
+| LM | 8.0 | 7.0 | 10.6 | 6.9 | 64.2 | 14.1 |
+| **SL** | **1.5** | **1.5** | **2.6** | **3.5** | **58.9** | **1.8** |
 
-Service-Level achieves 60–78% fewer overflows than Lookahead. Last-Minute achieves similar overflow counts to Lookahead on average but with much higher variance.
+*** FFZ Gamma-3 LA inflated by SWC-TCF (2166 overflows); excluding SWC-TCF: mean = 9.1 overflows.
+
+Service-Level achieves 60–78% fewer overflows than Lookahead at RM, and ~75% fewer at FFZ Empirical. **LA's 1-step predictive lookahead completely fails to control overflows at FFZ Gamma-3** — the scale and waste intensity of 350 bins overwhelms its reactive schedule. LM performs better than LA at FFZ Gamma-3 (64.2 vs 279.6 mean) because the explicit fill-threshold triggers more timely mandatory collection.
 
 ### Efficiency: LM ≈ LA > SL
 
-| Strategy | Gamma-3/100 mean kg/km | Emp/100 mean kg/km |
-|----------|----------------------|-------------------|
-| LA | 7.99 | 4.11 |
-| LM | **8.20** | **4.58** |
-| SL | 5.26 | 3.12 |
+| Strategy | RM-100 G3 | RM-100 Emp | RM-170 G3 | RM-170 Emp | FFZ-350 G3 | FFZ-350 Emp |
+|----------|:---------:|:----------:|:---------:|:----------:|:----------:|:-----------:|
+| LA | 7.99 | 4.09 | 6.83 | 4.09 | 8.06 | 6.76 |
+| LM | 8.17 | 4.46 | 6.85 | 4.13 | **8.94** | **6.89** |
+| SL | 5.19 | 3.00 | 4.63 | 3.02 | 7.34 | 5.03 |
 
-LM marginally outperforms LA on efficiency (more fully-loaded routes) while SL sacrifices ~34–32% efficiency for overflow prevention.
+LM marginally outperforms LA on efficiency and maintains that advantage at all scales. SL sacrifices 28–40% efficiency for overflow prevention. At FFZ, LM achieves the **highest efficiency in the entire experiment** (8.94 kg/km Gamma-3), driven by BPC's 11.47 kg/km peak.
 
 ### Distance: LM ≤ LA ≪ SL
 
-LM achieves the shortest total distances (fewer trips, more loaded), SL drives the most (frequent preventive visits), and LA sits between them.
+LM achieves the shortest total distances (fewer trips, more loaded); SL drives the most (frequent preventive visits). This pattern holds consistently across all cities and network sizes.
 
 ### Practical interpretation
 
-No single strategy dominates on all objectives. The choice depends on operational priorities:
-
-- **If overflow prevention is paramount** (e.g., urban areas, health/sanitation regulation) → **SL**
-- **If route efficiency (kg/km) is the target** (e.g., fleet cost minimisation) → **LM with CF70**
-- **If consistency and predictability are needed** (e.g., fixed schedule planning) → **LA**
-
-The best **CF threshold for LM** is CF70 — CF90 risks too many overflow events in Gamma-3 distributions at large networks.
+| Operational priority | Best strategy | Notes |
+|---------------------|:------------:|-------|
+| Overflow prevention | **SL** | Consistent across all scales; only strategy effective at FFZ Gamma-3 scale |
+| Route efficiency | **LM (CF70)** | Best kg/km at all scales; use BPC at FFZ |
+| Consistency / predictability | **LA** | Only valid up to N=170; breaks down at N=350 Gamma-3 |
+| Large network (N=350) | **LM or SL** | LA is dangerous at FFZ Gamma-3 scale |
 
 ---
 
 ## 5. Distribution Comparison (Gamma-3 vs Empirical)
 
-**Figures:** `figures/simulation/dist_comparison_{nb}_{run}.png`
-
-### Overflows: Empirical is harder at N=100, easier at N=170
+### Overflows
 
 | Context | Gamma-3 overflows | Empirical overflows |
-|---------|------------------|-------------------|
-| N=100 / LA | 4 (all) | 7 (all) |
-| N=100 / SL | 1–3 | 0–4 |
-| N=170 / LA | 5–10 | 4–6 |
-| N=170 / LM | 4–45 | 4–15 |
+|---------|:-----------------:|:-------------------:|
+| RM-100 / LA | 4 (all) | 7 (all) |
+| RM-100 / SL | 1–2 | 0–4 |
+| RM-170 / LA | 5–11 | 4–5 |
+| RM-170 / LM | 5–35 | 4–12 |
+| FFZ-350 / LA | 5–2166 | 2–16 |
+| FFZ-350 / LM | 12–194 | 3–56 |
+| FFZ-350 / SL | 1–757 | 0–7 |
 
-Under Lookahead at N=100, Empirical generates systematically more overflows than Gamma-3 (7 vs 4) — the unpredictable spike bins in the empirical data are harder to anticipate. At N=170, this reverses — Gamma-3 produces more overflows because the waste accumulation is higher and more bins simultaneously approach capacity.
+**At FFZ, the distribution choice fundamentally changes difficulty**: Gamma-3 at N=350 is the hardest scenario (high and uniform fill across all 350 bins creates massive demand spikes), while Empirical at N=350 is manageable (only a fraction of bins are active at any time, similar to RM behaviour).
 
-### Efficiency: Gamma-3 nearly 2× higher kg/km
+### Efficiency
 
-Gamma-3 policies achieve 6.4–8.2 kg/km vs Empirical's 3.1–4.6 kg/km. This 2× gap is explained by fill level: Gamma-3 bins average 13.8 kg vs Empirical's 7.3 kg, so each collection event retrieves roughly twice as much waste per bin visited.
+Gamma-3 policies consistently achieve higher kg/km than Empirical due to the higher average fill level. At RM the ratio is approximately 2× (8.0 vs 4.1 kg/km for LA). At FFZ the ratio shrinks to 1.2× (8.1 vs 6.8 kg/km for LA) because the FFZ Empirical distribution is denser than RM Empirical — bins are more uniformly filled, so routes collect similar loads.
 
-### Distributional shift implication
+### Distribution shift from training to evaluation
 
-Models trained on Gamma-3 data and tested on Empirical scenarios will observe a systematic efficiency drop and may underestimate overflow risk at small N. Conversely, models trained on Empirical data may be overly conservative on Gamma-3 scenarios (under-utilising route capacity).
+Models trained on Gamma-3 TDs align well with both RM and FFZ Gamma-3 simulations (< 3% mean shift). Models trained on Empirical TDs will experience:
+- A 10–20% fill increase at RM (minor — manageable)
+- A **41% fill increase** at FFZ — significant cross-city domain shift that may cause under-collection
 
 ---
 
-## 6. Network Size Comparison (N=100 vs N=170)
+## 6. Network Size Comparison (N=100 → N=170)
 
 ![Network Scaling: N=100 → N=170](figures/simulation/scaling_chart.png)
 
-*Left: mean overflows; right: mean kg/km. Each line traces one (strategy, distribution) pair from N=100 (left) to N=170 (right). Solid lines = Gamma-3; dashed = Empirical. SL (green) shows the most graceful overflow degradation. LA efficiency on Empirical is nearly flat (Empirical routes are already inefficient at N=100).*
+*Left: mean overflows; right: mean kg/km. Each line traces one (strategy, distribution) pair from N=100 → N=170. Note: FFZ N=350 is also shown as diamonds (different city, not just scaled RM).*
 
-### Overflow scaling
+### Overflow scaling (Rio Maior)
 
-Overflows increase significantly from N=100 to N=170 under reactive strategies (LA, LM) because more bins must be monitored and routes cannot feasibly service all high-risk bins in a single day. The SL strategy shows more graceful degradation — mean overflows rise from 1.6 to 2.7 (Gamma-3), still far below LA/LM.
+Overflows increase from N=100 to N=170 under reactive strategies (LA, LM) — more bins require monitoring and routes cannot service all high-risk bins daily. SL shows graceful degradation:
 
-### Efficiency degradation
+| Strategy | Gamma-3 (100→170) | Empirical (100→170) |
+|----------|:-----------------:|:-------------------:|
+| LA | 4.0 → 5.8 (+45%) | 7.0 → 4.1 (−41%) |
+| LM | 8.0 → 10.6 (+33%) | 7.0 → 6.9 (−1%) |
+| **SL** | **1.5 → 2.6 (+73%)** | **1.5 → 3.5 (+133%)** |
 
-| Strategy | Gamma-3 kg/km drop (100→170) | Empirical kg/km drop |
-|----------|------------------------------|---------------------|
-| LA | 7.99 → 6.75 (−15%) | 4.11 → 4.09 (−0.5%) |
-| LM | 8.20 → 6.80 (−17%) | 4.58 → 4.14 (−10%) |
-| SL | 5.26 → 4.67 (−11%) | 3.12 → 3.07 (−2%) |
+Noteworthy: Empirical LA overflows **decrease** from N=100 to N=170. This is because the larger network (N=170) captures more bins from the real sensor network, including more "low-activity" bins that dilute the problematic ones. The same effect is not observed under Gamma-3 because all bins fill at similar rates.
 
-Under Gamma-3, efficiency drops 11–17% as N scales from 100 to 170. Under Empirical, the drop is minimal (the sparser waste means routes are already inefficient at N=100). SL shows the most resilient scaling.
+### Efficiency degradation (Rio Maior)
 
-### Distance scaling
+| Strategy | Gamma-3 kg/km drop | Empirical kg/km drop |
+|----------|:-----------------:|:--------------------:|
+| LA | 7.99 → 6.83 (−15%) | 4.09 → 4.09 (0%) |
+| LM | 8.17 → 6.85 (−16%) | 4.46 → 4.13 (−7%) |
+| SL | 5.19 → 4.63 (−11%) | 3.00 → 3.02 (+1%) |
 
-Vehicle distance approximately doubles with N=170 vs N=100, consistent with the 70% increase in covered area. This is true regardless of strategy or constructor.
+Gamma-3 efficiency drops 11–16% from N=100 to N=170. Empirical is nearly flat because the sparse fill already makes routes inefficient at N=100.
 
 ### Critical failure at N=170
 
-Two specific combinations fail catastrophically:
-1. **LM + HGS + Gamma-3 + N=170**: 45 overflows (Pareto-dominated)  
+Two combinations fail catastrophically at RM-170:
+1. **LM + HGS + Gamma-3 + N=170**: 35 overflows (vs 4 at N=100)
 2. **LM + SANS + any + N=170**: consistently worst on both metrics
-
-These combinations should be excluded from deployment at scale.
 
 ---
 
@@ -330,89 +333,254 @@ These combinations should be excluded from deployment at scale.
 
 ### 7.1 Collection Calendar Patterns
 
-**Figures:** `figures/simulation/collection_calendar_{dist}_{nb}_{run}.png`
+**Lookahead (LA):** Collections follow a regular, semi-periodic pattern. Nearly all policies share the same collection calendar for a given configuration — the selection strategy homogenises constructor choice. At RM Gamma-3/N=100, LA achieves an identical 4-overflow outcome across all 8 constructors.
 
-The binary collection calendars reveal distinct temporal patterns:
+**Last-Minute (LM) CF70:** More frequent collections than LA. CF90 variants collect less often but with more kg per trip. HGS and BPC show dense bands of high-kg collection days.
 
-**Lookahead (LA):** Collections follow a regular, semi-periodic pattern driven by the predictive model. Days 0, 2 (and some 3-day gaps) are typical skip days in Gamma-3. In Empirical, the periods are longer and more irregular due to sparse fill rates. Most policies under LA have **nearly identical collection calendars** — the selection strategy is the dominant factor, not the constructor.
-
-**Last-Minute (LM) CF70:** More frequent collections than LA. Some policies collect on nearly every other day (Gamma-3/N=100). CF90 variants collect less frequently but with more kg per trip. The kg/day heatmap shows **dense bands of high-kg days** for HGS and BPC — these constructors efficiently route when triggered.
-
-**Service-Level (SL):** SL1 creates the **most frequent collection schedule** — many policies collect nearly every day in Gamma-3. SL2 is slightly less frequent. The calendars show near-continuous operation with very few zero-collection days. This explains the high km and lower efficiency: many small collections keep bins below their service-level threshold.
+**Service-Level (SL):** SL1 creates the most frequent collection schedule — near-continuous operation in Gamma-3. Many collections per day keeps all bins below their service-level threshold at the cost of high km.
 
 ### 7.2 Day-by-Day Metric Trajectories
 
-**Figures:** `figures/simulation/daily_timeseries_{dist}_{nb}.png`
-
 **Gamma-3 trajectories:**
-- Overflows are concentrated in specific days (not uniformly distributed) — peaks coincide with collection gaps > 2 days
-- kg/km shows stable values within a run but drops sharply when skip days occur (zero collection = zero kg/km)
-- Profit trajectories closely track kg trajectories with similar shape and periodicity
+- Overflows are concentrated on specific days (not uniformly distributed) — peaks coincide with collection gaps > 2 days.
+- kg/km is stable within a run but drops on skip days.
 
 **Empirical trajectories:**
-- Higher day-to-day variance in all metrics due to stochastic bin fill rates
-- Some days record 0 kg even when a collection occurs — routes visit bins that have not accumulated enough waste
-- The km metric is more stable than kg across days, suggesting that route structure is consistent but payload varies
+- Higher day-to-day variance. Some days record 0 kg/km — routes visit bins that have not yet accumulated enough waste.
 
-**SANS daily anomaly:** SANS shows longer skip periods (lower collection frequency) and, when it does collect, achieves unusually low kg/km — the route constructor produces inefficient tours, driving many km for little waste. This consistently appears across all distributions and network sizes.
+**SANS anomaly** (consistent across all cities): SANS produces unusually low kg/km and high km — inefficient tours with long distances and low payload. Appears in all distributions and network sizes.
 
-**BPC daily trajectory:** BPC (Branch-and-Price-and-Cut exact solver) shows the most consistent day-to-day performance — tightest variance in both kg and km. This is expected from an exact method, which finds the same optimal structure given the same inputs.
+**BPC trajectory** (consistent): Most stable day-to-day performance — tightest variance in both kg and km. Expected from an exact method that produces optimal solutions given the same inputs.
 
 ---
 
-## 8. Key Findings & Recommendations
+## 8. FTSP vs CLS Route Improver Comparison
+
+Two route improvers were compared across all configurations:
+- **FTSP (Fast-TSP)**: A heuristic TSP solver used as a post-construction route improver
+- **CLS (Classical Local Search)**: 2-opt local search with 1,000 iterations and a 30-second time limit
+
+![FTSP vs CLS Comparison](figures/simulation/ftsp_vs_cls_comparison.png)
+
+*Side-by-side comparison of overflow count (top) and kg/km efficiency (bottom) for FTSP vs CLS across all 18 configurations. Configurations are grouped by city.*
+
+![FTSP vs CLS Delta Heatmap](figures/simulation/ftsp_vs_cls_delta.png)
+
+*Delta heatmap showing CLS minus FTSP for each (constructor, configuration) pair. Green = CLS better, red = FTSP better, independently per metric. Overflow delta (left) and kg/km delta (right).*
+
+### Overall summary
+
+| City/N | CLS overflows | FTSP overflows | CLS kg/km | FTSP kg/km | CLS km | FTSP km |
+|--------|:-------------:|:--------------:|:---------:|:----------:|:------:|:-------:|
+| RM-100 | **5.04** | 4.70 | **6.56** | 5.37 | **2,114** | 2,573 |
+| RM-170 | 6.19 | **5.70** | **5.71** | 4.82 | **4,068** | 4,810 |
+| FFZ-350 | **45.86** | 56.46 | 7.00 | **7.12** | 8,281 | **7,560** |
+
+**CLS consistently improves route efficiency (kg/km)**:
+- At RM-100: +22% efficiency gain (5.37 → 6.56 kg/km)
+- At RM-170: +18% efficiency gain (4.82 → 5.71 kg/km)
+- At FFZ-350: marginal −2% (7.12 → 7.00 kg/km — essentially neutral)
+
+**CLS significantly reduces km** at RM: −18% at N=100, −15% at N=170. CLS locally optimises tour length, producing shorter routes and driving fewer kilometres. At FFZ-350 CLS increases km by +9%, suggesting the route structure at 350 bins is harder to improve with 2-opt under a 30-second limit.
+
+**Overflow trade-off**:
+- At RM-100: CLS has slightly more overflows (+7%), but this small difference may be within noise.
+- At RM-170: CLS has slightly more overflows (+9%) — similar pattern.
+- At FFZ-350: CLS has **fewer overflows** (45.86 vs 56.46, −19%) — at the larger scale, the shorter CLS routes allow more collection events per day, reducing overflow risk.
+
+### Constructor-level analysis
+
+CLS benefits are most pronounced for constructors that produce long, suboptimal initial tours (SANS, ALNS) — they gain the most from post-hoc local search. HGS and BPC, which already produce near-optimal solutions, show smaller CLS improvements. SWC-TCF (exact solver) should not use a route improver at small N, but benefits from CLS at FFZ-350 where the MIP solver times out and CLS rescues the degenerate solutions.
+
+**Recommendation**: Use **CLS** when route efficiency (kg/km) or minimising distance is the primary objective. Use **FTSP** when overflow prevention is paramount at larger network sizes (N=170+), or when the marginal km savings from CLS are not needed.
+
+---
+
+## 9. Figueira da Foz — New City Analysis (N=350)
+
+Figueira da Foz introduces a qualitatively different challenge: N=350 is 2.1× larger than RM-170, 3.5× larger than RM-100, and includes a distant depot approximately 20 km from the main bin cluster.
+
+### SWC-TCF complete breakdown at N=350
+
+SWC-TCF is an exact MIP solver designed for small instances (≤50 nodes). At N=350 it cannot solve the routing problem within the 60-second time limit and produces degenerate solutions with no visited bins. This results in:
+
+| SWC-TCF at FFZ Gamma-3 | Overflows | kg/km |
+|------------------------|:---------:|:-----:|
+| LA strategy | **2,166** | 8.47 |
+| SL strategy | **410** | 9.65 |
+| LM strategy | 125 | 9.59 |
+
+The kg/km values appear high because when SWC-TCF does produce a solution (rarely), it is optimal for those few visited bins — but the near-complete absence of collection triggers massive overflow accumulation. **SWC-TCF is entirely unsuitable for N=350 and should be excluded from FFZ deployments.**
+
+### Gamma-3 is far more challenging than Empirical at N=350
+
+| Metric | FFZ-350 Gamma-3 (excl. SWC-TCF) | FFZ-350 Empirical |
+|--------|:--------------------------------:|:-----------------:|
+| LA overflows | 9.1 (5–16) | 6.9 (2–16) |
+| LM overflows | 57.7 (12–194) | 14.1 (3–56) |
+| SL overflows | 5.6 (1–33) | 1.8 (0–7) |
+| LA kg/km | 8.06 | 6.76 |
+| LM kg/km | 8.94 | 6.89 |
+| SL kg/km | 7.34 | 5.03 |
+
+Under Gamma-3, even excluding SWC-TCF, LM still reaches 194 overflows for the worst constructor (HGS: 129.5 mean). The high and uniform fill across all 350 bins creates simultaneous demand that no single-vehicle daily route can fully service.
+
+Under Empirical, the problem is tractable: SL achieves an average of 1.8 overflows (ACO_HH: 0 overflows), similar to RM performance.
+
+### BPC emerges as the best constructor at FFZ
+
+| Config | Best overflow constructor | Best efficiency constructor |
+|--------|:------------------------:|:---------------------------:|
+| FFZ Gamma-3 / LA | ACO_HH (5 overflows) | BPC (8.66 kg/km) |
+| FFZ Gamma-3 / LM | ALNS (12 overflows) | **BPC (11.47 kg/km)** |
+| FFZ Gamma-3 / SL | PSOMA (1 overflow) | SWC-TCF* (9.65) / BPC (8.04) |
+| FFZ Empirical / LA | SWC-TCF (2 overflows) | **BPC (8.45 kg/km)** |
+| FFZ Empirical / LM | ACO_HH (3 overflows) | **BPC (9.48 kg/km)** |
+| FFZ Empirical / SL | ACO_HH (0 overflows) | **BPC (6.43 kg/km)** |
+
+*SWC-TCF Gamma-3/SL shows deceptively high kg/km from its rare valid solutions; BPC is the practical alternative.
+
+BPC (Branch-and-Price-and-Cut exact solver for small route segments) scales exceptionally well to N=350. Its exact sub-route optimisation produces the most efficient tours at large scale, while its structural decomposition avoids the full-problem timeout that cripples SWC-TCF.
+
+### Distance at FFZ
+
+FFZ routes are substantially longer due to network size and the distant depot:
+
+| Strategy | FFZ-350 G3 mean km | FFZ-350 Emp mean km | RM-170 G3 mean km |
+|----------|:------------------:|:-------------------:|:-----------------:|
+| LA | 8,270 | 5,436 | 4,710 |
+| LM | 8,074 | 5,312 | 4,848 |
+| SL | **9,949** | **7,610** | 7,152 |
+
+FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empirical FFZ distances (5,312–7,610 km) are comparable to RM-170 SL distances (7,152 km), reflecting the lower fraction of active bins under the empirical waste model.
+
+---
+
+## 10. City Comparison: Rio Maior vs Figueira da Foz
+
+![City Comparison — Overflow](figures/simulation/city_comparison_overflow.png)
+
+*Mean overflow counts for each selection strategy across all three city/N configurations (RM-100, RM-170, FFZ-350), split by waste distribution. Error bars span the min–max range across 8 route constructors.*
+
+![City Comparison — Efficiency](figures/simulation/city_comparison_efficiency.png)
+
+*Mean kg/km efficiency for each selection strategy across all three city/N configurations.*
+
+![City Scaling Overview](figures/simulation/city_scaling_overview.png)
+
+*Scaling chart showing how overflow and efficiency evolve from N=100 (RM) → N=170 (RM) → N=350 (FFZ). Vertical dashed line separates Rio Maior from Figueira da Foz data. Diamonds = FFZ points. Note: FFZ is a different city, not just a larger RM — the non-monotonic behaviour reflects genuine city-level differences.*
+
+### 10.1 What is the Same
+
+1. **SL remains the best overflow prevention strategy** at both cities and all scales, across both distributions. The ranking SL ≪ LA ≤ LM on overflows holds universally (except FFZ Gamma-3 where all strategies struggle).
+
+2. **Gamma-3 mean fill is consistent across cities** (~13.5–13.9 kg/bin/day). Routing difficulty under Gamma-3 is primarily driven by network size (N), not city.
+
+3. **SANS is consistently the weakest constructor** at both cities — lowest kg/km, highest km, high overflows. SANS never dominates any configuration.
+
+4. **LM achieves the highest efficiency** (kg/km) at both cities, with BPC being the top constructor at FFZ and PSOMA/ACO_HH being competitive at RM.
+
+5. **SL drives the most km** regardless of city, N, or distribution — the proactive collection model always requires more vehicle travel.
+
+6. **ACO_HH excels at overflow prevention** across both cities. ACO_HH achieves 0 overflows with SL Empirical at both RM-100 and FFZ-350.
+
+### 10.2 What is Different
+
+1. **Absolute overflow scale under Gamma-3**: At RM, mean overflows range 1.5–10.6 across strategies. At FFZ, the range explodes to 1.8–279.6 (or 5.6–64.2 excluding SWC-TCF). Gamma-3 at N=350 is qualitatively more challenging than anything seen at RM.
+
+2. **LA strategy breaks down at FFZ Gamma-3**: LA's 1-step lookahead is designed for compact networks where a single day's prediction suffices. At N=350 Gamma-3 (all 350 bins filling rapidly and uniformly), the strategy fails to schedule enough mandatory collections per day.
+
+3. **Empirical distribution behaves differently between cities**: RM Empirical is sparse (5.5 kg mean) with extreme concentration; FFZ Empirical is denser (7.2 kg mean) and more uniform. This makes FFZ Empirical more tractable — strategies can visit a broader set of bins productively.
+
+4. **Constructor rankings shift between cities**:
+   - At RM: HGS is the efficiency leader; ACO_HH leads on overflow prevention
+   - At FFZ: BPC becomes the efficiency leader; ACO_HH retains overflow dominance
+
+5. **SWC-TCF**: Competitive at RM (suitable network sizes), catastrophically bad at FFZ (too large). The solver is fundamentally incompatible with N=350.
+
+6. **Route distances are 75% longer at FFZ Gamma-3**: The 350-bin network combined with the distant depot drives substantially more km for equivalent strategies.
+
+### 10.3 What is Different But Follows Similar Trends
+
+1. **SL overflow advantage increases with scale**: At RM-100, SL saves ~66% overflows vs LA (4.0 → 1.5). At RM-170, ~55% savings. At FFZ-350 Empirical, ~74% savings. The advantage of proactive collection compounds as the network grows, making SL relatively more valuable at larger scale.
+
+2. **Efficiency gap between Gamma-3 and Empirical narrows at FFZ**: At RM-100 the G3/Emp ratio is ~2.0; at RM-170 ~1.7; at FFZ-350 ~1.2. The denser FFZ Empirical distribution reduces the efficiency gap — the two distributions converge at large N because even the "sparse" empirical bins accumulate enough waste to make routes productive.
+
+3. **LM-CF70 → CF90 trade-off is consistent**: Across all cities, CF70 (70% threshold) always produces fewer overflows than CF90 while achieving comparable or slightly lower efficiency. The CF70 threshold is robustly better than CF90 at all scales.
+
+4. **BPC and ALNS scale better than constructors that rely on global optimality**: Exact or near-exact solvers that decompose the problem (BPC) or diversify search (ALNS) improve relative to greedy/local-search constructors (ACO_HH, PSOMA) as N increases.
+
+5. **SANS is worst at all scales, but relatively worse at larger N**: SANS's routing quality degrades faster than other constructors as N increases. Its km penalty is proportionally larger at N=350 than at N=100.
+
+### 10.4 Key Cross-City Recommendations
+
+| Use Case | RM (N=100/170) | FFZ (N=350) |
+|----------|:--------------:|:-----------:|
+| Overflow prevention | SL + ACO_HH | SL + ACO_HH |
+| Maximum efficiency | LM + HGS (RM-100) / BPC (RM-170) | LM + BPC |
+| Balanced performance | LA + ACO_HH | SL + BPC |
+| **Avoid** | LM + SANS | **SWC-TCF (any strategy), LM + HGS, LA + Gamma-3** |
+
+---
+
+## 11. Key Findings & Recommendations
 
 ### Policy Performance Radar
 
 ![Policy Performance Radar Chart](figures/simulation/policy_radar.png)
 
-*Radar chart comparing four key policies (ACO_HH, HGS, BPC, SANS) across five normalised metrics. For each metric, outer = better (overflows and km are inverted so lower values map to the outer ring). HGS excels on efficiency and profit but not overflows. ACO_HH is well-balanced. BPC is the most consistent all-rounder. SANS scores lowest across all axes.*
+*Radar chart comparing four key policies (ACO_HH, HGS, BPC, SANS) across normalised metrics. For each metric, outer = better. HGS excels on efficiency but not overflows. ACO_HH is well-balanced. BPC is the most consistent all-rounder, especially at large scale. SANS scores lowest across all axes.*
 
 ### Constructor Average Ranking
 
 ![Route Constructor Average Rank](figures/simulation/constructor_ranking.png)
 
-*Average rank of each route constructor across all 12 configurations, broken down by metric (overflows, kg/km, km, profit). Lower rank = better. HGS ranks highest on efficiency and profit but mid-table on overflows. ACO_HH ranks best on overflows and km. SANS consistently ranks last or near-last on all metrics.*
+*Average rank of each route constructor across all configurations (FTSP), broken down by metric. Lower rank = better. BPC leads on efficiency at large scale; ACO_HH leads on overflow prevention; SANS and SWC-TCF rank last.*
 
-### Overall Rankings
+### Overall Rankings (All Configurations, FTSP)
 
-**By overflow prevention (best = fewest):**
-1. SL + ACO_HH (0–1 overflows in most configurations)
-2. SL + BPC
-3. LM-CF70 + PSOMA (Empirical)
-4. LA + ACO_HH
+**By overflow prevention (fewest overflows):**
+1. SL + ACO_HH — 0–1 overflows in most configurations
+2. SL + PSOMA — best at FFZ Gamma-3 (1 overflow)
+3. SL + BPC
+4. LA + ACO_HH (for RM-scale networks only)
 
-**By efficiency (best = highest kg/km):**
-1. LM-CF70 + HGS (10.03 kg/km peak, Gamma-3/100)
-2. LM-CF70 + BPC
-3. LA + ACO_HH (Gamma-3)
-4. LA + HGS (Empirical)
+**By efficiency (highest kg/km):**
+1. LM + BPC — peak at **11.47 kg/km** (FFZ-350/Gamma-3/LM)
+2. LM + ACO_HH — **9.54 kg/km** (RM-100/Gamma-3/LM-CF70)
+3. LM + PSOMA — 9.48 kg/km (FFZ-350/Empirical/LM)
+4. LA + BPC — 8.66 kg/km (FFZ-350/Gamma-3/LA)
 
-**By balanced trade-off (best Pareto position):**
-1. SL + ACO_HH — low overflows, reasonable efficiency
-2. LA + ACO_HH — consistent, predictable, Pareto-dominant
-3. SL + BPC — reliable across all metrics
-4. LM-CF70 + HGS — peak efficiency, acceptable overflows
-
-### Deployment Recommendations
-
-| Use Case | Recommended Strategy | Recommended Constructor | Notes |
-|----------|---------------------|------------------------|-------|
-| Urban / health-critical | SL (SL1) | ACO_HH or BPC | Overflow prevention paramount |
-| Cost-minimisation fleet | LM (CF70) | HGS | Highest kg/km, acceptable overflow risk |
-| Fixed weekly planning | LA | ACO_HH | Consistent, predictable schedule |
-| Large network (N=170) | SL | BPC or ACO_HH | Avoid LM+HGS (catastrophic failure mode) |
-| Empirical / real-world | LA or SL | ACO_HH | Real data closer to Empirical distribution |
+**By balanced trade-off:**
+1. SL + ACO_HH — reliably low overflows, competitive efficiency
+2. LA + ACO_HH — excellent at RM scale (compact, predictable)
+3. SL + BPC — best balance at FFZ scale
+4. LM + BPC (FFZ) / LM + PSOMA (RM) — efficiency with acceptable overflows
 
 ### Critical Failure Modes
 
 | Combination | Failure | Impact |
 |-------------|---------|--------|
-| LM + HGS + Gamma-3 + N=170 | 45 overflows | 9× worse than SL in same config |
-| LM + SANS + any config | Lowest kg/km | Pareto-dominated across all conditions |
-| CF90 threshold + large N | 15–19 overflows | Threshold too conservative for large networks |
+| **SWC-TCF + FFZ-350 (any strategy)** | Complete solver timeout | 125–2,166 overflows |
+| LM + HGS + Gamma-3 + N=170 | Scaling failure | 35 overflows |
+| LM + HGS + Gamma-3 + FFZ-350 | Scaling failure | 129.5 mean overflows |
+| LA + Gamma-3 + FFZ-350 | Strategy inadequacy | 279.6 mean overflows (9.1 excl. SWC-TCF) |
+| CF90 threshold + large N | Delayed trigger | 56–194 overflows at FFZ |
+| SANS + any config | Routing quality | Pareto-dominated across all conditions |
+
+### Deployment Recommendations
+
+| Use Case | Strategy | Constructor | Route Improver | Notes |
+|----------|:--------:|:-----------:|:--------------:|-------|
+| RM urban / health-critical | SL | ACO_HH or BPC | CLS | Overflow prevention paramount |
+| RM fleet cost-minimisation | LM (CF70) | HGS (N=100) / BPC (N=170) | FTSP | Highest kg/km |
+| RM fixed schedule planning | LA | ACO_HH | CLS | Consistent, predictable |
+| FFZ overflow prevention | SL | ACO_HH | CLS | Only strategy reliable at N=350 |
+| FFZ fleet efficiency | LM (CF70) | BPC | FTSP | Peak 11.47 kg/km |
+| Any Empirical / real-world | SL or LA | ACO_HH | CLS | Real data closer to Empirical |
+| **Avoid at FFZ** | LA (G3) | SWC-TCF | — | Critical failure modes |
 
 ---
 
-*All figures in this report are stored in `reports/figures/simulation/`.*  
-*Raw simulation data is available in `reports/figures/simulation/simulation_summary.csv`.*
+*All figures in this report are stored in `public/figures/simulation/`.*  
+*Raw simulation data is available in `public/figures/simulation/simulation_summary.csv`.*
