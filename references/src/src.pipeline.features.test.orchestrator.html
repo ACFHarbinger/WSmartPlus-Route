@@ -479,6 +479,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._expand_other_ref"><code class="docutils literal notranslate"><span class="pre">_expand_other_ref()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._expand_refs_recursive"><code class="docutils literal notranslate"><span class="pre">_expand_refs_recursive()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._generate_pruned_config"><code class="docutils literal notranslate"><span class="pre">_generate_pruned_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator.simulator_testing"><code class="docutils literal notranslate"><span class="pre">simulator_testing()</span></code></a></li>
 </ul>
 </li>
@@ -523,7 +526,16 @@ SystemExit: 1</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.orchestrator.simulator_testing" title="src.pipeline.features.test.orchestrator.simulator_testing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulator_testing</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.orchestrator._expand_other_ref" title="src.pipeline.features.test.orchestrator._expand_other_ref"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expand_other_ref</span></code></a></p></td>
+<td><p>Expand a {yaml_file: [key1, key2]} reference by loading the YAML file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.orchestrator._expand_refs_recursive" title="src.pipeline.features.test.orchestrator._expand_refs_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expand_refs_recursive</span></code></a></p></td>
+<td><p>Recursively expand mandatory_selection and route_improvement YAML references.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.orchestrator._generate_pruned_config" title="src.pipeline.features.test.orchestrator._generate_pruned_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_generate_pruned_config</span></code></a></p></td>
+<td><p>Generate a pruned YAML config with only task-relevant sections and expanded policy refs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.orchestrator.simulator_testing" title="src.pipeline.features.test.orchestrator.simulator_testing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulator_testing</span></code></a></p></td>
 <td><p>Orchestrates the parallel execution of multiple simulation runs.</p></td>
 </tr>
 </tbody>
@@ -547,6 +559,24 @@ SystemExit: 1</p>
 <dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator.__all__" title="Link to this definition">#</a></dt>
 <dd><p>[‘simulator_testing’, ‘LoggerWriter’, ‘setup_logger_redirection’, ‘runs_per_policy’, ‘output_stats’,…</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator._expand_other_ref">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.</span></span><span class="sig-name descname"><span class="pre">_expand_other_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator._expand_other_ref" title="Link to this definition">#</a></dt>
+<dd><p>Expand a {yaml_file: [key1, key2]} reference by loading the YAML file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator._expand_refs_recursive">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.</span></span><span class="sig-name descname"><span class="pre">_expand_refs_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator._expand_refs_recursive" title="Link to this definition">#</a></dt>
+<dd><p>Recursively expand mandatory_selection and route_improvement YAML references.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.orchestrator._generate_pruned_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.orchestrator.</span></span><span class="sig-name descname"><span class="pre">_generate_pruned_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.Config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.features.test.orchestrator._generate_pruned_config" title="Link to this definition">#</a></dt>
+<dd><p>Generate a pruned YAML config with only task-relevant sections and expanded policy refs.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -614,6 +644,9 @@ device: Torch device for neural models.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._expand_other_ref"><code class="docutils literal notranslate"><span class="pre">_expand_other_ref()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._expand_refs_recursive"><code class="docutils literal notranslate"><span class="pre">_expand_refs_recursive()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator._generate_pruned_config"><code class="docutils literal notranslate"><span class="pre">_generate_pruned_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.orchestrator.simulator_testing"><code class="docutils literal notranslate"><span class="pre">simulator_testing()</span></code></a></li>
 </ul>
 </li>
