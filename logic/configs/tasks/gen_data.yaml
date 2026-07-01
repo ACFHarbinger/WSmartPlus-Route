@@ -15,6 +15,7 @@ defaults:
 # =============================================================================
 # General Configuration
 # =============================================================================
+task: gen_data
 seed: 42 # Random seed for reproducible data generation
 start: 0 # Starting epoch/index (usually 0)
 

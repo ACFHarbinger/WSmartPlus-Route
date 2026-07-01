@@ -19,6 +19,7 @@ defaults:
 # =============================================================================
 # General Configuration
 # =============================================================================
+task: meta_train
 seed: 42 # Random seed for reproducibility
 start: 0 # Starting epoch
 

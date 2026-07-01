@@ -89,10 +89,10 @@ def main() -> None:
     HYDRA_TASKS = {"train", "evaluation", "eval", "test_sim", "gen_data", "hpo", "meta_train", "hpo_sim", "sim_hpo"}
     if len(sys.argv) > 1:
         first_arg = sys.argv[1]
-        if first_arg in HYDRA_TASKS or first_arg.startswith("task="):
+        if first_arg in HYDRA_TASKS or first_arg.startswith("tasks="):
             if first_arg in HYDRA_TASKS:
                 task = sys.argv.pop(1)
-                sys.argv.append(f"task={task}")
+                sys.argv.append(f"tasks={task}")
             hydra_entry_point()
             return
 

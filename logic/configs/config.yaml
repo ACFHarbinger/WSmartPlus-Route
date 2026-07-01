@@ -19,7 +19,7 @@
 defaults:
   - _self_
   - tracking: train
-  - task: train
+  - tasks: train
 
 # =============================================================================
 # Global Settings
