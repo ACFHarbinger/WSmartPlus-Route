@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifth pass
+
+Fifth implementation pass: SimulationMonitor gains day-scrubber controls, a bin-fill strip chart,
+and a tour sequence table (§G.16); TrainingMonitor gains multi-run overlay chart, hyperparameter
+panel, gradient norm sparkline, and checkpoint browser with one-click Eval Runner handoff (§G.17).
+
+**React frontend**
+- `pages/SimulationMonitor.tsx` — rewritten:
+  - Day scrubber: `◀`/`▶` step buttons flanking the range input; "Following" badge (green pulse, shown when `selectedDay` is null and watcher active); "Latest ↓" button releases back to auto-follow
+  - `BinFillStrip` component: top-25 bins sorted by fill %, 0-100% horizontal bars (green <80%, amber ≥80%, red ≥100%), mandatory (!) and collected (✓) badges; show/hide toggle
+  - `TourTable` component: stop #, bin ID, fill %, collected, mandatory columns; reads `tour_indices` preferentially; capped at 60 rows; show/hide toggle
+- `pages/TrainingMonitor.tsx` — rewritten:
+  - `MultiRunChart`: single ECharts canvas overlaying all selected runs; 8-colour palette; solid train loss, dashed val loss, dotted reward (right y-axis); scrollable legend
+  - `GradNormSparkline`: compact `grad_norm` chart per run
+  - `HparamsPanel`: collapsible; reads `hparams.yaml` via `read_text_file`; flat YAML parser; 8-row preview with "Show all" expand
+  - `CheckpointBrowser`: `list_dir` on `<run>/checkpoints/`; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and navigates to Eval Runner
+  - `RunPanel`: groups grad norm + hparams + checkpoints per run below the shared overlay chart
+- `pages/EvaluationRunner.tsx` — reads `pendingCheckpoint` on mount via `useEffect`; pre-populates first checkpoint entry and clears the store field
+- `store/app.ts` — `pendingCheckpoint: string | null` + `setPendingCheckpoint` action (not persisted)
+
+#### Build tooling
+
+- `tools/app/justfile` — added `bundle` (list installer output), `logs-dir` (print platform data dir), `reset-data` (delete Tauri Store files)
+- Root `justfile` — added `studio-reset` shorthand (→ `app::reset-data`)
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — §G.16 items checked (bin-fill, tour table, day scrubber, secondary KPI toggle); §G.17 items checked (multi-run overlay, grad norm, hparams panel, checkpoint browser)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fourth pass
 
 Fourth implementation pass: Evaluation Runner page (§G.12), full DataGeneration form (§G.11),

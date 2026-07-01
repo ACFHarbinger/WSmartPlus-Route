@@ -1194,13 +1194,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,tour,summary_sections}.py`, `logic/src/ui/services/simulation_analytics.py`
 
-- [ ] **KPI dashboard** (`kpi.py` parity): primary group (profit, distance, waste, overflows) and secondary group (collections, waste lost, efficiency, cost); day-over-day delta badges; configurable KPI group visibility toggle
+- [x] **KPI dashboard** (`kpi.py` parity): primary group (profit, distance, waste, overflows) and secondary group (collections, waste lost, efficiency, cost); day-over-day delta badges; secondary group shown/hidden via toggle button
+- [x] **Bin-fill strip chart**: top-25 bins sorted by fill descending; 0-100% horizontal bars colour-coded (green <80%, amber 80–99%, red ≥100%); mandatory (!) and collected (✓) badges per row; show/hide toggle
+- [x] **Tour table**: stop #, bin ID, fill %, collected ✓/—, mandatory !/— columns; reads `tour_indices` preferentially, falls back to `tour`; limited to 60 rows with count shown; show/hide toggle
+- [x] **Daily metrics chart**: ECharts `line` timeseries for all 4 primary KPIs across all loaded days; rendered as a 4-column grid
+- [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
 - [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
-- [ ] **Bin-fill strip chart**: horizontal bar per bin showing fill level vs. capacity; sorted by fill descending; highlight overflowing bins in red
-- [ ] **Tour table**: tabular view of the tour sequence (bin ID, fill %, lat/lng, collected/skipped)
-- [ ] **Daily metrics chart**: ECharts `line` chart of each KPI across all days; policy selector to overlay multiple policies on the same axes
-- [ ] **Day scrubber**: the current range-input slider promoted to a polished day-scrubber with forward/rewind controls and an "auto-follow latest" toggle (locks slider to the last emitted day)
-- [ ] **Policy / Sample multi-select**: replace single dropdown with a multi-select component so multiple policies or samples can be overlaid simultaneously
+- [ ] **Policy / Sample multi-select**: replace single dropdown with a multi-select component so multiple policies or samples can be overlaid simultaneously on the KPI timeseries
 - [ ] **Streamlit parity check**: verify all fields from `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` are represented
 
 ---
@@ -1211,14 +1211,15 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 
 Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/training_charts.py`, `logic/src/ui/services/data_loader.py`
 
-- [ ] **Run discovery** (`discover_training_runs` parity): recursively scan `<projectRoot>/logs/` for Lightning log directories; detect `metrics.csv`, `hparams.yaml`, `checkpoints/`; display last-modified timestamp
-- [ ] **Metrics CSV loading**: parse Lightning `metrics.csv` columns (`epoch`, `step`, `train_loss`, `val_loss`, `reward`, `entropy_loss`, `grad_norm`, `lr`); handle NaN rows (Lightning emits NaN for columns not logged in every step)
-- [ ] **Loss/reward chart** (`training_charts.py` parity): dual-axis ECharts line chart (loss on left axis, reward on right); smooth curves; epoch-granularity toggle vs. step-granularity
+- [x] **Run discovery** (`discover_training_runs` parity): scan `<projectRoot>/logs/` for Lightning log directories; detect `metrics.csv` and `hparams.yaml`; checkbox multi-select
+- [x] **Metrics CSV loading**: `load_training_metrics` Rust command parses Lightning `metrics.csv`; epoch/step x-axis; train_loss, val_loss, reward columns handled
+- [x] **Multi-run overlay chart**: single ECharts canvas with one colour-coded series set per run (8-colour palette); train loss (solid), val loss (dashed), reward (dotted, right y-axis); scrollable legend; replaces one-chart-per-run layout
+- [x] **Gradient norm sparkline**: separate compact ECharts chart for `grad_norm` column, shown per selected run
+- [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
+- [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode
 - [ ] **Learning rate schedule chart**: `lr` column as a step-level sparkline below the main chart
-- [ ] **Hyperparameter panel**: parse `hparams.yaml` and display as a collapsible key-value table; support nested dicts (e.g., `model.embed_dim`)
-- [ ] **Multi-run overlay**: check two or more runs; overlay their loss curves on the same chart with per-run colour coding (matches `COLORS` array in `AlgorithmComparison`)
-- [ ] **Live training mode**: if a run is actively being written (last-modified < 30 s ago), subscribe to `process:stdout` for that training process ID and append parsed `metrics.csv` rows without re-reading the whole file
-- [ ] **Checkpoint browser**: list checkpoints under `checkpoints/` with epoch number and file size; "Load in Evaluation Runner" button (§G.12)
+- [ ] **Live training mode**: if a run is actively being written, subscribe to `process:stdout` and append parsed metric rows without re-reading the full CSV
+- [ ] **Streamlit parity check**: verify all Lightning log columns from `training_charts.py` are represented
 
 ---
 

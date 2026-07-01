@@ -136,6 +136,10 @@ studio-check: helper::_print_header
 studio-clippy: helper::_print_header
     just app::clippy
 
+# Delete persisted Studio settings (Tauri Store) — dev/testing only
+studio-reset: helper::_print_header
+    just app::reset-data
+
 # Run fast unit tests (use `just test::test` for the full suite)
 test-fast: helper::_print_header
     just test::test-fast
