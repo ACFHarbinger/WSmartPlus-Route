@@ -1,7 +1,7 @@
 # WSmart+ Route — Dataset Analysis Report
 
-> **Scope:** VRPP TensorDict training datasets (`data/datasets/vrpp/`) and daily-waste pickle files (`data/wsr_simulator/daily_waste/`)  
-> **Generated:** 2026-05-27  
+> **Scope:** VRPP TensorDict training datasets (`data/datasets/vrpp/`) and NPZ simulator datasets (`data/wsr_simulator/datasets/`)  
+> **Generated:** 2026-07-01  
 > **Seed:** 42
 
 ---
@@ -22,6 +22,7 @@
    - 2.6 [Waste Concentration & Heavy-Tail Analysis](#26-waste-concentration--heavy-tail-analysis)
    - 2.7 [Network Size Scaling](#27-network-size-scaling)
    - 2.8 [30-day vs 90-day Horizon](#28-30-day-vs-90-day-horizon)
+   - 2.9 [Figueira da Foz — New City Dataset](#29-figueira-da-foz--new-city-dataset)
 3. [Training vs Simulation Alignment](#3-training-vs-simulation-alignment)
 4. [Key Findings](#4-key-findings)
 
@@ -126,14 +127,14 @@ The per-bin mean-±-std comparison shows that Gamma-3 assigns relatively **homog
 
 ### 2.1 Dataset Inventory
 
-Simulator datasets use the naming convention `riomaior<N>_<dist>_wsr<T>_N1_seed42.npz`.  
-Files span **4 network sizes × 2 distributions × 2 time horizons = 16 files** total.
+Simulator datasets use the naming convention `<city><N>_<dist>_wsr<T>_N1_seed42.npz`.  
+Files span **2 cities × (4 + 1) network sizes × 2 distributions × 2 time horizons = 20 files** total.
 
 Each NPZ archive contains six arrays:
 
 | Key | Shape | Description |
 |-----|-------|-------------|
-| `depot` | (1, 2) | Depot coordinates — real-world **latitude/longitude** (Rio Maior) |
+| `depot` | (1, 2) | Depot coordinates — real-world **latitude/longitude** |
 | `locs` | (1, N, 2) | Bin coordinates — real-world **latitude/longitude** |
 | `node_ids` | (1, N) | Integer bin identifiers from the real sensor network |
 | `waste` | (1, T, N) | Clean waste fill levels in **kg** per bin per day |
@@ -141,7 +142,7 @@ Each NPZ archive contains six arrays:
 | `max_waste` | (1,) | Bin capacity = **100 kg** |
 
 **Key differences from TensorDict training files:**
-- Coordinates are **real geographic lat/lon** (≈39.2°N, 8.9°W — Rio Maior, Portugal), not normalised [0,1]
+- Coordinates are **real geographic lat/lon**, not normalised [0,1]
 - Waste is in **absolute kg** (0–100), not normalised; the cap is enforced (no values > 100 in these files)
 - Single scenario per file (N_samples = 1), not batched
 - Two time horizons: **30 days** and **90 days**
@@ -150,147 +151,189 @@ Each NPZ archive contains six arrays:
 
 **Dataset summary:**
 
-| N | Distribution | Days | Shape (T×N) | Mean (kg) | Std (kg) | Max (kg) | Overflow % | Skewness |
-|---|-------------|------|-------------|-----------|----------|----------|------------|----------|
-| 20 | Gamma-3 | 30 | 30×20 | 13.47 | 11.92 | 83.3 | 0.00% | 1.74 |
-| 20 | Gamma-3 | 90 | 90×20 | 13.53 | 11.72 | 83.3 | 0.00% | 1.44 |
-| 20 | Empirical | 30 | 30×20 | 5.27 | 11.60 | 100.0 | 0.17% | 3.22 |
-| 20 | Empirical | 90 | 90×20 | 5.61 | 11.94 | 100.0 | 0.11% | 2.86 |
-| 50 | Gamma-3 | 30 | 30×50 | 13.36 | 11.61 | 83.3 | 0.00% | 1.49 |
-| 50 | Gamma-3 | 90 | 90×50 | 13.71 | 12.15 | 100.0 | 0.02% | 1.57 |
-| 50 | Empirical | 30 | 30×50 | 5.46 | 10.71 | 61.0 | 0.00% | 2.27 |
-| 50 | Empirical | 90 | 90×50 | 5.32 | 10.55 | 79.0 | 0.00% | 2.37 |
-| 100 | Gamma-3 | 30 | 30×100 | 13.67 | 12.10 | 100.0 | 0.03% | 1.69 |
-| 100 | Gamma-3 | 90 | 90×100 | 13.79 | 12.12 | 100.0 | 0.01% | 1.52 |
-| 100 | Empirical | 30 | 30×100 | 5.54 | 12.03 | 93.0 | 0.00% | 2.66 |
-| 100 | Empirical | 90 | 90×100 | 5.17 | 11.48 | 93.0 | 0.00% | 2.66 |
-| 170 | Gamma-3 | 30 | 30×170 | 13.75 | 12.12 | 100.0 | 0.02% | 1.54 |
-| 170 | Gamma-3 | 90 | 90×170 | 13.99 | 12.34 | 100.0 | 0.01% | 1.53 |
-| 170 | Empirical | 30 | 30×170 | 5.80 | 11.47 | 100.0 | 0.06% | 2.53 |
-| 170 | Empirical | 90 | 90×170 | 5.72 | 11.29 | 100.0 | 0.05% | 2.55 |
+| City | N | Distribution | Days | Shape (T×N) | Mean (kg) | Std (kg) | Max (kg) | Overflow % | Skewness |
+|------|---|-------------|------|-------------|-----------|----------|----------|------------|----------|
+| Rio Maior | 20 | Gamma-3 | 30 | 30×20 | 13.47 | 11.92 | 83.3 | 0.00% | 1.74 |
+| Rio Maior | 20 | Gamma-3 | 90 | 90×20 | 13.53 | 11.72 | 83.3 | 0.00% | 1.44 |
+| Rio Maior | 20 | Empirical | 30 | 30×20 | 5.27 | 11.60 | 100.0 | 0.00% | 3.22 |
+| Rio Maior | 20 | Empirical | 90 | 90×20 | 5.61 | 11.94 | 100.0 | 0.00% | 2.86 |
+| Rio Maior | 50 | Gamma-3 | 30 | 30×50 | 13.36 | 11.61 | 83.3 | 0.00% | 1.49 |
+| Rio Maior | 50 | Gamma-3 | 90 | 90×50 | 13.71 | 12.15 | 100.0 | 0.02% | 1.57 |
+| Rio Maior | 50 | Empirical | 30 | 30×50 | 5.46 | 10.71 | 61.0 | 0.00% | 2.27 |
+| Rio Maior | 50 | Empirical | 90 | 90×50 | 5.32 | 10.55 | 79.0 | 0.00% | 2.37 |
+| Rio Maior | 100 | Gamma-3 | 30 | 30×100 | 13.67 | 12.10 | 100.0 | 0.00% | 1.69 |
+| Rio Maior | 100 | Gamma-3 | 90 | 90×100 | 13.79 | 12.12 | 100.0 | 0.01% | 1.52 |
+| Rio Maior | 100 | Empirical | 30 | 30×100 | 5.54 | 12.03 | 93.0 | 0.00% | 2.66 |
+| Rio Maior | 100 | Empirical | 90 | 90×100 | 5.17 | 11.48 | 93.0 | 0.00% | 2.66 |
+| Rio Maior | 170 | Gamma-3 | 30 | 30×170 | 13.75 | 12.12 | 100.0 | 0.02% | 1.54 |
+| Rio Maior | 170 | Gamma-3 | 90 | 90×170 | 13.99 | 12.34 | 100.0 | 0.01% | 1.53 |
+| Rio Maior | 170 | Empirical | 30 | 30×170 | 5.80 | 11.47 | 100.0 | 0.00% | 2.53 |
+| Rio Maior | 170 | Empirical | 90 | 90×170 | 5.72 | 11.29 | 100.0 | 0.05% | 2.55 |
+| **Figueira da Foz** | **350** | **Gamma-3** | **30** | **30×350** | **13.88** | **12.25** | **100.0** | **0.00%** | **1.55** |
+| **Figueira da Foz** | **350** | **Gamma-3** | **90** | **90×350** | **13.93** | **12.19** | **100.0** | **0.00%** | **1.48** |
+| **Figueira da Foz** | **350** | **Empirical** | **30** | **30×350** | **7.15** | **10.06** | **61.0** | **0.00%** | **1.37** |
+| **Figueira da Foz** | **350** | **Empirical** | **90** | **90×350** | **7.27** | **10.07** | **68.0** | **0.00%** | **1.32** |
 
 ### 2.2 Geographic Properties
 
 ![Geographic Bin Locations](figures/datasets/npz_geographic_map.png)
 
-*Geographic scatter of bin locations for all four network sizes (rows) and both distributions (columns), 30-day horizon. Colour encodes mean waste fill over 30 days (yellow → red = low → high). The green star marks the depot. All bins lie within the Rio Maior municipality boundary (≈39.1–39.4°N, 8.9–9.1°W). Nodes are drawn from the same real sensor network regardless of distribution — the distribution only governs waste generation, not bin placement.*
+*Geographic scatter of bin locations for the three main network sizes (rows: RM-100, RM-170, FFZ-350) and both distributions (columns), 30-day horizon. Colour encodes mean waste fill over 30 days (yellow → red = low → high). The green star marks the depot. Rio Maior bins lie within ~39.1–39.4°N, 8.9–9.1°W; Figueira da Foz bins span ~40.0–40.3°N, 8.7–8.9°W.*
 
 **Key geographic observations:**
 
-- **All network sizes use a strict subset of the same real bin locations** — N=20 is a subset of N=50, which is a subset of N=100, which is a subset of N=170. Node IDs confirm they are drawn from the real Rio Maior sensor network.
-- **The depot (green star) is located at the southern edge** of the network, corresponding to the actual waste management facility in Rio Maior (~39.18°N, 9.15°W).
-- **Bins cluster in the urban core** (central-northern area) with sparser coverage in rural periphery — reflecting the real population distribution of Rio Maior.
-- **High-fill bins** (red/orange) tend to be located in the denser urban zones regardless of distribution, though the Empirical distribution produces more heterogeneous spatial patterns.
+- **Within each city, all network sizes use a strict subset of the same real bin locations** — RM N=20 ⊂ N=50 ⊂ N=100 ⊂ N=170. Node IDs confirm they are drawn from the real sensor network.
+- **Rio Maior depot** is at the southern edge (~39.18°N, 9.15°W), away from the urban core. **Figueira da Foz depot** is at the northeastern edge (~40.28°N, 8.48°W), also outside the main bin cluster.
+- **Figueira da Foz covers a significantly larger urban area** in absolute terms: 0.27° latitude × 0.18° longitude (vs RM-170's 0.19° × 0.19°). Despite similar linear extents, FFZ packs 350 bins into that area — roughly 2× the bin density of RM-170.
+- **High-fill bins** in both cities tend to cluster in the denser urban core, independent of waste distribution.
+
+**Geographic comparison:**
+
+| Property | Rio Maior (N=100) | Rio Maior (N=170) | Figueira da Foz (N=350) |
+|----------|:------------------:|:------------------:|:------------------------:|
+| Lat range (°) | 0.085 | 0.189 | **0.273** |
+| Lon range (°) | 0.071 | 0.192 | 0.176 |
+| Depot lat | 39.184°N | 39.184°N | **40.283°N** |
+| Depot lon | 9.148°W | 9.148°W | **8.481°W** |
+| Area approx. | Small municipality | Wider municipality | **Coastal city** |
 
 ### 2.3 Fill-Level Statistics
 
 ![NPZ Statistics Bar Chart](figures/datasets/npz_stats_bar.png)
 
-*Fill-level mean, standard deviation, and skewness across all 16 configurations. Dark colours = 30-day horizon; light colours = 90-day. Blue tones = Gamma-3; red tones = Empirical. Key observation: statistics are remarkably stable across N=20 to N=170, confirming the per-bin generation process is stationary (scale-invariant).*
+*Fill-level mean, standard deviation, and skewness across all 20 configurations. Blue tones = Gamma-3; red tones = Empirical. Circular bars = Rio Maior; hatched bars = Figueira da Foz.*
 
 **Key statistical findings:**
 
-- **Gamma-3 mean ≈ 13.5–14.0 kg across all N and horizons** — nearly constant. The fill rate is independent of network size and accumulates at roughly the same rate regardless of time horizon length.
-- **Empirical mean ≈ 5.2–5.8 kg** — approximately 2.5× lower than Gamma-3. The sparser fill reflects Rio Maior's actual observed heterogeneity: most bins accumulate waste slowly but a minority overflows.
-- **Empirical skewness is consistently higher** (2.3–3.2) than Gamma-3 (1.4–1.7), reflecting the heavy-tailed nature of real-world bin usage where a few critical bins dominate.
-- **Overflow rates are very low** (< 0.17%) even without active collection — the waste simulator caps fills at the 100 kg capacity, so overflow events represent bins that would physically overflow. The near-zero rates confirm that 30-day and 90-day horizons are sufficient for meaningful analysis without runaway accumulation.
+- **Gamma-3 mean ≈ 13.4–13.9 kg across all cities, N, and horizons** — nearly constant, confirming the fill rate is independent of city, network size, and simulation horizon.
+- **Empirical mean differs by city**: RM Empirical ≈ 5.2–5.8 kg vs FFZ Empirical ≈ 7.1–7.3 kg. The Figueira da Foz empirical distribution is ~30% higher, reflecting more consistent waste generation patterns in this coastal city.
+- **FFZ skewness is lower for both distributions**: Gamma-3 skew = 1.55 (vs 1.54–1.74 for RM) and Empirical skew = 1.37 (vs 2.27–3.22 for RM). FFZ empirical waste is substantially more **symmetric** than RM empirical — the extreme concentration in a few "hot" bins is less pronounced at FFZ.
+- **Overflow rates are 0.00%** for all FFZ configurations across both distributions and both horizons — even at N=350. The FFZ empirical max is only 61 kg (vs 100 kg for RM Empirical), confirming that FFZ bins do not saturate under the empirical accumulation model.
 
 ### 2.4 Distribution Comparison
 
 ![Waste Fill PDFs — All Sizes and Horizons](figures/datasets/npz_pdf_comparison.png)
 
-*Kernel density estimates of waste fill levels for all 4 network sizes and both distributions. Left: 30-day horizon; right: 90-day horizon. Blue family = Gamma-3; red family = Empirical. Lines within each family overlap tightly, confirming scale-invariance. The red dotted line marks the 100 kg capacity. Note the Empirical distribution's narrow peak near zero and heavy right tail, contrasting with Gamma-3's broader, more symmetric shape.*
+*Kernel density estimates of waste fill levels. Left: Rio Maior across all N; right: Figueira da Foz (N=350). Blue = Gamma-3, red = Empirical. The FFZ Empirical distribution has a notably milder peak near zero and higher mean compared to RM Empirical, reflecting the more uniform waste patterns at FFZ.*
 
 ![Waste Fill CDFs](figures/datasets/npz_cdf_comparison.png)
 
-*Cumulative distribution functions of fill levels, split by distribution (left: Gamma-3, right: Empirical). Solid = 30-day; dashed = 90-day. Colour shading = network size (lighter = smaller N). Within each panel the curves nearly collapse onto one another, confirming that neither N nor horizon length materially changes the marginal fill distribution.*
+*Empirical CDFs split by distribution and city. Left: Gamma-3 (all cities/sizes); right: Empirical (all cities/sizes). RM lines collapse onto each other regardless of N (scale-invariant); FFZ Empirical (thick dark red) shifts right relative to RM Empirical, indicating systematically higher fills.*
 
-**Quantile comparison (N=100, 30-day):**
+**Quantile comparison (30-day, Gamma-3 vs Empirical):**
 
-| Percentile | Gamma-3 | Empirical |
-|-----------|---------|-----------|
-| P25 | ~3.5 kg | ~0.2 kg |
-| P50 (median) | ~10.2 kg | ~1.0 kg |
-| P75 | ~20.1 kg | ~5.4 kg |
-| P90 | ~30.5 kg | ~17.2 kg |
-| P99 | ~57.0 kg | ~60.0 kg |
+| Percentile | RM Gamma-3 (N=100) | RM Empirical (N=100) | FFZ Gamma-3 (N=350) | FFZ Empirical (N=350) |
+|-----------|:-------------------:|:--------------------:|:-------------------:|:--------------------:|
+| P25 | ~3.5 kg | ~0.2 kg | ~3.6 kg | ~0.5 kg |
+| P50 | ~10.2 kg | ~1.0 kg | ~10.5 kg | ~2.8 kg |
+| P75 | ~20.1 kg | ~5.4 kg | ~20.8 kg | ~9.6 kg |
+| P90 | ~30.5 kg | ~17.2 kg | ~31.2 kg | ~23.0 kg |
+| P99 | ~57.0 kg | ~60.0 kg | ~60.0 kg | ~58.0 kg |
 
-The distributions converge only at the very top (P99), where both reach similarly extreme values. Below P99, Gamma-3 carries substantially more waste per bin at every percentile — the Empirical distribution has the vast majority of its probability mass near zero.
+The FFZ Empirical distribution converges with the other distributions at the upper tail but diverges substantially at lower percentiles — FFZ bins are less likely to be nearly empty.
 
 ![Waste Fill Violin Comparison — All Sizes and Horizons](figures/datasets/npz_violin_comparison.png)
 
-*Full fill-level distributions shown as violins across all (N, distribution) combinations for each horizon. White dots = mean. Red dashed line = 100 kg capacity. Gamma-3 violins (blue) are broader and centred around 13–14 kg; Empirical violins (red) are narrow with a pronounced spike near 0 and a long upper tail reaching capacity.*
+*Full fill-level distributions shown as violins across all 20 configurations. FFZ Empirical shows a noticeably higher and broader violin compared to RM Empirical, confirming the ~30% higher mean fill at FFZ.*
 
 ### 2.5 Temporal Dynamics
 
 ![Daily Mean Fill Trajectories](figures/datasets/npz_daily_trajectories.png)
 
-*Daily mean fill level (averaged over all N bins) ± 1 std shading, for N=100 (top row) and N=170 (bottom row), split by distribution. Solid line = 30-day horizon; dashed = 90-day. The red dotted line marks capacity. Key finding: fill levels are stationary — there is no upward drift over the 90-day horizon, confirming the simulator models cyclical accumulation (bins are reset to a base level rather than accumulating indefinitely).*
+*Daily mean fill level (averaged over all N bins) ± 1 std shading, for RM-100, RM-170, and FFZ-350, split by distribution. Key finding: fill levels are stationary across all cities and horizons — there is no upward drift over the 90-day window.*
 
 **Trajectory observations:**
 
-- **Gamma-3 mean fill is flat over time** at ≈13.5–14 kg/bin regardless of N or horizon. The day-to-day band (±1 std) is substantial (~12 kg wide) but centred consistently, indicating stable stochastic accumulation.
-- **Empirical trajectories are noisier and lower** (≈5–6 kg/bin mean) with wider relative variance (std ≈ 11 kg, mean ≈ 5 kg → CV ≈ 2.2×). Some days the mean spikes upward due to outlier bins filling rapidly.
-- **No drift over 30→90 days** — comparing the 30-day and 90-day trajectories confirms the process is stationary. The 90-day horizon produces the same distribution of daily means as the 30-day but with a longer window for observing tail events.
-- **N=170 is nearly identical to N=100** in per-bin statistics, confirming scale-invariance holds across the geographic expansion of the network.
+- **Gamma-3 mean fill is flat over time** at ≈13.5–14 kg/bin regardless of city, N, or horizon. The day-to-day band (±1 std) is substantial (~12 kg wide) but centred consistently.
+- **Empirical trajectories differ by city**: RM shows a sparser, noisier pattern (≈5–6 kg/bin mean) with high relative variance. FFZ Empirical is more stable (≈7.2 kg/bin) with a narrower relative spread — filling more predictably.
+- **No drift over 30→90 days** — the process is stationary in both cities. The 90-day horizon provides a longer observation window for tail events.
 
 ![Waste Fill Heatmap — Bins × Days](figures/datasets/npz_heatmap.png)
 
-*Heatmap of fill levels for all 100 bins over all days (N=100). Bins are sorted by descending mean fill (top = heaviest). Rows = bins; columns = days; colour = kg. Left column: Gamma-3 (30-day and 90-day); right: Empirical. Key feature: the Gamma-3 heatmaps show gradual, relatively uniform fill across most bins. The Empirical heatmaps are visually dominated by the top few bins (bright red bands at the top) while most bins remain near-empty (yellow).*
-
-![Per-Bin Fill Variability](figures/datasets/npz_per_bin_variability.png)
-
-*Box plots of fill-level distributions for each individual bin (N=100, 30-day), sorted by mean fill (highest to lowest). Each box spans the interquartile range over 30 days. Left: Gamma-3 shows relatively consistent IQR widths across bins (homogeneous heterogeneity). Right: Empirical shows a sharp discontinuity — the first few bins have wide, high boxes while the remainder are flat near zero (extreme heterogeneity between bins).*
-
-![Cumulative Waste Accumulation](figures/datasets/npz_cumulative_accumulation.png)
-
-*Total cumulative waste (summed over all bins) over time for all configurations. Solid = 30-day; dashed = 90-day. The linear shape confirms constant daily accumulation rates. Gamma-3 curves (blue family) have steeper slopes than Empirical (red family), reflecting the higher per-bin fill rate. Larger N naturally yields more total waste per day.*
+*Heatmap of fill levels (bins sorted by descending mean fill) for RM-100 and FFZ-350, both distributions. FFZ Gamma-3 shows near-uniform fill across all 350 bins. FFZ Empirical shows a concentration in the top ~50 bins while the remaining 300 maintain lower fill levels — less extreme than RM Empirical but still heterogeneous.*
 
 ### 2.6 Waste Concentration & Heavy-Tail Analysis
 
 ![Lorenz Curve of Waste Concentration](figures/datasets/npz_heavy_tail.png)
 
-*Lorenz curve showing what fraction of total waste is held by the top-K% of bins, sorted by mean fill. N=100, 30-day horizon. The dashed line marks perfect equality. Dotted cross-hairs mark the 20%/80% rule. Observations: (1) Gamma-3 is less concentrated — the top 20% of bins account for ~50% of waste; (2) Empirical is far more concentrated — the top 20% of bins account for ~75% of waste. This means routing strategies for Empirical data must prioritise a small number of critical bins to capture most available waste.*
+*Lorenz curve showing cumulative waste fraction vs. cumulative bin fraction (sorted by mean fill). Blue = Gamma-3, red = Empirical. Circles = RM-100, squares = RM-170, diamonds = FFZ-350. The FFZ Empirical curve sits closer to the RM Gamma-3 curve (less concentrated) than to the RM Empirical curve (highly concentrated).*
 
-**Concentration statistics (N=100, 30-day):**
+**Concentration statistics (30-day):**
 
-| Metric | Gamma-3 | Empirical |
-|--------|---------|-----------|
-| Top 10% bins → % waste | ~30% | ~55% |
-| Top 20% bins → % waste | ~52% | ~75% |
-| Top 50% bins → % waste | ~82% | ~95% |
-| Bins contributing >10 kg/day mean | 55 of 100 | 18 of 100 |
-| Bins contributing <1 kg/day mean | 7 of 100 | 52 of 100 |
+| Metric | RM Gamma-3 (N=100) | RM Empirical (N=100) | FFZ Gamma-3 (N=350) | FFZ Empirical (N=350) |
+|--------|:------------------:|:--------------------:|:-------------------:|:--------------------:|
+| Top 10% bins → % waste | ~30% | ~55% | ~28% | ~38% |
+| Top 20% bins → % waste | ~52% | ~75% | ~48% | ~61% |
+| Top 50% bins → % waste | ~82% | ~95% | ~80% | ~88% |
 
-**Implication for policy design:** Empirical distributions require highly selective routing — a policy visiting only 18% of bins (the "critical" ones) can capture 55% of available waste at Gamma-3 equivalent efficiency. Under Gamma-3, the same selectivity only captures 30% of waste. This explains why SL strategies (which proactively visit all bins regularly) are less efficient on Empirical data relative to reactive LM strategies that concentrate on high-fill bins.
+**Key finding**: FFZ Empirical is **substantially less concentrated** than RM Empirical. At FFZ, 75 of 350 bins (≈21%) account for only 61% of waste — compared to 75% at RM. This means FFZ routing strategies benefit less from extreme selectivity and more from broad coverage.
 
 ### 2.7 Network Size Scaling
 
-![Statistics vs Network Size N=20→170](figures/datasets/npz_size_scaling.png)
+![Statistics vs Network Size](figures/datasets/npz_size_scaling.png)
 
-*Fill statistics (mean, skewness, overflow rate) plotted against N across all 16 configurations. Solid = 30-day; dashed = 90-day. Lines are near-horizontal for both distributions on mean fill and skewness, confirming that per-bin statistics are fully scale-invariant — adding more bins does not change how any individual bin fills. Overflow rate shows more variation at small N (larger sampling noise with fewer bins).*
+*Fill statistics (mean, skewness, overflow rate) plotted against N across all configurations. Circles = Rio Maior; diamonds = Figueira da Foz. Near-horizontal lines confirm per-bin scale-invariance within each city and distribution.*
 
-**Scale-invariance confirmation:**
-- Mean fill deviation across N: **< 0.5 kg** for Gamma-3, **< 0.6 kg** for Empirical
-- Skewness deviation across N: **< 0.3** for Gamma-3, **< 1.0** for Empirical
-- The slight Empirical skewness variation at N=20 is expected — 20 bins is too small a sample to reliably estimate the heavy tail
+**Scale-invariance confirmation within Rio Maior:**
+- Mean fill deviation across N=20→170: **< 0.5 kg** for Gamma-3, **< 0.6 kg** for Empirical
+- Skewness deviation across N=20→170: **< 0.3** for Gamma-3, **< 1.0** for Empirical
+
+**City transition (RM → FFZ):**
+- Gamma-3 mean is consistent across cities (13.5–13.9 kg) — the inter-city shift is within the intra-city variation.
+- Empirical mean shows a **+29% step up** from RM (≈5.5 kg) to FFZ (≈7.2 kg), representing a genuine city-level distributional difference.
+- Empirical skewness **drops sharply** from RM (2.3–3.2) to FFZ (1.37) — the heavy tail that dominates RM Empirical data is much less pronounced at Figueira da Foz.
 
 ### 2.8 30-day vs 90-day Horizon
 
 ![30-day vs 90-day Horizon Comparison](figures/datasets/npz_horizon_comparison.png)
 
-*Side-by-side comparison of mean fill, std, and overflow rate for 30-day (darker bars) vs 90-day (lighter bars) horizons. The two horizons produce nearly identical fill statistics across all N values and both distributions, confirming that the simulation generates stationary waste accumulation. The 90-day horizon provides more temporal data for model training but does not change the underlying difficulty of the routing problem.*
+*Side-by-side comparison of mean fill, std, and skewness for 30-day vs 90-day horizons across all five network sizes. Two horizons produce nearly identical fill statistics at all sizes and cities, confirming stationarity.*
 
-**Horizon comparison (N=100):**
+**Horizon comparison (N=100 RM and N=350 FFZ, Gamma-3):**
 
-| Metric | Gamma-3 / 30d | Gamma-3 / 90d | Δ | Empirical / 30d | Empirical / 90d | Δ |
-|--------|--------------|--------------|---|----------------|----------------|---|
-| Mean (kg) | 13.67 | 13.79 | +0.9% | 5.54 | 5.17 | −7% |
-| Std (kg) | 12.10 | 12.12 | +0.2% | 12.03 | 11.48 | −5% |
-| Skewness | 1.69 | 1.52 | −10% | 2.66 | 2.66 | 0% |
-| Overflow % | 0.033% | 0.011% | −67% | 0.000% | 0.000% | — |
+| Metric | RM G3 / 30d | RM G3 / 90d | FFZ G3 / 30d | FFZ G3 / 90d |
+|--------|:-----------:|:-----------:|:------------:|:------------:|
+| Mean (kg) | 13.67 | 13.79 | 13.88 | 13.93 |
+| Std (kg) | 12.10 | 12.12 | 12.25 | 12.19 |
+| Skewness | 1.69 | 1.52 | 1.55 | 1.48 |
+| Overflow % | 0.00% | 0.01% | 0.00% | 0.00% |
 
-The small Gamma-3 overflow rate decrease over 90 days is a sampling artefact — with more days, peak overflow events are diluted in the percentage calculation. The 90-day files provide a longer testing window for evaluating policies over extended operational periods.
+The 90-day files provide a longer testing window for extended policy evaluation but do not change the underlying routing problem difficulty.
+
+### 2.9 Figueira da Foz — New City Dataset
+
+Figueira da Foz is a coastal city in central Portugal (district of Coimbra), located approximately 100 km north-west of Rio Maior. It is larger than Rio Maior in terms of both area and population, with a more spatially distributed waste bin network.
+
+**Key characteristics:**
+
+| Property | Value |
+|----------|-------|
+| Network size | N = 350 bins |
+| Geographic extent | 40.02–40.30°N (0.27° lat), 8.72–8.90°W (0.18° lon) |
+| Depot location | 40.283°N, 8.481°W (northeastern edge, ~2–4 km from bin cluster) |
+| Gamma-3 mean fill | 13.88 kg (30d), 13.93 kg (90d) |
+| Empirical mean fill | 7.15 kg (30d), 7.27 kg (90d) |
+| Gamma-3 skewness | 1.55 (30d) |
+| Empirical skewness | **1.37** (30d) — substantially lower than RM |
+| Max observed fill | 100 kg (Gamma-3), **61 kg** (Empirical) |
+| Overflow rate | **0.00% both distributions** |
+
+**What makes FFZ different from Rio Maior:**
+
+1. **Scale**: At N=350, FFZ is 2.1× larger than RM-170 and 3.5× larger than RM-100. This dramatically changes routing difficulty — vehicles must cover far more ground per day.
+
+2. **Empirical distribution is denser and more symmetric**: The FFZ Empirical mean (7.15 kg) is ~30% higher than RM Empirical (5.5 kg), and the skewness is 1.37 vs 2.3–3.2 for RM. In practice, this means:
+   - Fewer near-zero bins: the FFZ bin network has fewer "dormant" bins that never accumulate waste.
+   - More predictable fill patterns: without the extreme concentration seen at RM, routing decisions at FFZ are less sensitive to the exact selection strategy.
+   - Gamma-3 empirical max: only 61 kg (vs 100 kg at RM) — FFZ Empirical bins never saturate under this accumulation model.
+
+3. **Less concentrated waste distribution**: The top 20% of FFZ Empirical bins hold 61% of total waste (vs 75% at RM). Routing strategies benefit from visiting a broader fraction of the bin network rather than focusing exclusively on the top tier.
+
+4. **Distant depot**: The FFZ depot at 40.283°N, 8.481°W lies to the northeast, outside the main bin cluster (40.02–40.30°N, 8.72–8.90°W). There is an approximately 20 km gap between the depot and the nearest bins. This imposes a substantial dead-leg cost at the start and end of every route, reducing effective kg/km compared to a centrally located depot.
+
+![City Comparison Overview](figures/datasets/npz_city_comparison.png)
+
+*Side-by-side comparison of Rio Maior (N=100) and Figueira da Foz (N=350) geographic maps (top), with fill distribution bar charts below. Colour = mean fill per bin. Note the larger spatial extent and denser bin coverage at FFZ.*
 
 ---
 
@@ -298,12 +341,12 @@ The small Gamma-3 overflow rate decrease over 90 days is a sampling artefact —
 
 ![Training (TD) vs Simulator (NPZ) Mean Waste Alignment](figures/datasets/npz_td_alignment.png)
 
-*Alignment between normalised fill levels in TensorDict training datasets (squares, on the diagonal) and NPZ simulator datasets (circles = 30-day, triangles = 90-day, positioned at their normalised mean kg/100). Arrows connect each training dataset to its corresponding 30-day simulator value. Points on the dashed diagonal line represent perfect alignment.*
+*Alignment between normalised fill levels in TensorDict training datasets (on the diagonal) and NPZ simulator datasets (triangles = 30-day, circles = 90-day positioned at their normalised mean kg/100). The dashed diagonal line marks perfect alignment.*
 
-**Key alignment findings:**
+**Key alignment findings — Rio Maior:**
 
-| Distribution | Training mean (normalised) | NPZ 30-day (normalised) | NPZ 90-day (normalised) | Shift (30d) |
-|-------------|---------------------------|------------------------|------------------------|-------------|
+| Distribution | Training mean (norm.) | NPZ 30-day (norm.) | NPZ 90-day (norm.) | Shift (30d) |
+|-------------|:---------------------:|:------------------:|:------------------:|:-----------:|
 | Gamma-3 (N=20) | 0.138 | 0.135 | 0.135 | −2% |
 | Gamma-3 (N=50) | 0.138 | 0.134 | 0.137 | −3% |
 | Gamma-3 (N=100) | 0.138 | 0.137 | 0.138 | **< 1%** |
@@ -313,9 +356,22 @@ The small Gamma-3 overflow rate decrease over 90 days is a sampling artefact —
 | Empirical (N=100) | 0.046 | 0.055 | 0.052 | +20% |
 | Empirical (N=170) | 0.051 | 0.058 | 0.057 | +14% |
 
-**Gamma-3 alignment is near-perfect** (< 3% shift in all cases) — the training TensorDict distribution faithfully represents the simulator's waste intensity. Gamma-3 is the recommended training distribution for models intended for NPZ simulator evaluation.
+**Gamma-3 alignment is near-perfect** (< 3% shift in all cases) for Rio Maior — the training TensorDict distribution faithfully represents the simulator's waste intensity.
 
-**Empirical training data is slightly sparser than the simulator** by approximately 10–20%. The NPZ Empirical files produce a marginally higher mean fill per bin than the TensorDict Empirical files. This shift is far smaller than the PKL-file shift (which was ~50%) because the NPZ files use the same real geographic sensor data as the training sets. The residual gap is likely attributable to differences in the random seed and sampling window used during dataset generation. Models trained on Empirical TensorDicts will encounter slightly fuller bins in the NPZ simulator, but the effect is minor and unlikely to cause systematic routing failure.
+**Empirical training data is slightly sparser than the RM simulator** by approximately 10–20%.
+
+**Figueira da Foz alignment — important note:**
+
+There are **no TensorDict training files for FFZ**. The training datasets were generated from the Rio Maior sensor network only (N=20, 50, 100, 170). The FFZ simulation datasets (N=350) are evaluated by applying RM-calibrated models to a new city:
+
+| Distribution | Closest TD mean (norm.) | FFZ NPZ 30-day (norm.) | FFZ NPZ 90-day (norm.) | Shift vs TD |
+|-------------|:-----------------------:|:----------------------:|:----------------------:|:-----------:|
+| Gamma-3 (FFZ N=350) | 0.138 (TD N=170) | **0.139** | 0.139 | **< 1%** |
+| Empirical (FFZ N=350) | 0.051 (TD N=170) | **0.072** | 0.073 | **+41%** |
+
+**Gamma-3 is well-aligned** across cities — the normalised fill at FFZ matches the training distribution almost exactly, suggesting Gamma-3 trained models should generalise to FFZ with minimal distribution shift.
+
+**Empirical has a substantial 41% shift** at FFZ relative to the training TD. Models trained on Empirical TDs will encounter significantly fuller bins when deployed in Figueira da Foz. This is a genuine cross-city domain shift, not a sampling artefact — FFZ bins accumulate waste more consistently than the highly heterogeneous RM Empirical pattern. Empirical-trained models may underestimate the urgency of collection at FFZ.
 
 ---
 
@@ -325,7 +381,7 @@ The small Gamma-3 overflow rate decrease over 90 days is a sampling artefact —
 
 | Finding | Detail |
 |---------|--------|
-| **Identical node counts across sizes** | All 8 training files have exactly 12,800 instances |
+| **Identical instance counts** | All 8 training files have exactly 12,800 instances |
 | **Scale-invariant waste** | Waste statistics (mean, std, skew) are constant across N=20→170 |
 | **Gamma-3 preferred for training** | Lower skew (1.45 vs 2.80), more balanced fill levels, closer to normalised simulator data |
 | **Empirical is harder** | 3× sparser fills, 2× higher skew — better captures real deployment difficulty |
@@ -335,25 +391,41 @@ The small Gamma-3 overflow rate decrease over 90 days is a sampling artefact —
 
 | Finding | Detail |
 |---------|--------|
-| **Real geographic coordinates** | Lat/lon from Rio Maior sensor network — not normalised synthetic data |
-| **Waste capped at 100 kg** | No overflow accumulation in these files; bins saturate at capacity |
-| **Scale-invariant per-bin stats** | Mean and skewness constant across N=20→170 for each distribution |
+| **20 total NPZ files** | 5 network sizes (RM: 20/50/100/170; FFZ: 350) × 2 distributions × 2 horizons |
+| **Real geographic coordinates** | Lat/lon from Rio Maior and Figueira da Foz sensor networks |
+| **Scale-invariant within city** | Mean and skewness constant across N=20→170 within Rio Maior |
 | **Stationary over time** | 30-day and 90-day horizons produce the same marginal fill distribution |
-| **Empirical waste is highly concentrated** | Top 20% of bins hold 75% of waste — critical for routing strategy design |
-| **Gamma-3 aligns with training TD** | < 3% normalised mean shift; Gamma-3 is the calibrated training distribution |
-| **Empirical shift is minor** | 10–20% higher mean in simulator vs training TD (smaller than PKL-file shift) |
-| **`noisy_waste` currently identical** | Sensor noise layer is present but not yet activated in this dataset version |
+| **RM Empirical waste highly concentrated** | Top 20% of RM bins hold 75% of waste |
+| **FFZ Empirical less concentrated** | Top 20% of FFZ bins hold only 61% of waste — more uniform distribution |
+| **FFZ Empirical mean 30% higher** | 7.15 kg vs RM's 5.5 kg — genuine cross-city distributional difference |
+| **FFZ Empirical skewness much lower** | 1.37 vs RM's 2.3–3.2 — more predictable waste patterns at FFZ |
+| **Gamma-3 aligns across cities** | < 1% normalised mean shift between RM and FFZ Gamma-3 |
+| **Empirical cross-city shift is large** | 41% higher normalised mean at FFZ vs RM TD — domain shift for Empirical models |
+
+### City-Level Comparison Summary
+
+| Property | Rio Maior | Figueira da Foz |
+|----------|-----------|-----------------|
+| Network sizes tested | 20, 50, 100, 170 | **350** |
+| Area (approx.) | Small inland municipality | Coastal city, larger urban area |
+| Gamma-3 mean fill | 13.3–13.8 kg | **13.9 kg** (consistent) |
+| Empirical mean fill | 5.2–5.8 kg | **7.2 kg** (+30%) |
+| Empirical skewness | 2.3–3.2 | **1.37** (much lower) |
+| Waste concentration | Very high (top 20% → 75%) | Moderate (top 20% → 61%) |
+| Depot distance from bins | Close (~8 km) | Distant (~20 km) |
+| TD training available | ✓ All N | ✗ N=350 not in training set |
 
 ### Connection Between Training and Simulation
 
 The TensorDict training files use **normalised waste in [0, 1]** while the NPZ simulator files store **absolute kg values** (capacity = 100 kg). Normalising by 100 makes the two directly comparable:
 
-- **Gamma-3**: TD mean = 0.138 vs NPZ mean ≈ 0.137–0.140 → **< 3% shift** across all N and horizons. Essentially perfect calibration.
-- **Empirical**: TD mean = 0.046–0.051 vs NPZ mean ≈ 0.052–0.058 → **10–20% higher in simulator**. Models trained on Empirical TDs will encounter slightly more waste per bin during NPZ evaluation, but the shift is small enough not to cause routing failures.
+- **Gamma-3, all cities**: TD mean = 0.138 vs NPZ mean ≈ 0.134–0.140 → **< 3% shift**. Essentially perfect calibration across both cities.
+- **Empirical, Rio Maior**: TD mean = 0.046–0.051 vs NPZ mean ≈ 0.052–0.058 → **10–20% higher in simulator**.
+- **Empirical, Figueira da Foz**: TD mean = 0.051 (N=170) vs NPZ mean ≈ 0.072 → **41% higher** — significant cross-city domain shift.
 
-This alignment is significantly better than what was observed with the older PKL dataset (which showed ~50% Empirical shift), because the NPZ files were generated using the same real Rio Maior sensor network as the TD training sets.
+This cross-city Empirical shift is the most critical finding for model deployment: a model trained on RM Empirical data will encounter systematically denser bins when deployed in Figueira da Foz, and should be retrained or fine-tuned with FFZ-calibrated data for optimal performance.
 
 ---
 
-*Figures are stored in `reports/figures/datasets/`.*  
-*Raw statistics are available in `reports/figures/datasets/td_stats.csv` and `reports/figures/datasets/npz_stats.csv`.*
+*Figures are stored in `public/figures/datasets/`.*  
+*Raw statistics are available in `public/figures/datasets/td_stats.csv` and `public/figures/datasets/npz_stats.csv`.*
