@@ -355,13 +355,20 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
 
     def get_color(row):
         s = row["strategy"]
-        if s == "LA": return "#4e88d9"
-        if s == "LM": return "#e05c5c" if row.get("cf") == "CF70" else "#e09020"
-        return "#5cb85c" if row.get("sl_var") == "SL1" else "#20a020"
+        if s == "LA":
+            return "#4e88d9"
+        if s == "LM":
+            cf = row["cf"]
+            try:
+                return "#e05c5c" if float(cf) < 80 else "#e09020"
+            except (ValueError, TypeError):
+                return "#e09020"
+        sv = str(row["sl_var"]) if not (isinstance(row["sl_var"], float) and np.isnan(row["sl_var"])) else ""
+        return "#5cb85c" if sv == "SL1" else "#20a020"
 
     def get_marker(row):
         if "Figueira" in str(row["city"]): return "D"
-        return "o" if row["N"] == 100 else "s"
+        return "o" if str(row["N"]) == "100" else "s"
 
     def pareto_front(xs, ys):
         pts = sorted(zip(xs, ys), key=lambda p: (p[0], -p[1]))
@@ -679,7 +686,7 @@ def gen_ftsp_vs_cls(dfm: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
     CONSTRUCTORS = dfm["constructor"].unique().tolist()
     col_labels = [f"{city_label(c,N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
     fig2, axes2 = plt.subplots(1, 2, figsize=(28, 10))
-    fig2.suptitle("FTSP vs CLS Delta Heatmap (CLS − FTSP)", fontsize=14, fontweight="bold")
+    fig2.suptitle("FTSP vs CLS Delta Heatmap (CLS - FTSP)", fontsize=14, fontweight="bold")
     for ax_i, (metric, cmap) in enumerate([("overflows","RdYlGn_r"),("kgkm","RdYlGn")]):
         ax = axes2[ax_i]
         ax.set_facecolor("#16213e")
@@ -991,6 +998,20 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
         "| Balanced trade-off | LA | <!-- constructor --> | <!-- improver --> | <!-- notes --> |",
     ])
 
+    # Pre-compute conditional sections (avoid nested f-strings — not supported in Python <3.12)
+    if has_both_imp:
+        section8 = (
+            "\n    ## 8. FTSP vs CLS Route Improver Comparison\n\n"
+            f"    ![FTSP vs CLS Comparison]({figures_rel}/ftsp_vs_cls_comparison.png)\n\n"
+            "    *FTSP vs CLS scatter per metric. Points above the diagonal = CLS > FTSP; below = FTSP > CLS.*\n\n"
+            f"    ![FTSP vs CLS Delta Heatmap]({figures_rel}/ftsp_vs_cls_delta.png)\n\n"
+            "    *Delta heatmap (CLS - FTSP) per constructor x configuration. Red = FTSP better, green = CLS better.*\n\n"
+            f"    {PLACEHOLDER}\n\n"
+            "    ---\n"
+        )
+    else:
+        section8 = ""
+
     md = textwrap.dedent(f"""\
     # WSmart+ Route — Simulation Analysis Report
 
@@ -1177,21 +1198,7 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
     {PLACEHOLDER}
 
     ---
-    {"" if not has_both_imp else f"""
-    ## 8. FTSP vs CLS Route Improver Comparison
-
-    ![FTSP vs CLS Comparison]({figures_rel}/ftsp_vs_cls_comparison.png)
-
-    *FTSP vs CLS scatter per metric. Points above the diagonal = CLS > FTSP; below = FTSP > CLS.*
-
-    ![FTSP vs CLS Delta Heatmap]({figures_rel}/ftsp_vs_cls_delta.png)
-
-    *Delta heatmap (CLS − FTSP) per constructor × configuration. Red = FTSP better, green = CLS better.*
-
-    {PLACEHOLDER}
-
-    ---
-    """}
+    {section8}
 
     {chr(10).join(city_sections)}
 
