@@ -1,24 +1,28 @@
 /**
- * Simulation Digital Twin — real-time visualization of a running simulation.
+ * Simulation Digital Twin — real-time visualization of a running simulation (§G.16).
  *
  * Ports the Streamlit `simulation` mode from:
  *   logic/src/ui/pages/simulation/{kpi,map,charts,bins,tour,summary_sections}.py
  *   logic/src/ui/services/log_parser.py  (stream_log_file)
  *   logic/src/ui/services/simulation_analytics.py
  *
- * Key architectural difference from Streamlit:
- *   Streamlit: time.sleep(N) + st.rerun() → full Python script re-execution every N s
- *   Studio: Rust file-watcher emits sim:day_update events → React updates in < 200 ms
+ * Architecture: Rust file-watcher emits sim:day_update events → React updates in <200 ms
+ * (replaces Streamlit's time.sleep + st.rerun loop).
+ *
+ * §G.16 additions in this pass:
+ *   - Day scrubber with ◀/▶ step buttons, "Following" badge, "Latest" reset
+ *   - Bin-fill strip chart (bin_state_c percentages, sorted descending, overflow highlight)
+ *   - Tour sequence table (stop #, bin ID, fill %, collected, mandatory flags)
  */
 import { useCallback, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { KpiCard } from "../components/ui/KpiCard";
 import { useSimWatcher } from "../hooks/useSimWatcher";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../store/sim";
-import type { DayLogEntry } from "../types";
+import type { DayLogEntry, SimDayData } from "../types";
 
 // ── KPI definitions — mirrors _PRIMARY_KPI_MAP and _SECONDARY_KPI_MAP in kpi.py
 const PRIMARY_KPIS = [
@@ -35,22 +39,18 @@ const SECONDARY_KPIS = [
   { key: "cost", label: "Cost (€)", lowerIsBetter: true },
 ] as const;
 
-// ── Day-over-day delta helper
-function computeDelta(
-  entries: DayLogEntry[],
-  currentDay: number,
-  metricKey: string
-): number | null {
-  const prev = entries.find((e) => e.day === currentDay - 1);
-  const curr = entries.find((e) => e.day === currentDay);
+// ── Day-over-day delta
+function computeDelta(entries: DayLogEntry[], day: number, key: string): number | null {
+  const prev = entries.find((e) => e.day === day - 1);
+  const curr = entries.find((e) => e.day === day);
   if (!prev || !curr) return null;
-  const a = (curr.data as Record<string, number>)[metricKey];
-  const b = (prev.data as Record<string, number>)[metricKey];
+  const a = (curr.data as Record<string, number>)[key];
+  const b = (prev.data as Record<string, number>)[key];
   if (typeof a !== "number" || typeof b !== "number") return null;
   return a - b;
 }
 
-// ── Multi-day metric chart (mirrors create_sparkline_svg in charts.py)
+// ── Metric timeseries chart (mirrors create_sparkline_svg in charts.py)
 function MetricTimeseries({
   entries,
   metricKey,
@@ -61,38 +61,169 @@ function MetricTimeseries({
   label: string;
 }) {
   const days = entries.map((e) => e.day);
-  const values = entries.map(
-    (e) => ((e.data as Record<string, number>)[metricKey] ?? null)
-  );
-
-  const option = {
-    backgroundColor: "transparent",
-    grid: { left: 40, right: 10, top: 10, bottom: 30 },
-    xAxis: { type: "category", data: days, axisLabel: { color: "#9090b0", fontSize: 10 } },
-    yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 10 } },
-    series: [
-      {
-        type: "line",
-        data: values,
-        smooth: true,
-        lineStyle: { color: "#6366f1", width: 2 },
-        areaStyle: { color: "rgba(99,102,241,0.12)" },
-        symbol: "circle",
-        symbolSize: 4,
-        itemStyle: { color: "#818cf8" },
-      },
-    ],
-    tooltip: { trigger: "axis" },
-  };
+  const values = entries.map((e) => ((e.data as Record<string, number>)[metricKey] ?? null));
 
   return (
     <div className="card">
       <p className="text-xs text-canvas-muted mb-2">{label}</p>
-      <ReactECharts option={option} style={{ height: 120 }} />
+      <ReactECharts
+        option={{
+          backgroundColor: "transparent",
+          grid: { left: 40, right: 10, top: 10, bottom: 30 },
+          xAxis: { type: "category", data: days, axisLabel: { color: "#9090b0", fontSize: 10 } },
+          yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 10 } },
+          series: [{
+            type: "line",
+            data: values,
+            smooth: true,
+            lineStyle: { color: "#6366f1", width: 2 },
+            areaStyle: { color: "rgba(99,102,241,0.12)" },
+            symbol: "circle",
+            symbolSize: 4,
+            itemStyle: { color: "#818cf8" },
+          }],
+          tooltip: { trigger: "axis" },
+        }}
+        style={{ height: 120 }}
+      />
     </div>
   );
 }
 
+// ── Bin-fill strip chart (mirrors bin_charts.py fill level bars)
+function BinFillStrip({ data }: { data: SimDayData }) {
+  const { bin_state_c, bin_state_collected, mandatory } = data;
+  if (!bin_state_c?.length) return null;
+
+  const mandatorySet = new Set(mandatory ?? []);
+  const sorted = [...bin_state_c.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 25);
+
+  return (
+    <div className="card space-y-2">
+      <p className="text-xs text-canvas-muted">
+        Bin Fill Levels — top 25 of {bin_state_c.length} bins
+      </p>
+      <div className="space-y-1">
+        {sorted.map(([idx, fill]) => {
+          const pct = Math.min(100, fill * 100);
+          const barColor =
+            pct >= 100
+              ? "bg-accent-danger"
+              : pct >= 80
+              ? "bg-accent-warning"
+              : "bg-accent-success";
+          const isMandatory = mandatorySet.has(idx);
+          const isCollected = bin_state_collected?.[idx] ?? false;
+
+          return (
+            <div key={idx} className="flex items-center gap-2 text-xs">
+              <span className="font-mono w-10 text-right text-canvas-muted">#{idx}</span>
+              <div className="flex-1 h-2.5 bg-canvas-elevated rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${barColor} rounded-full`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <span className="font-mono w-10 text-right text-gray-400">
+                {pct.toFixed(0)}%
+              </span>
+              {isMandatory && (
+                <span className="text-accent-danger font-bold w-4 text-center" title="Mandatory">!</span>
+              )}
+              {isCollected && (
+                <span className="text-accent-success w-4 text-center" title="Collected">✓</span>
+              )}
+              {!isMandatory && !isCollected && <span className="w-4" />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Tour sequence table (mirrors tour_table in tour.py)
+function TourTable({ data, day, policy }: { data: SimDayData; day: number; policy: string }) {
+  const { tour, tour_indices, bin_state_c, bin_state_collected, mandatory } = data;
+
+  const indices: number[] = useMemo(() => {
+    if (tour_indices?.length) return tour_indices;
+    if (tour?.length) {
+      return tour.map((stop) => (typeof stop === "number" ? stop : stop.id));
+    }
+    return [];
+  }, [tour, tour_indices]);
+
+  if (indices.length === 0) return null;
+
+  const mandatorySet = new Set(mandatory ?? []);
+  const LIMIT = 60;
+
+  return (
+    <div className="card space-y-2">
+      <p className="text-xs text-canvas-muted">
+        Tour — Day {day} · {policy} · {indices.length} stops
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-canvas-border text-canvas-muted text-left">
+              <th className="py-1 pr-3 font-normal">#</th>
+              <th className="py-1 pr-3 font-normal">Bin</th>
+              <th className="py-1 pr-3 text-right font-normal">Fill</th>
+              <th className="py-1 pr-2 text-center font-normal">Collected</th>
+              <th className="py-1 text-center font-normal">Mandatory</th>
+            </tr>
+          </thead>
+          <tbody>
+            {indices.slice(0, LIMIT).map((binIdx, stop) => {
+              const fill = bin_state_c ? bin_state_c[binIdx] : undefined;
+              const collected = bin_state_collected?.[binIdx];
+              const mandatory = mandatorySet.has(binIdx);
+              return (
+                <tr
+                  key={stop}
+                  className={`border-b border-canvas-border/20 hover:bg-canvas-hover ${
+                    mandatory ? "text-accent-warning" : "text-gray-300"
+                  }`}
+                >
+                  <td className="py-0.5 pr-3 text-canvas-muted">{stop + 1}</td>
+                  <td className="py-0.5 pr-3 font-mono">#{binIdx}</td>
+                  <td className="py-0.5 pr-3 text-right font-mono">
+                    {fill != null ? `${(fill * 100).toFixed(1)}%` : "—"}
+                  </td>
+                  <td className="py-0.5 pr-2 text-center">
+                    {collected ? (
+                      <span className="text-accent-success">✓</span>
+                    ) : (
+                      <span className="text-canvas-muted">—</span>
+                    )}
+                  </td>
+                  <td className="py-0.5 text-center">
+                    {mandatory ? (
+                      <span className="text-accent-danger font-bold">!</span>
+                    ) : (
+                      <span className="text-canvas-muted">—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {indices.length > LIMIT && (
+          <p className="text-xs text-canvas-muted mt-1">
+            Showing {LIMIT} of {indices.length} stops.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main page
 export function SimulationMonitor() {
   const {
     entries,
@@ -109,7 +240,6 @@ export function SimulationMonitor() {
     reset,
   } = useSimStore();
 
-  // Wire up the Rust file-watcher
   useSimWatcher(watchPath);
 
   const policies = useMemo(() => uniquePolicies(entries), [entries]);
@@ -126,26 +256,24 @@ export function SimulationMonitor() {
     return { min: Math.min(...days), max: Math.max(...days) };
   }, [filteredEntries]);
 
+  // When selectedDay is null → auto-follow latest (mirrors "Follow latest" in Streamlit)
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
-  // ── File picker
   const openLog = useCallback(async () => {
-    const path = await open({
+    const path = (await open({
       filters: [{ name: "JSONL Logs", extensions: ["jsonl", "log", "txt"] }],
-    }) as string | null;
+    })) as string | null;
     if (!path) return;
-
     reset();
-    // Load historical entries first
-    const historical = await invoke<DayLogEntry[]>("load_simulation_log", {
-      path,
-    });
+    const historical = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     loadEntries(historical);
     setWatchPath(path);
   }, [reset, loadEntries, setWatchPath]);
 
   const [showSecondary, setShowSecondary] = useState(false);
+  const [showBinFill, setShowBinFill] = useState(true);
+  const [showTourTable, setShowTourTable] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -193,20 +321,51 @@ export function SimulationMonitor() {
           </select>
         )}
 
+        {/* Day scrubber with step buttons and auto-follow */}
         {dayRange.max > 0 && (
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-1.5 ml-auto">
             <span className="text-xs text-canvas-muted">Day</span>
+            <button
+              onClick={() => setSelectedDay(Math.max(dayRange.min, displayDay - 1))}
+              disabled={displayDay <= dayRange.min}
+              className="btn-ghost p-1 disabled:opacity-30"
+              title="Previous day"
+            >
+              <ChevronLeft size={12} />
+            </button>
             <input
               type="range"
               min={dayRange.min}
               max={dayRange.max}
               value={displayDay}
               onChange={(e) => setSelectedDay(Number(e.target.value))}
-              className="w-32 accent-accent-primary"
+              className="w-28 accent-accent-primary"
             />
-            <span className="text-xs font-mono w-8 text-right">
+            <button
+              onClick={() => setSelectedDay(Math.min(dayRange.max, displayDay + 1))}
+              disabled={displayDay >= dayRange.max}
+              className="btn-ghost p-1 disabled:opacity-30"
+              title="Next day"
+            >
+              <ChevronRight size={12} />
+            </button>
+            <span className="text-xs font-mono text-canvas-muted w-14 text-center">
               {displayDay}/{dayRange.max}
             </span>
+            {selectedDay !== null ? (
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="btn-ghost text-xs text-accent-primary"
+                title="Jump to latest day and follow live updates"
+              >
+                Latest ↓
+              </button>
+            ) : isWatching ? (
+              <span className="flex items-center gap-1 text-xs text-accent-success">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-success animate-pulse" />
+                Following
+              </span>
+            ) : null}
           </div>
         )}
       </div>
@@ -222,7 +381,7 @@ export function SimulationMonitor() {
 
       {displayEntry && (
         <>
-          {/* Primary KPIs — mirrors render_kpi_dashboard in kpi.py */}
+          {/* Primary KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {PRIMARY_KPIS.map(({ key, label, lowerIsBetter }) => (
               <KpiCard
@@ -236,14 +395,13 @@ export function SimulationMonitor() {
             ))}
           </div>
 
-          {/* Secondary KPIs toggle */}
+          {/* Secondary KPIs */}
           <button
             className="btn-ghost text-xs"
             onClick={() => setShowSecondary((v) => !v)}
           >
             {showSecondary ? "Hide" : "Show"} secondary metrics
           </button>
-
           {showSecondary && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {SECONDARY_KPIS.map(({ key, label, lowerIsBetter }) => (
@@ -259,7 +417,7 @@ export function SimulationMonitor() {
             </div>
           )}
 
-          {/* Timeseries charts — mirrors per-day metric history in simulation_analytics.py */}
+          {/* Timeseries charts */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {PRIMARY_KPIS.map(({ key, label }) => (
               <MetricTimeseries
@@ -271,23 +429,29 @@ export function SimulationMonitor() {
             ))}
           </div>
 
-          {/* Tour info */}
-          {displayEntry.data.tour && (
-            <div className="card">
-              <p className="text-xs text-canvas-muted mb-2">
-                Tour — Day {displayDay} · {displayEntry.policy}
-              </p>
-              <p className="text-sm text-gray-300">
-                <span className="font-medium">{displayEntry.data.tour.length}</span> stops ·{" "}
-                <span className="font-medium">
-                  {(displayEntry.data.bin_state_collected ?? []).filter(Boolean).length}
-                </span>{" "}
-                collected
-              </p>
-              <p className="text-xs text-canvas-muted mt-2">
-                Route map (deck.gl integration) coming in Phase 3.
-              </p>
-            </div>
+          {/* Bin-fill strip chart */}
+          <div className="flex items-center gap-2">
+            <button
+              className="btn-ghost text-xs"
+              onClick={() => setShowBinFill((v) => !v)}
+            >
+              {showBinFill ? "Hide" : "Show"} bin fill chart
+            </button>
+            <button
+              className="btn-ghost text-xs"
+              onClick={() => setShowTourTable((v) => !v)}
+            >
+              {showTourTable ? "Hide" : "Show"} tour table
+            </button>
+          </div>
+
+          {showBinFill && <BinFillStrip data={displayEntry.data} />}
+          {showTourTable && (
+            <TourTable
+              data={displayEntry.data}
+              day={displayDay}
+              policy={displayEntry.policy}
+            />
           )}
         </>
       )}

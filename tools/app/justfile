@@ -66,6 +66,24 @@ outdated:
 update:
     npm --prefix app update
 
+# ── Bundle & runtime ─────────────────────────────────────────────────────────
+
+# List built installer bundles (requires a prior `just app::build`)
+bundle:
+    @ls -lh app/src-tauri/target/release/bundle/ 2>/dev/null \
+        || echo "No bundle directory yet — run: just app::build"
+
+# Print the platform-specific Tauri app-data directory (Tauri Store files, logs)
+logs-dir:
+    @printf "Linux:   ~/.local/share/wsmart-route-studio\n"
+    @printf "macOS:   ~/Library/Application Support/com.wsmart-route.studio\n"
+    @printf "Windows: %%APPDATA%%\\com.wsmart-route.studio\n"
+
+# Delete persisted Tauri Store data — resets all saved settings (dev/testing only)
+reset-data:
+    -rm -rf ~/.local/share/wsmart-route-studio
+    -rm -rf "$(HOME)/Library/Application Support/com.wsmart-route.studio"
+
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
 # Remove installed JS dependencies (node_modules) and Vite dist output

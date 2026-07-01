@@ -9,7 +9,7 @@
  *   eval.policy.model.load_path, eval.datasets, eval.problem,
  *   eval.val_size, eval.decoding.strategy
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../store/app";
@@ -63,13 +63,21 @@ function CheckpointRow({
 }
 
 export function EvaluationRunner() {
-  const { projectRoot } = useAppStore();
+  const { projectRoot, pendingCheckpoint, setPendingCheckpoint } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
-  // Checkpoint list
+  // Checkpoint list — pre-populated from Training Monitor "Load in Eval Runner" action
   const [checkpoints, setCheckpoints] = useState<CheckpointEntry[]>([
     { id: "ckpt_0", path: "" },
   ]);
+
+  // Consume pendingCheckpoint set by TrainingMonitor checkpoint browser
+  useEffect(() => {
+    if (pendingCheckpoint) {
+      setCheckpoints([{ id: "ckpt_pending", path: pendingCheckpoint }]);
+      setPendingCheckpoint(null);
+    }
+  }, [pendingCheckpoint, setPendingCheckpoint]);
 
   // Eval params
   const [problem, setProblem] = useState("vrpp");
