@@ -5,4 +5,3 @@
 - sim.data_distribution=gamma3
 - sim.cpu_cores=20
 - tasks=test_sim
-- task=test_sim

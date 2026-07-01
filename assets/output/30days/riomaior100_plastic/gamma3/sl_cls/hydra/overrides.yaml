@@ -3,4 +3,3 @@
 - sim.graph.area=riomaior
 - sim.cpu_cores=20
 - tasks=test_sim
-- task=test_sim

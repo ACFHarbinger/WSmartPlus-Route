@@ -22,6 +22,7 @@ defaults:
 # =============================================================================
 # General Configuration
 # =============================================================================
+task: train
 seed: 42 # Random seed for reproducibility
 start: 0 # Starting epoch (for resuming training)
 

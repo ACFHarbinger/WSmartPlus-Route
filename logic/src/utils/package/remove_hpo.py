@@ -117,8 +117,8 @@ def main() -> None:
     # 2. Delete Config and YAML files
     remove_path(root / "logic/src/configs/tasks/hpo_sim.py")
     remove_path(root / "logic/src/configs/tasks/hpo.py")
-    remove_path(root / "logic/configs/task/hpo_sim.yaml")
-    remove_path(root / "logic/configs/task/hpo.yaml")
+    remove_path(root / "logic/configs/tasks/hpo_sim.yaml")
+    remove_path(root / "logic/configs/tasks/hpo.yaml")
 
     # 3. Clean up task registration in __init__.py files
     clean_tasks_init(root / "logic/src/configs/tasks/__init__.py", ["HPOConfig", "SimHPOConfig"])
