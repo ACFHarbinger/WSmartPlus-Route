@@ -68,13 +68,13 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 ## 2. Analytics Comparison — Pareto View
 
-![Overflow vs Efficiency Scatter — All 480 Runs](figures/simulation/overflow_efficiency_scatter.png)
-
-*Scatter plot of all FTSP simulation runs in the overflows–kg/km space, coloured by selection strategy (blue = LA, red = LM, green = SL). Left: Gamma-3; right: Empirical. Shape encodes city/N: circles = RM-100, squares = RM-170, diamonds = FFZ-350. SL clusters near 0–3 overflows (low efficiency); LM spans the widest range; LA sits in a consistent mid-efficiency band. FFZ Gamma-3 introduces extreme outliers at very high overflow counts for certain constructors (see Section 9).*
-
 ![Overflow vs Efficiency Scatter — Pareto Front](figures/simulation/overflow_efficiency_scatter_pareto.png)
 
-*Same scatter with the Pareto front plotted as a dashed white step line. Dominated solutions fall below/right of the Pareto boundary. The Pareto front traces the best achievable kg/km for each overflow count across all constructors and strategies.*
+*Scatter of all simulation runs (FTSP and CLS) in the overflows–kg/km space, coloured by selection strategy and CF/SL variant. Four panels: Gamma-3/FTSP, Empirical/FTSP, Gamma-3/CLS, Empirical/CLS. Shape encodes city/N: circles = RM-100, squares = RM-170, diamonds = FFZ-350. Dashed white line = Pareto front (non-dominated solutions). SL clusters near 0–3 overflows; LM spans the widest efficiency range; LA sits in a consistent mid-efficiency band.*
+
+![Overflow vs Efficiency Scatter — Pareto Front (log scale)](figures/simulation/overflow_efficiency_scatter_pareto_log.png)
+
+*Same four-panel chart with symlog X-axis — spreads the densely clustered low-overflow region for both FTSP and CLS, making the structure visible across the full overflow range.*
 
 **[Interactive version](private/simulation/pareto_scatter_interactive.html)**
 
@@ -117,7 +117,7 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 ![Overflow Count by Configuration](figures/simulation/overflow_all_configs.png)
 
-*Mean overflow count for all 18 configurations (3 cities × 2 distributions × 3 strategies), coloured by selection strategy. Whiskers span the min–max range across all 8 route constructors. FFZ Gamma-3 has extreme variance due to SWC-TCF failures; FFZ Empirical behaves similarly to RM.*
+*Mean overflow count for all 18 configurations (3 cities × 2 distributions × 3 strategies), shown for both FTSP and CLS improvers in a 2×2 layout. Whiskers span the min–max range across all 8 route constructors. FFZ Gamma-3 has extreme variance due to SWC-TCF failures; FFZ Empirical behaves similarly to RM.*
 
 ![Overflow Count by Configuration (log scale)](figures/simulation/overflow_all_configs_log.png)
 
@@ -155,7 +155,7 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 
 ![kg/km Efficiency by Configuration](figures/simulation/kgkm_all_configs.png)
 
-*Mean kg/km efficiency for all 18 configurations, with min–max range whiskers (FTSP). FFZ configurations (right third) achieve higher kg/km than RM due to more waste per route from the denser 350-bin network.*
+*Mean kg/km efficiency for all 18 configurations, with min–max range whiskers, shown for both FTSP and CLS improvers (2×2 layout). FFZ configurations achieve higher kg/km than RM due to more waste per route from the denser 350-bin network.*
 
 > **Efficiency by configuration (mean ± range across constructors, FTSP)**
 
@@ -188,7 +188,7 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 
 ![Vehicle Distance by Strategy](figures/simulation/km_violin.png)
 
-*Distribution of total vehicle distance (km over 30 days) per selection strategy and city, shown as violins. FFZ drives 2–3× more km than RM due to network size. SL drives the most km at all scales.*
+*Distribution of total vehicle distance (km over 30 days) per selection strategy and city, shown as violins for both FTSP and CLS (2×2 layout). FFZ drives 2–3× more km than RM due to network size. SL drives the most km at all scales.*
 
 | Config | Min km | Max km | Mean km |
 |--------|--------|--------|---------|
@@ -219,7 +219,7 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 
 ![Policy × Configuration Performance Heatmap](figures/simulation/policy_config_heatmap.png)
 
-*Left: Overflow count per policy (row) × all 18 configurations (column). Right: kg/km efficiency. Colour scale: green = best, red = worst per metric. SWC-TCF shows extreme red on overflows at FFZ Gamma-3; BPC shows strong green on efficiency at FFZ; SANS is consistently red across both metrics.*
+*Four panels: Overflow FTSP | Overflow CLS | Efficiency FTSP | Efficiency CLS. Rows = constructors, columns = all 18 (city × dist × strategy) configurations. Colour scale: green = best, red = worst. SWC-TCF shows extreme red on overflows at FFZ Gamma-3; BPC shows strong green on efficiency at FFZ; SANS is consistently red.*
 
 ![Policy Heatmap — Split by Distribution](figures/simulation/policy_config_heatmap_by_dist.png)
 
@@ -246,7 +246,7 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 
 ![Strategy Trade-off Bubble Chart](figures/simulation/strategy_bubble.png)
 
-*Each bubble represents one (strategy, distribution, city/N) combination. Position = mean overflows (X) vs mean kg/km (Y). Circle = Gamma-3, square = Empirical. Bubble size proportional to N. FFZ Gamma-3 bubbles appear at extreme overflow positions for certain strategies.*
+*Four panels (Gamma-3/FTSP, Empirical/FTSP, Gamma-3/CLS, Empirical/CLS). Each bubble = one (strategy, city/N) combination. Position = mean overflows (X) vs mean kg/km (Y). Shape encodes city. Bubble size ∝ N.*
 
 ![Strategy Trade-off Bubble Chart (log X scale)](figures/simulation/strategy_bubble_log.png)
 
@@ -567,7 +567,7 @@ FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empir
 
 ![Route Constructor Average Rank](figures/simulation/constructor_ranking.png)
 
-*Average rank of each route constructor across all configurations (FTSP), broken down by metric. Lower rank = better. BPC leads on efficiency at large scale; ACO_HH leads on overflow prevention; SANS and SWC-TCF rank last.*
+*Average rank of each route constructor across all configurations, broken down by metric, shown side-by-side for FTSP and CLS. Bars grow upward — shorter bar = better (lower rank). BPC leads on efficiency at large scale; ACO_HH leads on overflow prevention; SANS and SWC-TCF rank last.*
 
 ### Overall Rankings (All Configurations, FTSP)
 
