@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-canvas-bg text-gray-100 antialiased;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-canvas-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-canvas-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-canvas-muted;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-canvas-surface border border-canvas-border rounded-xl p-4;
+  }
+
+  .kpi-card {
+    @apply card flex flex-col gap-1;
+  }
+
+  .kpi-value {
+    @apply text-2xl font-bold tabular-nums;
+  }
+
+  .kpi-label {
+    @apply text-xs uppercase tracking-wider text-canvas-muted;
+  }
+
+  .kpi-delta-pos {
+    @apply text-accent-success text-sm font-medium;
+  }
+
+  .kpi-delta-neg {
+    @apply text-accent-danger text-sm font-medium;
+  }
+
+  .btn-primary {
+    @apply bg-accent-primary hover:bg-accent-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent hover:bg-canvas-hover text-gray-300 font-medium px-3 py-1.5 rounded-lg transition-colors;
+  }
+
+  .input-base {
+    @apply bg-canvas-elevated border border-canvas-border rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-canvas-muted focus:outline-none focus:border-accent-primary transition-colors w-full;
+  }
+
+  .select-base {
+    @apply input-base cursor-pointer;
+  }
+
+  .log-line {
+    @apply font-mono text-xs text-gray-400 py-0.5 border-b border-canvas-border/30 last:border-0;
+  }
+
+  .log-line-stderr {
+    @apply log-line text-accent-warning;
+  }
+}
