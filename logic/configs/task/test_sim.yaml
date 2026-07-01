@@ -1,0 +1,225 @@
+# @package _global_
+# =============================================================================
+# Test Simulator Task Configuration
+# =============================================================================
+# Configuration for multi-day waste collection simulation testing.
+# =============================================================================
+# Used by: python main.py test_sim
+# =============================================================================
+
+defaults:
+  - /policies@p.hgs_adc: policy_hgs_adc
+  - /policies@p.abc: policy_abc
+  - /policies@p.abpc_hg: policy_abpc_hg
+  - /policies@p.aco_hh: policy_aco_hh
+  - /policies@p.aco_ks: policy_aco_ks
+  - /policies@p.aks: policy_aks
+  - /policies@p.amphh: policy_amphh
+  - /policies@p.alns: policy_alns
+  - /policies@p.alns_ipo: policy_alns_ipo
+  - /policies@p.bb: policy_bb
+  - /policies@p.bc: policy_bc
+  - /policies@p.bp: policy_bp
+  - /policies@p.bpc: policy_bpc
+  - /policies@p.ms_bpc_sp: policy_ms_bpc_sp
+  - /policies@p.cgh: policy_cgh
+  - /policies@p.cf_rs: policy_cf_rs
+  - /policies@p.cp_sat: policy_cp_sat
+  - /policies@p.cvrp: policy_cvrp
+  - /policies@p.de: policy_de
+  - /policies@p.es_mcl: policy_es_mcl
+  - /policies@p.es_mkl: policy_es_mkl
+  - /policies@p.es_mpl: policy_es_mpl
+  - /policies@p.esdp: policy_esdp
+  - /policies@p.fa: policy_fa
+  - /policies@p.filo: policy_filo
+  - /policies@p.ga: policy_ga
+  - /policies@p.genius: policy_genius
+  - /policies@p.gihh: policy_gihh
+  - /policies@p.gls: policy_gls
+  - /policies@p.gp_hh: policy_gp_hh
+  - /policies@p.gp_mp_hh: policy_gp_mp_hh
+  - /policies@p.hgs: policy_hgs
+  - /policies@p.hgs_alns: policy_hgs_alns
+  - /policies@p.hgs_rr: policy_hgs_rr
+  - /policies@p.hmm_gd_hh: policy_hmm_gd_hh
+  - /policies@p.hmlns: policy_hmlns
+  - /policies@p.hna: policy_hna
+  - /policies@p.hs: policy_hs
+  - /policies@p.hulk: policy_hulk
+  - /policies@p.hvpl: policy_hvpl
+  - /policies@p.ils: policy_ils
+  - /policies@p.ils_bd: policy_ils_bd
+  - /policies@p.ils_rvnd_sp: policy_ils_rvnd_sp
+  - /policies@p.kgls: policy_kgls
+  - /policies@p.ks: policy_ks
+  - /policies@p.lb: policy_lb
+  - /policies@p.lb_vns: policy_lb_vns
+  - /policies@p.lbbd: policy_lbbd
+  - /policies@p.lca: policy_lca
+  - /policies@p.lrh: policy_lrh
+  - /policies@p.ma: policy_ma
+  - /policies@p.ma_dp: policy_ma_dp
+  - /policies@p.ma_im: policy_ma_im
+  - /policies@p.ma_ts: policy_ma_ts
+  - /policies@p.mhh: policy_mhh
+  - /policies@p.mp_aco: policy_mp_aco
+  - /policies@p.mp_bmc: policy_mp_bmc
+  - /policies@p.mp_ils: policy_mp_ils
+  - /policies@p.mp_pso: policy_mp_pso
+  - /policies@p.na: policy_na
+  - /policies@p.pg_clns: policy_pg_clns
+  - /policies@p.ph: policy_ph
+  - /policies@p.phh: policy_phh
+  - /policies@p.popmusic: policy_popmusic
+  - /policies@p.pso: policy_pso
+  - /policies@p.psoda: policy_psoda
+  - /policies@p.psoma: policy_psoma
+  - /policies@p.qde: policy_qde
+  - /policies@p.rens: policy_rens
+  - /policies@p.rfo: policy_rfo
+  - /policies@p.rl_alns: policy_rl_alns
+  - /policies@p.rl_gd_hh: policy_rl_gd_hh
+  - /policies@p.rl_hvpl: policy_rl_hvpl
+  - /policies@p.rts: policy_rts
+  - /policies@p.sa: policy_sa
+  - /policies@p.shh: policy_shh
+  - /policies@p.sans: policy_sans
+  - /policies@p.sca: policy_sca
+  - /policies@p.sisr: policy_sisr
+  - /policies@p.slc: policy_slc
+  - /policies@p.src: policy_src
+  - /policies@p.ss_hh: policy_ss_hh
+  - /policies@p.st_ef: policy_st_ef
+  - /policies@p.swc_tcf: policy_swc_tcf
+  - /policies@p.ts: policy_ts
+  - /policies@p.tsp: policy_tsp
+  - /policies@p.vns: policy_vns
+  - /policies@p.nds_brkga: policy_nds_brkga
+  - /policies@p.vpl: policy_vpl
+  - _self_
+  - override /tracking: test_sim
+
+# General Configuration
+task: test_sim
+seed: 42
+
+# Simulation Configuration
+sim:
+  cpu_cores: 0
+  n_vehicles: 0
+  no_cuda: false
+  problem: "vrpp"
+  output_dir: "output"
+  run_name: "lm_cls"
+  checkpoint_dir: "checkpoints"
+  checkpoint_days: 0
+  data_distribution: "emp"
+
+  # Relative to ROOT/data/wsr_simulator/
+  graph:
+    n_days: 30
+    num_loc: 350
+    n_samples: 1
+    area: "figueiradafoz"
+    waste_type: "plastic"
+    distance_method: "file"
+    dm_filepath: "osm_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv"
+    focus_graph: "graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json"
+    load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz"
+    save_updated_dm: "osm_distmat.csv"
+
+  # Policies to run
+  policies:
+    - hgs_adc: ${p.hgs_adc.hgs_adc}
+    - abc: ${p.abc.abc}
+    - abpc_hg: ${p.abpc_hg.abpc_hg}
+    - aco_hh: ${p.aco_hh.aco_hh}
+    - aco_ks: ${p.aco_ks.aco_ks}
+    - aks: ${p.aks.aks}
+    - amphh: ${p.amphh.amphh}
+    - alns: ${p.alns.alns}
+    - alns_ipo: ${p.alns_ipo.alns_ipo}
+    - bb: ${p.bb.bb}
+    - bc: ${p.bc.bc}
+    - bp: ${p.bp.bp}
+    - bpc: ${p.bpc.bpc}
+    - ms_bpc_sp: ${p.ms_bpc_sp.ms_bpc_sp}
+    - cgh: ${p.cgh.cgh}
+    - cf_rs: ${p.cf_rs.cf_rs}
+    - cp_sat: ${p.cp_sat.cp_sat}
+    - cvrp: ${p.cvrp.cvrp}
+    - de: ${p.de.de}
+    - es_mcl: ${p.es_mcl.es_mcl}
+    - es_mkl: ${p.es_mkl.es_mkl}
+    - es_mpl: ${p.es_mpl.es_mpl}
+    - esdp: ${p.esdp.esdp}
+    - fa: ${p.fa.fa}
+    - filo: ${p.filo.filo}
+    - ga: ${p.ga.ga}
+    - genius: ${p.genius.genius}
+    - gihh: ${p.gihh.gihh}
+    - gls: ${p.gls.gls}
+    - gp_hh: ${p.gp_hh.gp_hh}
+    - gp_mp_hh: ${p.gp_mp_hh.gp_mp_hh}
+    - hgs: ${p.hgs.hgs}
+    - hgs_alns: ${p.hgs_alns.hgs_alns}
+    - hgs_rr: ${p.hgs_rr.hgs_rr}
+    - hmm_gd_hh: ${p.hmm_gd_hh.hmm_gd_hh}
+    - hmlns: ${p.hmlns.hmlns}
+    - hna: ${p.hna.hna}
+    - hs: ${p.hs.hs}
+    - hulk: ${p.hulk.hulk}
+    - hvpl: ${p.hvpl.hvpl}
+    - ils: ${p.ils.ils}
+    - ils_bd: ${p.ils_bd.ils_bd}
+    - ils_rvnd_sp: ${p.ils_rvnd_sp.ils_rvnd_sp}
+    - kgls: ${p.kgls.kgls}
+    - ks: ${p.ks.ks}
+    - lb: ${p.lb.lb}
+    - lb_vns: ${p.lb_vns.lb_vns}
+    - lbbd: ${p.lbbd.lbbd}
+    - lca: ${p.lca.lca}
+    - lrh: ${p.lrh.lrh}
+    - ma: ${p.ma.ma}
+    - ma_dp: ${p.ma_dp.ma_dp}
+    - ma_im: ${p.ma_im.ma_im}
+    - ma_ts: ${p.ma_ts.ma_ts}
+    - mhh: ${p.mhh.mhh}
+    - mp_aco: ${p.mp_aco.mp_aco}
+    - mp_bmc: ${p.mp_bmc.mp_bmc}
+    - mp_ils: ${p.mp_ils.mp_ils}
+    - mp_pso: ${p.mp_pso.mp_pso}
+    - na: ${p.na.na}
+    - ph: ${p.ph.ph}
+    - phh: ${p.phh.phh}
+    - popmusic: ${p.popmusic.popmusic}
+    - pso: ${p.pso.pso}
+    - psoda: ${p.psoda.psoda}
+    - psoma: ${p.psoma.psoma}
+    - pg_clns: ${p.pg_clns.pg_clns}
+    - qde: ${p.qde.qde}
+    - rens: ${p.rens.rens}
+    - rfo: ${p.rfo.rfo}
+    - rl_alns: ${p.rl_alns.rl_alns}
+    - rl_gd_hh: ${p.rl_gd_hh.rl_gd_hh}
+    - rl_hvpl: ${p.rl_hvpl.rl_hvpl}
+    - rts: ${p.rts.rts}
+    - sa: ${p.sa.sa}
+    - shh: ${p.shh.shh}
+    - sans: ${p.sans.new}
+    - sans_new: ${p.sans.new}
+    - sans_og_a: ${p.sans.og_a}
+    - sans_og_b: ${p.sans.og_b}
+    - sca: ${p.sca.sca}
+    - sisr: ${p.sisr.sisr}
+    - slc: ${p.slc.slc}
+    - src: ${p.src.src}
+    - ss_hh: ${p.ss_hh.ss_hh}
+    - st_ef: ${p.st_ef.st_ef}
+    - swc_tcf: ${p.swc_tcf.swc_tcf}
+    - ts: ${p.ts.ts}
+    - tsp: ${p.tsp.tsp}
+    - vns: ${p.vns.vns}
+    - nds_brkga: ${p.nds_brkga.nds_brkga}
+    - vpl: ${p.vpl.vpl}

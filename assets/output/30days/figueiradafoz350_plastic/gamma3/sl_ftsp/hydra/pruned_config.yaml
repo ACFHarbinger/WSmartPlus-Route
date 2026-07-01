@@ -1,0 +1,495 @@
+task: test_sim
+seed: 42
+device: cuda
+start: 0
+run_name: null
+sim:
+  policies:
+  - aco_hh
+  - alns
+  - bpc
+  - hgs
+  - pg_clns
+  - psoma
+  - sans
+  - swc_tcf
+  full_policies: []
+  data_distribution: gamma3
+  problem: vrpp
+  days: 31
+  seed: 42
+  output_dir: output
+  checkpoint_dir: checkpoints
+  checkpoint_days: 0
+  n_samples: 1
+  resume: false
+  cpu_cores: 20
+  n_vehicles: 0
+  graph:
+    area: figueiradafoz
+    num_loc: 350
+    waste_type: plastic
+    vertex_method: mmn
+    distance_method: file
+    dm_filepath: osm_distmat_${sim.graph.waste_type}[${sim.graph.area}].csv
+    save_updated_dm: osm_distmat.csv
+    edge_threshold: '0'
+    edge_method: null
+    focus_graph: graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json
+    focus_size: null
+    load_dataset: data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz
+    n_samples: 1
+    start_day: 0
+    n_days: 30
+    reward: null
+  noise_mean: 0.0
+  noise_variance: 0.0
+  cache_regular: true
+  no_cuda: false
+  server_run: false
+  env_file: vars.env
+  gplic_file: null
+  symkey_name: null
+  gapik_file: null
+  stats_filepath: null
+  data_dir: null
+  run_name: sl_ftsp
+  policy_configs: {}
+  config_path: {}
+tracking:
+  wst_tracking_uri: assets/tracking
+  mlflow_enabled: false
+  mlflow_tracking_uri: assets/logs/mlruns
+  mlflow_experiment_name: wsmart-route
+  mlflow_run_name: null
+  ray_tune_storage_path: ray_results
+  ray_tune_mlflow_enabled: false
+  zenml_enabled: false
+  zenml_store_url: ''
+  zenml_stack_name: wsmart-route-stack
+  wandb_mode: disabled
+  no_tensorboard: false
+  no_progress_bar: true
+  log_dir: logs/simulations
+  verbose: true
+  profile: false
+  log_step: 10
+  log_level: INFO
+  real_time_log: true
+  log_file: null
+  log_gradients: false
+  log_weights: false
+  log_activations: false
+  log_attention: false
+  log_memory: false
+  log_throughput: false
+  log_embeddings: false
+  log_loss_landscape: false
+  log_attention_heatmaps: false
+  log_profiling_report: true
+  nan_guard: false
+  viz_every_n_epochs: 0
+  profiler_buffer_size: 200
+p:
+  aco_hh:
+    aco_hh:
+      custom:
+      - n_ants: 10
+      - alpha: 1.0
+      - beta: 2.0
+      - rho: 0.5
+      - tau_0: 1.0
+      - stagnation_limit: 10
+      - max_iterations: 50
+      - elitism_ratio: 0.5
+      - time_limit: 60.0
+      - sequence_length: 5
+      - Q: 0.9
+      - lambda_val: 1.0001
+      - use_dynamic_lambda: true
+      - operators:
+        - swap
+        - 2opt_intra
+        - relocate
+        - swap_star
+        - perturb
+      - profit_aware_operators: true
+      - vrpp: true
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+  alns:
+    alns:
+      custom:
+      - time_limit: 60.0
+      - max_iterations: 5000
+      - start_temp: 100
+      - cooling_rate: 0.995
+      - reaction_factor: 0.1
+      - min_removal: 1
+      - start_temp_control: 0.05
+      - xi: 0.4
+      - extended_operators: false
+      - profit_aware_operators: true
+      - vrpp: true
+      - engine: custom
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+      - acceptance_criteria:
+          other/ac_bmc.yaml:
+          - bmc
+  bpc:
+    bpc:
+      custom:
+      - profit_aware_operators: true
+      - vrpp: true
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - time_limit: 60.0
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+      - search_strategy: depth_first
+      - cutting_planes: all
+      - branching_strategy: divergence
+      - enable_node_visitation_branching: true
+      - max_cg_iterations: 150
+      - max_cut_iterations: 10
+      - max_cuts_per_iteration: 10
+      - max_routes_per_pricing: 50
+      - cg_at_root_only: false
+      - optimality_gap: 0.005
+      - early_termination_gap: 0.01
+      - max_bb_nodes: 2000
+      - lr_pre_pruning: true
+      - lr_lambda_init: 0.0
+      - lr_max_subgradient_iters: 40
+      - lr_subgradient_theta: 1.0
+      - lr_op_time_limit: 5.0
+      - lr_pre_pruning_depth_limit: -1
+      - lr_warm_start_cg: true
+      - use_ng_routes: true
+      - ng_neighborhood_size: 12
+      - rcspp_timeout: 15.0
+      - rcspp_max_labels: 2000000
+      - enable_dssr: true
+      - dssr_max_iters: 8
+      - enable_reduced_cost_arc_fixing: true
+      - enable_heuristic_rcc_separation: true
+      - enable_comb_cuts: false
+      - cut_orthogonality_threshold: 0.7
+      - route_budget: .inf
+      - use_spatial_partitioning: false
+      - enable_strong_branching_heuristic: true
+      - strong_branching_size: 5
+      - enable_column_pool_deduplication: true
+      - enable_hybrid_search: false
+      - rc_tolerance: 1.0e-06
+      - exact_mode: false
+      - prefer_shorter_path_dfs: true
+  hgs:
+    hgs:
+      custom:
+      - time_limit: 60.0
+      - restart_timer: 60
+      - n_iterations_no_improvement: 20000
+      - local_search_iterations: 100
+      - mu: 25
+      - lambda_param: 40
+      - nb_elite: 4
+      - nb_close: 5
+      - nb_granular: 20
+      - target_feasible: 0.2
+      - mutation_rate: 1.0
+      - repair_probability: 0.5
+      - crossover_rate: 1.0
+      - initial_penalty_capacity: 1.0
+      - penalty_increase: 1.2
+      - penalty_decrease: 0.85
+      - use_cross_exchange: false
+      - use_lambda_interchange: false
+      - lambda_max: 2
+      - use_ejection_chains: false
+      - use_3opt: false
+      - profit_aware_operators: true
+      - vrpp: true
+      - engine: custom
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+      - acceptance_criteria:
+          other/ac_oi.yaml:
+          - oi
+  pg_clns:
+    pg_clns:
+      custom:
+      - population_size: 10
+      - max_iterations: 50
+      - replacement_rate: 0.2
+      - time_limit: 60.0
+      - aco:
+          n_ants: 10
+          k_sparse: 10
+          alpha: 1.0
+          beta: 2.0
+          rho: 0.1
+          q0: 0.9
+          tau_0: 1.0
+          tau_min: 0.001
+          tau_max: 10.0
+          max_iterations: 1
+          time_limit: 30.0
+          local_search: false
+          elitist_weight: 1.0
+      - lns:
+          max_iterations: 100
+          start_temp: 100.0
+          cooling_rate: 0.95
+          reaction_factor: 0.5
+          min_removal: 1
+          xi: 0.2
+          time_limit: 30.0
+      - profit_aware_operators: true
+      - vrpp: true
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+  psoma:
+    psoma:
+      pop_size: 20
+      omega: 1.0
+      c1: 2.0
+      c2: 2.0
+      x_min: 0.0
+      x_max: 4.0
+      v_min: -4.0
+      v_max: 4.0
+      L: 30
+      T0: 3.0
+      lambda_cooling: 0.9
+      acceptance_criteria:
+        other/ac_bmc.yaml:
+        - bmc
+      max_iterations: 200
+      time_limit: 60.0
+      seed: 42
+      profit_aware_operators: true
+      vrpp: true
+      mandatory_selection:
+        service_level1:
+          strategy: service_level
+          confidence_factor: 0.84
+          horizon_days: 1
+        service_level2:
+          strategy: service_level
+          confidence_factor: 0.84
+          horizon_days: 2
+      route_improvement:
+        ftsp:
+          methods:
+          - fast_tsp
+          time_limit: 30.0
+  sans:
+    sans:
+      new:
+        engine: new
+        time_limit: 60
+        perc_bins_can_overflow: 0
+        T_min: 0.01
+        T_init: 75
+        iterations_per_T: 5000
+        alpha: 0.95
+        mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+        vrpp: true
+        route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+      og_a:
+        engine: og
+        combination: a
+        time_limit: 60
+        mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+        vrpp: true
+        route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+        params:
+        - 500
+        - 75
+        - 0.7
+        - 0
+        - 0.095
+        - 0
+        - 0
+      og_b:
+        engine: og
+        combination: b
+        time_limit: 60
+        mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+        vrpp: true
+        route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0
+        params:
+        - 2000
+        - 75
+        - 0.7
+        - 0
+        - 0.095
+        - 0
+        - 0
+    lac:
+      a:
+        engine: og
+        combination: a
+        time_limit: 60
+        mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+        vrpp: true
+        route_improvement: []
+        params:
+        - 500
+        - 75
+        - 0.7
+        - 0
+        - 0.095
+        - 0
+        - 0
+      b:
+        engine: og
+        combination: b
+        time_limit: 60
+        mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+        vrpp: true
+        route_improvement: []
+        params:
+        - 2000
+        - 75
+        - 0.7
+        - 0
+        - 0.095
+        - 0
+        - 0
+  swc_tcf:
+    swc_tcf:
+      gurobi:
+      - Omega: 0.1
+      - delta: 0
+      - psi: 1
+      - engine: gurobi
+      - framework: gurobi
+      - mandatory_selection:
+          service_level1:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 1
+          service_level2:
+            strategy: service_level
+            confidence_factor: 0.84
+            horizon_days: 2
+      - vrpp: true
+      - time_limit: 60.0
+      - route_improvement:
+          ftsp:
+            methods:
+            - fast_tsp
+            time_limit: 30.0

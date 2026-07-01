@@ -1,0 +1,67 @@
+# @package _global_
+# =============================================================================
+# Simulation Policy HPO Task Configuration
+# =============================================================================
+# python main.py task=hpo_sim
+# python main.py task=hpo_sim hpo_sim.metrics=[profit,overflows] hpo_sim.method=nsgaii
+# python main.py task=hpo_sim hpo_sim.num_workers=4
+
+defaults:
+  - /envs@hpo_sim.env: vrpp
+  - _self_
+  - override /tracking: hpo
+
+seed: 42
+task: hpo_sim
+
+hpo_sim:
+  # Sampler: tpe | random | grid | cmaes | nsgaii | botorch
+  # cmaes    - best for continuous correlated spaces (ALNS temperatures+weights)
+  # nsgaii   - required for multi-objective (metrics list > 1 entry)
+  # botorch  - GP surrogate, best when sims are very expensive (pip install optuna-integration[botorch])
+  method: tpe
+
+  # Single-objective (backward-compatible):
+  metric: profit
+
+  # Multi-objective mode - uncomment and switch method to nsgaii:
+  # metrics:
+  #   - profit     # maximised automatically
+  #   - overflows  # minimised automatically
+
+  n_trials: 50
+  # Worker processes share a SQLite study backend - no GIL contention.
+  # Set to 1 for in-process execution (easier debugging).
+  num_workers: 1
+
+  policy_name: alns
+
+  graph:
+    num_loc: 20
+    area: riomaior
+    waste_type: plastic
+    n_days: 7
+    # WARNING: n_samples < 5 gives noisy estimates for stochastic solvers.
+    # Use n_samples >= 10 for publication-quality results.
+    n_samples: 5
+
+  # Study is persisted to {output_dir}/hpo_{policy_name}.db automatically.
+  # Re-running with the same settings resumes from where it left off.
+
+  # ---------------------------------------------------------------------------
+  # Search Space
+  # ---------------------------------------------------------------------------
+  # RELATIVE key (no dots):  mapped to sim.full_policies.0.<policy>.<key>
+  # ABSOLUTE key (has dots): used as a direct Hydra config path
+  #
+  # type: int | float | categorical
+  # int/float: low (required), high (required), step (optional), log (optional)
+  # categorical: choices (required, non-empty list)
+  # ---------------------------------------------------------------------------
+  # If empty, the search space is automatically composed from:
+  #   1. {jobs}/{policy_name}.json
+  #   2. {filters}/{selection_name}.json
+  #   3. {rules}/{acceptance_name}.json
+  #   4. {interceptors}/{improver_name}.json
+  # ---------------------------------------------------------------------------
+  search_space: {}

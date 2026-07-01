@@ -80,7 +80,7 @@ def load_yaml_env(config_path: str) -> dict:
 
     config_dir = os.path.dirname(os.path.abspath(config_path))
     # If we are in a subdirectory (like tasks/), the base config dir is the parent
-    if os.path.basename(config_dir) in ["models", "envs", "data", "tasks"]:
+    if os.path.basename(config_dir) in ["models", "envs", "data", "task"]:
         config_dir = os.path.dirname(config_dir)
 
     for d in defaults:

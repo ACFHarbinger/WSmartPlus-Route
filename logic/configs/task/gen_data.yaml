@@ -1,0 +1,107 @@
+# @package _global_
+# =============================================================================
+# Data Generation Task Configuration
+# =============================================================================
+# Configuration for generating problem instance datasets.
+# Used by: python main.py gen_data
+#
+# Generates training, validation, and test datasets for VRP problems.
+# =============================================================================
+
+defaults:
+  - _self_
+  - override /tracking: gen_data
+
+# =============================================================================
+# General Configuration
+# =============================================================================
+task: gen_data
+seed: 42 # Random seed for reproducible data generation
+start: 0 # Starting epoch/index (usually 0)
+
+# =============================================================================
+# Data Configuration
+# =============================================================================
+data:
+  # Problem Configuration
+  problem: "vrpp" # Problem type. Options: vrpp, cvrpp, wcvrp, cwcvrp, sdwcvrp, scwcvrp
+  data_distributions: ["gamma3"] # Waste generation distributions to use.
+  penalty_factor: 3.0
+  overwrite: true
+  seed: 42
+  dataset_type: "test_simulator" # train, train_time, test_simulator
+  data_dir: "wsr_simulator/datasets" # Directory to save generated data
+  name: "wsr"
+  filename: null
+
+  # Graphs Configuration
+  graphs:
+    # --- Rio Maior (commented out: datasets already exist) ---
+    # - num_loc: 20
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_20V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 50
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_50V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 100
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_100V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+    # - num_loc: 170
+    #   n_samples: 1
+    #   area: "riomaior"
+    #   waste_type: "plastic"
+    #   focus_size: 1
+    #   focus_graph: "graphs_170V_1N_plastic.json"
+    #   start_day: 0
+    #   n_days: 90
+    #   vertex_method: "mmn"
+    #   distance_method: "gmaps"
+    #   dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+
+    # --- Figueira da Foz — plastic 350 bins (gamma3) ---
+    - num_loc: 350
+      n_samples: 1
+      area: "figueiradafoz"
+      waste_type: "plastic"
+      focus_size: 1
+      focus_graph: "graphs_350V_1N_plastic.json"
+      start_day: 0
+      n_days: 30
+      vertex_method: "mmn"
+      distance_method: "file"
+      dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+    - num_loc: 350
+      n_samples: 1
+      area: "figueiradafoz"
+      waste_type: "plastic"
+      focus_size: 1
+      focus_graph: "graphs_350V_1N_plastic.json"
+      start_day: 0
+      n_days: 90
+      vertex_method: "mmn"
+      distance_method: "file"
+      dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"

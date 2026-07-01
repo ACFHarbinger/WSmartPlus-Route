@@ -14,6 +14,7 @@ Example:
 """
 
 import contextlib
+import copy
 import multiprocessing as mp
 import os
 import shutil
@@ -71,6 +72,79 @@ __all__ = [
     "setup_logger_redirection",
     "logger",
 ]
+
+
+def _expand_other_ref(ref_dict: dict, root_dir: str) -> dict:
+    """Expand a {yaml_file: [key1, key2]} reference by loading the YAML file."""
+    import yaml
+
+    result = {}
+    for yaml_path, keys in ref_dict.items():
+        full_path = os.path.join(root_dir, "logic", "configs", "policies", yaml_path)
+        if not os.path.exists(full_path):
+            return ref_dict  # Keep original if file not found
+        with open(full_path) as f:
+            yaml_data = yaml.safe_load(f) or {}
+        for key in (keys or []):
+            if key in yaml_data:
+                result[key] = yaml_data[key]
+    return result
+
+
+def _expand_refs_recursive(obj: Any, root_dir: str) -> Any:
+    """Recursively expand mandatory_selection and route_improvement YAML references."""
+    _expandable = ("mandatory_selection", "route_improvement")
+    if isinstance(obj, dict):
+        result = {}
+        for k, v in obj.items():
+            if k in _expandable and isinstance(v, dict):
+                result[k] = _expand_other_ref(v, root_dir)
+            else:
+                result[k] = _expand_refs_recursive(v, root_dir)
+        return result
+    elif isinstance(obj, list):
+        new_list = []
+        for item in obj:
+            if isinstance(item, dict) and len(item) == 1:
+                key = next(iter(item))
+                val = item[key]
+                if key in _expandable and isinstance(val, dict):
+                    new_list.append({key: _expand_other_ref(val, root_dir)})
+                else:
+                    new_list.append({key: _expand_refs_recursive(val, root_dir)})
+            elif isinstance(item, dict):
+                new_list.append(_expand_refs_recursive(item, root_dir))
+            else:
+                new_list.append(item)
+        return new_list
+    else:
+        return obj
+
+
+def _generate_pruned_config(cfg: Config, root_dir: str) -> str:
+    """Generate a pruned YAML config with only task-relevant sections and expanded policy refs."""
+    import yaml
+
+    full = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=False)  # type: ignore[arg-type]
+    sim = full.get("sim", {})
+    active_policies: List[str] = sim.get("policies", []) or []
+
+    pruned: dict = {}
+    for key in ("task", "seed", "device", "start", "run_name"):
+        if key in full:
+            pruned[key] = full[key]
+    for section in ("sim", "tracking"):
+        if section in full:
+            pruned[section] = copy.deepcopy(full[section])
+
+    p_full = full.get("p", {})
+    p_pruned = {}
+    for pol_name in active_policies:
+        if pol_name in p_full:
+            p_pruned[pol_name] = _expand_refs_recursive(copy.deepcopy(p_full[pol_name]), root_dir)
+    pruned["p"] = p_pruned
+
+    return yaml.dump(pruned, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
 
 def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa: C901
@@ -160,6 +234,15 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
                 logger.info(f"Hydra config snapshot saved → {target_hydra_dir}")
             else:
                 logger.warning(f"Could not find source .hydra directory at {source_hydra_dir}")
+
+            pruned_path = os.path.join(target_hydra_dir, "pruned_config.yaml")
+            try:
+                pruned_yaml = _generate_pruned_config(cfg, str(udef.ROOT_DIR))
+                with open(pruned_path, "w") as _f:
+                    _f.write(pruned_yaml)
+                logger.info(f"Pruned config saved → {pruned_path}")
+            except Exception as _pruned_err:
+                logger.warning(f"Could not save pruned_config.yaml: {_pruned_err}")
         except Exception as _snap_err:
             logger.warning(f"Could not save hydra config snapshot: {_snap_err}")
         # ────────────────────────────────────────────────────────────────────────
