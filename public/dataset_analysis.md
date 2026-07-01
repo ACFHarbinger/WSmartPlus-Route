@@ -428,4 +428,4 @@ This cross-city Empirical shift is the most critical finding for model deploymen
 ---
 
 *Figures are stored in `public/figures/datasets/`.*  
-*Raw statistics are available in `public/figures/datasets/td_stats.csv` and `public/figures/datasets/npz_stats.csv`.*
+*Raw statistics are available in `public/global/datasets/td_stats.csv` and `public/global/datasets/npz_stats.csv`.*
