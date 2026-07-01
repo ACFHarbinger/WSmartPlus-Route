@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { useAppStore } from "../store/app";
 
 interface SpawnOptions {
   id?: string;
@@ -11,10 +12,14 @@ interface SpawnOptions {
 /**
  * Wraps `spawn_python_process` with loading state and error toasts.
  *
+ * Uses `pythonPath` from the app store so a user-configured executable
+ * (Settings page) overrides the auto-detected one.
+ *
  * The Rust command emits a `process:spawn` event that `useProcessMonitor`
  * (mounted at root) picks up — so callers do NOT need to call `addProcess` directly.
  */
 export function useSpawnProcess() {
+  const pythonPath = useAppStore((s) => s.pythonPath);
   const [launching, setLaunching] = useState(false);
 
   const spawn = useCallback(async (opts: SpawnOptions): Promise<number | null> => {
@@ -25,6 +30,7 @@ export function useSpawnProcess() {
         id,
         pythonArgs: opts.pythonArgs,
         workingDir: opts.workingDir,
+        pythonExecutable: pythonPath || null,
       });
       toast.success(`Process started (PID ${pid})`, { description: id });
       return pid;

@@ -11,7 +11,39 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
-#### WSmart-Route Studio — Tauri App (`app/`) — continued
+#### WSmart-Route Studio — Tauri App (`app/`) — third pass
+
+Third implementation pass: full-featured Simulation Launcher and Training Hub forms, tabular
+Process Monitor with live duration, Settings page (§G.19) with project root / Python path
+persistence, first-run onboarding banner, and extended `tools/app/justfile`.
+
+**Rust backend**
+- `process::spawn_python_process`: new `python_executable: Option<String>` parameter; empty string treated as `None`, falling back to `which_python`
+- `process::which_python`: now takes `working_dir` parameter; checks `<workingDir>/.venv/bin/python` (uv-managed venv) and `<workingDir>/.venv/Scripts/python.exe` (Windows) before system PATH
+
+**React frontend**
+- `pages/SimulationLauncher.tsx` — rewritten: 8-policy multi-select checkboxes; area / num_loc / n_samples / cpu_cores / seed inputs; distribution radio (Normal/Gamma/Empirical); Advanced Overrides collapsible; `useMemo` command preview; Hydra args exactly mirror `just controller::test-sim`
+- `pages/TrainingHub.tsx` — rewritten: mode selector (Train / HPO Sweep / Evaluate); problem/model/encoder selects; mode-specific param groups (epochs/batch_size for train; method/trials/workers for HPO; checkpoint picker / dataset picker / strategy / val_size for eval); WandB toggle; command preview
+- `pages/ProcessMonitor.tsx` — rewritten: tabular `ProcessRow` components with `StatusPill`, process ID, command, PID, live duration (`useLiveDuration` 1s tick), exit code; expand/collapse inline log with auto-scroll toggle; stderr lines coloured warning
+- `pages/Settings.tsx` — new: Project Root (text input + directory picker), Python Executable (override `which_python`), Appearance (dark/light radio), About section; dirty-state detection; Save / Discard buttons
+- `store/app.ts` — `pythonPath` field + `setPythonPath` action added; persisted via `partialize`
+- `types/index.ts` — `"settings"` added to `AppMode` union
+- `hooks/useSpawnProcess.ts` — reads `pythonPath` from app store; passes `pythonExecutable: pythonPath || null` to `spawn_python_process`
+- `components/layout/Sidebar.tsx` — "App" section added with Settings entry; `FolderOpen` icon for output_browser; `Settings` icon for settings entry
+- `components/layout/TopBar.tsx` — first-run warning banner: shown when `projectRoot` is empty and mode ≠ `"settings"`; "Open Settings" quick-link
+- `App.tsx` — Settings page import and router case added
+
+#### Build tooling
+
+- `tools/app/justfile` — extended with `check-rust` (`cargo check`), `fmt-rust` (`cargo fmt`), `preview` (build + serve), `update` (`npm update`) recipes
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — §G.9 additional items checked (full form); §G.10 additional items checked (full form, all three modes); §G.15 additional items checked (tabular layout, live duration); §G.19 added (Settings & First-Run Onboarding); Effort × Impact matrix updated
+
+---
+
+#### WSmart-Route Studio — Tauri App (`app/`) — second pass
 
 Second implementation pass: completes all page stubs, wires process lifecycle events, adds
 Config Editor (§G.13) and Output Browser (§G.14), and introduces `tools/app/justfile`.

@@ -14,6 +14,7 @@ import {
   Sliders,
   Terminal,
   Zap,
+  FolderOpen,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import type { AppMode, NavSection } from "../../types";
@@ -53,6 +54,12 @@ const NAV: NavSection[] = [
       { mode: "config_editor", label: "Config Editor" },
     ],
   },
+  {
+    label: "App",
+    items: [
+      { mode: "settings", label: "Settings" },
+    ],
+  },
 ];
 
 const ICON: Record<AppMode, React.ReactNode> = {
@@ -68,8 +75,9 @@ const ICON: Record<AppMode, React.ReactNode> = {
   sim_launcher: <Play size={15} />,
   training_hub: <Cpu size={15} />,
   data_gen: <FlaskConical size={15} />,
-  config_editor: <Settings size={15} />,
-  output_browser: <FileText size={15} />,
+  config_editor: <FileText size={15} />,
+  output_browser: <FolderOpen size={15} />,
+  settings: <Settings size={15} />,
 };
 
 export function Sidebar() {

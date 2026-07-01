@@ -36,6 +36,26 @@ build:
 check:
     npm --prefix app exec -- tsc --noEmit
 
+# Check the Rust backend for errors without producing a binary (fast)
+check-rust:
+    cd app/src-tauri && cargo check
+
+# Format the Rust backend with rustfmt
+fmt-rust:
+    cd app/src-tauri && cargo fmt
+
+# ── Preview ──────────────────────────────────────────────────────────────────
+
+# Build the frontend and preview it in the browser (no Tauri shell)
+preview: build
+    npm --prefix app run preview
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
+
+# Update all JS/TS dependencies to their latest allowed versions
+update:
+    npm --prefix app update
+
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 
 # Remove installed JS dependencies (node_modules) and Vite dist output

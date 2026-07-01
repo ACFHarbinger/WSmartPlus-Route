@@ -119,7 +119,8 @@ export type AppMode =
   | "training_hub"      // Training & HPO Hub       — §G.10
   | "data_gen"          // Data Generation Wizard   — §G.11
   | "config_editor"     // Configuration Editor     — §G.13
-  | "output_browser";   // Output Browser           — §G.14
+  | "output_browser"    // Output Browser           — §G.14
+  | "settings";         // App Settings
 
 export interface NavSection {
   label: string;

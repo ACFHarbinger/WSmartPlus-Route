@@ -6,9 +6,11 @@ interface AppState {
   mode: AppMode;
   theme: "dark" | "light";
   projectRoot: string;
+  pythonPath: string;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: "dark" | "light") => void;
   setProjectRoot: (root: string) => void;
+  setPythonPath: (path: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -17,9 +19,9 @@ export const useAppStore = create<AppState>()(
       mode: "simulation",
       theme: "dark",
       projectRoot: "",
+      pythonPath: "",
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
-        // Sync with Tailwind dark mode class
         if (theme === "dark") {
           document.documentElement.classList.add("dark");
         } else {
@@ -28,10 +30,16 @@ export const useAppStore = create<AppState>()(
         set({ theme });
       },
       setProjectRoot: (projectRoot) => set({ projectRoot }),
+      setPythonPath: (pythonPath) => set({ pythonPath }),
     }),
     {
       name: "wsmart-studio-app",
-      partialize: (s) => ({ mode: s.mode, theme: s.theme, projectRoot: s.projectRoot }),
+      partialize: (s) => ({
+        mode: s.mode,
+        theme: s.theme,
+        projectRoot: s.projectRoot,
+        pythonPath: s.pythonPath,
+      }),
     }
   )
 );

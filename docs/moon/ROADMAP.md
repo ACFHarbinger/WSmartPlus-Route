@@ -1072,9 +1072,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust backend: spawn `main.py test_sim <overrides>` via `tokio::process::Command`; `process:spawn` event emitted on start; stdout streamed as `process:stdout` events
 - [x] Cancel button: sends cancel signal via `tokio::sync::watch` channel (§D.5)
 - [x] Toast notification on launch success / failure (§D.8) via `useSpawnProcess` hook
-- [ ] React form: problem type selector (VRPP / WCVRP / SCWCVRP), number of days, graph size / dataset path, random seed, device selector
-- [ ] Policy selection panel: multi-select list of all registered policies (from §B.3 plugin registry)
-- [ ] "Advanced Overrides" collapsible panel: key-value table for arbitrary Hydra overrides (§D.6 Option A)
+- [x] React form: full parameter set — 8-policy multi-select checkboxes, graph area text input, `num_loc` / `n_samples` / `cpu_cores` / `seed` number fields, data distribution radio (Normal / Gamma / Empirical); exactly mirrors `just controller::test-sim` Hydra args
+- [x] "Advanced Overrides" collapsible panel: free-form textarea for arbitrary Hydra overrides (§D.6 Option A); live command preview below the form
+- [ ] Policy selection panel: load registered policy names from the §B.3 plugin registry at runtime (currently hardcoded 8 policies)
 - [ ] Live status display: current day, overflow count, kg/km so far (parsed from `sim:day_update` events)
 - [ ] On completion: auto-navigate to the Simulation Monitor with the new log pre-loaded
 - [ ] Session persistence for form values via Tauri Store plugin (§D.4)
@@ -1088,10 +1088,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Mode selector: train / hpo / eval
 - [x] Hydra override textarea → `spawn_python_process main.py <mode> <overrides>`
 - [x] Cancel and toast notifications via `useSpawnProcess` hook (§D.5, §D.8)
-- [ ] React form: model architecture, problem type, graph size, epochs, batch size, learning rate
-- [ ] Checkpoint path picker (Tauri dialog plugin)
-- [ ] WandB project / run name fields; WandB toggle
-- [ ] HPO mode: Optuna sweep config (trial count, search space)
+- [x] React form (train mode): problem selector (vrpp/wcvrp/scwcvrp), model selector (am/tam/ddam/moe), encoder selector (gat/gcn/mha), batch size, max epochs; mirrors controller justfile `train` recipe
+- [x] React form (hpo mode): problem/model/encoder selectors + HPO method (nsgaii/tpe/dehb/random), trial count, num_workers; mirrors controller justfile `hpo` recipe
+- [x] React form (eval mode): checkpoint path picker (Tauri dialog; .pt/.ckpt/.pth), dataset path picker (.pkl/.json/.csv), problem selector, decoding strategy (greedy/sampling/beam), val_size; mirrors controller justfile `eval` recipe
+- [x] WandB toggle: adds `tracker.enabled=false` when disabled
+- [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
 - [ ] Live training progress panel (§D.2): ECharts live loss/reward from `process:stdout` JSON
 - [ ] Gradient norm and entropy sparklines
 - [ ] On completion: open checkpoint directory in the Output Browser (§G.14)
@@ -1173,8 +1174,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Process list panel: status badge, command, inline log viewer (last 50 lines), cancel button
 - [x] `cancel_process` Tauri command: sends `true` via watch channel → `child.kill()`
 - [x] `which_python` resolves `<workingDir>/.venv/bin/python` first (uv-managed venv), then system PATH
-- [ ] Process list panel: table of all active/completed Studio-spawned processes (PID, task type, start time, status, duration)
-- [ ] Live log viewer: select any process from the list; Rust streams its stdout/stderr lines to React via Tauri events; display in a virtualized list with auto-scroll-to-bottom toggle
+- [x] Process list panel: full tabular layout — `StatusPill` + process ID + command + PID + live duration (`useLiveDuration` hook, 1s tick, stops when process ends) + exit code badge; sorted newest-first
+- [x] Inline log viewer per process: expand/collapse toggle, auto-scroll checkbox, stderr lines coloured `text-accent-warning`; scroll locked at 2000 lines via process store
+- [ ] Structured log parsing: JSON-formatted log lines → colour-coded fields (level, message, metrics)
 - [ ] Structured log parsing: if the process emits JSON-formatted log lines, parse and highlight fields (level, message, metrics) with colour coding
 - [ ] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers
 - [ ] Cancel any running process (§D.5): button in the process list row; sends SIGTERM
@@ -1236,6 +1238,21 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ---
 
+### §G.19 — Phase 19: Settings & First-Run Onboarding 🚧
+
+**Goal**: Provide a persistent Settings page so users can configure the project root and Python executable without touching environment variables, and surface a first-run onboarding banner.
+
+- [x] Settings page (`pages/Settings.tsx`): Project Root section (text input + directory picker via Tauri dialog), Python Executable section (text input + path picker, overrides `which_python` resolution), Appearance section (dark/light theme radio), About section (Studio version + links)
+- [x] `store/app.ts`: `projectRoot` and `pythonPath` fields persisted via Zustand `persist` + `partialize`; `setPythonPath` action
+- [x] `pythonPath` threaded through `useSpawnProcess` → `spawn_python_process` Rust command as `python_executable: Option<String>`; empty string treated as `None` (falls back to `which_python`)
+- [x] First-run banner in `TopBar.tsx`: shown when `projectRoot` is empty and mode is not `"settings"`; links directly to Settings with an "Open Settings" button
+- [x] Sidebar "App" section with Settings entry and gear icon
+- [ ] Validate `projectRoot` on save: check that `main.py` exists at the root; show inline error if not
+- [ ] Validate `pythonPath` on save: test `<pythonPath> --version` via Tauri shell; show resolved version string as confirmation
+- [ ] Import/export settings JSON (useful for team onboarding)
+
+---
+
 ### §G — Dependency Map
 
 ```
@@ -1264,6 +1281,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | Phase | Description | Effort | Impact | Priority |
 | --- | --- | --- | --- | --- |
 | §G.0 | Foundation & Tooling | High | Very High | P0 |
+| §G.19 | Settings & Onboarding | Low | Very High | P0 `[Blocked]` §G.0 |
 | §G.15 | Real-Time Process Monitor | Medium | Very High | P0 `[Blocked]` §G.0 |
 | §G.9 | Simulation Launcher | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |
 | §G.10 | Training & HPO Hub | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |

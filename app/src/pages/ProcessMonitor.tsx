@@ -1,79 +1,177 @@
 /**
- * Process Monitor — live view of all spawned Python processes.
- * Ports Streamlit `process_monitor` and Studio §G.15.
- * Registered processes come from the Rust PROCESS_REGISTRY via useProcessMonitor.
+ * Process Monitor — tabular view of all spawned processes with inline log viewer (§G.15).
+ *
+ * Each process row shows: status badge, ID, command, PID, start time, live duration.
+ * Selecting a row expands the scrollable log viewer with auto-scroll toggle.
+ * Cancel button sends SIGTERM via Rust's `cancel_process` command.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Square, ChevronDown, ChevronUp } from "lucide-react";
+import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown } from "lucide-react";
 import { useProcessStore } from "../store/process";
 import { StatusPill } from "../components/ui/StatusPill";
 
-export function ProcessMonitor() {
-  const { processes } = useProcessStore();
-  const [expanded, setExpanded] = useState<string | null>(null);
+function useLiveDuration(startTime: number, stopped: boolean): string {
+  const [elapsed, setElapsed] = useState(Date.now() - startTime);
 
-  const cancel = useCallback(async (id: string) => {
+  useEffect(() => {
+    if (stopped) return;
+    const id = setInterval(() => setElapsed(Date.now() - startTime), 1000);
+    return () => clearInterval(id);
+  }, [startTime, stopped]);
+
+  const s = Math.floor(elapsed / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ${s % 60}s`;
+  return `${Math.floor(m / 60)}h ${m % 60}m`;
+}
+
+function ProcessRow({ id }: { id: string }) {
+  const proc = useProcessStore((s) => s.processes[id]);
+  const [expanded, setExpanded] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const logRef = useRef<HTMLDivElement>(null);
+
+  const stopped = proc.status !== "running";
+  const duration = useLiveDuration(proc.startTime, stopped);
+
+  const cancel = useCallback(async () => {
     await invoke("cancel_process", { id });
-  }, []);
+  }, [id]);
+
+  // Auto-scroll log to bottom when new lines arrive
+  useEffect(() => {
+    if (expanded && autoScroll && logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [proc.logLines.length, expanded, autoScroll]);
+
+  if (!proc) return null;
+
+  return (
+    <div className="border border-canvas-border rounded-xl overflow-hidden">
+      {/* Table row */}
+      <div className="flex items-center gap-3 px-4 py-2.5 bg-canvas-surface hover:bg-canvas-hover">
+        <StatusPill status={proc.status} />
+
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-mono text-gray-200 truncate">{id}</p>
+          <p className="text-xs text-canvas-muted truncate">{proc.command}</p>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-4 text-xs text-canvas-muted shrink-0">
+          <span title="PID">PID {proc.pid}</span>
+          <span title="Elapsed">{duration}</span>
+          {proc.exitCode !== undefined && (
+            <span
+              className={proc.exitCode === 0 ? "text-accent-success" : "text-accent-danger"}
+            >
+              exit {proc.exitCode}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {proc.status === "running" && (
+            <button
+              onClick={cancel}
+              className="flex items-center gap-1 text-xs text-accent-danger hover:text-accent-danger/80 btn-ghost py-1 px-2"
+            >
+              <Square size={11} />
+              Cancel
+            </button>
+          )}
+          <button
+            className="btn-ghost p-1.5 text-canvas-muted"
+            onClick={() => setExpanded((v) => !v)}
+            title={expanded ? "Collapse log" : "Expand log"}
+          >
+            {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Log viewer */}
+      {expanded && (
+        <div className="bg-canvas-bg border-t border-canvas-border">
+          <div className="flex items-center gap-2 px-4 py-1.5 border-b border-canvas-border/50">
+            <Terminal size={11} className="text-canvas-muted" />
+            <span className="text-xs text-canvas-muted flex-1">
+              {proc.logLines.length} lines
+            </span>
+            <label className="flex items-center gap-1.5 text-xs text-canvas-muted cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoScroll}
+                onChange={(e) => setAutoScroll(e.target.checked)}
+                className="accent-accent-primary"
+              />
+              <ArrowDown size={10} />
+              Auto-scroll
+            </label>
+          </div>
+          <div
+            ref={logRef}
+            className="h-48 overflow-y-auto px-4 py-2 font-mono text-xs"
+          >
+            {proc.logLines.length === 0 && (
+              <span className="text-canvas-muted">No output yet…</span>
+            )}
+            {proc.logLines.map((line, i) => (
+              <div
+                key={i}
+                className={`py-px ${
+                  line.startsWith("[stderr]")
+                    ? "text-accent-warning"
+                    : "text-gray-400"
+                }`}
+              >
+                {line}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ProcessMonitor() {
+  const processes = useProcessStore((s) => s.processes);
 
   const ids = Object.keys(processes).sort(
     (a, b) => (processes[b].startTime ?? 0) - (processes[a].startTime ?? 0)
   );
 
+  const running = ids.filter((id) => processes[id].status === "running").length;
+
   if (ids.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-canvas-muted text-sm">
-        No processes running. Launch a simulation or training run to see it here.
+      <div className="flex flex-col items-center justify-center h-64 text-canvas-muted gap-2">
+        <Terminal size={28} className="opacity-30" />
+        <p className="text-sm">No processes yet.</p>
+        <p className="text-xs">Launch a simulation, training run, or data generation to see it here.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {ids.map((id) => {
-        const proc = processes[id];
-        const isExpanded = expanded === id;
-        return (
-          <div key={id} className="card">
-            <div className="flex items-center gap-3">
-              <StatusPill status={proc.status} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-200 font-mono truncate">{id}</p>
-                <p className="text-xs text-canvas-muted truncate">{proc.command}</p>
-              </div>
-              {proc.status === "running" && (
-                <button
-                  onClick={() => cancel(id)}
-                  className="btn-ghost text-accent-danger flex items-center gap-1 text-xs"
-                >
-                  <Square size={12} />
-                  Cancel
-                </button>
-              )}
-              <button
-                className="btn-ghost text-canvas-muted p-1"
-                onClick={() => setExpanded(isExpanded ? null : id)}
-              >
-                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-            </div>
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <p className="text-sm text-canvas-muted">
+          {ids.length} process{ids.length !== 1 ? "es" : ""}
+          {running > 0 && (
+            <span className="ml-2 text-accent-success">
+              · {running} running
+            </span>
+          )}
+        </p>
+      </div>
 
-            {isExpanded && (
-              <div className="mt-3 bg-canvas-bg rounded-lg p-3 font-mono text-xs text-green-400 h-48 overflow-y-auto">
-                {proc.logLines.slice(-50).map((line, i) => (
-                  <div key={i} className="log-line">
-                    {line}
-                  </div>
-                ))}
-                {proc.logLines.length === 0 && (
-                  <span className="text-canvas-muted">No output yet…</span>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {ids.map((id) => (
+        <ProcessRow key={id} id={id} />
+      ))}
     </div>
   );
 }
