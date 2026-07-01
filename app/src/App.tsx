@@ -20,6 +20,7 @@ import { TrainingHub } from "./pages/TrainingHub";
 import { DataGeneration } from "./pages/DataGeneration";
 import { ConfigEditor } from "./pages/ConfigEditor";
 import { OutputBrowser } from "./pages/OutputBrowser";
+import { Settings } from "./pages/Settings";
 
 function ActivePage() {
   const mode = useAppStore((s) => s.mode);
@@ -53,6 +54,8 @@ function ActivePage() {
       return <ConfigEditor />;
     case "output_browser":
       return <OutputBrowser />;
+    case "settings":
+      return <Settings />;
     default:
       return <SimulationMonitor />;
   }

@@ -65,9 +65,12 @@ pub async fn spawn_python_process(
     id: String,
     python_args: Vec<String>,
     working_dir: String,
+    python_executable: Option<String>,
     app: AppHandle,
 ) -> Result<u32, String> {
-    let python = which_python(&working_dir);
+    let python = python_executable
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| which_python(&working_dir));
     let mut cmd = Command::new(&python);
     cmd.args(&python_args)
         .current_dir(&working_dir)
