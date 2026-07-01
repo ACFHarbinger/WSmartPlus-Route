@@ -72,6 +72,12 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 *Scatter plot of all FTSP simulation runs in the overflows–kg/km space, coloured by selection strategy (blue = LA, red = LM, green = SL). Left: Gamma-3; right: Empirical. Shape encodes city/N: circles = RM-100, squares = RM-170, diamonds = FFZ-350. SL clusters near 0–3 overflows (low efficiency); LM spans the widest range; LA sits in a consistent mid-efficiency band. FFZ Gamma-3 introduces extreme outliers at very high overflow counts for certain constructors (see Section 9).*
 
+![Overflow vs Efficiency Scatter — Pareto Front](figures/simulation/overflow_efficiency_scatter_pareto.png)
+
+*Same scatter with the Pareto front plotted as a dashed white step line. Dominated solutions fall below/right of the Pareto boundary. The Pareto front traces the best achievable kg/km for each overflow count across all constructors and strategies.*
+
+**[Interactive version](private/simulation/pareto_scatter_interactive.html)**
+
 ### LA+FTSP (Lookahead + FTSP)
 
 **Rio Maior, Empirical:** Overflows range 4–7 (all constructors); kg/km 3.47–4.35.
@@ -112,6 +118,10 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 ![Overflow Count by Configuration](figures/simulation/overflow_all_configs.png)
 
 *Mean overflow count for all 18 configurations (3 cities × 2 distributions × 3 strategies), coloured by selection strategy. Whiskers span the min–max range across all 8 route constructors. FFZ Gamma-3 has extreme variance due to SWC-TCF failures; FFZ Empirical behaves similarly to RM.*
+
+![Overflow Count by Configuration (log scale)](figures/simulation/overflow_all_configs_log.png)
+
+*Same chart with symlog Y axis — reveals the structure of the RM configurations that are compressed in the linear scale.*
 
 > **Overflow counts by configuration (mean ± range across 8 constructors, FTSP)**
 
@@ -211,6 +221,16 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 
 *Left: Overflow count per policy (row) × all 18 configurations (column). Right: kg/km efficiency. Colour scale: green = best, red = worst per metric. SWC-TCF shows extreme red on overflows at FFZ Gamma-3; BPC shows strong green on efficiency at FFZ; SANS is consistently red across both metrics.*
 
+![Policy Heatmap — Split by Distribution](figures/simulation/policy_config_heatmap_by_dist.png)
+
+*Same heatmap split into Gamma-3 (left) and Empirical (right) — reveals distribution-specific patterns obscured in the combined view. Overflow colours use log scale to handle the SWC-TCF outlier range.*
+
+![Policy Heatmap — Split by City/N](figures/simulation/policy_config_heatmap_by_graph.png)
+
+*Heatmaps for each city/N separately (RM-100, RM-170, FFZ-350) — shows how constructor rankings shift with network size and city.*
+
+**[Interactive heatmap](private/simulation/policy_heatmap_interactive.html)**
+
 **Best overall policies (FTSP, averaged across all configs excluding SWC-TCF catastrophic failures):**
 - **BPC** — strongest efficiency leader at FFZ; balanced across RM; rarely worst in any category
 - **ACO_HH** — best overflow prevention across all cities and distributions; consistently green on overflows
@@ -227,6 +247,12 @@ SL consistently achieves the fewest overflows at RM (1.5–3.5) and also at FFZ 
 ![Strategy Trade-off Bubble Chart](figures/simulation/strategy_bubble.png)
 
 *Each bubble represents one (strategy, distribution, city/N) combination. Position = mean overflows (X) vs mean kg/km (Y). Circle = Gamma-3, square = Empirical. Bubble size proportional to N. FFZ Gamma-3 bubbles appear at extreme overflow positions for certain strategies.*
+
+![Strategy Trade-off Bubble Chart (log X scale)](figures/simulation/strategy_bubble_log.png)
+
+*Same chart with symlog X axis — separates the FFZ Gamma-3 outlier bubbles from the main cluster, revealing the structure among the lower-overflow configurations.*
+
+**[Interactive bubble chart](private/simulation/strategy_bubble_interactive.html)**
 
 ### Overflow: SL ≪ LA < LM
 
@@ -462,6 +488,12 @@ FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empir
 
 *Mean overflow counts for each selection strategy across all three city/N configurations (RM-100, RM-170, FFZ-350), split by waste distribution. Error bars span the min–max range across 8 route constructors.*
 
+![City Comparison: Overflow Counts (log scale)](figures/simulation/city_comparison_overflow_log.png)
+
+*Log-scale version — the FFZ Gamma-3 outliers are the object of analysis, so log scale is used rather than removing them.*
+
+**[Interactive city comparison](private/simulation/city_comparison_interactive.html)**
+
 ![City Comparison — Efficiency](figures/simulation/city_comparison_efficiency.png)
 
 *Mean kg/km efficiency for each selection strategy across all three city/N configurations.*
@@ -527,9 +559,9 @@ FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empir
 
 ### Policy Performance Radar
 
-![Policy Performance Radar Chart](figures/simulation/policy_radar.png)
+![Policy Performance Radar — Combined](figures/simulation/policy_radar_combined.png)
 
-*Radar chart comparing four key policies (ACO_HH, HGS, BPC, SANS) across normalised metrics. For each metric, outer = better. HGS excels on efficiency but not overflows. ACO_HH is well-balanced. BPC is the most consistent all-rounder, especially at large scale. SANS scores lowest across all axes.*
+*Single radar chart with all four key constructors (ACO_HH, HGS, BPC, SANS) overlaid on the same axes. Metrics are normalised 0→1 across all 8 constructors; outer edge = better for all axes (overflows and km are inverted so fewer = outer). ACO_HH leads on overflow prevention; BPC leads on efficiency at large scale; SANS falls well inside all axes.*
 
 ### Constructor Average Ranking
 
@@ -579,6 +611,17 @@ FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empir
 | FFZ fleet efficiency | LM (CF70) | BPC | FTSP | Peak 11.47 kg/km |
 | Any Empirical / real-world | SL or LA | ACO_HH | CLS | Real data closer to Empirical |
 | **Avoid at FFZ** | LA (G3) | SWC-TCF | — | Critical failure modes |
+
+---
+
+## Interactive Charts
+
+The following interactive versions are available (open in browser):
+- [Overflow vs Efficiency — Pareto View](private/simulation/pareto_scatter_interactive.html)
+- [Strategy Trade-off Bubble Chart](private/simulation/strategy_bubble_interactive.html)
+- [Policy Configuration Heatmap](private/simulation/policy_heatmap_interactive.html)
+- [Constructor Comparison](private/simulation/constructor_comparison_interactive.html)
+- [City Comparison](private/simulation/city_comparison_interactive.html)
 
 ---
 
