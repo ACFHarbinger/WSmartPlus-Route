@@ -429,3 +429,10 @@ This cross-city Empirical shift is the most critical finding for model deploymen
 
 *Figures are stored in `public/figures/datasets/`.*  
 *Raw statistics are available in `public/global/datasets/td_stats.csv` and `public/global/datasets/npz_stats.csv`.*
+
+## Interactive Charts
+
+The following interactive versions are available (open in browser):
+- [NPZ Statistics — Mean vs Std Scatter](private/datasets/npz_stats_interactive.html)
+- [Waste Distribution by City and Network Size](private/datasets/waste_distribution_interactive.html)
+- [City & Network Comparison](private/datasets/city_network_comparison_interactive.html)
