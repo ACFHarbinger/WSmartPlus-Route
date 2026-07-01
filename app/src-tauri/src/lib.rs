@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{data, process, sim_watcher};
+use commands::{data, process, sim_watcher, system};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,6 +25,9 @@ pub fn run() {
             process::spawn_python_process,
             process::cancel_process,
             process::list_processes,
+            // System inspection
+            system::validate_project_root,
+            system::probe_python,
         ])
         .run(tauri::generate_context!())
         .expect("error while running WSmart-Route Studio");

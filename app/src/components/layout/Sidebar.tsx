@@ -15,6 +15,7 @@ import {
   Terminal,
   Zap,
   FolderOpen,
+  ClipboardList,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import type { AppMode, NavSection } from "../../types";
@@ -45,6 +46,7 @@ const NAV: NavSection[] = [
       { mode: "sim_launcher", label: "Simulation Launcher" },
       { mode: "training_hub", label: "Training & HPO Hub" },
       { mode: "data_gen", label: "Data Generation" },
+      { mode: "eval_runner", label: "Evaluation Runner" },
     ],
   },
   {
@@ -77,6 +79,7 @@ const ICON: Record<AppMode, React.ReactNode> = {
   data_gen: <FlaskConical size={15} />,
   config_editor: <FileText size={15} />,
   output_browser: <FolderOpen size={15} />,
+  eval_runner: <ClipboardList size={15} />,
   settings: <Settings size={15} />,
 };
 

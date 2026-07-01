@@ -17,6 +17,7 @@ const TITLES: Record<string, string> = {
   data_gen: "Data Generation Wizard",
   config_editor: "Configuration Editor",
   output_browser: "Output Browser",
+  eval_runner: "Evaluation Runner",
   settings: "Settings",
 };
 

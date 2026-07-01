@@ -1106,7 +1106,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] Script selector (generate_dataset / generate_bins / generate_routes) + extra CLI args textarea
 - [x] `spawn_python_process` integration via `useSpawnProcess`; cancel and toasts
-- [ ] React form: problem type, graph sizes (multi-select), num_instances per split, distribution type, output directory
+- [x] React form: problem selector (vrpp/wcvrp/scwcvrp/all), distribution checkboxes (Gamma-3/Empirical), dataset type selector (test_simulator/train/train_time), overwrite toggle; mirrors `gen_data.yaml`
+- [x] Graph form: area selector (figueiradafoz/riomaior), num_loc, n_samples, n_days fields; configures `data.graphs[0]` via Hydra override
+- [x] Advanced Overrides collapsible + command preview (`python main.py gen_data ...`)
 - [ ] TSPLIB source option (select `.vrp` file via Tauri dialog)
 - [ ] Sensor data source option
 - [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
@@ -1115,14 +1117,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.12 — Phase 12: Evaluation Runner
+### §G.12 — Phase 12: Evaluation Runner 🚧
 
 **Goal**: Port the PySide6 evaluation tab and expose multi-checkpoint comparison.
 
-- [ ] React form: checkpoint path(s) — multi-select for cross-model comparison, dataset path, eval instances count, device
-- [ ] Policy comparison mode: evaluate multiple checkpoints on the same dataset in sequence; display results in a side-by-side table
-- [ ] Rust backend: spawn `main.py eval <overrides>` for each selected checkpoint
-- [ ] Results grid: tour cost, runtime, gap-to-BPC, gap-to-Gurobi (if available)
+- [x] Dynamic checkpoint list: add/remove entries, each with file picker (Tauri dialog; .pt/.ckpt/.pth)
+- [x] Eval parameters: dataset path (optional, Tauri dialog), problem selector, decoding strategy (greedy/sampling/beam), device (cpu/cuda:0/cuda:1), val_size
+- [x] Multi-checkpoint launch: one `spawn_python_process main.py eval` call per valid checkpoint, tagged with checkpoint filename; results stream to Process Monitor
+- [x] Advanced Overrides collapsible + command preview (shows first-checkpoint invocation)
+- [ ] Results grid: parse stdout JSON for tour cost, runtime, gap metrics; display in a side-by-side comparison table below the form
 - [ ] "Export to CSV" button for result grids
 - [ ] "Open in Analytics" button pre-loads eval results into the analytics dashboard
 
@@ -1247,8 +1250,9 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] `pythonPath` threaded through `useSpawnProcess` → `spawn_python_process` Rust command as `python_executable: Option<String>`; empty string treated as `None` (falls back to `which_python`)
 - [x] First-run banner in `TopBar.tsx`: shown when `projectRoot` is empty and mode is not `"settings"`; links directly to Settings with an "Open Settings" button
 - [x] Sidebar "App" section with Settings entry and gear icon
-- [ ] Validate `projectRoot` on save: check that `main.py` exists at the root; show inline error if not
-- [ ] Validate `pythonPath` on save: test `<pythonPath> --version` via Tauri shell; show resolved version string as confirmation
+- [x] `system::validate_project_root` Rust command: checks path exists, is a directory, contains `main.py`; called on blur + before save; shows inline `CheckCircle` / `XCircle` badge
+- [x] `system::probe_python` Rust command: runs `<path> --version` synchronously, handles Python 2 (stderr) and Python 3 (stdout); shows resolved version string inline; called on blur + before save
+- [x] Save blocked if either validation fails; toast shown with "Fix validation errors before saving"
 - [ ] Import/export settings JSON (useful for team onboarding)
 
 ---

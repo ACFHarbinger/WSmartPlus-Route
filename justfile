@@ -128,6 +128,14 @@ studio-build: helper::_print_header
 studio-install: helper::_print_header
     just app::install
 
+# Type-check the Studio TypeScript frontend
+studio-check: helper::_print_header
+    just app::check
+
+# Lint the Studio Rust backend with Cargo Clippy
+studio-clippy: helper::_print_header
+    just app::clippy
+
 # Run fast unit tests (use `just test::test` for the full suite)
 test-fast: helper::_print_header
     just test::test-fast

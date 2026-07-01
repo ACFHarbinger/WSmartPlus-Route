@@ -20,6 +20,7 @@ import { TrainingHub } from "./pages/TrainingHub";
 import { DataGeneration } from "./pages/DataGeneration";
 import { ConfigEditor } from "./pages/ConfigEditor";
 import { OutputBrowser } from "./pages/OutputBrowser";
+import { EvaluationRunner } from "./pages/EvaluationRunner";
 import { Settings } from "./pages/Settings";
 
 function ActivePage() {
@@ -54,6 +55,8 @@ function ActivePage() {
       return <ConfigEditor />;
     case "output_browser":
       return <OutputBrowser />;
+    case "eval_runner":
+      return <EvaluationRunner />;
     case "settings":
       return <Settings />;
     default:
