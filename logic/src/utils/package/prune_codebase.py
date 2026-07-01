@@ -430,7 +430,7 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
         # Hydra tracking configs always removed (tracking module is always dropped)
         _PROJECT_ROOT / "logic" / "configs" / "tracking",
         # Slurm task yaml not needed in exported builds
-        _PROJECT_ROOT / "logic" / "configs" / "tasks" / "slurm.yaml",
+        _PROJECT_ROOT / "logic" / "configs" / "task" / "slurm.yaml",
         # Utils subdirs that are dev/expo/output only (not needed at runtime)
         _PROJECT_ROOT / "logic" / "src" / "utils" / "docs",
         _PROJECT_ROOT / "logic" / "src" / "utils" / "expo",

@@ -25,6 +25,7 @@ PROTECTED_DIRS = {
     "generators",
     "routing",
     "tasks",
+    "task",
     "envs",
     "models",
     "policies",

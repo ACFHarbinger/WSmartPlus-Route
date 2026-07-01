@@ -160,7 +160,7 @@ def main() -> None:
 
     # 2. Delete Config and YAML files
     remove_path(root / "logic/src/configs/tasks/meta_rl.py")
-    remove_path(root / "logic/configs/tasks/meta_train.yaml")
+    remove_path(root / "logic/configs/task/meta_train.yaml")
 
     # 3. Delete hrl.py model factory builder
     remove_path(root / "logic/src/pipeline/features/train/model_factory/hrl.py")
