@@ -583,4 +583,4 @@ FFZ Gamma-3 drives ~75% more km than RM-170 for equivalent strategies. The Empir
 ---
 
 *All figures in this report are stored in `public/figures/simulation/`.*  
-*Raw simulation data is available in `public/figures/simulation/simulation_summary.csv`.*
+*Raw simulation data is available in `public/global/simulation/simulation_summary.csv`.*
