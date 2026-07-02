@@ -62,8 +62,10 @@ except ValueError:
 # Example: /home/user/Repositories/WSmart-Route
 ROOT_DIR: Path = root_dir
 
-# Hydra configurations directory
-CONFIGS_DIR: str = "configs"
+# Hydra configurations directory — absolute so @hydra.main resolves correctly
+# regardless of which subdirectory the entry-point file lives in.
+# paths.py is at logic/src/constants/paths.py, so .parent×3 == logic/
+CONFIGS_DIR: str = str(Path(__file__).parent.parent.parent / "configs")
 
 # GUI application icon (PNG format, white logo on transparent background)
 # Used in: PySide6 QMainWindow.setWindowIcon(), system tray, taskbar

@@ -26,7 +26,6 @@ import wandb
 from omegaconf import DictConfig
 
 from logic.src.configs import Config
-from logic.src.utils.expo.log_visualization import plot_training_logs
 
 from .json_formatter import JsonFormatter
 from .logstash_handler import LogstashTcpHandler
@@ -154,8 +153,7 @@ def log_training(
     train = cfg.train
     xname: str = "day" if train.train_time else "epoch"
     x_values: List[int] = list(range(table_df.shape[0]))
-    return (
-        plot_training_logs(loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
-        if plot_logs
-        else (loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
-    )
+    if plot_logs:
+        from logic.src.utils.expo.log_visualization import plot_training_logs  # lazy — avoids circular import
+        return plot_training_logs(loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
+    return (loss_keys, xname, x_values, swapped_df, output_dir, wandb_mode)
