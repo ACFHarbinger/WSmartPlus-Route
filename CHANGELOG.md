@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### Analysis script & report — Pareto-front policy catalogue
+
+- `logic/scripts/gen_simulation_analysis.py` — new `build_pareto_front_table(df)` function:
+  - Computes the Pareto front (min overflows, max kg/km) independently for each `(dist, improver)` panel
+  - Groups front members by unique `(selection variant, constructor, improver)` key; merges `cf`/`sl_var` into a human-readable label (`LM (CF70)`, `SL (SL1)`, …)
+  - Outputs a markdown table with columns: Selection | Constructor | Improver | Overflows | kg/km | Pareto-Front Scenarios
+  - Scenarios column lists every `Region-N / Distribution` combination where that configuration reached the front; sorted descending by scenario count
+  - Wired into `generate_markdown` at the end of section 2 (Analytics Comparison — Pareto View)
+- `public/simulation_analysis.md` — "Pareto-Front Policy Catalogue" table inserted at the end of §2 (22 rows; BPC + ACO_HH + PG-CLNS dominate the front across all panels)
+
+#### WSmart-Route Studio — Tauri App (`app/`) — ninth pass
+
+Ninth implementation pass: DataGeneration live progress panel (§G.11); OutputBrowser simulation
+KPI summary card on run selection (§G.14).
+
+**React frontend**
+- `pages/launch/DataGeneration.tsx` — live progress panel (§G.11):
+  - `liveProcessId`, `runStatus`, `logTail` state added
+  - `useEffect([liveProcessId])`: subscribes to `process:stdout` (appends last 20 non-empty lines to `logTail`) and `process:status` (updates `runStatus`)
+  - `launch` now generates a stable process ID and clears state before spawn
+  - Live panel renders below the Launch button: `Activity`/`CheckCircle`/`XCircle` status icon; scrollable pre-block with last 20 stdout lines; "Process Monitor" navigation button
+- `pages/files/OutputBrowser.tsx` — simulation KPI summary (§G.14):
+  - `runKpi` state: `Array<{ policy, overflows, kgkm, profit }> | null`
+  - `selectRun` now scans top-level entries for the first `.jsonl` ≤ 20 MB; reads via `read_text_file`; parses each line as `DayLogEntry`; aggregates per-policy means; sorted ascending by overflows
+  - KPI card rendered below the config metadata card: 3-column micro-table (Policy | Overflows | kg/km); overflows colour-coded (green = 0, amber = low, red > 20)
+
+**ROADMAP**
+- §G.11 live progress checked; §G.14 simulation result summary checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighth pass
 
 Eighth implementation pass: LR schedule sparkline in Training Monitor (§G.17); completion

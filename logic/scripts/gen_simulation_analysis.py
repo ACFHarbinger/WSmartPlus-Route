@@ -855,6 +855,85 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
 
 # ── Markdown builder ───────────────────────────────────────────────────────────
 
+def build_pareto_front_table(df: pd.DataFrame) -> str:
+    """
+    Build the Pareto-front policy catalogue table for section 2.
+
+    One row per unique (mandatory selection variant, constructor, improver) that
+    appears on the Pareto front of at least one panel.  The 'Pareto-Front Scenarios'
+    column lists every (region/N / distribution) combination where that configuration
+    reached the front.  Rows are sorted by descending scenario count, then by
+    selection label and constructor name.
+    """
+
+    def _pareto_idxs(xs, ys):
+        pts = sorted(zip(xs, ys, range(len(xs))), key=lambda p: (p[0], -p[1]))
+        front, best = [], -np.inf
+        for ov, eff, idx in pts:
+            if eff > best:
+                front.append(idx)
+                best = eff
+        return set(front)
+
+    def _selection_label(row):
+        s = row["strategy"]
+        if s == "LM":
+            cf = str(row["cf"]) if pd.notna(row["cf"]) else ""
+            return f"LM ({cf})" if cf else "LM"
+        if s == "SL":
+            sl = str(row["sl_var"]) if pd.notna(row["sl_var"]) else ""
+            return f"SL ({sl})" if sl else "SL"
+        return s
+
+    dists = sorted(df["dist"].unique())
+    improvers = sorted(df["improver"].unique())
+    panels = [(d, i) for d in dists for i in improvers]
+
+    pareto_rows = []
+    for dist, imp in panels:
+        sub = df[(df.dist == dist) & (df.improver == imp)].copy().reset_index(drop=True)
+        for idx in _pareto_idxs(sub["overflows"].values, sub["kgkm"].values):
+            row = sub.iloc[idx].copy()
+            row["_dist"] = dist
+            row["_imp"] = imp
+            pareto_rows.append(row)
+
+    if not pareto_rows:
+        return "_No Pareto-front data available._"
+
+    pf = pd.DataFrame(pareto_rows)
+    pf["selection"] = pf.apply(_selection_label, axis=1)
+    pf["scenario"] = pf.apply(
+        lambda r: f"{city_label(r['city'], int(r['N']))} / {r['_dist']}", axis=1
+    )
+
+    table_rows = []
+    for (sel, con, imp), grp in pf.groupby(["selection", "constructor", "improver"]):
+        scenarios = sorted(grp["scenario"].unique())
+        table_rows.append({
+            "sel": sel,
+            "con": con,
+            "imp": imp,
+            "ov": grp["overflows"].mean(),
+            "eff": grp["kgkm"].mean(),
+            "scenarios": ", ".join(scenarios),
+            "n": len(scenarios),
+        })
+
+    table_rows.sort(key=lambda r: (-r["n"], r["sel"], r["con"], r["imp"]))
+
+    lines = [
+        "| Selection | Constructor | Improver | Overflows | kg/km | Pareto-Front Scenarios |",
+        "|-----------|-------------|----------|----------:|------:|------------------------|",
+    ]
+    for r in table_rows:
+        lines.append(
+            f"| {r['sel']} | {r['con']} | {r['imp']} "
+            f"| {r['ov']:.1f} | {r['eff']:.3f} | {r['scenarios']} |"
+        )
+    return "\n".join(lines)
+
+
 def build_overflow_table(dfm: pd.DataFrame, imp: str) -> str:
     rows = []
     for city, N in [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]:
@@ -1077,6 +1156,15 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
     ### SL+FTSP (Service-Level + Fast-TSP)
 
     {PLACEHOLDER}
+
+    ### Pareto-Front Policy Catalogue
+
+    The table below lists every unique policy configuration (mandatory selection variant,
+    route constructor, route improver) that appears on the Pareto front of at least one
+    experimental scenario.  Metrics are averaged across all scenarios where the
+    configuration reached the front.
+
+    {build_pareto_front_table(df)}
 
     ---
 
