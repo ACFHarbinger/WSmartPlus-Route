@@ -425,12 +425,18 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
         _PROJECT_ROOT / "logic" / "benchmark",
         _PROJECT_ROOT / "logic" / "docs",
         _PROJECT_ROOT / "logic" / "examples",
+        _PROJECT_ROOT / "logic" / "migrations",
+        _PROJECT_ROOT / "logic" / "scripts",
         _PROJECT_ROOT / "logic" / "test",
         _PROJECT_ROOT / "logic" / "src" / "py.typed",
         # Hydra tracking configs always removed (tracking module is always dropped)
         _PROJECT_ROOT / "logic" / "configs" / "tracking",
+        # Batch manager config not needed in exported builds (manager subpackage removed)
+        _PROJECT_ROOT / "logic" / "configs" / "batch.yaml",
         # Slurm task yaml not needed in exported builds
         _PROJECT_ROOT / "logic" / "configs" / "tasks" / "slurm.yaml",
+        # Batch manager subpackage (dev/ops tooling, not part of the runtime solver)
+        _PROJECT_ROOT / "logic" / "controllers" / "manager",
         # Utils subdirs that are dev/expo/output only (not needed at runtime)
         _PROJECT_ROOT / "logic" / "src" / "utils" / "docs",
         _PROJECT_ROOT / "logic" / "src" / "utils" / "expo",
