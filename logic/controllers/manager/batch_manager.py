@@ -76,6 +76,60 @@ _BLUE = "\033[94m"
 _RESET = "\033[0m"
 
 
+_MS_VARIANT_COUNT: Dict[str, int] = {
+    "lookahead": 1,
+    "last_minute": 2,
+    "service_level": 2,
+}
+_RI_VARIANT_COUNT: Dict[str, int] = {
+    "cls": 1,
+    "ftsp": 1,
+}
+
+
+def _parse_override_context(overrides: List[str]) -> Dict[str, str]:
+    """Flatten Hydra override strings into a template-variable dict.
+
+    ``"sim.graph.area=riomaior"`` → ``{"sim_graph_area": "riomaior"}``.
+    List values like ``[bpc,hgs]`` have their brackets stripped.
+    """
+    ctx: Dict[str, str] = {}
+    for ov in overrides:
+        if "=" not in ov:
+            continue
+        key, val = ov.split("=", 1)
+        ctx[key.replace(".", "_")] = val.strip("[]")
+    return ctx
+
+
+def _estimate_cores(task: str, overrides: List[str], pre_steps: Any) -> int:
+    """Estimate the number of parallel worker slots a job will occupy.
+
+    test_sim / hpo_sim: ``n_policies × n_ms_variants × n_ri_variants``.
+    All other tasks: 1.
+    """
+    task_lower = task.lower()
+    if not any(kw in task_lower for kw in ("test_sim", "sim_hpo", "hpo_sim")):
+        return 1
+
+    n_policies = 1
+    for ov in overrides:
+        if "sim.policies=" in ov:
+            val = ov.split("sim.policies=", 1)[1].strip("[]")
+            n_policies = max(1, len([p.strip() for p in val.split(",") if p.strip()]))
+            break
+
+    n_ms = 1
+    n_ri = 1
+    for step in pre_steps:
+        if getattr(step, "type", None) == "patch_policy_yaml":
+            n_ms = _MS_VARIANT_COUNT.get(step.args.get("mandatory_selection", ""), 1)
+            n_ri = _RI_VARIANT_COUNT.get(step.args.get("route_improvement", ""), 1)
+            break
+
+    return n_policies * n_ms * n_ri
+
+
 def _box(text: str, width: int = 72) -> None:
     print(f"\n{_BLUE}╔{'═' * (width - 2)}╗{_RESET}")
     print(f"{_BLUE}║{_BRIGHT} {text:<{width - 3}}{_RESET}{_BLUE}║{_RESET}")
@@ -167,8 +221,9 @@ class BatchManager:
                     return 1
 
         # --- Execute jobs -----------------------------------------------------
+        max_cores: int = int(cfg.get("max_cores", 0))
         executor = BatchExecutor(project_root=self._root, fail_fast=fail_fast, dry_run=dry_run)
-        results: List[JobResult] = executor.run_jobs(jobs)
+        results: List[JobResult] = executor.run_jobs(jobs, max_cores=max_cores)
         succeeded_flags = [r.succeeded for r in results]
         overall_ok = all(succeeded_flags)
 
@@ -222,14 +277,17 @@ class BatchManager:
                 # Concrete single-run entry
                 pre = _parse_steps(entry.get("pre_steps") or [])
                 post = _parse_steps(entry.get("post_steps") or [])
+                raw_overrides = list(entry.get("overrides") or [])
                 job = BatchJob(
                     task=entry.get("task", "test_sim"),
                     name=entry.get("name", f"run_{index}"),
-                    overrides=list(entry.get("overrides") or []),
+                    overrides=raw_overrides,
                     pre_steps=pre,
                     post_steps=post,
                     index=index,
                     metadata=dict(entry.get("metadata") or {}),
+                    override_context=_parse_override_context(raw_overrides),
+                    cores_estimate=_estimate_cores(entry.get("task", "test_sim"), raw_overrides, pre),
                 )
                 jobs.append(job)
                 index += 1

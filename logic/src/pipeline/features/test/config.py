@@ -138,44 +138,49 @@ def expand_policy_configs(cfg: Config) -> None:  # noqa: C901
 def _resolve_policy_cfg_path(pol_name: str) -> str:
     """Resolve the YAML configuration path for a policy.
 
+    Checks ``WSR_POLICY_CONFIG_DIR`` (set by the batch parallel scheduler for
+    per-job YAML isolation) before falling back to the canonical policies dir.
+
     Args:
         pol_name: Policy name.
 
     Returns:
         Configuration file path.
     """
-    base_dir = os.path.join(udef.ROOT_DIR, "logic", "configs", "policies")
+    canonical = os.path.join(udef.ROOT_DIR, "logic", "configs", "policies")
+    custom = os.environ.get("WSR_POLICY_CONFIG_DIR", "")
+    # Search custom dir first (contains job-specific patched copies), then canonical.
+    search_dirs = [d for d in [custom, canonical] if d]
+
+    def _check_dirs(filename: str) -> str:
+        for d in search_dirs:
+            p = os.path.join(d, filename)
+            if os.path.exists(p):
+                return p
+        return ""
 
     # Try direct mapping first
-    paths_to_check = [
-        os.path.join(base_dir, f"{pol_name}.yaml"),
-        os.path.join(base_dir, f"policy_{pol_name}.yaml") if not pol_name.startswith("policy_") else None,
-    ]
-    for p in paths_to_check:
-        if p and os.path.exists(p):
-            return p
+    for fname in (f"{pol_name}.yaml", f"policy_{pol_name}.yaml" if not pol_name.startswith("policy_") else ""):
+        if fname:
+            found = _check_dirs(fname)
+            if found:
+                return found
 
-    # If not found, try to find a base policy file by splitting
+    # Try prefix-based matching
     parts = pol_name.split("_")
     for i in range(len(parts), 0, -1):
         prefix = "_".join(parts[:i])
-        paths = [
-            os.path.join(base_dir, f"{prefix}.yaml"),
-            os.path.join(base_dir, f"policy_{prefix}.yaml"),
-        ]
-        for p in paths:
-            if os.path.exists(p):
-                return p
+        for fname in (f"{prefix}.yaml", f"policy_{prefix}.yaml"):
+            found = _check_dirs(fname)
+            if found:
+                return found
 
-    # If still not found, check individual parts (e.g. regular_lvl3_cvrp_ortools -> cvrp)
+    # Fall back to individual parts
     for part in parts:
-        paths = [
-            os.path.join(base_dir, f"{part}.yaml"),
-            os.path.join(base_dir, f"policy_{part}.yaml"),
-        ]
-        for p in paths:
-            if os.path.exists(p):
-                return p
+        for fname in (f"{part}.yaml", f"policy_{part}.yaml"):
+            found = _check_dirs(fname)
+            if found:
+                return found
 
     return ""
 

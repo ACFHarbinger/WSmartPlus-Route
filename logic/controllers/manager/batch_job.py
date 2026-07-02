@@ -49,6 +49,16 @@ class BatchJob:
     index: int = 0
     expand_vars: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Flattened override key→value pairs for template rendering in steps.
+    # Populated automatically from ``overrides`` by BatchManager._parse_jobs.
+    # e.g. "sim.graph.area=riomaior" → override_context["sim_graph_area"]="riomaior"
+    override_context: Dict[str, str] = field(default_factory=dict)
+    # Pre-computed number of parallel worker slots this job requires.
+    # Used by the parallel scheduler to determine how many jobs to co-launch.
+    cores_estimate: int = 1
+    # Extra environment variables injected into the Hydra subprocess.
+    # patch_policy_yaml sets WSR_POLICY_CONFIG_DIR here; _execute_task passes it.
+    runtime_env: Dict[str, str] = field(default_factory=dict)
 
     # -----------------------------------------------------------------------
     # Template helpers
@@ -61,7 +71,7 @@ class BatchJob:
             ``{name}``      - this job's ``name`` field
             ``{index}``     - zero-based job index
             ``{task}``      - the task key
-            plus any keys from ``expand_vars`` flattened as ``{key}``
+            plus any keys from ``expand_vars`` and ``override_context``
 
         Args:
             template: A Python format string.
@@ -71,6 +81,7 @@ class BatchJob:
         """
         ctx: Dict[str, Any] = {"name": self.name, "index": self.index, "task": self.task}
         ctx.update(self.expand_vars)
+        ctx.update(self.override_context)
         try:
             return template.format(**ctx)
         except KeyError:
