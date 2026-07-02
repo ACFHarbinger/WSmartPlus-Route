@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { toast } from "sonner";
 import { useProcessStore } from "../store/process";
 import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
 
@@ -27,11 +28,21 @@ export function useProcessMonitor() {
       });
 
       const ulStatus = await listen<StatusUpdate>("process:status", (event) => {
-        updateStatus(
-          event.payload.id,
-          event.payload.status,
-          event.payload.exit_code ?? undefined
-        );
+        const { id, status, exit_code } = event.payload;
+        updateStatus(id, status, exit_code ?? undefined);
+
+        // Show a toast for terminal states
+        const label = id.split("_")[0]; // "train", "eval", "sim", etc.
+        if (status === "completed") {
+          toast.success(`${label} completed`, { description: id, duration: 4000 });
+        } else if (status === "failed") {
+          toast.error(`${label} failed`, {
+            description: `${id} — exit ${exit_code ?? "?"}`,
+            duration: 6000,
+          });
+        } else if (status === "cancelled") {
+          toast.info(`${label} cancelled`, { description: id, duration: 3000 });
+        }
       });
 
       unlistenRefs.current = [ulSpawn, ulStdout, ulStatus];

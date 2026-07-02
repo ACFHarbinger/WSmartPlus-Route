@@ -50,6 +50,36 @@ function LogLine({ line }: { line: string }) {
   }
 }
 
+// Scan the last 30 log lines for a PROGRESS:{...} marker emitted by Python
+const PROGRESS_MARKER = "PROGRESS:";
+
+interface ProgressInfo {
+  value: number;
+  total?: number;
+  label?: string;
+}
+
+function getLatestProgress(logLines: string[]): ProgressInfo | null {
+  const start = Math.max(0, logLines.length - 30);
+  for (let i = logLines.length - 1; i >= start; i--) {
+    const line = logLines[i];
+    const idx = line.indexOf(PROGRESS_MARKER);
+    if (idx === -1) continue;
+    try {
+      const raw = JSON.parse(line.slice(idx + PROGRESS_MARKER.length).trim()) as Record<string, unknown>;
+      const value = typeof raw.value === "number" ? raw.value
+        : typeof raw.current === "number" ? raw.current : null;
+      if (value === null) continue;
+      return {
+        value,
+        total: typeof raw.total === "number" ? raw.total : undefined,
+        label: typeof raw.label === "string" ? raw.label : undefined,
+      };
+    } catch {}
+  }
+  return null;
+}
+
 function useLiveDuration(startTime: number, stopped: boolean): string {
   const [elapsed, setElapsed] = useState(Date.now() - startTime);
 
@@ -140,6 +170,35 @@ function ProcessRow({ id }: { id: string }) {
           </button>
         </div>
       </div>
+
+      {/* Progress bar — shown when process:stdout emits PROGRESS:{...} markers */}
+      {proc.status === "running" && (() => {
+        const prog = getLatestProgress(proc.logLines);
+        if (!prog) return null;
+        const pct = prog.total ? Math.min(100, (prog.value / prog.total) * 100) : null;
+        return (
+          <div className="px-4 py-1.5 bg-canvas-bg border-t border-canvas-border/40 flex items-center gap-3">
+            <div className="flex-1 h-1.5 bg-canvas-elevated rounded-full overflow-hidden">
+              {pct !== null ? (
+                <div
+                  className="h-full bg-accent-primary rounded-full transition-all duration-300"
+                  style={{ width: `${pct}%` }}
+                />
+              ) : (
+                <div className="h-full bg-accent-primary/40 rounded-full animate-pulse w-full" />
+              )}
+            </div>
+            <span className="text-[10px] font-mono text-canvas-muted shrink-0">
+              {pct !== null
+                ? `${pct.toFixed(0)}%`
+                : prog.label ?? `${prog.value}`}
+            </span>
+            {prog.label && pct !== null && (
+              <span className="text-[10px] text-canvas-muted shrink-0">{prog.label}</span>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Log viewer */}
       {expanded && (
