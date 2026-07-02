@@ -16,7 +16,7 @@ help:
     @printf "\n"
     @printf "\033[0;33mModules:\033[0m\n"
     @printf "  \033[0;32minfrastructure\033[0m   - setup, sync, install, package\n"
-    @printf "  \033[0;32mcontroller\033[0m       - train, eval, test-sim, clean-results, hpo-sim, gen-data\n"
+    @printf "  \033[0;32mcontroller\033[0m       - train, eval, test-sim, clean-results, hpo-sim, gen-data, batch-run\n"
     @printf "  \033[0;32mreducer\033[0m          - clean, clean-outputs, cleanup-*\n"
     @printf "  \033[0;32mapp\033[0m              - install, dev, tauri-dev, build, check, clean-js, clean-rust, clean\n"
     @printf "  \033[0;32mui\033[0m               - gui (PySide6), dashboard (Streamlit), docker-build, docker-dashboard\n"

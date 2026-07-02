@@ -127,7 +127,7 @@ def main() -> None:
     )
 
     # 4. Clean up hydra_dispatch.py
-    clean_hydra_dispatch(root / "logic/hydra_dispatch.py")
+    clean_hydra_dispatch(root / "logic/controllers/hydra_dispatch.py")
 
     # 5. Remove HPO constants and update constants/__init__.py
     remove_path(root / "logic/src/constants/hpo.py")

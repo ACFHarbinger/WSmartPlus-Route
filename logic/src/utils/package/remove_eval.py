@@ -97,7 +97,7 @@ def main() -> None:
     clean_configs_init(root / "logic/src/configs/__init__.py", ["EvalConfig"], ["eval"])
 
     # 4. Clean up hydra_dispatch.py
-    clean_hydra_dispatch(root / "logic/hydra_dispatch.py")
+    clean_hydra_dispatch(root / "logic/controllers/hydra_dispatch.py")
 
     print("=== Eval Cleanup Complete ===\n")
 

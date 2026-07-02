@@ -171,7 +171,7 @@ def main() -> None:
     clean_rl_init(root / "logic/src/pipeline/rl/__init__.py")
     clean_rl_core_init(root / "logic/src/pipeline/rl/core/__init__.py")
     clean_builder(root / "logic/src/pipeline/features/train/model_factory/builder.py")
-    clean_hydra_dispatch(root / "logic/hydra_dispatch.py")
+    clean_hydra_dispatch(root / "logic/controllers/hydra_dispatch.py")
 
     print("=== Meta Learning Cleanup Complete ===\n")
 
