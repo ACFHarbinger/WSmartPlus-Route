@@ -16,6 +16,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCirc
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { StdoutLine, StatusUpdate, ProcessStatus, TrainingMetricsRow } from "../../types";
 
@@ -134,35 +135,87 @@ function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
   return <ReactECharts option={option} style={{ height: 200 }} />;
 }
 
+// Compact single-metric sparkline for grad_norm / entropy
+function MiniSparkline({
+  metrics,
+  metricKey,
+  label,
+  color,
+}: {
+  metrics: TrainingMetricsRow[];
+  metricKey: keyof TrainingMetricsRow;
+  label: string;
+  color: string;
+}) {
+  const data = metrics.map((m) => m[metricKey] ?? null);
+  if (data.every((v) => v === null)) return null;
+  return (
+    <div>
+      <p className="text-xs text-canvas-muted mb-1">{label}</p>
+      <ReactECharts
+        option={{
+          backgroundColor: "transparent",
+          grid: { left: 40, right: 10, top: 5, bottom: 20 },
+          xAxis: {
+            type: "category",
+            data: metrics.map((_, i) => i + 1),
+            axisLabel: { show: false },
+            axisTick: { show: false },
+            axisLine: { lineStyle: { color: "#3a3a4a" } },
+          },
+          yAxis: {
+            type: "value",
+            axisLabel: { color: "#9090b0", fontSize: 9 },
+            splitLine: { lineStyle: { color: "#2a2a3a" } },
+          },
+          series: [{
+            type: "line",
+            smooth: true,
+            symbol: "none",
+            data,
+            lineStyle: { color, width: 1.5 },
+            areaStyle: { color: `${color}22` },
+          }],
+          tooltip: { trigger: "axis", axisPointer: { type: "line" } },
+        }}
+        style={{ height: 70 }}
+      />
+    </div>
+  );
+}
+
 export function TrainingHub() {
   const { projectRoot, setMode } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
-  const [mode, setTrainMode] = useState<Mode>("train");
+  // Persisted form state (§D.4 session persistence)
+  const {
+    trainMode: mode, problem, seed, wandb, extraOverrides,
+    model, encoder, batchSize, epochs,
+    hpoTrials, hpoMethod, hpoWorkers,
+    checkpointPath, evalDataset, evalSamples, evalStrategy,
+    patch,
+  } = useTrainHubStore();
 
-  // Shared params
-  const [problem, setProblem] = useState<string>("vrpp");
-  const [seed, setSeed] = useState(42);
-  const [wandb, setWandb] = useState(false);
+  const setTrainMode = (v: Mode) => patch({ trainMode: v });
+  const setProblem = (v: string) => patch({ problem: v });
+  const setSeed = (v: number) => patch({ seed: v });
+  const setWandb = (v: boolean) => patch({ wandb: v });
+  const setExtraOverrides = (v: string) => patch({ extraOverrides: v });
+  const setModel = (v: string) => patch({ model: v });
+  const setEncoder = (v: string) => patch({ encoder: v });
+  const setBatchSize = (v: number) => patch({ batchSize: v });
+  const setEpochs = (v: number) => patch({ epochs: v });
+  const setHpoTrials = (v: number) => patch({ hpoTrials: v });
+  const setHpoMethod = (v: string) => patch({ hpoMethod: v });
+  const setHpoWorkers = (v: number) => patch({ hpoWorkers: v });
+  const setCheckpointPath = (v: string) => patch({ checkpointPath: v });
+  const setEvalDataset = (v: string) => patch({ evalDataset: v });
+  const setEvalSamples = (v: number) => patch({ evalSamples: v });
+  const setEvalStrategy = (v: string) => patch({ evalStrategy: v });
+
+  // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [extraOverrides, setExtraOverrides] = useState("");
-
-  // Train params
-  const [model, setModel] = useState<string>("am");
-  const [encoder, setEncoder] = useState<string>("gat");
-  const [batchSize, setBatchSize] = useState(64);
-  const [epochs, setEpochs] = useState(100);
-
-  // HPO params
-  const [hpoTrials, setHpoTrials] = useState(50);
-  const [hpoMethod, setHpoMethod] = useState<string>("nsgaii");
-  const [hpoWorkers, setHpoWorkers] = useState(1);
-
-  // Eval params
-  const [checkpointPath, setCheckpointPath] = useState("");
-  const [evalDataset, setEvalDataset] = useState("");
-  const [evalSamples, setEvalSamples] = useState(10);
-  const [evalStrategy, setEvalStrategy] = useState<string>("greedy");
 
   // Live progress tracking
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
@@ -553,6 +606,24 @@ export function TrainingHub() {
                   : "Only one metric update received."
                 : "Waiting for metric JSON lines on stdout…"}
             </p>
+          )}
+
+          {/* Auxiliary sparklines: grad_norm and entropy */}
+          {liveMetrics.length >= 2 && (
+            <div className="grid grid-cols-2 gap-4">
+              <MiniSparkline
+                metrics={liveMetrics}
+                metricKey="grad_norm"
+                label="Gradient Norm ‖∇‖"
+                color="#f87171"
+              />
+              <MiniSparkline
+                metrics={liveMetrics}
+                metricKey="entropy"
+                label="Policy Entropy"
+                color="#a78bfa"
+              />
+            </div>
           )}
 
           <p className="text-xs text-canvas-muted font-mono truncate">{liveProcessId}</p>

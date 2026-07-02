@@ -1076,8 +1076,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] "Advanced Overrides" collapsible panel: free-form textarea for arbitrary Hydra overrides (§D.6 Option A); live command preview below the form
 - [ ] Policy selection panel: load registered policy names from the §B.3 plugin registry at runtime (currently hardcoded 8 policies)
 - [x] Live status display: after launch, subscribes to `process:stdout` events for the spawned process ID; parses `GUI_DAY_LOG_START:` markers; displays a per-policy card grid with day / profit / km / overflows in real time; "View Summary →" and "Process Monitor" navigation buttons shown on completion
-- [ ] On completion: auto-navigate to the Simulation Monitor with the new log pre-loaded
-- [ ] Session persistence for form values via Tauri Store plugin (§D.4)
+- [x] On completion: auto-navigate to `simulation_summary` after 5-second countdown with cancel button; countdown driven by `useEffect` on `simStatus === "completed"`; "View Summary →" manual button always shown alongside countdown
+- [x] Session persistence for form values: `useSimLauncherStore` (Zustand `persist`, key `wsroute-sim-launcher`) stores `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`; ephemeral runtime state stays in component state
 
 ---
 
@@ -1094,9 +1094,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] WandB toggle: adds `tracker.enabled=false` when disabled
 - [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
 - [x] Live training progress panel (§D.2): `parseMetricLine` parses JSON and `key=value` stdout lines; `LiveChart` ECharts canvas shows train_loss (solid), val_loss (dashed), reward (dotted, right y-axis); latest snapshot row shows epoch/train_loss/val_loss/reward/grad_norm inline
-- [ ] Gradient norm and entropy sparklines
+- [x] Gradient norm and entropy sparklines: `MiniSparkline` component (70 px ECharts, area fill at 13% opacity); grad_norm in red `#f87171`, entropy in purple `#a78bfa`; rendered as 2-column grid below `LiveChart`; component returns `null` when no data for the given metric key
 - [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
-- [ ] Session persistence via Tauri Store plugin (§D.4)
+- [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
 
 ---
 
@@ -1113,7 +1113,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Sensor data source option
 - [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
-- [ ] Session persistence (§D.4)
+- [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 
 ---
 

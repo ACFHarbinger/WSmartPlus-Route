@@ -25,6 +25,7 @@ import textwrap
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -96,7 +97,8 @@ def gen_npz_stats_bar(npz: pd.DataFrame, out_dir: Path) -> Path:
         ax.set_xticklabels([CITY_LABELS.get(c, c) for c in cities], fontsize=10)
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(metric, fontsize=11)
-        ax.yaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
         if ax_i == 0:
             ax.legend(fontsize=9)
     plt.tight_layout()
@@ -127,7 +129,9 @@ def gen_npz_size_scaling(npz: pd.DataFrame, out_dir: Path) -> Path:
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(f"{metric} vs N", fontsize=11)
         ax.legend(fontsize=9)
-        ax.yaxis.grid(True, alpha=0.4); ax.xaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.xaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
     plt.tight_layout()
     p = out_dir / "npz_size_scaling.png"
     savefig(fig, p)
@@ -162,7 +166,9 @@ def gen_npz_city_comparison(npz: pd.DataFrame, out_dir: Path) -> Path:
         ax.set_xlabel("Network size N", fontsize=10)
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(metric, fontsize=11)
-        ax.yaxis.grid(True, alpha=0.4); ax.xaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.xaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
     city_patches = [mpatches.Patch(color=CITY_COLORS.get(c, "gray"), label=CITY_LABELS.get(c, c))
                     for c in cities]
     dist_patches = [
@@ -193,7 +199,7 @@ def gen_npz_horizon_comparison(npz: pd.DataFrame, out_dir: Path) -> Path:
         ax = axes[ax_i]
         ax.set_facecolor("#16213e")
         for dist in ["emp", "gamma3"]:
-            for horizon, ls in zip(horizons, ["-", "--"]):
+            for horizon, ls in zip(horizons, ["-", "--"], strict=True): # pyrefly: ignore [no-matching-overload]
                 sub = rm[(rm["dist"] == dist) & (rm["horizon"] == horizon)].sort_values("N")
                 label = f"{DIST_LABELS.get(dist,dist)} {horizon}d"
                 ax.plot(sub["N"].values, sub[metric].values,
@@ -205,7 +211,9 @@ def gen_npz_horizon_comparison(npz: pd.DataFrame, out_dir: Path) -> Path:
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(f"{metric}", fontsize=11)
         ax.legend(fontsize=8)
-        ax.yaxis.grid(True, alpha=0.4); ax.xaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.xaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
     plt.tight_layout()
     p = out_dir / "npz_horizon_comparison.png"
     savefig(fig, p)
@@ -233,7 +241,9 @@ def gen_npz_td_alignment(npz: pd.DataFrame, td: pd.DataFrame, out_dir: Path) -> 
     ax.set_xlabel("Network size N", fontsize=11)
     ax.set_ylabel("Mean waste (kg/bin/day)", fontsize=11)
     ax.legend(fontsize=10)
-    ax.yaxis.grid(True, alpha=0.4); ax.xaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+    ax.yaxis.grid(True, alpha=0.4)
+    ax.xaxis.grid(True, alpha=0.4)
+    ax.set_axisbelow(True)
     plt.tight_layout()
     p = out_dir / "npz_td_alignment.png"
     savefig(fig, p)
@@ -261,7 +271,9 @@ def gen_td_stats(td: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(metric, fontsize=11)
         ax.legend(fontsize=9)
-        ax.yaxis.grid(True, alpha=0.4); ax.xaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.xaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
     plt.tight_layout()
     p1 = out_dir / "td_stats_comparison.png"
     savefig(fig, p1)
@@ -284,7 +296,8 @@ def gen_td_stats(td: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
         ax.set_ylabel(metric, fontsize=10)
         ax.set_title(metric, fontsize=11)
         ax.legend(fontsize=9)
-        ax.yaxis.grid(True, alpha=0.4); ax.set_axisbelow(True)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
     plt.tight_layout()
     p2 = out_dir / "td_waste_distributions.png"
     savefig(fig2, p2)
@@ -339,7 +352,8 @@ def gen_dataset_interactive_html(npz: pd.DataFrame, td: pd.DataFrame, out_dir: P
         legend_title="City — Distribution",
     )
     p = out_dir / "npz_stats_interactive.html"
-    fig.write_html(str(p), include_plotlyjs="cdn"); paths["npz_stats"] = p
+    fig.write_html(str(p), include_plotlyjs="cdn")
+    paths["npz_stats"] = p
     print(f"  Saved: {p.name}")
 
     # waste_distribution_interactive
@@ -377,7 +391,8 @@ def gen_dataset_interactive_html(npz: pd.DataFrame, td: pd.DataFrame, out_dir: P
         legend_title="Distribution",
     )
     p2 = out_dir / "waste_distribution_interactive.html"
-    fig2.write_html(str(p2), include_plotlyjs="cdn"); paths["waste_dist"] = p2
+    fig2.write_html(str(p2), include_plotlyjs="cdn")
+    paths["waste_dist"] = p2
     print(f"  Saved: {p2.name}")
 
     # city_network_comparison_interactive
@@ -414,7 +429,8 @@ def gen_dataset_interactive_html(npz: pd.DataFrame, td: pd.DataFrame, out_dir: P
         legend_title="City & Distribution",
     )
     p3 = out_dir / "city_network_comparison_interactive.html"
-    fig3.write_html(str(p3), include_plotlyjs="cdn"); paths["city_net"] = p3
+    fig3.write_html(str(p3), include_plotlyjs="cdn")
+    paths["city_net"] = p3
     print(f"  Saved: {p3.name}")
     return paths
 
@@ -495,6 +511,43 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
         city_sections.append(build_npz_table(npz_sub))
         city_sections.append(f"\n{PLACEHOLDER}\n")
 
+    # Build conditional blocks as plain strings (avoids triple-quote nesting, Python 3.10 compat)
+    td_section = (
+        "\n## 1. Training Data (TD)\n\n"
+        "Training data used for supervised learning models (stored as TensorDict `.td` files).\n"
+        "Each entry contains normalised waste values in [0, 1] (divide by 100 to convert to kg/kg).\n\n"
+        "![Waste Statistics Comparison](figures/datasets/td_stats_comparison.png)\n\n"
+        "*Mean, std, and skewness of training waste values per network size and distribution.*\n\n"
+        "![Training Data Waste Distributions](figures/datasets/td_waste_distributions.png)\n\n"
+        "*Bar chart of mean and std waste fractions per network size.*\n\n"
+        "### TD Statistics Summary\n\n"
+        + build_td_table(td)
+        + "\n\n"
+        + PLACEHOLDER
+        + "\n\n---"
+    ) if total_td else "---"
+
+    city_cmp_section = (
+        "\n## " + str(len(cities) + (2 if total_td else 1)) + ". City Comparison\n\n"
+        "![City Comparison Overview](figures/datasets/npz_city_comparison.png)\n\n"
+        "*Key statistics across cities and distributions.*\n\n"
+        "### Statistics Summary — All Cities (30-day horizon)\n\n"
+        + build_npz_table(npz)
+        + "\n\n"
+        + PLACEHOLDER
+        + "\n\n---"
+    ) if len(cities) > 1 else ""
+
+    alignment_section = (
+        "\n## " + str(len(cities) + (3 if total_td else 2)) + ". TD vs NPZ Alignment\n\n"
+        "![Training (TD) vs Simulator (NPZ) Mean Waste Alignment]"
+        "(figures/datasets/npz_td_alignment.png)\n\n"
+        "*Comparison of mean waste levels between TD training data (normalised × 100) and NPZ simulator\n"
+        "data. Close alignment validates that training distribution matches simulation.*\n\n"
+        + PLACEHOLDER
+        + "\n\n---"
+    ) if total_td else "---"
+
     md = textwrap.dedent(f"""\
     # WSmart+ Route — Dataset Analysis Report
 
@@ -513,58 +566,13 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
 
     ---
 
-    {"## 1. Training Data (TD)" if total_td else ""}
-    {"""
-    Training data used for supervised learning models (stored as TensorDict `.td` files).
-    Each entry contains normalised waste values in [0, 1] (divide by 100 to convert to kg/kg).
-
-    ![Waste Statistics Comparison](figures/datasets/td_stats_comparison.png)
-
-    *Mean, std, and skewness of training waste values per network size and distribution.*
-
-    ![Training Data Waste Distributions](figures/datasets/td_waste_distributions.png)
-
-    *Bar chart of mean and std waste fractions per network size.*
-
-    ### TD Statistics Summary
-
-    """ + build_td_table(td) + """
-
-    """ + PLACEHOLDER + """
-
-    ---
-    """ if total_td else "---"}
+    {td_section}
 
     {"".join(city_sections)}
 
-    {"## " + str(len(cities) + (2 if total_td else 1)) + ". City Comparison" if len(cities) > 1 else ""}
+    {city_cmp_section}
 
-    {"""
-    ![City Comparison Overview](figures/datasets/npz_city_comparison.png)
-
-    *Key statistics across cities and distributions.*
-
-    ### Statistics Summary — All Cities (30-day horizon)
-
-    """ + build_npz_table(npz) + """
-
-    """ + PLACEHOLDER + """
-
-    ---
-    """ if len(cities) > 1 else ""}
-
-    {"## " + str(len(cities) + (3 if total_td else 2)) + ". TD vs NPZ Alignment" if total_td else ""}
-
-    {"""
-    ![Training (TD) vs Simulator (NPZ) Mean Waste Alignment](figures/datasets/npz_td_alignment.png)
-
-    *Comparison of mean waste levels between TD training data (normalised × 100) and NPZ simulator
-    data. Close alignment validates that training distribution matches simulation.*
-
-    """ + PLACEHOLDER + """
-
-    ---
-    """ if total_td else "---"}
+    {alignment_section}
 
     *Figures are stored in `{figures_rel}/`.*
     *Raw statistics: `public/global/datasets/td_stats.csv` and `public/global/datasets/npz_stats.csv`.*
