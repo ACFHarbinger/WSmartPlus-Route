@@ -7,7 +7,7 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, X } from "lucide-react";
-import type { DayLogEntry } from "../types";
+import type { DayLogEntry } from "../../types";
 
 interface RunFile {
   path: string;

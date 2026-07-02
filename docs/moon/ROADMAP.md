@@ -1093,7 +1093,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React form (eval mode): checkpoint path picker (Tauri dialog; .pt/.ckpt/.pth), dataset path picker (.pkl/.json/.csv), problem selector, decoding strategy (greedy/sampling/beam), val_size; mirrors controller justfile `eval` recipe
 - [x] WandB toggle: adds `tracker.enabled=false` when disabled
 - [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
-- [ ] Live training progress panel (§D.2): ECharts live loss/reward from `process:stdout` JSON
+- [x] Live training progress panel (§D.2): `parseMetricLine` parses JSON and `key=value` stdout lines; `LiveChart` ECharts canvas shows train_loss (solid), val_loss (dashed), reward (dotted, right y-axis); latest snapshot row shows epoch/train_loss/val_loss/reward/grad_norm inline
 - [ ] Gradient norm and entropy sparklines
 - [ ] On completion: open checkpoint directory in the Output Browser (§G.14)
 - [ ] Session persistence via Tauri Store plugin (§D.4)
@@ -1157,11 +1157,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] File tree: `list_dir` command; lazy-loads subdirectory contents on expand; `Folder`/`FileText`/`File` icons by extension
 - [x] File viewer: CSV files load via `load_csv_file` (table with 200-row preview); text/YAML/JSON via `read_text_file` (syntax-highlighted pre block)
 - [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`)
+- [x] Run metadata panel: auto-loads `pruned_config.yaml` (or `config.yaml`) when a run is selected; flat YAML parsed and filtered by `META_KEYS`; compact two-column card below the file tree
+- [x] "Open in Sim Summary" button: shown for `.jsonl` files; sets `pendingLogPath` in app store then navigates to `simulation_summary` mode; `SimulationSummary` consumes `pendingLogPath` on mount via `useEffect`
 - [ ] Directory tree view: browse `assets/output/` with structured display (run name → hydra/ → pruned_config.yaml, simulation logs)
-- [ ] Run metadata panel: display `pruned_config.yaml` as a formatted card (task, seed, policies, distribution, graph size)
-- [ ] Log file viewer: open any `.json` or `.csv` output file with syntax highlighting
 - [ ] Simulation result summary: on selecting a run directory, automatically compute and display KPI summary (total overflows, mean kg/km, profit) without opening the full analytics dashboard
-- [ ] "Open in Analytics" button: load the selected run into the analytics dashboard (§G.1–§G.6)
 - [ ] "Compare runs": multi-select two or more runs; open the analytics dashboard with both loaded for comparison
 - [ ] Session profiles (§D.4 Option C): save named snapshots of launcher form state; load from the Output Browser sidebar
 
@@ -1257,7 +1256,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] `system::validate_project_root` Rust command: checks path exists, is a directory, contains `main.py`; called on blur + before save; shows inline `CheckCircle` / `XCircle` badge
 - [x] `system::probe_python` Rust command: runs `<path> --version` synchronously, handles Python 2 (stderr) and Python 3 (stdout); shows resolved version string inline; called on blur + before save
 - [x] Save blocked if either validation fails; toast shown with "Fix validation errors before saving"
-- [ ] Import/export settings JSON (useful for team onboarding)
+- [x] Import/export settings JSON: "Export Settings" serialises `{projectRoot, pythonPath, theme}` to a user-chosen JSON file via `write_text_file`; "Import Settings" reads a JSON file and populates drafts for review before saving
 
 ---
 

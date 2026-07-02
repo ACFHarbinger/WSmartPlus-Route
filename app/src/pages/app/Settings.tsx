@@ -15,10 +15,10 @@
  */
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
-import { CheckCircle, FolderOpen, Save, XCircle } from "lucide-react";
+import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { useAppStore } from "../store/app";
+import { useAppStore } from "../../store/app";
 
 const VERSION = "0.1.0";
 
@@ -133,6 +133,40 @@ export function Settings() {
     setPythonValidation(IDLE);
   };
 
+  const exportSettings = async () => {
+    const path = (await saveDialog({
+      filters: [{ name: "JSON", extensions: ["json"] }],
+      defaultPath: "wsmart-studio-settings.json",
+    })) as string | null;
+    if (!path) return;
+    const data = { projectRoot, pythonPath, theme };
+    try {
+      await invoke("write_text_file", { path, content: JSON.stringify(data, null, 2) });
+      toast.success("Settings exported", { description: path.split("/").pop() });
+    } catch (err) {
+      toast.error("Export failed", { description: String(err) });
+    }
+  };
+
+  const importSettings = async () => {
+    const path = (await open({
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    })) as string | null;
+    if (!path) return;
+    try {
+      const text = await invoke<string>("read_text_file", { path });
+      const data = JSON.parse(text) as Record<string, unknown>;
+      if (typeof data.projectRoot === "string") setDraftRoot(data.projectRoot);
+      if (typeof data.pythonPath === "string") setDraftPython(data.pythonPath);
+      if (data.theme === "dark" || data.theme === "light") setDraftTheme(data.theme);
+      setRootValidation(IDLE);
+      setPythonValidation(IDLE);
+      toast.success("Settings imported — review and save to apply");
+    } catch (err) {
+      toast.error("Import failed", { description: String(err) });
+    }
+  };
+
   return (
     <div className="max-w-xl space-y-6">
       {/* Project Root */}
@@ -236,6 +270,31 @@ export function Settings() {
             Discard
           </button>
         )}
+      </div>
+
+      {/* Import / Export */}
+      <div className="card space-y-3">
+        <h2 className="text-sm font-semibold text-gray-200">Backup & Restore</h2>
+        <p className="text-xs text-canvas-muted">
+          Export your settings to JSON for backup or team onboarding. Import populates the
+          draft fields — review and click Save Settings to apply.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={exportSettings}
+            className="btn-ghost flex items-center gap-2 text-sm"
+          >
+            <Download size={13} />
+            Export Settings
+          </button>
+          <button
+            onClick={importSettings}
+            className="btn-ghost flex items-center gap-2 text-sm"
+          >
+            <Upload size={13} />
+            Import Settings
+          </button>
+        </div>
       </div>
 
       {/* About */}

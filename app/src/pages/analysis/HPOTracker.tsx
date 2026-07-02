@@ -7,8 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { RefreshCw } from "lucide-react";
-import { useAppStore } from "../store/app";
-import type { TrainingRun, TrainingMetricsRow } from "../types";
+import { useAppStore } from "../../store/app";
+import type { TrainingRun, TrainingMetricsRow } from "../../types";
 
 export function HPOTracker() {
   const { projectRoot } = useAppStore();

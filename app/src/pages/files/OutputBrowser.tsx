@@ -4,8 +4,9 @@
  * Ports the PySide6 file-explorer tab. Provides:
  *   - Run list (from list_output_dirs)
  *   - File tree inside a selected run (from list_dir)
+ *   - Run metadata card: auto-loads pruned_config.yaml and shows key fields
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
- *   - Simulation summary: KPIs from any JSONL log in the run directory
+ *   - "Open in Sim Summary" button for .jsonl log files
  */
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
@@ -18,10 +19,11 @@ import {
   RefreshCw,
   ChevronRight,
   ChevronDown,
+  BarChart2,
 } from "lucide-react";
-import { useAppStore } from "../store/app";
+import { useAppStore } from "../../store/app";
 import { toast } from "sonner";
-import type { DirEntry, OutputDir } from "../types";
+import type { DirEntry, OutputDir } from "../../types";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -31,6 +33,7 @@ function formatBytes(b: number) {
 
 const TEXT_EXTENSIONS = new Set(["yaml", "yml", "toml", "cfg", "ini", "txt", "log", "md", "json", "jsonl"]);
 const CSV_EXTENSIONS = new Set(["csv"]);
+const LOG_EXTENSIONS = new Set(["jsonl"]);
 
 function FileIcon({ entry }: { entry: DirEntry }) {
   if (entry.is_dir) return <Folder size={13} className="text-accent-warning" />;
@@ -39,8 +42,36 @@ function FileIcon({ entry }: { entry: DirEntry }) {
   return <File size={13} className="text-canvas-muted" />;
 }
 
+/** Flat YAML key-value parser (same logic as ConfigEditor). */
+function parseYamlFlat(yaml: string): Array<{ key: string; value: string }> {
+  const rows: Array<{ key: string; value: string }> = [];
+  const stack: string[] = [];
+  for (const line of yaml.split("\n")) {
+    const stripped = line.replace(/\t/g, "  ");
+    const trimmed = stripped.trimStart();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const indent = (stripped.length - trimmed.length) / 2;
+    stack.length = indent;
+    const colonIdx = trimmed.indexOf(":");
+    if (colonIdx === -1) continue;
+    const key = trimmed.slice(0, colonIdx).trim();
+    const value = trimmed.slice(colonIdx + 1).trim();
+    stack[indent] = key;
+    if (value && !value.startsWith("#")) {
+      rows.push({ key: stack.filter(Boolean).join("."), value });
+    }
+  }
+  return rows;
+}
+
+const META_KEYS = [
+  "task", "seed", "envs", "models", "model.encoder.type",
+  "sim.graph.area", "sim.graph.num_loc", "sim.data_distribution",
+  "sim.policies", "train.max_epochs", "hpo.n_trials",
+];
+
 export function OutputBrowser() {
-  const projectRoot = useAppStore((s) => s.projectRoot);
+  const { projectRoot, setMode, setPendingLogPath } = useAppStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
   const [entries, setEntries] = useState<DirEntry[]>([]);
@@ -50,8 +81,11 @@ export function OutputBrowser() {
   const [csvRows, setCsvRows] = useState<Array<Record<string, string | number | null>> | null>(null);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [viewingPath, setViewingPath] = useState<string | null>(null);
+  const [viewingExt, setViewingExt] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
+  // Run metadata from pruned_config.yaml
+  const [runMeta, setRunMeta] = useState<Array<{ key: string; value: string }> | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
 
@@ -77,11 +111,25 @@ export function OutputBrowser() {
     setFileContent(null);
     setCsvRows(null);
     setViewingPath(null);
+    setViewingExt("");
     setExpandedDirs(new Set());
     setSubEntries({});
+    setRunMeta(null);
     try {
       const e = await invoke<DirEntry[]>("list_dir", { path: run.path });
       setEntries(e);
+      // Auto-load pruned_config.yaml for metadata panel
+      const configEntry = e.find((f) => f.name === "pruned_config.yaml" || f.name === "config.yaml");
+      if (configEntry) {
+        try {
+          const yaml = await invoke<string>("read_text_file", { path: configEntry.path });
+          const all = parseYamlFlat(yaml);
+          const meta = all.filter((r) => META_KEYS.some((k) => r.key.startsWith(k)));
+          setRunMeta(meta.length > 0 ? meta : all.slice(0, 12));
+        } catch {
+          // metadata is optional — ignore errors
+        }
+      }
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
@@ -90,11 +138,8 @@ export function OutputBrowser() {
   const toggleDir = useCallback(async (entry: DirEntry) => {
     setExpandedDirs((prev) => {
       const next = new Set(prev);
-      if (next.has(entry.path)) {
-        next.delete(entry.path);
-      } else {
-        next.add(entry.path);
-      }
+      if (next.has(entry.path)) next.delete(entry.path);
+      else next.add(entry.path);
       return next;
     });
     if (!subEntries[entry.path]) {
@@ -111,6 +156,7 @@ export function OutputBrowser() {
       return;
     }
     setViewingPath(entry.path);
+    setViewingExt(entry.extension);
     setFileContent(null);
     setCsvRows(null);
     setFileLoading(true);
@@ -134,6 +180,11 @@ export function OutputBrowser() {
     }
   }, [toggleDir]);
 
+  const openInSimSummary = useCallback((path: string) => {
+    setPendingLogPath(path);
+    setMode("simulation_summary");
+  }, [setPendingLogPath, setMode]);
+
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;
     if (!path) return;
@@ -149,6 +200,7 @@ export function OutputBrowser() {
       setEntries(e);
       setFileContent(null);
       setCsvRows(null);
+      setRunMeta(null);
     } catch (err) {
       toast.error("Failed to open directory", { description: String(err) });
     }
@@ -165,7 +217,9 @@ export function OutputBrowser() {
           style={{ paddingLeft: `${8 + depth * 14}px` }}
         >
           {e.is_dir ? (
-            expandedDirs.has(e.path) ? <ChevronDown size={11} className="shrink-0 text-canvas-muted" /> : <ChevronRight size={11} className="shrink-0 text-canvas-muted" />
+            expandedDirs.has(e.path)
+              ? <ChevronDown size={11} className="shrink-0 text-canvas-muted" />
+              : <ChevronRight size={11} className="shrink-0 text-canvas-muted" />
           ) : (
             <span className="w-[11px] shrink-0" />
           )}
@@ -234,15 +288,30 @@ export function OutputBrowser() {
         </div>
       </div>
 
-      {/* Middle: file tree */}
-      <div className="w-52 shrink-0 flex flex-col">
+      {/* Middle: file tree + metadata */}
+      <div className="w-56 shrink-0 flex flex-col gap-2">
         {selectedRun ? (
-          <div className="card flex-1 overflow-auto p-1">
-            <p className="text-xs text-canvas-muted px-2 py-1 font-medium truncate">
-              {selectedRun.name}
-            </p>
-            {renderEntries(entries)}
-          </div>
+          <>
+            <div className="card flex-1 overflow-auto p-1">
+              <p className="text-xs text-canvas-muted px-2 py-1 font-medium truncate">
+                {selectedRun.name}
+              </p>
+              {renderEntries(entries)}
+            </div>
+            {runMeta && runMeta.length > 0 && (
+              <div className="card p-2 space-y-1 overflow-auto max-h-48">
+                <p className="text-xs font-semibold text-gray-300 mb-1.5">Config</p>
+                {runMeta.map((r) => (
+                  <div key={r.key} className="flex gap-2 text-xs leading-tight">
+                    <span className="text-canvas-muted font-mono truncate max-w-[50%]" title={r.key}>
+                      {r.key.split(".").pop()}
+                    </span>
+                    <span className="text-gray-300 truncate flex-1" title={r.value}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="card flex-1 flex items-center justify-center text-canvas-muted text-xs">
             Select a run
@@ -251,30 +320,43 @@ export function OutputBrowser() {
       </div>
 
       {/* Right: file viewer */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col gap-2">
         {!viewingPath && !fileLoading && (
-          <div className="card h-full flex items-center justify-center text-canvas-muted text-sm">
+          <div className="card flex-1 flex items-center justify-center text-canvas-muted text-sm">
             Select a file to view its contents.
           </div>
         )}
 
         {fileLoading && (
-          <div className="card h-full flex items-center justify-center gap-2 text-canvas-muted text-sm">
+          <div className="card flex-1 flex items-center justify-center gap-2 text-canvas-muted text-sm">
             <RefreshCw size={14} className="animate-spin" />
             Loading…
           </div>
         )}
 
+        {!fileLoading && (fileContent !== null || csvRows !== null) && (
+          <div className="flex items-center gap-3 shrink-0">
+            <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
+            {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
+              <button
+                onClick={() => openInSimSummary(viewingPath)}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+              >
+                <BarChart2 size={12} />
+                Open in Sim Summary
+              </button>
+            )}
+          </div>
+        )}
+
         {!fileLoading && fileContent !== null && (
-          <div className="card h-full overflow-auto">
-            <p className="text-xs text-canvas-muted mb-2 font-mono truncate">{viewingPath}</p>
+          <div className="card flex-1 overflow-auto">
             <pre className="font-mono text-xs text-gray-300 whitespace-pre-wrap">{fileContent}</pre>
           </div>
         )}
 
         {!fileLoading && csvRows !== null && (
-          <div className="card h-full overflow-auto">
-            <p className="text-xs text-canvas-muted mb-2 font-mono truncate">{viewingPath}</p>
+          <div className="card flex-1 overflow-auto">
             <table className="w-full text-xs">
               <thead className="bg-canvas-elevated sticky top-0">
                 <tr>

@@ -12,9 +12,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
-import { useAppStore } from "../store/app";
-import { useSpawnProcess } from "../hooks/useSpawnProcess";
-import type { DayLogEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../types";
+import { useAppStore } from "../../store/app";
+import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import type { DayLogEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
 const ALL_POLICIES = [
   "aco_hh",

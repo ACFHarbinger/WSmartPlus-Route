@@ -6,14 +6,18 @@
  *   hpo:      hpo.n_trials, hpo.method, hpo.num_workers
  *   eval:     eval.policy.model.load_path, eval.datasets, eval.val_size, eval.decoding.strategy
  *
- * Also supports WandB toggle and arbitrary extra Hydra overrides.
- * Command preview shows the exact invocation before launch.
+ * After launch the "Live Progress" panel subscribes to process:stdout events
+ * and parses JSON metric lines emitted by the Lightning CSV logger / custom
+ * training scripts. Accumulates metrics into a live ECharts chart.
  */
-import { useCallback, useMemo, useState } from "react";
-import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ReactECharts from "echarts-for-react";
+import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { useAppStore } from "../store/app";
-import { useSpawnProcess } from "../hooks/useSpawnProcess";
+import { listen } from "@tauri-apps/api/event";
+import { useAppStore } from "../../store/app";
+import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import type { StdoutLine, StatusUpdate, ProcessStatus, TrainingMetricsRow } from "../../types";
 
 type Mode = "train" | "hpo" | "eval";
 
@@ -23,11 +27,118 @@ const ENCODERS = ["gat", "gcn", "mha"] as const;
 const HPO_METHODS = ["nsgaii", "tpe", "dehb", "random"] as const;
 const EVAL_STRATEGIES = ["greedy", "sampling", "beam"] as const;
 
+// Metric keys that indicate a line is a training metric record
+const METRIC_SIGNAL_KEYS = ["train_loss", "val_loss", "reward", "grad_norm", "entropy", "epoch", "step"];
+
+/**
+ * Parse a stdout line as a Lightning / custom-logger metric row.
+ * Accepts:
+ *   • Pure JSON: {"epoch": 1, "train_loss": 0.52, ...}
+ *   • key=value pairs: "epoch=1 train_loss=0.52 val_loss=0.58"
+ */
+function parseMetricLine(line: string): TrainingMetricsRow | null {
+  const text = line.startsWith("[stderr]") ? line.slice(8) : line;
+  // Try JSON
+  try {
+    const obj = JSON.parse(text) as Record<string, unknown>;
+    if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
+      return obj as TrainingMetricsRow;
+    }
+  } catch {}
+  // Try "key=value" scanning
+  if (METRIC_SIGNAL_KEYS.some((k) => text.includes(k))) {
+    const row: TrainingMetricsRow = {};
+    for (const [, key, val] of text.matchAll(/(\w+)=([0-9.eE+\-]+)/g)) {
+      (row as Record<string, number>)[key] = parseFloat(val);
+    }
+    if (Object.keys(row).length > 0) return row;
+  }
+  return null;
+}
+
+function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
+  const option = useMemo(() => {
+    const xs = metrics.map((_, i) => i + 1);
+    const trainLoss = metrics.map((m) => m.train_loss ?? null);
+    const valLoss = metrics.map((m) => m.val_loss ?? null);
+    const reward = metrics.map((m) => m.reward ?? null);
+    const hasReward = reward.some((v) => v !== null);
+
+    return {
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis" as const },
+      legend: {
+        data: ["train_loss", "val_loss", ...(hasReward ? ["reward"] : [])],
+        textStyle: { color: "#9090b0", fontSize: 10 },
+        top: 0,
+      },
+      grid: { left: 50, right: hasReward ? 55 : 10, top: 30, bottom: 30 },
+      xAxis: {
+        type: "category" as const,
+        data: xs,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        name: "update",
+        nameTextStyle: { color: "#9090b0" },
+      },
+      yAxis: [
+        {
+          type: "value" as const,
+          name: "Loss",
+          nameTextStyle: { color: "#9090b0", fontSize: 9 },
+          axisLabel: { color: "#9090b0", fontSize: 9 },
+        },
+        ...(hasReward
+          ? [{
+              type: "value" as const,
+              name: "Reward",
+              nameTextStyle: { color: "#9090b0", fontSize: 9 },
+              axisLabel: { color: "#9090b0", fontSize: 9 },
+              splitLine: { show: false },
+            }]
+          : []),
+      ],
+      series: [
+        {
+          name: "train_loss",
+          type: "line" as const,
+          smooth: true,
+          symbol: "none",
+          color: "#6366f1",
+          data: trainLoss,
+        },
+        {
+          name: "val_loss",
+          type: "line" as const,
+          smooth: true,
+          symbol: "none",
+          lineStyle: { type: "dashed" as const },
+          color: "#34d399",
+          data: valLoss,
+        },
+        ...(hasReward
+          ? [{
+              name: "reward",
+              type: "line" as const,
+              smooth: true,
+              symbol: "none",
+              yAxisIndex: 1,
+              lineStyle: { type: "dotted" as const },
+              color: "#fbbf24",
+              data: reward,
+            }]
+          : []),
+      ],
+    };
+  }, [metrics]);
+
+  return <ReactECharts option={option} style={{ height: 200 }} />;
+}
+
 export function TrainingHub() {
-  const { projectRoot } = useAppStore();
+  const { projectRoot, setMode } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
-  const [mode, setMode] = useState<Mode>("train");
+  const [mode, setTrainMode] = useState<Mode>("train");
 
   // Shared params
   const [problem, setProblem] = useState<string>("vrpp");
@@ -52,6 +163,11 @@ export function TrainingHub() {
   const [evalDataset, setEvalDataset] = useState("");
   const [evalSamples, setEvalSamples] = useState(10);
   const [evalStrategy, setEvalStrategy] = useState<string>("greedy");
+
+  // Live progress tracking
+  const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
+  const [runStatus, setRunStatus] = useState<ProcessStatus | null>(null);
+  const [liveMetrics, setLiveMetrics] = useState<TrainingMetricsRow[]>([]);
 
   const pickCheckpoint = async () => {
     const path = (await open({
@@ -100,7 +216,6 @@ export function TrainingHub() {
         ...extra,
       ];
     }
-    // eval
     return [
       ...base,
       ...(checkpointPath ? [`eval.policy.model.load_path=${checkpointPath}`] : []),
@@ -120,10 +235,35 @@ export function TrainingHub() {
   const entrypoint = mode === "train" ? "train" : mode === "hpo" ? "train" : "eval";
   const commandPreview = `python main.py ${entrypoint} \\\n  ${hydraArgs.join(" \\\n  ")}`;
 
+  // Subscribe to live progress events for the active training run
+  useEffect(() => {
+    if (!liveProcessId) return;
+
+    let unlistenOut: (() => void) | null = null;
+    let unlistenStatus: (() => void) | null = null;
+
+    listen<StdoutLine>("process:stdout", (event) => {
+      const { id, line } = event.payload;
+      if (id !== liveProcessId) return;
+      const row = parseMetricLine(line);
+      if (row) setLiveMetrics((prev) => [...prev, row]);
+    }).then((fn) => { unlistenOut = fn; });
+
+    listen<StatusUpdate>("process:status", (event) => {
+      if (event.payload.id === liveProcessId) setRunStatus(event.payload.status);
+    }).then((fn) => { unlistenStatus = fn; });
+
+    return () => { unlistenOut?.(); unlistenStatus?.(); };
+  }, [liveProcessId]);
+
   const launch = useCallback(async () => {
     if (!projectRoot) return;
+    const procId = `${mode}_${Date.now()}`;
+    setLiveProcessId(procId);
+    setLiveMetrics([]);
+    setRunStatus(null);
     await spawn({
-      id: `${mode}_${Date.now()}`,
+      id: procId,
       pythonArgs: ["main.py", entrypoint, ...hydraArgs],
       workingDir: projectRoot,
     });
@@ -153,6 +293,9 @@ export function TrainingHub() {
     );
   }
 
+  const isDone = runStatus !== null && runStatus !== "running";
+  const latestMetric = liveMetrics[liveMetrics.length - 1];
+
   return (
     <div className="space-y-4 max-w-2xl">
       {/* Mode selector */}
@@ -162,7 +305,7 @@ export function TrainingHub() {
           {(["train", "hpo", "eval"] as const).map((m) => (
             <button
               key={m}
-              onClick={() => setMode(m)}
+              onClick={() => setTrainMode(m)}
               className={mode === m ? "btn-primary text-sm py-1.5 px-4" : "btn-ghost text-sm py-1.5 px-4"}
             >
               {m === "train" ? "Train" : m === "hpo" ? "HPO Sweep" : "Evaluate"}
@@ -324,6 +467,87 @@ export function TrainingHub() {
           {launching ? "Launching…" : `Start ${mode}`}
         </button>
       </div>
+
+      {/* Live progress panel */}
+      {liveProcessId && (
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isDone ? (
+                runStatus === "completed"
+                  ? <CheckCircle size={14} className="text-accent-success" />
+                  : <XCircle size={14} className="text-accent-danger" />
+              ) : (
+                <Activity size={14} className="text-accent-primary animate-pulse" />
+              )}
+              <h2 className="text-sm font-semibold text-gray-200">
+                {isDone
+                  ? runStatus === "completed" ? "Run Complete" : `Run ${runStatus}`
+                  : "Live Progress"}
+              </h2>
+              {liveMetrics.length > 0 && (
+                <span className="text-xs text-canvas-muted">{liveMetrics.length} updates</span>
+              )}
+            </div>
+            <button
+              onClick={() => setMode("process_monitor")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Process Monitor
+            </button>
+          </div>
+
+          {/* Latest metric snapshot */}
+          {latestMetric && (
+            <div className="flex flex-wrap gap-4 text-xs">
+              {latestMetric.epoch != null && (
+                <div>
+                  <span className="text-canvas-muted">Epoch </span>
+                  <span className="font-mono text-gray-200">{latestMetric.epoch}</span>
+                </div>
+              )}
+              {latestMetric.train_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Train loss </span>
+                  <span className="font-mono text-gray-200">{latestMetric.train_loss.toFixed(4)}</span>
+                </div>
+              )}
+              {latestMetric.val_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Val loss </span>
+                  <span className="font-mono text-gray-200">{latestMetric.val_loss.toFixed(4)}</span>
+                </div>
+              )}
+              {latestMetric.reward != null && (
+                <div>
+                  <span className="text-canvas-muted">Reward </span>
+                  <span className="font-mono text-accent-success">{latestMetric.reward.toFixed(4)}</span>
+                </div>
+              )}
+              {latestMetric.grad_norm != null && (
+                <div>
+                  <span className="text-canvas-muted">‖∇‖ </span>
+                  <span className="font-mono text-gray-200">{latestMetric.grad_norm.toFixed(3)}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {liveMetrics.length >= 2 ? (
+            <LiveChart metrics={liveMetrics} />
+          ) : (
+            <p className="text-xs text-canvas-muted">
+              {isDone
+                ? liveMetrics.length === 0
+                  ? "No JSON metric lines detected in stdout."
+                  : "Only one metric update received."
+                : "Waiting for metric JSON lines on stdout…"}
+            </p>
+          )}
+
+          <p className="text-xs text-canvas-muted font-mono truncate">{liveProcessId}</p>
+        </div>
+      )}
     </div>
   );
 }

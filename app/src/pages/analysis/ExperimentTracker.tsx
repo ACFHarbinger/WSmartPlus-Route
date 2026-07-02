@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { RefreshCw } from "lucide-react";
-import { useAppStore } from "../store/app";
+import { useAppStore } from "../../store/app";
 
 interface OutputDir {
   name: string;

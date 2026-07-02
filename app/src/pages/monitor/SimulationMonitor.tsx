@@ -19,10 +19,10 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { ChevronLeft, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
-import { KpiCard } from "../components/ui/KpiCard";
-import { useSimWatcher } from "../hooks/useSimWatcher";
-import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../store/sim";
-import type { DayLogEntry, SimDayData } from "../types";
+import { KpiCard } from "../../components/ui/KpiCard";
+import { useSimWatcher } from "../../hooks/useSimWatcher";
+import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
+import type { DayLogEntry, SimDayData } from "../../types";
 
 // ── KPI definitions — mirrors _PRIMARY_KPI_MAP and _SECONDARY_KPI_MAP in kpi.py
 const PRIMARY_KPIS = [

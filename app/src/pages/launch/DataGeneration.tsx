@@ -7,8 +7,8 @@
  */
 import { useCallback, useMemo, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal } from "lucide-react";
-import { useAppStore } from "../store/app";
-import { useSpawnProcess } from "../hooks/useSpawnProcess";
+import { useAppStore } from "../../store/app";
+import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;
 const DISTRIBUTIONS = ["gamma3", "emp"] as const;

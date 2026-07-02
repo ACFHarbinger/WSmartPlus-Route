@@ -9,11 +9,14 @@ interface AppState {
   pythonPath: string;
   // Ephemeral — set by TrainingMonitor checkpoint browser to pre-populate EvaluationRunner
   pendingCheckpoint: string | null;
+  // Ephemeral — set by OutputBrowser to auto-load a log file in SimulationSummary
+  pendingLogPath: string | null;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: "dark" | "light") => void;
   setProjectRoot: (root: string) => void;
   setPythonPath: (path: string) => void;
   setPendingCheckpoint: (path: string | null) => void;
+  setPendingLogPath: (path: string | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -24,6 +27,7 @@ export const useAppStore = create<AppState>()(
       projectRoot: "",
       pythonPath: "",
       pendingCheckpoint: null,
+      pendingLogPath: null,
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
         if (theme === "dark") {
@@ -36,6 +40,7 @@ export const useAppStore = create<AppState>()(
       setProjectRoot: (projectRoot) => set({ projectRoot }),
       setPythonPath: (pythonPath) => set({ pythonPath }),
       setPendingCheckpoint: (pendingCheckpoint) => set({ pendingCheckpoint }),
+      setPendingLogPath: (pendingLogPath) => set({ pendingLogPath }),
     }),
     {
       name: "wsmart-studio-app",

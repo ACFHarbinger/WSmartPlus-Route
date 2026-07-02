@@ -3,7 +3,7 @@
  * Ports Streamlit `algorithms` mode.
  */
 import ReactECharts from "echarts-for-react";
-import { useSimStore, filterEntries } from "../store/sim";
+import { useSimStore, filterEntries } from "../../store/sim";
 import { useMemo } from "react";
 
 function mean(arr: number[]) {
