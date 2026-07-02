@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useSimLauncherStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { DayLogEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
@@ -99,29 +100,37 @@ export function SimulationLauncher() {
   const { projectRoot, setMode } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
-  // Form state — mirrors justfile defaults
-  const [selectedPolicies, setSelectedPolicies] = useState<string[]>([
-    "aco_hh", "alns", "bpc", "hgs", "pg_clns", "psoma", "sans", "swc_tcf",
-  ]);
-  const [area, setArea] = useState("figueiradafoz");
-  const [numLoc, setNumLoc] = useState(350);
-  const [samples, setSamples] = useState(1);
-  const [nCores, setNCores] = useState(4);
-  const [distribution, setDistribution] = useState("emp");
-  const [seed, setSeed] = useState(42);
+  // Persisted form state (§D.4 session persistence)
+  const {
+    selectedPolicies, area, numLoc, samples, nCores, distribution, seed, extraOverrides, patch,
+  } = useSimLauncherStore();
+
+  const setSelectedPolicies = (v: string[]) => patch({ selectedPolicies: v });
+  const setArea = (v: string) => patch({ area: v });
+  const setNumLoc = (v: number) => patch({ numLoc: v });
+  const setSamples = (v: number) => patch({ samples: v });
+  const setNCores = (v: number) => patch({ nCores: v });
+  const setDistribution = (v: string) => patch({ distribution: v });
+  const setSeed = (v: number) => patch({ seed: v });
+  const setExtraOverrides = (v: string) => patch({ extraOverrides: v });
+
+  // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [extraOverrides, setExtraOverrides] = useState("");
 
   // Live status tracking
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
   const [simStatus, setSimStatus] = useState<ProcessStatus | null>(null);
   // Latest DayLogEntry per policy (keyed by `${policy}::${sample_id}`)
   const [latestByPolicy, setLatestByPolicy] = useState<Record<string, DayLogEntry>>({});
+  // Auto-navigate countdown: counts down from 5 when run completes, navigates on 0
+  const [navCountdown, setNavCountdown] = useState<number | null>(null);
 
-  const togglePolicy = (policy: string) =>
-    setSelectedPolicies((prev) =>
-      prev.includes(policy) ? prev.filter((p) => p !== policy) : [...prev, policy]
-    );
+  const togglePolicy = (policy: string) => {
+    const next = selectedPolicies.includes(policy)
+      ? selectedPolicies.filter((p) => p !== policy)
+      : [...selectedPolicies, policy];
+    setSelectedPolicies(next);
+  };
 
   const selectAll = () => setSelectedPolicies([...ALL_POLICIES]);
   const clearAll = () => setSelectedPolicies([]);
@@ -185,6 +194,25 @@ export function SimulationLauncher() {
     };
   }, [liveProcessId]);
 
+  // Start countdown when sim completes; navigate to simulation_summary on expiry
+  useEffect(() => {
+    if (simStatus === "completed") {
+      setNavCountdown(5);
+    } else {
+      setNavCountdown(null);
+    }
+  }, [simStatus]);
+
+  useEffect(() => {
+    if (navCountdown === null) return;
+    if (navCountdown <= 0) {
+      setMode("simulation_summary");
+      return;
+    }
+    const id = setTimeout(() => setNavCountdown((n) => (n !== null ? n - 1 : null)), 1000);
+    return () => clearTimeout(id);
+  }, [navCountdown, setMode]);
+
   const launch = useCallback(async () => {
     if (!projectRoot || selectedPolicies.length === 0) return;
     const procId = `sim_${area}_${Date.now()}`;
@@ -198,7 +226,7 @@ export function SimulationLauncher() {
     });
   }, [projectRoot, selectedPolicies, hydraArgs, area, spawn]);
 
-  const isRunning = simStatus === null && liveProcessId !== null && !launching;
+
   const isDone = simStatus === "completed" || simStatus === "failed" || simStatus === "cancelled";
   const liveEntries = Object.values(latestByPolicy);
 
@@ -364,13 +392,27 @@ export function SimulationLauncher() {
               </h2>
             </div>
             <div className="flex items-center gap-2">
-              {isDone && (
-                <button
-                  onClick={() => setMode("simulation_summary")}
-                  className="btn-ghost text-xs text-accent-primary"
-                >
-                  View Summary →
-                </button>
+              {isDone && simStatus === "completed" && (
+                <>
+                  <button
+                    onClick={() => setMode("simulation_summary")}
+                    className="btn-ghost text-xs text-accent-primary"
+                  >
+                    View Summary →
+                  </button>
+                  {navCountdown !== null && (
+                    <span className="text-xs text-canvas-muted">
+                      (auto in {navCountdown}s —{" "}
+                      <button
+                        className="underline hover:text-gray-200"
+                        onClick={() => setNavCountdown(null)}
+                      >
+                        cancel
+                      </button>
+                      )
+                    </span>
+                  )}
+                </>
               )}
               <button
                 onClick={() => setMode("process_monitor")}

@@ -21,6 +21,36 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - Wired into `generate_markdown` at the end of section 2 (Analytics Comparison — Pareto View)
 - `public/simulation_analysis.md` — "Pareto-Front Policy Catalogue" table inserted at the end of §2 (22 rows; BPC + ACO_HH + PG-CLNS dominate the front across all panels)
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eleventh pass
+
+Eleventh implementation pass: session persistence for all three launcher forms (§G.9/G.10/G.11);
+auto-navigate countdown in SimulationLauncher (§G.9); grad_norm + entropy sparklines in
+TrainingHub (§G.10).
+
+**React frontend**
+- `store/launchers.ts` — new file; three persisted Zustand stores using a single `patch` action:
+  - `useSimLauncherStore` (`wsroute-sim-launcher`): `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`
+  - `useTrainHubStore` (`wsroute-train-hub`): all train/hpo/eval form fields
+  - `useDataGenStore` (`wsroute-data-gen`): `problem`, `distributions`, `datasetType`, `seed`, `overwrite`, `area`, `numLoc`, `nSamples`, `nDays`, `extraOverrides`
+- `pages/launch/SimulationLauncher.tsx` — session persistence (§G.9) + auto-navigate (§G.9):
+  - Local `useState` for all form fields replaced with `useSimLauncherStore`
+  - `navCountdown: number | null` state; first `useEffect` sets it to 5 when `simStatus === "completed"`; second `useEffect` decrements every second via `setTimeout` and calls `setMode("simulation_summary")` on 0
+  - Countdown label `"(auto in Xs — cancel)"` shown beside "View Summary →" button; cancel clears countdown
+- `pages/launch/TrainingHub.tsx` — session persistence (§G.10) + sparklines (§G.10):
+  - Local `useState` for all form fields replaced with `useTrainHubStore`
+  - `MiniSparkline` component: compact 70 px ECharts `line` chart; area fill at `color + "22"` opacity; returns `null` when all data values are null (metric not emitted by the run)
+  - Grad norm sparkline (red `#f87171`) + entropy sparkline (purple `#a78bfa`) rendered as a 2-column grid below `LiveChart` when ≥2 metric updates have been received
+- `pages/launch/DataGeneration.tsx` — session persistence (§G.11):
+  - Local `useState` for all form fields replaced with `useDataGenStore`
+  - `toggleDist` rewritten to avoid functional updater (incompatible with store `patch` signature)
+
+**ROADMAP**
+- §G.9 auto-navigate and session persistence checked
+- §G.10 grad_norm + entropy sparklines and session persistence checked
+- §G.11 session persistence checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — tenth pass
 
 Tenth implementation pass: process toast notifications (§G.15); per-process progress bar (§G.15);

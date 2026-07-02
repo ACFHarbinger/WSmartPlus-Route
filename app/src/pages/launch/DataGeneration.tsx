@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useDataGenStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
@@ -30,22 +31,25 @@ export function DataGeneration() {
   const { projectRoot, setMode } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
-  // Core params
-  const [problem, setProblem] = useState<string>("vrpp");
-  const [distributions, setDistributions] = useState<string[]>(["gamma3"]);
-  const [datasetType, setDatasetType] = useState("test_simulator");
-  const [seed, setSeed] = useState(42);
-  const [overwrite, setOverwrite] = useState(true);
+  // Persisted form state (§D.4 session persistence)
+  const {
+    problem, distributions, datasetType, seed, overwrite,
+    area, numLoc, nSamples, nDays, extraOverrides, patch,
+  } = useDataGenStore();
 
-  // Graph params
-  const [area, setArea] = useState("figueiradafoz");
-  const [numLoc, setNumLoc] = useState(350);
-  const [nSamples, setNSamples] = useState(1);
-  const [nDays, setNDays] = useState(30);
+  const setProblem = (v: string) => patch({ problem: v });
+  const setDistributions = (v: string[]) => patch({ distributions: v });
+  const setDatasetType = (v: string) => patch({ datasetType: v });
+  const setSeed = (v: number) => patch({ seed: v });
+  const setOverwrite = (v: boolean) => patch({ overwrite: v });
+  const setArea = (v: string) => patch({ area: v });
+  const setNumLoc = (v: number) => patch({ numLoc: v });
+  const setNSamples = (v: number) => patch({ nSamples: v });
+  const setNDays = (v: number) => patch({ nDays: v });
+  const setExtraOverrides = (v: string) => patch({ extraOverrides: v });
 
-  // Advanced
+  // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [extraOverrides, setExtraOverrides] = useState("");
 
   // Live progress state
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
@@ -72,9 +76,10 @@ export function DataGeneration() {
   }, [liveProcessId]);
 
   const toggleDist = (d: string) => {
-    setDistributions((prev) =>
-      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]
-    );
+    const next = distributions.includes(d)
+      ? distributions.filter((x) => x !== d)
+      : [...distributions, d];
+    setDistributions(next);
   };
 
   const hydraArgs = useMemo(() => {
