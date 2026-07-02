@@ -61,7 +61,7 @@
 :canonical: src.constants.paths.CONFIGS_DIR
 :type: str
 :value: >
-   'configs'
+   'str(...)'
 
 ```{autodoc2-docstring} src.constants.paths.CONFIGS_DIR
 ```
