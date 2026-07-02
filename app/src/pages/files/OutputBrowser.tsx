@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { toast } from "sonner";
-import type { DirEntry, OutputDir } from "../../types";
+import type { DirEntry, OutputDir, DayLogEntry } from "../../types";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -86,6 +86,8 @@ export function OutputBrowser() {
   const [fileLoading, setFileLoading] = useState(false);
   // Run metadata from pruned_config.yaml
   const [runMeta, setRunMeta] = useState<Array<{ key: string; value: string }> | null>(null);
+  // KPI summary parsed from the first .jsonl found in the run directory
+  const [runKpi, setRunKpi] = useState<Array<{ policy: string; overflows: number; kgkm: number; profit: number }> | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
 
@@ -115,9 +117,11 @@ export function OutputBrowser() {
     setExpandedDirs(new Set());
     setSubEntries({});
     setRunMeta(null);
+    setRunKpi(null);
     try {
       const e = await invoke<DirEntry[]>("list_dir", { path: run.path });
       setEntries(e);
+
       // Auto-load pruned_config.yaml for metadata panel
       const configEntry = e.find((f) => f.name === "pruned_config.yaml" || f.name === "config.yaml");
       if (configEntry) {
@@ -126,9 +130,34 @@ export function OutputBrowser() {
           const all = parseYamlFlat(yaml);
           const meta = all.filter((r) => META_KEYS.some((k) => r.key.startsWith(k)));
           setRunMeta(meta.length > 0 ? meta : all.slice(0, 12));
-        } catch {
-          // metadata is optional — ignore errors
-        }
+        } catch { /* metadata optional */ }
+      }
+
+      // Auto-parse the first .jsonl for a KPI summary card
+      const jsonlEntry = e.find((f) => !f.is_dir && f.extension === "jsonl");
+      if (jsonlEntry && jsonlEntry.size_bytes < 20 * 1024 * 1024) {
+        try {
+          const text = await invoke<string>("read_text_file", { path: jsonlEntry.path });
+          const acc: Record<string, { overflows: number[]; kgkm: number[]; profit: number[] }> = {};
+          for (const line of text.split("\n")) {
+            if (!line.trim()) continue;
+            try {
+              const entry = JSON.parse(line) as DayLogEntry;
+              if (!acc[entry.policy]) acc[entry.policy] = { overflows: [], kgkm: [], profit: [] };
+              acc[entry.policy].overflows.push(entry.data.overflows ?? 0);
+              acc[entry.policy].kgkm.push(entry.data["kg/km"] ?? 0);
+              acc[entry.policy].profit.push(entry.data.profit ?? 0);
+            } catch { /* skip malformed lines */ }
+          }
+          const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+          const kpi = Object.entries(acc).map(([policy, v]) => ({
+            policy,
+            overflows: avg(v.overflows),
+            kgkm: avg(v.kgkm),
+            profit: avg(v.profit),
+          })).sort((a, b) => a.overflows - b.overflows);
+          if (kpi.length > 0) setRunKpi(kpi);
+        } catch { /* KPI optional */ }
       }
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
@@ -299,7 +328,7 @@ export function OutputBrowser() {
               {renderEntries(entries)}
             </div>
             {runMeta && runMeta.length > 0 && (
-              <div className="card p-2 space-y-1 overflow-auto max-h-48">
+              <div className="card p-2 space-y-1 overflow-auto max-h-36">
                 <p className="text-xs font-semibold text-gray-300 mb-1.5">Config</p>
                 {runMeta.map((r) => (
                   <div key={r.key} className="flex gap-2 text-xs leading-tight">
@@ -307,6 +336,21 @@ export function OutputBrowser() {
                       {r.key.split(".").pop()}
                     </span>
                     <span className="text-gray-300 truncate flex-1" title={r.value}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {runKpi && runKpi.length > 0 && (
+              <div className="card p-2 space-y-1 overflow-auto max-h-48">
+                <p className="text-xs font-semibold text-gray-300 mb-1.5">KPI Summary</p>
+                <div className="grid grid-cols-3 gap-x-2 text-[10px] text-canvas-muted font-medium mb-1">
+                  <span>Policy</span><span className="text-right">Overflows</span><span className="text-right">kg/km</span>
+                </div>
+                {runKpi.map((r) => (
+                  <div key={r.policy} className="grid grid-cols-3 gap-x-2 text-[10px] leading-tight">
+                    <span className="text-gray-300 truncate font-mono" title={r.policy}>{r.policy}</span>
+                    <span className={`text-right font-mono ${r.overflows === 0 ? "text-accent-success" : r.overflows > 20 ? "text-accent-danger" : "text-accent-warning"}`}>{r.overflows.toFixed(1)}</span>
+                    <span className="text-right font-mono text-gray-400">{r.kgkm.toFixed(2)}</span>
                   </div>
                 ))}
               </div>

@@ -5,10 +5,12 @@
  * Key Hydra args: data.problem, data.data_distributions, data.dataset_type,
  * data.seed, plus per-graph overrides via "Advanced" panel.
  */
-import { useCallback, useMemo, useState } from "react";
-import { Play, ChevronDown, ChevronUp, Terminal } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
+import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import type { StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;
 const DISTRIBUTIONS = ["gamma3", "emp"] as const;
@@ -25,7 +27,7 @@ const DIST_LABELS: Record<string, string> = {
 };
 
 export function DataGeneration() {
-  const { projectRoot } = useAppStore();
+  const { projectRoot, setMode } = useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
   // Core params
@@ -44,6 +46,30 @@ export function DataGeneration() {
   // Advanced
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [extraOverrides, setExtraOverrides] = useState("");
+
+  // Live progress state
+  const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
+  const [runStatus, setRunStatus] = useState<ProcessStatus | null>(null);
+  const [logTail, setLogTail] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!liveProcessId) return;
+    let unlistenOut: (() => void) | null = null;
+    let unlistenStatus: (() => void) | null = null;
+
+    listen<StdoutLine>("process:stdout", (event) => {
+      const { id, line } = event.payload;
+      if (id !== liveProcessId) return;
+      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
+      setLogTail((prev) => [...prev.slice(-19), text]);
+    }).then((fn) => { unlistenOut = fn; });
+
+    listen<StatusUpdate>("process:status", (event) => {
+      if (event.payload.id === liveProcessId) setRunStatus(event.payload.status);
+    }).then((fn) => { unlistenStatus = fn; });
+
+    return () => { unlistenOut?.(); unlistenStatus?.(); };
+  }, [liveProcessId]);
 
   const toggleDist = (d: string) => {
     setDistributions((prev) =>
@@ -75,8 +101,12 @@ export function DataGeneration() {
 
   const launch = useCallback(async () => {
     if (!projectRoot) return;
+    const procId = `gen_data_${Date.now()}`;
+    setLiveProcessId(procId);
+    setRunStatus(null);
+    setLogTail([]);
     await spawn({
-      id: `gen_data_${Date.now()}`,
+      id: procId,
       pythonArgs: ["main.py", "gen_data", ...hydraArgs],
       workingDir: projectRoot,
     });
@@ -268,6 +298,47 @@ export function DataGeneration() {
           {launching ? "Generating…" : "Generate Dataset"}
         </button>
       </div>
+
+      {/* Live progress panel */}
+      {liveProcessId && (() => {
+        const isDone = runStatus !== null && runStatus !== "running";
+        return (
+          <div className="card space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isDone ? (
+                  runStatus === "completed"
+                    ? <CheckCircle size={14} className="text-accent-success" />
+                    : <XCircle size={14} className="text-accent-danger" />
+                ) : (
+                  <Activity size={14} className="text-accent-primary animate-pulse" />
+                )}
+                <h2 className="text-sm font-semibold text-gray-200">
+                  {isDone
+                    ? runStatus === "completed" ? "Generation Complete" : `Generation ${runStatus}`
+                    : "Generating…"}
+                </h2>
+              </div>
+              <button
+                onClick={() => setMode("process_monitor")}
+                className="btn-ghost text-xs text-canvas-muted"
+              >
+                Process Monitor
+              </button>
+            </div>
+            {logTail.length > 0 && (
+              <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">
+                {logTail.map((line, i) => (
+                  <p key={i} className="text-xs font-mono text-gray-400 leading-snug">{line}</p>
+                ))}
+              </div>
+            )}
+            {logTail.length === 0 && !isDone && (
+              <p className="text-xs text-canvas-muted">Waiting for output…</p>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -1112,7 +1112,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] TSPLIB source option (select `.vrp` file via Tauri dialog)
 - [ ] Sensor data source option
 - [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
-- [ ] Live progress: instances generated / total, elapsed time, estimated completion
+- [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [ ] Session persistence (§D.4)
 
 ---
@@ -1160,7 +1160,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Run metadata panel: auto-loads `pruned_config.yaml` (or `config.yaml`) when a run is selected; flat YAML parsed and filtered by `META_KEYS`; compact two-column card below the file tree
 - [x] "Open in Sim Summary" button: shown for `.jsonl` files; sets `pendingLogPath` in app store then navigates to `simulation_summary` mode; `SimulationSummary` consumes `pendingLogPath` on mount via `useEffect`
 - [ ] Directory tree view: browse `assets/output/` with structured display (run name → hydra/ → pruned_config.yaml, simulation logs)
-- [ ] Simulation result summary: on selecting a run directory, automatically compute and display KPI summary (total overflows, mean kg/km, profit) without opening the full analytics dashboard
+- [x] Simulation result summary: on `selectRun`, scans top-level entries for a `.jsonl` file ≤ 20 MB; reads it via `read_text_file`, parses each line as `DayLogEntry`, aggregates overflows / kg/km / profit per policy; displays a compact 3-column KPI table (policy / overflows / kg/km) below the config metadata card; overflows colour-coded (green = 0, amber = low, red > 20)
 - [ ] "Compare runs": multi-select two or more runs; open the analytics dashboard with both loaded for comparison
 - [ ] Session profiles (§D.4 Option C): save named snapshots of launcher form state; load from the Output Browser sidebar
 

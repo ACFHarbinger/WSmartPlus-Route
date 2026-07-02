@@ -109,6 +109,35 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 **Figueira da Foz, Gamma-3:** SWC-TCF again fails catastrophically (410 overflows with SL). All other constructors achieve 1–33 overflows.
 
+### Pareto-Front Policy Catalogue
+
+The table below lists every unique policy configuration (mandatory selection variant, route constructor, route improver) that appears on the Pareto front of at least one experimental scenario. Metrics are averaged across all scenarios where the configuration reached the front.
+
+| Selection | Constructor | Improver | Overflows | kg/km | Pareto-Front Scenarios |
+|-----------|-------------|----------|----------:|------:|------------------------|
+| LA | ACO_HH | FTSP | 4.5 | 8.298 | FFZ-350 / Gamma-3, RM-100 / Gamma-3 |
+| LM (CF90) | BPC | CLS | 44.0 | 11.604 | FFZ-350 / Empirical, FFZ-350 / Gamma-3 |
+| LM (CF90) | BPC | FTSP | 44.0 | 10.476 | FFZ-350 / Empirical, FFZ-350 / Gamma-3 |
+| LM (CF70) | BPC | FTSP | 9.5 | 8.887 | FFZ-350 / Empirical, FFZ-350 / Gamma-3 |
+| SL (SL1) | PG-CLNS | CLS | 1.5 | 7.432 | FFZ-350 / Empirical, RM-100 / Gamma-3 |
+| LA | BPC | CLS | 11.0 | 9.446 | FFZ-350 / Empirical |
+| LA | BPC | FTSP | 11.0 | 8.454 | FFZ-350 / Empirical |
+| LA | PG-CLNS | CLS | 4.0 | 9.943 | RM-100 / Gamma-3 |
+| LA | SWC-TCF | FTSP | 2.0 | 6.757 | FFZ-350 / Empirical |
+| LM (CF70) | BPC | CLS | 4.0 | 8.508 | FFZ-350 / Empirical |
+| LM (CF70) | HGS | CLS | 3.0 | 9.487 | RM-100 / Gamma-3 |
+| LM (CF70) | PG-CLNS | CLS | 3.0 | 7.796 | FFZ-350 / Empirical |
+| LM (CF90) | HGS | CLS | 28.0 | 11.760 | RM-100 / Gamma-3 |
+| LM (CF90) | PG-CLNS | CLS | 12.0 | 11.472 | RM-100 / Gamma-3 |
+| SL (SL1) | BPC | CLS | 8.0 | 10.644 | FFZ-350 / Gamma-3 |
+| SL (SL1) | BPC | FTSP | 8.0 | 9.578 | FFZ-350 / Gamma-3 |
+| SL (SL1) | PG-CLNS | FTSP | 1.0 | 6.017 | FFZ-350 / Empirical |
+| SL (SL2) | ACO_HH | CLS | 0.0 | 5.110 | FFZ-350 / Empirical |
+| SL (SL2) | ACO_HH | FTSP | 0.0 | 4.568 | FFZ-350 / Empirical |
+| SL (SL2) | BPC | FTSP | 2.0 | 6.519 | FFZ-350 / Gamma-3 |
+| SL (SL2) | PSOMA | FTSP | 1.0 | 6.346 | FFZ-350 / Gamma-3 |
+| SL (SL2) | SANS | CLS | 1.0 | 6.591 | FFZ-350 / Gamma-3 |
+
 ---
 
 ## 3. Summary KPI Analysis
