@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighth pass
+
+Eighth implementation pass: LR schedule sparkline in Training Monitor (§G.17); completion
+navigation in Training Hub (§G.10); eval results grid with CSV export in Evaluation Runner (§G.12).
+
+**React frontend**
+- `pages/monitor/TrainingMonitor.tsx` — LR schedule sparkline (§G.17):
+  - Refactored `GradNormSparkline` and new `LrSparkline` to share a `MetricSparkline` base component (avoids duplication; same ECharts config parameterised by `label`, `data`, `color`)
+  - `LrSparkline` plots `lr` vs `step` in amber (`#fbbf24`); shown per selected run below the grad-norm sparkline
+- `pages/launch/TrainingHub.tsx` — completion navigation (§G.10):
+  - "Output Browser →" button appears in live progress header when `runStatus === "completed"`; navigates to `output_browser` mode so users can inspect checkpoints immediately after training
+- `pages/launch/EvaluationRunner.tsx` — results grid (§G.12):
+  - `EvalResult` interface; `EVAL_RESULT_KEYS` sentinel list (`cost`, `gap`, `tour_cost`, `obj`, `time`, `policy`, `checkpoint`)
+  - `processToCheckpoint` ref: maps process ID → checkpoint filename; populated at launch, used by the global `process:stdout` listener to attribute result rows
+  - `ResultsGrid` component: dynamic columns from first result; numeric values formatted to 4 dp; updates live as rows arrive; replaces static placeholder card
+  - "Export CSV" button in `ResultsGrid`: builds CSV string from all result rows, triggers `<a>` download via `Blob` + `URL.createObjectURL`
+
+**ROADMAP**
+- `docs/moon/ROADMAP.md` — §G.17 LR sparkline checked; §G.10 completion navigation checked; §G.12 results grid + CSV export checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventh pass
 
 Seventh implementation pass: TrainingHub live progress chart (§G.10); OutputBrowser run

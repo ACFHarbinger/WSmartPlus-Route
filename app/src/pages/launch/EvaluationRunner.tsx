@@ -9,19 +9,99 @@
  *   eval.policy.model.load_path, eval.datasets, eval.problem,
  *   eval.val_size, eval.decoding.strategy
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
+import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import type { StdoutLine, StatusUpdate } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
 const DEVICES = ["cpu", "cuda:0", "cuda:1"] as const;
 
+// Keys that identify a line as a structured eval result
+const EVAL_RESULT_KEYS = ["cost", "gap", "tour_cost", "obj", "time", "policy", "checkpoint"];
+
 interface CheckpointEntry {
   id: string;
   path: string;
+}
+
+interface EvalResult {
+  checkpointName: string;
+  cost?: number;
+  gap?: number;
+  time?: number;
+  policy?: string;
+  [key: string]: number | string | undefined;
+}
+
+function ResultsGrid({ results }: { results: EvalResult[] }) {
+  const allKeys = Array.from(
+    new Set(results.flatMap((r) => Object.keys(r).filter((k) => k !== "checkpointName")))
+  );
+  const numKeys = allKeys.filter((k) =>
+    results.some((r) => typeof r[k] === "number")
+  );
+
+  const exportCsv = () => {
+    const cols = ["checkpoint", ...numKeys];
+    const rows = results.map((r) =>
+      cols.map((c) => (c === "checkpoint" ? r.checkpointName : String(r[c] ?? ""))).join(",")
+    );
+    const csv = [cols.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "eval_results.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="card space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-gray-200">Results ({results.length})</h2>
+        <button onClick={exportCsv} className="btn-ghost text-xs flex items-center gap-1">
+          <Download size={12} />
+          Export CSV
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-canvas-border">
+              <th className="text-left py-1.5 pr-4 text-canvas-muted font-medium">Checkpoint</th>
+              {numKeys.map((k) => (
+                <th key={k} className="text-right py-1.5 px-3 text-canvas-muted font-medium">
+                  {k}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-canvas-border/30">
+            {results.map((r) => (
+              <tr key={r.checkpointName} className="hover:bg-canvas-hover/40">
+                <td className="py-1.5 pr-4 font-mono text-gray-300 truncate max-w-[200px]">
+                  {r.checkpointName}
+                </td>
+                {numKeys.map((k) => (
+                  <td key={k} className="py-1.5 px-3 text-right font-mono text-gray-400">
+                    {typeof r[k] === "number"
+                      ? (r[k] as number).toFixed(4)
+                      : "—"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 function CheckpointRow({
@@ -90,6 +170,54 @@ export function EvaluationRunner() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [extraOverrides, setExtraOverrides] = useState("");
 
+  // Results grid — keyed by process ID; value is parsed eval result
+  const [results, setResults] = useState<EvalResult[]>([]);
+  // Map process ID → checkpoint name for attribution
+  const processToCheckpoint = useRef<Record<string, string>>({});
+
+  // Subscribe globally to process:stdout — parse structured eval result JSON lines
+  useEffect(() => {
+    let unlistenOut: (() => void) | null = null;
+
+    listen<StdoutLine>("process:stdout", (event) => {
+      const { id, line } = event.payload;
+      const checkpointName = processToCheckpoint.current[id];
+      if (!checkpointName) return;
+      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
+      try {
+        const obj = JSON.parse(text) as Record<string, unknown>;
+        if (EVAL_RESULT_KEYS.some((k) => obj[k] != null)) {
+          const result: EvalResult = { checkpointName };
+          for (const [k, v] of Object.entries(obj)) {
+            if (typeof v === "number" || typeof v === "string") {
+              result[k] = v;
+            }
+          }
+          setResults((prev) => {
+            // Update existing row for this checkpoint or append new
+            const idx = prev.findIndex((r) => r.checkpointName === checkpointName);
+            if (idx >= 0) {
+              const updated = [...prev];
+              updated[idx] = { ...updated[idx], ...result };
+              return updated;
+            }
+            return [...prev, result];
+          });
+        }
+      } catch {}
+    }).then((fn) => { unlistenOut = fn; });
+
+    // Also listen for status — remove process from tracking when done
+    let unlistenStatus: (() => void) | null = null;
+    listen<StatusUpdate>("process:status", (event) => {
+      if (processToCheckpoint.current[event.payload.id]) {
+        // Keep the entry in the map so late-arriving stdout can still match
+      }
+    }).then((fn) => { unlistenStatus = fn; });
+
+    return () => { unlistenOut?.(); unlistenStatus?.(); };
+  }, []);
+
   const addCheckpoint = () => {
     setCheckpoints((prev) => [
       ...prev,
@@ -146,6 +274,7 @@ export function EvaluationRunner() {
 
   const launch = useCallback(async () => {
     if (!projectRoot || validCheckpoints.length === 0) return;
+    setResults([]);
 
     const extra = extraOverrides
       .split("\n")
@@ -154,6 +283,8 @@ export function EvaluationRunner() {
 
     for (const ckpt of validCheckpoints) {
       const ckptName = ckpt.path.split(/[/\\]/).pop() ?? ckpt.id;
+      const procId = `eval_${ckptName}_${Date.now()}`;
+      processToCheckpoint.current[procId] = ckptName;
       const hydraArgs = [
         `eval.problem=${problem}`,
         `eval.val_size=${valSize}`,
@@ -164,7 +295,7 @@ export function EvaluationRunner() {
         ...extra,
       ];
       await spawn({
-        id: `eval_${ckptName}_${Date.now()}`,
+        id: procId,
         pythonArgs: ["main.py", "eval", ...hydraArgs],
         workingDir: projectRoot,
       });
@@ -311,14 +442,10 @@ export function EvaluationRunner() {
         </pre>
       </div>
 
-      {/* Results placeholder */}
-      <div className="card space-y-2">
-        <h2 className="text-sm font-semibold text-gray-200">Results</h2>
-        <p className="text-xs text-canvas-muted">
-          Results will stream to the Process Monitor. A comparison table will appear here once structured
-          result parsing is implemented (§G.12).
-        </p>
-      </div>
+      {/* Results grid */}
+      {results.length > 0 && (
+        <ResultsGrid results={results} />
+      )}
 
       {/* Launch */}
       <div className="flex items-center gap-3">

@@ -1095,7 +1095,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
 - [x] Live training progress panel (§D.2): `parseMetricLine` parses JSON and `key=value` stdout lines; `LiveChart` ECharts canvas shows train_loss (solid), val_loss (dashed), reward (dotted, right y-axis); latest snapshot row shows epoch/train_loss/val_loss/reward/grad_norm inline
 - [ ] Gradient norm and entropy sparklines
-- [ ] On completion: open checkpoint directory in the Output Browser (§G.14)
+- [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
 - [ ] Session persistence via Tauri Store plugin (§D.4)
 
 ---
@@ -1125,8 +1125,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Eval parameters: dataset path (optional, Tauri dialog), problem selector, decoding strategy (greedy/sampling/beam), device (cpu/cuda:0/cuda:1), val_size
 - [x] Multi-checkpoint launch: one `spawn_python_process main.py eval` call per valid checkpoint, tagged with checkpoint filename; results stream to Process Monitor
 - [x] Advanced Overrides collapsible + command preview (shows first-checkpoint invocation)
-- [ ] Results grid: parse stdout JSON for tour cost, runtime, gap metrics; display in a side-by-side comparison table below the form
-- [ ] "Export to CSV" button for result grids
+- [x] Results grid: global `process:stdout` listener parses JSON lines with `cost`/`gap`/`tour_cost`/`time`/`policy` fields; keyed by checkpoint name; dynamic column discovery from first result; updates in real time as results stream in
+- [x] "Export CSV" button: builds CSV from result rows, triggers browser download via `Blob` + `URL.createObjectURL`
 - [ ] "Open in Analytics" button pre-loads eval results into the analytics dashboard
 
 ---
@@ -1219,7 +1219,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Gradient norm sparkline**: separate compact ECharts chart for `grad_norm` column, shown per selected run
 - [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
 - [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode
-- [ ] **Learning rate schedule chart**: `lr` column as a step-level sparkline below the main chart
+- [x] **Learning rate schedule chart**: `lr` column rendered as a compact `LrSparkline` (step-level, amber `#fbbf24`) using the shared `MetricSparkline` base component; shown per selected run below the gradient norm sparkline
 - [ ] **Live training mode**: if a run is actively being written, subscribe to `process:stdout` and append parsed metric rows without re-reading the full CSV
 - [ ] **Streamlit parity check**: verify all Lightning log columns from `training_charts.py` are represented
 
