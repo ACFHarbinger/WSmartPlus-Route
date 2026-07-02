@@ -41,8 +41,8 @@ try:
 except ImportError:
     pass
 
-from logic.hydra_dispatch import hydra_entry_point
-from logic.parser_dispatch import parser_entry_point
+from logic.controllers.hydra_dispatch import hydra_entry_point
+from logic.controllers.parser_dispatch import parser_entry_point
 from logic.src.cli import parse_params
 
 warnings.filterwarnings(

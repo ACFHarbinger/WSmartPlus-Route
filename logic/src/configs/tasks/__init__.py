@@ -14,6 +14,7 @@ Example:
     None
 """
 
+from .batch import BatchConfig, BatchRunConfig, BatchStepConfig
 from .data import DataConfig
 from .eval import EvalConfig
 from .hpo import HPOConfig
@@ -23,6 +24,9 @@ from .sim import SimConfig
 from .train import TrainConfig
 
 __all__ = [
+    "BatchConfig",
+    "BatchRunConfig",
+    "BatchStepConfig",
     "DataConfig",
     "EvalConfig",
     "HPOConfig",

@@ -171,7 +171,7 @@ def main():
     patch_google_maps(root / "logic/src/data/network/google.py")
     patch_cli_registry(root / "logic/src/cli/registry.py")
     patch_cli_init(root / "logic/src/cli/__init__.py")
-    patch_parser_dispatch(root / "logic/parser_dispatch.py")
+    patch_parser_dispatch(root / "logic/controllers/parser_dispatch.py")
 
     print("\n--- Security Cleanup Complete! ---")
 

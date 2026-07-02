@@ -41,7 +41,7 @@ def patch_logic_init(init_path: Path) -> None:
         return
     content = init_path.read_text(errors="ignore")
     content = re.sub(
-        r"(?m)^(from \.parser_dispatch import parser_entry_point.*)$",
+        r"(?m)^(from logic\.controllers\.parser_dispatch import parser_entry_point.*)$",
         r"# \1  # AUTO-REMOVED",
         content,
     )
@@ -58,7 +58,7 @@ def main() -> None:
     to_delete = [
         root / "logic/src/cli",
         root / "logic/src/file_system.py",
-        root / "logic/parser_dispatch.py",
+        root / "logic/controllers/parser_dispatch.py",
     ]
     for path in to_delete:
         remove_path(path)

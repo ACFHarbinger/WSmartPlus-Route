@@ -74,7 +74,7 @@ def main():
     to_delete = [
         root / "logic/src/ui",
         root / "logic/src/utils/ui",
-        root / "logic/dashboard_entry.py",
+        root / "logic/controllers/dashboard_entry.py",
         root / "logic/test/unit/ui",
         root / "logic/configs/ui",
         root / "logic/src/constants/dashboard.py",

@@ -47,6 +47,8 @@ ms_strategy := ""
 improver := ""
 dry_run := "false"
 quiet := "false"
+batch_cfg := "logic/configs/batch.yaml"
+fail_fast := "false"
 
 # --- Submodules ---
 
@@ -175,6 +177,10 @@ algo-export constructors="" selectors="" improvement="" acceptance="" joint="" m
 # Generic run command — pass any main.py arguments directly
 run *args: helper::_print_header
     uv run python main.py {{ args }}
+
+# Run a batch of experiments from a YAML config file
+batch-run batch_cfg=batch_cfg dry_run=dry_run fail_fast=fail_fast: helper::_print_header
+    just controller::batch-run '{{ batch_cfg }}' '{{ dry_run }}' '{{ fail_fast }}'
 
 # Commit using the .gitmessage template
 commit message: helper::_print_header
