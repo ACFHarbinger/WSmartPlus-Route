@@ -108,7 +108,7 @@ def _name_from_expand_vars(
     """
     if not name_template:
         parts = []
-        for key, val in expand_vars.items():
+        for _key, val in expand_vars.items():
             if isinstance(val, (list, tuple)):
                 parts.append("_".join(str(v) for v in val))
             else:
@@ -201,7 +201,7 @@ class BatchExpander:
         dim_values = [expand_block[d] for d in dim_names]
 
         for combo_index, combo in enumerate(itertools.product(*dim_values)):
-            expand_vars: Dict[str, Any] = dict(zip(dim_names, combo))
+            expand_vars: Dict[str, Any] = dict(zip(dim_names, combo, strict=True))
 
             # Build Hydra overrides for this combination
             combo_overrides: List[str] = list(base_overrides)

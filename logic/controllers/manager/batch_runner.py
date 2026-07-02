@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:

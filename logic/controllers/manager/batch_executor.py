@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from .batch_job import BatchJob, JobResult
-from .batch_step import CONDITION_ALWAYS, BatchStep
+from .batch_step import BatchStep
 from .batch_step_executor import run_step
 
 __all__ = ["BatchExecutor"]

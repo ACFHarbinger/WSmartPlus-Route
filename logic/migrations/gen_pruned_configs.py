@@ -113,7 +113,7 @@ def generate_pruned_config(full: dict, root_dir: str) -> str:
 
 def find_config_files(output_dir: str):
     """Yield all hydra/config.yaml paths under output_dir."""
-    for root, dirs, files in os.walk(output_dir):
+    for root, _dirs, files in os.walk(output_dir):
         if os.path.basename(root) == "hydra" and "config.yaml" in files:
             yield os.path.join(root, "config.yaml")
 
