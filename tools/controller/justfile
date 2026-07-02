@@ -111,8 +111,8 @@ gen-data problem="":
 
 # Run a batch of experiments from a YAML config
 
-# Usage: just controller::batch-run batch_cfg=logic/configs/batch.yaml [dry_run=true] [fail_fast=true] [n_cores=20]
-batch-run batch_cfg="" dry_run="false" fail_fast="false" n_cores="0":
+# Usage: just controller::batch-run batch_cfg=logic/configs/batch.yaml [dry_run=true] [fail_fast=true] [n_cores=20] [resume=true]
+batch-run batch_cfg="" dry_run="false" fail_fast="false" n_cores="0" resume="false":
     @printf "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[1m%-58s\033[0m   \033[0;36m║\033[0m\n" "📦 STARTING BATCH RUN"
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
@@ -120,12 +120,14 @@ batch-run batch_cfg="" dry_run="false" fail_fast="false" n_cores="0":
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Dry run:" "{{ dry_run }}"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Fail fast:" "{{ fail_fast }}"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Max cores:" "{{ n_cores }} (0 = use config / sequential)"
+    @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Resume:" "{{ resume }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
     uv run python -m logic.controllers.manager.batch_runner \
         --batch_cfg {{ batch_cfg }} \
         $([ '{{ dry_run }}' = 'true' ] && echo '--dry_run' || true) \
         $([ '{{ fail_fast }}' = 'true' ] && echo '--fail_fast' || true) \
-        $([ '{{ n_cores }}' != '0' ] && echo '--n_cores {{ n_cores }}' || true)
+        $([ '{{ n_cores }}' != '0' ] && echo '--n_cores {{ n_cores }}' || true) \
+        $([ '{{ resume }}' = 'true' ] && echo '--resume' || true)
 
 # Generate test-simulator data for Figueira da Foz plastic (350 bins, gamma3, 30 + 90 days)
 gen-data-figfoz-plastic:
