@@ -15,9 +15,70 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
-import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
+import { listen } from "@tauri-apps/api/event";
+import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
-import type { DirEntry, TrainingRun, TrainingMetricsRow } from "../../types";
+import { useProcessStore } from "../../store/process";
+import type { DirEntry, StdoutLine, TrainingRun, TrainingMetricsRow } from "../../types";
+
+// Signal keys that identify a line as a training metric (covers Lightning column variants)
+const METRIC_SIGNAL_KEYS = [
+  "train_loss", "train/rl_loss", "train/il_loss",
+  "val_loss", "val/cost", "val_cost",
+  "reward", "grad_norm", "entropy", "epoch", "step",
+];
+
+// Virtual key used for the live-process entry in metricsMap
+const LIVE_KEY = "__live__";
+
+/**
+ * Parse a stdout line as a training metric row.
+ * Accepts pure JSON and key=value pair formats.
+ * Returns null when no metric signal keys are detected.
+ */
+function parseMetricLine(line: string): TrainingMetricsRow | null {
+  const text = line.startsWith("[stderr]") ? line.slice(8) : line;
+  try {
+    const obj = JSON.parse(text) as Record<string, unknown>;
+    if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
+      return normalizeMetricRow(obj);
+    }
+  } catch {}
+  if (METRIC_SIGNAL_KEYS.some((k) => text.includes(k))) {
+    const row: Record<string, number> = {};
+    for (const [, key, val] of text.matchAll(/(\w[\w/]*)=([0-9.eE+\-]+)/g)) {
+      row[key] = parseFloat(val);
+    }
+    if (Object.keys(row).length > 0) return normalizeMetricRow(row);
+  }
+  return null;
+}
+
+/**
+ * Normalize Lightning CSV column aliases to the canonical TrainingMetricsRow keys.
+ * Lightning logs loss as "train/rl_loss", LR as "lr-Adam", etc.
+ */
+function normalizeMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
+  const r = { ...raw } as TrainingMetricsRow;
+  // Loss normalization
+  if (r.train_loss == null) {
+    r.train_loss = (raw["train/rl_loss"] ?? raw["train/il_loss"]) as number | undefined;
+  }
+  // Validation normalization
+  if (r.val_loss == null) {
+    r.val_loss = (raw["val/cost"] ?? raw["val_cost"]) as number | undefined;
+  }
+  // LR normalization: lr-Adam, lr-SGD, lr_scheduler, etc.
+  if (r.lr == null) {
+    for (const key of Object.keys(raw)) {
+      if (key !== "lr" && key.startsWith("lr") && typeof raw[key] === "number") {
+        r.lr = raw[key] as number;
+        break;
+      }
+    }
+  }
+  return r;
+}
 
 // ── Colour palette for multi-run overlay
 const RUN_COLORS = [
@@ -341,6 +402,47 @@ export function TrainingMonitor() {
 
   const logsPath = projectRoot ? `${projectRoot}/logs` : "";
 
+  // ── Live training mode: watch for an active train_* process
+  const processes = useProcessStore((s) => s.processes);
+  const activeTrainId = useMemo(
+    () =>
+      Object.keys(processes).find(
+        (id) => id.startsWith("train_") && processes[id].status === "running"
+      ) ?? null,
+    [processes]
+  );
+
+  // Subscribe to stdout of the active training process and accumulate live rows
+  useEffect(() => {
+    if (!activeTrainId) {
+      setMetricsMap((m) => {
+        if (!m[LIVE_KEY]) return m;
+        const next = { ...m };
+        delete next[LIVE_KEY];
+        return next;
+      });
+      return;
+    }
+    setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [] }));
+    let unlisten: (() => void) | null = null;
+    listen<StdoutLine>("process:stdout", (event) => {
+      const { id, line } = event.payload;
+      if (id !== activeTrainId) return;
+      const row = parseMetricLine(line);
+      if (row) setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [...(m[LIVE_KEY] ?? []), row] }));
+    }).then((fn) => { unlisten = fn; });
+    return () => { unlisten?.(); };
+  }, [activeTrainId]);
+
+  // Auto-select the live key when a train process starts
+  useEffect(() => {
+    if (activeTrainId && !selected.includes(LIVE_KEY)) {
+      setSelected((s) => [LIVE_KEY, ...s]);
+    } else if (!activeTrainId) {
+      setSelected((s) => s.filter((k) => k !== LIVE_KEY));
+    }
+  }, [activeTrainId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const discover = useCallback(async () => {
     if (!logsPath) return;
     setLoading(true);
@@ -359,10 +461,10 @@ export function TrainingMonitor() {
   const loadMetrics = useCallback(
     async (run: TrainingRun) => {
       if (metricsMap[run.name]) return;
-      const rows = await invoke<TrainingMetricsRow[]>("load_training_metrics", {
+      const rows = await invoke<Record<string, unknown>[]>("load_training_metrics", {
         runPath: run.path,
       });
-      setMetricsMap((m) => ({ ...m, [run.name]: rows }));
+      setMetricsMap((m) => ({ ...m, [run.name]: rows.map(normalizeMetricRow) }));
     },
     [metricsMap]
   );
@@ -382,13 +484,18 @@ export function TrainingMonitor() {
     [runs, selected]
   );
 
-  const runsMetrics = useMemo(
-    () =>
-      selectedRunObjects
-        .map((r) => ({ name: r.name, metrics: metricsMap[r.name] ?? [] }))
-        .filter((rm) => rm.metrics.length > 0),
-    [selectedRunObjects, metricsMap]
-  );
+  const runsMetrics = useMemo(() => {
+    const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
+    // Live entry first
+    if (selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0) {
+      result.push({ name: "Live Training", metrics: metricsMap[LIVE_KEY] });
+    }
+    for (const r of selectedRunObjects) {
+      const metrics = metricsMap[r.name] ?? [];
+      if (metrics.length > 0) result.push({ name: r.name, metrics });
+    }
+    return result;
+  }, [selected, selectedRunObjects, metricsMap]);
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
@@ -429,6 +536,30 @@ export function TrainingMonitor() {
         </div>
       )}
 
+      {/* Live training indicator */}
+      {activeTrainId && (
+        <div className="card border-accent-success/30">
+          <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selected.includes(LIVE_KEY)}
+              onChange={() =>
+                setSelected((s) =>
+                  s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
+                )
+              }
+              className="accent-accent-primary"
+            />
+            <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+            <span className="text-sm text-accent-success font-mono flex-1">Live Training</span>
+            <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{activeTrainId}</span>
+            <span className="text-xs text-accent-success">
+              {metricsMap[LIVE_KEY]?.length ?? 0} updates
+            </span>
+          </label>
+        </div>
+      )}
+
       {/* Run selector */}
       {runs.length > 0 && (
         <div className="card">
@@ -437,7 +568,8 @@ export function TrainingMonitor() {
           </p>
           <div className="space-y-1">
             {runs.map((run, i) => {
-              const color = RUN_COLORS[i % RUN_COLORS.length];
+              const liveOffset = activeTrainId ? 1 : 0;
+              const color = RUN_COLORS[(i + liveOffset) % RUN_COLORS.length];
               return (
                 <label
                   key={run.name}
@@ -470,8 +602,22 @@ export function TrainingMonitor() {
       {/* Multi-run overlay chart */}
       {runsMetrics.length > 0 && <MultiRunChart runsMetrics={runsMetrics} />}
 
+      {/* Live run detail panel */}
+      {selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-accent-success animate-pulse" />
+            <p className="text-xs font-mono text-accent-success">Live Training</p>
+            <span className="text-xs text-canvas-muted">{metricsMap[LIVE_KEY].length} updates</span>
+          </div>
+          <GradNormSparkline metrics={metricsMap[LIVE_KEY]} />
+          <LrSparkline metrics={metricsMap[LIVE_KEY]} />
+        </div>
+      )}
+
       {/* Per-run panels (grad norm, hparams, checkpoints) */}
       {selectedRunObjects.map((run, i) => {
+        const liveOffset = activeTrainId ? 1 : 0;
         const metrics = metricsMap[run.name];
         if (!metrics) {
           return (
@@ -485,7 +631,7 @@ export function TrainingMonitor() {
             key={run.name}
             run={run}
             metrics={metrics}
-            color={RUN_COLORS[i % RUN_COLORS.length]}
+            color={RUN_COLORS[(i + liveOffset) % RUN_COLORS.length]}
             onLoadCheckpoint={handleLoadCheckpoint}
           />
         );

@@ -21,6 +21,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - Wired into `generate_markdown` at the end of section 2 (Analytics Comparison — Pareto View)
 - `public/simulation_analysis.md` — "Pareto-Front Policy Catalogue" table inserted at the end of §2 (22 rows; BPC + ACO_HH + PG-CLNS dominate the front across all panels)
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twelfth pass
+
+Twelfth implementation pass: live training mode in TrainingMonitor (§G.17); Lightning column
+normalization in TrainingMonitor and TrainingHub (§G.17 parity); §G.16 Streamlit parity confirmed.
+
+**React frontend**
+- `pages/monitor/TrainingMonitor.tsx` — live training mode (§G.17) + column normalization:
+  - `LIVE_KEY = "__live__"` constant: virtual run key for the live process entry in `metricsMap`
+  - `normalizeMetricRow(raw)`: maps Lightning CSV column aliases to canonical `TrainingMetricsRow` keys — `train/rl_loss` / `train/il_loss` → `train_loss`; `val/cost` / `val_cost` → `val_loss`; `lr-*` prefix variants → `lr`; applied at both CSV load time and live stdout parse time
+  - `parseMetricLine(line)` extended with `/`-containing key patterns (`\w[\w/]*`) to handle Lightning's `/`-separated metric names in key=value format
+  - `METRIC_SIGNAL_KEYS` extended with Lightning variants: `train/rl_loss`, `train/il_loss`, `val/cost`, `val_cost`
+  - `activeTrainId`: `useMemo` over `useProcessStore` — first `train_*` process with `status === "running"`
+  - Live stdout `useEffect`: when `activeTrainId` is set, initializes `metricsMap[LIVE_KEY] = []` and attaches a `process:stdout` listener that calls `parseMetricLine` and appends parsed rows; cleans up on `activeTrainId` change
+  - Auto-select `useEffect`: prepends `LIVE_KEY` to `selected` when `activeTrainId` appears; removes it when process exits
+  - `runsMetrics` memo: live entry inserted first with `name: "Live Training"`
+  - Live entry in run selector: `Radio` icon with `animate-pulse`; update count shown; checkbox to toggle manually
+  - Live `RunPanel`-style block: green pulsing dot header + `GradNormSparkline` + `LrSparkline` for the live row set
+  - CSV loading now applies `normalizeMetricRow` via `rows.map(normalizeMetricRow)` in `loadMetrics`
+- `pages/launch/TrainingHub.tsx` — column normalization sync:
+  - `METRIC_SIGNAL_KEYS` extended with Lightning column variants (same set as `TrainingMonitor.tsx`)
+  - `normalizeMetricRow()` added (identical implementation); applied inside `parseMetricLine` for both JSON and key=value code paths
+  - key=value regex updated to `(\w[\w/]*)` to capture `/`-separated metric names
+
+**ROADMAP**
+- §G.16 Streamlit parity check confirmed and checked
+- §G.17 live training mode checked
+- §G.17 column normalization checked
+- §G.17 Streamlit parity check checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eleventh pass
 
 Eleventh implementation pass: session persistence for all three launcher forms (§G.9/G.10/G.11);
