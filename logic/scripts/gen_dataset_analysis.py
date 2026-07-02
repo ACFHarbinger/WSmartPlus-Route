@@ -466,6 +466,31 @@ def build_td_table(td: pd.DataFrame) -> str:
 
 # ── Markdown builder ───────────────────────────────────────────────────────────
 
+def _apply_figure_table_numbers_ds(md: str) -> str:
+    """Add sequential Figure N and Table N labels to dataset analysis markdown."""
+    import re as _re
+    fig_n = [0]
+    tab_n = [0]
+
+    def _fig_num(m):
+        fig_n[0] += 1
+        return f'{m.group(1)}\n\n**Figure {fig_n[0]}:** {m.group(2)}\n'
+
+    md = _re.sub(
+        r'(<figure\b[^>]*>.*?</figure>)\n+(\*[^*\n][^\n]*\*)\n',
+        _fig_num,
+        md,
+        flags=_re.DOTALL,
+    )
+
+    def _tab_num(m):
+        tab_n[0] += 1
+        return f'**Table {tab_n[0]}:** *{m.group(1).strip()}*'
+
+    md = _re.sub(r'_TABCAP_: ([^\n]+)', _tab_num, md)
+    return md
+
+
 def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
                       figures_rel: str, private_rel: str) -> str:
     cities = sorted(npz["city"].unique())
@@ -508,6 +533,7 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
             city_sections.append(f"![30-day vs 90-day Horizon Comparison]({figures_rel}/npz_horizon_comparison.png)\n")
             city_sections.append("*Comparison of 30-day and 90-day horizon statistics.*\n")
         city_sections.append(f"\n### Statistics Summary — {city_l} (30-day horizon)\n")
+        city_sections.append(f"_TABCAP_: NPZ dataset statistics for {city_l} — mean, std, max waste and overflow percentage per network size and distribution (30-day horizon).\n")
         city_sections.append(build_npz_table(npz_sub))
         city_sections.append(f"\n{PLACEHOLDER}\n")
 
@@ -521,6 +547,7 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
         "![Training Data Waste Distributions](figures/datasets/td_waste_distributions.png)\n\n"
         "*Bar chart of mean and std waste fractions per network size.*\n\n"
         "### TD Statistics Summary\n\n"
+        "_TABCAP_: Training data (TD) statistics — mean, std, and skewness of normalised waste values per network size and distribution.\n\n"
         + build_td_table(td)
         + "\n\n"
         + PLACEHOLDER
@@ -532,6 +559,7 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
         "![City Comparison Overview](figures/datasets/npz_city_comparison.png)\n\n"
         "*Key statistics across cities and distributions.*\n\n"
         "### Statistics Summary — All Cities (30-day horizon)\n\n"
+        "_TABCAP_: NPZ dataset statistics across all cities — mean, std, max waste and overflow percentage per city and distribution (30-day horizon).\n\n"
         + build_npz_table(npz)
         + "\n\n"
         + PLACEHOLDER
@@ -548,41 +576,56 @@ def generate_markdown(npz: pd.DataFrame, td: pd.DataFrame,
         + "\n\n---"
     ) if total_td else "---"
 
-    md = textwrap.dedent(f"""\
-    # WSmart+ Route — Dataset Analysis Report
+    md = f"""\
+# WSmart+ Route — Dataset Analysis Report
 
-    > **Scope:** NPZ simulator datasets and TensorDict training datasets
-    > **Cities:** {', '.join(city_labels)}
-    > **Distributions:** {', '.join(DIST_LABELS.get(d, d) for d in dists)}
-    > **Horizons analysed:** {', '.join(str(h) + ' days' for h in horizons)}
-    > **Total NPZ dataset entries:** {total_npz}
-    > **Generated:** <!-- date -->
+> **Scope:** NPZ simulator datasets and TensorDict training datasets
+> **Cities:** {', '.join(city_labels)}
+> **Distributions:** {', '.join(DIST_LABELS.get(d, d) for d in dists)}
+> **Horizons analysed:** {', '.join(str(h) + ' days' for h in horizons)}
+> **Total NPZ dataset entries:** {total_npz}
+> **Generated:** <!-- date -->
 
-    ---
+---
 
-    ## Table of Contents
+## Table of Contents
 
-    {toc}
+{toc}
 
-    ---
+---
 
-    {td_section}
+{td_section}
 
-    {"".join(city_sections)}
+{"".join(city_sections)}
 
-    {city_cmp_section}
+{city_cmp_section}
 
-    {alignment_section}
+{alignment_section}
 
-    *Figures are stored in `{figures_rel}/`.*
-    *Raw statistics: `public/global/datasets/td_stats.csv` and `public/global/datasets/npz_stats.csv`.*
+*Figures are stored in `{figures_rel}/`.*
+*Raw statistics: `public/global/datasets/td_stats.csv` and `public/global/datasets/npz_stats.csv`.*
 
-    ## Interactive Charts
+## Interactive Charts
 
-    - [NPZ Statistics — Mean vs Std Scatter]({private_rel}/npz_stats_interactive.html)
-    - [Waste Distribution by City and Network Size]({private_rel}/waste_distribution_interactive.html)
-    - [City & Network Comparison]({private_rel}/city_network_comparison_interactive.html)
-    """)
+- [NPZ Statistics — Mean vs Std Scatter]({private_rel}/npz_stats_interactive.html)
+- [Waste Distribution by City and Network Size]({private_rel}/waste_distribution_interactive.html)
+- [City & Network Comparison]({private_rel}/city_network_comparison_interactive.html)
+    """
+
+    import re as _re
+    # Convert all ![alt](path) markdown images to full-width HTML.
+    md = _re.sub(
+        r"!\[([^\]]*)\]\(([^)]+)\)",
+        lambda m: (
+            f'<figure style="display:block;width:100%;margin:0.8em 0;padding:0;">'
+            f'<img src="{m.group(2)}" alt="{m.group(1)}" width="100%"'
+            f' style="width:100% !important;max-width:100% !important;'
+            f'height:auto !important;display:block !important;margin:0;" />'
+            f'</figure>'
+        ),
+        md,
+    )
+    md = _apply_figure_table_numbers_ds(md)
     return md
 
 
