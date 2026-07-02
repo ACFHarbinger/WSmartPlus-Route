@@ -7,9 +7,48 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown } from "lucide-react";
+import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown, Trash2 } from "lucide-react";
 import { useProcessStore } from "../store/process";
 import { StatusPill } from "../components/ui/StatusPill";
+
+/**
+ * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
+ * Renders level-coloured output when successful; falls back to plain text.
+ */
+function LogLine({ line }: { line: string }) {
+  const isStderr = line.startsWith("[stderr]");
+  const text = isStderr ? line.slice(8) : line;
+
+  try {
+    const json = JSON.parse(text) as Record<string, unknown>;
+    const level = String(json.level ?? json.levelname ?? json.severity ?? "").toUpperCase();
+    const msg = String(json.msg ?? json.message ?? json.text ?? text);
+    const ts = String(json.timestamp ?? json.time ?? json.ts ?? json.t ?? "");
+
+    const levelColor =
+      level.startsWith("ERR") || level.startsWith("CRIT") || level.startsWith("FATAL")
+        ? "text-accent-danger"
+        : level.startsWith("WARN")
+        ? "text-accent-warning"
+        : level.startsWith("DEBUG")
+        ? "text-canvas-muted"
+        : "text-gray-400";
+
+    return (
+      <span>
+        {ts && <span className="text-canvas-muted mr-2 text-[10px]">{ts.slice(0, 19)}</span>}
+        {level && (
+          <span className={`font-semibold mr-2 ${levelColor}`}>[{level.slice(0, 5)}]</span>
+        )}
+        <span className="text-gray-300">{msg}</span>
+      </span>
+    );
+  } catch {
+    return (
+      <span className={isStderr ? "text-accent-warning" : "text-gray-400"}>{line}</span>
+    );
+  }
+}
 
 function useLiveDuration(startTime: number, stopped: boolean): string {
   const [elapsed, setElapsed] = useState(Date.now() - startTime);
@@ -29,6 +68,7 @@ function useLiveDuration(startTime: number, stopped: boolean): string {
 
 function ProcessRow({ id }: { id: string }) {
   const proc = useProcessStore((s) => s.processes[id]);
+  const removeProcess = useProcessStore((s) => s.removeProcess);
   const [expanded, setExpanded] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const logRef = useRef<HTMLDivElement>(null);
@@ -82,6 +122,15 @@ function ProcessRow({ id }: { id: string }) {
               Cancel
             </button>
           )}
+          {stopped && (
+            <button
+              onClick={() => removeProcess(id)}
+              className="btn-ghost p-1.5 text-canvas-muted hover:text-accent-danger"
+              title="Remove from history"
+            >
+              <Trash2 size={12} />
+            </button>
+          )}
           <button
             className="btn-ghost p-1.5 text-canvas-muted"
             onClick={() => setExpanded((v) => !v)}
@@ -119,15 +168,8 @@ function ProcessRow({ id }: { id: string }) {
               <span className="text-canvas-muted">No output yet…</span>
             )}
             {proc.logLines.map((line, i) => (
-              <div
-                key={i}
-                className={`py-px ${
-                  line.startsWith("[stderr]")
-                    ? "text-accent-warning"
-                    : "text-gray-400"
-                }`}
-              >
-                {line}
+              <div key={i} className="py-px">
+                <LogLine line={line} />
               </div>
             ))}
           </div>
@@ -139,12 +181,14 @@ function ProcessRow({ id }: { id: string }) {
 
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
+  const clearCompleted = useProcessStore((s) => s.clearCompleted);
 
   const ids = Object.keys(processes).sort(
     (a, b) => (processes[b].startTime ?? 0) - (processes[a].startTime ?? 0)
   );
 
   const running = ids.filter((id) => processes[id].status === "running").length;
+  const completed = ids.length - running;
 
   if (ids.length === 0) {
     return (
@@ -162,11 +206,17 @@ export function ProcessMonitor() {
         <p className="text-sm text-canvas-muted">
           {ids.length} process{ids.length !== 1 ? "es" : ""}
           {running > 0 && (
-            <span className="ml-2 text-accent-success">
-              · {running} running
-            </span>
+            <span className="ml-2 text-accent-success">· {running} running</span>
           )}
         </p>
+        {completed > 0 && (
+          <button
+            onClick={clearCompleted}
+            className="btn-ghost text-xs text-canvas-muted ml-auto"
+          >
+            Clear completed ({completed})
+          </button>
+        )}
       </div>
 
       {ids.map((id) => (
