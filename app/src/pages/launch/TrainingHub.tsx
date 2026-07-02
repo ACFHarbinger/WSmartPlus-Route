@@ -489,12 +489,22 @@ export function TrainingHub() {
                 <span className="text-xs text-canvas-muted">{liveMetrics.length} updates</span>
               )}
             </div>
-            <button
-              onClick={() => setMode("process_monitor")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Process Monitor
-            </button>
+            <div className="flex items-center gap-2">
+              {isDone && runStatus === "completed" && (
+                <button
+                  onClick={() => setMode("output_browser")}
+                  className="btn-ghost text-xs text-accent-success"
+                >
+                  Output Browser →
+                </button>
+              )}
+              <button
+                onClick={() => setMode("process_monitor")}
+                className="btn-ghost text-xs text-canvas-muted"
+              >
+                Process Monitor
+              </button>
+            </div>
           </div>
 
           {/* Latest metric snapshot */}

@@ -140,32 +140,32 @@ function MultiRunChart({
   );
 }
 
-// ── Gradient norm sparkline
-function GradNormSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
-  const data = metrics
-    .filter((r) => r.grad_norm != null)
-    .map((r) => [r.epoch ?? r.step ?? 0, r.grad_norm!]);
-
+// ── Shared sparkline — small ECharts for a single scalar column
+function MetricSparkline({
+  label,
+  data,
+  color,
+}: {
+  label: string;
+  data: [number, number][];
+  color: string;
+}) {
   if (data.length === 0) return null;
-
   return (
     <div className="card">
-      <p className="text-xs text-canvas-muted mb-1">Gradient Norm</p>
+      <p className="text-xs text-canvas-muted mb-1">{label}</p>
       <ReactECharts
         option={{
           backgroundColor: "transparent",
           grid: { left: 40, right: 10, top: 8, bottom: 28 },
-          xAxis: {
-            type: "value",
-            axisLabel: { color: "#9090b0", fontSize: 9 },
-          },
+          xAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
           yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
           series: [{
             type: "line",
             data,
             smooth: false,
-            lineStyle: { color: "#f87171", width: 1.5 },
-            areaStyle: { color: "rgba(248,113,113,0.1)" },
+            lineStyle: { color, width: 1.5 },
+            areaStyle: { color: `${color}1a` },
             symbol: "none",
           }],
           tooltip: { trigger: "axis" },
@@ -174,6 +174,20 @@ function GradNormSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
       />
     </div>
   );
+}
+
+function GradNormSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
+  const data = metrics
+    .filter((r) => r.grad_norm != null)
+    .map((r): [number, number] => [r.epoch ?? r.step ?? 0, r.grad_norm!]);
+  return <MetricSparkline label="Gradient Norm" data={data} color="#f87171" />;
+}
+
+function LrSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
+  const data = metrics
+    .filter((r) => r.lr != null)
+    .map((r): [number, number] => [r.step ?? r.epoch ?? 0, r.lr!]);
+  return <MetricSparkline label="Learning Rate" data={data} color="#fbbf24" />;
 }
 
 // ── Hyperparameter panel (reads hparams.yaml, renders flat key-value table)
@@ -310,6 +324,7 @@ function RunPanel({
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
       <GradNormSparkline metrics={metrics} />
+      <LrSparkline metrics={metrics} />
       {run.has_hparams && <HparamsPanel runPath={run.path} />}
       <CheckpointBrowser runPath={run.path} onLoadInEvalRunner={onLoadCheckpoint} />
     </div>
