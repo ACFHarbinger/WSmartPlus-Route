@@ -10,10 +10,10 @@
  * "Copy overrides" serialises only the changed keys as Hydra override strings
  * for pasting into the Simulation Launcher or Training Hub.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare } from "lucide-react";
+import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save } from "lucide-react";
 import { toast } from "sonner";
 
 type ViewMode = "raw" | "table" | "diff";
@@ -51,6 +51,9 @@ export function ConfigEditor() {
   const [diffPath, setDiffPath] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("raw");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  // Track the last-saved content to detect unsaved edits
+  const savedContentRef = useRef("");
 
   const openFile = useCallback(async (target: "primary" | "diff") => {
     const path = (await open({
@@ -64,6 +67,7 @@ export function ConfigEditor() {
       if (target === "primary") {
         setContent(text);
         setFilePath(path);
+        savedContentRef.current = text;
       } else {
         setDiffContent(text);
         setDiffPath(path);
@@ -74,6 +78,20 @@ export function ConfigEditor() {
       setLoading(false);
     }
   }, []);
+
+  const saveFile = useCallback(async () => {
+    if (!filePath || !content) return;
+    setSaving(true);
+    try {
+      await invoke("write_text_file", { path: filePath, content });
+      savedContentRef.current = content;
+      toast.success("Saved", { description: filePath.split("/").pop() });
+    } catch (err) {
+      toast.error("Save failed", { description: String(err) });
+    } finally {
+      setSaving(false);
+    }
+  }, [filePath, content]);
 
   const copyOverrides = useCallback(async () => {
     if (!content) return;
@@ -90,6 +108,8 @@ export function ConfigEditor() {
       toast.error("Clipboard write failed — copy manually from the Raw view");
     }
   }, [content]);
+
+  const isDirty = content !== savedContentRef.current && filePath !== null;
 
   const rows = parseYamlFlat(content);
   const diffRows = parseYamlFlat(diffContent);
@@ -120,6 +140,15 @@ export function ConfigEditor() {
 
         {content && (
           <>
+            <button
+              onClick={saveFile}
+              disabled={saving || !isDirty}
+              className="btn-ghost flex items-center gap-2 text-sm disabled:opacity-40"
+              title={isDirty ? "Save file to disk" : "No unsaved changes"}
+            >
+              {saving ? <RefreshCw size={13} className="animate-spin" /> : <Save size={13} />}
+              {isDirty ? "Save*" : "Save"}
+            </button>
             <button onClick={copyOverrides} className="btn-ghost flex items-center gap-2 text-sm">
               <Copy size={13} />
               Copy Overrides

@@ -1075,7 +1075,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React form: full parameter set — 8-policy multi-select checkboxes, graph area text input, `num_loc` / `n_samples` / `cpu_cores` / `seed` number fields, data distribution radio (Normal / Gamma / Empirical); exactly mirrors `just controller::test-sim` Hydra args
 - [x] "Advanced Overrides" collapsible panel: free-form textarea for arbitrary Hydra overrides (§D.6 Option A); live command preview below the form
 - [ ] Policy selection panel: load registered policy names from the §B.3 plugin registry at runtime (currently hardcoded 8 policies)
-- [ ] Live status display: current day, overflow count, kg/km so far (parsed from `sim:day_update` events)
+- [x] Live status display: after launch, subscribes to `process:stdout` events for the spawned process ID; parses `GUI_DAY_LOG_START:` markers; displays a per-policy card grid with day / profit / km / overflows in real time; "View Summary →" and "Process Monitor" navigation buttons shown on completion
 - [ ] On completion: auto-navigate to the Simulation Monitor with the new log pre-loaded
 - [ ] Session persistence for form values via Tauri Store plugin (§D.4)
 
@@ -1140,10 +1140,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] "Copy Overrides" button: serialises flat key=value lines to clipboard via `navigator.clipboard`
 - [x] Config diff view: highlights changed keys between primary and comparison file (e.g. `pruned_config.yaml` from two different runs)
 - [x] Rust `read_text_file` command for loading any text file
+- [x] Rust `write_text_file` command: creates parent directories if needed; used by the Save button
+- [x] "Save" button in toolbar: writes edited Raw content back to the opened file path; active only when unsaved edits exist (dirty state tracked via `savedContentRef`); `Save*` label indicates unsaved changes
 - [ ] Load the resolved Hydra config tree via `main.py <task> --cfg job` (subprocess integration)
 - [ ] Form mode: type-appropriate widgets generated from OmegaConf schema
 - [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
-- [ ] "Save as YAML" button: write edited config to `logic/configs/overrides/`
 - [ ] "Apply to Launcher" button: populate the active launcher panel with the edited values
 
 ---
@@ -1179,12 +1180,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] `which_python` resolves `<workingDir>/.venv/bin/python` first (uv-managed venv), then system PATH
 - [x] Process list panel: full tabular layout — `StatusPill` + process ID + command + PID + live duration (`useLiveDuration` hook, 1s tick, stops when process ends) + exit code badge; sorted newest-first
 - [x] Inline log viewer per process: expand/collapse toggle, auto-scroll checkbox, stderr lines coloured `text-accent-warning`; scroll locked at 2000 lines via process store
-- [ ] Structured log parsing: JSON-formatted log lines → colour-coded fields (level, message, metrics)
-- [ ] Structured log parsing: if the process emits JSON-formatted log lines, parse and highlight fields (level, message, metrics) with colour coding
+- [x] Structured log parsing: `LogLine` component tries `JSON.parse` on each line; if successful and has `level`/`msg`/`message` fields, renders timestamp (ISO prefix), colour-coded level badge (danger/warning/muted/gray), and message; falls back to plain text for non-JSON lines
+- [x] Remove button per completed process row (`Trash2` icon); "Clear completed (N)" bulk action in the header
+- [x] `clearCompleted` action added to process store: removes all non-running entries
+- [x] Process history persistence: `useProcessStore` wrapped in Zustand `persist` middleware; `partialize` strips `logLines` and caps at last 50 completed processes; survives app restart
 - [ ] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers
 - [ ] Cancel any running process (§D.5): button in the process list row; sends SIGTERM
 - [ ] Toast notification on process completion / failure (§D.8)
-- [ ] Process history: persist last 50 completed process entries to Tauri Store; display in the list even after app restart
 
 ---
 
@@ -1199,6 +1201,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Tour table**: stop #, bin ID, fill %, collected ✓/—, mandatory !/— columns; reads `tour_indices` preferentially, falls back to `tour`; limited to 60 rows with count shown; show/hide toggle
 - [x] **Daily metrics chart**: ECharts `line` timeseries for all 4 primary KPIs across all loaded days; rendered as a 4-column grid
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
+- [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
 - [ ] **Policy / Sample multi-select**: replace single dropdown with a multi-select component so multiple policies or samples can be overlaid simultaneously on the KPI timeseries
 - [ ] **Streamlit parity check**: verify all fields from `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` are represented

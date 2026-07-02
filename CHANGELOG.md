@@ -11,6 +11,46 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixth pass
+
+Sixth implementation pass: SimulationLauncher gains a live-status panel (§G.9); ConfigEditor gains a
+Save button (§G.13); ProcessMonitor gains structured JSON log rendering and persistent history (§G.15);
+SimulationSummary is rewritten with a ranking table, per-day trajectory chart, and four metric charts.
+
+**Rust backend**
+- `commands/data.rs` — `write_text_file(path, content)`: writes (or overwrites) any text file; creates parent directories; used by ConfigEditor Save button; registered in `lib.rs`
+
+**React frontend**
+- `pages/SimulationLauncher.tsx` — live-status panel (§G.9):
+  - After launch, subscribes to `process:stdout` Tauri events filtered by the spawned process ID
+  - Parses `GUI_DAY_LOG_START:` markers (same protocol as `sim_watcher.rs`) to extract `DayLogEntry` JSON
+  - Displays a per-policy card grid with latest day / profit / km / overflows in real time
+  - Status header: animated `Activity` icon while running; `CheckCircle`/`XCircle` on completion
+  - "View Summary →" button navigates to `simulation_summary` mode; "Process Monitor" button to `process_monitor`
+- `pages/ConfigEditor.tsx` — Save button (§G.13):
+  - Calls `write_text_file` Tauri command with the currently open path and textarea content
+  - Tracks dirty state via `savedContentRef` (updates on open + save); button label shows `Save*` when unsaved edits exist; disabled when no changes
+  - `Save` icon from lucide-react; spinner shown during write
+- `pages/SimulationSummary.tsx` — full rewrite:
+  - `RankingTable` component: sortable by any of 4 metrics (profit / km / overflows / kg); click column header to sort ascending/descending; shows mean ± std in `font-mono`; coloured policy dot + rank number
+  - `TrajectoryChart` component: single ECharts line chart overlaying all policies across simulation days (mean per day, averaged across samples); metric selector tabs (Overflows / Profit / Distance / Waste); 8-colour palette
+  - `MetricBarChart` component: per-metric bar chart with std dev exposed in tooltip hover
+  - `aggregateByPolicyAndDay` helper for trajectory data: groups entries by `(policy, day)`, averages across samples
+  - `std()` helper function
+- `pages/ProcessMonitor.tsx` — improvements (§G.15):
+  - `LogLine` component: attempts `JSON.parse` on each log line; if the result has `level`/`levelname`/`severity` and `msg`/`message`/`text` fields, renders timestamp prefix + colour-coded level badge (danger/warning/muted/default) + message body; falls back to raw string otherwise
+  - Per-row `Trash2` "Remove" button for completed processes
+  - "Clear completed (N)" header button calls `clearCompleted` store action
+- `store/process.ts` — persistence and bulk-clear (§G.15):
+  - Wrapped `create` in `persist` middleware; `partialize` strips `logLines` and retains only the last 50 non-running processes; stored under key `"wsmart-studio-processes"`
+  - `clearCompleted()` action: removes all entries with `status !== "running"` from the map
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — §G.9 live-status item checked; §G.13 `write_text_file` and Save button checked; §G.15 structured log parsing, remove/clear buttons, and history persistence checked; §G.16 Simulation Summary rewrite noted
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifth pass
 
 Fifth implementation pass: SimulationMonitor gains day-scrubber controls, a bin-fill strip chart,

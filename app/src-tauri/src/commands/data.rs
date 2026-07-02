@@ -166,6 +166,15 @@ pub fn read_text_file(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| format!("{e}: {path}"))
 }
 
+/// Write (overwrite) any text file — used by ConfigEditor to save changes to YAML configs.
+#[tauri::command]
+pub fn write_text_file(path: String, content: String) -> Result<(), String> {
+    if let Some(parent) = std::path::Path::new(&path).parent() {
+        std::fs::create_dir_all(parent).map_err(|e| format!("mkdir: {e}"))?;
+    }
+    std::fs::write(&path, &content).map_err(|e| format!("{e}: {path}"))
+}
+
 /// List all files (non-recursive) inside a directory, returning name + extension + size.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DirEntry {
