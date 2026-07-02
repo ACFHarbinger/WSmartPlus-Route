@@ -21,6 +21,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - Wired into `generate_markdown` at the end of section 2 (Analytics Comparison — Pareto View)
 - `public/simulation_analysis.md` — "Pareto-Front Policy Catalogue" table inserted at the end of §2 (22 rows; BPC + ACO_HH + PG-CLNS dominate the front across all panels)
 
+#### WSmart-Route Studio — Tauri App (`app/`) — tenth pass
+
+Tenth implementation pass: process toast notifications (§G.15); per-process progress bar (§G.15);
+policy multi-select overlay on KPI timeseries (§G.16).
+
+**React frontend**
+- `hooks/useProcessMonitor.ts` — toast notifications (§G.15):
+  - `import { toast } from "sonner"` added
+  - `StatusUpdate` listener fires `toast.success` (4 s) / `toast.error` (6 s) / `toast.info` (3 s) on terminal status transitions; human-readable label extracted via `id.split("_")[0]`
+- `pages/monitor/ProcessMonitor.tsx` — progress bar (§G.15):
+  - `PROGRESS_MARKER = "PROGRESS:"` constant + `ProgressInfo` interface added
+  - `getLatestProgress(logLines)` scans last 30 log lines for `PROGRESS:{json}` markers; returns `{ value, total?, label? }`; accepts both `value` and `current` keys
+  - Progress bar rendered in `ProcessRow` between header row and log viewer when process is running and progress data is present; deterministic `width: pct%` bar when `total` is known, indeterminate pulsing bar otherwise
+- `pages/monitor/SimulationMonitor.tsx` — policy multi-select overlay (§G.16):
+  - `POLICY_COLORS` 8-colour palette (`#6366f1`, `#34d399`, `#f87171`, …) defined at module level
+  - `MetricTimeseries` refactored: replaces `entries` + implicit single series with `policySeries: { policy; entries; color }[]`; builds one ECharts line series per policy; shows legend when >1 series; top grid margin increases to 20 when legend is visible; area fill only when single series
+  - `chartPolicies: string[]` state + `activeChartPolicies` memo (defaults to all policies when `chartPolicies` is empty)
+  - `toggleChartPolicy(p)` callback: XOR toggle; prevents deselecting all (resets to full set)
+  - `policySeries` memo: maps each `activeChartPolicy` to filtered entries + assigned color
+  - Chip-toggle row rendered below header controls when ≥2 policies present; chip border/text/background tinted with policy color; inactive chips at 35% opacity
+
+**ROADMAP**
+- §G.15 progress bar checked; cancel button confirmed already wired (no code change); toast notifications checked
+- §G.16 policy/sample multi-select checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninth pass
 
 Ninth implementation pass: DataGeneration live progress panel (§G.11); OutputBrowser simulation

@@ -1183,9 +1183,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Remove button per completed process row (`Trash2` icon); "Clear completed (N)" bulk action in the header
 - [x] `clearCompleted` action added to process store: removes all non-running entries
 - [x] Process history persistence: `useProcessStore` wrapped in Zustand `persist` middleware; `partialize` strips `logLines` and caps at last 50 completed processes; survives app restart
-- [ ] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers
-- [ ] Cancel any running process (§D.5): button in the process list row; sends SIGTERM
-- [ ] Toast notification on process completion / failure (§D.8)
+- [x] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers — `PROGRESS:{json}` protocol; `getLatestProgress()` scans last 30 log lines; deterministic bar when `total` is known, indeterminate pulse otherwise
+- [x] Cancel any running process (§D.5): button in the process list row; sends SIGTERM (`cancel_process` command already wired in `ProcessRow`)
+- [x] Toast notification on process completion / failure (§D.8): `useProcessMonitor` fires `toast.success/error/info` on terminal status transitions; label derived from `id.split("_")[0]`
 
 ---
 
@@ -1202,7 +1202,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
-- [ ] **Policy / Sample multi-select**: replace single dropdown with a multi-select component so multiple policies or samples can be overlaid simultaneously on the KPI timeseries
+- [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [ ] **Streamlit parity check**: verify all fields from `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` are represented
 
 ---

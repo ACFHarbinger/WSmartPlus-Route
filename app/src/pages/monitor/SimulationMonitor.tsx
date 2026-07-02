@@ -50,18 +50,40 @@ function computeDelta(entries: DayLogEntry[], day: number, key: string): number 
   return a - b;
 }
 
-// ── Metric timeseries chart (mirrors create_sparkline_svg in charts.py)
+// 8-colour palette for policy overlay (distinct, readable on dark bg)
+const POLICY_COLORS = [
+  "#6366f1", "#34d399", "#f87171", "#fbbf24",
+  "#a78bfa", "#fb923c", "#38bdf8", "#f472b6",
+];
+
+// ── Metric timeseries chart — supports multi-policy overlay
 function MetricTimeseries({
-  entries,
+  policySeries,
   metricKey,
   label,
 }: {
-  entries: DayLogEntry[];
+  policySeries: { policy: string; entries: DayLogEntry[]; color: string }[];
   metricKey: string;
   label: string;
 }) {
-  const days = entries.map((e) => e.day);
-  const values = entries.map((e) => ((e.data as Record<string, number>)[metricKey] ?? null));
+  const allDays = [...new Set(policySeries.flatMap((s) => s.entries.map((e) => e.day)))].sort(
+    (a, b) => a - b
+  );
+
+  const series = policySeries.map(({ policy, entries, color }) => ({
+    name: policy,
+    type: "line" as const,
+    smooth: true,
+    symbol: "circle",
+    symbolSize: 3,
+    lineStyle: { color, width: 1.8 },
+    itemStyle: { color },
+    areaStyle: policySeries.length === 1 ? { color: `${color}1e` } : undefined,
+    data: allDays.map((day) => {
+      const e = entries.find((en) => en.day === day);
+      return e ? ((e.data as Record<string, number>)[metricKey] ?? null) : null;
+    }),
+  }));
 
   return (
     <div className="card">
@@ -69,22 +91,20 @@ function MetricTimeseries({
       <ReactECharts
         option={{
           backgroundColor: "transparent",
-          grid: { left: 40, right: 10, top: 10, bottom: 30 },
-          xAxis: { type: "category", data: days, axisLabel: { color: "#9090b0", fontSize: 10 } },
+          grid: { left: 40, right: 10, top: policySeries.length > 1 ? 20 : 10, bottom: 30 },
+          xAxis: {
+            type: "category",
+            data: allDays,
+            axisLabel: { color: "#9090b0", fontSize: 10 },
+          },
           yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 10 } },
-          series: [{
-            type: "line",
-            data: values,
-            smooth: true,
-            lineStyle: { color: "#6366f1", width: 2 },
-            areaStyle: { color: "rgba(99,102,241,0.12)" },
-            symbol: "circle",
-            symbolSize: 4,
-            itemStyle: { color: "#818cf8" },
-          }],
+          legend: policySeries.length > 1
+            ? { data: policySeries.map((s) => s.policy), textStyle: { color: "#9090b0", fontSize: 9 }, top: 0 }
+            : undefined,
+          series,
           tooltip: { trigger: "axis" },
         }}
-        style={{ height: 120 }}
+        style={{ height: 140 }}
       />
     </div>
   );
@@ -275,6 +295,38 @@ export function SimulationMonitor() {
   const [showBinFill, setShowBinFill] = useState(true);
   const [showTourTable, setShowTourTable] = useState(false);
 
+  // Chart policy overlay — defaults to all policies; separate from detail-panel selectedPolicy
+  const [chartPolicies, setChartPolicies] = useState<string[]>([]);
+  const activeChartPolicies = useMemo(
+    () => (chartPolicies.length > 0 ? chartPolicies : policies),
+    [chartPolicies, policies]
+  );
+
+  const toggleChartPolicy = useCallback(
+    (p: string) => {
+      setChartPolicies((prev) => {
+        const active = prev.length > 0 ? prev : policies;
+        if (active.includes(p)) {
+          const next = active.filter((x) => x !== p);
+          return next.length === 0 ? policies : next;
+        }
+        return [...active, p];
+      });
+    },
+    [policies]
+  );
+
+  // Build per-policy series for MetricTimeseries
+  const policySeries = useMemo(
+    () =>
+      activeChartPolicies.map((p, i) => ({
+        policy: p,
+        color: POLICY_COLORS[i % POLICY_COLORS.length],
+        entries: filterEntries(entries, p, selectedSample),
+      })),
+    [activeChartPolicies, entries, selectedSample]
+  );
+
   return (
     <div className="space-y-4">
       {/* Header controls */}
@@ -370,6 +422,33 @@ export function SimulationMonitor() {
         )}
       </div>
 
+      {/* Policy overlay chip selector — shown when ≥2 policies are present */}
+      {policies.length > 1 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-canvas-muted shrink-0">Charts:</span>
+          {policies.map((p, i) => {
+            const color = POLICY_COLORS[i % POLICY_COLORS.length];
+            const active = activeChartPolicies.includes(p);
+            return (
+              <button
+                key={p}
+                onClick={() => toggleChartPolicy(p)}
+                className={`text-xs px-2 py-0.5 rounded-full border transition-opacity ${
+                  active ? "opacity-100" : "opacity-35"
+                }`}
+                style={{
+                  borderColor: color,
+                  color: active ? color : undefined,
+                  background: active ? `${color}18` : undefined,
+                }}
+              >
+                {p}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {!displayEntry && (
         <div className="flex flex-col items-center justify-center h-64 text-canvas-muted gap-3">
           <p className="text-sm">Open a simulation log file to begin monitoring.</p>
@@ -417,12 +496,12 @@ export function SimulationMonitor() {
             </div>
           )}
 
-          {/* Timeseries charts */}
+          {/* Timeseries charts — one per primary KPI, each overlaying activeChartPolicies */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {PRIMARY_KPIS.map(({ key, label }) => (
               <MetricTimeseries
                 key={key}
-                entries={filteredEntries}
+                policySeries={policySeries}
                 metricKey={key}
                 label={label}
               />
