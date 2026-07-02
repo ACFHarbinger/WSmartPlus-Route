@@ -20,6 +20,21 @@ After all jobs:
 5. **Setup / teardown steps** are orchestrated by ``BatchManager``, not by
    this class.
 
+Parallel mode
+-------------
+When ``max_cores > 0`` is passed to ``run_jobs``, the executor launches jobs
+concurrently using threads, subject to the per-job ``cores_estimate`` budget:
+
+* A new job is launched as soon as ``used_cores + job.cores_estimate <= max_cores``
+  (or immediately if no other jobs are running, to prevent deadlock).
+* All git operations (git_add, git_commit, git_branch, git_push, create_pr)
+  are serialised with a shared lock so concurrent post-steps cannot corrupt the
+  git index simultaneously.
+* Each job's Hydra subprocess receives ``job.runtime_env`` merged into its
+  environment, enabling per-job config isolation (e.g. ``WSR_POLICY_CONFIG_DIR``).
+* ``sim.cpu_cores`` is overridden per-job with ``job.cores_estimate`` so the
+  simulation uses exactly the cores allocated to it.
+
 Design rationale
 ----------------
 Running Hydra in a subprocess avoids the singleton ``ConfigStore`` conflict that
@@ -30,17 +45,21 @@ would run ``python main.py`` repeatedly from a shell.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from .batch_job import BatchJob, JobResult
 from .batch_step import BatchStep
 from .batch_step_executor import run_step
 
 __all__ = ["BatchExecutor"]
+
+_GIT_STEP_TYPES = frozenset({"git_add", "git_commit", "git_branch", "git_push", "create_pr"})
 
 _BRIGHT = "\033[1m"
 _GREEN = "\033[92m"
@@ -69,7 +88,7 @@ def _warn(text: str) -> None:
 
 
 class BatchExecutor:
-    """Execute a sequence of batch jobs.
+    """Execute a sequence of batch jobs, optionally in parallel.
 
     Parameters
     ----------
@@ -88,25 +107,40 @@ class BatchExecutor:
         dry_run: bool = False,
     ) -> None:
         if project_root is None:
-            # This file lives at logic/controllers/manager/batch_executor.py
             project_root = Path(__file__).resolve().parents[3]
         self._root = project_root
         self._fail_fast = fail_fast
         self._dry_run = dry_run
+        # Set to a Lock in parallel mode; None in sequential mode.
+        self._git_lock: Optional[threading.Lock] = None
+        self._parallel_mode: bool = False
 
     # -----------------------------------------------------------------------
     # Public API
     # -----------------------------------------------------------------------
 
-    def run_jobs(self, jobs: List[BatchJob]) -> List[JobResult]:
-        """Execute all jobs in sequence, returning their results.
+    def run_jobs(self, jobs: List[BatchJob], max_cores: int = 0) -> List[JobResult]:
+        """Execute all jobs, returning their results.
+
+        When ``max_cores > 0`` the executor uses a parallel scheduler.
+        Sequential mode (``max_cores <= 0``) retains the original behaviour.
 
         Args:
             jobs: Ordered list of ``BatchJob`` instances to execute.
+            max_cores: Total CPU budget.  0 or negative → sequential.
 
         Returns:
-            List of ``JobResult`` objects, one per job.
+            List of ``JobResult`` objects, one per job (same order as input).
         """
+        if max_cores > 0:
+            return self._run_jobs_parallel(jobs, max_cores)
+        return self._run_jobs_sequential(jobs)
+
+    # -----------------------------------------------------------------------
+    # Sequential execution (original behaviour)
+    # -----------------------------------------------------------------------
+
+    def _run_jobs_sequential(self, jobs: List[BatchJob]) -> List[JobResult]:
         results: List[JobResult] = []
         succeeded_flags: List[bool] = []
 
@@ -128,19 +162,57 @@ class BatchExecutor:
         return results
 
     # -----------------------------------------------------------------------
-    # Internals
+    # Parallel execution
+    # -----------------------------------------------------------------------
+
+    def _run_jobs_parallel(self, jobs: List[BatchJob], max_cores: int) -> List[JobResult]:
+        """Launch jobs concurrently subject to the ``max_cores`` budget."""
+        self._parallel_mode = True
+        self._git_lock = threading.Lock()
+
+        results: List[Optional[JobResult]] = [None] * len(jobs)
+        cond = threading.Condition()
+        used_cores: List[int] = [0]
+
+        def _thread_body(job: BatchJob, idx: int, cores: int) -> None:
+            _header(f"[{job.index + 1}/{len(jobs)}] {job.task.upper()} — {job.name} (parallel)")
+            result = self._run_single_job(job, [])
+            results[idx] = result
+            if result.succeeded:
+                _ok(f"Job '{job.name}' finished successfully")
+            else:
+                _fail(f"Job '{job.name}' FAILED")
+            with cond:
+                used_cores[0] -= cores
+                cond.notify_all()
+
+        threads: List[threading.Thread] = []
+        for idx, job in enumerate(jobs):
+            cores = job.cores_estimate
+
+            with cond:
+                # Wait until there is room, but never deadlock: if nothing is
+                # running we always proceed regardless of the core count.
+                while used_cores[0] > 0 and used_cores[0] + cores > max_cores:
+                    cond.wait()
+                used_cores[0] += cores
+
+            t = threading.Thread(target=_thread_body, args=(job, idx, cores), daemon=True)
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        self._parallel_mode = False
+        self._git_lock = None
+        return [r for r in results if r is not None]
+
+    # -----------------------------------------------------------------------
+    # Single-job execution (shared by both modes)
     # -----------------------------------------------------------------------
 
     def _run_single_job(self, job: BatchJob, succeeded_so_far: List[bool]) -> JobResult:
-        """Execute one job: pre-steps → task → post-steps.
-
-        Args:
-            job: The job to execute.
-            succeeded_so_far: Boolean list of prior job outcomes.
-
-        Returns:
-            ``JobResult`` capturing what happened.
-        """
         last_succeeded: Optional[bool] = succeeded_so_far[-1] if succeeded_so_far else None
         result = JobResult(job=job)
         start_time = time.monotonic()
@@ -173,7 +245,6 @@ class BatchExecutor:
         print(f"  Task duration: {elapsed:.1f}s")
 
         # --- Post-steps -------------------------------------------------------
-        # Updated succeeded list includes the just-executed job
         updated_succeeded = list(succeeded_so_far) + [result.succeeded]
         updated_last = result.succeeded
 
@@ -192,31 +263,43 @@ class BatchExecutor:
     def _execute_task(self, job: BatchJob) -> int:
         """Launch the Hydra task in a subprocess.
 
-        Args:
-            job: Job whose task and overrides to execute.
-
-        Returns:
-            Process exit code (0 on success).
+        In parallel mode ``sim.cpu_cores`` is replaced with the job's
+        ``cores_estimate`` so each simulation uses exactly its allocated slots.
+        ``job.runtime_env`` is merged into the subprocess environment to pass
+        per-job config overrides (e.g. ``WSR_POLICY_CONFIG_DIR``).
         """
         main_py = self._root / "main.py"
-        cmd = [sys.executable, str(main_py), job.task, *job.overrides]
+        overrides = self._effective_overrides(job)
+        cmd = [sys.executable, str(main_py), job.task, *overrides]
         print(f"  [task] {' '.join(cmd)}")
 
         if self._dry_run:
             print("  [dry_run] Skipping actual execution.")
             return 0
 
-        proc = subprocess.run(cmd, cwd=self._root)
+        env: Optional[Dict[str, str]] = None
+        if job.runtime_env:
+            env = {**os.environ, **job.runtime_env}
+
+        proc = subprocess.run(cmd, cwd=self._root, env=env)
         return proc.returncode
 
-    def _execute_step(self, step: BatchStep, job: BatchJob) -> None:
-        """Execute a single step, respecting dry-run mode.
+    def _effective_overrides(self, job: BatchJob) -> List[str]:
+        """Return overrides, substituting sim.cpu_cores in parallel mode."""
+        if not self._parallel_mode:
+            return job.overrides
+        overrides = [o for o in job.overrides if not o.startswith("sim.cpu_cores=")]
+        overrides.append(f"sim.cpu_cores={job.cores_estimate}")
+        return overrides
 
-        Args:
-            step: Step to run.
-            job: Owning job (provides template context).
-        """
+    def _execute_step(self, step: BatchStep, job: BatchJob) -> None:
+        """Execute a single step, serialising git operations in parallel mode."""
         if self._dry_run:
             print(f"  [dry_run] Would run step: {step.display_name()} args={step.args}")
             return
-        run_step(step, job)
+
+        if self._git_lock is not None and step.type in _GIT_STEP_TYPES:
+            with self._git_lock:
+                run_step(step, job)
+        else:
+            run_step(step, job)

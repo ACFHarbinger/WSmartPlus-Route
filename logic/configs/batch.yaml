@@ -1,169 +1,1339 @@
 # @package _global_
 # =============================================================================
-# Batch Task Configuration — WSmart-Route Batch Manager
+# Batch Configuration — 90-day Pareto-Front Policy Simulations
 # =============================================================================
-# This is the REFERENCE / TEMPLATE batch config.  Copy this file and customise
-# it for your specific experiment.  Pass the path to BatchManager.from_yaml()
-# or invoke it via:
+# Runs every policy configuration that appeared on the Pareto front in the
+# 30-day study across all 6 scenarios (3 regions × 2 distributions) for 90
+# days.  Results are committed after each simulation completes.
 #
-#     just batch-run batch_cfg=logic/configs/batch/my_experiment.yaml
+# Run with:
+#     just batch-run batch_cfg=logic/configs/batch.yaml
 #
+# Output structure (mirrors 30-day layout):
+#   assets/output/90days/{area}{N}_plastic/{dist}/{run_name}/
+#
+# Pareto-front constructors per run type:
+#   la_cls  — Lookahead  + CLS:  bpc, pg_clns
+#   la_ftsp — Lookahead  + FTSP: aco_hh, bpc, swc_tcf
+#   lm_cls  — Last Minute (CF70+CF90) + CLS:  bpc, hgs, pg_clns
+#   lm_ftsp — Last Minute (CF70+CF90) + FTSP: bpc
+#   sl_cls  — Service Level (SL1+SL2) + CLS:  aco_hh, bpc, pg_clns, sans
+#   sl_ftsp — Service Level (SL1+SL2) + FTSP: aco_hh, bpc, pg_clns, psoma
+#
+# Scenarios (6):
+#   riomaior/100/emp · riomaior/100/gamma3
+#   riomaior/170/emp · riomaior/170/gamma3
+#   figueiradafoz/350/emp · figueiradafoz/350/gamma3
+#
+# Policy YAML patching
+# --------------------
+# Each run type requires a different mandatory_selection / route_improvement
+# combination.  A patch_policy_yaml pre-step rewrites the relevant policy YAML
+# files before launching the Hydra subprocess (exactly as was done manually for
+# the 30-day runs), and a restore_policy_yaml post-step (condition: always)
+# restores the originals regardless of whether the simulation succeeded.
 # =============================================================================
 
-# ─── Batch metadata ──────────────────────────────────────────────────────────
-name: "example_batch"
+name: "pareto_front_90day"
 
-# Abort immediately if any job fails (default: false — run all jobs)
 fail_fast: false
-
-# Print commands without executing (default: false)
 dry_run: false
+max_cores: 20
 
-# ─── Global setup steps (run ONCE before ALL jobs) ───────────────────────────
 setup:
-  # Example: create a dedicated git branch for the entire batch
-  - type: git_branch
-    name: "create_experiment_branch"
+  - type: delete_path
     args:
-      branch_name: "experiment/batch-{{ name }}"
-      create: true
+      path: "assets/output/90days"
+      missing_ok: true
 
-  # Example: generate distance matrices for all regions used in the batch
-  # - type: gen_dist_matrix
-  #   args:
-  #     area: figueiradafoz
-  #     check_exists: true
-
-  # Example: arbitrary shell command
-  # - type: shell
-  #   args:
-  #     command: "echo 'Batch {{ name }} starting' >> batch.log"
-
-# ─── Global teardown steps (run ONCE after ALL jobs) ─────────────────────────
-teardown:
-  # Run only if EVERY job succeeded
-  - type: create_pr
-    name: "open_pr_on_success"
-    condition: all_succeeded
-    args:
-      title: "Batch results: {{ name }}"
-      body: "Automated batch run completed successfully."
-      base: main
-      draft: false
-
-  # Always push results regardless of outcome
-  # - type: git_push
-  #   condition: always
-  #   args:
-  #     remote: origin
-  #     set_upstream: true
-
-  # Clean up temporary files created for this batch
-  # - type: delete_path
-  #   condition: always
-  #   args:
-  #     path: assets/tmp/batch_scratch
-  #     missing_ok: true
+teardown: []
 
 # ─── Individual runs ─────────────────────────────────────────────────────────
+# 36 runs = 6 run types × 6 scenarios
+# =============================================================================
+
 runs:
 
-  # ── Example 1: Concrete single run with explicit overrides ─────────────────
-  - task: test_sim
-    name: "alns_simulation_figfoz"
-    overrides:
-      - "sim.policies=[alns,hgs,psoma]"
-      - "sim.graph.area=figueiradafoz"
-      - "sim.graph.num_loc=350"
-      - "sim.graph.waste_type=plastic"
-      - "sim.graph.n_samples=1"
-      - "sim.days=31"
-      - "tracking=test_sim"
-    pre_steps:
-      # Generate distance matrix if it doesn't already exist
-      - type: gen_dist_matrix
-        name: "prepare_distance_matrix"
-        args:
-          area: figueiradafoz
-          check_exists: true
-    post_steps:
-      # Stage and commit simulation outputs
-      - type: git_commit
-        name: "commit_sim_results"
-        condition: last_succeeded
-        args:
-          message: "sim: ALNS+HGS+PSOMA results for figueiradafoz ({name})"
-          add_pattern: "assets/output/**"
-
-  # ── Example 2: Cartesian-product expansion ────────────────────────────────
-  # The `expand` block defines dimensions and their value lists.
-  # The BatchExpander computes the full Cartesian product:
-  #   3 policies × 2 ms strategies = 6 jobs.
-  #
-  # Dimension mapping (built-in):
-  #   policies            → sim.policies=[{value}]
-  #   mandatory_selection → sim.policy.mandatory_selection.strategy={value}
-  #   constructors        → sim.policy.constructor={value}
-  #   route_improvers     → sim.policy.route_improver={value}
-  #   acceptance_criteria → sim.policy.acceptance_criterion={value}
-  #   models              → train.policy.model.name={value}
-  #   rl_algorithms       → rl.algorithm={value}
-  #
-  # Values that are lists (like policies) are automatically joined with commas.
+  # ===========================================================================
+  # la_cls — Lookahead + CLS | constructors: bpc, pg_clns
+  # ===========================================================================
 
   - task: test_sim
-    expand:
-      # Each policies entry is itself a list (the single-policy sim.policies=[...])
-      policies:
-        - [alns]
-        - [hgs]
-        - [psoma]
-      # Mandatory node selection strategy applied to ALL policies above
-      mandatory_selection:
-        - lookahead
-        - last_minute_cf70   # maps to the last_minute.threshold config entry
-    # Name template supports all dimension keys as {dim_name}
-    name_template: "{policies}_{mandatory_selection}"
-    # Overrides applied to every expanded job (in addition to dimension overrides)
-    base_overrides:
+    name: "la_cls"
+    overrides:
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_cls riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_cls"
+    overrides:
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_cls riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_cls"
+    overrides:
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_cls riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_cls"
+    overrides:
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_cls riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_cls"
+    overrides:
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
       - "sim.graph.area=figueiradafoz"
       - "sim.graph.num_loc=350"
-      - "sim.graph.waste_type=plastic"
-      - "sim.days=31"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
     pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
       - type: gen_dist_matrix
         args:
           area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
           check_exists: true
     post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
       - type: git_commit
         condition: last_succeeded
         args:
-          # {name} is the rendered job name (e.g. "alns_lookahead")
-          message: "sim: expand results [{name}]"
-          add_pattern: "assets/output/**"
+          message: "sim: 90d la_cls figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
 
-  # ── Example 3: Training run followed by test-sim using trained weights ─────
-  # First train a model …
-  - task: train
-    name: "train_am_figfoz"
+  - task: test_sim
+    name: "la_cls"
     overrides:
-      - "train.policy.model.name=am"
-      - "train.env.curriculum_graphs[0].area=figueiradafoz"
-      - "train.env.curriculum_graphs[0].num_loc=350"
-      - "train.n_epochs=50"
+      - "sim.run_name=la_cls"
+      - "sim.policies=[bpc,pg_clns]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, pg_clns]
+          mandatory_selection: lookahead
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
     post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, pg_clns]
       - type: git_commit
         condition: last_succeeded
         args:
-          message: "train: AM model for figueiradafoz ({name})"
-          add_pattern: "assets/model_weights/**"
+          message: "sim: 90d la_cls figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
 
-  # … then evaluate it in the simulator
-  # (adjust model_weights_path to match actual training output)
-  # - task: test_sim
-  #   name: "eval_am_figfoz"
-  #   overrides:
-  #     - "sim.policies=[psoma]"
-  #     - "sim.graph.area=figueiradafoz"
-  #     - "sim.policy.model.weights_path=assets/model_weights/best.pt"
+  # ===========================================================================
+  # la_ftsp — Lookahead + FTSP | constructors: aco_hh, bpc, swc_tcf
+  # ===========================================================================
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "la_ftsp"
+    overrides:
+      - "sim.run_name=la_ftsp"
+      - "sim.policies=[aco_hh,bpc,swc_tcf]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+          mandatory_selection: lookahead
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, swc_tcf]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d la_ftsp figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  # ===========================================================================
+  # lm_cls — Last Minute (CF70+CF90) + CLS | constructors: bpc, hgs, pg_clns
+  # ===========================================================================
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_cls"
+    overrides:
+      - "sim.run_name=lm_cls"
+      - "sim.policies=[bpc,hgs,pg_clns]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc, hgs, pg_clns]
+          mandatory_selection: last_minute
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc, hgs, pg_clns]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_cls figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  # ===========================================================================
+  # lm_ftsp — Last Minute (CF70+CF90) + FTSP | constructors: bpc
+  # ===========================================================================
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "lm_ftsp"
+    overrides:
+      - "sim.run_name=lm_ftsp"
+      - "sim.policies=[bpc]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [bpc]
+          mandatory_selection: last_minute
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [bpc]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d lm_ftsp figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  # ===========================================================================
+  # sl_cls — Service Level (SL1+SL2) + CLS | constructors: aco_hh, bpc, pg_clns, sans
+  # ===========================================================================
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_cls"
+    overrides:
+      - "sim.run_name=sl_cls"
+      - "sim.policies=[aco_hh,bpc,pg_clns,sans]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+          mandatory_selection: service_level
+          route_improvement: cls
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, sans]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_cls figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  # ===========================================================================
+  # sl_ftsp — Service Level (SL1+SL2) + FTSP | constructors: aco_hh, bpc, pg_clns, psoma
+  # ===========================================================================
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp riomaior-100/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=100"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp riomaior-100/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp riomaior-170/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=riomaior"
+      - "sim.graph.num_loc=170"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: riomaior
+          waste_type: plastic
+          method: gmaps
+          dm_filepath: "gmaps_distmat_plastic[riomaior].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp riomaior-170/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=emp"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp figueiradafoz-350/emp"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"
+
+  - task: test_sim
+    name: "sl_ftsp"
+    overrides:
+      - "sim.run_name=sl_ftsp"
+      - "sim.policies=[aco_hh,bpc,pg_clns,psoma]"
+      - "sim.graph.area=figueiradafoz"
+      - "sim.graph.num_loc=350"
+      - "sim.data_distribution=gamma3"
+      - "sim.graph.n_days=90"
+      - "sim.n_samples=1"
+      - "sim.cpu_cores=20"
+    pre_steps:
+      - type: patch_policy_yaml
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+          mandatory_selection: service_level
+          route_improvement: ftsp
+      - type: gen_dist_matrix
+        args:
+          area: figueiradafoz
+          waste_type: plastic
+          method: osm
+          dm_filepath: "osm_distmat_plastic[figueiradafoz].csv"
+          check_exists: true
+    post_steps:
+      - type: restore_policy_yaml
+        condition: always
+        args:
+          policies: [aco_hh, bpc, pg_clns, psoma]
+      - type: git_commit
+        condition: last_succeeded
+        args:
+          message: "sim: 90d sl_ftsp figueiradafoz-350/gamma3"
+          add_pattern: "assets/output/90days/{sim_graph_area}{sim_graph_num_loc}_plastic/{sim_data_distribution}/{sim_run_name}/**"

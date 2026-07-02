@@ -40,6 +40,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=False,
         help="Abort on the first job failure (overrides config).",
     )
+    parser.add_argument(
+        "--n_cores",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Max CPU cores for parallel job scheduling (overrides config max_cores). 0 = sequential.",
+    )
     return parser.parse_args(argv)
 
 
@@ -63,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         mgr._cfg["dry_run"] = True  # type: ignore[index]
     if args.fail_fast:
         mgr._cfg["fail_fast"] = True  # type: ignore[index]
+    if args.n_cores > 0:
+        mgr._cfg["max_cores"] = args.n_cores  # type: ignore[index]
 
     return mgr.run()
 
