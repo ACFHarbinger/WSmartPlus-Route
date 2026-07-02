@@ -7,12 +7,13 @@
  *  • Per-day trajectory overlay chart (overflows / profit over simulation days)
  *  • Four bar charts: profit, km, overflows, kg/km
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown } from "lucide-react";
-import type { DayLogEntry } from "../types";
+import { useAppStore } from "../../store/app";
+import type { DayLogEntry } from "../../types";
 
 // ── Stat helpers ──────────────────────────────────────────────────────────────
 
@@ -326,18 +327,31 @@ function MetricBarChart({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function SimulationSummary() {
+  const { pendingLogPath, setPendingLogPath } = useAppStore();
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
+
+  const loadLog = useCallback(async (path: string) => {
+    const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
+    setEntries(loaded);
+    setLogPath(path);
+  }, []);
+
+  // Auto-load when another page hands off a log path (e.g. OutputBrowser)
+  useEffect(() => {
+    if (pendingLogPath) {
+      loadLog(pendingLogPath);
+      setPendingLogPath(null);
+    }
+  }, [pendingLogPath, setPendingLogPath, loadLog]);
 
   const openLog = useCallback(async () => {
     const path = (await open({
       filters: [{ name: "Logs", extensions: ["jsonl", "log", "txt"] }],
     })) as string | null;
     if (!path) return;
-    const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
-    setEntries(loaded);
-    setLogPath(path);
-  }, []);
+    loadLog(path);
+  }, [loadLog]);
 
   const stats = useMemo(() => aggregateByPolicy(entries), [entries]);
   const policies = useMemo(() => Object.keys(stats), [stats]);

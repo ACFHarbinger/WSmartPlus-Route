@@ -8,8 +8,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown, Trash2 } from "lucide-react";
-import { useProcessStore } from "../store/process";
-import { StatusPill } from "../components/ui/StatusPill";
+import { useProcessStore } from "../../store/process";
+import { StatusPill } from "../../components/ui/StatusPill";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).

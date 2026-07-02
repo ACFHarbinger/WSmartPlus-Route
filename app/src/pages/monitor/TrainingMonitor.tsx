@@ -16,8 +16,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
-import { useAppStore } from "../store/app";
-import type { DirEntry, TrainingRun, TrainingMetricsRow } from "../types";
+import { useAppStore } from "../../store/app";
+import type { DirEntry, TrainingRun, TrainingMetricsRow } from "../../types";
 
 // ── Colour palette for multi-run overlay
 const RUN_COLORS = [

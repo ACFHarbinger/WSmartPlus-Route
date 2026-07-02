@@ -12,8 +12,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { useAppStore } from "../store/app";
-import { useSpawnProcess } from "../hooks/useSpawnProcess";
+import { useAppStore } from "../../store/app";
+import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;

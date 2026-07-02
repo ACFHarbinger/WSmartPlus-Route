@@ -11,6 +11,45 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventh pass
+
+Seventh implementation pass: TrainingHub live progress chart (§G.10); OutputBrowser run
+metadata panel + Sim Summary handoff (§G.14); Settings import/export JSON (§G.19); global
+keyboard shortcuts (§G.7); pages directory reorganised into five subdirectories.
+
+**React frontend**
+- `pages/launch/TrainingHub.tsx` — live progress panel (§G.10):
+  - `parseMetricLine`: tries JSON parse first; falls back to `key=value` scanning; detects rows with `train_loss`, `val_loss`, `reward`, `grad_norm`, `epoch`, or `step` keys
+  - `LiveChart` component: ECharts canvas with train_loss (solid indigo), val_loss (dashed green), reward (dotted amber, right y-axis); shown once ≥ 2 metric rows received
+  - Live snapshot row: epoch / train_loss / val_loss / reward / ‖∇‖ inline below chart
+  - "Process Monitor" navigation button; `CheckCircle`/`XCircle` status header on completion
+- `pages/files/OutputBrowser.tsx` — enhancements (§G.14):
+  - Run metadata card: on `selectRun` auto-loads `pruned_config.yaml` / `config.yaml`; parses flat key-value pairs filtered by `META_KEYS` (task, seed, envs, area, policies, …); shown below the file tree as a compact two-column card
+  - "Open in Sim Summary" button: shown for `.jsonl` files after loading; sets `store.pendingLogPath` + navigates to `simulation_summary`
+- `pages/analysis/SimulationSummary.tsx` — consumes `pendingLogPath` via `useEffect` on mount; calls `loadLog` (extracted from button handler) and clears the store field
+- `pages/app/Settings.tsx` — Backup & Restore card (§G.19):
+  - "Export Settings": opens `save` dialog, serialises `{projectRoot, pythonPath, theme}` to JSON via `write_text_file`
+  - "Import Settings": opens file picker, parses JSON, populates draft fields for review before saving
+- `store/app.ts` — `pendingLogPath: string | null` + `setPendingLogPath` action (ephemeral, not persisted)
+- `App.tsx` — global keyboard shortcuts (§G.7):
+  - `Ctrl+,` → `settings`; `Ctrl+Shift+P` → `process_monitor`
+  - Digit `1`–`8` (when no input focused): quick-switch to simulation / simulation_summary / training / benchmark / sim_launcher / training_hub / process_monitor / settings
+
+**Project structure**
+- `app/src/pages/` reorganised into five subdirectories mirroring sidebar sections:
+  - `monitor/` — SimulationMonitor, TrainingMonitor, ProcessMonitor
+  - `analysis/` — SimulationSummary, BenchmarkAnalysis, DataExplorer, ExperimentTracker, AlgorithmComparison, HPOTracker
+  - `launch/` — SimulationLauncher, TrainingHub, DataGeneration, EvaluationRunner
+  - `files/` — ConfigEditor, OutputBrowser
+  - `app/` — Settings
+- All intra-page imports updated from `../` to `../../`; `App.tsx` import paths updated to `pages/<subdir>/`
+
+#### ROADMAP
+
+- `docs/moon/ROADMAP.md` — §G.10 live training progress checked; §G.14 metadata panel and Open in Sim Summary checked; §G.19 import/export checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixth pass
 
 Sixth implementation pass: SimulationLauncher gains a live-status panel (§G.9); ConfigEditor gains a
