@@ -187,8 +187,13 @@ class BatchManager:
     # Public API
     # -----------------------------------------------------------------------
 
-    def run(self) -> int:
+    def run(self, resume: bool = False) -> int:
         """Execute the entire batch and return an exit code.
+
+        Args:
+            resume: When True, check git history for each job's commit message
+                and skip any job that already has a matching commit.  Setup
+                steps are also suppressed so existing output is not deleted.
 
         Returns:
             0 if all jobs (and setup/teardown) succeeded, 1 otherwise.
@@ -201,24 +206,38 @@ class BatchManager:
         _box(f"WSmart-Route Batch: {name}")
 
         # --- Parse jobs -------------------------------------------------------
-        jobs = self._parse_jobs(cfg.get("runs") or [])
-        _section(f"Jobs: {len(jobs)} total")
+        all_jobs = self._parse_jobs(cfg.get("runs") or [])
+
+        if resume:
+            jobs = self._filter_incomplete_jobs(all_jobs)
+        else:
+            jobs = all_jobs
+
+        _section(f"Jobs: {len(jobs)} to run" + (f" ({len(all_jobs) - len(jobs)} already completed)" if resume else f" total"))
         for j in jobs:
             print(f"  [{j.index + 1}] {j.task} — {j.name}")
         print()
 
+        if not jobs:
+            print(f"{_GREEN}All jobs already completed — nothing to do.{_RESET}\n")
+            return 0
+
         start = time.monotonic()
         overall_ok = True
 
-        # --- Setup steps ------------------------------------------------------
-        setup_steps = _parse_steps(cfg.get("setup") or [])
-        if setup_steps:
+        # --- Setup steps (suppressed in resume mode) --------------------------
+        if resume:
             _section("Setup")
-            for step in setup_steps:
-                ok = self._run_global_step(step, [], None, dry_run)
-                if not ok and fail_fast:
-                    print(f"{_RED}Setup step failed — aborting batch.{_RESET}")
-                    return 1
+            print(f"  {_YELLOW}[resume] Setup steps suppressed — preserving existing output.{_RESET}")
+        else:
+            setup_steps = _parse_steps(cfg.get("setup") or [])
+            if setup_steps:
+                _section("Setup")
+                for step in setup_steps:
+                    ok = self._run_global_step(step, [], None, dry_run)
+                    if not ok and fail_fast:
+                        print(f"{_RED}Setup step failed — aborting batch.{_RESET}")
+                        return 1
 
         # --- Execute jobs -----------------------------------------------------
         max_cores: int = int(cfg.get("max_cores", 0))
@@ -250,6 +269,50 @@ class BatchManager:
     # -----------------------------------------------------------------------
     # Internals
     # -----------------------------------------------------------------------
+
+    def _committed_subjects(self) -> set:
+        """Return the set of git commit subject lines (first line) in HEAD history."""
+        import subprocess as _sp
+
+        result = _sp.run(
+            ["git", "log", "--pretty=format:%s"],
+            cwd=self._root,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            return set()
+        return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+    def _job_commit_message(self, job: BatchJob) -> Optional[str]:
+        """Return the rendered git_commit message for a job, or None if absent."""
+        for step in job.post_steps:
+            if step.type == "git_commit":
+                msg_template: str = step.args.get("message", "")
+                if msg_template:
+                    return job.render_template(msg_template)
+        return None
+
+    def _filter_incomplete_jobs(self, jobs: List[BatchJob]) -> List[BatchJob]:
+        """Return only jobs that do not yet have a matching git commit.
+
+        A job is considered complete when its ``git_commit`` post-step message
+        appears verbatim as a commit subject in the repository's history.  Jobs
+        with no ``git_commit`` step are always included (cannot be detected).
+        """
+        _section("Resume — scanning git history")
+        done = self._committed_subjects()
+        remaining: List[BatchJob] = []
+        for job in jobs:
+            msg = self._job_commit_message(job)
+            if msg and msg in done:
+                print(f"  {_GREEN}✔ already done:{_RESET}  [{job.index + 1}] {job.name}  ({msg})")
+            else:
+                reason = f"commit not found: '{msg}'" if msg else "no git_commit step"
+                print(f"  {_YELLOW}↻ pending:{_RESET}       [{job.index + 1}] {job.name}  ({reason})")
+                remaining.append(job)
+        print()
+        return remaining
 
     def _parse_jobs(self, runs: List[Any]) -> List[BatchJob]:
         """Convert the ``runs`` list into ``BatchJob`` instances.

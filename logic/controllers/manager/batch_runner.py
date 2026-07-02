@@ -47,6 +47,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         metavar="N",
         help="Max CPU cores for parallel job scheduling (overrides config max_cores). 0 = sequential.",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        default=False,
+        help=(
+            "Skip jobs whose git_commit message already exists in the git log. "
+            "Also suppresses setup steps (e.g. directory deletion) so existing output is preserved."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -73,7 +82,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.n_cores > 0:
         mgr._cfg["max_cores"] = args.n_cores  # type: ignore[index]
 
-    return mgr.run()
+    return mgr.run(resume=args.resume)
 
 
 if __name__ == "__main__":
