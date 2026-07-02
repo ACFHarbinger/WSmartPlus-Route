@@ -1,0 +1,9 @@
+- sim.run_name=lm_cls
+- sim.policies=[bpc,hgs,pg_clns]
+- sim.graph.area=riomaior
+- sim.graph.num_loc=170
+- sim.data_distribution=gamma3
+- sim.graph.n_days=90
+- sim.n_samples=1
+- sim.cpu_cores=6
+- tasks=test_sim
