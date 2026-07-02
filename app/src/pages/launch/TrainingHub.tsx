@@ -28,31 +28,43 @@ const ENCODERS = ["gat", "gcn", "mha"] as const;
 const HPO_METHODS = ["nsgaii", "tpe", "dehb", "random"] as const;
 const EVAL_STRATEGIES = ["greedy", "sampling", "beam"] as const;
 
-// Metric keys that indicate a line is a training metric record
-const METRIC_SIGNAL_KEYS = ["train_loss", "val_loss", "reward", "grad_norm", "entropy", "epoch", "step"];
+// Metric keys that identify a training metric line (covers Lightning column variants)
+const METRIC_SIGNAL_KEYS = [
+  "train_loss", "train/rl_loss", "train/il_loss",
+  "val_loss", "val/cost", "val_cost",
+  "reward", "grad_norm", "entropy", "epoch", "step",
+];
+
+function normalizeMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
+  const r = { ...raw } as TrainingMetricsRow;
+  if (r.train_loss == null) r.train_loss = (raw["train/rl_loss"] ?? raw["train/il_loss"]) as number | undefined;
+  if (r.val_loss == null) r.val_loss = (raw["val/cost"] ?? raw["val_cost"]) as number | undefined;
+  if (r.lr == null) {
+    for (const key of Object.keys(raw)) {
+      if (key !== "lr" && key.startsWith("lr") && typeof raw[key] === "number") { r.lr = raw[key] as number; break; }
+    }
+  }
+  return r;
+}
 
 /**
  * Parse a stdout line as a Lightning / custom-logger metric row.
- * Accepts:
- *   • Pure JSON: {"epoch": 1, "train_loss": 0.52, ...}
- *   • key=value pairs: "epoch=1 train_loss=0.52 val_loss=0.58"
+ * Accepts pure JSON and key=value pair formats.
  */
 function parseMetricLine(line: string): TrainingMetricsRow | null {
   const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-  // Try JSON
   try {
     const obj = JSON.parse(text) as Record<string, unknown>;
     if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
-      return obj as TrainingMetricsRow;
+      return normalizeMetricRow(obj);
     }
   } catch {}
-  // Try "key=value" scanning
   if (METRIC_SIGNAL_KEYS.some((k) => text.includes(k))) {
-    const row: TrainingMetricsRow = {};
-    for (const [, key, val] of text.matchAll(/(\w+)=([0-9.eE+\-]+)/g)) {
-      (row as Record<string, number>)[key] = parseFloat(val);
+    const row: Record<string, number> = {};
+    for (const [, key, val] of text.matchAll(/(\w[\w/]*)=([0-9.eE+\-]+)/g)) {
+      row[key] = parseFloat(val);
     }
-    if (Object.keys(row).length > 0) return row;
+    if (Object.keys(row).length > 0) return normalizeMetricRow(row);
   }
   return null;
 }

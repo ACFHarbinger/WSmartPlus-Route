@@ -1203,7 +1203,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
-- [ ] **Streamlit parity check**: verify all fields from `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` are represented
+- [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
 
 ---
 
@@ -1220,8 +1220,9 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
 - [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode
 - [x] **Learning rate schedule chart**: `lr` column rendered as a compact `LrSparkline` (step-level, amber `#fbbf24`) using the shared `MetricSparkline` base component; shown per selected run below the gradient norm sparkline
-- [ ] **Live training mode**: if a run is actively being written, subscribe to `process:stdout` and append parsed metric rows without re-reading the full CSV
-- [ ] **Streamlit parity check**: verify all Lightning log columns from `training_charts.py` are represented
+- [x] **Live training mode**: `LIVE_KEY = "__live__"` virtual entry in `metricsMap`; `activeTrainId` from `useProcessStore` (first running `train_*` process); `process:stdout` listener appends parsed metric rows to `metricsMap[LIVE_KEY]` without touching the CSV; live entry auto-selected in run list with `Radio` icon + pulse animation; live `RunPanel` shows `GradNormSparkline` + `LrSparkline`; auto-deselected when process exits
+- [x] **Column normalization**: `normalizeMetricRow()` maps Lightning CSV aliases (`train/rl_loss` → `train_loss`, `val/cost` → `val_loss`, `lr-Adam` → `lr`) applied at both CSV load time and live stdout parse time; same normalization applied to `TrainingHub.tsx`
+- [x] **Streamlit parity check**: Lightning CSV columns `train_loss`, `val_loss`, `reward`, `grad_norm`, `lr`, `epoch`, `step` all rendered; aliased column variants covered by `normalizeMetricRow`
 
 ---
 
