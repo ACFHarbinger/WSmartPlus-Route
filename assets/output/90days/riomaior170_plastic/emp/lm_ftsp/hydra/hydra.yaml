@@ -1,0 +1,258 @@
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    _target_: hydra._internal.core_plugins.basic_launcher.BasicLauncher
+  sweeper:
+    _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
+    max_batch_size: null
+    params: null
+  help:
+    app_name: ${hydra.job.name}
+    header: '${hydra.help.app_name} is powered by Hydra.
+
+      '
+    footer: 'Powered by Hydra (https://hydra.cc)
+
+      Use --hydra-help to view Hydra specific help
+
+      '
+    template: '${hydra.help.header}
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (group=option)
+
+
+      $APP_CONFIG_GROUPS
+
+
+      == Config ==
+
+      Override anything in the config (foo.bar=value)
+
+
+      $CONFIG
+
+
+      ${hydra.help.footer}
+
+      '
+  hydra_help:
+    template: 'Hydra (${hydra.runtime.version})
+
+      See https://hydra.cc for more info.
+
+
+      == Flags ==
+
+      $FLAGS_HELP
+
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (For example, append hydra/job_logging=disabled
+      to command line)
+
+
+      $HYDRA_CONFIG_GROUPS
+
+
+      Use ''--cfg hydra'' to Show the Hydra config.
+
+      '
+    hydra_help: ???
+  hydra_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][HYDRA] %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+    root:
+      level: INFO
+      handlers:
+      - console
+    loggers:
+      logging_example:
+        level: DEBUG
+    disable_existing_loggers: false
+  job_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][%(name)s][%(levelname)s] - %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+      file:
+        class: logging.FileHandler
+        formatter: simple
+        filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
+    root:
+      level: INFO
+      handlers:
+      - console
+      - file
+    disable_existing_loggers: false
+  env: {}
+  mode: RUN
+  searchpath: []
+  callbacks: {}
+  output_subdir: .hydra
+  overrides:
+    hydra:
+    - hydra.mode=RUN
+    task:
+    - sim.run_name=lm_ftsp
+    - sim.policies=[bpc]
+    - sim.graph.area=riomaior
+    - sim.graph.dm_filepath='gmaps_distmat_plastic[riomaior].csv'
+    - sim.graph.num_loc=170
+    - sim.data_distribution=emp
+    - sim.graph.n_days=90
+    - sim.n_samples=1
+    - sim.cpu_cores=2
+    - tasks=test_sim
+  job:
+    name: hydra_dispatch
+    chdir: null
+    override_dirname: sim.cpu_cores=2,sim.data_distribution=emp,sim.graph.area=riomaior,sim.graph.dm_filepath='gmaps_distmat_plastic[riomaior].csv',sim.graph.n_days=90,sim.graph.num_loc=170,sim.n_samples=1,sim.policies=[bpc],sim.run_name=lm_ftsp,tasks=test_sim
+    id: ???
+    num: ???
+    config_name: config
+    env_set: {}
+    env_copy: []
+    config:
+      override_dirname:
+        kv_sep: '='
+        item_sep: ','
+        exclude_keys: []
+  runtime:
+    version: 1.3.2
+    version_base: '1.3'
+    cwd: /home/pkhunter/Repositories/WSmart-Route
+    config_sources:
+    - path: hydra.conf
+      schema: pkg
+      provider: hydra
+    - path: /home/pkhunter/Repositories/WSmart-Route/logic/configs
+      schema: file
+      provider: main
+    - path: hydra_plugins.hydra_colorlog.conf
+      schema: pkg
+      provider: hydra-colorlog
+    - path: ''
+      schema: structured
+      provider: schema
+    output_dir: /home/pkhunter/Repositories/WSmart-Route/outputs/2026-07-03/16-44-23
+    choices:
+      tasks: test_sim
+      policies@p.vpl: policy_vpl
+      policies@p.nds_brkga: policy_nds_brkga
+      policies@p.vns: policy_vns
+      policies@p.tsp: policy_tsp
+      policies@p.ts: policy_ts
+      policies@p.swc_tcf: policy_swc_tcf
+      policies@p.st_ef: policy_st_ef
+      policies@p.ss_hh: policy_ss_hh
+      policies@p.src: policy_src
+      policies@p.slc: policy_slc
+      policies@p.sisr: policy_sisr
+      policies@p.sca: policy_sca
+      policies@p.sans: policy_sans
+      policies@p.shh: policy_shh
+      policies@p.sa: policy_sa
+      policies@p.rts: policy_rts
+      policies@p.rl_hvpl: policy_rl_hvpl
+      policies@p.rl_gd_hh: policy_rl_gd_hh
+      policies@p.rl_alns: policy_rl_alns
+      policies@p.rfo: policy_rfo
+      policies@p.rens: policy_rens
+      policies@p.qde: policy_qde
+      policies@p.psoma: policy_psoma
+      policies@p.psoda: policy_psoda
+      policies@p.pso: policy_pso
+      policies@p.popmusic: policy_popmusic
+      policies@p.phh: policy_phh
+      policies@p.ph: policy_ph
+      policies@p.pg_clns: policy_pg_clns
+      policies@p.na: policy_na
+      policies@p.mp_pso: policy_mp_pso
+      policies@p.mp_ils: policy_mp_ils
+      policies@p.mp_bmc: policy_mp_bmc
+      policies@p.mp_aco: policy_mp_aco
+      policies@p.mhh: policy_mhh
+      policies@p.ma_ts: policy_ma_ts
+      policies@p.ma_im: policy_ma_im
+      policies@p.ma_dp: policy_ma_dp
+      policies@p.ma: policy_ma
+      policies@p.lrh: policy_lrh
+      policies@p.lca: policy_lca
+      policies@p.lbbd: policy_lbbd
+      policies@p.lb_vns: policy_lb_vns
+      policies@p.lb: policy_lb
+      policies@p.ks: policy_ks
+      policies@p.kgls: policy_kgls
+      policies@p.ils_rvnd_sp: policy_ils_rvnd_sp
+      policies@p.ils_bd: policy_ils_bd
+      policies@p.ils: policy_ils
+      policies@p.hvpl: policy_hvpl
+      policies@p.hulk: policy_hulk
+      policies@p.hs: policy_hs
+      policies@p.hna: policy_hna
+      policies@p.hmlns: policy_hmlns
+      policies@p.hmm_gd_hh: policy_hmm_gd_hh
+      policies@p.hgs_rr: policy_hgs_rr
+      policies@p.hgs_alns: policy_hgs_alns
+      policies@p.hgs: policy_hgs
+      policies@p.gp_mp_hh: policy_gp_mp_hh
+      policies@p.gp_hh: policy_gp_hh
+      policies@p.gls: policy_gls
+      policies@p.gihh: policy_gihh
+      policies@p.genius: policy_genius
+      policies@p.ga: policy_ga
+      policies@p.filo: policy_filo
+      policies@p.fa: policy_fa
+      policies@p.esdp: policy_esdp
+      policies@p.es_mpl: policy_es_mpl
+      policies@p.es_mkl: policy_es_mkl
+      policies@p.es_mcl: policy_es_mcl
+      policies@p.de: policy_de
+      policies@p.cvrp: policy_cvrp
+      policies@p.cp_sat: policy_cp_sat
+      policies@p.cf_rs: policy_cf_rs
+      policies@p.cgh: policy_cgh
+      policies@p.ms_bpc_sp: policy_ms_bpc_sp
+      policies@p.bpc: policy_bpc
+      policies@p.bp: policy_bp
+      policies@p.bc: policy_bc
+      policies@p.bb: policy_bb
+      policies@p.alns_ipo: policy_alns_ipo
+      policies@p.alns: policy_alns
+      policies@p.amphh: policy_amphh
+      policies@p.aks: policy_aks
+      policies@p.aco_ks: policy_aco_ks
+      policies@p.aco_hh: policy_aco_hh
+      policies@p.abpc_hg: policy_abpc_hg
+      policies@p.abc: policy_abc
+      policies@p.hgs_adc: policy_hgs_adc
+      tracking: test_sim
+      hydra/env: default
+      hydra/callbacks: null
+      hydra/job_logging: default
+      hydra/hydra_logging: default
+      hydra/hydra_help: default
+      hydra/help: default
+      hydra/sweeper: basic
+      hydra/launcher: basic
+      hydra/output: default
+  verbose: false
