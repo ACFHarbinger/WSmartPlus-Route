@@ -1,0 +1,9 @@
+- sim.run_name=sl_ftsp
+- sim.policies=[aco_hh,bpc,pg_clns,psoma]
+- sim.graph.area=riomaior
+- sim.graph.num_loc=100
+- sim.data_distribution=emp
+- sim.graph.n_days=90
+- sim.n_samples=1
+- sim.cpu_cores=8
+- tasks=test_sim
