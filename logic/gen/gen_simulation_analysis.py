@@ -316,6 +316,10 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     variants = sorted(df["variant"].unique())
     vcolors = {v: variant_color(v, i) for i, v in enumerate(variants)}
     markers = {tuple(r): MARKER_CYCLE[i % len(MARKER_CYCLE)] for i, r in enumerate(regions)}
+    front_colors = {
+        (s["city"], s["N"], s["dist"]): META["scenario_colors"][i % len(META["scenario_colors"])]
+        for i, s in enumerate(scenarios)
+    }
     points_mode = ctx.get("pareto_points") or opts.get("points", "all")
 
     def _make(xscale: str) -> plt.Figure:
@@ -354,7 +358,15 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     for j in range(1, len(pts)):
                         sx += [pts[j][0], pts[j][0]]
                         sy += [pts[j - 1][1], pts[j][1]]
-                    ax.plot(sx, sy, "--", color=ctx["theme"]["accent_line"], linewidth=1.6, alpha=0.8, zorder=2)
+                    ax.plot(
+                        sx,
+                        sy,
+                        "--",
+                        color=front_colors[(s["city"], s["N"], s["dist"])],
+                        linewidth=2.0,
+                        alpha=0.9,
+                        zorder=2,
+                    )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
             ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=10)
@@ -375,7 +387,17 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                 plt.Line2D([], [], marker="o", linestyle="", markerfacecolor="none", color=ctx["theme"]["fg"],
                            label=f"{improvers[-1]} (open)"),
             ]
-        leg.append(plt.Line2D([0], [0], color=ctx["theme"]["accent_line"], linestyle="--", label="Pareto front"))
+        leg += [
+            plt.Line2D(
+                [0],
+                [0],
+                color=front_colors[(s["city"], s["N"], s["dist"])],
+                linestyle="--",
+                linewidth=2,
+                label=f"Front — {scenario_label(s)}",
+            )
+            for s in scenarios
+        ]
         fig.legend(handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=9, bbox_to_anchor=(0.5, -0.02))
         plt.tight_layout()
         return fig
@@ -539,7 +561,7 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
     combos = [(s, i) for s in strategies for i in improvers]
     combo_labels = [f"{s}\n{i}" for s, i in combos]
     n = len(scenarios)
-    fig, axes = plt.subplots(2, n, figsize=(3.2 * n, 12), squeeze=False)
+    fig, axes = plt.subplots(2, n, figsize=(3.8 * n, 13), squeeze=False)
     fig.suptitle("Per-Scenario Heatmaps — Constructors × (Strategy × Improver)", fontsize=14, fontweight="bold")
     for row_i, (metric, cmap, mlabel) in enumerate(
         [("overflows", "RdYlGn_r", "Overflows"), ("kgkm", "RdYlGn", "kg/km")]
@@ -559,7 +581,7 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
             im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
             plt.colorbar(im, ax=ax, shrink=0.75)
             ax.set_xticks(range(len(combo_labels)))
-            ax.set_xticklabels(combo_labels, fontsize=6, rotation=45, ha="right")
+            ax.set_xticklabels(combo_labels, fontsize=9, fontweight="bold", rotation=0)
             ax.set_yticks(range(len(constructors)))
             ax.set_yticklabels(constructors if col_i == 0 else [], fontsize=7)
             if row_i == 0:
@@ -841,7 +863,11 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
             )
     n_scatter_traces = len(fig.data)
 
-    # Pareto front lines + front-only markers per scenario
+    # Pareto front lines + front-only markers per scenario (one colour per scenario)
+    front_colors = {
+        (s["city"], s["N"], s["dist"]): META["scenario_colors"][i % len(META["scenario_colors"])]
+        for i, s in enumerate(scenarios)
+    }
     for s in scenarios:
         sub = _scen_sub(df, s).reset_index(drop=True)
         if sub.empty:
@@ -858,7 +884,7 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
                 y=sy,
                 mode="lines",
                 name=f"Pareto — {scenario_label(s)}",
-                line=dict(width=2, dash="dash"),
+                line=dict(width=2, dash="dash", color=front_colors[(s["city"], s["N"], s["dist"])]),
                 hoverinfo="skip",
             )
         )
