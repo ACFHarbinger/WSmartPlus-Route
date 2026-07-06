@@ -23,7 +23,6 @@ Usage
 from __future__ import annotations
 
 import argparse
-import textwrap
 from pathlib import Path
 
 import matplotlib
@@ -38,6 +37,7 @@ import pandas as pd
 try:
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
+
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
@@ -74,7 +74,8 @@ def savefig(fig: plt.Figure, path: Path) -> None:
 
 # ── Figure generators ──────────────────────────────────────────────────────────
 
-def gen_overflow_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Path, Path]:
+
+def gen_overflow_bar(dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30) -> tuple[Path, Path]:
     """4-panel overflow bar chart (linear + log)."""
     plt.rcParams.update(DARK_STYLE)
     configs = [
@@ -83,7 +84,7 @@ def gen_overflow_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Pa
         for dist in ["Gamma-3", "Empirical"]
         for strat in ["LA", "LM", "SL"]
     ]
-    col_labels = [f"{city_label(c,N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
+    col_labels = [f"{city_label(c, N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
 
     def _make(log: bool) -> plt.Figure:
         fig, axes = plt.subplots(2, 2, figsize=(22, 14))
@@ -102,8 +103,11 @@ def gen_overflow_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Pa
                     hi.append(np.nan)
                     continue
                 sub = dfm[
-                    (dfm.city == city) & (dfm.N == N) & (dfm.dist == dist_v)
-                    & (dfm.improver == imp) & (dfm.strategy == strat)
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist_v)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
                 ]["overflows"]
                 if len(sub):
                     m = sub.mean()
@@ -120,17 +124,16 @@ def gen_overflow_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Pa
             ax.bar(x[valid], np.array(means)[valid], color=np.array(colors)[valid], alpha=0.85)
             for xi, (m_, l_, h_) in enumerate(zip(means, lo, hi, strict=True)):
                 if not np.isnan(m_):
-                    ax.errorbar(xi, m_, yerr=[[l_], [h_]], fmt="none",
-                                color="#e0e0e0", capsize=3, linewidth=1.2)
+                    ax.errorbar(xi, m_, yerr=[[l_], [h_]], fmt="none", color="#e0e0e0", capsize=3, linewidth=1.2)
             if log:
                 ax.set_yscale("symlog", linthresh=1)
             ax.set_xticks(x[valid])
             ax.set_xticklabels(np.array(col_labels)[valid], fontsize=6, rotation=45, ha="right")
-            ax.set_ylabel("Mean overflows (30 days)", fontsize=10)
+            ax.set_ylabel(f"Mean overflows ({n_days} days)", fontsize=10)
             ax.set_title(f"{dist} ({imp})", fontsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
-        patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA","LM","SL"]]
+        patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA", "LM", "SL"]]
         fig.legend(handles=patches, loc="lower center", ncol=3, fontsize=11, bbox_to_anchor=(0.5, -0.01))
         plt.tight_layout()
         return fig
@@ -151,7 +154,7 @@ def gen_kgkm_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
         for dist in ["Gamma-3", "Empirical"]
         for strat in ["LA", "LM", "SL"]
     ]
-    col_labels = [f"{city_label(c,N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
+    col_labels = [f"{city_label(c, N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
     fig, axes = plt.subplots(2, 2, figsize=(22, 14))
     fig.suptitle("kg/km Efficiency by Configuration (mean ± range across constructors)", fontsize=14, fontweight="bold")
     for idx, (dist, imp) in enumerate(panels):
@@ -165,8 +168,11 @@ def gen_kgkm_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
                 hi.append(np.nan)
                 continue
             sub = dfm[
-                (dfm.city == city) & (dfm.N == N) & (dfm.dist == dist_v)
-                & (dfm.improver == imp) & (dfm.strategy == strat)
+                (dfm.city == city)
+                & (dfm.N == N)
+                & (dfm.dist == dist_v)
+                & (dfm.improver == imp)
+                & (dfm.strategy == strat)
             ]["kgkm"]
             if len(sub):
                 m = sub.mean()
@@ -183,15 +189,14 @@ def gen_kgkm_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
         ax.bar(x[valid], np.array(means)[valid], color=np.array(colors)[valid], alpha=0.85)
         for xi, (m_, l_, h_) in enumerate(zip(means, lo, hi, strict=True)):
             if not np.isnan(m_):
-                ax.errorbar(xi, m_, yerr=[[l_], [h_]], fmt="none",
-                            color="#e0e0e0", capsize=3, linewidth=1.2)
+                ax.errorbar(xi, m_, yerr=[[l_], [h_]], fmt="none", color="#e0e0e0", capsize=3, linewidth=1.2)
         ax.set_xticks(x[valid])
         ax.set_xticklabels(np.array(col_labels)[valid], fontsize=6, rotation=45, ha="right")
         ax.set_ylabel("Mean kg/km efficiency", fontsize=10)
         ax.set_title(f"{dist} ({imp})", fontsize=11)
         ax.yaxis.grid(True, alpha=0.4)
         ax.set_axisbelow(True)
-    patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA","LM","SL"]]
+    patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA", "LM", "SL"]]
     fig.legend(handles=patches, loc="lower center", ncol=3, fontsize=11, bbox_to_anchor=(0.5, -0.01))
     plt.tight_layout()
     p = out_dir / "kgkm_all_configs.png"
@@ -199,7 +204,7 @@ def gen_kgkm_bar(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
     return p
 
 
-def gen_km_violin(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
+def gen_km_violin(dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30) -> Path:
     plt.rcParams.update(DARK_STYLE)
     fig, axes = plt.subplots(2, 2, figsize=(22, 14))
     fig.suptitle("Vehicle Distance Distribution by Strategy and City", fontsize=14, fontweight="bold")
@@ -210,8 +215,11 @@ def gen_km_violin(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
         for strat in ["LA", "LM", "SL"]:
             for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]:
                 grp = dfm[
-                    (dfm.dist == dist) & (dfm.improver == imp)
-                    & (dfm.strategy == strat) & (dfm.city == city) & (dfm.N == N)
+                    (dfm.dist == dist)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
+                    & (dfm.city == city)
+                    & (dfm.N == N)
                 ]["km"].values
                 groups.append(grp if len(grp) > 1 else np.array([grp[0], grp[0]] if len(grp) else [0, 0]))
                 labels.append(f"{strat}\n{city_label(city, N)}")
@@ -224,7 +232,7 @@ def gen_km_violin(dfm: pd.DataFrame, panels: list, out_dir: Path) -> Path:
             parts[key].set_color("#a0a0c0" if key != "cmedians" else "#ffffff")
         ax.set_xticks(range(len(labels)))
         ax.set_xticklabels(labels, fontsize=8)
-        ax.set_ylabel("Total km (30 days)", fontsize=10)
+        ax.set_ylabel(f"Total km ({n_days} days)", fontsize=10)
         ax.set_title(f"Distance Distribution — {dist} ({imp})", fontsize=11)
         ax.yaxis.grid(True, alpha=0.4)
         ax.set_axisbelow(True)
@@ -244,15 +252,19 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
         for dist in ["Gamma-3", "Empirical"]
         for strat in ["LA", "LM", "SL"]
     ]
-    col_labels = [f"{city_label(c,N)}\n{d[:3]}\n{s}" for c, N, d, s in all_cfgs]
+    col_labels = [f"{city_label(c, N)}\n{d[:3]}\n{s}" for c, N, d, s in all_cfgs]
 
     def build_mat(metric: str, imp: str) -> np.ndarray:
         mat = np.full((len(constructors), len(all_cfgs)), np.nan)
         for ci, c in enumerate(constructors):
             for cfi, (city, N, dist, strat) in enumerate(all_cfgs):
                 sub = dfm[
-                    (dfm.city == city) & (dfm.N == N) & (dfm.dist == dist)
-                    & (dfm.improver == imp) & (dfm.strategy == strat) & (dfm.constructor == c)
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
+                    & (dfm.constructor == c)
                 ][metric]
                 if len(sub):
                     mat[ci, cfi] = sub.values[0]
@@ -261,12 +273,14 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
     # Combined heatmap
     fig, axes = plt.subplots(2, 2, figsize=(28, 18))
     fig.suptitle("Policy Performance Heatmap", fontsize=14, fontweight="bold")
-    for idx, (metric, imp, title, cmap) in enumerate([
-        ("overflows", "FTSP", "Overflow Count — FTSP", "RdYlGn_r"),
-        ("overflows", "CLS",  "Overflow Count — CLS",  "RdYlGn_r"),
-        ("kgkm",      "FTSP", "kg/km Efficiency — FTSP","RdYlGn"),
-        ("kgkm",      "CLS",  "kg/km Efficiency — CLS", "RdYlGn"),
-    ]):
+    for idx, (metric, imp, title, cmap) in enumerate(
+        [
+            ("overflows", "FTSP", "Overflow Count — FTSP", "RdYlGn_r"),
+            ("overflows", "CLS", "Overflow Count — CLS", "RdYlGn_r"),
+            ("kgkm", "FTSP", "kg/km Efficiency — FTSP", "RdYlGn"),
+            ("kgkm", "CLS", "kg/km Efficiency — CLS", "RdYlGn"),
+        ]
+    ):
         ax = axes[idx // 2][idx % 2]
         ax.set_facecolor("#16213e")
         mat = build_mat(metric, imp)
@@ -283,27 +297,33 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
 
     # Split by distribution
     dist_cfgs = {
-        d: [(city, N, d, s)
+        d: [
+            (city, N, d, s)
             for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]
-            for s in ["LA", "LM", "SL"]]
+            for s in ["LA", "LM", "SL"]
+        ]
         for d in ["Gamma-3", "Empirical"]
     }
     fig2, axes2 = plt.subplots(2, 4, figsize=(36, 14))
     fig2.suptitle("Policy Heatmap — Split by Distribution & Improver", fontsize=14, fontweight="bold")
-    for col_i, (dist, imp) in enumerate([
-        ("Gamma-3","FTSP"),("Empirical","FTSP"),("Gamma-3","CLS"),("Empirical","CLS")
-    ]):
+    for col_i, (dist, imp) in enumerate(
+        [("Gamma-3", "FTSP"), ("Empirical", "FTSP"), ("Gamma-3", "CLS"), ("Empirical", "CLS")]
+    ):
         cfgs = dist_cfgs[dist]
-        clabels = [f"{city_label(c,N)}\n{s}" for c,N,d,s in cfgs]
-        for row_i, (metric, cmap) in enumerate([("overflows","RdYlGn_r"),("kgkm","RdYlGn")]):
+        clabels = [f"{city_label(c, N)}\n{s}" for c, N, d, s in cfgs]
+        for row_i, (metric, cmap) in enumerate([("overflows", "RdYlGn_r"), ("kgkm", "RdYlGn")]):
             ax = axes2[row_i][col_i]
             ax.set_facecolor("#16213e")
             mat = np.full((len(constructors), len(cfgs)), np.nan)
             for ci, c in enumerate(constructors):
                 for cfi, (city, N, d, s) in enumerate(cfgs):
                     sub = dfm[
-                        (dfm.city==city)&(dfm.N==N)&(dfm.dist==d)
-                        &(dfm.improver==imp)&(dfm.strategy==s)&(dfm.constructor==c)
+                        (dfm.city == city)
+                        & (dfm.N == N)
+                        & (dfm.dist == d)
+                        & (dfm.improver == imp)
+                        & (dfm.strategy == s)
+                        & (dfm.constructor == c)
                     ][metric]
                     if len(sub):
                         mat[ci, cfi] = sub.values[0]
@@ -321,7 +341,7 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
 
     # Split by city/graph
     city_cfgs = {
-        lbl: [(city, N, d, s) for d in ["Gamma-3","Empirical"] for s in ["LA","LM","SL"]]
+        lbl: [(city, N, d, s) for d in ["Gamma-3", "Empirical"] for s in ["LA", "LM", "SL"]]
         for lbl, (city, N) in [
             ("RM-100", ("Rio Maior", 100)),
             ("RM-170", ("Rio Maior", 170)),
@@ -329,25 +349,33 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
         ]
     }
     col_order = [
-        ("RM-100","FTSP"),("RM-100","CLS"),("RM-170","FTSP"),
-        ("RM-170","CLS"),("FFZ-350","FTSP"),("FFZ-350","CLS"),
+        ("RM-100", "FTSP"),
+        ("RM-100", "CLS"),
+        ("RM-170", "FTSP"),
+        ("RM-170", "CLS"),
+        ("FFZ-350", "FTSP"),
+        ("FFZ-350", "CLS"),
     ]
     fig3, axes3 = plt.subplots(2, 6, figsize=(42, 14))
     fig3.suptitle("Policy Heatmap — Split by City/N & Improver", fontsize=14, fontweight="bold")
     for col_i, (clabel, imp) in enumerate(col_order):
         cfgs = city_cfgs[clabel]
-        clabels_x = [f"{d[:3]}\n{s}" for c,N,d,s in cfgs]
+        clabels_x = [f"{d[:3]}\n{s}" for c, N, d, s in cfgs]
         city_nm = "Rio Maior" if "RM" in clabel else "Figueira da Foz"
         N_val = int(clabel.split("-")[1])
-        for row_i, (metric, cmap) in enumerate([("overflows","RdYlGn_r"),("kgkm","RdYlGn")]):
+        for row_i, (metric, cmap) in enumerate([("overflows", "RdYlGn_r"), ("kgkm", "RdYlGn")]):
             ax = axes3[row_i][col_i]
             ax.set_facecolor("#16213e")
             mat = np.full((len(constructors), len(cfgs)), np.nan)
             for ci, c in enumerate(constructors):
                 for cfi, (_, _, dist_v, strat) in enumerate(cfgs):
                     sub = dfm[
-                        (dfm.city==city_nm)&(N_val == dfm.N)&(dfm.dist==dist_v)
-                        &(dfm.improver==imp)&(dfm.strategy==strat)&(dfm.constructor==c)
+                        (dfm.city == city_nm)
+                        & (N_val == dfm.N)
+                        & (dfm.dist == dist_v)
+                        & (dfm.improver == imp)
+                        & (dfm.strategy == strat)
+                        & (dfm.constructor == c)
                     ][metric]
                     if len(sub):
                         mat[ci, cfi] = sub.values[0]
@@ -365,7 +393,9 @@ def gen_policy_heatmap(dfm: pd.DataFrame, panels: list, constructors: list, out_
     return p1, p2, p3
 
 
-def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Path, Path]: # noqa: C901
+def gen_pareto_scatter(  # noqa: C901
+    dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30
+) -> tuple[Path, Path]:  # noqa: C901
     plt.rcParams.update(DARK_STYLE)
 
     def get_color(row):
@@ -400,19 +430,20 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
             ax.set_facecolor("#16213e")
             sub = df_raw[(df_raw.dist == dist) & (df_raw.improver == imp)]
             for _, row in sub.iterrows():
-                ax.scatter(row["overflows"], row["kgkm"],
-                           c=get_color(row), marker=get_marker(row), s=40, alpha=0.75, zorder=3)
+                ax.scatter(
+                    row["overflows"], row["kgkm"], c=get_color(row), marker=get_marker(row), s=40, alpha=0.75, zorder=3
+                )
             front = pareto_front(sub["overflows"].values, sub["kgkm"].values)
             if front:
-                fx, fy = zip(*front, strict=True) # pyrefly: ignore [no-matching-overload]
+                fx, fy = zip(*front, strict=True)  # pyrefly: ignore [no-matching-overload]
                 step_x, step_y = [fx[0]], [fy[0]]
                 for i in range(1, len(fx)):
                     step_x += [fx[i], fx[i]]
-                    step_y += [fy[i-1], fy[i]]
+                    step_y += [fy[i - 1], fy[i]]
                 ax.plot(step_x, step_y, "--", color="white", linewidth=2, alpha=0.9)
             if log:
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel("Overflows (30 days)", fontsize=10)
+            ax.set_xlabel(f"Overflows ({n_days} days)", fontsize=10)
             ax.set_ylabel("Efficiency (kg/km)", fontsize=10)
             ax.set_title(f"Overflow vs Efficiency — {dist} ({imp})", fontsize=11)
             ax.yaxis.grid(True, alpha=0.4)
@@ -424,14 +455,14 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
             mpatches.Patch(color="#e09020", label="LM-CF90"),
             mpatches.Patch(color="#20b2aa", label="SL-SL1"),
             mpatches.Patch(color="#20a020", label="SL-SL2"),
-            plt.Line2D([0],[0], color="white", linestyle="--", linewidth=2, label="Pareto front"),
+            plt.Line2D([0], [0], color="white", linestyle="--", linewidth=2, label="Pareto front"),
         ]
         shape_leg = [
-            plt.scatter([],[],marker="o",c="gray",s=50,label="RM N=100"),
-            plt.scatter([],[],marker="s",c="gray",s=50,label="RM N=170"),
-            plt.scatter([],[],marker="D",c="gray",s=50,label="FFZ N=350"),
+            plt.scatter([], [], marker="o", c="gray", s=50, label="RM N=100"),
+            plt.scatter([], [], marker="s", c="gray", s=50, label="RM N=170"),
+            plt.scatter([], [], marker="D", c="gray", s=50, label="FFZ N=350"),
         ]
-        fig.legend(handles=leg+shape_leg, loc="lower center", ncol=5, fontsize=10, bbox_to_anchor=(0.5,-0.02))
+        fig.legend(handles=leg + shape_leg, loc="lower center", ncol=5, fontsize=10, bbox_to_anchor=(0.5, -0.02))
         plt.tight_layout()
         return fig
 
@@ -442,7 +473,7 @@ def gen_pareto_scatter(dfm: pd.DataFrame, df_raw: pd.DataFrame, panels: list, ou
     return p1, p2
 
 
-def gen_strategy_bubble(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Path, Path]:
+def gen_strategy_bubble(dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30) -> tuple[Path, Path]:
     plt.rcParams.update(DARK_STYLE)
     SIZE = {100: 200, 170: 400, 350: 800}
 
@@ -454,25 +485,36 @@ def gen_strategy_bubble(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple
             ax = axes[idx // 2][idx % 2]
             ax.set_facecolor("#16213e")
             sub = dfm[(dfm.dist == dist) & (dfm.improver == imp)]
-            agg = sub.groupby(["city","N","strategy"])[["overflows","kgkm"]].mean().reset_index()
+            agg = sub.groupby(["city", "N", "strategy"])[["overflows", "kgkm"]].mean().reset_index()
             for _, row in agg.iterrows():
                 marker = "D" if "Figueira" in row["city"] else ("o" if row["N"] == 100 else "s")
-                ax.scatter(row["overflows"], row["kgkm"],
-                           c=STRATEGY_COLORS[row["strategy"]], marker=marker,
-                           s=SIZE.get(row["N"], 300), alpha=0.75,
-                           edgecolors="white", linewidths=0.5)
-                ax.annotate(city_label(row["city"], row["N"]), (row["overflows"], row["kgkm"]),
-                            textcoords="offset points", xytext=(4, 3), fontsize=7)
+                ax.scatter(
+                    row["overflows"],
+                    row["kgkm"],
+                    c=STRATEGY_COLORS[row["strategy"]],
+                    marker=marker,
+                    s=SIZE.get(row["N"], 300),
+                    alpha=0.75,
+                    edgecolors="white",
+                    linewidths=0.5,
+                )
+                ax.annotate(
+                    city_label(row["city"], row["N"]),
+                    (row["overflows"], row["kgkm"]),
+                    textcoords="offset points",
+                    xytext=(4, 3),
+                    fontsize=7,
+                )
             if log:
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel("Mean overflows (30 days)", fontsize=10)
+            ax.set_xlabel(f"Mean overflows ({n_days} days)", fontsize=10)
             ax.set_ylabel("Mean kg/km efficiency", fontsize=10)
             ax.set_title(f"{dist} ({imp})", fontsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.xaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
-        strat_patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA","LM","SL"]]
-        fig.legend(handles=strat_patches, loc="lower center", ncol=3, fontsize=10, bbox_to_anchor=(0.5,-0.01))
+        strat_patches = [mpatches.Patch(color=STRATEGY_COLORS[s], label=s) for s in ["LA", "LM", "SL"]]
+        fig.legend(handles=strat_patches, loc="lower center", ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.01))
         plt.tight_layout()
         return fig
 
@@ -483,7 +525,7 @@ def gen_strategy_bubble(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple
     return p1, p2
 
 
-def gen_city_comparison(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Path, Path, Path]:
+def gen_city_comparison(dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30) -> tuple[Path, Path, Path]:
     plt.rcParams.update(DARK_STYLE)
     city_order = [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]
     clabels = ["RM-100", "RM-170", "FFZ-350"]
@@ -502,24 +544,22 @@ def gen_city_comparison(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple
             for ci, (city, N) in enumerate(city_order):
                 means, lo, hi = [], [], []
                 for strat in ["LA", "LM", "SL"]:
-                    grp = sub[(sub.city==city)&(sub.N==N)&(sub.strategy==strat)][metric]
+                    grp = sub[(sub.city == city) & (sub.N == N) & (sub.strategy == strat)][metric]
                     if len(grp):
                         m = grp.mean()
                         means.append(m)
-                        lo.append(m-grp.min())
-                        hi.append(grp.max()-m)
+                        lo.append(m - grp.min())
+                        hi.append(grp.max() - m)
                     else:
                         means.append(0)
                         lo.append(0)
                         hi.append(0)
-                ax.bar(x + (ci-1)*width, means, width, label=clabels[ci],
-                       color=ccolors[ci], alpha=0.85)
-                ax.errorbar(x + (ci-1)*width, means, yerr=[lo, hi],
-                            fmt="none", color="#e0e0e0", capsize=3)
+                ax.bar(x + (ci - 1) * width, means, width, label=clabels[ci], color=ccolors[ci], alpha=0.85)
+                ax.errorbar(x + (ci - 1) * width, means, yerr=[lo, hi], fmt="none", color="#e0e0e0", capsize=3)
             if log:
                 ax.set_yscale("symlog", linthresh=1)
             ax.set_xticks(x)
-            ax.set_xticklabels(["LA","LM","SL"], fontsize=11)
+            ax.set_xticklabels(["LA", "LM", "SL"], fontsize=11)
             ax.set_ylabel(ylabel, fontsize=10)
             ax.set_title(f"{dist} ({imp})", fontsize=11)
             ax.yaxis.grid(True, alpha=0.4)
@@ -531,13 +571,13 @@ def gen_city_comparison(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple
     p1 = out_dir / "city_comparison_overflow.png"
     p2 = out_dir / "city_comparison_overflow_log.png"
     p3 = out_dir / "city_comparison_efficiency.png"
-    savefig(_make_bar("overflows", "Mean overflows (30 days)", False), p1)
-    savefig(_make_bar("overflows", "Mean overflows (30 days)", True), p2)
+    savefig(_make_bar("overflows", f"Mean overflows ({n_days} days)", False), p1)
+    savefig(_make_bar("overflows", f"Mean overflows ({n_days} days)", True), p2)
     savefig(_make_bar("kgkm", "Mean kg/km", False), p3)
     return p1, p2, p3
 
 
-def gen_city_scaling(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Path, Path]:
+def gen_city_scaling(dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30) -> tuple[Path, Path]:
     plt.rcParams.update(DARK_STYLE)
     Ns = [100, 170, 350]
     city_map = {100: "Rio Maior", 170: "Rio Maior", 350: "Figueira da Foz"}
@@ -557,7 +597,7 @@ def gen_city_scaling(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Pa
             ax.plot(Ns, ov_vals, "o-", color=color, label=strat, linewidth=2, markersize=8)
         ax.axvline(x=235, color="#a0a0c0", linestyle="--", alpha=0.5, linewidth=1)
         ax.set_title(f"Overflows — {dist} ({imp})", fontsize=11)
-        ax.set_ylabel("Mean overflows (30 days)", fontsize=10)
+        ax.set_ylabel(f"Mean overflows ({n_days} days)", fontsize=10)
         ax.set_xticks(Ns)
         ax.set_xticklabels(xlabels)
         ax.yaxis.grid(True, alpha=0.4)
@@ -575,11 +615,15 @@ def gen_city_scaling(dfm: pd.DataFrame, panels: list, out_dir: Path) -> tuple[Pa
         for imp, ls in [("FTSP", "o-"), ("CLS", "s--")]:
             sub = dfm[(dfm.dist == dist) & (dfm.improver == imp) & (dfm.city == "Rio Maior")]
             for strat, color in STRATEGY_COLORS.items():
-                ov_vals = [sub[(sub.N == N) & (sub.strategy == strat)]["overflows"].mean()
-                           if len(sub[(sub.N == N) & (sub.strategy == strat)]) else np.nan
-                           for N in [100, 170]]
-                ax.plot([100, 170], ov_vals, ls, color=color, linewidth=1.5, markersize=7, alpha=0.8,
-                        label=f"{strat} {imp}")
+                ov_vals = [
+                    sub[(sub.N == N) & (sub.strategy == strat)]["overflows"].mean()
+                    if len(sub[(sub.N == N) & (sub.strategy == strat)])
+                    else np.nan
+                    for N in [100, 170]
+                ]
+                ax.plot(
+                    [100, 170], ov_vals, ls, color=color, linewidth=1.5, markersize=7, alpha=0.8, label=f"{strat} {imp}"
+                )
         ax.set_xlabel("Network size N", fontsize=10)
         ax.set_ylabel("Mean overflows", fontsize=10)
         ax.set_title(f"{dist}", fontsize=11)
@@ -608,7 +652,7 @@ def gen_constructor_ranking(dfm: pd.DataFrame, constructors: list, out_dir: Path
         sub = dfm[dfm.improver == imp]
         mean_ranks: dict = {c: {m: [] for m in metrics} for c in constructors}
         for metric, asc in zip(metrics, rank_asc, strict=True):
-            for _, grp in sub.groupby(["city","N","dist","strategy"]):
+            for _, grp in sub.groupby(["city", "N", "dist", "strategy"]):
                 grp_idx = grp.set_index("constructor")
                 r = grp_idx[metric].rank(ascending=asc, method="average")
                 for c in constructors:
@@ -617,9 +661,8 @@ def gen_constructor_ranking(dfm: pd.DataFrame, constructors: list, out_dir: Path
         x = np.arange(len(constructors))
         w = 0.2
         for mi, (metric, label, color) in enumerate(zip(metrics, metric_labels, colors, strict=True)):
-            vals = [np.mean(mean_ranks[c][metric]) if mean_ranks[c][metric] else 4.5
-                    for c in constructors]
-            ax.bar(x + mi*w - 1.5*w, vals, w, label=label, color=color, alpha=0.85)
+            vals = [np.mean(mean_ranks[c][metric]) if mean_ranks[c][metric] else 4.5 for c in constructors]
+            ax.bar(x + mi * w - 1.5 * w, vals, w, label=label, color=color, alpha=0.85)
         ax.set_xticks(x)
         ax.set_xticklabels(constructors, rotation=15, ha="right", fontsize=10)
         ax.set_ylabel("Average rank (lower = better)", fontsize=11)
@@ -647,8 +690,8 @@ def gen_radar(dfm: pd.DataFrame, key_constructors: list, out_dir: Path) -> Path:
         scores[c] = []
         for metric, inv in zip(metrics, invert, strict=True):
             all_vals = dfm[metric].values
-            v = sub[metric].mean() if len(sub) else np.nanmean(all_vals) # pyrefly: ignore [no-matching-overload]
-            mn, mx = np.nanmin(all_vals), np.nanmax(all_vals) # pyrefly: ignore [no-matching-overload]
+            v = sub[metric].mean() if len(sub) else np.nanmean(all_vals)  # pyrefly: ignore [no-matching-overload]
+            mn, mx = np.nanmin(all_vals), np.nanmax(all_vals)  # pyrefly: ignore [no-matching-overload]
             norm = (v - mn) / (mx - mn + 1e-9) if mx > mn else 0.5
             scores[c].append(1 - norm if inv else norm)
 
@@ -674,8 +717,13 @@ def gen_radar(dfm: pd.DataFrame, key_constructors: list, out_dir: Path) -> Path:
         ax.plot(angles, vals, "o-", color=color, linewidth=2.5, markersize=5, label=c)
         ax.fill(angles, vals, color=color, alpha=0.08)
 
-    ax.set_title("Policy Performance Radar\n(normalised; outer = better)", fontsize=13, fontweight="bold",
-                 pad=20, color="#e0e0e0")
+    ax.set_title(
+        "Policy Performance Radar\n(normalised; outer = better)",
+        fontsize=13,
+        fontweight="bold",
+        pad=20,
+        color="#e0e0e0",
+    )
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.1), fontsize=11)
     p = out_dir / "policy_radar_combined.png"
     savefig(fig, p)
@@ -694,14 +742,14 @@ def gen_ftsp_vs_cls(dfm: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
     # Comparison scatter
     fig, axes = plt.subplots(2, 2, figsize=(22, 14))
     fig.suptitle("FTSP vs CLS Route Improver Comparison", fontsize=14, fontweight="bold")
-    for row_i, (metric, _ylabel) in enumerate([("overflows","Overflows"),("kgkm","kg/km")]):
-        for col_i, dist in enumerate(["Gamma-3","Empirical"]):
+    for row_i, (metric, _ylabel) in enumerate([("overflows", "Overflows"), ("kgkm", "kg/km")]):
+        for col_i, dist in enumerate(["Gamma-3", "Empirical"]):
             ax = axes[row_i][col_i]
             ax.set_facecolor("#16213e")
             sub = dfm[dfm.dist == dist]
             for strat, color in STRATEGY_COLORS.items():
-                ftsp = sub[(sub.improver=="FTSP")&(sub.strategy==strat)][metric].values
-                cls = sub[(sub.improver=="CLS")&(sub.strategy==strat)][metric].values
+                ftsp = sub[(sub.improver == "FTSP") & (sub.strategy == strat)][metric].values
+                cls = sub[(sub.improver == "CLS") & (sub.strategy == strat)][metric].values
                 n = min(len(ftsp), len(cls))
                 if n:
                     ax.scatter(ftsp[:n], cls[:n], c=color, s=40, alpha=0.7, label=strat)
@@ -720,19 +768,31 @@ def gen_ftsp_vs_cls(dfm: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
 
     # Delta heatmap
     CONSTRUCTORS = dfm["constructor"].unique().tolist()
-    col_labels = [f"{city_label(c,N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
+    col_labels = [f"{city_label(c, N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
     fig2, axes2 = plt.subplots(1, 2, figsize=(28, 10))
     fig2.suptitle("FTSP vs CLS Delta Heatmap (CLS - FTSP)", fontsize=14, fontweight="bold")
-    for ax_i, (metric, cmap) in enumerate([("overflows","RdYlGn_r"),("kgkm","RdYlGn")]):
+    for ax_i, (metric, cmap) in enumerate([("overflows", "RdYlGn_r"), ("kgkm", "RdYlGn")]):
         ax = axes2[ax_i]
         ax.set_facecolor("#16213e")
         mat = np.full((len(CONSTRUCTORS), len(configs)), np.nan)
         for ci, c in enumerate(CONSTRUCTORS):
             for cfi, (city, N, dist, strat) in enumerate(configs):
-                ftsp = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&(dfm.improver=="FTSP")
-                           &(dfm.strategy==strat)&(dfm.constructor==c)][metric]
-                cls = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&(dfm.improver=="CLS")
-                          &(dfm.strategy==strat)&(dfm.constructor==c)][metric]
+                ftsp = dfm[
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == "FTSP")
+                    & (dfm.strategy == strat)
+                    & (dfm.constructor == c)
+                ][metric]
+                cls = dfm[
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == "CLS")
+                    & (dfm.strategy == strat)
+                    & (dfm.constructor == c)
+                ][metric]
                 if len(ftsp) and len(cls):
                     mat[ci, cfi] = cls.values[0] - ftsp.values[0]
         vmax = np.nanpercentile(np.abs(mat[~np.isnan(mat)]), 95) if not np.all(np.isnan(mat)) else 1
@@ -749,7 +809,9 @@ def gen_ftsp_vs_cls(dfm: pd.DataFrame, out_dir: Path) -> tuple[Path, Path]:
     return p1, p2
 
 
-def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, out_dir: Path) -> dict[str, Path]: # noqa: C901
+def gen_interactive_html(  # noqa: C901
+    df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, out_dir: Path, n_days: int = 30
+) -> dict[str, Path]:  # noqa: C901
     if not HAS_PLOTLY:
         print("  [WARN] Plotly not available — skipping interactive HTML generation")
         return {}
@@ -807,8 +869,7 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
     # ── Regular scatter traces: grouped by (dist × city/N × strategy variant)
     fig = go.Figure()
     all_dists = sorted(df_raw["dist"].unique())
-    city_n_combos = sorted(df_raw[["city", "N"]].drop_duplicates().values.tolist(),
-                           key=lambda r: (r[0], int(r[1])))
+    city_n_combos = sorted(df_raw[["city", "N"]].drop_duplicates().values.tolist(), key=lambda r: (r[0], int(r[1])))
     legend_shown: set = set()
 
     for dist in all_dists:
@@ -830,26 +891,28 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 show_leg = legend_key not in legend_shown
                 if show_leg:
                     legend_shown.add(legend_key)
-                fig.add_trace(go.Scatter(
-                    x=sg["overflows"], y=sg["kgkm"],
-                    mode="markers",
-                    name=f"{label} ({dist_short})",
-                    legendgroup=f"{label}_{dist_short}",
-                    showlegend=show_leg,
-                    marker=dict(symbol=sym, color=color, size=8, opacity=0.85,
-                                line=dict(width=1.5, color=color)),
-                    text=[
-                        f"Constructor: {r.constructor}<br>Strategy: {_plabel(str(r.strategy), r.cf, r.sl_var)}<br>"
-                        f"City: {city_label(r.city, int(r.N))}<br>"
-                        f"Dist: {r.dist}<br>Improver: {r.improver}<br>"
-                        f"Overflows: {r.overflows:.1f}<br>kg/km: {r.kgkm:.3f}<br>"
-                        f"km: {r.km:.0f}<br>Profit: {r.profit:.0f}"
-                        for r in sg.itertuples()
-                    ],
-                    hovertemplate="%{text}<extra></extra>",
-                ))
+                fig.add_trace(
+                    go.Scatter(
+                        x=sg["overflows"],
+                        y=sg["kgkm"],
+                        mode="markers",
+                        name=f"{label} ({dist_short})",
+                        legendgroup=f"{label}_{dist_short}",
+                        showlegend=show_leg,
+                        marker=dict(symbol=sym, color=color, size=8, opacity=0.85, line=dict(width=1.5, color=color)),
+                        text=[
+                            f"Constructor: {r.constructor}<br>Strategy: {_plabel(str(r.strategy), r.cf, r.sl_var)}<br>"
+                            f"City: {city_label(r.city, int(r.N))}<br>"
+                            f"Dist: {r.dist}<br>Improver: {r.improver}<br>"
+                            f"Overflows: {r.overflows:.1f}<br>kg/km: {r.kgkm:.3f}<br>"
+                            f"km: {r.km:.0f}<br>Profit: {r.profit:.0f}"
+                            for r in sg.itertuples()
+                        ],
+                        hovertemplate="%{text}<extra></extra>",
+                    )
+                )
 
-    pareto_line_start = len(fig.data) # pyrefly: ignore [bad-argument-type]
+    pareto_line_start = len(fig.data)  # pyrefly: ignore [bad-argument-type]
 
     # ── Pareto-front step-line traces: one per (dist × city/N), always visible
     for dist in all_dists:
@@ -865,15 +928,20 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
             )
             sx, sy = _step_xy(sorted_pts)
             clabel = city_label(city, int(N))
-            fig.add_trace(go.Scatter(
-                x=sx, y=sy, mode="lines",
-                name=f"Pareto — {dist_short} {clabel}",
-                line=dict(color=_city_line_color.get(int(N), "#aaaaaa"), width=2,
-                          dash=_dist_dash.get(dist, "dash")),
-                hoverinfo="skip",
-            ))
+            fig.add_trace(
+                go.Scatter(
+                    x=sx,
+                    y=sy,
+                    mode="lines",
+                    name=f"Pareto — {dist_short} {clabel}",
+                    line=dict(
+                        color=_city_line_color.get(int(N), "#aaaaaa"), width=2, dash=_dist_dash.get(dist, "dash")
+                    ),
+                    hoverinfo="skip",
+                )
+            )
 
-    pareto_scatter_start = len(fig.data) # pyrefly: ignore [bad-argument-type]
+    pareto_scatter_start = len(fig.data)  # pyrefly: ignore [bad-argument-type]
 
     # ── Pareto-only scatter traces: one per (dist × city/N), hidden by default
     # Each trace uses a single consistent symbol (correct city/N shape) so the
@@ -897,22 +965,23 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 for r in front_rows.itertuples()
             ]
             clabel = city_label(city, int(N))
-            fig.add_trace(go.Scatter(
-                x=front_rows["overflows"].tolist(),
-                y=front_rows["kgkm"].tolist(),
-                mode="markers",
-                name=f"★ Pareto — {dist_short} {clabel}",
-                marker=dict(symbol=sym, color=colors, size=13, opacity=1.0,
-                            line=dict(width=2, color=colors)),
-                text=texts,
-                hovertemplate="%{text}<extra></extra>",
-                visible=False,
-            ))
+            fig.add_trace(
+                go.Scatter(
+                    x=front_rows["overflows"].tolist(),
+                    y=front_rows["kgkm"].tolist(),
+                    mode="markers",
+                    name=f"★ Pareto — {dist_short} {clabel}",
+                    marker=dict(symbol=sym, color=colors, size=13, opacity=1.0, line=dict(width=2, color=colors)),
+                    text=texts,
+                    hovertemplate="%{text}<extra></extra>",
+                    visible=False,
+                )
+            )
 
-    n_lines   = pareto_scatter_start - pareto_line_start
-    n_scatter = len(fig.data) - pareto_scatter_start # pyrefly: ignore [bad-argument-type]
-    _all_vis   = [True]  * pareto_line_start + [True]  * n_lines + [False] * n_scatter
-    _front_vis = [False] * pareto_line_start + [True]  * n_lines + [True]  * n_scatter
+    n_lines = pareto_scatter_start - pareto_line_start
+    n_scatter = len(fig.data) - pareto_scatter_start  # pyrefly: ignore [bad-argument-type]
+    _all_vis = [True] * pareto_line_start + [True] * n_lines + [False] * n_scatter
+    _front_vis = [False] * pareto_line_start + [True] * n_lines + [True] * n_scatter
 
     fig.update_layout(
         title=dict(
@@ -921,27 +990,34 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 "<sup>Filled marker = Empirical · Open marker = Gamma-3 · "
                 "Circle = RM-100 · Square = RM-170 · Diamond = FFZ-350</sup>"
             ),
-            x=0.5, xanchor="center",
+            x=0.5,
+            xanchor="center",
         ),
-        xaxis_title="Overflows (30 days)", yaxis_title="kg/km",
-        template="plotly_dark", height=750, hovermode="closest",
+        xaxis_title=f"Overflows ({n_days} days)",
+        yaxis_title="kg/km",
+        template="plotly_dark",
+        height=750,
+        hovermode="closest",
         margin=dict(t=80, b=90),
-        updatemenus=[dict(
-            type="buttons",
-            direction="left",
-            x=0.5, y=-0.08, xanchor="center", yanchor="top",
-            buttons=[
-                dict(label="All Points", method="update",
-                     args=[{"visible": _all_vis}]),
-                dict(label="Pareto Front Only", method="update",
-                     args=[{"visible": _front_vis}]),
-            ],
-            showactive=True,
-            bgcolor="#1a2255",
-            bordercolor="#4455aa",
-            font=dict(color="white", size=13),
-            pad=dict(l=10, r=10, t=5, b=5),
-        )],
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                x=0.5,
+                y=-0.08,
+                xanchor="center",
+                yanchor="top",
+                buttons=[
+                    dict(label="All Points", method="update", args=[{"visible": _all_vis}]),
+                    dict(label="Pareto Front Only", method="update", args=[{"visible": _front_vis}]),
+                ],
+                showactive=True,
+                bgcolor="#1a2255",
+                bordercolor="#4455aa",
+                font=dict(color="white", size=13),
+                pad=dict(l=10, r=10, t=5, b=5),
+            )
+        ],
     )
 
     # Inject CSS (highest priority) to permanently override Plotly's white active-button fill.
@@ -997,8 +1073,7 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
 })();
 """
     p = out_dir / "pareto_scatter_interactive.html"
-    fig.write_html(str(p), include_plotlyjs="cdn",
-                   div_id="pareto-scatter", post_script=_btn_js)
+    fig.write_html(str(p), include_plotlyjs="cdn", div_id="pareto-scatter", post_script=_btn_js)
     paths["pareto"] = p
 
     # strategy_bubble_interactive ─────────────────────────────────────────────
@@ -1006,10 +1081,13 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
     # Fill:  Empirical=solid, Gamma-3=open marker
     # Color: LA=#4e88d9, LM=#e09020, SL=#20b2aa
     # Improver: FTSP=bright/thick white border; CLS=dim/thin border
-    agg = dfm.groupby(["city","N","dist","strategy","improver"])[
-        ["overflows","kgkm","km","profit"]].mean().reset_index()
+    agg = (
+        dfm.groupby(["city", "N", "dist", "strategy", "improver"])[["overflows", "kgkm", "km", "profit"]]
+        .mean()
+        .reset_index()
+    )
     fig2 = go.Figure()
-    _bub_col = {"LA":"#4e88d9","LM":"#e09020","SL":"#20b2aa"}
+    _bub_col = {"LA": "#4e88d9", "LM": "#e09020", "SL": "#20b2aa"}
     _leg2_seen: set = set()
     for strat in sorted(agg["strategy"].unique()):
         for dist in sorted(agg["dist"].unique()):
@@ -1027,30 +1105,33 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 show_leg = leg_key not in _leg2_seen
                 if show_leg:
                     _leg2_seen.add(leg_key)
-                fig2.add_trace(go.Scatter(
-                    x=sub2["overflows"], y=sub2["kgkm"],
-                    mode="markers",
-                    name=f"{strat} ({dist_short})",
-                    legendgroup=f"{strat}_{dist_short}",
-                    showlegend=show_leg,
-                    marker=dict(
-                        color=color,
-                        symbol=syms,
-                        size=(sub2["N"] / 15 + 5).tolist(),
-                        opacity=0.9 if imp == "FTSP" else 0.5,
-                        line=dict(
-                            width=2.5 if imp == "FTSP" else 0.5,
-                            color="white" if imp == "FTSP" else color,
+                fig2.add_trace(
+                    go.Scatter(
+                        x=sub2["overflows"],
+                        y=sub2["kgkm"],
+                        mode="markers",
+                        name=f"{strat} ({dist_short})",
+                        legendgroup=f"{strat}_{dist_short}",
+                        showlegend=show_leg,
+                        marker=dict(
+                            color=color,
+                            symbol=syms,
+                            size=(sub2["N"] / 15 + 5).tolist(),
+                            opacity=0.9 if imp == "FTSP" else 0.5,
+                            line=dict(
+                                width=2.5 if imp == "FTSP" else 0.5,
+                                color="white" if imp == "FTSP" else color,
+                            ),
                         ),
-                    ),
-                    text=[
-                        f"Strategy: {r.strategy}<br>City: {city_label(r.city, int(r.N))}<br>"
-                        f"Dist: {r.dist}<br>Improver: {r.improver}<br>"
-                        f"Mean overflows: {r.overflows:.2f}<br>Mean kg/km: {r.kgkm:.3f}<br>N: {r.N}"
-                        for r in sub2.itertuples()
-                    ],
-                    hovertemplate="%{text}<extra></extra>",
-                ))
+                        text=[
+                            f"Strategy: {r.strategy}<br>City: {city_label(r.city, int(r.N))}<br>"
+                            f"Dist: {r.dist}<br>Improver: {r.improver}<br>"
+                            f"Mean overflows: {r.overflows:.2f}<br>Mean kg/km: {r.kgkm:.3f}<br>N: {r.N}"
+                            for r in sub2.itertuples()
+                        ],
+                        hovertemplate="%{text}<extra></extra>",
+                    )
+                )
     fig2.update_layout(
         title=dict(
             text=(
@@ -1059,10 +1140,14 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 "Circle=RM-100 · Square=RM-170 · Diamond=FFZ-350 · "
                 "Bright/thick border=FTSP · Dim/thin border=CLS</sup>"
             ),
-            x=0.5, xanchor="center",
+            x=0.5,
+            xanchor="center",
         ),
-        xaxis_title="Mean overflows", yaxis_title="Mean kg/km",
-        template="plotly_dark", height=650, hovermode="closest",
+        xaxis_title="Mean overflows",
+        yaxis_title="Mean kg/km",
+        template="plotly_dark",
+        height=650,
+        hovermode="closest",
         margin=dict(t=90),
     )
     p2 = out_dir / "strategy_bubble_interactive.html"
@@ -1074,98 +1159,134 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
     _h_constructors = sorted(dfm["constructor"].unique())
     _h_dists = sorted(dfm["dist"].unique())
     _h_strats = sorted(dfm["strategy"].unique())
-    _h_city_n = [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]
+    _h_city_n = [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]
 
-    def _build_hm(view: str):
+    def _build_hm(view: str):  # noqa: C901
         """Return {(metric, imp): (matrix, x_labels)} for the given grouping view."""
         if view == "all":
-            cfgs = [(c,N,d,s) for c,N in _h_city_n for d in _h_dists for s in _h_strats]
-            labels = [f"{city_label(c,N)} {d[:3]} {s}" for c,N,d,s in cfgs]
+            cfgs = [(c, N, d, s) for c, N in _h_city_n for d in _h_dists for s in _h_strats]
+            labels = [f"{city_label(c, N)} {d[:3]} {s}" for c, N, d, s in cfgs]
         elif view == "by_dist":
             cfgs = _h_dists
             labels = list(_h_dists)
         elif view == "by_region":
             cfgs = _h_city_n
-            labels = [city_label(c,N) for c,N in _h_city_n]
+            labels = [city_label(c, N) for c, N in _h_city_n]
         elif view == "by_strategy":
             cfgs = _h_strats
             labels = list(_h_strats)
         elif view == "by_dist_region":
-            cfgs = [(c,N,d) for c,N in _h_city_n for d in _h_dists]
-            labels = [f"{city_label(c,N)} {d[:3]}" for c,N,d in cfgs]
+            cfgs = [(c, N, d) for c, N in _h_city_n for d in _h_dists]
+            labels = [f"{city_label(c, N)} {d[:3]}" for c, N, d in cfgs]
         else:
             cfgs, labels = [], []
 
         result = {}
-        for metric in ["overflows","kgkm"]:
-            for imp in ["FTSP","CLS"]:
+        for metric in ["overflows", "kgkm"]:
+            for imp in ["FTSP", "CLS"]:
                 sub_imp = dfm[dfm.improver == imp]
                 mat = np.full((len(_h_constructors), len(cfgs)), np.nan)
                 for ci, con in enumerate(_h_constructors):
                     for bi, cfg in enumerate(cfgs):
                         if view == "all":
-                            c,N,d,s = cfg # pyrefly: ignore [bad-unpacking]
-                            rows = sub_imp[(sub_imp.city==c)&(sub_imp.N==N)&(sub_imp.dist==d)&
-                                          (sub_imp.strategy==s)&(sub_imp.constructor==con)][metric]
+                            c, N, d, s = cfg  # pyrefly: ignore [bad-unpacking]
+                            rows = sub_imp[
+                                (sub_imp.city == c)
+                                & (sub_imp.N == N)
+                                & (sub_imp.dist == d)
+                                & (sub_imp.strategy == s)
+                                & (sub_imp.constructor == con)
+                            ][metric]
                         elif view == "by_dist":
-                            rows = sub_imp[(sub_imp.dist==cfg)&(sub_imp.constructor==con)][metric]
+                            rows = sub_imp[(sub_imp.dist == cfg) & (sub_imp.constructor == con)][metric]
                         elif view == "by_region":
-                            c,N = cfg # pyrefly: ignore [bad-unpacking]
-                            rows = sub_imp[(sub_imp.city==c)&(sub_imp.N==N)&(sub_imp.constructor==con)][metric]
+                            c, N = cfg  # pyrefly: ignore [bad-unpacking]
+                            rows = sub_imp[(sub_imp.city == c) & (sub_imp.N == N) & (sub_imp.constructor == con)][
+                                metric
+                            ]
                         elif view == "by_strategy":
-                            rows = sub_imp[(sub_imp.strategy==cfg)&(sub_imp.constructor==con)][metric]
+                            rows = sub_imp[(sub_imp.strategy == cfg) & (sub_imp.constructor == con)][metric]
                         elif view == "by_dist_region":
-                            c,N,d = cfg # pyrefly: ignore [bad-unpacking]
-                            rows = sub_imp[(sub_imp.city==c)&(sub_imp.N==N)&(sub_imp.dist==d)&
-                                          (sub_imp.constructor==con)][metric]
+                            c, N, d = cfg  # pyrefly: ignore [bad-unpacking]
+                            rows = sub_imp[
+                                (sub_imp.city == c)
+                                & (sub_imp.N == N)
+                                & (sub_imp.dist == d)
+                                & (sub_imp.constructor == con)
+                            ][metric]
                         else:
                             rows = pd.Series([], dtype=float)
                         if len(rows):
-                            mat[ci, bi] = rows.mean() # pyrefly: ignore [no-matching-overload]
+                            mat[ci, bi] = rows.mean()  # pyrefly: ignore [no-matching-overload]
                 result[(metric, imp)] = (mat, labels)
         return result
 
-    _hm_views = ["all","by_dist","by_region","by_strategy","by_dist_region"]
-    _hm_view_labels = ["All Configs (18)","By Distribution (2)","By Region (3)","By Strategy (3)","Dist × Region (6)"]
+    _hm_views = ["all", "by_dist", "by_region", "by_strategy", "by_dist_region"]
+    _hm_view_labels = [
+        "All Configs (18)",
+        "By Distribution (2)",
+        "By Region (3)",
+        "By Strategy (3)",
+        "Dist × Region (6)",
+    ]
     _hm_data = {v: _build_hm(v) for v in _hm_views}
 
-    figH = make_subplots(rows=2, cols=2,
-        subplot_titles=["Overflows — FTSP","Overflows — CLS","kg/km — FTSP","kg/km — CLS"])
-    _hm_specs = [("overflows","FTSP"),("overflows","CLS"),("kgkm","FTSP"),("kgkm","CLS")]
-    _hm_cs = ["RdYlGn_r","RdYlGn_r","RdYlGn","RdYlGn"]
+    figH = make_subplots(
+        rows=2, cols=2, subplot_titles=["Overflows — FTSP", "Overflows — CLS", "kg/km — FTSP", "kg/km — CLS"]
+    )
+    _hm_specs = [("overflows", "FTSP"), ("overflows", "CLS"), ("kgkm", "FTSP"), ("kgkm", "CLS")]
+    _hm_cs = ["RdYlGn_r", "RdYlGn_r", "RdYlGn", "RdYlGn"]
     # Add traces for the default view (all)
-    for si, ((metric, imp), cs) in enumerate(zip(_hm_specs, _hm_cs)):
-        row, col = si//2+1, si%2+1
+    for si, ((metric, imp), cs) in enumerate(zip(_hm_specs, _hm_cs, strict=False)):
+        row, col = si // 2 + 1, si % 2 + 1
         mat, labels = _hm_data["all"][(metric, imp)]
-        figH.add_trace(go.Heatmap(
-            z=mat, x=labels, y=_h_constructors,
-            colorscale=cs, name=f"{metric} {imp}",
-            hovertemplate="Constructor: %{y}<br>Config: %{x}<br>Value: %{z:.2f}<extra></extra>",
-        ), row=row, col=col)
+        figH.add_trace(
+            go.Heatmap(
+                z=mat,
+                x=labels,
+                y=_h_constructors,
+                colorscale=cs,
+                name=f"{metric} {imp}",
+                hovertemplate="Constructor: %{y}<br>Config: %{x}<br>Value: %{z:.2f}<extra></extra>",
+            ),
+            row=row,
+            col=col,
+        )
     # Build restyle buttons that swap z and x for all 4 traces simultaneously
     _hm_buttons = []
-    for view, vlabel in zip(_hm_views, _hm_view_labels):
+    for view, vlabel in zip(_hm_views, _hm_view_labels, strict=False):
         new_z, new_x = [], []
-        for metric, imp in [("overflows","FTSP"),("overflows","CLS"),("kgkm","FTSP"),("kgkm","CLS")]:
+        for metric, imp in [("overflows", "FTSP"), ("overflows", "CLS"), ("kgkm", "FTSP"), ("kgkm", "CLS")]:
             mat, lbl = _hm_data[view][(metric, imp)]
             new_z.append(mat.tolist())
             new_x.append(lbl)
-        _hm_buttons.append(dict(
-            label=vlabel, method="restyle",
-            args=[{"z": new_z, "x": new_x}, [0,1,2,3]],
-        ))
+        _hm_buttons.append(
+            dict(
+                label=vlabel,
+                method="restyle",
+                args=[{"z": new_z, "x": new_x}, [0, 1, 2, 3]],
+            )
+        )
     figH.update_layout(
         title=dict(text="Policy Configuration Heatmap", x=0.5, xanchor="center"),
-        template="plotly_dark", height=900,
+        template="plotly_dark",
+        height=900,
         margin=dict(b=90),
-        updatemenus=[dict(
-            type="buttons", direction="left",
-            x=0.5, y=-0.05, xanchor="center", yanchor="top",
-            buttons=_hm_buttons,
-            showactive=True,
-            bgcolor="#1a2255", bordercolor="#4455aa",
-            font=dict(color="white", size=12),
-        )],
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                x=0.5,
+                y=-0.05,
+                xanchor="center",
+                yanchor="top",
+                buttons=_hm_buttons,
+                showactive=True,
+                bgcolor="#1a2255",
+                bordercolor="#4455aa",
+                font=dict(color="white", size=12),
+            )
+        ],
     )
     p3 = out_dir / "policy_heatmap_interactive.html"
     figH.write_html(str(p3), include_plotlyjs="cdn")
@@ -1178,65 +1299,89 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
     #   By Region   — 6 bars per constructor (RM-100/RM-170/FFZ-350 × FTSP/CLS)
     _cc_constructors = sorted(dfm["constructor"].unique())
     _cc_dists = sorted(dfm["dist"].unique())
-    _cc_city_n = [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]
-    _cc_metrics = ["overflows","kgkm","km","profit"]
+    _cc_city_n = [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]
+    _cc_metrics = ["overflows", "kgkm", "km", "profit"]
 
     # Color palette
-    _imp_col = {"FTSP":"#5588dd","CLS":"#dd8844"}
+    _imp_col = {"FTSP": "#5588dd", "CLS": "#dd8844"}
     _dist_imp_col = {
-        ("FTSP","Empirical"):"#4477cc",("FTSP","Gamma-3"):"#88aaff",
-        ("CLS","Empirical"):"#cc6600",("CLS","Gamma-3"):"#ffaa66",
+        ("FTSP", "Empirical"): "#4477cc",
+        ("FTSP", "Gamma-3"): "#88aaff",
+        ("CLS", "Empirical"): "#cc6600",
+        ("CLS", "Gamma-3"): "#ffaa66",
     }
     _reg_imp_col = {
-        (100,"FTSP"):"#4e88d9",(100,"CLS"):"#88bbf0",
-        (170,"FTSP"):"#e09020",(170,"CLS"):"#f5c878",
-        (350,"FTSP"):"#20a020",(350,"CLS"):"#66cc66",
+        (100, "FTSP"): "#4e88d9",
+        (100, "CLS"): "#88bbf0",
+        (170, "FTSP"): "#e09020",
+        (170, "CLS"): "#f5c878",
+        (350, "FTSP"): "#20a020",
+        (350, "CLS"): "#66cc66",
     }
 
     def _con_mean(metric, imp, dist=None, city=None, N=None):
         sub = dfm[dfm.improver == imp]
-        if dist is not None: sub = sub[sub.dist == dist]
-        if city is not None: sub = sub[(sub.city == city) & (sub.N == N)]
+        if dist is not None:
+            sub = sub[sub.dist == dist]
+        if city is not None:
+            sub = sub[(sub.city == city) & (sub.N == N)]
         return sub.groupby("constructor")[metric].mean().reindex(_cc_constructors).tolist()
 
     # Build trace specs: (group_mode, trace_name, color, legendgroup, fn_per_metric)
     _cc_trace_specs = []
     # Grouped
-    for imp in ["FTSP","CLS"]:
-        _cc_trace_specs.append(("grouped", f"{imp}", _imp_col[imp], f"grp_{imp}",
-                                 lambda m,i=imp: _con_mean(m, i)))
+    for imp in ["FTSP", "CLS"]:
+        _cc_trace_specs.append(("grouped", f"{imp}", _imp_col[imp], f"grp_{imp}", lambda m, i=imp: _con_mean(m, i)))
     # By dist
-    for imp in ["FTSP","CLS"]:
+    for imp in ["FTSP", "CLS"]:
         for d in _cc_dists:
             ds = "Emp" if d == "Empirical" else "Gam"
-            _cc_trace_specs.append(("by_dist", f"{imp} ({ds})", _dist_imp_col[(imp,d)],
-                                    f"dst_{imp}_{ds}", lambda m,i=imp,dd=d: _con_mean(m,i,dist=dd)))
+            _cc_trace_specs.append(
+                (
+                    "by_dist",
+                    f"{imp} ({ds})",
+                    _dist_imp_col[(imp, d)],
+                    f"dst_{imp}_{ds}",
+                    lambda m, i=imp, dd=d: _con_mean(m, i, dist=dd),
+                )
+            )
     # By region
-    for c,N in _cc_city_n:
-        for imp in ["FTSP","CLS"]:
+    for c, N in _cc_city_n:
+        for imp in ["FTSP", "CLS"]:
             rlbl = city_label(c, N)
             # pyrefly: ignore [bad-argument-type]
-            _cc_trace_specs.append(("by_region", f"{rlbl} {imp}", _reg_imp_col[(N,imp)],
-                                    f"reg_{N}_{imp}", lambda m,cc=c,nn=N,i=imp: _con_mean(m,i,city=cc,N=nn)))
+            _cc_trace_specs.append(
+                # pyrefly: ignore [bad-argument-type]
+                (
+                    "by_region",
+                    f"{rlbl} {imp}",
+                    _reg_imp_col[(N, imp)],
+                    f"reg_{N}_{imp}",
+                    lambda m, cc=c, nn=N, i=imp: _con_mean(m, i, city=cc, N=nn),
+                )
+            )
 
-    figC = make_subplots(rows=2, cols=2,
-        subplot_titles=["Overflows","kg/km","km","Profit"],
-        shared_xaxes=True)
+    figC = make_subplots(rows=2, cols=2, subplot_titles=["Overflows", "kg/km", "km", "Profit"], shared_xaxes=True)
     _cc_trace_modes = []
     for mi, metric in enumerate(_cc_metrics):
-        row, col = mi//2+1, mi%2+1
+        row, col = mi // 2 + 1, mi % 2 + 1
         for group, name, color, lgname, fn in _cc_trace_specs:
             vals = fn(metric)
-            visible = (group == "grouped")
-            figC.add_trace(go.Bar(
-                name=name,
-                x=_cc_constructors, y=vals,
-                legendgroup=lgname,
-                showlegend=(mi == 0),
-                marker_color=color,
-                visible=visible,
-                hovertemplate=f"Constructor: %{{x}}<br>{metric}: %{{y:.3f}}<extra></extra>",
-            ), row=row, col=col)
+            visible = group == "grouped"
+            figC.add_trace(
+                go.Bar(
+                    name=name,
+                    x=_cc_constructors,
+                    y=vals,
+                    legendgroup=lgname,
+                    showlegend=(mi == 0),
+                    marker_color=color,
+                    visible=visible,
+                    hovertemplate=f"Constructor: %{{x}}<br>{metric}: %{{y:.3f}}<extra></extra>",
+                ),
+                row=row,
+                col=col,
+            )
             if mi == 0:
                 _cc_trace_modes.append(group)
 
@@ -1250,25 +1395,32 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
                 "Constructor Comparison<br>"
                 "<sup>FTSP = Fast-TSP route improver · CLS = Clarke-Wright Savings route improver</sup>"
             ),
-            x=0.5, xanchor="center",
+            x=0.5,
+            xanchor="center",
         ),
-        template="plotly_dark", height=850, barmode="group",
+        template="plotly_dark",
+        height=850,
+        barmode="group",
         margin=dict(b=90),
-        updatemenus=[dict(
-            type="buttons", direction="left",
-            x=0.5, y=-0.06, xanchor="center", yanchor="top",
-            buttons=[
-                dict(label="FTSP vs CLS (Grouped)", method="update",
-                     args=[{"visible": _ccvis("grouped")}]),
-                dict(label="Split by Distribution", method="update",
-                     args=[{"visible": _ccvis("by_dist")}]),
-                dict(label="Split by Region", method="update",
-                     args=[{"visible": _ccvis("by_region")}]),
-            ],
-            showactive=True,
-            bgcolor="#1a2255", bordercolor="#4455aa",
-            font=dict(color="white", size=12),
-        )],
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                x=0.5,
+                y=-0.06,
+                xanchor="center",
+                yanchor="top",
+                buttons=[
+                    dict(label="FTSP vs CLS (Grouped)", method="update", args=[{"visible": _ccvis("grouped")}]),
+                    dict(label="Split by Distribution", method="update", args=[{"visible": _ccvis("by_dist")}]),
+                    dict(label="Split by Region", method="update", args=[{"visible": _ccvis("by_region")}]),
+                ],
+                showactive=True,
+                bgcolor="#1a2255",
+                bordercolor="#4455aa",
+                font=dict(color="white", size=12),
+            )
+        ],
     )
     p4 = out_dir / "constructor_comparison_interactive.html"
     figC.write_html(str(p4), include_plotlyjs="cdn")
@@ -1276,52 +1428,64 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
 
     # city_comparison_interactive ─────────────────────────────────────────────
     # Toggle: Grouped (avg over dists) vs Split by Distribution (Emp / Gamma-3)
-    figCC = make_subplots(rows=1, cols=2, subplot_titles=["Overflows","kg/km"])
-    _cc2_strat_col = {"LA":"#4e88d9","LM":"#e09020","SL":"#20b2aa"}
+    figCC = make_subplots(rows=1, cols=2, subplot_titles=["Overflows", "kg/km"])
+    _cc2_strat_col = {"LA": "#4e88d9", "LM": "#e09020", "SL": "#20b2aa"}
     _cc2_trace_modes: list[str] = []
 
     # Mode A: Grouped (avg over distributions) — 6 traces (3 strats × 2 imps)
-    for col_i, metric in enumerate(["overflows","kgkm"], 1):
-        sub_g = dfm.groupby(["city","N","strategy","improver"])[metric].mean().reset_index()
+    for col_i, metric in enumerate(["overflows", "kgkm"], 1):
+        sub_g = dfm.groupby(["city", "N", "strategy", "improver"])[metric].mean().reset_index()
         sub_g["lbl"] = sub_g.apply(lambda r: city_label(r.city, int(r.N)), axis=1)
-        for imp in ["FTSP","CLS"]:
-            for strat in ["LA","LM","SL"]:
-                s = sub_g[(sub_g.improver==imp)&(sub_g.strategy==strat)]
+        for imp in ["FTSP", "CLS"]:
+            for strat in ["LA", "LM", "SL"]:
+                s = sub_g[(sub_g.improver == imp) & (sub_g.strategy == strat)]
                 color = _cc2_strat_col.get(strat, "gray")
-                figCC.add_trace(go.Bar(
-                    name=f"{strat} {imp}",
-                    x=s["lbl"], y=s[metric],
-                    legendgroup=f"{strat}_{imp}_grp",
-                    showlegend=(col_i == 1),
-                    marker=dict(color=color, opacity=0.9 if imp=="FTSP" else 0.55),
-                    hovertemplate=f"City: %{{x}}<br>{metric}: %{{y:.2f}}<br>(avg over dists)<extra></extra>",
-                ), row=1, col=col_i)
+                figCC.add_trace(
+                    go.Bar(
+                        name=f"{strat} {imp}",
+                        x=s["lbl"],
+                        y=s[metric],
+                        legendgroup=f"{strat}_{imp}_grp",
+                        showlegend=(col_i == 1),
+                        marker=dict(color=color, opacity=0.9 if imp == "FTSP" else 0.55),
+                        hovertemplate=f"City: %{{x}}<br>{metric}: %{{y:.2f}}<br>(avg over dists)<extra></extra>",
+                    ),
+                    row=1,
+                    col=col_i,
+                )
                 if col_i == 1:
                     _cc2_trace_modes.append("grouped")
 
     # Mode B: Split by Distribution — 12 traces (3 strats × 2 imps × 2 dists)
-    for col_i, metric in enumerate(["overflows","kgkm"], 1):
-        sub_d = dfm.groupby(["city","N","dist","strategy","improver"])[metric].mean().reset_index()
+    for col_i, metric in enumerate(["overflows", "kgkm"], 1):
+        sub_d = dfm.groupby(["city", "N", "dist", "strategy", "improver"])[metric].mean().reset_index()
         sub_d["lbl"] = sub_d.apply(lambda r: city_label(r.city, int(r.N)), axis=1)
-        for imp in ["FTSP","CLS"]:
-            for strat in ["LA","LM","SL"]:
+        for imp in ["FTSP", "CLS"]:
+            for strat in ["LA", "LM", "SL"]:
                 for dist in sorted(dfm["dist"].unique()):
-                    s = sub_d[(sub_d.improver==imp)&(sub_d.strategy==strat)&(sub_d.dist==dist)]
+                    s = sub_d[(sub_d.improver == imp) & (sub_d.strategy == strat) & (sub_d.dist == dist)]
                     ds = "Emp" if dist == "Empirical" else "Gam"
                     base_col = _cc2_strat_col.get(strat, "gray")
                     # Lighten the colour for Gamma-3
                     if dist != "Empirical":
-                        r_h=int(base_col[1:3],16); g_h=int(base_col[3:5],16); b_h=int(base_col[5:7],16)
-                        base_col = f"#{min(255,r_h+60):02x}{min(255,g_h+60):02x}{min(255,b_h+60):02x}"
-                    figCC.add_trace(go.Bar(
-                        name=f"{strat} {imp} ({ds})",
-                        x=s["lbl"], y=s[metric],
-                        legendgroup=f"{strat}_{imp}_{ds}_split",
-                        showlegend=(col_i == 1),
-                        marker=dict(color=base_col, opacity=0.9 if imp=="FTSP" else 0.55),
-                        visible=False,
-                        hovertemplate=f"City: %{{x}}<br>{metric}: %{{y:.2f}}<br>Dist: {dist}<extra></extra>",
-                    ), row=1, col=col_i)
+                        r_h = int(base_col[1:3], 16)
+                        g_h = int(base_col[3:5], 16)
+                        b_h = int(base_col[5:7], 16)
+                        base_col = f"#{min(255, r_h + 60):02x}{min(255, g_h + 60):02x}{min(255, b_h + 60):02x}"
+                    figCC.add_trace(
+                        go.Bar(
+                            name=f"{strat} {imp} ({ds})",
+                            x=s["lbl"],
+                            y=s[metric],
+                            legendgroup=f"{strat}_{imp}_{ds}_split",
+                            showlegend=(col_i == 1),
+                            marker=dict(color=base_col, opacity=0.9 if imp == "FTSP" else 0.55),
+                            visible=False,
+                            hovertemplate=f"City: %{{x}}<br>{metric}: %{{y:.2f}}<br>Dist: {dist}<extra></extra>",
+                        ),
+                        row=1,
+                        col=col_i,
+                    )
                     if col_i == 1:
                         _cc2_trace_modes.append("split")
 
@@ -1330,21 +1494,28 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
 
     figCC.update_layout(
         title=dict(text="City Comparison", x=0.5, xanchor="center"),
-        template="plotly_dark", height=650, barmode="group",
+        template="plotly_dark",
+        height=650,
+        barmode="group",
         margin=dict(b=90),
-        updatemenus=[dict(
-            type="buttons", direction="left",
-            x=0.5, y=-0.09, xanchor="center", yanchor="top",
-            buttons=[
-                dict(label="All Distributions (Grouped)", method="update",
-                     args=[{"visible": _cc2vis("grouped")}]),
-                dict(label="Split by Distribution", method="update",
-                     args=[{"visible": _cc2vis("split")}]),
-            ],
-            showactive=True,
-            bgcolor="#1a2255", bordercolor="#4455aa",
-            font=dict(color="white", size=12),
-        )],
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                x=0.5,
+                y=-0.09,
+                xanchor="center",
+                yanchor="top",
+                buttons=[
+                    dict(label="All Distributions (Grouped)", method="update", args=[{"visible": _cc2vis("grouped")}]),
+                    dict(label="Split by Distribution", method="update", args=[{"visible": _cc2vis("split")}]),
+                ],
+                showactive=True,
+                bgcolor="#1a2255",
+                bordercolor="#4455aa",
+                font=dict(color="white", size=12),
+            )
+        ],
     )
     p5 = out_dir / "city_comparison_interactive.html"
     figCC.write_html(str(p5), include_plotlyjs="cdn")
@@ -1353,7 +1524,163 @@ def gen_interactive_html(df_raw: pd.DataFrame, dfm: pd.DataFrame, panels: list, 
     return paths
 
 
+# ── Horizon comparison figures ─────────────────────────────────────────────────
+
+
+def gen_horizon_comparison(dfm_30: pd.DataFrame, dfm_90: pd.DataFrame, panels: list, out_dir: Path) -> dict[str, Path]:
+    """
+    Side-by-side 30-day vs 90-day comparison figures.
+
+    Generates four charts:
+      - horizon_overflow_comparison.png
+      - horizon_kgkm_comparison.png
+      - horizon_overflow_delta.png      (relative change, %)
+      - horizon_constructor_ranking_comparison.png
+    """
+    plt.rcParams.update(DARK_STYLE)
+    HORIZON_COLORS = {"30d": "#4e88d9", "90d": "#e07830"}
+    paths: dict[str, Path] = {}
+
+    configs = [
+        (city, N, dist, strat)
+        for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]
+        for dist in ["Gamma-3", "Empirical"]
+        for strat in ["LA", "LM", "SL"]
+    ]
+    col_labels = [f"{city_label(c, N)}\n{d[:3]}\n{s}" for c, N, d, s in configs]
+
+    def _means_for(dfm: pd.DataFrame, dist: str, imp: str, metric: str) -> list[float]:
+        out = []
+        for city, N, dist_v, strat in configs:
+            if dist_v != dist:
+                out.append(np.nan)
+                continue
+            sub = dfm[
+                (dfm.city == city)
+                & (dfm.N == N)
+                & (dfm.dist == dist_v)
+                & (dfm.improver == imp)
+                & (dfm.strategy == strat)
+            ][metric]
+            out.append(sub.mean() if len(sub) else np.nan)
+        return out
+
+    # overflow and kgkm side-by-side
+    for metric, fname, ylabel in [
+        ("overflows", "horizon_overflow_comparison.png", "Mean overflows"),
+        ("kgkm", "horizon_kgkm_comparison.png", "Mean kg/km"),
+    ]:
+        fig, axes = plt.subplots(2, 2, figsize=(24, 14))
+        title = f"30-Day vs 90-Day Comparison: {ylabel} by Configuration"
+        fig.suptitle(title, fontsize=14, fontweight="bold")
+        bar_w = 0.4
+        for idx, (dist, imp) in enumerate(panels):
+            ax = axes[idx // 2][idx % 2]
+            ax.set_facecolor("#16213e")
+            m30 = np.array(_means_for(dfm_30, dist, imp, metric))
+            m90 = np.array(_means_for(dfm_90, dist, imp, metric))
+            x = np.arange(len(configs))
+            valid = ~(np.isnan(m30) & np.isnan(m90))
+            ax.bar(x[valid] - bar_w / 2, m30[valid], bar_w, color=HORIZON_COLORS["30d"], alpha=0.85, label="30 days")
+            ax.bar(x[valid] + bar_w / 2, m90[valid], bar_w, color=HORIZON_COLORS["90d"], alpha=0.85, label="90 days")
+            ax.set_xticks(x[valid])
+            ax.set_xticklabels(np.array(col_labels)[valid], fontsize=6, rotation=45, ha="right")
+            ax.set_ylabel(ylabel, fontsize=10)
+            ax.set_title(f"{dist} ({imp})", fontsize=11)
+            ax.yaxis.grid(True, alpha=0.4)
+            ax.set_axisbelow(True)
+            ax.legend(fontsize=9)
+        plt.tight_layout()
+        p = out_dir / fname
+        savefig(fig, p)
+        paths[fname.replace(".png", "")] = p
+
+    # relative delta chart ((90d - 30d) / 30d * 100)
+    fig, axes = plt.subplots(2, 2, figsize=(24, 14))
+    fig.suptitle("Relative Change: 90-Day vs 30-Day Overflows ((90d−30d)/30d %)", fontsize=14, fontweight="bold")
+    for idx, (dist, imp) in enumerate(panels):
+        ax = axes[idx // 2][idx % 2]
+        ax.set_facecolor("#16213e")
+        m30 = np.array(_means_for(dfm_30, dist, imp, "overflows"))
+        m90 = np.array(_means_for(dfm_90, dist, imp, "overflows"))
+        delta = np.where(m30 > 0, (m90 - m30) / m30 * 100, np.nan)
+        x = np.arange(len(configs))
+        valid = ~np.isnan(delta)
+        colors = ["#e05c5c" if v > 0 else "#5cb85c" for v in delta[valid]]
+        ax.bar(x[valid], delta[valid], color=colors, alpha=0.85)
+        ax.axhline(0, color="#e0e0e0", linewidth=0.8, linestyle="--")
+        ax.set_xticks(x[valid])
+        ax.set_xticklabels(np.array(col_labels)[valid], fontsize=6, rotation=45, ha="right")
+        ax.set_ylabel("Δ overflows (%)", fontsize=10)
+        ax.set_title(f"{dist} ({imp})", fontsize=11)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
+    plt.tight_layout()
+    p = out_dir / "horizon_overflow_delta.png"
+    savefig(fig, p)
+    paths["horizon_overflow_delta"] = p
+
+    # Constructor ranking comparison: avg rank in 30d vs 90d
+    constructors_30 = sorted(dfm_30["constructor"].unique())
+    constructors_90 = sorted(dfm_90["constructor"].unique())
+    all_cons = sorted(set(constructors_30) | set(constructors_90))
+    metrics_rank = ["overflows", "kgkm", "km", "profit"]
+    rank_asc = [True, False, True, False]
+
+    def _avg_ranks(dfm: pd.DataFrame, imp: str) -> dict[str, float]:
+        sub = dfm[dfm.improver == imp]
+        ranks: dict[str, list] = {c: [] for c in all_cons}
+        for metric, asc in zip(metrics_rank, rank_asc, strict=True):
+            for _, grp in sub.groupby(["city", "N", "dist", "strategy"]):
+                gi = grp.set_index("constructor")
+                r = gi[metric].rank(ascending=asc, method="average")
+                for c in all_cons:
+                    if c in r.index:
+                        ranks[c].append(r[c])
+        return {c: np.mean(v) if v else np.nan for c, v in ranks.items()}
+
+    fig, axes = plt.subplots(1, 2, figsize=(20, 8))
+    fig.suptitle("Constructor Average Ranking: 30-Day vs 90-Day", fontsize=14, fontweight="bold")
+    bar_w = 0.35
+    for ax_i, imp in enumerate(["FTSP", "CLS"]):
+        ax = axes[ax_i]
+        ax.set_facecolor("#16213e")
+        r30 = _avg_ranks(dfm_30, imp)
+        r90 = _avg_ranks(dfm_90, imp)
+        x = np.arange(len(all_cons))
+        ax.bar(
+            x - bar_w / 2,
+            [r30.get(c, np.nan) for c in all_cons],
+            bar_w,
+            color=HORIZON_COLORS["30d"],
+            alpha=0.85,
+            label="30 days",
+        )
+        ax.bar(
+            x + bar_w / 2,
+            [r90.get(c, np.nan) for c in all_cons],
+            bar_w,
+            color=HORIZON_COLORS["90d"],
+            alpha=0.85,
+            label="90 days",
+        )
+        ax.set_xticks(x)
+        ax.set_xticklabels(all_cons, rotation=15, ha="right", fontsize=10)
+        ax.set_ylabel("Average rank (lower = better)", fontsize=11)
+        ax.set_title(f"Constructor Rankings — {imp}", fontsize=12)
+        ax.yaxis.grid(True, alpha=0.4)
+        ax.set_axisbelow(True)
+        ax.legend(fontsize=10)
+    plt.tight_layout()
+    p = out_dir / "horizon_constructor_ranking_comparison.png"
+    savefig(fig, p)
+    paths["horizon_constructor_ranking_comparison"] = p
+
+    return paths
+
+
 # ── Markdown builder ───────────────────────────────────────────────────────────
+
 
 def _apply_figure_table_numbers(md: str) -> str:
     """Add sequential Figure N and Table N labels to generated markdown."""
@@ -1366,10 +1693,10 @@ def _apply_figure_table_numbers(md: str) -> str:
     # → adds "**Figure N:**" prefix to the italic caption
     def _fig_num(m):
         fig_n[0] += 1
-        return f'{m.group(1)}\n\n**Figure {fig_n[0]}:** {m.group(2)}\n'
+        return f"{m.group(1)}\n\n**Figure {fig_n[0]}:** {m.group(2)}\n"
 
     md = _re.sub(
-        r'(<figure\b[^>]*>.*?</figure>)\n+(\*[^*\n][^\n]*\*)\n',
+        r"(<figure\b[^>]*>.*?</figure>)\n+(\*[^*\n][^\n]*\*)\n",
         _fig_num,
         md,
         flags=_re.DOTALL,
@@ -1378,9 +1705,9 @@ def _apply_figure_table_numbers(md: str) -> str:
     # Table numbering: _TABCAP_: description → **Table N:** *description*
     def _tab_num(m):
         tab_n[0] += 1
-        return f'**Table {tab_n[0]}:** *{m.group(1).strip()}*'
+        return f"**Table {tab_n[0]}:** *{m.group(1).strip()}*"
 
-    md = _re.sub(r'_TABCAP_: ([^\n]+)', _tab_num, md)
+    md = _re.sub(r"_TABCAP_: ([^\n]+)", _tab_num, md)
     return md
 
 
@@ -1432,22 +1759,22 @@ def build_pareto_front_table(df: pd.DataFrame) -> str:
 
     pf = pd.DataFrame(pareto_rows)
     pf["selection"] = pf.apply(_selection_label, axis=1)
-    pf["scenario"] = pf.apply(
-        lambda r: f"{city_label(r['city'], int(r['N']))} / {r['_dist']}", axis=1
-    )
+    pf["scenario"] = pf.apply(lambda r: f"{city_label(r['city'], int(r['N']))} / {r['_dist']}", axis=1)
 
     table_rows = []
     for (sel, con, imp), grp in pf.groupby(["selection", "constructor", "improver"]):
         scenarios = sorted(grp["scenario"].unique())
-        table_rows.append({
-            "sel": sel,
-            "con": con,
-            "imp": imp,
-            "ov": grp["overflows"].mean(),
-            "eff": grp["kgkm"].mean(),
-            "scenarios": ", ".join(scenarios),
-            "n": len(scenarios),
-        })
+        table_rows.append(
+            {
+                "sel": sel,
+                "con": con,
+                "imp": imp,
+                "ov": grp["overflows"].mean(),
+                "eff": grp["kgkm"].mean(),
+                "scenarios": ", ".join(scenarios),
+                "n": len(scenarios),
+            }
+        )
 
     table_rows.sort(key=lambda r: (-r["n"], r["sel"], r["con"], r["imp"]))
 
@@ -1456,62 +1783,95 @@ def build_pareto_front_table(df: pd.DataFrame) -> str:
         "|-----------|-------------|----------|----------:|------:|------------------------|",
     ]
     for r in table_rows:
-        lines.append(
-            f"| {r['sel']} | {r['con']} | {r['imp']} "
-            f"| {r['ov']:.1f} | {r['eff']:.3f} | {r['scenarios']} |"
-        )
+        lines.append(f"| {r['sel']} | {r['con']} | {r['imp']} | {r['ov']:.1f} | {r['eff']:.3f} | {r['scenarios']} |")
     return "\n".join(lines)
 
 
 def build_overflow_table(dfm: pd.DataFrame, imp: str) -> str:
     rows = []
-    for city, N in [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]:
-        for dist in ["Gamma-3","Empirical"]:
-            for strat in ["LA","LM","SL"]:
-                sub = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&
-                          (dfm.improver==imp)&(dfm.strategy==strat)]["overflows"]
+    for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]:
+        for dist in ["Gamma-3", "Empirical"]:
+            for strat in ["LA", "LM", "SL"]:
+                sub = dfm[
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
+                ]["overflows"]
                 if len(sub):
-                    rows.append(f"| {city_label(city,N)} / {dist} / {strat} | "
-                                f"{sub.min():.0f} | {sub.max():.0f} | {sub.mean():.1f} |")
+                    rows.append(
+                        f"| {city_label(city, N)} / {dist} / {strat} | "
+                        f"{sub.min():.0f} | {sub.max():.0f} | {sub.mean():.1f} |"
+                    )
     header = "| Config | Min | Max | Mean |\n|--------|-----|-----|------|"
     return header + "\n" + "\n".join(rows)
 
 
 def build_efficiency_table(dfm: pd.DataFrame, imp: str) -> str:
     rows = []
-    for city, N in [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]:
-        for dist in ["Gamma-3","Empirical"]:
-            for strat in ["LA","LM","SL"]:
-                sub = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&
-                          (dfm.improver==imp)&(dfm.strategy==strat)]["kgkm"]
+    for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]:
+        for dist in ["Gamma-3", "Empirical"]:
+            for strat in ["LA", "LM", "SL"]:
+                sub = dfm[
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
+                ]["kgkm"]
                 if len(sub):
-                    rows.append(f"| {city_label(city,N)} / {dist} / {strat} | "
-                                f"{sub.min():.2f} | {sub.max():.2f} | {sub.mean():.2f} |")
+                    rows.append(
+                        f"| {city_label(city, N)} / {dist} / {strat} | "
+                        f"{sub.min():.2f} | {sub.max():.2f} | {sub.mean():.2f} |"
+                    )
     header = "| Config | Min | Max | Mean |\n|--------|-----|-----|------|"
     return header + "\n" + "\n".join(rows)
 
 
 def build_km_table(dfm: pd.DataFrame, imp: str) -> str:
     rows = []
-    for city, N in [("Rio Maior",100),("Rio Maior",170),("Figueira da Foz",350)]:
-        for dist in ["Gamma-3","Empirical"]:
-            for strat in ["LA","LM","SL"]:
-                sub = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&
-                          (dfm.improver==imp)&(dfm.strategy==strat)]["km"]
+    for city, N in [("Rio Maior", 100), ("Rio Maior", 170), ("Figueira da Foz", 350)]:
+        for dist in ["Gamma-3", "Empirical"]:
+            for strat in ["LA", "LM", "SL"]:
+                sub = dfm[
+                    (dfm.city == city)
+                    & (dfm.N == N)
+                    & (dfm.dist == dist)
+                    & (dfm.improver == imp)
+                    & (dfm.strategy == strat)
+                ]["km"]
                 if len(sub):
-                    rows.append(f"| {city_label(city,N)} / {dist} / {strat} | "
-                                f"{sub.min():.0f} | {sub.max():.0f} | {sub.mean():.0f} |")
+                    rows.append(
+                        f"| {city_label(city, N)} / {dist} / {strat} | "
+                        f"{sub.min():.0f} | {sub.max():.0f} | {sub.mean():.0f} |"
+                    )
     header = "| Config | Min km | Max km | Mean km |\n|--------|--------|--------|---------|"
     return header + "\n" + "\n".join(rows)
 
 
-def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
-                      cities: list, dists: list, strategies: list,
-                      improvers: list, constructors: list,
-                      figures_rel: str, private_rel: str) -> str:
+def generate_markdown(  # noqa: C901
+    df: pd.DataFrame,
+    dfm: pd.DataFrame,
+    panels: list,
+    cities: list,
+    dists: list,
+    strategies: list,
+    improvers: list,
+    constructors: list,
+    figures_rel: str,
+    private_rel: str,
+    # 90-day optional additions
+    df_90: pd.DataFrame | None = None,
+    dfm_90: pd.DataFrame | None = None,
+    figures_90_rel: str | None = None,
+    private_90_rel: str | None = None,
+    figures_cmp_rel: str | None = None,
+) -> str:
     total = len(df)
-    city_str = ", ".join(f"{city_label(c,N)} (N={N})" for c,N in cities)
+    city_str = ", ".join(f"{city_label(c, N)} (N={N})" for c, N in cities)
     has_both_imp = len(improvers) == 2
+    has_90d = df_90 is not None and dfm_90 is not None
 
     toc_items = [
         "1. [Experimental Setup](#1-experimental-setup)",
@@ -1529,20 +1889,26 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
     if has_both_imp:
         toc_items.append("8. [FTSP vs CLS Route Improver Comparison](#8-ftsp-vs-cls-route-improver-comparison)")
     for i, (city, N) in enumerate(cities[2:], start=9 if has_both_imp else 8):
-        anchor = city.lower().replace(" ","-")
+        anchor = city.lower().replace(" ", "-")
         toc_items.append(f"{i}. [{city} — City Analysis (N={N})](#{i}-{anchor}--city-analysis-n{N})")
-    toc_items.append(f"{len(toc_items)+1}. [City Comparison](#city-comparison-across-all-cities)")
-    toc_items.append(f"{len(toc_items)+1}. [Key Findings & Recommendations](#key-findings--recommendations)")
+    toc_items.append(f"{len(toc_items) + 1}. [City Comparison](#city-comparison-across-all-cities)")
+    toc_items.append(f"{len(toc_items) + 1}. [Key Findings & Recommendations](#key-findings--recommendations)")
+    if has_90d:
+        toc_items.append(f"{len(toc_items) + 1}. [90-Day Horizon Results](#90-day-horizon-results)")
+        toc_items.append(f"{len(toc_items) + 1}. [30-Day vs 90-Day Comparison](#30-day-vs-90-day-comparison)")
     toc = "\n".join(toc_items)
 
-    config_rows = "\n".join([
-        f"| **Cities / N** | {city_str} |",
-        f"| **Waste distribution** | {', '.join(dists)} |",
-        f"| **Selection strategy** | {', '.join(strategies)} |",
-        f"| **Route constructors** | {', '.join(constructors)} |",
-        f"| **Route improvers** | {', '.join(improvers)} |",
-        "| **Simulation days** | 30 |",
-    ])
+    sim_days_val = "30 and 90" if has_90d else "30"
+    config_rows = "\n".join(
+        [
+            f"| **Cities / N** | {city_str} |",
+            f"| **Waste distribution** | {', '.join(dists)} |",
+            f"| **Selection strategy** | {', '.join(strategies)} |",
+            f"| **Route constructors** | {', '.join(constructors)} |",
+            f"| **Route improvers** | {', '.join(improvers)} |",
+            f"| **Simulation days** | {sim_days_val} |",
+        ]
+    )
 
     strat_sec_lines = []
     for strat in strategies:
@@ -1551,9 +1917,14 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
             strat_sec_lines.append(f"#### {strat}+{imp}")
             for city, N in cities:
                 for dist in dists:
-                    strat_sec_lines.append(f"**{city_label(city,N)}, {dist}:**")
-                    sub = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.dist==dist)&
-                              (dfm.improver==imp)&(dfm.strategy==strat)]
+                    strat_sec_lines.append(f"**{city_label(city, N)}, {dist}:**")
+                    sub = dfm[
+                        (dfm.city == city)
+                        & (dfm.N == N)
+                        & (dfm.dist == dist)
+                        & (dfm.improver == imp)
+                        & (dfm.strategy == strat)
+                    ]
                     if len(sub):
                         best_ov_c = sub.loc[sub.overflows.idxmin(), "constructor"]
                         best_eff_c = sub.loc[sub.kgkm.idxmax(), "constructor"]
@@ -1582,7 +1953,7 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
         city_sections.append("")
         for imp in improvers:
             city_sections.append(f"### {imp}")
-            sub = dfm[(dfm.city==city)&(dfm.N==N)&(dfm.improver==imp)]
+            sub = dfm[(dfm.city == city) & (dfm.N == N) & (dfm.improver == imp)]
             if len(sub):
                 best_row = sub.loc[sub.kgkm.idxmax()]
                 city_sections.append(
@@ -1593,13 +1964,15 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
             city_sections.append("")
         anchor_num += 1
 
-    recommendations_rows = "\n".join([
-        "| Use Case | Strategy | Constructor | Route Improver | Notes |",
-        "|----------|:--------:|:-----------:|:--------------:|-------|",
-        "| Overflow prevention | SL | <!-- best_ov_constructor --> | <!-- improver --> | <!-- notes --> |",
-        "| Maximum efficiency | LM | <!-- best_eff_constructor --> | <!-- improver --> | <!-- notes --> |",
-        "| Balanced trade-off | LA | <!-- constructor --> | <!-- improver --> | <!-- notes --> |",
-    ])
+    recommendations_rows = "\n".join(
+        [
+            "| Use Case | Strategy | Constructor | Route Improver | Notes |",
+            "|----------|:--------:|:-----------:|:--------------:|-------|",
+            "| Overflow prevention | SL | <!-- best_ov_constructor --> | <!-- improver --> | <!-- notes --> |",
+            "| Maximum efficiency | LM | <!-- best_eff_constructor --> | <!-- improver --> | <!-- notes --> |",
+            "| Balanced trade-off | LA | <!-- constructor --> | <!-- improver --> | <!-- notes --> |",
+        ]
+    )
 
     # Pre-compute conditional sections (avoid nested f-strings — not supported in Python <3.12)
     if has_both_imp:
@@ -1615,13 +1988,18 @@ def generate_markdown(df: pd.DataFrame, dfm: pd.DataFrame, panels: list,
     else:
         section8 = ""
 
+    horizon_scope = "30-day and 90-day" if has_90d else "30-day"
+    horizon_note = (
+        f"> **Horizons:** 30 days (N={total} logs) and 90 days (N={len(df_90)} logs)\n"
+        if has_90d
+        else "> **Horizon:** 30 days\n"
+    )
     md = f"""\
 # WSmart+ Route — Simulation Analysis Report
 
-> **Scope:** 30-day simulation runs across {len(cities)} city/network configurations × {len(dists)} distributions × {len(strategies)} selection strategies × {len(improvers)} route improvers × {len(constructors)} route constructors
-> **Total logs analysed:** {total}
-> **Horizon:** 30 days
-> **Cities:** {city_str}
+> **Scope:** {horizon_scope} simulation runs across {len(cities)} city/network configurations × {len(dists)} distributions × {len(strategies)} selection strategies × {len(improvers)} route improvers × {len(constructors)} route constructors
+> **Total logs analysed (30d):** {total}
+{horizon_note}> **Cities:** {city_str}
 > **Generated:** <!-- date -->
 
 ---
@@ -1656,13 +2034,13 @@ _TABCAP_: Metrics tracked per simulation run, their optimisation direction, and 
 | Metric | Direction | Description |
 |--------|-----------|-------------|
 | `overflows` | ↓ lower better | Bins exceeding 100% capacity during simulation |
-| `kg` | ↑ higher better | Total waste collected (kg) over 30 days |
+| `kg` | ↑ higher better | Total waste collected (kg) over the simulation horizon |
 | `km` | ↓ lower better | Total vehicle distance driven (km) |
 | `kg/km` | ↑ higher better | Route efficiency (waste per unit distance) |
 | `ncol` | contextual | Number of collection events |
 | `kg_lost` | ↓ lower better | Waste that overflowed and was not collected |
 | `profit` | ↑ higher better | Revenue from collection minus operational cost |
-| `days` | contextual | Active collection days in the 30-day horizon |
+| `days` | contextual | Active collection days in the simulation horizon |
 
 ---
 
@@ -1740,7 +2118,7 @@ _TABCAP_: Route efficiency (kg/km) by configuration — mean ± min/max range ac
 
 ![Vehicle Distance by Strategy]({figures_rel}/km_violin.png)
 
-*Distribution of total vehicle distance (km over 30 days) per selection strategy and city, for both FTSP and CLS.*
+*Distribution of total vehicle distance (km) per selection strategy and city, for both FTSP and CLS.*
 
 _TABCAP_: Vehicle distance driven (km) by configuration — mean ± min/max range across all route constructors (FTSP route improver).
 
@@ -1875,7 +2253,151 @@ _TABCAP_: Deployment recommendations — suggested policy configuration per oper
 - [Policy Configuration Heatmap]({private_rel}/policy_heatmap_interactive.html)
 - [Constructor Comparison]({private_rel}/constructor_comparison_interactive.html)
 - [City Comparison]({private_rel}/city_comparison_interactive.html)
-    """
+"""
+
+    # ── 90-day section (appended when 90d data available) ──────────────────────
+    if has_90d:
+        cons_90 = sorted(dfm_90["constructor"].unique())
+        md += f"""
+---
+
+## 90-Day Horizon Results
+
+> **Scope:** Same city/distribution/strategy/constructor space as the 30-day runs.
+> **Total logs analysed (90d):** {len(df_90)}
+> **Constructors available:** {", ".join(cons_90)}
+
+### Overview
+
+{PLACEHOLDER}
+
+### 90d — Overflow Performance
+
+![90d Overflow Count by Configuration]({figures_90_rel}/overflow_all_configs.png)
+
+*Mean overflow count for all configurations over the 90-day horizon, mean ± range across constructors.*
+
+![90d Overflow Count — Log Scale]({figures_90_rel}/overflow_all_configs_log.png)
+
+*Same chart, symlog Y axis.*
+
+_TABCAP_: 90-day overflow counts by configuration — mean ± min/max range (FTSP).
+
+{build_overflow_table(dfm_90, "FTSP")}
+
+_TABCAP_: 90-day overflow counts by configuration — mean ± min/max range (CLS).
+
+{build_overflow_table(dfm_90, "CLS")}
+
+{PLACEHOLDER}
+
+### 90d — Route Efficiency (kg/km)
+
+![90d kg/km Efficiency by Configuration]({figures_90_rel}/kgkm_all_configs.png)
+
+*Mean kg/km efficiency for all configurations over 90 days.*
+
+_TABCAP_: 90-day route efficiency (kg/km) — FTSP.
+
+{build_efficiency_table(dfm_90, "FTSP")}
+
+_TABCAP_: 90-day route efficiency (kg/km) — CLS.
+
+{build_efficiency_table(dfm_90, "CLS")}
+
+{PLACEHOLDER}
+
+### 90d — Distance Driven (km)
+
+![90d Vehicle Distance by Strategy]({figures_90_rel}/km_violin.png)
+
+*Distribution of total vehicle distance over 90 days per selection strategy and city.*
+
+_TABCAP_: 90-day vehicle distance (km) — FTSP.
+
+{build_km_table(dfm_90, "FTSP")}
+
+{PLACEHOLDER}
+
+### 90d — Policy Ranking Heatmaps
+
+![90d Policy Heatmap]({figures_90_rel}/policy_config_heatmap.png)
+
+*Constructor × configuration performance heatmap for the 90-day runs.*
+
+![90d Policy Heatmap — By Distribution]({figures_90_rel}/policy_config_heatmap_by_dist.png)
+
+![90d Policy Heatmap — By City/N]({figures_90_rel}/policy_config_heatmap_by_graph.png)
+
+{PLACEHOLDER}
+
+### 90d — Selection Strategy Comparison
+
+![90d Strategy Bubble Chart]({figures_90_rel}/strategy_bubble.png)
+
+*Strategy trade-off bubble chart over 90 days.*
+
+![90d Strategy Bubble Chart (log X)]({figures_90_rel}/strategy_bubble_log.png)
+
+{PLACEHOLDER}
+
+### 90d — Pareto View
+
+![90d Overflow vs Efficiency — Pareto Front]({figures_90_rel}/overflow_efficiency_scatter_pareto.png)
+
+*Pareto front scatter for the 90-day runs.*
+
+### 90d — Pareto-Front Policy Catalogue
+
+_TABCAP_: Pareto-optimal configurations from the 90-day runs.
+
+{build_pareto_front_table(df_90)}
+
+---
+
+## 30-Day vs 90-Day Comparison
+
+This section compares results between the 30-day and 90-day simulation horizons to identify
+which patterns are robust across time scales and which shift as the evaluation window extends.
+
+### Overflow: 30d vs 90d
+
+![30d vs 90d Overflow Comparison]({figures_cmp_rel}/horizon_overflow_comparison.png)
+
+*Side-by-side overflow bars for every configuration. Blue = 30-day, orange = 90-day.
+Taller orange bars indicate that overflow pressure grows with a longer horizon.*
+
+![30d vs 90d Overflow Relative Delta]({figures_cmp_rel}/horizon_overflow_delta.png)
+
+*Relative change in mean overflows: (90d − 30d) / 30d × 100.
+Red bars = more overflows at 90 days; green bars = fewer.*
+
+{PLACEHOLDER}
+
+### Efficiency: 30d vs 90d
+
+![30d vs 90d kg/km Comparison]({figures_cmp_rel}/horizon_kgkm_comparison.png)
+
+*Side-by-side kg/km efficiency comparison.
+Consistent efficiency across horizons suggests the routing policy scales well.*
+
+{PLACEHOLDER}
+
+### Constructor Rankings: 30d vs 90d
+
+![Constructor Ranking: 30d vs 90d]({figures_cmp_rel}/horizon_constructor_ranking_comparison.png)
+
+*Average constructor rank (lower = better) for FTSP and CLS, compared across horizons.
+Constructors with stable ranks are robust; those that improve or regress warrant deeper investigation.*
+
+{PLACEHOLDER}
+
+### Key Observations
+
+{PLACEHOLDER}
+
+---
+"""
     import re as _re
 
     # Convert all ![alt](path) markdown images to full-width HTML.
@@ -1886,7 +2408,7 @@ _TABCAP_: Deployment recommendations — suggested policy configuration per oper
             f'<img src="{m.group(2)}" alt="{m.group(1)}" width="100%"'
             f' style="width:100% !important;max-width:100% !important;'
             f'height:auto !important;display:block !important;margin:0;" />'
-            f'</figure>'
+            f"</figure>"
         ),
         md,
     )
@@ -1898,84 +2420,154 @@ _TABCAP_: Deployment recommendations — suggested policy configuration per oper
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--csv", default="public/global/simulation/simulation_summary.csv")
+    p.add_argument("--csv", default="public/global/simulation/simulation_summary.csv", help="30-day simulation CSV")
+    p.add_argument("--csv-90d", default=None, help="90-day simulation CSV (optional; enables dual-horizon mode)")
     p.add_argument("--out-md", default="public/simulation_analysis.md")
-    p.add_argument("--figures-dir", default="public/figures/simulation")
-    p.add_argument("--private-dir", default="public/private/simulation")
+    p.add_argument(
+        "--figures-dir",
+        default="public/figures/simulation",
+        help="Base figures directory (30d figures go here or in <dir>/30d/ when dual-horizon)",
+    )
+    p.add_argument(
+        "--private-dir", default="public/private/simulation", help="Base private (interactive HTML) directory"
+    )
     p.add_argument("--force", action="store_true", help="Overwrite existing markdown (default: skip if exists)")
     p.add_argument("--figures-only", action="store_true", help="Generate figures but do not write markdown")
     return p.parse_args()
+
+
+def _load_and_aggregate(csv_path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load CSV and return (df_raw, dfm_averaged_over_cf_slvar)."""
+    df = pd.read_csv(csv_path)
+    dfm = (
+        df.groupby(["city", "N", "dist", "improver", "strategy", "constructor"])[
+            ["overflows", "kgkm", "km", "profit", "kg", "reward"]
+        ]
+        .mean()
+        .reset_index()
+    )
+    return df, dfm
+
+
+def _gen_all_figures(
+    df: pd.DataFrame,
+    dfm: pd.DataFrame,
+    panels: list,
+    constructors: list,
+    figures_dir: Path,
+    private_dir: Path,
+    n_days: int = 30,
+) -> None:
+    """Generate the full figure set for a single horizon."""
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    private_dir.mkdir(parents=True, exist_ok=True)
+    gen_overflow_bar(dfm, panels, figures_dir, n_days=n_days)
+    gen_kgkm_bar(dfm, panels, figures_dir)
+    gen_km_violin(dfm, panels, figures_dir, n_days=n_days)
+    gen_policy_heatmap(dfm, panels, constructors, figures_dir)
+    gen_pareto_scatter(dfm, df, panels, figures_dir, n_days=n_days)
+    gen_strategy_bubble(dfm, panels, figures_dir, n_days=n_days)
+    gen_city_comparison(dfm, panels, figures_dir, n_days=n_days)
+    gen_city_scaling(dfm, panels, figures_dir, n_days=n_days)
+    gen_constructor_ranking(dfm, constructors, figures_dir)
+    gen_radar(dfm, ["ACO_HH", "HGS", "BPC", "SANS"], figures_dir)
+    if dfm["improver"].nunique() > 1:
+        gen_ftsp_vs_cls(dfm, figures_dir)
+    gen_interactive_html(df, dfm, panels, private_dir, n_days=n_days)
 
 
 def main() -> None:
     args = parse_args()
     csv_path = Path(args.csv)
     out_md = Path(args.out_md)
-    figures_dir = Path(args.figures_dir)
-    private_dir = Path(args.private_dir)
+    dual = args.csv_90d is not None
 
-    figures_dir.mkdir(parents=True, exist_ok=True)
-    private_dir.mkdir(parents=True, exist_ok=True)
+    if dual:
+        figures_dir_30 = Path(args.figures_dir) / "30d"
+        figures_dir_90 = Path(args.figures_dir) / "90d"
+        figures_dir_cmp = Path(args.figures_dir) / "compare"
+        private_dir_30 = Path(args.private_dir) / "30d"
+        private_dir_90 = Path(args.private_dir) / "90d"
+    else:
+        figures_dir_30 = Path(args.figures_dir)
+        private_dir_30 = Path(args.private_dir)
 
-    print(f"Reading: {csv_path}")
-    df = pd.read_csv(csv_path)
-
-    # Average over CF/sl_var variants per constructor
-    dfm = df.groupby(["city","N","dist","improver","strategy","constructor"])[
-        ["overflows","kgkm","km","profit","kg","reward"]
-    ].mean().reset_index()
-
-    # Detect dimensions
-    cities = sorted(df[["city","N"]].drop_duplicates().values.tolist(), key=lambda x: x[1])
+    # ── 30-day data ─────────────────────────────────────────────────────────────
+    print(f"Reading 30d CSV: {csv_path}")
+    df, dfm = _load_and_aggregate(csv_path)
+    cities = sorted(df[["city", "N"]].drop_duplicates().values.tolist(), key=lambda x: x[1])
     dists = sorted(df["dist"].unique())
     strategies = sorted(df["strategy"].unique())
     improvers = sorted(df["improver"].unique())
     constructors = sorted(df["constructor"].unique())
+    panels = [(d, i) for d in dists for i in improvers]
 
-    panels = [(d, i) for d in dists for i in improvers]  # 4 panels
     print(f"  Cities: {cities}")
     print(f"  Distributions: {dists}")
     print(f"  Strategies: {strategies}")
     print(f"  Improvers: {improvers}")
     print(f"  Constructors: {constructors}")
-    print(f"  Panels: {panels}")
 
-    # ── Generate figures ────────────────────────────────────────────────────────
-    print("\nGenerating figures...")
-    gen_overflow_bar(dfm, panels, figures_dir)
-    gen_kgkm_bar(dfm, panels, figures_dir)
-    gen_km_violin(dfm, panels, figures_dir)
-    gen_policy_heatmap(dfm, panels, constructors, figures_dir)
-    gen_pareto_scatter(dfm, df, panels, figures_dir)
-    gen_strategy_bubble(dfm, panels, figures_dir)
-    gen_city_comparison(dfm, panels, figures_dir)
-    gen_city_scaling(dfm, panels, figures_dir)
-    gen_constructor_ranking(dfm, constructors, figures_dir)
-    gen_radar(dfm, ["ACO_HH","HGS","BPC","SANS"], figures_dir)
-    if len(improvers) > 1:
-        gen_ftsp_vs_cls(dfm, figures_dir)
-    html_paths = gen_interactive_html(df, dfm, panels, private_dir)
-    print(f"  Generated {len(html_paths)} interactive HTML files")
+    print(f"\nGenerating 30d figures → {figures_dir_30}")
+    _gen_all_figures(df, dfm, panels, constructors, figures_dir_30, private_dir_30, n_days=30)
+
+    # ── 90-day data (optional) ──────────────────────────────────────────────────
+    df_90 = dfm_90 = figures_dir_90 = private_dir_90 = figures_dir_cmp = None
+    if dual:
+        csv_90_path = Path(args.csv_90d)
+        print(f"\nReading 90d CSV: {csv_90_path}")
+        df_90, dfm_90 = _load_and_aggregate(csv_90_path)
+        cons_90 = sorted(df_90["constructor"].unique())
+        panels_90 = [(d, i) for d in sorted(df_90["dist"].unique()) for i in sorted(df_90["improver"].unique())]
+        print(f"  90d Constructors: {cons_90}")
+
+        print(f"\nGenerating 90d figures → {figures_dir_90}")
+
+        _gen_all_figures(df_90, dfm_90, panels_90, cons_90, figures_dir_90, private_dir_90, n_days=90)  # pyrefly: ignore [bad-argument-type]
+
+        print(f"\nGenerating comparison figures → {figures_dir_cmp}")
+        figures_dir_cmp.mkdir(parents=True, exist_ok=True)  # pyrefly: ignore [missing-attribute]
+        gen_horizon_comparison(dfm, dfm_90, panels, figures_dir_cmp)  # pyrefly: ignore [bad-argument-type]
 
     if args.figures_only:
         print("--figures-only: skipping markdown generation")
         return
 
-    # ── Write markdown ──────────────────────────────────────────────────────────
-    str(figures_dir).replace("public/", "figures/") if "public/" in str(figures_dir) else str(figures_dir)
-    str(private_dir).replace("public/", "private/") if "public/" in str(private_dir) else str(private_dir)
-
     if out_md.exists() and not args.force:
         print(f"\n{out_md} already exists. Use --force to regenerate. Skipping markdown write.")
         return
 
+    # ── Markdown relative paths ─────────────────────────────────────────────────
+    def _to_rel(p: Path) -> str:
+        s = str(p)
+        return s.replace("public/", "", 1) if s.startswith("public/") else s
+
+    figures_rel = _to_rel(figures_dir_30)
+    private_rel = _to_rel(private_dir_30)
+    figures_90_rel = _to_rel(figures_dir_90) if dual else None  # pyrefly: ignore [bad-argument-type]
+    private_90_rel = _to_rel(private_dir_90) if dual else None  # pyrefly: ignore [bad-argument-type]
+    figures_cmp_rel = _to_rel(figures_dir_cmp) if dual else None  # pyrefly: ignore [bad-argument-type]
+
     print(f"\nGenerating markdown: {out_md}")
     md = generate_markdown(
-        df, dfm, panels, cities, dists, strategies, improvers, constructors,
-        figures_rel="figures/simulation",
-        private_rel="private/simulation",
+        df,
+        dfm,
+        panels,
+        cities,
+        dists,
+        strategies,
+        improvers,
+        constructors,
+        figures_rel=figures_rel,
+        private_rel=private_rel,
+        df_90=df_90,
+        dfm_90=dfm_90,
+        figures_90_rel=figures_90_rel,
+        private_90_rel=private_90_rel,
+        figures_cmp_rel=figures_cmp_rel,
     )
     out_md.write_text(md, encoding="utf-8")
     print(f"  Written: {out_md} ({len(md)} chars)")
