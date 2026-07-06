@@ -67,7 +67,7 @@ _TABCAP_: Metrics tracked per simulation run, their optimisation direction, and 
 
 ![Overflow vs Efficiency — Pareto Front]({{ h.figures_rel }}/pareto_scatter.png)
 
-*Scatter of all {{ h.days }}-day runs in the overflows–kg/km space, one panel per waste distribution. Colour encodes the mandatory selection variant, marker shape encodes the scenario (region/N), filled markers = {{ improvers[0] }}, open markers = {{ improvers[-1] }}. Dashed line = per-scenario Pareto front.*
+*Scatter of all {{ h.days }}-day runs in the overflows–kg/km space, one panel per waste distribution. Colour encodes the mandatory selection variant, marker shape encodes the scenario (region/N), filled markers = {{ improvers[0] }}, open markers = {{ improvers[-1] }}. Dashed lines = Pareto fronts, one colour per scenario (region × N × distribution).*
 {% if h.has_pareto_log %}
 
 ![Overflow vs Efficiency — Pareto Front (log scale)]({{ h.figures_rel }}/pareto_scatter_log.png)
