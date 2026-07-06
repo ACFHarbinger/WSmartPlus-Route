@@ -1,0 +1,261 @@
+# WSmart+ Route — Simulation Analysis Report
+
+> **Scope:** {{ scope }}
+{% for h in horizons -%}
+> **Total logs analysed ({{ h.days }}d):** {{ h.n_logs }}
+{% endfor -%}
+> **Scenarios:** {{ scenario_str }}
+> **Generated:** <!-- date -->
+
+---
+
+## Table of Contents
+
+{{ toc }}
+
+---
+
+## 1. Experimental Setup
+
+### Configuration Space
+
+_TABCAP_: Configuration space — experimental dimensions and the values tested in this study.
+
+| Dimension | Values |
+|-----------|--------|
+| **Scenarios (region / N)** | {{ scenario_regions }} |
+| **Waste distribution** | {{ dists | join(', ') }} |
+| **Mandatory selection strategy** | {{ strategies | join(', ') }} |
+| **Route constructors** | {{ constructors | join(', ') }} |
+{% if acceptance -%}
+| **Acceptance criteria** | {{ acceptance | join(', ') }} |
+{% endif -%}
+| **Route improvers** | {{ improvers | join(', ') }} |
+| **Simulation horizons (days)** | {{ horizon_days | join(', ') }} |
+
+### Policy Naming Convention
+
+Each log file encodes the full pipeline as:
+`{mandatory_selection}_{route_constructor}[_{acceptance_criterion}]_{route_improver}`
+
+For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** (70% fill triggers mandatory collection) and **CF90** (90% threshold). Service-Level (SL) tests two service level targets: **SL1** and **SL2**. Results in this report aggregate CF70 and CF90 under **LM**, and SL1/SL2 under **SL**, unless otherwise specified.
+
+### Metrics Tracked
+
+_TABCAP_: Metrics tracked per simulation run, their optimisation direction, and a brief description.
+
+| Metric | Direction | Description |
+|--------|-----------|-------------|
+| `overflows` | ↓ lower better | Bins exceeding 100% capacity during simulation |
+| `kg` | ↑ higher better | Total waste collected (kg) over the simulation horizon |
+| `km` | ↓ lower better | Total vehicle distance driven (km) |
+| `kg/km` | ↑ higher better | Route efficiency (waste per unit distance) |
+| `ncol` | contextual | Number of collection events |
+| `kg_lost` | ↓ lower better | Waste that overflowed and was not collected |
+| `profit` | ↑ higher better | Revenue from collection minus operational cost |
+| `days` | contextual | Active collection days in the simulation horizon |
+
+---
+{% for h in horizons %}
+
+## {{ h.section_num }}. {{ h.days }}-Day Horizon Results
+
+> **Logs analysed:** {{ h.n_logs }}
+> **Constructors available:** {{ h.constructors | join(', ') }}
+
+### {{ h.section_num }}.1 Analytics Comparison — Pareto View
+
+![Overflow vs Efficiency — Pareto Front]({{ h.figures_rel }}/pareto_scatter.png)
+
+*Scatter of all {{ h.days }}-day runs in the overflows–kg/km space, one panel per waste distribution. Colour encodes the mandatory selection variant, marker shape encodes the scenario (region/N), filled markers = {{ improvers[0] }}, open markers = {{ improvers[-1] }}. Dashed line = per-scenario Pareto front.*
+{% if h.has_pareto_log %}
+
+![Overflow vs Efficiency — Pareto Front (log scale)]({{ h.figures_rel }}/pareto_scatter_log.png)
+
+*Same chart with symlog X-axis — spreads the densely clustered low-overflow region.*
+{% endif %}
+{% if h.interactive.pareto %}
+**[Interactive version]({{ h.private_rel }}/pareto_scatter_interactive.html)**
+{% endif %}
+
+#### Pareto-Front Policy Catalogue ({{ h.days }} days)
+
+_TABCAP_: Pareto-optimal policy configurations over the {{ h.days }}-day horizon — each unique (selection variant, constructor, improver) that appeared on the Pareto front of at least one scenario, sorted by scenario count; metrics averaged across those scenarios.
+
+{{ h.pareto_table }}
+
+{{ placeholder }}
+
+### {{ h.section_num }}.2 Summary KPI Analysis
+
+#### Overflow Performance
+
+![Overflow Count by Configuration]({{ h.figures_rel }}/overflow_by_config.png)
+
+*Mean overflow count per scenario and selection strategy (mean ± min/max range across route constructors); route improvers shown as paired bars within each configuration.*
+{% if h.has_overflow_log %}
+
+![Overflow Count by Configuration (log scale)]({{ h.figures_rel }}/overflow_by_config_log.png)
+
+*Same chart with symlog Y axis — reveals structure compressed in the linear scale.*
+{% endif %}
+
+_TABCAP_: Overflow counts by configuration over {{ h.days }} days — min/max/mean across route constructors, per route improver.
+
+{{ h.overflow_table }}
+
+{{ placeholder }}
+
+#### Route Efficiency (kg/km)
+
+![kg/km Efficiency by Configuration]({{ h.figures_rel }}/kgkm_by_config.png)
+
+*Mean kg/km efficiency per scenario and selection strategy, with min–max whiskers across constructors; improvers as paired bars.*
+
+_TABCAP_: Route efficiency (kg/km) by configuration over {{ h.days }} days — min/max/mean across route constructors, per route improver.
+
+{{ h.efficiency_table }}
+
+{{ placeholder }}
+
+#### Distance Driven (km)
+
+![Vehicle Distance by Strategy]({{ h.figures_rel }}/km_violin.png)
+
+*Distribution of total vehicle distance (km) per selection strategy and scenario (all constructors and improvers pooled), one panel per waste distribution.*
+
+_TABCAP_: Vehicle distance driven (km) by configuration over {{ h.days }} days — min/max/mean across route constructors, per route improver.
+
+{{ h.km_table }}
+
+{{ placeholder }}
+
+### {{ h.section_num }}.3 Policy × Scenario Heatmaps
+
+![Policy × Scenario Heatmap — Overflows]({{ h.figures_rel }}/policy_scenario_heatmap_overflows.png)
+
+*Overflow count heatmap: each row is a full policy configuration (selection variant + constructor + improver), each column a simulation scenario (region × N × distribution).*
+
+![Policy × Scenario Heatmap — Efficiency]({{ h.figures_rel }}/policy_scenario_heatmap_kgkm.png)
+
+*kg/km efficiency heatmap with the same layout (rows = policy configurations, columns = scenarios).*
+
+![Per-Scenario Constructor Heatmaps]({{ h.figures_rel }}/scenario_constructor_heatmap.png)
+
+*One panel per scenario: route constructors on the rows, selection strategy × route improver combinations on the columns.*
+{% if h.interactive.heatmap %}
+**[Interactive heatmap]({{ h.private_rel }}/policy_heatmap_interactive.html)**
+{% endif %}
+
+{{ placeholder }}
+
+### {{ h.section_num }}.4 Selection Strategy Comparison ({{ strategies | join(' vs ') }})
+
+![Strategy Trade-off Bubble Chart]({{ h.figures_rel }}/strategy_bubble.png)
+
+*One panel per waste distribution. Each bubble = one (strategy, scenario) combination, averaged over constructors and improvers; bubble size ∝ N.*
+{% if h.has_bubble_log %}
+
+![Strategy Trade-off Bubble Chart (log X scale)]({{ h.figures_rel }}/strategy_bubble_log.png)
+
+*Same chart with symlog X axis.*
+{% endif %}
+{% if h.interactive.bubble %}
+**[Interactive bubble chart]({{ h.private_rel }}/strategy_bubble_interactive.html)**
+{% endif %}
+
+{{ h.strategy_best }}
+
+{{ placeholder }}
+
+### {{ h.section_num }}.5 Route Improver Comparison ({{ improvers | join(' vs ') }})
+
+![Improver Trade-off Bubble Chart]({{ h.figures_rel }}/improver_bubble.png)
+
+*Each bubble = one (improver, scenario) combination averaged over strategies and constructors — contrasts the route improvers directly.*
+{% if h.has_improver_delta %}
+
+![Improver Delta Heatmap]({{ h.figures_rel }}/improver_delta.png)
+
+*Delta heatmap ({{ improvers[-1] }} − {{ improvers[0] }}) per constructor × configuration.*
+{% endif %}
+
+{{ placeholder }}
+
+### {{ h.section_num }}.6 Key Findings
+
+![Policy Performance Radar]({{ h.figures_rel }}/policy_radar.png)
+
+*Overlaid radar chart for key constructors. Outer = better on all axes.*
+
+![Route Constructor Average Rank]({{ h.figures_rel }}/constructor_ranking.png)
+
+*Average rank of each route constructor across all scenarios and strategies (improvers pooled). Bars grow upward — shorter = better.*
+
+{{ placeholder }}
+
+---
+{% endfor %}
+{% if comparison %}
+
+## {{ comparison.section_num }}. Horizon Comparison ({{ comparison.label }})
+
+This section compares results across the simulation horizons to identify which patterns are
+robust across time scales and which shift as the evaluation window extends.
+
+### Overflow Across Horizons
+
+![Overflow Horizon Comparison]({{ comparison.figures_rel }}/horizon_overflow_comparison.png)
+
+*Side-by-side overflow bars for every configuration, one bar colour per horizon.
+Growth across horizons indicates that overflow pressure accumulates over time.*
+
+![Overflow Relative Delta]({{ comparison.figures_rel }}/horizon_overflow_delta.png)
+
+*Relative change in mean overflows between the shortest and longest horizon: ({{ comparison.last_days }}d − {{ comparison.first_days }}d) / {{ comparison.first_days }}d × 100.
+Red bars = more overflows on the longer horizon; green bars = fewer.*
+
+{{ placeholder }}
+
+### Efficiency Across Horizons
+
+![kg/km Horizon Comparison]({{ comparison.figures_rel }}/horizon_kgkm_comparison.png)
+
+*Side-by-side kg/km efficiency comparison.
+Consistent efficiency across horizons suggests the routing policy scales well.*
+
+{{ placeholder }}
+
+### Constructor Rankings Across Horizons
+
+![Constructor Ranking Across Horizons]({{ comparison.figures_rel }}/horizon_constructor_ranking.png)
+
+*Average constructor rank (lower = better) compared across horizons.
+Constructors with stable ranks are robust; those that improve or regress warrant deeper investigation.*
+
+{{ placeholder }}
+
+### Key Observations
+
+{{ placeholder }}
+
+---
+{% endif %}
+
+*Figures are stored under `{{ figures_base_rel }}/`.*
+*Raw simulation data: {{ csv_list }}.*
+
+## Interactive Charts
+{% for h in horizons %}{% if h.interactive.pareto or h.interactive.bubble or h.interactive.heatmap %}
+
+### {{ h.days }}-Day Horizon
+{% if h.interactive.pareto %}
+- [Overflow vs Efficiency — Pareto View]({{ h.private_rel }}/pareto_scatter_interactive.html)
+{%- endif %}
+{% if h.interactive.bubble -%}
+- [Strategy Trade-off Bubble Chart]({{ h.private_rel }}/strategy_bubble_interactive.html)
+{%- endif %}
+{% if h.interactive.heatmap -%}
+- [Policy Configuration Heatmap]({{ h.private_rel }}/policy_heatmap_interactive.html)
+{%- endif %}
+{% endif %}{% endfor %}

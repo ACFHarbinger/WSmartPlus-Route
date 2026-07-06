@@ -1,0 +1,142 @@
+# WSmart+ Route — Dataset Analysis Report
+
+> **Scope:** NPZ simulator datasets and TensorDict training datasets
+> **Cities:** {{ city_labels | join(', ') }}
+> **Distributions:** {{ dist_labels | join(', ') }}
+> **Horizons analysed:** {{ horizon_str }}
+> **Total NPZ dataset entries:** {{ total_npz }}
+> **Generated:** <!-- date -->
+
+---
+
+## Table of Contents
+
+{{ toc }}
+
+---
+{% if has_td %}
+
+## 1. Training Data (TD)
+
+Training data used for supervised learning models (stored as TensorDict `.td` files).
+Each entry contains normalised waste values in [0, 1] (divide by 100 to convert to kg/kg).
+
+![Waste Statistics Comparison]({{ figures_rel }}/td_stats_comparison.png)
+
+*Mean, std, and skewness of training waste values per network size and distribution.*
+
+![Training Data Waste Distributions]({{ figures_rel }}/td_waste_distributions.png)
+
+*Bar chart of mean and std waste fractions per network size.*
+
+### TD Statistics Summary
+
+_TABCAP_: Training data (TD) statistics — mean, std, and skewness of normalised waste values per network size and distribution.
+
+{{ td_table }}
+
+{{ placeholder }}
+
+---
+{% endif %}
+{% for city in cities %}
+
+## {{ city.section_num }}. {{ city.label }} NPZ Datasets
+
+**Network sizes:** N = {{ city.Ns | join(', ') }}  **Distributions:** {{ dist_labels | join(', ') }}  **Horizons:** {{ horizon_str }}
+
+![NPZ Statistics Bar Chart]({{ figures_rel }}/npz_stats_bar.png)
+
+*Mean, median, std and max waste per city and distribution (30-day horizon).*
+
+![Statistics vs Network Size]({{ figures_rel }}/npz_size_scaling.png)
+
+*How mean waste, std, and skewness vary with network size — Rio Maior N=20…170 (lines) plus the Figueira da Foz N=350 reference point (diamonds).*
+{% if has_multiple_horizons %}
+
+![Horizon Comparison]({{ figures_rel }}/npz_horizon_comparison.png)
+
+*Comparison of horizon statistics across network sizes, including the N=350 reference point.*
+{% endif %}
+
+### Statistics Summary — {{ city.label }} (30-day horizon)
+
+_TABCAP_: NPZ dataset statistics for {{ city.label }} — mean, median, std, max waste and IQR per network size and distribution (30-day horizon).
+
+{{ city.table }}
+
+{{ placeholder }}
+{% endfor %}
+
+---
+
+## {{ shapes_section_num }}. Waste Distribution Shapes
+
+![Waste Distribution Violin Plots]({{ figures_rel }}/npz_violin.png)
+
+*Violin plots of raw daily waste values (kg/bin/day) per network size and distribution, with embedded quartile markers.*
+
+![Waste Distribution Box Plots]({{ figures_rel }}/npz_box.png)
+
+*Box plots showing median, quartiles, interquartile range, outlier fences and outliers of raw waste values.*
+
+![Waste Histograms with KDE]({{ figures_rel }}/npz_hist_kde.png)
+
+*Histograms with kernel density estimates of raw waste values per distribution — reveals modes and tail behaviour.*
+
+![Extended Statistics]({{ figures_rel }}/npz_extended_stats.png)
+
+*Median, variance, interquartile range, minimum, outlier fences and mode per network size and distribution.*
+
+### Extended Statistics Summary (30-day horizon)
+
+_TABCAP_: Extended NPZ dataset statistics — median, variance, IQR, minimum, outlier fences and mode of raw waste values per city, network size and distribution (30-day horizon).
+
+{{ extended_table }}
+
+{{ placeholder }}
+
+---
+{% if has_city_cmp %}
+
+## {{ city_cmp_section_num }}. City Comparison
+
+![City Comparison Overview]({{ figures_rel }}/npz_city_comparison.png)
+
+*Key statistics across cities and distributions.*
+
+### Statistics Summary — All Cities (30-day horizon)
+
+_TABCAP_: NPZ dataset statistics across all cities — mean, median, std, max waste and IQR per city and distribution (30-day horizon).
+
+{{ all_table }}
+
+{{ placeholder }}
+
+---
+{% endif %}
+{% if has_td %}
+
+## {{ alignment_section_num }}. TD vs NPZ Alignment
+
+![Training (TD) vs Simulator (NPZ) Mean Waste Alignment]({{ figures_rel }}/npz_td_alignment.png)
+
+*Comparison of mean waste levels between TD training data (normalised × 100) and NPZ simulator
+data, including the Figueira da Foz N=350 reference point. Close alignment validates that
+training distribution matches simulation.*
+
+{{ placeholder }}
+
+---
+{% endif %}
+
+*Figures are stored in `{{ figures_rel }}/`.*
+*Raw statistics: `{{ td_csv }}` and `{{ npz_csv }}`.*
+{% if interactive %}
+
+## Interactive Charts
+
+- [NPZ Statistics — Mean vs Std Scatter]({{ private_rel }}/npz_stats_interactive.html)
+- [Waste Distribution by City and Network Size]({{ private_rel }}/waste_distribution_interactive.html)
+- [City & Network Comparison]({{ private_rel }}/city_network_comparison_interactive.html)
+{% endif %}

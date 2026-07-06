@@ -1,0 +1,68 @@
+{
+  "dir_city": {
+    "riomaior": "Rio Maior",
+    "figueiradafoz": "Figueira da Foz"
+  },
+  "city_short": {
+    "Rio Maior": "RM",
+    "Figueira da Foz": "FFZ"
+  },
+  "dist_map": {
+    "emp": "Empirical",
+    "gamma1": "Gamma-1",
+    "gamma2": "Gamma-2",
+    "gamma3": "Gamma-3"
+  },
+  "strategy_prefixes": [
+    {"prefix": "last_minute_cf70_", "strategy": "LM", "cf": "CF70", "sl_var": null},
+    {"prefix": "last_minute_cf90_", "strategy": "LM", "cf": "CF90", "sl_var": null},
+    {"prefix": "service_level1_", "strategy": "SL", "cf": null, "sl_var": "SL1"},
+    {"prefix": "service_level2_", "strategy": "SL", "cf": null, "sl_var": "SL2"},
+    {"prefix": "lookahead_", "strategy": "LA", "cf": null, "sl_var": null}
+  ],
+  "strategy_names": {
+    "LA": "Look-Ahead",
+    "LM": "Last-Minute",
+    "SL": "Service-Level"
+  },
+  "constructors": [
+    ["pg_clns", "PG-CLNS"],
+    ["swc_tcf", "SWC-TCF"],
+    ["aco_hh", "ACO_HH"],
+    ["psoma", "PSOMA"],
+    ["sans", "SANS"],
+    ["alns", "ALNS"],
+    ["bpc", "BPC"],
+    ["hgs", "HGS"]
+  ],
+  "improver_pattern": "_(cls|ftsp)_\\d+N$",
+  "strategy_colors": {
+    "LA": "#4e88d9",
+    "LM": "#e05c5c",
+    "SL": "#5cb85c"
+  },
+  "variant_colors": {
+    "LA": "#4e88d9",
+    "LM (CF70)": "#e05c5c",
+    "LM (CF90)": "#e09020",
+    "SL (SL1)": "#20b2aa",
+    "SL (SL2)": "#20a020"
+  },
+  "improver_colors": {
+    "FTSP": "#5588dd",
+    "CLS": "#dd8844"
+  },
+  "horizon_colors": ["#4e88d9", "#e07830", "#5cb85c", "#a060e0"],
+  "scenario_colors": ["#4e88d9", "#2244aa", "#e08030", "#a030e0", "#20b2aa", "#c04070"],
+  "constructor_colors": {
+    "ACO_HH": "#00c8a0",
+    "HGS": "#e05c5c",
+    "BPC": "#a060e0",
+    "SANS": "#a0a0a0",
+    "PG-CLNS": "#f0a030",
+    "PSOMA": "#4e88d9",
+    "ALNS": "#c04070",
+    "SWC-TCF": "#5cb85c"
+  },
+  "metric_colors": ["#4e88d9", "#e05c5c", "#5cb85c", "#f0a030"]
+}
