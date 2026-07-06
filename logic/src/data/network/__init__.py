@@ -142,7 +142,7 @@ def compute_distance_matrix(coords: pd.DataFrame, method: str, **kwargs: Any) ->
             raise FileNotFoundError(
                 f"Distance matrix file not found: {matrix_path}\n"
                 "Generate it first with:\n"
-                "  uv run python logic/scripts/gen_dist_matrix.py "
+                "  uv run python logic/gen/gen_dist_matrix.py "
                 f"--area <area> --waste-type <type> --method gmaps "
                 f"--dm-filepath {os.path.basename(matrix_path)}"
             )

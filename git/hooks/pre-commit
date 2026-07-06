@@ -8,7 +8,7 @@ if git diff --cached --name-only | grep -q "$DB_FILE"; then
     echo "Large database file detected in commit. Sharding $DB_FILE..."
 
     # Run your python sharding script
-    uv run python logic/scripts/shard_db.py
+    uv run python logic/gen/shard_db.py
 
     # Add the resulting shards to the commit
     git add assets/tracking/shards/
