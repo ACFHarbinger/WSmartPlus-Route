@@ -13,7 +13,7 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 #### Analysis script & report — Pareto-front policy catalogue
 
-- `logic/scripts/gen_simulation_analysis.py` — new `build_pareto_front_table(df)` function:
+- `logic/gen/gen_simulation_analysis.py` — new `build_pareto_front_table(df)` function:
   - Computes the Pareto front (min overflows, max kg/km) independently for each `(dist, improver)` panel
   - Groups front members by unique `(selection variant, constructor, improver)` key; merges `cf`/`sl_var` into a human-readable label (`LM (CF70)`, `SL (SL1)`, …)
   - Outputs a markdown table with columns: Selection | Constructor | Improver | Overflows | kg/km | Pareto-Front Scenarios

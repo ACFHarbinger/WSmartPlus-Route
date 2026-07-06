@@ -27,8 +27,8 @@ from the simulation analysis figures directory (default: the 30-day set).
 
 Usage
 -----
-    uv run python logic/scripts/gen_presentation.py
-    uv run python logic/scripts/gen_presentation.py \\
+    uv run python logic/gen/gen_presentation.py
+    uv run python logic/gen/gen_presentation.py \\
         --figures-dir public/figures/simulation/30d \\
         --out assets/windows/wsmart_route_results.pptx \\
         --author "Afonso Fernandes"

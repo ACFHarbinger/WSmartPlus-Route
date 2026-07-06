@@ -19,8 +19,8 @@ Idempotent: will not overwrite an existing markdown unless --force is passed.
 
 Usage
 -----
-    uv run python logic/scripts/gen_dataset_analysis.py --force
-    uv run python logic/scripts/gen_dataset_analysis.py \\
+    uv run python logic/gen/gen_dataset_analysis.py --force
+    uv run python logic/gen/gen_dataset_analysis.py \\
         --theme light \\
         --npz-csv public/global/datasets/npz_stats.csv \\
         --td-csv public/global/datasets/td_stats.csv \\

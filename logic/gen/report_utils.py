@@ -2,10 +2,10 @@
 Shared helpers for the report-generation scripts (dataset / simulation analysis).
 
 Centralises:
-  - loading of the JSON configurations under logic/scripts/json/
-  - loading of matplotlib style sheets under logic/scripts/style/
-  - loading of JS snippets under logic/scripts/js/
-  - Jinja2 rendering of the markdown templates under logic/scripts/jinja/
+  - loading of the JSON configurations under logic/gen/json/
+  - loading of matplotlib style sheets under logic/gen/style/
+  - loading of JS snippets under logic/gen/js/
+  - Jinja2 rendering of the markdown templates under logic/gen/jinja/
   - markdown post-processing (full-width <figure> images, Figure/Table numbering)
 """
 
@@ -27,7 +27,7 @@ PLACEHOLDER = "<!-- [ANALYSIS: Insert your observations here] -->"
 
 
 def load_json(name: str) -> dict:
-    """Load a JSON configuration from logic/scripts/json/."""
+    """Load a JSON configuration from logic/gen/json/."""
     return json.loads((JSON_DIR / name).read_text(encoding="utf-8"))
 
 
@@ -51,7 +51,7 @@ def apply_theme(theme: dict) -> None:
 
 
 def load_js(name: str, **subs: str) -> str:
-    """Load a JS snippet from logic/scripts/js/, substituting __KEY__ markers."""
+    """Load a JS snippet from logic/gen/js/, substituting __KEY__ markers."""
     js = (JS_DIR / name).read_text(encoding="utf-8")
     for key, val in subs.items():
         js = js.replace(f"__{key.upper()}__", val)
@@ -59,7 +59,7 @@ def load_js(name: str, **subs: str) -> str:
 
 
 def render_template(name: str, **context) -> str:
-    """Render a Jinja2 template from logic/scripts/jinja/."""
+    """Render a Jinja2 template from logic/gen/jinja/."""
     import jinja2
 
     env = jinja2.Environment(

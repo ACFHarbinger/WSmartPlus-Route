@@ -5,7 +5,7 @@ The script is agnostic to the mandatory node selection strategies, route
 constructors (with optional acceptance criteria), route improvers, simulation
 scenarios (region, graph size, data distribution) and time horizons present in
 the data: everything is auto-detected and can be narrowed via a JSON
-configuration file (see logic/scripts/json/simulation_analysis_config.json)
+configuration file (see logic/gen/json/simulation_analysis_config.json)
 and/or CLI flags.
 
 It also subsumes the old gen_simulation_csv.py: raw simulation output trees
@@ -28,18 +28,18 @@ Non-Python content lives in sibling directories:
 Usage
 -----
     # Full default analysis (config-driven; 30d + 90d if both CSVs exist)
-    uv run python logic/scripts/gen_simulation_analysis.py --force
+    uv run python logic/gen/gen_simulation_analysis.py --force
 
     # White-background charts, Pareto plots restricted to the front points
-    uv run python logic/scripts/gen_simulation_analysis.py \\
+    uv run python logic/gen/gen_simulation_analysis.py \\
         --theme light --pareto-points front --force
 
     # Only one horizon, explicit CSV
-    uv run python logic/scripts/gen_simulation_analysis.py \\
+    uv run python logic/gen/gen_simulation_analysis.py \\
         --horizon 30=public/global/simulation/simulation_summary.csv --force
 
     # Regenerate a summary CSV from a raw output tree (old gen_simulation_csv)
-    uv run python logic/scripts/gen_simulation_analysis.py --parse-output \\
+    uv run python logic/gen/gen_simulation_analysis.py --parse-output \\
         --output-dir assets/output/90days \\
         --out-csv public/global/simulation/simulation_summary_90d.csv
 """

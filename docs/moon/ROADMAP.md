@@ -1056,7 +1056,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
-- [ ] Python export script: `logic/scripts/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a single `.wsroute` bundle (zipped Parquet + Arrow IPC)
+- [ ] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a single `.wsroute` bundle (zipped Parquet + Arrow IPC)
 - [ ] Rust backend: open `.wsroute` bundle directly (no separate file management)
 - [ ] Tauri bundler: produce signed `.deb`/`.AppImage` (Linux), `.dmg` (macOS), `.msi` (Windows) distributables
 - [ ] Auto-update via Tauri updater plugin
