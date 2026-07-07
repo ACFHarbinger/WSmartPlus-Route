@@ -426,7 +426,8 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
         _PROJECT_ROOT / "logic" / "docs",
         _PROJECT_ROOT / "logic" / "examples",
         _PROJECT_ROOT / "logic" / "migrations",
-        _PROJECT_ROOT / "logic" / "scripts",
+        _PROJECT_ROOT / "logic" / "gen",
+        _PROJECT_ROOT / "logic" / "store",
         _PROJECT_ROOT / "logic" / "test",
         _PROJECT_ROOT / "logic" / "src" / "py.typed",
         # Hydra tracking configs always removed (tracking module is always dropped)
