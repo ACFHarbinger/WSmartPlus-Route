@@ -59,7 +59,13 @@ def load_js(name: str, **subs: str) -> str:
 
 
 def render_template(name: str, **context) -> str:
-    """Render a Jinja2 template from logic/gen/jinja/."""
+    """
+    Render a Jinja2 template from logic/gen/jinja/.
+
+    Templates use non-default delimiters (<% %>, << >>, <# #>) instead of the
+    Jinja defaults, since the markdown they emit embeds LaTeX table snippets
+    whose own {} / {{ }} syntax would otherwise be misparsed as Jinja.
+    """
     import jinja2
 
     env = jinja2.Environment(
@@ -67,6 +73,12 @@ def render_template(name: str, **context) -> str:
         keep_trailing_newline=True,
         trim_blocks=False,
         lstrip_blocks=False,
+        block_start_string="<%",
+        block_end_string="%>",
+        variable_start_string="<<",
+        variable_end_string=">>",
+        comment_start_string="<#",
+        comment_end_string="#>",
     )
     return env.get_template(name).render(**context)
 
