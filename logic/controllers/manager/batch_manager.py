@@ -207,13 +207,8 @@ class BatchManager:
 
         # --- Parse jobs -------------------------------------------------------
         all_jobs = self._parse_jobs(cfg.get("runs") or [])
-
-        if resume:
-            jobs = self._filter_incomplete_jobs(all_jobs)
-        else:
-            jobs = all_jobs
-
-        _section(f"Jobs: {len(jobs)} to run" + (f" ({len(all_jobs) - len(jobs)} already completed)" if resume else f" total"))
+        jobs = self._filter_incomplete_jobs(all_jobs) if resume else all_jobs
+        _section(f"Jobs: {len(jobs)} to run" + (f" ({len(all_jobs) - len(jobs)} already completed)" if resume else " total"))
         for j in jobs:
             print(f"  [{j.index + 1}] {j.task} — {j.name}")
         print()
