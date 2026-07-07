@@ -1281,6 +1281,103 @@ def build_strategy_best(dfm: pd.DataFrame, ctx: dict) -> str:
     return "\n".join(lines)
 
 
+def _group_spans(keys: list[tuple], level: int) -> list[tuple[int, int, str]]:
+    """Consecutive runs of `keys` sharing the same prefix up to `level` → (start, end, label)."""
+    spans = []
+    start = 0
+    for i in range(1, len(keys) + 1):
+        if i == len(keys) or keys[i][: level + 1] != keys[start][: level + 1]:
+            spans.append((start, i, keys[start][level]))
+            start = i
+    return spans
+
+
+def _fmt_result_cell(sub: pd.DataFrame) -> str:
+    """One matrix cell: mean±std overflows and kg/km, stacked on two lines."""
+    if sub.empty:
+        return "—"
+    ov, kg = sub["overflows"], sub["kgkm"]
+    ov_s = f"{ov.mean():.1f}" + (f"±{ov.std():.1f}" if len(ov) > 1 else "")
+    kg_s = f"{kg.mean():.3f}" + (f"±{kg.std():.3f}" if len(kg) > 1 else "")
+    return f"{ov_s} ov<br>{kg_s} kg/km"
+
+
+def build_full_results_matrix(
+    dfm: pd.DataFrame, ctx: dict, horizon_label: str | None = None
+) -> tuple[list[tuple], list[tuple], dict[tuple, str]]:
+    """
+    Build the full hierarchical results matrix.
+
+    Rows: (N, city, dist) — graph size x region x data distribution.
+    Columns: (strategy, constructor, improver), optionally prefixed with a
+    horizon label so multiple horizons can be merged into one column
+    hierarchy (see build_full_results_table_all_horizons).
+    """
+    row_keys = sorted({(s["N"], s["city"], s["dist"]) for s in ctx["scenarios"]})
+    col_keys = [
+        (strat, con, imp) if horizon_label is None else (horizon_label, strat, con, imp)
+        for strat in ctx["strategies"]
+        for con in ctx["constructors"]
+        for imp in ctx["improvers"]
+    ]
+    cells: dict[tuple, str] = {}
+    for N, city, dist in row_keys:
+        s = {"city": city, "N": N, "dist": dist}
+        for strat in ctx["strategies"]:
+            for con in ctx["constructors"]:
+                for imp in ctx["improvers"]:
+                    sub = _scen_sub(
+                        dfm[(dfm.strategy == strat) & (dfm.constructor == con) & (dfm.improver == imp)], s
+                    )
+                    ckey = (strat, con, imp) if horizon_label is None else (horizon_label, strat, con, imp)
+                    cells[((N, city, dist), ckey)] = _fmt_result_cell(sub)
+    return row_keys, col_keys, cells
+
+
+def render_full_results_table_md(row_keys: list[tuple], col_keys: list[tuple], cells: dict[tuple, str]) -> str:
+    """Render the hierarchical results matrix as a GFM pipe table."""
+    if not row_keys or not col_keys:
+        return "_No data available._"
+    n_row_levels = len(row_keys[0])
+    row_headers = ["N", "Region", "Distribution"][:n_row_levels] or [f"Level {i + 1}" for i in range(n_row_levels)]
+    col_labels = ["<br>".join(str(x) for x in ck) for ck in col_keys]
+    lines = [
+        "| " + " | ".join(row_headers) + " | " + " | ".join(col_labels) + " |",
+        "|" + "---|" * (n_row_levels + len(col_keys)),
+    ]
+    prev: tuple = ()
+    for rk in row_keys:
+        row_cells = []
+        for lvl in range(n_row_levels):
+            row_cells.append("" if prev[: lvl + 1] == rk[: lvl + 1] else str(rk[lvl]))
+        prev = rk
+        data_cells = [cells.get((rk, ck), "—") for ck in col_keys]
+        lines.append("| " + " | ".join(row_cells) + " | " + " | ".join(data_cells) + " |")
+    return "\n".join(lines)
+
+
+def build_full_results_table_for_horizon(dfm: pd.DataFrame, ctx: dict) -> str:
+    """Full results table (all scenarios x policy configs) for a single horizon."""
+    row_keys, col_keys, cells = build_full_results_matrix(dfm, ctx)
+    return render_full_results_table_md(row_keys, col_keys, cells)
+
+
+def build_full_results_table_all_horizons(horizons: list[dict]) -> str:
+    """Full results table across all horizons — horizon prepended to the column hierarchy."""
+    row_keys_all: list[tuple] = []
+    col_keys_all: list[tuple] = []
+    cells_all: dict[tuple, str] = {}
+    for h in horizons:
+        rk, ck, cells = build_full_results_matrix(h["dfm"], h["ctx"], horizon_label=f"{h['days']}d")
+        for r in rk:
+            if r not in row_keys_all:
+                row_keys_all.append(r)
+        col_keys_all += ck
+        cells_all.update(cells)
+    row_keys_all.sort()
+    return render_full_results_table_md(row_keys_all, col_keys_all, cells_all)
+
+
 # ── Orchestration ──────────────────────────────────────────────────────────────
 
 
@@ -1517,6 +1614,7 @@ def main() -> None:  # noqa: C901
                 "efficiency_table": build_kpi_table(h["dfm"], ctx, "kgkm", ".2f"),
                 "km_table": build_kpi_table(h["dfm"], ctx, "km", ".0f"),
                 "strategy_best": build_strategy_best(h["dfm"], ctx),
+                "full_results_table": build_full_results_table_for_horizon(h["dfm"], ctx),
                 "has_pareto_log": (h["figures_dir"] / "pareto_scatter_log.png").exists(),
                 "has_overflow_log": (h["figures_dir"] / "overflow_by_config_log.png").exists(),
                 "has_bubble_log": (h["figures_dir"] / "strategy_bubble_log.png").exists(),
@@ -1535,6 +1633,7 @@ def main() -> None:  # noqa: C901
             "figures_rel": _to_rel(cmp_dir),
             "first_days": horizons[0]["days"],
             "last_days": horizons[-1]["days"],
+            "full_results_table": build_full_results_table_all_horizons(horizons),
         }
 
     scope = (

@@ -194,6 +194,14 @@ _TABCAP_: Vehicle distance driven (km) by configuration over << h.days >> days �
 
 << placeholder >>
 
+### << h.section_num >>.7 Full Results Table
+
+_TABCAP_: Full results over the << h.days >>-day horizon — rows: graph size × region × data distribution; columns: mandatory selection strategy × route constructor × route improver. Each cell reports mean±std overflows and mean±std kg/km.
+
+<< h.full_results_table >>
+
+<< placeholder >>
+
 ---
 <% endfor %>
 <% if comparison %>
@@ -236,6 +244,14 @@ Constructors with stable ranks are robust; those that improve or regress warrant
 << placeholder >>
 
 ### Key Observations
+
+<< placeholder >>
+
+### Full Results Table — All Horizons
+
+_TABCAP_: Full results across all simulation horizons — rows: graph size × region × data distribution; columns: horizon × mandatory selection strategy × route constructor × route improver. Each cell reports mean±std overflows and mean±std kg/km.
+
+<< comparison.full_results_table >>
 
 << placeholder >>
 
