@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import argparse
 import tempfile
+import textwrap
 from pathlib import Path
 
 import matplotlib
@@ -123,19 +124,31 @@ def render_equation(lines: list[str], out_path: Path, color: str = "#1F2D3D") ->
     return out_path
 
 
+def _wrap_label(label, width: int) -> str:
+    """Wrap a table header/cell label onto multiple lines so it fits its cell."""
+    return "\n".join(textwrap.wrap(str(label), width=width)) or str(label)
+
+
 def render_hier_table_image(
     row_keys: list[tuple],
     col_keys: list[tuple],
     cells: dict[tuple, str],
     row_labels: list[str],
     out_path: Path,
+    col_lookup_keys: list[tuple] | None = None,
 ) -> Path:
     """
     Render a hierarchical (merged-header) results table as a PNG, in the style
     of a LaTeX multi-row/multi-column table: row groups (graph size > region >
     distribution) and column groups (strategy > constructor > improver, plus
     horizon if present) are drawn as merged header spans.
+
+    `col_lookup_keys`, if given, is parallel to `col_keys` and used instead of
+    it to look cells up in `cells` — lets a hierarchy level be dropped from the
+    displayed header (e.g. when the table has been partitioned by that level)
+    while the underlying data lookup still uses the full key.
     """
+    col_lookup_keys = col_lookup_keys if col_lookup_keys is not None else col_keys
     n_row_levels = len(row_labels)
     n_col_levels = len(col_keys[0])
     n_rows = len(row_keys)
@@ -164,8 +177,9 @@ def render_hier_table_image(
                 (xs, y_top), xe - xs, header_h, facecolor=header_colors[lvl % len(header_colors)],
                 edgecolor="white", linewidth=0.8,
             ))
-            ax.text((xs + xe) / 2, y_top + header_h / 2, str(label), ha="center", va="center",
-                    fontsize=fontsize, color="white", fontweight="bold")
+            wrap_chars = max(6, int((xe - xs) / cell_w) * 10)
+            ax.text((xs + xe) / 2, y_top + header_h / 2, _wrap_label(label, wrap_chars), ha="center",
+                    va="center", fontsize=fontsize, color="white", fontweight="bold")
 
     for lvl in range(n_row_levels):
         x_left = lvl * label_w
@@ -174,13 +188,13 @@ def render_hier_table_image(
             ax.add_patch(mpatches.Rectangle(
                 (x_left, ys), label_w, ye - ys, facecolor="#F0F4FA", edgecolor="#5A6A7A", linewidth=0.6,
             ))
-            ax.text(x_left + label_w / 2, (ys + ye) / 2, str(label), ha="center", va="center",
+            ax.text(x_left + label_w / 2, (ys + ye) / 2, _wrap_label(label, 10), ha="center", va="center",
                     fontsize=fontsize, color="#1F2D3D", fontweight="bold")
 
     for ri, rk in enumerate(row_keys):
-        for ci, ck in enumerate(col_keys):
+        for ci, lk in enumerate(col_lookup_keys):
             xs, ys = x0 + ci * cell_w, y0 + ri * cell_h
-            text = cells.get((rk, ck), "—").replace("<br>", "\n")
+            text = cells.get((rk, lk), "—").replace("<br>", "\n")
             ax.add_patch(mpatches.Rectangle(
                 (xs, ys), cell_w, cell_h, fill=False, edgecolor="#CCCCCC", linewidth=0.4,
             ))
@@ -208,13 +222,14 @@ def gen_speaker_script(deck_title: str, author: str, slides: list[dict], out_pat
 class DeckBuilder:
     def __init__(self, content: dict, figures_dir: Path, author: str | None,
                  coauthors: list[str] | None = None, groups: list[str] | None = None,
-                 results_table: str = "30d"):
+                 results_table: str = "30d", results_table_split: str = "none"):
         self.content = content
         self.figures_dir = figures_dir
         self.author = author or content["author"]
         self.coauthors = coauthors if coauthors is not None else content.get("coauthors", [])
         self.groups = groups if groups is not None else content.get("research_groups", [])
         self.results_table = results_table
+        self.results_table_split = results_table_split
         self._results_config: dict = {}
         self.prs = Presentation()
         self.prs.slide_width = SLIDE_W
@@ -458,14 +473,14 @@ class DeckBuilder:
             bullets_top = self._equation_focus(slide, spec["equation"])
             if spec.get("caption"):
                 self._equation_caption(slide, spec["caption"], top=bullets_top)
-                bullets_top += Inches(0.4)
+                bullets_top += Inches(0.75)
             self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
         elif spec.get("diagram") == "pipeline":
             self._pipeline_diagram(slide)
             bullets_top = Inches(5.6)
             if spec.get("caption"):
                 self._figure_caption(slide, spec["caption"], top=bullets_top)
-                bullets_top += Inches(0.4)
+                bullets_top += Inches(0.75)
             self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
         elif spec.get("figure"):
             fig_path = self.figures_dir / spec["figure"]
@@ -534,14 +549,54 @@ class DeckBuilder:
             title = f"Results — Full Table ({days}-Day Horizon)"
             multi = False
 
-        img_path = render_hier_table_image(
-            row_keys, col_keys, cells, ["N", "Region", "Dist"], self._tmp / "full_results_table.png"
-        )
+        level_phrases = {
+            "horizon": "horizon", "strategy": "mandatory selection strategy",
+            "constructor": "route constructor", "improver": "route improver",
+        }
+        level_names = (["horizon"] if multi else []) + ["strategy", "constructor", "improver"]
+        col_desc = " × ".join(level_phrases[n] for n in level_names)
+
         slide = self._new_slide()
         self._title_bar(slide, title)
-        self._picture_fit(slide, img_path, Inches(0.3), Inches(1.15), SLIDE_W - Inches(0.6), SLIDE_H - Inches(2.1))
-        col_desc = "horizon × mandatory selection strategy × route constructor × route improver" if multi \
-            else "mandatory selection strategy × route constructor × route improver"
+        area_top, area_bottom = Inches(1.15), SLIDE_H - Inches(0.95)
+        split = self.results_table_split
+
+        if split != "none" and split in level_names:
+            level_idx = level_names.index(split)
+            partition_values: list = []
+            for ck in col_keys:
+                if ck[level_idx] not in partition_values:
+                    partition_values.append(ck[level_idx])
+            part_h = int((area_bottom - area_top) / len(partition_values))
+            for pi, val in enumerate(partition_values):
+                sub_full = [ck for ck in col_keys if ck[level_idx] == val]
+                sub_display = [ck[:level_idx] + ck[level_idx + 1:] for ck in sub_full]
+                part_top = area_top + pi * part_h
+                _, tf = _textbox(slide, Inches(0.4), part_top, SLIDE_W - Inches(0.8), Inches(0.3))
+                p = tf.paragraphs[0]
+                p.text = f"{split.capitalize()}: {val}"
+                p.font.bold = True
+                p.font.size = Pt(12)
+                p.font.color.rgb = ACCENT
+                img_path = render_hier_table_image(
+                    row_keys, sub_display, cells, ["N", "Region", "Dist"],
+                    self._tmp / f"full_results_table_{split}_{pi}.png", col_lookup_keys=sub_full,
+                )
+                self._picture_fit(
+                    slide, img_path, Inches(0.3), part_top + Inches(0.32),
+                    SLIDE_W - Inches(0.6), part_h - Inches(0.35),
+                )
+            remaining_desc = " × ".join(level_phrases[n] for n in level_names if n != split)
+            col_desc = (
+                f"partitioned by {level_phrases[split]} ({', '.join(str(v) for v in partition_values)}), "
+                f"one partial table per value; each partial table then grouped by {remaining_desc}"
+            )
+        else:
+            img_path = render_hier_table_image(
+                row_keys, col_keys, cells, ["N", "Region", "Dist"], self._tmp / "full_results_table.png"
+            )
+            self._picture_fit(slide, img_path, Inches(0.3), area_top, SLIDE_W - Inches(0.6), area_bottom - area_top)
+
         self._table_caption(
             slide,
             f"Full results table — rows: graph size × region × data distribution; columns: {col_desc}. "
@@ -605,6 +660,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--results-table", default="30d", choices=["30d", "90d", "all", "none"],
                    help="Full results table slide: a single horizon, 'all' horizons "
                         "(horizon added to the column hierarchy), or 'none' to omit the slide")
+    p.add_argument("--results-table-split", default="none",
+                   choices=["none", "strategy", "constructor", "improver"],
+                   help="Partition the results table by this column-hierarchy level: it becomes the "
+                        "outermost grouping and each value gets its own stacked partial table on the slide "
+                        "(e.g. 'improver' -> one partial table for CLS, one for FTSP)")
     p.add_argument("--speaker-script", action="store_true",
                    help="Also generate a per-slide speaker script .docx alongside the .pptx")
     p.add_argument("--speaker-script-out", default=None,
@@ -622,7 +682,9 @@ def main() -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     coauthors = [c.strip() for c in args.coauthors.split(";")] if args.coauthors else None
     groups = [g.strip() for g in args.groups.split(";")] if args.groups else None
-    builder = DeckBuilder(content, figures_dir, args.author, coauthors, groups, args.results_table)
+    builder = DeckBuilder(
+        content, figures_dir, args.author, coauthors, groups, args.results_table, args.results_table_split
+    )
     prs = builder.build()
     prs.save(str(out))
     print(f"Written: {out} ({len(prs.slides._sldIdLst)} slides)")
