@@ -26,6 +26,7 @@ import {
   Archive,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
@@ -152,7 +153,10 @@ export function OutputBrowser() {
     if (outputPath) refresh();
   }, [outputPath, refresh]);
 
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
   const selectRun = useCallback(async (run: OutputDir) => {
+    pushRecent({ path: run.path, label: run.name || recentFileLabel(run.path), kind: "run" });
     setSelectedRun(run);
     setFileContent(null);
     setCsvRows(null);
@@ -220,7 +224,7 @@ export function OutputBrowser() {
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
-  }, []);
+  }, [pushRecent]);
 
   const toggleDir = useCallback(async (entry: DirEntry) => {
     setExpandedDirs((prev) => {

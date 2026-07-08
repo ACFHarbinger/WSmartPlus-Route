@@ -8,6 +8,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 
 interface CsvRow {
@@ -22,6 +23,7 @@ interface CsvFile {
 
 export function DataExplorer() {
   const { projectRoot } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const [file, setFile] = useState<CsvFile | null>(null);
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
@@ -35,7 +37,8 @@ export function DataExplorer() {
     const loaded = await invoke<CsvFile>("load_csv_file", { path });
     setFile(loaded);
     setPage(0);
-  }, []);
+    pushRecent({ path, label: recentFileLabel(path), kind: "csv" });
+  }, [pushRecent]);
 
   const pageRows = file
     ? file.rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)

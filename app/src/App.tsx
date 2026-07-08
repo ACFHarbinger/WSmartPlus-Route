@@ -7,6 +7,7 @@ import { useProcessMonitor } from "./hooks/useProcessMonitor";
 import { useAppStore } from "./store/app";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
+import { prefetchPage } from "./utils/pagePrefetch";
 import type { AppMode } from "./types";
 
 // Lazy-loaded pages (§G.7 performance)
@@ -148,6 +149,14 @@ export default function App() {
   const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
 
   useHashSync();
+
+  // Warm critical route chunks on startup (§G.7)
+  useEffect(() => {
+    prefetchPage("simulation");
+    prefetchPage("simulation_summary");
+    prefetchPage("process_monitor");
+    prefetchPage("output_browser");
+  }, []);
 
   // Sync theme class on mount
   useEffect(() => {

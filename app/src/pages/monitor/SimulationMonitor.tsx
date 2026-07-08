@@ -21,6 +21,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { ChevronLeft, ChevronRight, Download, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
+import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
@@ -444,16 +445,26 @@ export function SimulationMonitor() {
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
+  const loadLogFile = useCallback(
+    async (path: string, watch = true) => {
+      reset();
+      const historical = await invoke<DayLogEntry[]>("load_simulation_log", { path });
+      loadEntries(historical);
+      if (watch) setWatchPath(path);
+      pushRecent({ path, label: recentFileLabel(path), kind: "log" });
+    },
+    [reset, loadEntries, setWatchPath, pushRecent]
+  );
+
   const openLog = useCallback(async () => {
     const path = (await open({
       filters: [{ name: "JSONL Logs", extensions: ["jsonl", "log", "txt"] }],
     })) as string | null;
     if (!path) return;
-    reset();
-    const historical = await invoke<DayLogEntry[]>("load_simulation_log", { path });
-    loadEntries(historical);
-    setWatchPath(path);
-  }, [reset, loadEntries, setWatchPath]);
+    await loadLogFile(path);
+  }, [loadLogFile]);
 
   const [showSecondary, setShowSecondary] = useState(false);
   const [showBinFill, setShowBinFill] = useState(true);
@@ -766,7 +777,11 @@ export function SimulationMonitor() {
           {showRouteMap && displayEntry.data.all_bin_coords?.length ? (
             routeMapMode === "deckgl" && hasGeoCoords ? (
               <Suspense fallback={<p className="text-xs text-canvas-muted">Loading tile map…</p>}>
-                <DeckRouteMap data={displayEntry.data} />
+                <DeckRouteMap
+                  data={displayEntry.data}
+                  animate={isPlaying}
+                  playbackSpeed={playbackSpeed}
+                />
               </Suspense>
             ) : (
               <RouteMapChart data={displayEntry.data} />

@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-second pass
+
+Twenty-second implementation pass: TripsLayer route trail animation and depot
+marker (§G.16); recent-files quick open (§G.7 / §G.14); startup route prefetch.
+
+**React frontend**
+- `components/maps/DeckRouteMap.tsx` — `TripsLayer` trail animation during day playback; gold depot `ScatterplotLayer`; dimmed idle bins
+- `store/recentFiles.ts` — persisted recent logs, runs, and CSVs (max 12)
+- `CommandPalette` — Recent section for quick reopen; logs navigate to Simulation Summary
+- `SimulationMonitor`, `SimulationSummary`, `OutputBrowser`, `DataExplorer` — track opened files/runs
+- `App.tsx` — prefetch simulation, summary, process monitor, and output browser on startup
+
+**Dependencies**
+- `@deck.gl/geo-layers` — TripsLayer for animated route trails
+
+**ROADMAP**
+- §G.16 TripsLayer animation + depot marker checked (partial — multi-vehicle deferred)
+- §G.7 recent files + startup prefetch checked (partial — <2s load target deferred)
+- §G.14 recent run/file tracking checked (partial)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-first pass
 
 Twenty-first implementation pass: first-run onboarding wizard (§G.19);
