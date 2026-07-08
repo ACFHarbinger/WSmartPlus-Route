@@ -115,6 +115,18 @@ export default function App() {
         setMode("process_monitor");
         return;
       }
+      // G → Geospatial (placeholder — navigates to simulation monitor for now)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "g") {
+        e.preventDefault();
+        setMode("simulation");
+        return;
+      }
+      // Q → HPO query tracker
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "q") {
+        e.preventDefault();
+        setMode("hpo_tracker");
+        return;
+      }
       // Digit 1-8 → quick mode switch
       if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         const n = parseInt(e.key);

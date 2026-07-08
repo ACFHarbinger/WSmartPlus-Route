@@ -10,22 +10,17 @@
  * to show a real-time per-policy KPI snapshot while the run is executing.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import type { DayLogEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
+import type { DayLogEntry, SimPolicyEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
-const ALL_POLICIES = [
-  "aco_hh",
-  "alns",
-  "bpc",
-  "hgs",
-  "pg_clns",
-  "psoma",
-  "sans",
-  "swc_tcf",
+/** Fallback when project root is unset or registry load fails. */
+const FALLBACK_POLICIES = [
+  "aco_hh", "alns", "bpc", "hgs", "pg_clns", "psoma", "sans", "swc_tcf",
 ] as const;
 
 const DISTRIBUTIONS = [
@@ -114,6 +109,12 @@ export function SimulationLauncher() {
   const setSeed = (v: number) => patch({ seed: v });
   const setExtraOverrides = (v: string) => patch({ extraOverrides: v });
 
+  // Policy registry loaded from test_sim.yaml (§G.9)
+  const [availablePolicies, setAvailablePolicies] = useState<SimPolicyEntry[]>(
+    FALLBACK_POLICIES.map((id) => ({ id, config_key: `policy_${id}` }))
+  );
+  const [policiesLoading, setPoliciesLoading] = useState(false);
+
   // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -132,7 +133,36 @@ export function SimulationLauncher() {
     setSelectedPolicies(next);
   };
 
-  const selectAll = () => setSelectedPolicies([...ALL_POLICIES]);
+  const policyIds = useMemo(() => availablePolicies.map((p) => p.id), [availablePolicies]);
+
+  const loadPolicies = useCallback(async () => {
+    if (!projectRoot) return;
+    setPoliciesLoading(true);
+    try {
+      const entries = await invoke<SimPolicyEntry[]>("list_sim_policies", {
+        projectRoot,
+      });
+      if (entries.length > 0) {
+        setAvailablePolicies(entries);
+        // Drop selections that no longer exist in the registry
+        const valid = new Set(entries.map((e) => e.id));
+        const filtered = selectedPolicies.filter((p) => valid.has(p));
+        if (filtered.length !== selectedPolicies.length) {
+          setSelectedPolicies(filtered);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load policy registry:", err);
+    } finally {
+      setPoliciesLoading(false);
+    }
+  }, [projectRoot, selectedPolicies, setSelectedPolicies]);
+
+  useEffect(() => {
+    loadPolicies();
+  }, [projectRoot]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectAll = () => setSelectedPolicies([...policyIds]);
   const clearAll = () => setSelectedPolicies([]);
 
   const hydraArgs = useMemo(() => {
@@ -235,14 +265,29 @@ export function SimulationLauncher() {
       {/* Policy selection */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-200">Policies</h2>
-          <div className="flex gap-2 text-xs">
+          <h2 className="text-sm font-semibold text-gray-200">
+            Policies
+            <span className="ml-2 text-xs font-normal text-canvas-muted">
+              ({availablePolicies.length} registered)
+            </span>
+          </h2>
+          <div className="flex gap-2 text-xs items-center">
+            <button
+              onClick={loadPolicies}
+              disabled={policiesLoading || !projectRoot}
+              className="btn-ghost py-0.5 px-2 flex items-center gap-1"
+              title="Reload from test_sim.yaml"
+            >
+              <RefreshCw size={11} className={policiesLoading ? "animate-spin" : ""} />
+            </button>
             <button onClick={selectAll} className="btn-ghost py-0.5 px-2">All</button>
             <button onClick={clearAll} className="btn-ghost py-0.5 px-2">None</button>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-1.5">
-          {ALL_POLICIES.map((p) => (
+        <div className="grid grid-cols-4 gap-1.5 max-h-48 overflow-y-auto">
+          {availablePolicies.map((entry) => {
+            const p = entry.id;
+            return (
             <label
               key={p}
               className={`flex items-center gap-2 py-1.5 px-2 rounded-lg border cursor-pointer text-xs transition-colors ${
@@ -264,7 +309,8 @@ export function SimulationLauncher() {
               />
               {p}
             </label>
-          ))}
+            );
+          })}
         </div>
         {selectedPolicies.length === 0 && (
           <p className="text-xs text-accent-warning">Select at least one policy.</p>

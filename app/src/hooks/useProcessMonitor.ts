@@ -1,8 +1,30 @@
 import { useEffect, useRef } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification,
+} from "@tauri-apps/plugin-notification";
 import { toast } from "sonner";
 import { useProcessStore } from "../store/process";
 import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
+
+async function maybeSendOsNotification(title: string, body: string) {
+  if (!document.hidden) return;
+  try {
+    let granted = await isPermissionGranted();
+    if (!granted) {
+      const result = await requestPermission();
+      granted = result === "granted";
+    }
+    if (granted) {
+      await sendNotification({ title, body });
+    }
+  } catch {
+    // Notification plugin unavailable or denied — toast already shown
+  }
+}
 
 /**
  * Subscribes to `process:spawn`, `process:stdout`, and `process:status` Tauri events
@@ -13,7 +35,7 @@ import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
  * always learns about a process even if it was spawned from a different page.
  */
 export function useProcessMonitor() {
-  const { addProcess, appendLog, updateStatus } = useProcessStore();
+  const { addProcess, appendLog, updateStatus, processes } = useProcessStore();
   const unlistenRefs = useRef<Array<() => void>>([]);
 
   useEffect(() => {
@@ -31,15 +53,22 @@ export function useProcessMonitor() {
         const { id, status, exit_code } = event.payload;
         updateStatus(id, status, exit_code ?? undefined);
 
-        // Show a toast for terminal states
-        const label = id.split("_")[0]; // "train", "eval", "sim", etc.
+        const label = id.split("_")[0];
         if (status === "completed") {
           toast.success(`${label} completed`, { description: id, duration: 4000 });
+          void maybeSendOsNotification(
+            `${label} completed`,
+            id
+          );
         } else if (status === "failed") {
           toast.error(`${label} failed`, {
             description: `${id} — exit ${exit_code ?? "?"}`,
             duration: 6000,
           });
+          void maybeSendOsNotification(
+            `${label} failed`,
+            `${id} — exit ${exit_code ?? "?"}`
+          );
         } else if (status === "cancelled") {
           toast.info(`${label} cancelled`, { description: id, duration: 3000 });
         }
@@ -54,4 +83,26 @@ export function useProcessMonitor() {
       unlistenRefs.current.forEach((ul) => ul());
     };
   }, [addProcess, appendLog, updateStatus]);
+
+  // Global Ctrl+. shortcut — cancel the first running process (§D.7)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.key !== ".") return;
+      const target = e.target as HTMLElement;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) return;
+
+      const running = Object.values(processes).find((p) => p.status === "running");
+      if (!running) return;
+
+      e.preventDefault();
+      invoke("cancel_process", { id: running.id }).catch(console.error);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [processes]);
 }

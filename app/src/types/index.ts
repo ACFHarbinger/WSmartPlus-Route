@@ -101,6 +101,48 @@ export interface OutputDir {
   size_bytes: number;
 }
 
+// ── Policy registry (§G.9) ─────────────────────────────────────────────────
+
+export interface SimPolicyEntry {
+  id: string;
+  config_key: string;
+}
+
+// ── Eval analytics (§G.12) ─────────────────────────────────────────────────
+
+export interface EvalAnalyticsRow {
+  checkpoint: string;
+  cost?: number;
+  gap?: number;
+  time?: number;
+  policy?: string;
+  [key: string]: number | string | undefined;
+}
+
+// ── Optuna HPO (§G.18) ───────────────────────────────────────────────────────
+
+export interface OptunaStudySummary {
+  name: string;
+  n_trials: number;
+  n_complete: number;
+  best_value: number | null;
+}
+
+export interface OptunaTrial {
+  number: number;
+  value: number | null;
+  state: string;
+  params: Record<string, string | number | boolean>;
+}
+
+export interface OptunaStudyData {
+  name: string;
+  trials: OptunaTrial[];
+  importances: Record<string, number>;
+  best_value: number | null;
+  best_params: Record<string, string | number | boolean>;
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 export type AppMode =

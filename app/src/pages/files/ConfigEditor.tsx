@@ -13,8 +13,9 @@
 import { useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save } from "lucide-react";
+import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download } from "lucide-react";
 import { toast } from "sonner";
+import { useAppStore } from "../../store/app";
 
 type ViewMode = "raw" | "table" | "diff";
 
@@ -44,7 +45,16 @@ function parseYamlFlat(yaml: string): Array<{ key: string; value: string }> {
   return rows;
 }
 
+const HYDRA_TASKS = [
+  { value: "test_sim", label: "test_sim" },
+  { value: "train", label: "train" },
+  { value: "hpo", label: "hpo" },
+  { value: "eval", label: "eval" },
+  { value: "gen_data", label: "gen_data" },
+] as const;
+
 export function ConfigEditor() {
+  const { projectRoot, pythonPath } = useAppStore();
   const [content, setContent] = useState("");
   const [filePath, setFilePath] = useState<string | null>(null);
   const [diffContent, setDiffContent] = useState("");
@@ -52,6 +62,8 @@ export function ConfigEditor() {
   const [viewMode, setViewMode] = useState<ViewMode>("raw");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [hydraTask, setHydraTask] = useState("test_sim");
+  const [loadingHydra, setLoadingHydra] = useState(false);
   // Track the last-saved content to detect unsaved edits
   const savedContentRef = useRef("");
 
@@ -109,6 +121,29 @@ export function ConfigEditor() {
     }
   }, [content]);
 
+  const loadResolvedConfig = useCallback(async () => {
+    if (!projectRoot) {
+      toast.error("Set project root in Settings first");
+      return;
+    }
+    setLoadingHydra(true);
+    try {
+      const yaml = await invoke<string>("dump_hydra_config", {
+        task: hydraTask,
+        projectRoot,
+        pythonExecutable: pythonPath || null,
+      });
+      setContent(yaml);
+      setFilePath(null);
+      savedContentRef.current = yaml;
+      toast.success(`Loaded resolved config for ${hydraTask}`);
+    } catch (err) {
+      toast.error("Hydra config dump failed", { description: String(err) });
+    } finally {
+      setLoadingHydra(false);
+    }
+  }, [projectRoot, pythonPath, hydraTask]);
+
   const isDirty = content !== savedContentRef.current && filePath !== null;
 
   const rows = parseYamlFlat(content);
@@ -127,6 +162,31 @@ export function ConfigEditor() {
 
   return (
     <div className="space-y-4">
+      {/* Load resolved Hydra config */}
+      <div className="card flex items-center gap-3 flex-wrap">
+        <span className="text-xs text-canvas-muted">Load resolved config:</span>
+        <select
+          className="select-base w-36 text-xs"
+          value={hydraTask}
+          onChange={(e) => setHydraTask(e.target.value)}
+        >
+          {HYDRA_TASKS.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </select>
+        <button
+          onClick={loadResolvedConfig}
+          disabled={loadingHydra || !projectRoot}
+          className="btn-primary flex items-center gap-2 text-sm"
+        >
+          {loadingHydra ? <RefreshCw size={13} className="animate-spin" /> : <Download size={13} />}
+          Load via --cfg job
+        </button>
+        {!projectRoot && (
+          <span className="text-xs text-accent-warning">Configure project root in Settings.</span>
+        )}
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
         <button

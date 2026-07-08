@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{data, process, sim_watcher, system};
+use commands::{data, hpo, policies, process, sim_watcher, system};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,9 +26,15 @@ pub fn run() {
             process::spawn_python_process,
             process::cancel_process,
             process::list_processes,
+            // Policy registry
+            policies::list_sim_policies,
+            // Optuna HPO
+            hpo::list_optuna_studies,
+            hpo::load_optuna_study,
             // System inspection
             system::validate_project_root,
             system::probe_python,
+            system::dump_hydra_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running WSmart-Route Studio");

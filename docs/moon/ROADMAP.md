@@ -567,9 +567,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | Item                                        | Effort   | Impact | Priority                          |
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
 | §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]`                  |
-| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]`                  |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` 🚧 partial       |
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0                                |
-| §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1                                |
+| §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1                                |
 | §D.2 Option A (live training charts)        | Medium   | High   | P1                                |
 | §D.1 Option A (ECharts route panel)         | Medium   | High   | P2                                |
@@ -1044,8 +1044,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Global filter state management (Zustand): any filter applied in one view propagates to all others
 - [ ] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking)
 - [ ] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4)
-- [ ] Keyboard shortcuts: `G` = geospatial, `P` = parallel coords, `M` = ML dashboard, `Q` = query, `Ctrl+R` = run, `Ctrl+.` = cancel (§D.7)
-- [ ] React toast notifications + Tauri OS notifications for background job completion (§D.8)
+- [x] Keyboard shortcuts (partial): `G` → simulation monitor, `Q` → HPO tracker, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, digits `1`–`8` → quick nav (§D.7); `Ctrl+R` = run and `P`/`M` shortcuts deferred
+- [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [ ] Responsive layout for different screen sizes (primary target: 2560×1440 research workstation)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
 - [ ] Export: any chart exportable as PNG/SVG; any table exportable as CSV/Parquet
@@ -1074,7 +1074,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Toast notification on launch success / failure (§D.8) via `useSpawnProcess` hook
 - [x] React form: full parameter set — 8-policy multi-select checkboxes, graph area text input, `num_loc` / `n_samples` / `cpu_cores` / `seed` number fields, data distribution radio (Normal / Gamma / Empirical); exactly mirrors `just controller::test-sim` Hydra args
 - [x] "Advanced Overrides" collapsible panel: free-form textarea for arbitrary Hydra overrides (§D.6 Option A); live command preview below the form
-- [ ] Policy selection panel: load registered policy names from the §B.3 plugin registry at runtime (currently hardcoded 8 policies)
+- [x] Policy selection panel: load registered policy names from `test_sim.yaml` via `list_sim_policies` Rust command at runtime (89 policies; falls back to 8 defaults when file missing)
 - [x] Live status display: after launch, subscribes to `process:stdout` events for the spawned process ID; parses `GUI_DAY_LOG_START:` markers; displays a per-policy card grid with day / profit / km / overflows in real time; "View Summary →" and "Process Monitor" navigation buttons shown on completion
 - [x] On completion: auto-navigate to `simulation_summary` after 5-second countdown with cancel button; countdown driven by `useEffect` on `simStatus === "completed"`; "View Summary →" manual button always shown alongside countdown
 - [x] Session persistence for form values: `useSimLauncherStore` (Zustand `persist`, key `wsroute-sim-launcher`) stores `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`; ephemeral runtime state stays in component state
@@ -1127,7 +1127,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Advanced Overrides collapsible + command preview (shows first-checkpoint invocation)
 - [x] Results grid: global `process:stdout` listener parses JSON lines with `cost`/`gap`/`tour_cost`/`time`/`policy` fields; keyed by checkpoint name; dynamic column discovery from first result; updates in real time as results stream in
 - [x] "Export CSV" button: builds CSV from result rows, triggers browser download via `Blob` + `URL.createObjectURL`
-- [ ] "Open in Analytics" button pre-loads eval results into the analytics dashboard
+- [x] "Open in Analytics" button pre-loads eval results into BenchmarkAnalysis via `pendingEvalResults` store field; shows cost/gap/time bar charts + summary table
 
 ---
 
@@ -1142,7 +1142,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust `read_text_file` command for loading any text file
 - [x] Rust `write_text_file` command: creates parent directories if needed; used by the Save button
 - [x] "Save" button in toolbar: writes edited Raw content back to the opened file path; active only when unsaved edits exist (dirty state tracked via `savedContentRef`); `Save*` label indicates unsaved changes
-- [ ] Load the resolved Hydra config tree via `main.py <task> --cfg job` (subprocess integration)
+- [x] Load the resolved Hydra config tree via `dump_hydra_config` Rust command (`main.py <task> --cfg job`); task selector + "Load via --cfg job" button in ConfigEditor toolbar
 - [ ] Form mode: type-appropriate widgets generated from OmegaConf schema
 - [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
 - [ ] "Apply to Launcher" button: populate the active launcher panel with the edited values
@@ -1235,11 +1235,11 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [ ] **MLflow run table** (`experiment_tracker.py` parity): Rust queries the local MLflow tracking server via its REST API (`mlflow.list_experiments`, `mlflow.search_runs`); display runs with params, metrics, tags, artifact path
 - [ ] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line or bar series; supports metric name selector and axis normalization toggle
 - [ ] **ZenML pipeline view** (if ZenML is configured): list recent pipeline runs and their step DAG; display step durations as a Gantt-style chart
-- [ ] **Optuna study browser** (`hpo_tracker.py` parity): Rust calls Optuna's RDB storage via Python subprocess (`optuna.load_study`); serialize trials to JSON; display:
-  - Parallel coordinates plot (`echarts` `parallel` series) across all hyperparameter dimensions
-  - Optimization history scatter plot (trial number vs. objective value)
-  - Parameter importance bar chart (from `optuna.importance.get_param_importances`)
-- [ ] **Best-trial highlight**: mark the best trial in all charts; "Copy best params" button writes the trial's `params` dict as a Hydra override file
+- [x] **Optuna study browser** (`hpo_tracker.py` parity): `list_optuna_studies` + `load_optuna_study` Rust commands call Optuna via Python subprocess; trials serialised to JSON; HPOTracker displays:
+  - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
+  - Optimization history scatter plot (trial number vs. objective value) with best-so-far line
+  - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
+- [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [ ] **Cross-study comparison**: load two Optuna studies (e.g., two different algorithm HPO runs); overlay their optimization history curves; compare best-trial distributions
 - [ ] **Tauri WebView embed fallback**: if the MLflow UI is running locally, add an optional embedded WebView tab that renders the MLflow dashboard at `http://localhost:5000`; guarded behind a feature flag in `tauri.conf.json`
 

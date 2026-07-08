@@ -11,6 +11,54 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirteenth pass
+
+Thirteenth implementation pass: dynamic policy registry in SimulationLauncher (§G.9);
+Eval Runner → Benchmark Analysis handoff (§G.12); resolved Hydra config dump in ConfigEditor
+(§G.13); Optuna study browser in HPOTracker (§G.18); Tauri OS notifications and Ctrl+. cancel
+(§D.8/§G.7).
+
+**Rust backend**
+- `commands/policies.rs` — `list_sim_policies(project_root)`: parses `logic/configs/tasks/test_sim.yaml` for `/policies@p.{id}:` entries; returns sorted `SimPolicyEntry` list; falls back to 8 default policies when file is missing
+- `commands/hpo.rs` — Optuna integration via Python subprocess:
+  - `list_optuna_studies(storage_url, project_root, python_executable)`: enumerates studies with trial counts and best values
+  - `load_optuna_study(storage_url, study_name, project_root, python_executable)`: returns trials, FANOVA importances, best value, and best params as JSON
+- `commands/system.rs` — `dump_hydra_config(task, project_root, python_executable)`: runs `python main.py <task> --cfg job` and returns resolved YAML
+- `commands/process.rs` — `resolve_python()` extracted as public helper shared by spawn, HPO, and Hydra commands
+
+**React frontend**
+- `pages/launch/SimulationLauncher.tsx` — dynamic policy registry (§G.9):
+  - `availablePolicies` state loaded via `list_sim_policies` on `projectRoot` change
+  - Scrollable checkbox grid (89 policies from `test_sim.yaml`); reload button with `RefreshCw` spinner
+  - Stale selections pruned when registry reloads; count badge in header
+- `pages/launch/EvaluationRunner.tsx` — "Open in Analytics →" button in `ResultsGrid` (§G.12):
+  - Serialises result rows to `pendingEvalResults` in app store; navigates to `benchmark` mode
+- `pages/analysis/BenchmarkAnalysis.tsx` — eval results panel (§G.12):
+  - `EvalResultsPanel` component: 3-column bar charts (cost / gap / time) + summary table
+  - Consumes `pendingEvalResults` on mount via `useEffect`; dismissible independently of simulation runs
+- `pages/files/ConfigEditor.tsx` — resolved Hydra config loader (§G.13):
+  - Task selector (test_sim / train / hpo / eval / gen_data) + "Load via --cfg job" button
+  - Calls `dump_hydra_config`; populates Raw view without requiring a file on disk
+- `pages/analysis/HPOTracker.tsx` — Optuna study browser rewrite (§G.18):
+  - Storage URL input with SQLite file picker; study dropdown with trial counts
+  - ECharts: optimisation history scatter + best-so-far line; FANOVA parameter importance bars; parallel coordinates
+  - KPI cards (trials / completed / best value / param count); "Copy best params" as Hydra overrides
+- `hooks/useProcessMonitor.ts` — OS notifications (§D.8) + cancel shortcut (§D.7):
+  - `maybeSendOsNotification()`: requests permission and fires native notification when `document.hidden` on completed/failed
+  - Global `Ctrl+.` listener cancels first running process via `cancel_process`
+- `store/app.ts` — `pendingEvalResults: EvalAnalyticsRow[] | null` + `setPendingEvalResults` (ephemeral)
+- `types/index.ts` — `SimPolicyEntry`, `EvalAnalyticsRow`, `OptunaStudySummary`, `OptunaTrial`, `OptunaStudyData`
+- `App.tsx` — additional keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker
+
+**ROADMAP**
+- §G.9 policy registry loading checked
+- §G.12 Open in Analytics checked
+- §G.13 Load resolved Hydra config checked
+- §G.18 Optuna study browser (partial — history, importance, parallel coords, copy best params) checked
+- §D.8 OS notifications checked; §D.7 Ctrl+. cancel checked
+
+---
+
 #### Analysis script & report — Pareto-front policy catalogue
 
 - `logic/gen/gen_simulation_analysis.py` — new `build_pareto_front_table(df)` function:
