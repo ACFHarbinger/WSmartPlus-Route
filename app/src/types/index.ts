@@ -211,6 +211,12 @@ export interface WsrouteBundleInfo {
   files: WsrouteBundleFile[];
 }
 
+export interface WsrouteExtractResult {
+  dest_dir: string;
+  extracted_files: string[];
+  log_path: string | null;
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 export type AppMode =

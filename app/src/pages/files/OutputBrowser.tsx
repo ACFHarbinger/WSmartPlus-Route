@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import {
   Folder,
   FolderOpen,
@@ -22,11 +22,13 @@ import {
   BarChart2,
   Save,
   Trash2,
+  Package,
+  Archive,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
-import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo } from "../../types";
+import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -122,6 +124,8 @@ export function OutputBrowser() {
   const [viewingExt, setViewingExt] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
+  const [bundleExporting, setBundleExporting] = useState(false);
+  const [bundleExtracting, setBundleExtracting] = useState(false);
   // Run metadata from pruned_config.yaml
   const [runMeta, setRunMeta] = useState<Array<{ key: string; value: string }> | null>(null);
   // KPI summary parsed from the first .jsonl found in the run directory
@@ -297,6 +301,59 @@ export function OutputBrowser() {
     setMode("benchmark");
     toast.success(`Comparing ${refs.length} runs in Benchmark Analysis`);
   }, [compareSelection, runs, setPendingBenchmarkLogs, setMode]);
+
+  const exportRunAsBundle = useCallback(async () => {
+    if (!selectedRun) return;
+    const path = (await saveDialog({
+      filters: [{ name: "WSmart-Route Bundle", extensions: ["wsroute"] }],
+      defaultPath: `${selectedRun.name}.wsroute`,
+    })) as string | null;
+    if (!path) return;
+
+    const outputPath = path.endsWith(".wsroute") ? path : `${path}.wsroute`;
+    setBundleExporting(true);
+    try {
+      const info = await invoke<WsrouteBundleInfo>("create_wsroute_bundle", {
+        sourceDir: selectedRun.path,
+        outputPath,
+      });
+      toast.success(`Exported ${info.files.length} files`, {
+        description: outputPath.split("/").pop(),
+      });
+    } catch (err) {
+      toast.error("Failed to export bundle", { description: String(err) });
+    } finally {
+      setBundleExporting(false);
+    }
+  }, [selectedRun]);
+
+  const extractBundleAndOpen = useCallback(async () => {
+    if (!viewingPath || viewingExt !== "wsroute") return;
+    const destDir = (await open({
+      directory: true,
+      title: "Extract bundle to…",
+    })) as string | null;
+    if (!destDir) return;
+
+    setBundleExtracting(true);
+    try {
+      const result = await invoke<WsrouteExtractResult>("extract_wsroute_bundle", {
+        path: viewingPath,
+        destDir,
+      });
+      toast.success(`Extracted ${result.extracted_files.length} files`);
+      if (result.log_path) {
+        setPendingLogPath(result.log_path);
+        setMode("simulation_summary");
+      } else {
+        toast.info("No .jsonl log found in bundle — browse extracted files manually");
+      }
+    } catch (err) {
+      toast.error("Failed to extract bundle", { description: String(err) });
+    } finally {
+      setBundleExtracting(false);
+    }
+  }, [viewingPath, viewingExt, setPendingLogPath, setMode]);
 
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;
@@ -488,6 +545,19 @@ export function OutputBrowser() {
       <div className="w-56 shrink-0 flex flex-col gap-2">
         {selectedRun ? (
           <>
+            <button
+              onClick={exportRunAsBundle}
+              disabled={bundleExporting}
+              className="btn-ghost text-xs flex items-center gap-1.5 w-full justify-center shrink-0"
+              title="Package run artefacts into a .wsroute zip bundle"
+            >
+              {bundleExporting ? (
+                <RefreshCw size={12} className="animate-spin" />
+              ) : (
+                <Package size={12} />
+              )}
+              Export as .wsroute
+            </button>
             <div className="card flex-1 overflow-auto p-1">
               <p className="text-xs text-canvas-muted px-2 py-1 font-medium truncate">
                 {selectedRun.name}
@@ -548,6 +618,20 @@ export function OutputBrowser() {
         {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null) && (
           <div className="flex items-center gap-3 shrink-0">
             <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
+            {viewingPath && viewingExt === "wsroute" && (
+              <button
+                onClick={extractBundleAndOpen}
+                disabled={bundleExtracting}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+              >
+                {bundleExtracting ? (
+                  <RefreshCw size={12} className="animate-spin" />
+                ) : (
+                  <Archive size={12} />
+                )}
+                Extract & Open
+              </button>
+            )}
             {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
               <button
                 onClick={() => openInSimSummary(viewingPath)}

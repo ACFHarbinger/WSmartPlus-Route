@@ -1,73 +1,131 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { RefreshCw } from "lucide-react";
 import { Toaster } from "sonner";
 import { Layout } from "./components/layout/Layout";
 import { useHashSync } from "./hooks/useHashSync";
 import { useProcessMonitor } from "./hooks/useProcessMonitor";
 import { useAppStore } from "./store/app";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
+import { useLayoutStore } from "./store/layout";
 import type { AppMode } from "./types";
 
-// pages/monitor — real-time process and training views
-import { SimulationMonitor } from "./pages/monitor/SimulationMonitor";
-import { TrainingMonitor } from "./pages/monitor/TrainingMonitor";
-import { ProcessMonitor } from "./pages/monitor/ProcessMonitor";
-// pages/analysis — post-run analytics and exploration
-import { SimulationSummary } from "./pages/analysis/SimulationSummary";
-import { BenchmarkAnalysis } from "./pages/analysis/BenchmarkAnalysis";
-import { DataExplorer } from "./pages/analysis/DataExplorer";
-import { ExperimentTracker } from "./pages/analysis/ExperimentTracker";
-import { AlgorithmComparison } from "./pages/analysis/AlgorithmComparison";
-import { HPOTracker } from "./pages/analysis/HPOTracker";
-// pages/launch — process launchers
-import { SimulationLauncher } from "./pages/launch/SimulationLauncher";
-import { TrainingHub } from "./pages/launch/TrainingHub";
-import { DataGeneration } from "./pages/launch/DataGeneration";
-import { EvaluationRunner } from "./pages/launch/EvaluationRunner";
-// pages/files — file and config management
-import { ConfigEditor } from "./pages/files/ConfigEditor";
-import { OutputBrowser } from "./pages/files/OutputBrowser";
-// pages/app — application settings
-import { Settings } from "./pages/app/Settings";
+// Lazy-loaded pages (§G.7 performance)
+const SimulationMonitor = lazy(() =>
+  import("./pages/monitor/SimulationMonitor").then((m) => ({ default: m.SimulationMonitor }))
+);
+const TrainingMonitor = lazy(() =>
+  import("./pages/monitor/TrainingMonitor").then((m) => ({ default: m.TrainingMonitor }))
+);
+const ProcessMonitor = lazy(() =>
+  import("./pages/monitor/ProcessMonitor").then((m) => ({ default: m.ProcessMonitor }))
+);
+const SimulationSummary = lazy(() =>
+  import("./pages/analysis/SimulationSummary").then((m) => ({ default: m.SimulationSummary }))
+);
+const BenchmarkAnalysis = lazy(() =>
+  import("./pages/analysis/BenchmarkAnalysis").then((m) => ({ default: m.BenchmarkAnalysis }))
+);
+const DataExplorer = lazy(() =>
+  import("./pages/analysis/DataExplorer").then((m) => ({ default: m.DataExplorer }))
+);
+const ExperimentTracker = lazy(() =>
+  import("./pages/analysis/ExperimentTracker").then((m) => ({ default: m.ExperimentTracker }))
+);
+const AlgorithmComparison = lazy(() =>
+  import("./pages/analysis/AlgorithmComparison").then((m) => ({ default: m.AlgorithmComparison }))
+);
+const HPOTracker = lazy(() =>
+  import("./pages/analysis/HPOTracker").then((m) => ({ default: m.HPOTracker }))
+);
+const SimulationLauncher = lazy(() =>
+  import("./pages/launch/SimulationLauncher").then((m) => ({ default: m.SimulationLauncher }))
+);
+const TrainingHub = lazy(() =>
+  import("./pages/launch/TrainingHub").then((m) => ({ default: m.TrainingHub }))
+);
+const DataGeneration = lazy(() =>
+  import("./pages/launch/DataGeneration").then((m) => ({ default: m.DataGeneration }))
+);
+const EvaluationRunner = lazy(() =>
+  import("./pages/launch/EvaluationRunner").then((m) => ({ default: m.EvaluationRunner }))
+);
+const ConfigEditor = lazy(() =>
+  import("./pages/files/ConfigEditor").then((m) => ({ default: m.ConfigEditor }))
+);
+const OutputBrowser = lazy(() =>
+  import("./pages/files/OutputBrowser").then((m) => ({ default: m.OutputBrowser }))
+);
+const Settings = lazy(() =>
+  import("./pages/app/Settings").then((m) => ({ default: m.Settings }))
+);
+
+function PageFallback() {
+  return (
+    <div className="flex items-center justify-center h-64 gap-2 text-canvas-muted text-sm">
+      <RefreshCw size={14} className="animate-spin" />
+      Loading…
+    </div>
+  );
+}
 
 function ActivePage() {
   const mode = useAppStore((s) => s.mode);
 
+  let page: React.ReactNode;
   switch (mode) {
     case "simulation":
-      return <SimulationMonitor />;
+      page = <SimulationMonitor />;
+      break;
     case "training":
-      return <TrainingMonitor />;
+      page = <TrainingMonitor />;
+      break;
     case "simulation_summary":
-      return <SimulationSummary />;
+      page = <SimulationSummary />;
+      break;
     case "benchmark":
-      return <BenchmarkAnalysis />;
+      page = <BenchmarkAnalysis />;
+      break;
     case "data_explorer":
-      return <DataExplorer />;
+      page = <DataExplorer />;
+      break;
     case "experiment_tracker":
-      return <ExperimentTracker />;
+      page = <ExperimentTracker />;
+      break;
     case "algorithms":
-      return <AlgorithmComparison />;
+      page = <AlgorithmComparison />;
+      break;
     case "hpo_tracker":
-      return <HPOTracker />;
+      page = <HPOTracker />;
+      break;
     case "process_monitor":
-      return <ProcessMonitor />;
+      page = <ProcessMonitor />;
+      break;
     case "sim_launcher":
-      return <SimulationLauncher />;
+      page = <SimulationLauncher />;
+      break;
     case "training_hub":
-      return <TrainingHub />;
+      page = <TrainingHub />;
+      break;
     case "data_gen":
-      return <DataGeneration />;
+      page = <DataGeneration />;
+      break;
     case "config_editor":
-      return <ConfigEditor />;
+      page = <ConfigEditor />;
+      break;
     case "output_browser":
-      return <OutputBrowser />;
+      page = <OutputBrowser />;
+      break;
     case "eval_runner":
-      return <EvaluationRunner />;
+      page = <EvaluationRunner />;
+      break;
     case "settings":
-      return <Settings />;
+      page = <Settings />;
+      break;
     default:
-      return <SimulationMonitor />;
+      page = <SimulationMonitor />;
   }
+
+  return <Suspense fallback={<PageFallback />}>{page}</Suspense>;
 }
 
 // Keyboard shortcut map — digit keys (no modifiers) for quick navigation
@@ -84,6 +142,7 @@ const DIGIT_MODES: AppMode[] = [
 
 export default function App() {
   const { theme, setMode, mode } = useAppStore();
+  const setShortcutsOpen = useLayoutStore((s) => s.setShortcutsOpen);
   const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
 
   useHashSync();
@@ -108,6 +167,17 @@ export default function App() {
         target.isContentEditable
       ) return;
 
+      // ? → keyboard shortcuts help overlay (§G.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key === "?") {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+      // Escape → close shortcuts overlay
+      if (e.key === "Escape") {
+        setShortcutsOpen(false);
+        return;
+      }
       // Ctrl+, → Settings
       if ((e.ctrlKey || e.metaKey) && e.key === ",") {
         e.preventDefault();
@@ -164,7 +234,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setMode, mode, triggerSim, triggerTrain, triggerDataGen, triggerEval]);
+  }, [setMode, mode, triggerSim, triggerTrain, triggerDataGen, triggerEval, setShortcutsOpen]);
 
   // Global process event listener
   useProcessMonitor();

@@ -14,7 +14,7 @@
  *   - Bin-fill strip chart (bin_state_c percentages, sorted descending, overflow highlight)
  *   - Tour sequence table (stop #, bin ID, fill %, collected, mandatory flags)
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -23,8 +23,10 @@ import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
 import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
+
+const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
 
 // ── KPI definitions — mirrors _PRIMARY_KPI_MAP and _SECONDARY_KPI_MAP in kpi.py
 const PRIMARY_KPIS = [
@@ -179,13 +181,21 @@ function RouteMapChart({ data }: { data: SimDayData }) {
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs text-canvas-muted">Route Map Preview</p>
-        <button
-          className="btn-ghost text-xs flex items-center gap-1"
-          onClick={() => exportChartPng(chartRef, "route-map.png")}
-        >
-          <Download size={12} />
-          Export PNG
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="btn-ghost text-xs flex items-center gap-1"
+            onClick={() => exportChartPng(chartRef, "route-map.png")}
+          >
+            <Download size={12} />
+            PNG
+          </button>
+          <button
+            className="btn-ghost text-xs flex items-center gap-1"
+            onClick={() => exportChartSvg(chartRef, "route-map.svg")}
+          >
+            SVG
+          </button>
+        </div>
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
     </div>
@@ -449,6 +459,12 @@ export function SimulationMonitor() {
   const [showBinFill, setShowBinFill] = useState(true);
   const [showTourTable, setShowTourTable] = useState(false);
   const [showRouteMap, setShowRouteMap] = useState(true);
+  const [routeMapMode, setRouteMapMode] = useState<"echarts" | "deckgl">("echarts");
+
+  const hasGeoCoords = useMemo(
+    () => displayEntry?.data.all_bin_coords?.some((b) => b.lat != null && b.lng != null) ?? false,
+    [displayEntry]
+  );
 
   // Chart policy overlay — defaults to all policies; separate from detail-panel selectedPolicy
   const [chartPolicies, setChartPolicies] = useState<string[]>([]);
@@ -683,10 +699,33 @@ export function SimulationMonitor() {
             >
               {showRouteMap ? "Hide" : "Show"} route map
             </button>
+            {showRouteMap && hasGeoCoords && (
+              <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
+                {(["echarts", "deckgl"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setRouteMapMode(m)}
+                    className={`text-xs px-2 py-0.5 rounded-md ${
+                      routeMapMode === m
+                        ? "bg-accent-primary text-white"
+                        : "text-canvas-muted hover:text-gray-200"
+                    }`}
+                  >
+                    {m === "echarts" ? "Cartesian" : "Tile map"}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {showRouteMap && displayEntry.data.all_bin_coords?.length ? (
-            <RouteMapChart data={displayEntry.data} />
+            routeMapMode === "deckgl" && hasGeoCoords ? (
+              <Suspense fallback={<p className="text-xs text-canvas-muted">Loading tile map…</p>}>
+                <DeckRouteMap data={displayEntry.data} />
+              </Suspense>
+            ) : (
+              <RouteMapChart data={displayEntry.data} />
+            )
           ) : null}
           {showBinFill && <BinFillStrip data={displayEntry.data} />}
           {showTourTable && (

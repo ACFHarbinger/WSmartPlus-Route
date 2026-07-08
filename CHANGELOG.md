@@ -9,6 +9,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
+### Added
+
+#### WSmart-Route Studio — Tauri App (`app/`) — nineteenth pass
+
+Nineteenth implementation pass: `.wsroute` bundle create/extract (§G.8); deck.gl
+tile route map (§G.16); keyboard shortcuts help overlay; lazy-loaded pages and
+SVG chart export (§G.7).
+
+**Rust backend**
+- `data::create_wsroute_bundle(source_dir, output_path)` — walks a run directory, zips eligible artefacts plus `manifest.json`
+- `data::extract_wsroute_bundle(path, dest_dir)` — decompresses a `.wsroute` zip; returns first `.jsonl` log path for Simulation Summary
+
+**React frontend**
+- `components/maps/DeckRouteMap.tsx` — deck.gl `PathLayer` + `ScatterplotLayer` over MapLibre dark basemap; lazy-loaded from SimulationMonitor
+- `components/layout/KeyboardShortcutsHelp.tsx` — modal overlay listing all global shortcuts; opened via `?` or TopBar button
+- `App.tsx` — all page components lazy-loaded behind `Suspense`; `?` opens shortcuts help; `Escape` dismisses
+- `pages/files/OutputBrowser.tsx` — "Export as .wsroute" on selected run; "Extract & Open" on bundle files
+- `pages/monitor/SimulationMonitor.tsx` — ECharts / deck.gl route map toggle; SVG export on Cartesian map
+- `utils/chartExport.ts` — `exportChartSvg()` for ECharts SVG download
+- `vite.config.ts` — build target bumped to `es2022` for deck.gl BigInt literals
+
+**Dependencies**
+- `@deck.gl/core`, `@deck.gl/layers`, `@deck.gl/react`, `maplibre-gl`, `react-map-gl`
+
+**ROADMAP**
+- §G.8 bundle create/extract commands + Output Browser UI checked (partial — Tauri bundler/updater deferred)
+- §G.16 deck.gl `PathLayer` tile route map checked
+- §G.7 lazy-loaded pages, shortcuts help overlay, SVG export checked (partial — Parquet/command palette deferred)
+
 ### Fixed
 
 #### WSmart-Route Studio — Tauri build

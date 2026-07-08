@@ -1044,11 +1044,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Global filter state management (Zustand): `useGlobalFiltersStore` + `GlobalFilterBar` propagates policy/sample filters across SimulationMonitor, AlgorithmComparison, SimulationSummary, and BenchmarkAnalysis
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
-- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav (§D.7)
+- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
+- [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses
+- [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, ExperimentTracker, HPOTracker charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking (partial — SVG/Parquet deferred)
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, ExperimentTracker, HPOTracker charts; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking (partial — Parquet deferred)
 
 ---
 
@@ -1057,7 +1059,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
 - [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a `.wsroute` zip bundle with `manifest.json` (Parquet/Arrow IPC deferred)
-- [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser (full import/decompress deferred)
+- [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser
+- [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
+- [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
+- [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files (partial — round-trip integration test deferred)
 - [ ] Tauri bundler: produce signed `.deb`/`.AppImage` (Linux), `.dmg` (macOS), `.msi` (Windows) distributables
 - [ ] Auto-update via Tauri updater plugin
 - [ ] Integration test: round-trip export → import → verify all simulation rows load correctly
@@ -1202,7 +1207,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [x] **Route map preview** (ECharts scatter + path): Cartesian tour viz using `all_bin_coords` + `tour_indices`; fill-level colour coding; depot/tour/idle bin layers; PNG export
-- [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
+- [x] **Route map** (deck.gl `PathLayer`): `DeckRouteMap` renders tour path over MapLibre dark basemap; fill-level colour-coded `ScatterplotLayer` stops; idle bins as grey scatter; ECharts/deck.gl toggle in SimulationMonitor; lazy-loaded chunk (§G.16)
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
 
