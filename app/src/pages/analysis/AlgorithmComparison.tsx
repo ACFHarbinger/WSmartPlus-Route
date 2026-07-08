@@ -3,8 +3,9 @@
  * Ports Streamlit `algorithms` mode.
  */
 import ReactECharts from "echarts-for-react";
-import { useSimStore, filterEntries } from "../../store/sim";
 import { useMemo } from "react";
+import { useGlobalFiltersStore } from "../../store/filters";
+import { useSimStore, filterEntries } from "../../store/sim";
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -20,8 +21,12 @@ const METRICS = [
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
 
 export function AlgorithmComparison() {
-  const { entries, selectedSample } = useSimStore();
-  const filtered = useMemo(() => filterEntries(entries, null, selectedSample), [entries, selectedSample]);
+  const { entries } = useSimStore();
+  const { policy, sampleId } = useGlobalFiltersStore();
+  const filtered = useMemo(
+    () => filterEntries(entries, policy, sampleId),
+    [entries, policy, sampleId]
+  );
   const policies = useMemo(() => [...new Set(filtered.map((e) => e.policy))], [filtered]);
 
   const radarOption = useMemo(() => {

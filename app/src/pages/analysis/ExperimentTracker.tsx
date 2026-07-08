@@ -1,19 +1,21 @@
 /**
- * Experiment Tracker — run history browsing.
- * Ports Streamlit `experiment_tracker` mode.
- * Full MLflow / ZenML embedding planned in §G.18.
+ * Experiment Tracker — MLflow run browser and metric comparison (§G.18).
+ * Ports Streamlit `experiment_tracker` / `experiment_tracker_mlflow` modes.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { exportChartPng } from "../../utils/chartExport";
+import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
-interface OutputDir {
-  name: string;
-  path: string;
-  created_at: string;
-  size_bytes: number;
-}
+const DEFAULT_TRACKING_URI = "mlruns";
+const DEFAULT_EXPERIMENT = "wsmart-route";
+const RUN_COLORS = [
+  "#667eea", "#f093fb", "#4fd1c5", "#f6ad55", "#fc8181",
+  "#90cdf4", "#9ae6b4", "#fbd38d",
+];
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -21,51 +23,319 @@ function formatBytes(b: number) {
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
 }
 
-export function ExperimentTracker() {
-  const { projectRoot } = useAppStore();
-  const [dirs, setDirs] = useState<OutputDir[]>([]);
-  const [loading, setLoading] = useState(false);
+function formatTime(ms: number | null) {
+  if (ms == null) return "—";
+  return new Date(ms).toLocaleString();
+}
 
-  const refresh = useCallback(async () => {
+export function ExperimentTracker() {
+  const { projectRoot, pythonPath } = useAppStore();
+  const [trackingUri, setTrackingUri] = useState(DEFAULT_TRACKING_URI);
+  const [experimentName, setExperimentName] = useState(DEFAULT_EXPERIMENT);
+  const [runs, setRuns] = useState<MlflowRun[]>([]);
+  const [selectedRunIds, setSelectedRunIds] = useState<string[]>([]);
+  const [metricKeys, setMetricKeys] = useState<string[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState<string>("");
+  const [metricHistory, setMetricHistory] = useState<Record<string, MlflowMetricPoint[]>>({});
+  const [normalizeY, setNormalizeY] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [outputDirs, setOutputDirs] = useState<OutputDir[]>([]);
+  const chartRef = useRef<ReactECharts>(null);
+
+  const refreshRuns = useCallback(async () => {
     if (!projectRoot) return;
     setLoading(true);
+    setError(null);
+    try {
+      const found = await invoke<MlflowRun[]>("list_mlflow_runs", {
+        trackingUri,
+        experimentName: experimentName || null,
+        projectRoot,
+        pythonExecutable: pythonPath || null,
+      });
+      setRuns(found.sort((a, b) => (b.start_time ?? 0) - (a.start_time ?? 0)));
+      setSelectedRunIds([]);
+      setMetricKeys([]);
+      setSelectedMetric("");
+      setMetricHistory({});
+    } catch (e) {
+      setError(String(e));
+      setRuns([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectRoot, pythonPath, trackingUri, experimentName]);
+
+  const refreshOutputDirs = useCallback(async () => {
+    if (!projectRoot) return;
     try {
       const found = await invoke<OutputDir[]>("list_output_dirs", {
         outputPath: `${projectRoot}/assets/output`,
       });
-      setDirs(found.sort((a, b) => b.created_at.localeCompare(a.created_at)));
-    } finally {
-      setLoading(false);
+      setOutputDirs(found.sort((a, b) => b.created_at.localeCompare(a.created_at)));
+    } catch {
+      setOutputDirs([]);
     }
   }, [projectRoot]);
 
   useEffect(() => {
-    if (projectRoot) refresh();
-  }, [projectRoot, refresh]);
+    if (projectRoot) {
+      refreshRuns();
+      refreshOutputDirs();
+    }
+  }, [projectRoot, refreshRuns, refreshOutputDirs]);
+
+  const toggleRun = useCallback((runId: string) => {
+    setSelectedRunIds((prev) =>
+      prev.includes(runId) ? prev.filter((id) => id !== runId) : [...prev, runId]
+    );
+  }, []);
+
+  // Load metric keys when first run is selected
+  useEffect(() => {
+    if (!projectRoot || selectedRunIds.length === 0) {
+      setMetricKeys([]);
+      setSelectedMetric("");
+      return;
+    }
+    invoke<string[]>("list_mlflow_metric_keys", {
+      runId: selectedRunIds[0],
+      trackingUri,
+      projectRoot,
+      pythonExecutable: pythonPath || null,
+    })
+      .then((keys) => {
+        setMetricKeys(keys);
+        setSelectedMetric((prev) => (prev && keys.includes(prev) ? prev : keys[0] ?? ""));
+      })
+      .catch(() => setMetricKeys([]));
+  }, [projectRoot, pythonPath, trackingUri, selectedRunIds]);
+
+  // Load metric history for comparison chart
+  useEffect(() => {
+    if (!projectRoot || selectedRunIds.length === 0 || !selectedMetric) {
+      setMetricHistory({});
+      return;
+    }
+    invoke<Record<string, MlflowMetricPoint[]>>("load_mlflow_metric_history", {
+      runIds: selectedRunIds,
+      metricKey: selectedMetric,
+      trackingUri,
+      projectRoot,
+      pythonExecutable: pythonPath || null,
+    })
+      .then(setMetricHistory)
+      .catch(() => setMetricHistory({}));
+  }, [projectRoot, pythonPath, trackingUri, selectedRunIds, selectedMetric]);
+
+  const comparisonOption = useMemo(() => {
+    const series = selectedRunIds.map((runId, i) => {
+      const points = metricHistory[runId] ?? [];
+      const values = points.map((p) => p.value);
+      if (normalizeY && values.length > 0) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+        return {
+          name: runId.slice(0, 8),
+          type: "line" as const,
+          smooth: true,
+          symbolSize: 4,
+          lineStyle: { color: RUN_COLORS[i % RUN_COLORS.length], width: 2 },
+          itemStyle: { color: RUN_COLORS[i % RUN_COLORS.length] },
+          data: points.map((p) => [(p.step, (p.value - min) / range)]),
+        };
+      }
+      return {
+        name: runId.slice(0, 8),
+        type: "line" as const,
+        smooth: true,
+        symbolSize: 4,
+        lineStyle: { color: RUN_COLORS[i % RUN_COLORS.length], width: 2 },
+        itemStyle: { color: RUN_COLORS[i % RUN_COLORS.length] },
+        data: points.map((p) => [p.step, p.value]),
+      };
+    });
+
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 50, right: 10, top: 30, bottom: 40 },
+      xAxis: {
+        type: "value",
+        name: "Step",
+        axisLabel: { color: "#9090b0", fontSize: 10 },
+      },
+      yAxis: {
+        type: "value",
+        name: normalizeY ? "Normalized" : selectedMetric,
+        axisLabel: { color: "#9090b0", fontSize: 10 },
+      },
+      legend: { textStyle: { color: "#9090b0", fontSize: 10 }, top: 0 },
+      series,
+      tooltip: { trigger: "axis" },
+    };
+  }, [selectedRunIds, metricHistory, selectedMetric, normalizeY]);
 
   if (!projectRoot) {
     return (
       <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
-        Set project root to browse experiment outputs.
+        Set project root to browse experiments.
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={refresh}
-          disabled={loading}
-          className="btn-primary flex items-center gap-2"
-        >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-          Refresh
-        </button>
-        <span className="text-xs text-canvas-muted">{dirs.length} run(s)</span>
+      {/* MLflow connection */}
+      <div className="card space-y-3">
+        <h2 className="text-sm font-semibold text-gray-200">MLflow Tracking</h2>
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-canvas-muted">Tracking URI</label>
+            <input
+              className="input-base font-mono text-xs w-48"
+              value={trackingUri}
+              onChange={(e) => setTrackingUri(e.target.value)}
+              placeholder="mlruns"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-canvas-muted">Experiment</label>
+            <input
+              className="input-base font-mono text-xs w-40"
+              value={experimentName}
+              onChange={(e) => setExperimentName(e.target.value)}
+              placeholder="wsmart-route"
+            />
+          </div>
+          <button
+            onClick={refreshRuns}
+            disabled={loading}
+            className="btn-primary flex items-center gap-2"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+          <span className="text-xs text-canvas-muted">{runs.length} run(s)</span>
+        </div>
+        {error && (
+          <p className="text-xs text-accent-danger">{error}</p>
+        )}
       </div>
 
+      {/* MLflow run table */}
       <div className="card overflow-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-canvas-border">
+              <th className="py-2 px-2 text-canvas-muted font-medium w-8" />
+              <th className="text-left py-2 px-2 text-canvas-muted font-medium">Run</th>
+              <th className="text-left py-2 px-2 text-canvas-muted font-medium">Status</th>
+              <th className="text-left py-2 px-2 text-canvas-muted font-medium">Started</th>
+              <th className="text-left py-2 px-2 text-canvas-muted font-medium">Metrics</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-canvas-border">
+            {runs.map((r) => (
+              <tr
+                key={r.run_id}
+                className={`hover:bg-canvas-hover cursor-pointer ${
+                  selectedRunIds.includes(r.run_id) ? "bg-canvas-hover/60" : ""
+                }`}
+                onClick={() => toggleRun(r.run_id)}
+              >
+                <td className="py-2 px-2">
+                  <input
+                    type="checkbox"
+                    className="accent-accent-primary"
+                    checked={selectedRunIds.includes(r.run_id)}
+                    onChange={() => toggleRun(r.run_id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </td>
+                <td className="py-2 px-2">
+                  <div className="font-mono text-gray-300">{r.run_name || r.run_id.slice(0, 8)}</div>
+                  <div className="text-canvas-muted font-mono text-[10px]">{r.run_id.slice(0, 12)}…</div>
+                </td>
+                <td className="py-2 px-2 text-canvas-muted">{r.status}</td>
+                <td className="py-2 px-2 text-canvas-muted">{formatTime(r.start_time)}</td>
+                <td className="py-2 px-2 text-canvas-muted font-mono">
+                  {Object.entries(r.metrics)
+                    .slice(0, 3)
+                    .map(([k, v]) => `${k}=${v.toFixed(3)}`)
+                    .join(", ") || "—"}
+                </td>
+              </tr>
+            ))}
+            {runs.length === 0 && !loading && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-canvas-muted">
+                  No MLflow runs found. Enable MLflow tracking and run training to populate this view.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Metric comparison chart */}
+      {selectedRunIds.length > 0 && metricKeys.length > 0 && (
+        <div className="card space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="text-sm font-semibold text-gray-200">
+              Metric Comparison ({selectedRunIds.length} run{selectedRunIds.length > 1 ? "s" : ""})
+            </h3>
+            <select
+              className="select-base text-xs w-48"
+              value={selectedMetric}
+              onChange={(e) => setSelectedMetric(e.target.value)}
+            >
+              {metricKeys.map((k) => (
+                <option key={k} value={k}>{k}</option>
+              ))}
+            </select>
+            <label className="flex items-center gap-1.5 text-xs text-canvas-muted cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-accent-primary"
+                checked={normalizeY}
+                onChange={(e) => setNormalizeY(e.target.checked)}
+              />
+              Normalize Y-axis
+            </label>
+            <button
+              className="btn-ghost text-xs flex items-center gap-1 ml-auto"
+              onClick={() => exportChartPng(chartRef, `mlflow-${selectedMetric}.png`)}
+            >
+              <Download size={12} />
+              Export PNG
+            </button>
+          </div>
+          <ReactECharts ref={chartRef} option={comparisonOption} style={{ height: 320 }} />
+        </div>
+      )}
+
+      {/* Selected run params */}
+      {selectedRunIds.length === 1 && (
+        <div className="card space-y-2">
+          <h3 className="text-sm font-semibold text-gray-200">Parameters</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+            {Object.entries(runs.find((r) => r.run_id === selectedRunIds[0])?.params ?? {}).map(
+              ([k, v]) => (
+                <div key={k} className="flex gap-2">
+                  <span className="text-canvas-muted shrink-0">{k}</span>
+                  <span className="font-mono text-gray-300 truncate">{v}</span>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Legacy output dirs */}
+      <div className="card space-y-2">
+        <h3 className="text-sm font-semibold text-gray-200">Output Directories</h3>
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-canvas-border">
@@ -75,7 +345,7 @@ export function ExperimentTracker() {
             </tr>
           </thead>
           <tbody className="divide-y divide-canvas-border">
-            {dirs.map((d) => (
+            {outputDirs.slice(0, 10).map((d) => (
               <tr key={d.path} className="hover:bg-canvas-hover">
                 <td className="py-2 px-3 font-mono text-gray-300">{d.name}</td>
                 <td className="py-2 px-3 text-canvas-muted">
@@ -84,20 +354,16 @@ export function ExperimentTracker() {
                 <td className="py-2 px-3 text-right text-canvas-muted">{formatBytes(d.size_bytes)}</td>
               </tr>
             ))}
-            {dirs.length === 0 && !loading && (
+            {outputDirs.length === 0 && (
               <tr>
-                <td colSpan={3} className="py-8 text-center text-canvas-muted">
-                  No experiment outputs found.
+                <td colSpan={3} className="py-4 text-center text-canvas-muted">
+                  No output directories found.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-
-      <p className="text-xs text-canvas-muted">
-        Full MLflow / ZenML dashboard embedding planned in Phase 18.
-      </p>
     </div>
   );
 }

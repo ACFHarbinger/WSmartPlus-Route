@@ -14,6 +14,7 @@ import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Tras
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { StdoutLine, StatusUpdate } from "../../types";
 
@@ -329,6 +330,11 @@ export function EvaluationRunner() {
     projectRoot, validCheckpoints, problem, valSize, strategy, device,
     datasetPath, extraOverrides, spawn,
   ]);
+
+  const evalNonce = useLaunchTriggerStore((s) => s.evalNonce);
+  useEffect(() => {
+    if (evalNonce > 0) launch();
+  }, [evalNonce, launch]);
 
   return (
     <div className="space-y-4 max-w-2xl">

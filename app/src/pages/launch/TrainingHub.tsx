@@ -16,6 +16,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCirc
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { StdoutLine, StatusUpdate, ProcessStatus, TrainingMetricsRow } from "../../types";
@@ -333,6 +334,11 @@ export function TrainingHub() {
       workingDir: projectRoot,
     });
   }, [projectRoot, mode, entrypoint, hydraArgs, spawn]);
+
+  const trainNonce = useLaunchTriggerStore((s) => s.trainNonce);
+  useEffect(() => {
+    if (trainNonce > 0) launch();
+  }, [trainNonce, launch]);
 
   function SelectField<T extends string>({
     label, value, onChange, options,

@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { Layout } from "./components/layout/Layout";
+import { useHashSync } from "./hooks/useHashSync";
 import { useProcessMonitor } from "./hooks/useProcessMonitor";
 import { useAppStore } from "./store/app";
+import { useLaunchTriggerStore } from "./store/launchTrigger";
 import type { AppMode } from "./types";
 
 // pages/monitor — real-time process and training views
@@ -81,7 +83,10 @@ const DIGIT_MODES: AppMode[] = [
 ];
 
 export default function App() {
-  const { theme, setMode } = useAppStore();
+  const { theme, setMode, mode } = useAppStore();
+  const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
+
+  useHashSync();
 
   // Sync theme class on mount
   useEffect(() => {
@@ -127,6 +132,15 @@ export default function App() {
         setMode("hpo_tracker");
         return;
       }
+      // Ctrl+R → launch on active launcher page (§G.7)
+      if ((e.ctrlKey || e.metaKey) && e.key === "r") {
+        e.preventDefault();
+        if (mode === "sim_launcher") triggerSim();
+        else if (mode === "training_hub") triggerTrain();
+        else if (mode === "data_gen") triggerDataGen();
+        else if (mode === "eval_runner") triggerEval();
+        return;
+      }
       // Digit 1-8 → quick mode switch
       if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         const n = parseInt(e.key);
@@ -138,7 +152,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setMode]);
+  }, [setMode, mode, triggerSim, triggerTrain, triggerDataGen, triggerEval]);
 
   // Global process event listener
   useProcessMonitor();

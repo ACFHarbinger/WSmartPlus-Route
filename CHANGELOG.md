@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixteenth pass
+
+Sixteenth implementation pass: MLflow run browser and metric comparison (§G.18);
+ECharts route map preview (§G.16 partial); global filter store, URL hash
+bookmarking, chart PNG export, and `Ctrl+R` launch shortcut (§G.7).
+
+**Rust backend**
+- `commands/mlflow.rs` — `list_mlflow_runs`, `list_mlflow_metric_keys`, `load_mlflow_metric_history`: Python subprocess queries local/remote MLflow tracking via `mlflow.search_runs` and `MlflowClient`
+
+**React frontend**
+- `pages/analysis/ExperimentTracker.tsx` — MLflow run table with multi-select; metric comparison ECharts chart with normalize toggle; params panel; output dirs retained
+- `pages/monitor/SimulationMonitor.tsx` — `RouteMapChart` ECharts scatter + path using `all_bin_coords` + `tour_indices`; fill-level colour coding; PNG export on charts
+- `store/filters.ts` — `useGlobalFiltersStore` (policy + sampleId) propagates across SimulationMonitor and AlgorithmComparison
+- `store/launchTrigger.ts` — nonce-based launch triggers for `Ctrl+R` on launcher pages
+- `hooks/useHashSync.ts` — serializes `mode` + filters to URL hash for deep-linking
+- `utils/chartExport.ts` — reusable `exportChartPng()` via ECharts `getDataURL()`
+- `App.tsx` — `Ctrl+R` launches on active launcher page; `useHashSync()` on mount
+- Launcher pages (`SimulationLauncher`, `TrainingHub`, `DataGeneration`, `EvaluationRunner`) — subscribe to launch trigger nonces
+- `types/index.ts` — `MlflowRun`, `MlflowMetricPoint` interfaces
+
+**ROADMAP**
+- §G.18 MLflow run table and metric comparison chart checked
+- §G.16 ECharts route map preview checked (deck.gl tile basemap still open)
+- §G.7 global filters, URL hash bookmarking, chart PNG export, `Ctrl+R` checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifteenth pass
 
 Fifteenth implementation pass: session profiles in Output Browser (§G.14);

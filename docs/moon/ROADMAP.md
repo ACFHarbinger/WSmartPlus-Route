@@ -1041,14 +1041,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Connect all analytics phases into a single cohesive analytical narrative flow, and satisfy all §D UX requirements.
 
 - [ ] App-level navigation: Overview → Drill-Down → Geospatial → Graph → ML → Query → Launchers
-- [ ] Global filter state management (Zustand): any filter applied in one view propagates to all others
-- [ ] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking)
+- [x] Global filter state management (Zustand): `useGlobalFiltersStore` propagates policy/sample filters across SimulationMonitor and AlgorithmComparison
+- [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [ ] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4)
-- [x] Keyboard shortcuts (partial): `G` → simulation monitor, `Q` → HPO tracker, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, digits `1`–`8` → quick nav (§D.7); `Ctrl+R` = run and `P`/`M` shortcuts deferred
+- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav (§D.7); `P`/`M` shortcuts deferred
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [ ] Responsive layout for different screen sizes (primary target: 2560×1440 research workstation)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
-- [ ] Export: any chart exportable as PNG/SVG; any table exportable as CSV/Parquet
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor and ExperimentTracker charts (partial — SVG/table CSV/Parquet deferred)
 
 ---
 
@@ -1201,6 +1201,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Daily metrics chart**: ECharts `line` timeseries for all 4 primary KPIs across all loaded days; rendered as a 4-column grid
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
+- [x] **Route map preview** (ECharts scatter + path): Cartesian tour viz using `all_bin_coords` + `tour_indices`; fill-level colour coding; depot/tour/idle bin layers; PNG export
 - [ ] **Route map** (deck.gl `PathLayer`): render the tour as a directed path over a tile basemap; colour-code by bin fill level at each stop; overlay bin positions as `ScatterplotLayer`; uses `all_bin_coords` from `SimDayData`
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
@@ -1232,8 +1233,8 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 
 Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src/ui/pages/experiment_tracker_charts.py`, `logic/src/ui/pages/hpo_tracker.py`
 
-- [ ] **MLflow run table** (`experiment_tracker.py` parity): Rust queries the local MLflow tracking server via its REST API (`mlflow.list_experiments`, `mlflow.search_runs`); display runs with params, metrics, tags, artifact path
-- [ ] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line or bar series; supports metric name selector and axis normalization toggle
+- [x] **MLflow run table** (`experiment_tracker.py` parity): Rust queries MLflow via Python subprocess (`mlflow.search_runs`); display runs with params, metrics, tags, artifact path
+- [x] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line series; metric name selector and Y-axis normalization toggle
 - [ ] **ZenML pipeline view** (if ZenML is configured): list recent pipeline runs and their step DAG; display step durations as a Gantt-style chart
 - [x] **Optuna study browser** (`hpo_tracker.py` parity): `list_optuna_studies` + `load_optuna_study` Rust commands call Optuna via Python subprocess; trials serialised to JSON; HPOTracker displays:
   - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
