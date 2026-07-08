@@ -70,10 +70,41 @@ const META_KEYS = [
   "sim.policies", "train.max_epochs", "hpo.n_trials",
 ];
 
+/** Find the first .jsonl log in a run directory (top-level or hydra/). */
+async function findRunJsonl(runPath: string): Promise<string | null> {
+  const top = await invoke<DirEntry[]>("list_dir", { path: runPath });
+  const topJsonl = top.find((f) => !f.is_dir && f.extension === "jsonl" && f.size_bytes < 20 * 1024 * 1024);
+  if (topJsonl) return topJsonl.path;
+  const hydra = top.find((f) => f.is_dir && f.name === "hydra");
+  if (hydra) {
+    const sub = await invoke<DirEntry[]>("list_dir", { path: hydra.path });
+    const nested = sub.find((f) => !f.is_dir && f.extension === "jsonl" && f.size_bytes < 20 * 1024 * 1024);
+    if (nested) return nested.path;
+  }
+  return null;
+}
+
+/** Sort: directories first, then key artefacts (config, logs), then alphabetical. */
+function sortEntries(list: DirEntry[]): DirEntry[] {
+  const priority = (e: DirEntry) => {
+    if (e.is_dir) return 0;
+    if (e.name === "pruned_config.yaml" || e.name === "config.yaml") return 1;
+    if (e.extension === "jsonl") return 2;
+    return 3;
+  };
+  return [...list].sort((a, b) => {
+    const pa = priority(a);
+    const pb = priority(b);
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 export function OutputBrowser() {
-  const { projectRoot, setMode, setPendingLogPath } = useAppStore();
+  const { projectRoot, setMode, setPendingLogPath, setPendingBenchmarkLogs } = useAppStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
+  const [compareSelection, setCompareSelection] = useState<Set<string>>(new Set());
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [subEntries, setSubEntries] = useState<Record<string, DirEntry[]>>({});
@@ -119,11 +150,25 @@ export function OutputBrowser() {
     setRunMeta(null);
     setRunKpi(null);
     try {
-      const e = await invoke<DirEntry[]>("list_dir", { path: run.path });
+      const e = sortEntries(await invoke<DirEntry[]>("list_dir", { path: run.path }));
       setEntries(e);
 
-      // Auto-load pruned_config.yaml for metadata panel
-      const configEntry = e.find((f) => f.name === "pruned_config.yaml" || f.name === "config.yaml");
+      // Auto-expand hydra/ subdirectory for structured tree view
+      const hydraDir = e.find((f) => f.is_dir && f.name === "hydra");
+      let hydraSub: DirEntry[] = [];
+      if (hydraDir) {
+        setExpandedDirs(new Set([hydraDir.path]));
+        hydraSub = sortEntries(await invoke<DirEntry[]>("list_dir", { path: hydraDir.path }));
+        setSubEntries({ [hydraDir.path]: hydraSub });
+      }
+
+      // Auto-load pruned_config.yaml for metadata panel (top-level or hydra/)
+      let configEntry = e.find((f) => f.name === "pruned_config.yaml" || f.name === "config.yaml");
+      if (!configEntry && hydraSub.length > 0) {
+        configEntry = hydraSub.find(
+          (f) => f.name === "pruned_config.yaml" || f.name === "config.yaml"
+        );
+      }
       if (configEntry) {
         try {
           const yaml = await invoke<string>("read_text_file", { path: configEntry.path });
@@ -134,10 +179,10 @@ export function OutputBrowser() {
       }
 
       // Auto-parse the first .jsonl for a KPI summary card
-      const jsonlEntry = e.find((f) => !f.is_dir && f.extension === "jsonl");
-      if (jsonlEntry && jsonlEntry.size_bytes < 20 * 1024 * 1024) {
+      const jsonlPath = await findRunJsonl(run.path);
+      if (jsonlPath) {
         try {
-          const text = await invoke<string>("read_text_file", { path: jsonlEntry.path });
+          const text = await invoke<string>("read_text_file", { path: jsonlPath });
           const acc: Record<string, { overflows: number[]; kgkm: number[]; profit: number[] }> = {};
           for (const line of text.split("\n")) {
             if (!line.trim()) continue;
@@ -173,7 +218,7 @@ export function OutputBrowser() {
     });
     if (!subEntries[entry.path]) {
       try {
-        const sub = await invoke<DirEntry[]>("list_dir", { path: entry.path });
+        const sub = sortEntries(await invoke<DirEntry[]>("list_dir", { path: entry.path }));
         setSubEntries((prev) => ({ ...prev, [entry.path]: sub }));
       } catch {}
     }
@@ -214,6 +259,32 @@ export function OutputBrowser() {
     setMode("simulation_summary");
   }, [setPendingLogPath, setMode]);
 
+  const toggleCompareRun = useCallback((runPath: string) => {
+    setCompareSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(runPath)) next.delete(runPath);
+      else next.add(runPath);
+      return next;
+    });
+  }, []);
+
+  const compareSelectedRuns = useCallback(async () => {
+    if (compareSelection.size < 2) return;
+    const refs: Array<{ path: string; label: string }> = [];
+    for (const runPath of compareSelection) {
+      const run = runs.find((r) => r.path === runPath);
+      const jsonl = await findRunJsonl(runPath);
+      if (jsonl && run) refs.push({ path: jsonl, label: run.name });
+    }
+    if (refs.length < 2) {
+      toast.error("Need at least 2 runs with .jsonl logs to compare");
+      return;
+    }
+    setPendingBenchmarkLogs(refs);
+    setMode("benchmark");
+    toast.success(`Comparing ${refs.length} runs in Benchmark Analysis`);
+  }, [compareSelection, runs, setPendingBenchmarkLogs, setMode]);
+
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;
     if (!path) return;
@@ -253,7 +324,17 @@ export function OutputBrowser() {
             <span className="w-[11px] shrink-0" />
           )}
           <FileIcon entry={e} />
-          <span className="truncate flex-1">{e.name}</span>
+          <span
+            className={`truncate flex-1 ${
+              e.name === "pruned_config.yaml" || e.name === "config.yaml"
+                ? "text-accent-secondary font-medium"
+                : e.extension === "jsonl"
+                ? "text-accent-success"
+                : ""
+            }`}
+          >
+            {e.name}
+          </span>
           {!e.is_dir && (
             <span className="text-canvas-muted shrink-0">{formatBytes(e.size_bytes)}</span>
           )}
@@ -296,20 +377,43 @@ export function OutputBrowser() {
           <span className="text-xs text-canvas-muted">{runs.length} runs</span>
         </div>
 
+        {compareSelection.size >= 2 && (
+          <button
+            onClick={compareSelectedRuns}
+            className="btn-primary text-xs flex items-center gap-1.5 w-full justify-center"
+          >
+            <BarChart2 size={12} />
+            Compare {compareSelection.size} Runs →
+          </button>
+        )}
+
         <div className="card flex-1 overflow-auto p-1">
           {runs.map((r) => (
-            <button
+            <div
               key={r.path}
-              onClick={() => selectRun(r)}
-              className={`w-full flex items-center gap-2 py-1.5 px-2 rounded text-xs text-left hover:bg-canvas-hover transition-colors ${
-                selectedRun?.path === r.path
-                  ? "bg-accent-primary/15 text-accent-secondary"
-                  : "text-gray-300"
+              className={`flex items-center gap-1 rounded text-xs ${
+                selectedRun?.path === r.path ? "bg-accent-primary/10" : ""
               }`}
             >
-              <Folder size={12} className="text-accent-warning shrink-0" />
-              <span className="truncate">{r.name}</span>
-            </button>
+              <input
+                type="checkbox"
+                checked={compareSelection.has(r.path)}
+                onChange={() => toggleCompareRun(r.path)}
+                className="ml-1.5 shrink-0 accent-accent-primary"
+                title="Select for comparison"
+              />
+              <button
+                onClick={() => selectRun(r)}
+                className={`flex-1 flex items-center gap-2 py-1.5 px-1 rounded text-left hover:bg-canvas-hover transition-colors ${
+                  selectedRun?.path === r.path
+                    ? "text-accent-secondary"
+                    : "text-gray-300"
+                }`}
+              >
+                <Folder size={12} className="text-accent-warning shrink-0" />
+                <span className="truncate">{r.name}</span>
+              </button>
+            </div>
           ))}
           {runs.length === 0 && !loading && (
             <p className="text-xs text-canvas-muted p-2">No run directories found.</p>

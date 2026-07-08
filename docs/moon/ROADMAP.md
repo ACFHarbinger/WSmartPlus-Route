@@ -1109,7 +1109,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React form: problem selector (vrpp/wcvrp/scwcvrp/all), distribution checkboxes (Gamma-3/Empirical), dataset type selector (test_simulator/train/train_time), overwrite toggle; mirrors `gen_data.yaml`
 - [x] Graph form: area selector (figueiradafoz/riomaior), num_loc, n_samples, n_days fields; configures `data.graphs[0]` via Hydra override
 - [x] Advanced Overrides collapsible + command preview (`python main.py gen_data ...`)
-- [ ] TSPLIB source option (select `.vrp` file via Tauri dialog)
+- [x] TSPLIB source option: `dataSource` radio (synthetic / TSPLIB); `.vrp`/`.tsp` file picker via Tauri dialog; Hydra overrides `data.source=tsplib` + `data.tsplib_instance=<path>`; graph form hidden in TSPLIB mode
 - [ ] Sensor data source option
 - [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
@@ -1145,7 +1145,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Load the resolved Hydra config tree via `dump_hydra_config` Rust command (`main.py <task> --cfg job`); task selector + "Load via --cfg job" button in ConfigEditor toolbar
 - [ ] Form mode: type-appropriate widgets generated from OmegaConf schema
 - [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
-- [ ] "Apply to Launcher" button: populate the active launcher panel with the edited values
+- [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
 
 ---
 
@@ -1159,9 +1159,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`)
 - [x] Run metadata panel: auto-loads `pruned_config.yaml` (or `config.yaml`) when a run is selected; flat YAML parsed and filtered by `META_KEYS`; compact two-column card below the file tree
 - [x] "Open in Sim Summary" button: shown for `.jsonl` files; sets `pendingLogPath` in app store then navigates to `simulation_summary` mode; `SimulationSummary` consumes `pendingLogPath` on mount via `useEffect`
-- [ ] Directory tree view: browse `assets/output/` with structured display (run name → hydra/ → pruned_config.yaml, simulation logs)
+- [x] Directory tree view: auto-expand `hydra/` on run selection; `sortEntries()` prioritises config and log artefacts; highlight `pruned_config.yaml` and `.jsonl` in the file tree
 - [x] Simulation result summary: on `selectRun`, scans top-level entries for a `.jsonl` file ≤ 20 MB; reads it via `read_text_file`, parses each line as `DayLogEntry`, aggregates overflows / kg/km / profit per policy; displays a compact 3-column KPI table (policy / overflows / kg/km) below the config metadata card; overflows colour-coded (green = 0, amber = low, red > 20)
-- [ ] "Compare runs": multi-select two or more runs; open the analytics dashboard with both loaded for comparison
+- [x] "Compare runs": per-run checkbox multi-select (≥2); `findRunJsonl()` locates logs in top-level or `hydra/`; navigates to BenchmarkAnalysis with `pendingBenchmarkLogs`
 - [ ] Session profiles (§D.4 Option C): save named snapshots of launcher form state; load from the Output Browser sidebar
 
 ---

@@ -110,6 +110,11 @@ export interface SimPolicyEntry {
 
 // ── Eval analytics (§G.12) ─────────────────────────────────────────────────
 
+export interface BenchmarkLogRef {
+  path: string;
+  label: string;
+}
+
 export interface EvalAnalyticsRow {
   checkpoint: string;
   cost?: number;

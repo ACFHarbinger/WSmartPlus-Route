@@ -122,7 +122,10 @@ function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDis
 }
 
 export function BenchmarkAnalysis() {
-  const { pendingEvalResults, setPendingEvalResults } = useAppStore();
+  const {
+    pendingEvalResults, setPendingEvalResults,
+    pendingBenchmarkLogs, setPendingBenchmarkLogs,
+  } = useAppStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
 
@@ -133,6 +136,21 @@ export function BenchmarkAnalysis() {
       setPendingEvalResults(null);
     }
   }, [pendingEvalResults, setPendingEvalResults]);
+
+  // Consume pending benchmark logs from Output Browser compare action
+  useEffect(() => {
+    if (!pendingBenchmarkLogs || pendingBenchmarkLogs.length === 0) return;
+    const load = async () => {
+      const loaded: RunFile[] = [];
+      for (const ref of pendingBenchmarkLogs) {
+        const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
+        loaded.push({ path: ref.path, label: ref.label, entries });
+      }
+      setRuns(loaded);
+      setPendingBenchmarkLogs(null);
+    };
+    load().catch(console.error);
+  }, [pendingBenchmarkLogs, setPendingBenchmarkLogs]);
 
   const addRun = useCallback(async () => {
     const path = (await open({

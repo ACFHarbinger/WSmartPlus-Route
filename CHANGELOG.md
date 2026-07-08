@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fourteenth pass
+
+Fourteenth implementation pass: Output Browser compare-runs multi-select (§G.14);
+structured directory tree with hydra/ auto-expand (§G.14); Config Editor Apply to
+Launcher (§G.13); Data Generation TSPLIB source option (§G.11).
+
+**React frontend**
+- `pages/files/OutputBrowser.tsx` — compare runs (§G.14) + structured tree (§G.14):
+  - Per-run checkbox multi-select; "Compare N Runs →" button when ≥2 selected
+  - `findRunJsonl()` scans top-level and `hydra/` for `.jsonl` logs
+  - `setPendingBenchmarkLogs` + navigate to `benchmark` mode
+  - Auto-expand `hydra/` on run selection; `sortEntries()` prioritises config and log files
+  - Highlight `pruned_config.yaml` / `.jsonl` entries in the file tree
+- `pages/analysis/BenchmarkAnalysis.tsx` — consumes `pendingBenchmarkLogs` on mount; loads multiple simulation logs for side-by-side comparison
+- `pages/files/ConfigEditor.tsx` — Apply to Launcher (§G.13):
+  - Target selector (Simulation Launcher / Training Hub / Data Generation)
+  - `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches; navigates to target page
+- `utils/configToLauncher.ts` — key-mapping utility for sim/train/data-gen Hydra fields + unmapped keys → `extraOverrides`
+- `pages/launch/DataGeneration.tsx` — TSPLIB source option (§G.11):
+  - `dataSource` radio: synthetic vs TSPLIB; `.vrp`/`.tsp` file picker via Tauri dialog
+  - Hydra overrides `data.source=tsplib` + `data.tsplib_instance=<path>`; graph form hidden for TSPLIB mode
+- `store/launchers.ts` — `dataSource` + `tsplibPath` persisted in `useDataGenStore`
+- `store/app.ts` — `pendingBenchmarkLogs: BenchmarkLogRef[] | null` ephemeral handoff field
+
+**ROADMAP**
+- §G.14 compare runs and structured directory tree checked
+- §G.13 Apply to Launcher checked
+- §G.11 TSPLIB source option checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirteenth pass
 
 Thirteenth implementation pass: dynamic policy registry in SimulationLauncher (§G.9);
