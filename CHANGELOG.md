@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-fourth pass
+
+Twenty-fourth implementation pass: side-by-side route map compare (§G.16);
+Algorithm Comparison map link + PNG export; update check command; startup timing probe.
+
+**Rust backend**
+- `system::check_for_updates` — fetches optional `WSMART_UPDATE_URL` JSON manifest; compares `version` field to `CARGO_PKG_VERSION`
+- `reqwest` dependency (rustls) for async update manifest fetch
+
+**React frontend**
+- `SimulationMonitor` — overlay/split layout toggle on deck.gl tile map when exactly 2 policies visible; split renders dual labelled `DeckRouteMap` panels
+- `AlgorithmComparison` — "Compare on Map" navigates to Simulation Monitor; radar chart PNG export via `exportChartPng`
+- `hooks/useStartupTiming.ts` — module-load → first-mount timing probe surfaced in Settings About
+- `Settings` — startup timing display; "Check for Updates" button wired to `check_for_updates`
+
+**ROADMAP**
+- §G.16 side-by-side route compare checked (partial — ECharts Cartesian deferred)
+- §G.3.3 algorithm comparison side-by-side map checked (partial)
+- §G.7 startup timing probe + AlgorithmComparison PNG export checked (partial — <2s load target deferred)
+- §G.8 `check_for_updates` checked (partial — Tauri updater plugin deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-third pass
 
 Twenty-third implementation pass: multi-policy route map overlay (§G.16);

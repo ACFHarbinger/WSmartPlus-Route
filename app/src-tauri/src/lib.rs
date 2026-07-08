@@ -49,6 +49,7 @@ pub fn run() {
             system::probe_python,
             system::dump_hydra_config,
             system::get_app_version,
+            system::check_for_updates,
         ])
         .run(tauri::generate_context!())
         .expect("error while running WSmart-Route Studio");

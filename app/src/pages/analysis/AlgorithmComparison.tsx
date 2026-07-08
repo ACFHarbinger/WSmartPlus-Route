@@ -2,11 +2,14 @@
  * Algorithm Comparison — side-by-side policy metric comparison.
  * Ports Streamlit `algorithms` mode.
  */
+import { useCallback, useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
-import { useMemo } from "react";
+import { Download, Map } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
+import { exportChartPng } from "../../utils/chartExport";
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -22,8 +25,11 @@ const METRICS = [
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
 
 export function AlgorithmComparison() {
-  const { entries } = useSimStore();
+  const { entries, watchPath } = useSimStore();
+  const { setMode } = useAppStore();
   const { policy, sampleId } = useGlobalFiltersStore();
+  const radarRef = useRef<ReactECharts>(null);
+
   const filtered = useMemo(
     () => filterEntries(entries, policy, sampleId),
     [entries, policy, sampleId]
@@ -70,6 +76,10 @@ export function AlgorithmComparison() {
     };
   }, [filtered, policies]);
 
+  const openOnMap = useCallback(() => {
+    setMode("simulation");
+  }, [setMode]);
+
   if (entries.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-canvas-muted text-sm">
@@ -82,9 +92,30 @@ export function AlgorithmComparison() {
     <div className="space-y-4">
       <GlobalFilterBar />
 
+      <div className="flex items-center gap-3 flex-wrap">
+        {watchPath && (
+          <span className="text-xs text-canvas-muted font-mono truncate">
+            {watchPath.split("/").pop()}
+          </span>
+        )}
+        <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
+          <Map size={12} />
+          Compare on Map
+        </button>
+      </div>
+
       <div className="card">
-        <p className="text-xs text-canvas-muted mb-3">Radar — normalised average metrics per policy</p>
-        <ReactECharts option={radarOption} style={{ height: 340 }} />
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs text-canvas-muted">Radar — normalised average metrics per policy</p>
+          <button
+            onClick={() => exportChartPng(radarRef, "algorithm-radar.png")}
+            className="btn-ghost text-xs flex items-center gap-1"
+          >
+            <Download size={12} />
+            PNG
+          </button>
+        </div>
+        <ReactECharts ref={radarRef} option={radarOption} style={{ height: 340 }} />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

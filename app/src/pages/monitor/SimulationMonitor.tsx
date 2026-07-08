@@ -9,10 +9,11 @@
  * Architecture: Rust file-watcher emits sim:day_update events → React updates in <200 ms
  * (replaces Streamlit's time.sleep + st.rerun loop).
  *
- * §G.16 additions in this pass:
+ * §G.16 additions (recent passes):
  *   - Day scrubber with ◀/▶ step buttons, "Following" badge, "Latest" reset
  *   - Bin-fill strip chart (bin_state_c percentages, sorted descending, overflow highlight)
  *   - Tour sequence table (stop #, bin ID, fill %, collected, mandatory flags)
+ *   - deck.gl tile map: overlay vs side-by-side split when exactly 2 policies visible
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
@@ -21,6 +22,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { ChevronLeft, ChevronRight, Download, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
+import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
@@ -446,6 +448,7 @@ export function SimulationMonitor() {
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
+  const { pendingLogPath, setPendingLogPath } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const loadLogFile = useCallback(
@@ -467,6 +470,13 @@ export function SimulationMonitor() {
     await loadLogFile(path);
   }, [loadLogFile]);
 
+  useEffect(() => {
+    if (pendingLogPath) {
+      void loadLogFile(pendingLogPath, false);
+      setPendingLogPath(null);
+    }
+  }, [pendingLogPath, setPendingLogPath, loadLogFile]);
+
   const [showSecondary, setShowSecondary] = useState(false);
   const [showBinFill, setShowBinFill] = useState(true);
   const [showTourTable, setShowTourTable] = useState(false);
@@ -474,6 +484,7 @@ export function SimulationMonitor() {
   const [routeMapMode, setRouteMapMode] = useState<"echarts" | "deckgl">("echarts");
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
+  const [mapLayout, setMapLayout] = useState<"overlay" | "split">("overlay");
 
   const hasGeoCoords = useMemo(
     () => displayEntry?.data.all_bin_coords?.some((b) => b.lat != null && b.lng != null) ?? false,
@@ -817,6 +828,23 @@ export function SimulationMonitor() {
                 })}
               </div>
             )}
+            {showRouteMap && mapRoutes.length === 2 && routeMapMode === "deckgl" && (
+              <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
+                {(["overlay", "split"] as const).map((layout) => (
+                  <button
+                    key={layout}
+                    onClick={() => setMapLayout(layout)}
+                    className={`text-xs px-2 py-0.5 rounded-md capitalize ${
+                      mapLayout === layout
+                        ? "bg-accent-primary text-white"
+                        : "text-canvas-muted hover:text-gray-200"
+                    }`}
+                  >
+                    {layout}
+                  </button>
+                ))}
+              </div>
+            )}
             {showRouteMap && hasGeoCoords && (
               <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
                 {(["echarts", "deckgl"] as const).map((m) => (
@@ -839,11 +867,26 @@ export function SimulationMonitor() {
           {showRouteMap && mapRoutes.length > 0 ? (
             routeMapMode === "deckgl" && hasGeoCoords ? (
               <Suspense fallback={<p className="text-xs text-canvas-muted">Loading tile map…</p>}>
-                <DeckRouteMap
-                  routes={mapRoutes}
-                  animate={isPlaying}
-                  playbackSpeed={playbackSpeed}
-                />
+                {mapLayout === "split" && mapRoutes.length === 2 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {mapRoutes.map((route) => (
+                      <div key={route.id} className="space-y-1">
+                        <p className="text-xs font-mono text-canvas-muted px-1">{route.label}</p>
+                        <DeckRouteMap
+                          routes={[route]}
+                          animate={isPlaying}
+                          playbackSpeed={playbackSpeed}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <DeckRouteMap
+                    routes={mapRoutes}
+                    animate={isPlaying}
+                    playbackSpeed={playbackSpeed}
+                  />
+                )}
               </Suspense>
             ) : displayEntry ? (
               <RouteMapChart data={displayEntry.data} />
