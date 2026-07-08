@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { PALETTE_COMMANDS } from "../../constants/commands";
+import { useWsrouteImport } from "../../hooks/useWsrouteImport";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 
@@ -14,6 +15,7 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 export function CommandPalette() {
   const { setMode, theme, setTheme } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen } = useLayoutStore();
+  const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,11 +30,12 @@ export function CommandPalette() {
       if (cmd.mode) setMode(cmd.mode);
       else if (cmd.action === "toggle_theme") setTheme(theme === "dark" ? "light" : "dark");
       else if (cmd.action === "shortcuts_help") setShortcutsOpen(true);
+      else if (cmd.action === "import_wsroute") void importWsroute();
       setCommandPaletteOpen(false);
       setQuery("");
       setActiveIndex(0);
     },
-    [setMode, setTheme, theme, setShortcutsOpen, setCommandPaletteOpen]
+    [setMode, setTheme, theme, setShortcutsOpen, setCommandPaletteOpen, importWsroute]
   );
 
   useEffect(() => {

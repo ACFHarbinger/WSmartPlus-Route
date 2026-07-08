@@ -18,7 +18,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ChevronLeft, ChevronRight, Download, FolderOpen, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -460,6 +460,8 @@ export function SimulationMonitor() {
   const [showTourTable, setShowTourTable] = useState(false);
   const [showRouteMap, setShowRouteMap] = useState(true);
   const [routeMapMode, setRouteMapMode] = useState<"echarts" | "deckgl">("echarts");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
 
   const hasGeoCoords = useMemo(
     () => displayEntry?.data.all_bin_coords?.some((b) => b.lat != null && b.lng != null) ?? false,
@@ -488,6 +490,22 @@ export function SimulationMonitor() {
   );
 
   // Build per-policy series for MetricTimeseries
+  useEffect(() => {
+    if (!isPlaying || dayRange.max <= dayRange.min) return;
+
+    const intervalMs = 800 / playbackSpeed;
+    const timer = window.setInterval(() => {
+      const current = selectedDay ?? dayRange.max;
+      if (current >= dayRange.max) {
+        setSelectedDay(dayRange.min);
+      } else {
+        setSelectedDay(current + 1);
+      }
+    }, intervalMs);
+
+    return () => window.clearInterval(timer);
+  }, [isPlaying, playbackSpeed, dayRange.min, dayRange.max, selectedDay, setSelectedDay]);
+
   const policySeries = useMemo(
     () =>
       activeChartPolicies.map((p, i) => ({
@@ -575,9 +593,36 @@ export function SimulationMonitor() {
             <span className="text-xs font-mono text-canvas-muted w-14 text-center">
               {displayDay}/{dayRange.max}
             </span>
+            <button
+              onClick={() => {
+                if (isPlaying) {
+                  setIsPlaying(false);
+                } else {
+                  if (selectedDay === null) setSelectedDay(dayRange.min);
+                  setIsPlaying(true);
+                }
+              }}
+              className="btn-ghost p-1"
+              title={isPlaying ? "Pause day playback" : "Play through simulation days"}
+            >
+              {isPlaying ? <Pause size={12} /> : <Play size={12} />}
+            </button>
+            <select
+              className="select-base text-[10px] py-0.5 w-14"
+              value={playbackSpeed}
+              onChange={(e) => setPlaybackSpeed(Number(e.target.value) as 1 | 2 | 4)}
+              title="Playback speed"
+            >
+              <option value={1}>1×</option>
+              <option value={2}>2×</option>
+              <option value={4}>4×</option>
+            </select>
             {selectedDay !== null ? (
               <button
-                onClick={() => setSelectedDay(null)}
+                onClick={() => {
+                  setIsPlaying(false);
+                  setSelectedDay(null);
+                }}
                 className="btn-ghost text-xs text-accent-primary"
                 title="Jump to latest day and follow live updates"
               >
