@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AppMode, BenchmarkLogRef, EvalAnalyticsRow } from "../types";
+import type { AppMode, BenchmarkLogRef, EvalAnalyticsRow, PendingMapCompare } from "../types";
 
 interface AppState {
   mode: AppMode;
@@ -15,6 +15,7 @@ interface AppState {
   pendingEvalResults: EvalAnalyticsRow[] | null;
   pendingBenchmarkLogs: BenchmarkLogRef[] | null;
   pendingRunPath: string | null;
+  pendingMapCompare: PendingMapCompare | null;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: "dark" | "light") => void;
   setProjectRoot: (root: string) => void;
@@ -24,6 +25,7 @@ interface AppState {
   setPendingEvalResults: (rows: EvalAnalyticsRow[] | null) => void;
   setPendingBenchmarkLogs: (logs: BenchmarkLogRef[] | null) => void;
   setPendingRunPath: (path: string | null) => void;
+  setPendingMapCompare: (compare: PendingMapCompare | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -38,6 +40,7 @@ export const useAppStore = create<AppState>()(
       pendingEvalResults: null,
       pendingBenchmarkLogs: null,
       pendingRunPath: null,
+      pendingMapCompare: null,
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
         if (theme === "dark") {
@@ -56,6 +59,7 @@ export const useAppStore = create<AppState>()(
       setPendingBenchmarkLogs: (pendingBenchmarkLogs: BenchmarkLogRef[] | null) =>
         set({ pendingBenchmarkLogs }),
       setPendingRunPath: (pendingRunPath) => set({ pendingRunPath }),
+      setPendingMapCompare: (pendingMapCompare) => set({ pendingMapCompare }),
     }),
     {
       name: "wsmart-studio-app",

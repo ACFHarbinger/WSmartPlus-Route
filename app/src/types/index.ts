@@ -219,6 +219,13 @@ export interface WsrouteExtractResult {
 
 // ── App navigation ───────────────────────────────────────────────────────────
 
+/** Ephemeral map compare intent from Algorithm Comparison → Simulation Monitor. */
+export interface PendingMapCompare {
+  policies: string[];
+  layout: "overlay" | "split";
+  mapMode?: "echarts" | "deckgl";
+}
+
 export type AppMode =
   // Monitor modes (Streamlit parity)
   | "simulation"        // Simulation Digital Twin  — logic/src/ui/pages/simulation/

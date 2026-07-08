@@ -26,7 +26,7 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
-  const { setMode } = useAppStore();
+  const { setMode, setPendingMapCompare } = useAppStore();
   const { policy, sampleId } = useGlobalFiltersStore();
   const radarRef = useRef<ReactECharts>(null);
 
@@ -77,8 +77,13 @@ export function AlgorithmComparison() {
   }, [filtered, policies]);
 
   const openOnMap = useCallback(() => {
+    setPendingMapCompare({
+      policies,
+      layout: policies.length === 2 ? "split" : "overlay",
+      mapMode: "deckgl",
+    });
     setMode("simulation");
-  }, [setMode]);
+  }, [policies, setMode, setPendingMapCompare]);
 
   if (entries.length === 0) {
     return (

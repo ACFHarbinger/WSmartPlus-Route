@@ -967,7 +967,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Multi-vehicle rendering with distinct color coding per vehicle
 
 #### 3.3 Algorithm Comparison Mode
-- [x] Side-by-side view: overlay/split toggle in SimulationMonitor when 2 policies visible on deck.gl tile map; split renders two `DeckRouteMap` panels (§G.16 partial — ECharts Cartesian deferred)
+- [x] Side-by-side view: overlay/split toggle in SimulationMonitor when 2 policies visible; split renders dual `DeckRouteMap` or dual ECharts `RouteMapChart` panels (§G.16)
+- [x] Algorithm Comparison → map deep link: `pendingMapCompare` sets visible policies + split layout when 2 policies present
 - [x] Toggle visibility per policy: map policy chip row in SimulationMonitor; `DeckRouteMap` multi-route overlay with per-policy colour paths
 - [x] Overlay skipped vs visited nodes: idle bins dimmed grey, tour stops fill-coded (bright) in `DeckRouteMap`
 
@@ -1070,6 +1071,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
+- [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` Rust unit test — create bundle → extract → verify `.jsonl` log content (full simulation row parity deferred)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
@@ -1217,7 +1219,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [x] **Route map preview** (ECharts scatter + path): Cartesian tour viz using `all_bin_coords` + `tour_indices`; fill-level colour coding; depot/tour/idle bin layers; PNG export
 - [x] **Route map** (deck.gl `PathLayer`): `DeckRouteMap` renders tour path over MapLibre dark basemap; fill-level colour-coded `ScatterplotLayer` stops; idle bins as grey scatter; ECharts/deck.gl toggle in SimulationMonitor; lazy-loaded chunk (§G.16)
-- [x] **Side-by-side route compare**: overlay/split layout toggle when exactly 2 policies visible on deck.gl tile map; split renders labelled dual `DeckRouteMap` panels (§G.16 partial — ECharts Cartesian deferred)
+- [x] **Side-by-side route compare**: overlay/split layout toggle when exactly 2 policies visible; split renders labelled dual `DeckRouteMap` or dual ECharts panels (§G.16)
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
 
@@ -1275,6 +1277,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Save blocked if either validation fails; toast shown with "Fix validation errors before saving"
 - [x] Import/export settings JSON: "Export Settings" serialises `{projectRoot, pythonPath, theme}` to a user-chosen JSON file via `write_text_file`; "Import Settings" reads a JSON file and populates drafts for review before saving
 - [x] First-run onboarding wizard: `OnboardingDialog` modal when `projectRoot` is empty; inline directory picker + validation; dismissible via `useLayoutStore.onboardingDismissed` persistence
+- [x] Guided tour: `GuidedTour` 5-step overlay (sidebar, command palette, simulation twin, output browser, launch/monitor); TopBar compass button, command palette action, Settings "Take Guided Tour"; dismissal persisted via `guidedTourDismissed` (partial — spotlight/highlight deferred)
 
 ---
 

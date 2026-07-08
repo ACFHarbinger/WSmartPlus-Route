@@ -1,6 +1,6 @@
 import type { AppMode } from "../types";
 
-export type PaletteAction = "toggle_theme" | "shortcuts_help" | "import_wsroute";
+export type PaletteAction = "toggle_theme" | "shortcuts_help" | "import_wsroute" | "guided_tour";
 
 export interface PaletteCommand {
   id: string;
@@ -32,4 +32,5 @@ export const PALETTE_COMMANDS: PaletteCommand[] = [
   { id: "toggle_theme", label: "Toggle Dark / Light Theme", section: "Actions", action: "toggle_theme", keywords: "appearance" },
   { id: "shortcuts_help", label: "Keyboard Shortcuts Help", section: "Actions", action: "shortcuts_help", keywords: "hotkeys" },
   { id: "import_wsroute", label: "Import .wsroute Bundle", section: "Actions", action: "import_wsroute", keywords: "extract package zip" },
+  { id: "guided_tour", label: "Guided Tour", section: "Actions", action: "guided_tour", keywords: "onboarding help walkthrough" },
 ];
