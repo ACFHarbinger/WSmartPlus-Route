@@ -25,6 +25,7 @@ import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
+import { hexToRgb } from "../../utils/colors";
 import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
@@ -500,6 +501,46 @@ export function SimulationMonitor() {
     [policies]
   );
 
+  const [mapPolicies, setMapPolicies] = useState<string[]>([]);
+  const activeMapPolicies = useMemo(
+    () => (mapPolicies.length > 0 ? mapPolicies : policies),
+    [mapPolicies, policies]
+  );
+
+  const toggleMapPolicy = useCallback(
+    (p: string) => {
+      setMapPolicies((prev) => {
+        const active = prev.length > 0 ? prev : policies;
+        if (active.includes(p)) {
+          const next = active.filter((x) => x !== p);
+          return next.length === 0 ? policies : next;
+        }
+        return [...active, p];
+      });
+    },
+    [policies]
+  );
+
+  const mapRoutes = useMemo(() => {
+    const dayEntries = entries.filter(
+      (e) =>
+        e.day === displayDay &&
+        (selectedSample === null || e.sample_id === selectedSample) &&
+        activeMapPolicies.includes(e.policy)
+    );
+    return dayEntries
+      .filter((e) => e.data.all_bin_coords?.length)
+      .map((e) => {
+        const idx = policies.indexOf(e.policy);
+        return {
+          id: `${e.policy}-${e.sample_id}`,
+          label: e.policy,
+          data: e.data,
+          color: hexToRgb(POLICY_COLORS[idx % POLICY_COLORS.length]),
+        };
+      });
+  }, [entries, displayDay, selectedSample, activeMapPolicies, policies]);
+
   // Build per-policy series for MetricTimeseries
   useEffect(() => {
     if (!isPlaying || dayRange.max <= dayRange.min) return;
@@ -755,6 +796,27 @@ export function SimulationMonitor() {
             >
               {showRouteMap ? "Hide" : "Show"} route map
             </button>
+            {showRouteMap && policies.length > 1 && (
+              <div className="flex items-center gap-1 flex-wrap ml-1">
+                <span className="text-[10px] text-canvas-muted">Map:</span>
+                {policies.map((p, i) => {
+                  const color = POLICY_COLORS[i % POLICY_COLORS.length];
+                  const active = activeMapPolicies.includes(p);
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => toggleMapPolicy(p)}
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full border ${
+                        active ? "opacity-100" : "opacity-35"
+                      }`}
+                      style={{ borderColor: color, color: active ? color : undefined }}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             {showRouteMap && hasGeoCoords && (
               <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
                 {(["echarts", "deckgl"] as const).map((m) => (
@@ -774,18 +836,18 @@ export function SimulationMonitor() {
             )}
           </div>
 
-          {showRouteMap && displayEntry.data.all_bin_coords?.length ? (
+          {showRouteMap && mapRoutes.length > 0 ? (
             routeMapMode === "deckgl" && hasGeoCoords ? (
               <Suspense fallback={<p className="text-xs text-canvas-muted">Loading tile map…</p>}>
                 <DeckRouteMap
-                  data={displayEntry.data}
+                  routes={mapRoutes}
                   animate={isPlaying}
                   playbackSpeed={playbackSpeed}
                 />
               </Suspense>
-            ) : (
+            ) : displayEntry ? (
               <RouteMapChart data={displayEntry.data} />
-            )
+            ) : null
           ) : null}
           {showBinFill && <BinFillStrip data={displayEntry.data} />}
           {showTourTable && (

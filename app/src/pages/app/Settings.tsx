@@ -13,14 +13,14 @@
  *   - Project Root: Rust `validate_project_root` checks that main.py exists
  *   - Python Path:  Rust `probe_python` runs `<path> --version` and returns version string
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 
-const VERSION = "0.1.0";
+
 
 type ValidationState = "idle" | "checking" | "ok" | "error";
 
@@ -63,6 +63,13 @@ export function Settings() {
 
   const [rootValidation, setRootValidation] = useState<FieldValidation>(IDLE);
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
+  const [appVersion, setAppVersion] = useState("…");
+
+  useEffect(() => {
+    invoke<string>("get_app_version")
+      .then(setAppVersion)
+      .catch(() => setAppVersion("0.1.0"));
+  }, []);
 
   const isDirty =
     draftRoot.trim() !== projectRoot ||
@@ -300,8 +307,9 @@ export function Settings() {
       {/* About */}
       <div className="card space-y-2 text-xs text-canvas-muted">
         <p className="font-semibold text-gray-300 text-sm">About WSmart-Route Studio</p>
-        <p>Version: <span className="font-mono">{VERSION}</span></p>
+        <p>Version: <span className="font-mono">{appVersion}</span></p>
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
+        <p>Updates: auto-update requires a signed release endpoint (§G.8 — not yet configured)</p>
         <p>ROADMAP: <code className="font-mono">docs/moon/ROADMAP.md §G</code></p>
       </div>
     </div>

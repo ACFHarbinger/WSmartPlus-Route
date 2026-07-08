@@ -3,6 +3,12 @@ use std::process::Command;
 
 use super::process::resolve_python;
 
+/// Return the Studio app version from Cargo.toml (§G.8 / §G.19).
+#[tauri::command]
+pub fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 /// Check that `path` is a directory containing `main.py`.
 /// Returns an Ok confirmation or a descriptive error.
 #[tauri::command]
