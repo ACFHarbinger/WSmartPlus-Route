@@ -68,9 +68,7 @@ pub async fn spawn_python_process(
     python_executable: Option<String>,
     app: AppHandle,
 ) -> Result<u32, String> {
-    let python = python_executable
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| which_python(&working_dir));
+    let python = resolve_python(&working_dir, python_executable);
     let mut cmd = Command::new(&python);
     cmd.args(&python_args)
         .current_dir(&working_dir)
@@ -189,9 +187,17 @@ pub fn list_processes() -> Vec<String> {
 /// Resolve the Python executable to use for spawning subprocesses.
 ///
 /// Priority order:
-///   1. `<working_dir>/.venv/bin/python`  — uv-managed venv (Linux/macOS)
-///   2. `<working_dir>/.venv/Scripts/python.exe` — uv-managed venv (Windows)
-///   3. `python3` / `python` on PATH — system fallback
+///   1. Explicit `python_executable` override (non-empty)
+///   2. `<working_dir>/.venv/bin/python`  — uv-managed venv (Linux/macOS)
+///   3. `<working_dir>/.venv/Scripts/python.exe` — uv-managed venv (Windows)
+///   4. `python3` / `python` on PATH — system fallback
+pub fn resolve_python(working_dir: &str, python_executable: Option<String>) -> String {
+    python_executable
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| which_python(working_dir))
+}
+
+/// Resolve the Python executable to use for spawning subprocesses.
 fn which_python(working_dir: &str) -> String {
     let candidates = [
         format!("{working_dir}/.venv/bin/python"),

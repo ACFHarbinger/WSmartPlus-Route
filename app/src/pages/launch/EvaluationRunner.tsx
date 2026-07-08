@@ -10,7 +10,7 @@
  *   eval.val_size, eval.decoding.strategy
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -38,7 +38,13 @@ interface EvalResult {
   [key: string]: number | string | undefined;
 }
 
-function ResultsGrid({ results }: { results: EvalResult[] }) {
+function ResultsGrid({
+  results,
+  onOpenAnalytics,
+}: {
+  results: EvalResult[];
+  onOpenAnalytics: () => void;
+}) {
   const allKeys = Array.from(
     new Set(results.flatMap((r) => Object.keys(r).filter((k) => k !== "checkpointName")))
   );
@@ -65,10 +71,16 @@ function ResultsGrid({ results }: { results: EvalResult[] }) {
     <div className="card space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-200">Results ({results.length})</h2>
-        <button onClick={exportCsv} className="btn-ghost text-xs flex items-center gap-1">
-          <Download size={12} />
-          Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={onOpenAnalytics} className="btn-ghost text-xs flex items-center gap-1">
+            <BarChart3 size={12} />
+            Open in Analytics →
+          </button>
+          <button onClick={exportCsv} className="btn-ghost text-xs flex items-center gap-1">
+            <Download size={12} />
+            Export CSV
+          </button>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
@@ -143,7 +155,8 @@ function CheckpointRow({
 }
 
 export function EvaluationRunner() {
-  const { projectRoot, pendingCheckpoint, setPendingCheckpoint } = useAppStore();
+  const { projectRoot, pendingCheckpoint, setPendingCheckpoint, setMode, setPendingEvalResults } =
+    useAppStore();
   const { spawn, launching } = useSpawnProcess();
 
   // Checkpoint list — pre-populated from Training Monitor "Load in Eval Runner" action
@@ -271,6 +284,18 @@ export function EvaluationRunner() {
     validCheckpoints.length > 1
       ? `# ${validCheckpoints.length} checkpoints — one process per checkpoint\npython main.py eval \\\n  ${previewArgs.join(" \\\n  ")}`
       : `python main.py eval \\\n  ${previewArgs.join(" \\\n  ")}`;
+
+  const openInAnalytics = useCallback(() => {
+    const rows = results.map((r) => ({
+      checkpoint: r.checkpointName,
+      cost: r.cost,
+      gap: r.gap,
+      time: r.time,
+      policy: r.policy,
+    }));
+    setPendingEvalResults(rows);
+    setMode("benchmark");
+  }, [results, setPendingEvalResults, setMode]);
 
   const launch = useCallback(async () => {
     if (!projectRoot || validCheckpoints.length === 0) return;
@@ -444,7 +469,7 @@ export function EvaluationRunner() {
 
       {/* Results grid */}
       {results.length > 0 && (
-        <ResultsGrid results={results} />
+        <ResultsGrid results={results} onOpenAnalytics={openInAnalytics} />
       )}
 
       {/* Launch */}

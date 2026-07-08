@@ -1,13 +1,17 @@
 /**
  * Benchmark Analysis — multi-run, multi-policy comparison.
  * Ports Streamlit `benchmark` mode.
+ *
+ * Also consumes `pendingEvalResults` from EvaluationRunner (§G.12) to display
+ * checkpoint comparison charts without requiring simulation log files.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, X } from "lucide-react";
-import type { DayLogEntry } from "../../types";
+import { useAppStore } from "../../store/app";
+import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
 
 interface RunFile {
   path: string;
@@ -19,17 +23,116 @@ function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
 
-const METRICS = [
+const SIM_METRICS = [
   { key: "profit", label: "Profit (€)", lowerIsBetter: false },
   { key: "km", label: "Distance (km)", lowerIsBetter: true },
   { key: "overflows", label: "Overflows", lowerIsBetter: true },
   { key: "cost", label: "Cost (€)", lowerIsBetter: true },
 ];
 
+const EVAL_METRICS = [
+  { key: "cost", label: "Tour Cost", lowerIsBetter: true },
+  { key: "gap", label: "Optimality Gap (%)", lowerIsBetter: true },
+  { key: "time", label: "Time (s)", lowerIsBetter: true },
+];
+
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
 
+function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDismiss: () => void }) {
+  const checkpoints = rows.map((r) => r.checkpoint);
+
+  const makeBarOption = (metricKey: string, metricLabel: string) => ({
+    backgroundColor: "transparent",
+    grid: { left: 50, right: 10, top: 20, bottom: 55 },
+    xAxis: {
+      type: "category",
+      data: checkpoints,
+      axisLabel: { color: "#9090b0", fontSize: 9, rotate: 25 },
+    },
+    yAxis: {
+      type: "value",
+      name: metricLabel,
+      nameTextStyle: { color: "#9090b0" },
+      axisLabel: { color: "#9090b0", fontSize: 10 },
+    },
+    series: [
+      {
+        type: "bar",
+        data: rows.map((r) => (r[metricKey] as number | undefined) ?? 0),
+        itemStyle: {
+          color: (params: { dataIndex: number }) => COLORS[params.dataIndex % COLORS.length],
+        },
+      },
+    ],
+    tooltip: { trigger: "axis" },
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="card flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-gray-200">Eval Results — Checkpoint Comparison</p>
+          <p className="text-xs text-canvas-muted mt-0.5">
+            {rows.length} checkpoint(s) loaded from Evaluation Runner
+          </p>
+        </div>
+        <button onClick={onDismiss} className="btn-ghost text-xs flex items-center gap-1">
+          <X size={12} />
+          Dismiss
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        {EVAL_METRICS.map(({ key, label }) => (
+          <div key={key} className="card">
+            <p className="text-xs text-canvas-muted mb-2">{label}</p>
+            <ReactECharts option={makeBarOption(key, label)} style={{ height: 220 }} />
+          </div>
+        ))}
+      </div>
+
+      <div className="card overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-canvas-border">
+              <th className="text-left py-2 px-3 text-canvas-muted font-medium">Checkpoint</th>
+              {EVAL_METRICS.map(({ key, label }) => (
+                <th key={key} className="text-right py-2 px-3 text-canvas-muted font-medium">
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-canvas-border/30">
+            {rows.map((r) => (
+              <tr key={r.checkpoint} className="hover:bg-canvas-hover/40">
+                <td className="py-1.5 px-3 font-mono text-gray-300">{r.checkpoint}</td>
+                {EVAL_METRICS.map(({ key }) => (
+                  <td key={key} className="py-1.5 px-3 text-right font-mono text-gray-400">
+                    {typeof r[key] === "number" ? (r[key] as number).toFixed(4) : "—"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export function BenchmarkAnalysis() {
+  const { pendingEvalResults, setPendingEvalResults } = useAppStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
+  const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
+
+  // Consume pending eval results on mount
+  useEffect(() => {
+    if (pendingEvalResults && pendingEvalResults.length > 0) {
+      setEvalRows(pendingEvalResults);
+      setPendingEvalResults(null);
+    }
+  }, [pendingEvalResults, setPendingEvalResults]);
 
   const addRun = useCallback(async () => {
     const path = (await open({
@@ -69,7 +172,12 @@ export function BenchmarkAnalysis() {
         data: runLabels,
         axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
       },
-      yAxis: { type: "value", name: metricLabel, nameTextStyle: { color: "#9090b0" }, axisLabel: { color: "#9090b0", fontSize: 10 } },
+      yAxis: {
+        type: "value",
+        name: metricLabel,
+        nameTextStyle: { color: "#9090b0" },
+        axisLabel: { color: "#9090b0", fontSize: 10 },
+      },
       series,
       tooltip: { trigger: "axis" },
     };
@@ -77,12 +185,16 @@ export function BenchmarkAnalysis() {
 
   return (
     <div className="space-y-4">
+      {evalRows && evalRows.length > 0 && (
+        <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />
+      )}
+
       <div className="flex items-center gap-3">
         <button onClick={addRun} className="btn-primary flex items-center gap-2">
           <FolderOpen size={14} />
-          Add Run
+          Add Simulation Run
         </button>
-        <span className="text-xs text-canvas-muted">{runs.length} run(s) loaded</span>
+        <span className="text-xs text-canvas-muted">{runs.length} simulation run(s) loaded</span>
       </div>
 
       {runs.length > 0 && (
@@ -107,15 +219,15 @@ export function BenchmarkAnalysis() {
         </div>
       )}
 
-      {runs.length === 0 && (
+      {runs.length === 0 && !evalRows && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
-          Add two or more run logs to compare them.
+          Add simulation run logs to compare, or use &quot;Open in Analytics →&quot; from the Evaluation Runner.
         </div>
       )}
 
       {runs.length >= 1 && (
         <div className="grid grid-cols-2 gap-4">
-          {METRICS.map(({ key, label }) => (
+          {SIM_METRICS.map(({ key, label }) => (
             <div key={key} className="card">
               <p className="text-xs text-canvas-muted mb-2">{label}</p>
               <ReactECharts option={makeBarOption(key, label)} style={{ height: 220 }} />

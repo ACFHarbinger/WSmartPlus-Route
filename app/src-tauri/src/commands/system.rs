@@ -1,5 +1,7 @@
-/// System inspection commands: validate paths, probe Python version.
+/// System inspection commands: validate paths, probe Python version, Hydra config dump.
 use std::process::Command;
+
+use super::process::resolve_python;
 
 /// Check that `path` is a directory containing `main.py`.
 /// Returns an Ok confirmation or a descriptive error.
@@ -36,4 +38,33 @@ pub fn probe_python(python_path: String) -> Result<String, String> {
         return Err(format!("'{python_path} --version' produced no output"));
     }
     Ok(version)
+}
+
+/// Run `python main.py <task> --cfg job` and return the resolved Hydra config as YAML.
+#[tauri::command]
+pub fn dump_hydra_config(
+    task: String,
+    project_root: String,
+    python_executable: Option<String>,
+) -> Result<String, String> {
+    let python = resolve_python(&project_root, python_executable);
+    let output = Command::new(&python)
+        .args(["main.py", &task, "--cfg", "job"])
+        .current_dir(&project_root)
+        .output()
+        .map_err(|e| format!("Failed to run Hydra config dump: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    if !output.status.success() {
+        let msg = if !stderr.is_empty() { stderr } else { stdout };
+        return Err(format!("Hydra --cfg job failed: {msg}"));
+    }
+
+    if stdout.trim().is_empty() {
+        return Err("Hydra --cfg job produced no output".to_string());
+    }
+
+    Ok(stdout)
 }
