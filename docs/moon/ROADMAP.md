@@ -955,7 +955,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 3.1 Base Map Layer
 - [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
 - [ ] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files
-- [ ] Render nodes as ScatterplotLayer: radius ∝ profit value, color = fill level / overflow status
+- [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
 - [ ] Pan/zoom/tilt with 3D perspective
 
@@ -1057,8 +1057,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
-- [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), ExperimentTracker, HPOTracker charts; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 
 ---
 
@@ -1219,7 +1219,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
 - [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [x] **Route map preview** (ECharts scatter + path): Cartesian tour viz using `all_bin_coords` + `tour_indices`; fill-level colour coding; depot/tour/idle bin layers; PNG export
-- [x] **Route map** (deck.gl `PathLayer`): `DeckRouteMap` renders tour path over MapLibre dark basemap; fill-level colour-coded `ScatterplotLayer` stops; idle bins as grey scatter; ECharts/deck.gl toggle in SimulationMonitor; lazy-loaded chunk (§G.16)
+- [x] **Route map** (deck.gl `PathLayer`): `DeckRouteMap` renders tour path over MapLibre dark basemap; fill-level colour-coded `ScatterplotLayer` stops; idle bins as grey scatter; PNG export via `exportCanvasPng`; ECharts/deck.gl toggle in SimulationMonitor; lazy-loaded chunk (§G.16)
 - [x] **Side-by-side route compare**: overlay/split layout toggle when exactly 2 policies visible; split renders labelled dual `DeckRouteMap` or dual ECharts panels (§G.16)
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed

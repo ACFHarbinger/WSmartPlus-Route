@@ -161,6 +161,7 @@ export default function App() {
       import("./pages/analysis/SimulationSummary"),
       import("./pages/monitor/ProcessMonitor"),
       import("./pages/files/OutputBrowser"),
+      import("echarts-for-react"),
     ]).then(() => markStartup("prefetchDone"));
     prefetchPage("simulation");
     prefetchPage("simulation_summary");

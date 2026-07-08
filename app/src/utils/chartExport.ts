@@ -40,3 +40,16 @@ export function exportChartSvg(
   URL.revokeObjectURL(url);
   return true;
 }
+
+/** Export a WebGL/canvas element as PNG (deck.gl tile maps). */
+export function exportCanvasPng(
+  canvas: HTMLCanvasElement | null | undefined,
+  filename = "map.png"
+): boolean {
+  if (!canvas) return false;
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = filename;
+  link.click();
+  return true;
+}
