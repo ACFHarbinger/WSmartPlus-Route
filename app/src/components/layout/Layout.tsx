@@ -1,6 +1,7 @@
 import { useLayoutStore } from "../../store/layout";
 import { CommandPalette } from "./CommandPalette";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
+import { OnboardingDialog } from "./OnboardingDialog";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { WorkflowNav } from "./WorkflowNav";
@@ -34,6 +35,7 @@ export function Layout({ children }: Props) {
           <div className="max-w-[1920px] mx-auto w-full min-w-0">{children}</div>
         </main>
       </div>
+      <OnboardingDialog />
       <CommandPalette />
       <KeyboardShortcutsHelp />
     </div>

@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-first pass
+
+Twenty-first implementation pass: first-run onboarding wizard (§G.19);
+simulation day playback controls (§G.16); Tauri bundler configuration (§G.8);
+sidebar page prefetch and `.wsroute` import via command palette (§G.7).
+
+**React frontend**
+- `components/layout/OnboardingDialog.tsx` — welcome modal when `projectRoot` is unset; directory picker + `validate_project_root`; dismissible with persistence
+- `pages/monitor/SimulationMonitor.tsx` — play/pause day playback with 1×/2×/4× speed multiplier on the day scrubber
+- `utils/pagePrefetch.ts` — warms lazy route chunks on sidebar `mouseEnter`
+- `hooks/useWsrouteImport.ts` — pick bundle → extract → navigate to Simulation Summary
+- `constants/commands.ts` — "Import .wsroute Bundle" command palette action
+- `package.json` — `tauri:dev`, `tauri:build`, `tauri:build:linux` scripts
+
+**Tauri bundler**
+- `tauri.conf.json` — explicit `deb`/`appimage`/`msi`/`dmg` targets; short/long description; Linux deb section; Windows NSIS install mode
+
+**ROADMAP**
+- §G.19 first-run onboarding wizard checked (partial — guided tour deferred)
+- §G.16 day playback controls checked (partial — TripsLayer animation deferred)
+- §G.8 Tauri bundler config + build scripts checked (partial — signing/auto-update deferred)
+- §G.7 sidebar prefetch + palette bundle import checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twentieth pass
 
 Twentieth implementation pass: command palette (§G.7); Parquet table export;

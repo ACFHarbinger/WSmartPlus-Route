@@ -962,8 +962,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 3.2 Route Animation (TripsLayer)
 - [ ] Parse per-day route files from simulation output into timestamped coordinate arrays
 - [ ] Feed routes into deck.gl TripsLayer with vehicle-color-coded trails
-- [ ] Timeline slider: step through 30-day simulation day by day
-- [ ] Playback controls: play / pause / speed multiplier
+- [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
+- [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber (§G.16 partial — TripsLayer animation deferred)
 - [ ] Multi-vehicle rendering with distinct color coding per vehicle
 
 #### 3.3 Algorithm Comparison Mode
@@ -1049,6 +1049,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7 performance partial)
 - [x] Command palette: `CommandPalette` fuzzy-search overlay for all views + actions; `Ctrl+K` / TopBar search button; arrow keys + Enter navigation
 - [x] Vite `manualChunks`: echarts, maplibre, deck.gl, monaco split into separate vendor bundles (§G.7 performance partial)
+- [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
+- [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
@@ -1066,7 +1068,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` Rust unit test — create bundle → extract → verify `.jsonl` log content (full simulation row parity deferred)
-- [ ] Tauri bundler: produce signed `.deb`/`.AppImage` (Linux), `.dmg` (macOS), `.msi` (Windows) distributables
+- [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
 - [ ] Auto-update via Tauri updater plugin
 
 ---
@@ -1266,6 +1268,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] `system::probe_python` Rust command: runs `<path> --version` synchronously, handles Python 2 (stderr) and Python 3 (stdout); shows resolved version string inline; called on blur + before save
 - [x] Save blocked if either validation fails; toast shown with "Fix validation errors before saving"
 - [x] Import/export settings JSON: "Export Settings" serialises `{projectRoot, pythonPath, theme}` to a user-chosen JSON file via `write_text_file`; "Import Settings" reads a JSON file and populates drafts for review before saving
+- [x] First-run onboarding wizard: `OnboardingDialog` modal when `projectRoot` is empty; inline directory picker + validation; dismissible via `useLayoutStore.onboardingDismissed` persistence
 
 ---
 

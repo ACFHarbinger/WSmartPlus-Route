@@ -20,6 +20,7 @@ import {
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 import type { AppMode, NavSection } from "../../types";
+import { prefetchPage } from "../../utils/pagePrefetch";
 
 const NAV: NavSection[] = [
   {
@@ -122,6 +123,7 @@ export function Sidebar() {
                 return (
                   <li key={item.mode}>
                     <button
+                      onMouseEnter={() => prefetchPage(item.mode)}
                       onClick={() => {
                         setMode(item.mode);
                         if (window.innerWidth < 1024) setSidebarOpen(false);
