@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{data, hpo, policies, process, sim_watcher, system};
+use commands::{data, hpo, mlflow, policies, process, sim_watcher, system};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -32,6 +32,10 @@ pub fn run() {
             // Optuna HPO
             hpo::list_optuna_studies,
             hpo::load_optuna_study,
+            // MLflow experiment tracking
+            mlflow::list_mlflow_runs,
+            mlflow::list_mlflow_metric_keys,
+            mlflow::load_mlflow_metric_history,
             // System inspection
             system::validate_project_root,
             system::probe_python,

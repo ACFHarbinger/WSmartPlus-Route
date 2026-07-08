@@ -14,6 +14,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle,
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
+import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSimLauncherStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { DayLogEntry, SimPolicyEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
@@ -256,6 +257,10 @@ export function SimulationLauncher() {
     });
   }, [projectRoot, selectedPolicies, hydraArgs, area, spawn]);
 
+  const simNonce = useLaunchTriggerStore((s) => s.simNonce);
+  useEffect(() => {
+    if (simNonce > 0) launch();
+  }, [simNonce, launch]);
 
   const isDone = simStatus === "completed" || simStatus === "failed" || simStatus === "cancelled";
   const liveEntries = Object.values(latestByPolicy);

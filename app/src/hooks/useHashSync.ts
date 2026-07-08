@@ -1,0 +1,74 @@
+import { useEffect, useRef } from "react";
+import { useAppStore } from "../store/app";
+import { useGlobalFiltersStore } from "../store/filters";
+import type { AppMode } from "../types";
+
+const VALID_MODES = new Set<string>([
+  "simulation", "training", "simulation_summary", "benchmark", "data_explorer",
+  "experiment_tracker", "algorithms", "hpo_tracker", "process_monitor",
+  "sim_launcher", "training_hub", "data_gen", "config_editor", "output_browser",
+  "eval_runner", "settings",
+]);
+
+function encodeHash(mode: AppMode, policy: string | null, sampleId: number | null): string {
+  const params = new URLSearchParams();
+  params.set("m", mode);
+  if (policy) params.set("p", policy);
+  if (sampleId != null) params.set("s", String(sampleId));
+  return `#${params.toString()}`;
+}
+
+function parseHash(hash: string): { mode?: AppMode; policy?: string; sampleId?: number } {
+  const raw = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (!raw) return {};
+  const params = new URLSearchParams(raw);
+  const result: { mode?: AppMode; policy?: string; sampleId?: number } = {};
+  const m = params.get("m");
+  if (m && VALID_MODES.has(m)) result.mode = m as AppMode;
+  const p = params.get("p");
+  if (p) result.policy = p;
+  const s = params.get("s");
+  if (s != null && s !== "" && !Number.isNaN(Number(s))) result.sampleId = Number(s);
+  return result;
+}
+
+/** Sync app mode + global filters to URL hash for bookmarkable deep-links (§G.7). */
+export function useHashSync() {
+  const mode = useAppStore((s) => s.mode);
+  const setMode = useAppStore((s) => s.setMode);
+  const policy = useGlobalFiltersStore((s) => s.policy);
+  const sampleId = useGlobalFiltersStore((s) => s.sampleId);
+  const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
+  const setSampleId = useGlobalFiltersStore((s) => s.setSampleId);
+  const hydrated = useRef(false);
+
+  // Restore from hash on first mount
+  useEffect(() => {
+    const parsed = parseHash(window.location.hash);
+    if (parsed.mode) setMode(parsed.mode);
+    if (parsed.policy !== undefined) setPolicy(parsed.policy);
+    if (parsed.sampleId !== undefined) setSampleId(parsed.sampleId);
+    hydrated.current = true;
+  }, [setMode, setPolicy, setSampleId]);
+
+  // Write hash when state changes (after initial hydration)
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const next = encodeHash(mode, policy, sampleId);
+    if (window.location.hash !== next) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [mode, policy, sampleId]);
+
+  // Respond to browser back/forward
+  useEffect(() => {
+    const onHashChange = () => {
+      const parsed = parseHash(window.location.hash);
+      if (parsed.mode) setMode(parsed.mode);
+      if ("policy" in parsed) setPolicy(parsed.policy ?? null);
+      if ("sampleId" in parsed) setSampleId(parsed.sampleId ?? null);
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, [setMode, setPolicy, setSampleId]);
+}

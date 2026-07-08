@@ -13,6 +13,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useDataGenStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { DatasetPreviewStats, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
@@ -199,6 +200,11 @@ export function DataGeneration() {
       workingDir: projectRoot,
     });
   }, [projectRoot, dataSource, tsplibPath, sensorCsvPath, hydraArgs, spawn]);
+
+  const dataGenNonce = useLaunchTriggerStore((s) => s.dataGenNonce);
+  useEffect(() => {
+    if (dataGenNonce > 0) launch();
+  }, [dataGenNonce, launch]);
 
   return (
     <div className="space-y-4 max-w-2xl">

@@ -158,6 +158,26 @@ export interface OptunaStudyData {
   best_params: Record<string, string | number | boolean>;
 }
 
+// ── MLflow experiment tracking (§G.18) ─────────────────────────────────────
+
+export interface MlflowRun {
+  run_id: string;
+  run_name: string;
+  experiment_id: string;
+  status: string;
+  start_time: number | null;
+  end_time: number | null;
+  artifact_uri: string;
+  params: Record<string, string>;
+  metrics: Record<string, number>;
+  tags: Record<string, string>;
+}
+
+export interface MlflowMetricPoint {
+  step: number;
+  value: number;
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 export type AppMode =

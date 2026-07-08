@@ -14,15 +14,17 @@
  *   - Bin-fill strip chart (bin_state_c percentages, sorted descending, overflow highlight)
  *   - Tour sequence table (stop #, bin ID, fill %, collected, mandatory flags)
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ChevronLeft, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FolderOpen, RefreshCw } from "lucide-react";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
-import type { DayLogEntry, SimDayData } from "../../types";
+import { exportChartPng } from "../../utils/chartExport";
+import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
 
 // ── KPI definitions — mirrors _PRIMARY_KPI_MAP and _SECONDARY_KPI_MAP in kpi.py
 const PRIMARY_KPIS = [
@@ -56,6 +58,140 @@ const POLICY_COLORS = [
   "#a78bfa", "#fb923c", "#38bdf8", "#f472b6",
 ];
 
+function fillColor(pct: number): string {
+  if (pct >= 100) return "#f87171";
+  if (pct >= 80) return "#fbbf24";
+  return "#34d399";
+}
+
+/** Resolve bin coordinates — use lat/lng when present, else circular layout by index. */
+function resolvePositions(
+  bins: BinCoord[]
+): Map<number, [number, number]> {
+  const hasGeo = bins.some((b) => b.lat != null && b.lng != null);
+  const map = new Map<number, [number, number]>();
+  if (hasGeo) {
+    for (const b of bins) {
+      if (b.lat != null && b.lng != null) map.set(b.id, [b.lng, b.lat]);
+    }
+    return map;
+  }
+  const n = bins.length;
+  for (let i = 0; i < n; i++) {
+    const angle = (2 * Math.PI * i) / Math.max(n, 1);
+    map.set(bins[i].id, [Math.cos(angle), Math.sin(angle)]);
+  }
+  return map;
+}
+
+// ── ECharts route map preview (§G.16 partial — deck.gl tile basemap deferred)
+function RouteMapChart({ data }: { data: SimDayData }) {
+  const chartRef = useRef<ReactECharts>(null);
+  const { all_bin_coords, tour_indices, bin_state_c, mandatory } = data;
+
+  const option = useMemo(() => {
+    if (!all_bin_coords?.length) return null;
+
+    const positions = resolvePositions(all_bin_coords);
+    const mandatorySet = new Set(mandatory ?? []);
+    const tourSet = new Set(tour_indices ?? []);
+
+    const idleBins = all_bin_coords
+      .filter((b) => b.id >= 0 && !tourSet.has(b.id))
+      .map((b) => {
+        const pos = positions.get(b.id);
+        return pos ? { value: pos, name: `#${b.id}` } : null;
+      })
+      .filter(Boolean);
+
+    const tourStops = (tour_indices ?? []).map((binId) => {
+      const pos = positions.get(binId);
+      const fill = bin_state_c?.[binId] ?? 0;
+      const pct = Math.min(100, fill * 100);
+      return pos
+        ? {
+            value: pos,
+            name: `#${binId}`,
+            itemStyle: { color: fillColor(pct) },
+            symbolSize: mandatorySet.has(binId) ? 12 : 9,
+          }
+        : null;
+    }).filter(Boolean);
+
+    const depot = all_bin_coords.find((b) => b.id === -1);
+    const depotPos = depot ? positions.get(-1) : null;
+
+    const pathCoords: [number, number][] = [];
+    if (depotPos) pathCoords.push(depotPos);
+    for (const binId of tour_indices ?? []) {
+      const pos = positions.get(binId);
+      if (pos) pathCoords.push(pos);
+    }
+    if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
+
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 40, right: 20, top: 20, bottom: 30 },
+      xAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
+      yAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
+      series: [
+        {
+          name: "Route",
+          type: "line",
+          data: pathCoords,
+          lineStyle: { color: "#6366f1", width: 2 },
+          symbol: "none",
+          z: 1,
+        },
+        {
+          name: "Bins",
+          type: "scatter",
+          data: idleBins,
+          symbolSize: 5,
+          itemStyle: { color: "#4b5563" },
+          z: 2,
+        },
+        {
+          name: "Tour stops",
+          type: "scatter",
+          data: tourStops,
+          z: 3,
+        },
+        ...(depotPos
+          ? [{
+              name: "Depot",
+              type: "scatter" as const,
+              data: [{ value: depotPos, name: "Depot" }],
+              symbolSize: 14,
+              itemStyle: { color: "#a78bfa" },
+              z: 4,
+            }]
+          : []),
+      ],
+      tooltip: { trigger: "item" },
+      legend: { textStyle: { color: "#9090b0", fontSize: 9 }, top: 0 },
+    };
+  }, [all_bin_coords, tour_indices, bin_state_c, mandatory]);
+
+  if (!option) return null;
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-canvas-muted">Route Map Preview</p>
+        <button
+          className="btn-ghost text-xs flex items-center gap-1"
+          onClick={() => exportChartPng(chartRef, "route-map.png")}
+        >
+          <Download size={12} />
+          Export PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
+    </div>
+  );
+}
+
 // ── Metric timeseries chart — supports multi-policy overlay
 function MetricTimeseries({
   policySeries,
@@ -66,6 +202,7 @@ function MetricTimeseries({
   metricKey: string;
   label: string;
 }) {
+  const chartRef = useRef<ReactECharts>(null);
   const allDays = [...new Set(policySeries.flatMap((s) => s.entries.map((e) => e.day)))].sort(
     (a, b) => a - b
   );
@@ -87,8 +224,18 @@ function MetricTimeseries({
 
   return (
     <div className="card">
-      <p className="text-xs text-canvas-muted mb-2">{label}</p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-canvas-muted">{label}</p>
+        <button
+          className="btn-ghost p-0.5"
+          title="Export PNG"
+          onClick={() => exportChartPng(chartRef, `${metricKey}-timeseries.png`)}
+        >
+          <Download size={11} className="text-canvas-muted" />
+        </button>
+      </div>
       <ReactECharts
+        ref={chartRef}
         option={{
           backgroundColor: "transparent",
           grid: { left: 40, right: 10, top: policySeries.length > 1 ? 20 : 10, bottom: 30 },
@@ -247,8 +394,6 @@ function TourTable({ data, day, policy }: { data: SimDayData; day: number; polic
 export function SimulationMonitor() {
   const {
     entries,
-    selectedPolicy,
-    selectedSample,
     selectedDay,
     watchPath,
     isWatching,
@@ -259,6 +404,15 @@ export function SimulationMonitor() {
     setWatchPath,
     reset,
   } = useSimStore();
+
+  const { policy: selectedPolicy, sampleId: selectedSample, setPolicy, setSampleId } =
+    useGlobalFiltersStore();
+
+  // Keep sim store in sync for legacy consumers (AlgorithmComparison, etc.)
+  useEffect(() => {
+    setSelectedPolicy(selectedPolicy);
+    setSelectedSample(selectedSample);
+  }, [selectedPolicy, selectedSample, setSelectedPolicy, setSelectedSample]);
 
   useSimWatcher(watchPath);
 
@@ -294,6 +448,7 @@ export function SimulationMonitor() {
   const [showSecondary, setShowSecondary] = useState(false);
   const [showBinFill, setShowBinFill] = useState(true);
   const [showTourTable, setShowTourTable] = useState(false);
+  const [showRouteMap, setShowRouteMap] = useState(true);
 
   // Chart policy overlay — defaults to all policies; separate from detail-panel selectedPolicy
   const [chartPolicies, setChartPolicies] = useState<string[]>([]);
@@ -349,7 +504,7 @@ export function SimulationMonitor() {
           <select
             className="select-base w-40"
             value={selectedPolicy ?? ""}
-            onChange={(e) => setSelectedPolicy(e.target.value || null)}
+            onChange={(e) => setPolicy(e.target.value || null)}
           >
             <option value="">All policies</option>
             {policies.map((p) => (
@@ -363,7 +518,7 @@ export function SimulationMonitor() {
             className="select-base w-32"
             value={selectedSample ?? ""}
             onChange={(e) =>
-              setSelectedSample(e.target.value ? Number(e.target.value) : null)
+              setSampleId(e.target.value ? Number(e.target.value) : null)
             }
           >
             <option value="">All samples</option>
@@ -522,8 +677,17 @@ export function SimulationMonitor() {
             >
               {showTourTable ? "Hide" : "Show"} tour table
             </button>
+            <button
+              className="btn-ghost text-xs"
+              onClick={() => setShowRouteMap((v) => !v)}
+            >
+              {showRouteMap ? "Hide" : "Show"} route map
+            </button>
           </div>
 
+          {showRouteMap && displayEntry.data.all_bin_coords?.length ? (
+            <RouteMapChart data={displayEntry.data} />
+          ) : null}
           {showBinFill && <BinFillStrip data={displayEntry.data} />}
           {showTourTable && (
             <TourTable
