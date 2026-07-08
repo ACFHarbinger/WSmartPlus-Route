@@ -11,8 +11,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, ChevronUp, ChevronDown } from "lucide-react";
+import { FolderOpen, ChevronUp, ChevronDown, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
+import { filterEntries } from "../../store/sim";
+import { downloadCsv } from "../../utils/tableExport";
 import type { DayLogEntry } from "../../types";
 
 // ── Stat helpers ──────────────────────────────────────────────────────────────
@@ -97,7 +100,15 @@ const POLICY_COLORS = [
 type SortKey = MetricKey;
 type SortDir = "asc" | "desc";
 
-function RankingTable({ stats, policies }: { stats: Record<string, PolicyStats>; policies: string[] }) {
+function RankingTable({
+  stats,
+  policies,
+  onExport,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+  onExport: () => void;
+}) {
   const [sortKey, setSortKey] = useState<SortKey>("profit");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -132,7 +143,13 @@ function RankingTable({ stats, policies }: { stats: Record<string, PolicyStats>;
 
   return (
     <div className="card overflow-x-auto">
-      <p className="text-xs font-semibold text-gray-300 mb-3">Policy Ranking</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold text-gray-300">Policy Ranking</p>
+        <button onClick={onExport} className="btn-ghost text-xs flex items-center gap-1">
+          <Download size={12} />
+          Export CSV
+        </button>
+      </div>
       <table className="w-full text-xs min-w-[520px]">
         <thead>
           <tr className="border-b border-canvas-border text-left">
@@ -328,6 +345,7 @@ function MetricBarChart({
 
 export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath } = useAppStore();
+  const { policy, sampleId } = useGlobalFiltersStore();
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
 
@@ -353,8 +371,27 @@ export function SimulationSummary() {
     loadLog(path);
   }, [loadLog]);
 
-  const stats = useMemo(() => aggregateByPolicy(entries), [entries]);
+  const filteredEntries = useMemo(
+    () => filterEntries(entries, policy, sampleId),
+    [entries, policy, sampleId]
+  );
+
+  const stats = useMemo(() => aggregateByPolicy(filteredEntries), [filteredEntries]);
   const policies = useMemo(() => Object.keys(stats), [stats]);
+
+  const exportRankingCsv = useCallback(() => {
+    const cols: MetricKey[] = ["profit", "km", "overflows", "kg"];
+    downloadCsv(
+      "simulation-ranking.csv",
+      ["policy", ...cols.map((c) => `mean_${c}`), ...cols.map((c) => `std_${c}`), "days"],
+      policies.map((p) => [
+        p,
+        ...cols.map((c) => mean(stats[p][c]).toFixed(4)),
+        ...cols.map((c) => std(stats[p][c]).toFixed(4)),
+        stats[p].days,
+      ])
+    );
+  }, [policies, stats]);
 
   const metricValues = (key: MetricKey) =>
     policies.map((p) => ({
@@ -372,6 +409,12 @@ export function SimulationSummary() {
         {logPath && (
           <span className="text-xs text-canvas-muted font-mono truncate">{logPath.split("/").pop()}</span>
         )}
+        {(policy || sampleId != null) && (
+          <span className="text-xs text-canvas-muted">
+            Filter: {policy ?? "all policies"}
+            {sampleId != null ? ` · sample ${sampleId}` : ""}
+          </span>
+        )}
       </div>
 
       {entries.length === 0 && (
@@ -383,10 +426,10 @@ export function SimulationSummary() {
       {policies.length > 0 && (
         <>
           {/* Policy ranking table */}
-          <RankingTable stats={stats} policies={policies} />
+          <RankingTable stats={stats} policies={policies} onExport={exportRankingCsv} />
 
           {/* Per-day trajectory */}
-          <TrajectoryChart entries={entries} policies={policies} />
+          <TrajectoryChart entries={filteredEntries} policies={policies} />
 
           {/* 4-metric bar charts */}
           <div className="grid grid-cols-2 gap-4">

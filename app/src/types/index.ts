@@ -178,6 +178,25 @@ export interface MlflowMetricPoint {
   value: number;
 }
 
+// ── ZenML pipeline tracking (§G.18) ──────────────────────────────────────────
+
+export interface ZenmlPipelineRun {
+  id: string;
+  pipeline: string;
+  status: string;
+  created: string;
+  updated: string;
+  stack: string;
+}
+
+export interface ZenmlPipelineStep {
+  name: string;
+  status: string;
+  created: string;
+  updated: string;
+  duration_seconds: number | null;
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 export type AppMode =

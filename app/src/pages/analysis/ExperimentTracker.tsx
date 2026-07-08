@@ -7,7 +7,9 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Download, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { ZenMLPipelineView } from "./ZenMLPipelineView";
 import { exportChartPng } from "../../utils/chartExport";
+import { downloadCsv } from "../../utils/tableExport";
 import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
 const DEFAULT_TRACKING_URI = "mlruns";
@@ -218,6 +220,26 @@ export function ExperimentTracker() {
             Refresh
           </button>
           <span className="text-xs text-canvas-muted">{runs.length} run(s)</span>
+          {runs.length > 0 && (
+            <button
+              onClick={() =>
+                downloadCsv(
+                  "mlflow-runs.csv",
+                  ["run_id", "run_name", "status", "start_time"],
+                  runs.map((r) => [
+                    r.run_id,
+                    r.run_name,
+                    r.status,
+                    r.start_time != null ? new Date(r.start_time).toISOString() : "",
+                  ])
+                )
+              }
+              className="btn-ghost text-xs flex items-center gap-1"
+            >
+              <Download size={12} />
+              Export CSV
+            </button>
+          )}
         </div>
         {error && (
           <p className="text-xs text-accent-danger">{error}</p>
@@ -332,6 +354,9 @@ export function ExperimentTracker() {
           </div>
         </div>
       )}
+
+      {/* ZenML pipeline runs (§G.18) */}
+      <ZenMLPipelineView />
 
       {/* Legacy output dirs */}
       <div className="card space-y-2">

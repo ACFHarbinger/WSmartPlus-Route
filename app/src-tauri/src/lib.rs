@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{data, hpo, mlflow, policies, process, sim_watcher, system};
+use commands::{data, hpo, mlflow, policies, process, sim_watcher, system, zenml};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -36,6 +36,9 @@ pub fn run() {
             mlflow::list_mlflow_runs,
             mlflow::list_mlflow_metric_keys,
             mlflow::load_mlflow_metric_history,
+            // ZenML pipeline tracking
+            zenml::list_zenml_pipeline_runs,
+            zenml::load_zenml_run_steps,
             // System inspection
             system::validate_project_root,
             system::probe_python,

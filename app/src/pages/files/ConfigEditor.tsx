@@ -3,14 +3,14 @@
  *
  * Loads any YAML file (typically pruned_config.yaml from a run directory,
  * or a config file from logic/configs/) and presents it in three modes:
- *   Raw  — editable textarea (Monaco planned in Phase 13 continuation)
+ *   Raw  — Monaco YAML editor with syntax highlighting
  *   Table — key-value pairs parsed from YAML (flat view)
  *   Diff  — compare with another YAML file
  *
  * "Copy overrides" serialises only the changed keys as Hydra override strings
  * for pasting into the Simulation Launcher or Training Hub.
  */
-import { useCallback, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
+
+const YamlEditor = lazy(() => import("../../components/editors/YamlEditor"));
 
 type ViewMode = "raw" | "table" | "form" | "diff";
 
@@ -312,14 +314,17 @@ export function ConfigEditor() {
         </div>
       )}
 
-      {/* Raw view */}
+      {/* Raw view — Monaco YAML editor (§G.13) */}
       {content && viewMode === "raw" && (
-        <textarea
-          className="input-base font-mono text-xs h-[60vh] resize-y w-full"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          spellCheck={false}
-        />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-[60vh] text-canvas-muted text-sm">
+              Loading editor…
+            </div>
+          }
+        >
+          <YamlEditor value={content} onChange={setContent} />
+        </Suspense>
       )}
 
       {/* Form view — editable typed widgets (§G.13) */}
