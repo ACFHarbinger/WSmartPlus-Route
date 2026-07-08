@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-seventh pass
+
+Twenty-seventh implementation pass: SimulationSummary chart PNG export (§G.7);
+deck.gl tile map PNG capture (§G.16); startup 2s budget indicator (§G.7).
+
+**React frontend**
+- `SimulationSummary` — PNG export on per-day trajectory chart and all four policy bar charts
+- `DeckRouteMap` — PNG export button captures WebGL canvas via `exportCanvasPng`
+- `chartExport.ts` — `exportCanvasPng` helper for deck.gl / canvas screenshots
+- `Settings` — prefetch timing shows pass/fail against 2s load budget
+- `useStartupTiming` — `withinBudget` flag derived from prefetch milestone
+- `App.tsx` — echarts vendor chunk included in startup prefetch batch
+
+**ROADMAP**
+- §G.7 SimulationSummary + deck.gl PNG export + 2s budget probe checked (partial — hardware benchmark deferred)
+- §G.3.1 ScatterplotLayer fill-coded nodes checked (partial)
+- §G.16 deck.gl PNG export checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-sixth pass
 
 Twenty-sixth implementation pass: global file drop (§G.8); extended startup

@@ -7,8 +7,9 @@
  *  • Per-day trajectory overlay chart (overflows / profit over simulation days)
  *  • Four bar charts: profit, km, overflows, kg/km
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, Download } from "lucide-react";
@@ -17,6 +18,7 @@ import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
+import { exportChartPng } from "../../utils/chartExport";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
@@ -234,6 +236,7 @@ function TrajectoryChart({
   entries: DayLogEntry[];
   policies: string[];
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const [metric, setMetric] = useState<TrajectoryMetric>("overflows");
 
   const traj = useMemo(
@@ -288,6 +291,16 @@ function TrajectoryChart({
     <div className="card space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-xs font-semibold text-gray-300">Per-Day Trajectory</p>
+        <div className="flex items-center gap-2">
+          {allDays.length > 0 && (
+            <button
+              onClick={() => exportChartPng({ current: chartRef.current }, `trajectory-${metric}.png`)}
+              className="btn-ghost text-xs flex items-center gap-1"
+            >
+              <Download size={12} />
+              PNG
+            </button>
+          )}
         <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
           {METRIC_OPTS.map((o) => (
             <button
@@ -303,11 +316,12 @@ function TrajectoryChart({
             </button>
           ))}
         </div>
+        </div>
       </div>
       {allDays.length === 0 ? (
         <p className="text-xs text-canvas-muted">No day data available.</p>
       ) : (
-        <ReactECharts option={option} style={{ height: 260 }} />
+        <ReactECharts ref={chartRef} option={option} style={{ height: 260 }} />
       )}
     </div>
   );
@@ -319,13 +333,16 @@ function MetricBarChart({
   values,
   color,
   logScale = false,
+  exportName,
 }: {
   title: string;
   policies: string[];
   values: Array<{ mean: number; std: number }>;
   color: string;
   logScale?: boolean;
+  exportName: string;
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const option = useMemo(() => ({
     backgroundColor: "transparent",
     tooltip: {
@@ -361,8 +378,17 @@ function MetricBarChart({
 
   return (
     <div className="card">
-      <p className="text-xs text-canvas-muted mb-2">{title}</p>
-      <ReactECharts option={option} style={{ height: 190 }} />
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-canvas-muted">{title}</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 190 }} />
     </div>
   );
 }
@@ -501,6 +527,7 @@ export function SimulationSummary() {
               values={metricValues("profit")}
               color="#6366f1"
               logScale={logScale}
+              exportName="summary-profit"
             />
             <MetricBarChart
               title="Avg Distance by Policy (km)"
@@ -508,6 +535,7 @@ export function SimulationSummary() {
               values={metricValues("km")}
               color="#38bdf8"
               logScale={logScale}
+              exportName="summary-km"
             />
             <MetricBarChart
               title="Avg Overflows by Policy"
@@ -515,6 +543,7 @@ export function SimulationSummary() {
               values={metricValues("overflows")}
               color="#f87171"
               logScale={logScale}
+              exportName="summary-overflows"
             />
             <MetricBarChart
               title="Avg Waste Collected by Policy (kg)"
@@ -522,6 +551,7 @@ export function SimulationSummary() {
               values={metricValues("kg")}
               color="#34d399"
               logScale={logScale}
+              exportName="summary-kg"
             />
           </div>
         </>

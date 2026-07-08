@@ -67,7 +67,7 @@ export function Settings() {
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
   const [appVersion, setAppVersion] = useState("…");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const { firstPaintMs, prefetchMs } = useStartupTiming();
+  const { firstPaintMs, prefetchMs, withinBudget } = useStartupTiming();
   const { setGuidedTourOpen, setGuidedTourStep } = useLayoutStore();
 
   useEffect(() => {
@@ -317,7 +317,13 @@ export function Settings() {
           <p>Startup to first paint: <span className="font-mono">{firstPaintMs} ms</span></p>
         )}
         {prefetchMs !== null && (
-          <p>Route prefetch complete: <span className="font-mono">{prefetchMs} ms</span></p>
+          <p>
+            Route prefetch complete: <span className="font-mono">{prefetchMs} ms</span>
+            {" · "}
+            <span className={withinBudget ? "text-accent-success" : "text-accent-warning"}>
+              {withinBudget ? "within 2s budget" : "over 2s budget"}
+            </span>
+          </p>
         )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
         <button

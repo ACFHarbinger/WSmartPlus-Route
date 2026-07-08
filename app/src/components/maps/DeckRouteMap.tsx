@@ -2,8 +2,10 @@
  * deck.gl route map with tile basemap (§G.16).
  * Supports multi-policy route overlay; TripsLayer animation; depot marker.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
+import { Download } from "lucide-react";
+import { exportCanvasPng } from "../../utils/chartExport";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
@@ -104,7 +106,13 @@ interface Props {
 }
 
 export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 1 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
+
+  const exportPng = useCallback(() => {
+    const canvas = containerRef.current?.querySelector("canvas");
+    exportCanvasPng(canvas, "route-map-tile.png");
+  }, []);
 
   const geometries = useMemo(
     () => routes.map((r) => ({ route: r, ...buildRouteGeometry(r.data) })),
@@ -245,10 +253,21 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   }
 
   return (
-    <div className="relative h-[320px] rounded-lg overflow-hidden border border-canvas-border">
+    <div
+      ref={containerRef}
+      className="relative h-[320px] rounded-lg overflow-hidden border border-canvas-border"
+    >
       <DeckGL initialViewState={viewState} controller layers={layers}>
         <MapGL mapStyle={MAP_STYLE} />
       </DeckGL>
+      <button
+        onClick={exportPng}
+        className="absolute top-2 right-2 btn-ghost text-xs flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"
+        title="Export map as PNG"
+      >
+        <Download size={11} />
+        PNG
+      </button>
       {routes.length > 1 && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5 max-w-[90%]">
           {routes.map((r) => (
