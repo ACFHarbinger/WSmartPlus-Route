@@ -16,7 +16,8 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
-import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload } from "lucide-react";
+import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw } from "lucide-react";
+import { useStartupTiming } from "../../hooks/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 
@@ -64,6 +65,8 @@ export function Settings() {
   const [rootValidation, setRootValidation] = useState<FieldValidation>(IDLE);
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
   const [appVersion, setAppVersion] = useState("…");
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const startupMs = useStartupTiming();
 
   useEffect(() => {
     invoke<string>("get_app_version")
@@ -308,8 +311,40 @@ export function Settings() {
       <div className="card space-y-2 text-xs text-canvas-muted">
         <p className="font-semibold text-gray-300 text-sm">About WSmart-Route Studio</p>
         <p>Version: <span className="font-mono">{appVersion}</span></p>
+        {startupMs !== null && (
+          <p>Startup to first paint: <span className="font-mono">{startupMs} ms</span></p>
+        )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
-        <p>Updates: auto-update requires a signed release endpoint (§G.8 — not yet configured)</p>
+        <button
+          disabled={checkingUpdate}
+          onClick={async () => {
+            setCheckingUpdate(true);
+            try {
+              const result = await invoke<{
+                available: boolean;
+                current_version: string;
+                latest_version: string | null;
+                message: string;
+              }>("check_for_updates");
+              if (result.available) {
+                toast.success(result.message, {
+                  description: `${result.current_version} → ${result.latest_version}`,
+                });
+              } else {
+                toast.info(result.message);
+              }
+            } catch (err) {
+              toast.error("Update check failed", { description: String(err) });
+            } finally {
+              setCheckingUpdate(false);
+            }
+          }}
+          className="btn-ghost text-xs flex items-center gap-1.5 mt-1"
+        >
+          <RefreshCw size={12} className={checkingUpdate ? "animate-spin" : ""} />
+          Check for Updates
+        </button>
+        <p className="text-[10px]">Set <code className="font-mono">WSMART_UPDATE_URL</code> to a JSON manifest with a <code className="font-mono">version</code> field.</p>
         <p>ROADMAP: <code className="font-mono">docs/moon/ROADMAP.md §G</code></p>
       </div>
     </div>
