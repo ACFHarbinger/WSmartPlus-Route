@@ -89,8 +89,9 @@ export const useTrainHubStore = create<TrainHubState>()(
 // ── Data Generation Wizard (§G.11)
 
 interface DataGenState {
-  dataSource: "synthetic" | "tsplib";
+  dataSource: "synthetic" | "tsplib" | "sensor";
   tsplibPath: string;
+  sensorCsvPath: string;
   problem: string;
   distributions: string[];
   datasetType: string;
@@ -109,6 +110,7 @@ export const useDataGenStore = create<DataGenState>()(
     (set) => ({
       dataSource: "synthetic",
       tsplibPath: "",
+      sensorCsvPath: "",
       problem: "vrpp",
       distributions: ["gamma3"],
       datasetType: "test_simulator",

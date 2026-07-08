@@ -140,6 +140,16 @@ export interface OptunaTrial {
   params: Record<string, string | number | boolean>;
 }
 
+export interface DatasetPreviewStats {
+  num_instances: number;
+  num_nodes: number | null;
+  demand_mean: number | null;
+  demand_std: number | null;
+  demand_histogram: number[];
+  distance_mean: number | null;
+  file_size_bytes: number;
+}
+
 export interface OptunaStudyData {
   name: string;
   trials: OptunaTrial[];

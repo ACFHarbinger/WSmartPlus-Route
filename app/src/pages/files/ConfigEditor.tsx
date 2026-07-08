@@ -13,13 +13,25 @@
 import { useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket } from "lucide-react";
+import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
 
-type ViewMode = "raw" | "table" | "diff";
+type ViewMode = "raw" | "table" | "form" | "diff";
+
+type FieldType = "string" | "number" | "boolean";
+
+function inferFieldType(value: string): FieldType {
+  if (value === "true" || value === "false") return "boolean";
+  if (value !== "" && !isNaN(Number(value)) && !value.startsWith("[")) return "number";
+  return "string";
+}
+
+function rowsToYaml(rows: Array<{ key: string; value: string }>): string {
+  return rows.map((r) => `${r.key}: ${r.value}`).join("\n");
+}
 
 function parseYamlFlat(yaml: string): Array<{ key: string; value: string }> {
   const rows: Array<{ key: string; value: string }> = [];
@@ -171,6 +183,13 @@ export function ConfigEditor() {
     toast.success(`Applied ${Object.keys(patch).length} field(s) to ${target?.label ?? applyTarget}`);
   }, [content, applyTarget, simPatch, trainPatch, dataPatch, setMode]);
 
+  const updateFormRow = useCallback((index: number, field: "key" | "value", newVal: string) => {
+    const rows = parseYamlFlat(content);
+    if (index < 0 || index >= rows.length) return;
+    rows[index] = { ...rows[index], [field]: newVal };
+    setContent(rowsToYaml(rows));
+  }, [content]);
+
   const isDirty = content !== savedContentRef.current && filePath !== null;
 
   const rows = parseYamlFlat(content);
@@ -261,6 +280,7 @@ export function ConfigEditor() {
                 [
                   { mode: "raw", Icon: FileText, label: "Raw" },
                   { mode: "table", Icon: Table2, label: "Table" },
+                  { mode: "form", Icon: ListChecks, label: "Form" },
                   { mode: "diff", Icon: GitCompare, label: "Diff" },
                 ] as const
               ).map(({ mode, Icon, label }) => (
@@ -300,6 +320,50 @@ export function ConfigEditor() {
           onChange={(e) => setContent(e.target.value)}
           spellCheck={false}
         />
+      )}
+
+      {/* Form view — editable typed widgets (§G.13) */}
+      {content && viewMode === "form" && (
+        <div className="card overflow-auto max-h-[60vh] space-y-2 p-2">
+          {rows.map((r, i) => {
+            const ftype = inferFieldType(r.value);
+            return (
+              <div key={`${r.key}-${i}`} className="flex items-center gap-3 text-xs">
+                <span className="font-mono text-accent-secondary w-1/3 truncate" title={r.key}>
+                  {r.key}
+                </span>
+                {ftype === "boolean" ? (
+                  <label className="flex items-center gap-2 text-gray-300">
+                    <input
+                      type="checkbox"
+                      className="accent-accent-primary"
+                      checked={r.value === "true"}
+                      onChange={(e) => updateFormRow(i, "value", e.target.checked ? "true" : "false")}
+                    />
+                    {r.value}
+                  </label>
+                ) : ftype === "number" ? (
+                  <input
+                    type="number"
+                    className="input-base font-mono text-xs flex-1"
+                    value={r.value}
+                    onChange={(e) => updateFormRow(i, "value", e.target.value)}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    className="input-base font-mono text-xs flex-1"
+                    value={r.value}
+                    onChange={(e) => updateFormRow(i, "value", e.target.value)}
+                  />
+                )}
+              </div>
+            );
+          })}
+          {rows.length === 0 && (
+            <p className="text-canvas-muted text-sm text-center py-8">No scalar key-value pairs found.</p>
+          )}
+        </div>
       )}
 
       {/* Table view */}

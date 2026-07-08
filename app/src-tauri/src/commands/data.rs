@@ -2,7 +2,9 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
+use std::process::Command;
 
+use crate::commands::process::resolve_python;
 use crate::commands::sim_watcher::{parse_day_log_line, DayLogEntry};
 
 /// Matches the `CsvFile` TypeScript interface in DataExplorer.tsx
@@ -211,4 +213,112 @@ pub fn list_dir(path: String) -> Result<Vec<DirEntry>, String> {
         .collect();
     entries.sort_by(|a, b| b.is_dir.cmp(&a.is_dir).then(a.name.cmp(&b.name)));
     Ok(entries)
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DatasetPreviewStats {
+    pub num_instances: usize,
+    pub num_nodes: Option<usize>,
+    pub demand_mean: Option<f64>,
+    pub demand_std: Option<f64>,
+    pub demand_histogram: Vec<f64>,
+    pub distance_mean: Option<f64>,
+    pub file_size_bytes: u64,
+}
+
+const PREVIEW_DATASET_SCRIPT: &str = r#"
+import json, sys, pickle, os
+path = sys.argv[1]
+size = os.path.getsize(path)
+stats = {
+    "num_instances": 0, "num_nodes": None, "demand_mean": None,
+    "demand_std": None, "demand_histogram": [], "distance_mean": None,
+    "file_size_bytes": size,
+}
+try:
+    import torch
+    data = torch.load(path, map_location="cpu", weights_only=False)
+except Exception:
+    try:
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+    except Exception as e:
+        print(json.dumps({"error": str(e)}))
+        sys.exit(0)
+
+instances = data if isinstance(data, list) else [data]
+stats["num_instances"] = len(instances)
+
+def _tensor_stats(t):
+    import torch
+    if hasattr(t, "detach"):
+        flat = t.detach().float().flatten()
+        if flat.numel() == 0:
+            return None, None, []
+        vals = flat.tolist()
+        mean = sum(vals) / len(vals)
+        var = sum((v - mean) ** 2 for v in vals) / max(len(vals) - 1, 1)
+        hist_edges = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25]
+        hist = [0] * (len(hist_edges) - 1)
+        for v in vals:
+            for i in range(len(hist_edges) - 1):
+                if hist_edges[i] <= v < hist_edges[i + 1]:
+                    hist[i] += 1
+                    break
+        return mean, var ** 0.5, [h / max(len(vals), 1) for h in hist]
+    return None, None, []
+
+for inst in instances[:5]:
+    d = dict(inst) if hasattr(inst, "keys") else (inst if isinstance(inst, dict) else {})
+    demand = d.get("demand") or d.get("prize") or d.get("waste")
+    loc = d.get("loc")
+    if demand is not None:
+        m, s, h = _tensor_stats(demand)
+        if m is not None:
+            stats["demand_mean"] = m
+            stats["demand_std"] = s
+            stats["demand_histogram"] = h
+    if loc is not None and hasattr(loc, "shape"):
+        stats["num_nodes"] = int(loc.shape[-2]) if len(loc.shape) >= 2 else int(loc.shape[0])
+    dist = d.get("dist") or d.get("distance_matrix")
+    if dist is not None:
+        m, _, _ = _tensor_stats(dist)
+        if m is not None:
+            stats["distance_mean"] = m
+    if stats["num_nodes"] is not None:
+        break
+
+print(json.dumps(stats))
+"#;
+
+/// Inspect a generated `.pkl`/`.pt` dataset and return summary statistics for the preview panel.
+#[tauri::command]
+pub fn preview_dataset_stats(
+    path: String,
+    project_root: String,
+    python_executable: Option<String>,
+) -> Result<DatasetPreviewStats, String> {
+    if !Path::new(&path).exists() {
+        return Err(format!("File not found: {path}"));
+    }
+    let python = resolve_python(&project_root, python_executable);
+    let output = Command::new(&python)
+        .arg("-c")
+        .arg(PREVIEW_DATASET_SCRIPT)
+        .arg(&path)
+        .current_dir(&project_root)
+        .output()
+        .map_err(|e| format!("Failed to run preview script: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if stdout.is_empty() {
+        return Err("Preview script produced no output".to_string());
+    }
+
+    let value: serde_json::Value =
+        serde_json::from_str(&stdout).map_err(|e| format!("Invalid JSON: {e}"))?;
+    if let Some(err) = value.get("error").and_then(|v| v.as_str()) {
+        return Err(err.to_string());
+    }
+    serde_json::from_value(value).map_err(|e| e.to_string())
 }
