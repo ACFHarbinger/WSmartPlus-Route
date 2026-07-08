@@ -89,6 +89,8 @@ export const useTrainHubStore = create<TrainHubState>()(
 // ── Data Generation Wizard (§G.11)
 
 interface DataGenState {
+  dataSource: "synthetic" | "tsplib";
+  tsplibPath: string;
   problem: string;
   distributions: string[];
   datasetType: string;
@@ -105,6 +107,8 @@ interface DataGenState {
 export const useDataGenStore = create<DataGenState>()(
   persist(
     (set) => ({
+      dataSource: "synthetic",
+      tsplibPath: "",
       problem: "vrpp",
       distributions: ["gamma3"],
       datasetType: "test_simulator",

@@ -6,7 +6,8 @@
  * data.seed, plus per-graph overrides via "Advanced" panel.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen } from "lucide-react";
+import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useDataGenStore } from "../../store/launchers";
@@ -33,9 +34,13 @@ export function DataGeneration() {
 
   // Persisted form state (§D.4 session persistence)
   const {
+    dataSource, tsplibPath,
     problem, distributions, datasetType, seed, overwrite,
     area, numLoc, nSamples, nDays, extraOverrides, patch,
   } = useDataGenStore();
+
+  const setDataSource = (v: "synthetic" | "tsplib") => patch({ dataSource: v });
+  const setTsplibPath = (v: string) => patch({ tsplibPath: v });
 
   const setProblem = (v: string) => patch({ problem: v });
   const setDistributions = (v: string[]) => patch({ distributions: v });
@@ -82,6 +87,13 @@ export function DataGeneration() {
     setDistributions(next);
   };
 
+  const pickTsplibFile = async () => {
+    const path = (await open({
+      filters: [{ name: "TSPLIB / VRP", extensions: ["vrp", "tsp"] }],
+    })) as string | null;
+    if (path) setTsplibPath(path);
+  };
+
   const hydraArgs = useMemo(() => {
     const distList = distributions.length > 0 ? distributions.join(",") : "gamma3";
     const args = [
@@ -89,10 +101,14 @@ export function DataGeneration() {
       `data.data_distributions=[${distList}]`,
       `data.dataset_type=${datasetType}`,
       `data.overwrite=${overwrite}`,
-      `data.graphs.0.area=${area}`,
-      `data.graphs.0.num_loc=${numLoc}`,
-      `data.graphs.0.n_samples=${nSamples}`,
-      `data.graphs.0.n_days=${nDays}`,
+      ...(dataSource === "tsplib" && tsplibPath
+        ? [`data.source=tsplib`, `data.tsplib_instance=${tsplibPath}`]
+        : [
+            `data.graphs.0.area=${area}`,
+            `data.graphs.0.num_loc=${numLoc}`,
+            `data.graphs.0.n_samples=${nSamples}`,
+            `data.graphs.0.n_days=${nDays}`,
+          ]),
       `seed=${seed}`,
     ];
     const extra = extraOverrides
@@ -100,12 +116,13 @@ export function DataGeneration() {
       .map((l) => l.trim())
       .filter(Boolean);
     return [...args, ...extra];
-  }, [problem, distributions, datasetType, overwrite, area, numLoc, nSamples, nDays, seed, extraOverrides]);
+  }, [problem, distributions, datasetType, overwrite, dataSource, tsplibPath, area, numLoc, nSamples, nDays, seed, extraOverrides]);
 
   const commandPreview = `python main.py gen_data \\\n  ${hydraArgs.join(" \\\n  ")}`;
 
   const launch = useCallback(async () => {
     if (!projectRoot) return;
+    if (dataSource === "tsplib" && !tsplibPath.trim()) return;
     const procId = `gen_data_${Date.now()}`;
     setLiveProcessId(procId);
     setRunStatus(null);
@@ -115,10 +132,43 @@ export function DataGeneration() {
       pythonArgs: ["main.py", "gen_data", ...hydraArgs],
       workingDir: projectRoot,
     });
-  }, [projectRoot, hydraArgs, spawn]);
+  }, [projectRoot, dataSource, tsplibPath, hydraArgs, spawn]);
 
   return (
     <div className="space-y-4 max-w-2xl">
+      {/* Data source */}
+      <div className="card space-y-3">
+        <h2 className="text-sm font-semibold text-gray-200">Data Source</h2>
+        <div className="flex gap-4">
+          {(["synthetic", "tsplib"] as const).map((src) => (
+            <label key={src} className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+              <input
+                type="radio"
+                name="dataSource"
+                className="accent-accent-primary"
+                checked={dataSource === src}
+                onChange={() => setDataSource(src)}
+              />
+              {src === "synthetic" ? "Synthetic (graph generator)" : "TSPLIB instance"}
+            </label>
+          ))}
+        </div>
+        {dataSource === "tsplib" && (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="input-base font-mono text-xs flex-1"
+              value={tsplibPath}
+              onChange={(e) => setTsplibPath(e.target.value)}
+              placeholder="path/to/instance.vrp"
+            />
+            <button onClick={pickTsplibFile} className="btn-ghost p-1.5 text-canvas-muted hover:text-gray-200">
+              <FolderOpen size={13} />
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Problem + distribution */}
       <div className="card space-y-4">
         <h2 className="text-sm font-semibold text-gray-200">Dataset</h2>
@@ -198,7 +248,8 @@ export function DataGeneration() {
         </label>
       </div>
 
-      {/* Graph configuration */}
+      {/* Graph configuration — only for synthetic source */}
+      {dataSource === "synthetic" && (
       <div className="card space-y-4">
         <h2 className="text-sm font-semibold text-gray-200">Graph</h2>
         <div className="flex flex-wrap gap-4">
@@ -257,6 +308,7 @@ export function DataGeneration() {
           Configures <code>data.graphs[0]</code>. For multi-graph generation use Advanced Overrides.
         </p>
       </div>
+      )}
 
       {/* Advanced overrides */}
       <div className="card">
@@ -296,7 +348,10 @@ export function DataGeneration() {
         )}
         <button
           onClick={launch}
-          disabled={launching || !projectRoot || distributions.length === 0}
+          disabled={
+            launching || !projectRoot || distributions.length === 0
+            || (dataSource === "tsplib" && !tsplibPath.trim())
+          }
           className="btn-primary flex items-center gap-2"
         >
           <Play size={14} />

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AppMode, EvalAnalyticsRow } from "../types";
+import type { AppMode, BenchmarkLogRef, EvalAnalyticsRow } from "../types";
 
 interface AppState {
   mode: AppMode;
@@ -13,6 +13,7 @@ interface AppState {
   pendingLogPath: string | null;
   // Ephemeral — set by EvaluationRunner to pre-load results in BenchmarkAnalysis
   pendingEvalResults: EvalAnalyticsRow[] | null;
+  pendingBenchmarkLogs: BenchmarkLogRef[] | null;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: "dark" | "light") => void;
   setProjectRoot: (root: string) => void;
@@ -20,6 +21,7 @@ interface AppState {
   setPendingCheckpoint: (path: string | null) => void;
   setPendingLogPath: (path: string | null) => void;
   setPendingEvalResults: (rows: EvalAnalyticsRow[] | null) => void;
+  setPendingBenchmarkLogs: (logs: BenchmarkLogRef[] | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -32,6 +34,7 @@ export const useAppStore = create<AppState>()(
       pendingCheckpoint: null,
       pendingLogPath: null,
       pendingEvalResults: null,
+      pendingBenchmarkLogs: null,
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
         if (theme === "dark") {
@@ -47,6 +50,8 @@ export const useAppStore = create<AppState>()(
       setPendingLogPath: (pendingLogPath) => set({ pendingLogPath }),
       setPendingEvalResults: (pendingEvalResults: EvalAnalyticsRow[] | null) =>
         set({ pendingEvalResults }),
+      setPendingBenchmarkLogs: (pendingBenchmarkLogs: BenchmarkLogRef[] | null) =>
+        set({ pendingBenchmarkLogs }),
     }),
     {
       name: "wsmart-studio-app",

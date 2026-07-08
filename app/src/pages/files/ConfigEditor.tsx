@@ -13,9 +13,11 @@
 import { useCallback, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download } from "lucide-react";
+import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
+import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
 
 type ViewMode = "raw" | "table" | "diff";
 
@@ -53,8 +55,17 @@ const HYDRA_TASKS = [
   { value: "gen_data", label: "gen_data" },
 ] as const;
 
+const LAUNCHER_TARGETS: Array<{ value: LauncherTarget; label: string; mode: "sim_launcher" | "training_hub" | "data_gen" }> = [
+  { value: "sim_launcher", label: "Simulation Launcher", mode: "sim_launcher" },
+  { value: "training_hub", label: "Training Hub", mode: "training_hub" },
+  { value: "data_gen", label: "Data Generation", mode: "data_gen" },
+];
+
 export function ConfigEditor() {
-  const { projectRoot, pythonPath } = useAppStore();
+  const { projectRoot, pythonPath, setMode } = useAppStore();
+  const simPatch = useSimLauncherStore((s) => s.patch);
+  const trainPatch = useTrainHubStore((s) => s.patch);
+  const dataPatch = useDataGenStore((s) => s.patch);
   const [content, setContent] = useState("");
   const [filePath, setFilePath] = useState<string | null>(null);
   const [diffContent, setDiffContent] = useState("");
@@ -64,6 +75,7 @@ export function ConfigEditor() {
   const [saving, setSaving] = useState(false);
   const [hydraTask, setHydraTask] = useState("test_sim");
   const [loadingHydra, setLoadingHydra] = useState(false);
+  const [applyTarget, setApplyTarget] = useState<LauncherTarget>("sim_launcher");
   // Track the last-saved content to detect unsaved edits
   const savedContentRef = useRef("");
 
@@ -144,6 +156,21 @@ export function ConfigEditor() {
     }
   }, [projectRoot, pythonPath, hydraTask]);
 
+  const applyToLauncher = useCallback(() => {
+    if (!content.trim()) {
+      toast.error("No config content to apply");
+      return;
+    }
+    const flatRows = parseYamlFlat(content);
+    const patch = applyConfigToLauncher(applyTarget, flatRows);
+    const target = LAUNCHER_TARGETS.find((t) => t.value === applyTarget);
+    if (applyTarget === "sim_launcher") simPatch(patch);
+    else if (applyTarget === "training_hub") trainPatch(patch);
+    else dataPatch(patch);
+    if (target) setMode(target.mode);
+    toast.success(`Applied ${Object.keys(patch).length} field(s) to ${target?.label ?? applyTarget}`);
+  }, [content, applyTarget, simPatch, trainPatch, dataPatch, setMode]);
+
   const isDirty = content !== savedContentRef.current && filePath !== null;
 
   const rows = parseYamlFlat(content);
@@ -212,6 +239,20 @@ export function ConfigEditor() {
             <button onClick={copyOverrides} className="btn-ghost flex items-center gap-2 text-sm">
               <Copy size={13} />
               Copy Overrides
+            </button>
+
+            <select
+              className="select-base text-xs w-40"
+              value={applyTarget}
+              onChange={(e) => setApplyTarget(e.target.value as LauncherTarget)}
+            >
+              {LAUNCHER_TARGETS.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <button onClick={applyToLauncher} className="btn-ghost flex items-center gap-2 text-sm">
+              <Rocket size={13} />
+              Apply to Launcher
             </button>
 
             {/* View mode toggle */}
