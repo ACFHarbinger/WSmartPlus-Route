@@ -9,6 +9,14 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
+### Fixed
+
+#### WSmart-Route Studio — Tauri build
+
+- Removed unused `protocol-asset` feature from `Cargo.toml` (mismatched Tauri allowlist)
+- Corrected capability permissions to `core:*` identifiers for Tauri 2 ACL
+- Added placeholder RGBA app icons required by `generate_context!()`
+
 ### Added
 
 #### WSmart-Route Studio — Tauri App (`app/`) — eighteenth pass
