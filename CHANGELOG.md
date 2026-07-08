@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifteenth pass
+
+Fifteenth implementation pass: session profiles in Output Browser (§G.14);
+sensor CSV data source and dataset preview panel (§G.11); Config Editor Form
+mode (§G.13); Optuna cross-study comparison (§G.18).
+
+**Rust backend**
+- `data::preview_dataset_stats(path, project_root, python_executable)`: Python subprocess inspects `.pkl`/`.pt` datasets; returns `DatasetPreviewStats` (instances, nodes, demand μ±σ, histogram, file size)
+
+**React frontend**
+- `store/sessionProfiles.ts` — `useSessionProfilesStore` (persist, max 20 profiles); captures/restores all three launcher Zustand stores via `captureLauncherSnapshot()` / `applyLauncherSnapshot()`
+- `pages/files/OutputBrowser.tsx` — Session Profiles sidebar (§G.14): name input + Save button; load/delete profile list
+- `pages/launch/DataGeneration.tsx` — sensor source (§G.11): third `dataSource` radio; CSV file picker; Hydra `data.source=sensor` + `data.sensor_file=<path>`
+- `pages/launch/DataGeneration.tsx` — Instance Preview panel (§G.11): "Preview .pkl/.pt" button; KPI cards + ECharts demand histogram via `preview_dataset_stats`
+- `pages/files/ConfigEditor.tsx` — Form mode (§G.13): fourth view toggle; typed widgets (checkbox/number/text) inferred from value; edits sync back to Raw YAML via `rowsToYaml()`
+- `pages/analysis/HPOTracker.tsx` — cross-study comparison (§G.18): "Compare with" study dropdown; overlaid best-so-far line chart; side-by-side best-value KPI cards
+- `store/launchers.ts` — `sensorCsvPath` field in `useDataGenStore`
+- `types/index.ts` — `DatasetPreviewStats` interface
+
+**ROADMAP**
+- §G.14 session profiles checked
+- §G.11 sensor source and preview panel checked
+- §G.13 Form mode checked (partial — flat YAML, no OmegaConf schema introspection)
+- §G.18 cross-study comparison checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fourteenth pass
 
 Fourteenth implementation pass: Output Browser compare-runs multi-select (§G.14);

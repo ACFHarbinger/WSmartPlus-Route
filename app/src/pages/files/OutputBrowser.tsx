@@ -20,8 +20,11 @@ import {
   ChevronRight,
   ChevronDown,
   BarChart2,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry } from "../../types";
 
@@ -105,6 +108,8 @@ export function OutputBrowser() {
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
   const [compareSelection, setCompareSelection] = useState<Set<string>>(new Set());
+  const [profileName, setProfileName] = useState("");
+  const { profiles, saveProfile, loadProfile, deleteProfile } = useSessionProfilesStore();
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [subEntries, setSubEntries] = useState<Record<string, DirEntry[]>>({});
@@ -417,6 +422,56 @@ export function OutputBrowser() {
           ))}
           {runs.length === 0 && !loading && (
             <p className="text-xs text-canvas-muted p-2">No run directories found.</p>
+          )}
+        </div>
+
+        {/* Session profiles (§G.14 / §D.4 Option C) */}
+        <div className="card p-2 space-y-2 shrink-0">
+          <p className="text-xs font-semibold text-gray-300">Session Profiles</p>
+          <div className="flex gap-1">
+            <input
+              type="text"
+              className="input-base text-xs flex-1"
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
+              placeholder="Profile name…"
+            />
+            <button
+              onClick={() => {
+                saveProfile(profileName);
+                setProfileName("");
+                toast.success("Launcher state saved");
+              }}
+              className="btn-ghost p-1.5"
+              title="Save current launcher forms"
+            >
+              <Save size={12} />
+            </button>
+          </div>
+          {profiles.length > 0 ? (
+            <div className="max-h-28 overflow-y-auto space-y-0.5">
+              {profiles.map((p) => (
+                <div key={p.id} className="flex items-center gap-1 text-xs">
+                  <button
+                    onClick={() => {
+                      loadProfile(p.id);
+                      toast.success(`Loaded profile "${p.name}"`);
+                    }}
+                    className="flex-1 text-left truncate text-gray-300 hover:text-accent-secondary py-0.5"
+                  >
+                    {p.name}
+                  </button>
+                  <button
+                    onClick={() => deleteProfile(p.id)}
+                    className="text-canvas-muted hover:text-accent-danger p-0.5"
+                  >
+                    <Trash2 size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[10px] text-canvas-muted">No saved profiles yet.</p>
           )}
         </div>
       </div>

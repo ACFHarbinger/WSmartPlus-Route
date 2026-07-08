@@ -13,6 +13,47 @@ import type { OptunaStudyData, OptunaStudySummary } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
 
+const COMPARE_COLORS = ["#6366f1", "#f87171"];
+
+function buildCrossStudyHistoryOption(
+  studies: Array<{ name: string; trials: OptunaStudyData["trials"] }>
+) {
+  const series = studies.map((s, i) => {
+    const completed = s.trials.filter((t) => t.state === "COMPLETE" && t.value != null);
+    let best = Infinity;
+    const bestSoFar = completed.map((t) => {
+      best = Math.min(best, t.value as number);
+      return best;
+    });
+    return {
+      name: s.name,
+      type: "line",
+      data: bestSoFar,
+      lineStyle: { color: COMPARE_COLORS[i % COMPARE_COLORS.length], width: 2 },
+      showSymbol: false,
+    };
+  });
+  const maxLen = Math.max(...series.map((s) => s.data.length), 1);
+  return {
+    backgroundColor: "transparent",
+    grid: { left: 50, right: 10, top: 30, bottom: 40 },
+    xAxis: {
+      type: "category",
+      data: Array.from({ length: maxLen }, (_, i) => i + 1),
+      name: "Trial #",
+      axisLabel: { color: "#9090b0", fontSize: 10 },
+    },
+    yAxis: {
+      type: "value",
+      name: "Best objective",
+      axisLabel: { color: "#9090b0", fontSize: 10 },
+    },
+    legend: { textStyle: { color: "#9090b0", fontSize: 11 } },
+    series,
+    tooltip: { trigger: "axis" },
+  };
+}
+
 function buildHistoryOption(trials: OptunaStudyData["trials"]) {
   const completed = trials.filter((t) => t.state === "COMPLETE" && t.value != null);
   const numbers = completed.map((t) => t.number);
@@ -131,6 +172,8 @@ export function HPOTracker() {
   const [studies, setStudies] = useState<OptunaStudySummary[]>([]);
   const [selectedStudy, setSelectedStudy] = useState<string | null>(null);
   const [studyData, setStudyData] = useState<OptunaStudyData | null>(null);
+  const [compareStudy, setCompareStudy] = useState<string | null>(null);
+  const [compareStudyData, setCompareStudyData] = useState<OptunaStudyData | null>(null);
   const [loading, setLoading] = useState(false);
 
   const refreshStudies = useCallback(async () => {
@@ -180,6 +223,29 @@ export function HPOTracker() {
   useEffect(() => {
     if (selectedStudy && projectRoot) loadStudy(selectedStudy);
   }, [selectedStudy]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!compareStudy || !projectRoot) {
+      setCompareStudyData(null);
+      return;
+    }
+    invoke<OptunaStudyData>("load_optuna_study", {
+      storageUrl,
+      studyName: compareStudy,
+      projectRoot,
+      pythonExecutable: pythonPath || null,
+    })
+      .then(setCompareStudyData)
+      .catch(() => setCompareStudyData(null));
+  }, [compareStudy, projectRoot, pythonPath, storageUrl]);
+
+  const crossStudyOption = useMemo(() => {
+    if (!studyData || !compareStudyData) return null;
+    return buildCrossStudyHistoryOption([
+      { name: studyData.name, trials: studyData.trials },
+      { name: compareStudyData.name, trials: compareStudyData.trials },
+    ]);
+  }, [studyData, compareStudyData]);
 
   const parallelOption = useMemo(
     () => (studyData ? buildParallelOption(studyData) : null),
@@ -265,6 +331,25 @@ export function HPOTracker() {
             )}
           </div>
 
+          <div className="flex items-center gap-3">
+            <label className="text-xs text-canvas-muted">Compare with</label>
+            <select
+              className="select-base flex-1 text-xs"
+              value={compareStudy ?? ""}
+              onChange={(e) => setCompareStudy(e.target.value || null)}
+            >
+              <option value="">— none —</option>
+              {studies
+                .filter((s) => s.name !== selectedStudy)
+                .map((s) => (
+                  <option key={s.name} value={s.name}>
+                    {s.name}
+                    {s.best_value != null ? ` (best: ${s.best_value.toFixed(4)})` : ""}
+                  </option>
+                ))}
+            </select>
+          </div>
+
           {studyData && (
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div className="kpi-card">
@@ -310,6 +395,29 @@ export function HPOTracker() {
                 option={buildImportanceOption(studyData.importances)}
                 style={{ height: 260 }}
               />
+            </div>
+          )}
+        </div>
+      )}
+
+      {crossStudyOption && (
+        <div className="card">
+          <p className="text-xs text-canvas-muted mb-2">Cross-Study Comparison — Best-So-Far</p>
+          <ReactECharts option={crossStudyOption} style={{ height: 280 }} />
+          {compareStudyData && studyData && (
+            <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
+              <div className="kpi-card">
+                <p className="text-canvas-muted">{studyData.name}</p>
+                <p className="font-mono text-accent-success">
+                  {studyData.best_value != null ? studyData.best_value.toFixed(6) : "—"}
+                </p>
+              </div>
+              <div className="kpi-card">
+                <p className="text-canvas-muted">{compareStudyData.name}</p>
+                <p className="font-mono text-accent-danger">
+                  {compareStudyData.best_value != null ? compareStudyData.best_value.toFixed(6) : "—"}
+                </p>
+              </div>
             </div>
           )}
         </div>

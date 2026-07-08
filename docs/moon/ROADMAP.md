@@ -1110,8 +1110,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Graph form: area selector (figueiradafoz/riomaior), num_loc, n_samples, n_days fields; configures `data.graphs[0]` via Hydra override
 - [x] Advanced Overrides collapsible + command preview (`python main.py gen_data ...`)
 - [x] TSPLIB source option: `dataSource` radio (synthetic / TSPLIB); `.vrp`/`.tsp` file picker via Tauri dialog; Hydra overrides `data.source=tsplib` + `data.tsplib_instance=<path>`; graph form hidden in TSPLIB mode
-- [ ] Sensor data source option
-- [ ] Preview panel: generated instance statistics (node count, demand histogram, distance distribution)
+- [x] Sensor data source option: third `dataSource` radio; CSV file picker (timestamp,bin_id,fill_level,waste_type); Hydra overrides `data.source=sensor` + `data.sensor_file=<path>`
+- [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 
@@ -1143,7 +1143,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust `write_text_file` command: creates parent directories if needed; used by the Save button
 - [x] "Save" button in toolbar: writes edited Raw content back to the opened file path; active only when unsaved edits exist (dirty state tracked via `savedContentRef`); `Save*` label indicates unsaved changes
 - [x] Load the resolved Hydra config tree via `dump_hydra_config` Rust command (`main.py <task> --cfg job`); task selector + "Load via --cfg job" button in ConfigEditor toolbar
-- [ ] Form mode: type-appropriate widgets generated from OmegaConf schema
+- [x] Form mode: fourth view toggle with typed widgets (boolean checkbox, number input, text input) inferred from flat YAML values; edits sync to Raw content via `rowsToYaml()` (OmegaConf schema introspection deferred)
 - [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
 - [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
 
@@ -1162,7 +1162,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Directory tree view: auto-expand `hydra/` on run selection; `sortEntries()` prioritises config and log artefacts; highlight `pruned_config.yaml` and `.jsonl` in the file tree
 - [x] Simulation result summary: on `selectRun`, scans top-level entries for a `.jsonl` file ≤ 20 MB; reads it via `read_text_file`, parses each line as `DayLogEntry`, aggregates overflows / kg/km / profit per policy; displays a compact 3-column KPI table (policy / overflows / kg/km) below the config metadata card; overflows colour-coded (green = 0, amber = low, red > 20)
 - [x] "Compare runs": per-run checkbox multi-select (≥2); `findRunJsonl()` locates logs in top-level or `hydra/`; navigates to BenchmarkAnalysis with `pendingBenchmarkLogs`
-- [ ] Session profiles (§D.4 Option C): save named snapshots of launcher form state; load from the Output Browser sidebar
+- [x] Session profiles (§D.4 Option C): `useSessionProfilesStore` persists named snapshots of all three launcher stores; save/load/delete UI in Output Browser sidebar (max 20 profiles)
 
 ---
 
@@ -1240,7 +1240,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line
   - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
-- [ ] **Cross-study comparison**: load two Optuna studies (e.g., two different algorithm HPO runs); overlay their optimization history curves; compare best-trial distributions
+- [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
 - [ ] **Tauri WebView embed fallback**: if the MLflow UI is running locally, add an optional embedded WebView tab that renders the MLflow dashboard at `http://localhost:5000`; guarded behind a feature flag in `tauri.conf.json`
 
 ---
