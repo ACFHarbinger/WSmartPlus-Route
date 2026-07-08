@@ -16,5 +16,15 @@ export default defineConfig({
     target: ["es2022", "chrome110", "safari16"],
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("echarts") || id.includes("zrender")) return "echarts";
+          if (id.includes("maplibre-gl")) return "maplibre";
+          if (id.includes("@deck.gl") || id.includes("deck.gl")) return "deckgl";
+          if (id.includes("@monaco-editor") || id.includes("monaco-editor")) return "monaco";
+        },
+      },
+    },
   },
 });

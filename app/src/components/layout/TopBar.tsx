@@ -1,4 +1,4 @@
-import { Moon, PanelLeft, Sun, AlertTriangle, Settings, Keyboard } from "lucide-react";
+import { Moon, PanelLeft, Sun, AlertTriangle, Settings, Keyboard, Search } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 import { useProcessStore } from "../../store/process";
@@ -24,7 +24,7 @@ const TITLES: Record<string, string> = {
 
 export function TopBar() {
   const { mode, theme, setTheme, projectRoot, setMode } = useAppStore();
-  const { sidebarOpen, toggleSidebar, setShortcutsOpen } = useLayoutStore();
+  const { sidebarOpen, toggleSidebar, setShortcutsOpen, setCommandPaletteOpen } = useLayoutStore();
   const processes = useProcessStore((s) => s.processes);
   const running = Object.values(processes).filter((p) => p.status === "running").length;
 
@@ -51,6 +51,14 @@ export function TopBar() {
               {running} running
             </span>
           )}
+
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            className="btn-ghost p-1.5"
+            title="Command palette (Ctrl+K)"
+          >
+            <Search size={14} />
+          </button>
 
           <button
             onClick={() => setShortcutsOpen(true)}

@@ -23,6 +23,8 @@ pub fn run() {
             data::inspect_wsroute_bundle,
             data::create_wsroute_bundle,
             data::extract_wsroute_bundle,
+            data::export_csv_to_parquet,
+            data::export_table_parquet,
             // Simulation file watcher
             sim_watcher::start_sim_watcher,
             sim_watcher::stop_sim_watcher,

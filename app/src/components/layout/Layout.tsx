@@ -1,4 +1,5 @@
 import { useLayoutStore } from "../../store/layout";
+import { CommandPalette } from "./CommandPalette";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -33,6 +34,7 @@ export function Layout({ children }: Props) {
           <div className="max-w-[1920px] mx-auto w-full min-w-0">{children}</div>
         </main>
       </div>
+      <CommandPalette />
       <KeyboardShortcutsHelp />
     </div>
   );

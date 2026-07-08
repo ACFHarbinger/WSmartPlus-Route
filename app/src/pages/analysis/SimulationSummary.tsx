@@ -16,7 +16,8 @@ import { useAppStore } from "../../store/app";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { downloadCsv } from "../../utils/tableExport";
+import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
+import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
 
 // ── Stat helpers ──────────────────────────────────────────────────────────────
@@ -105,10 +106,14 @@ function RankingTable({
   stats,
   policies,
   onExport,
+  onExportParquet,
+  parquetExporting,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   onExport: () => void;
+  onExportParquet?: () => void;
+  parquetExporting?: boolean;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("profit");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -146,10 +151,22 @@ function RankingTable({
     <div className="card overflow-x-auto">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold text-gray-300">Policy Ranking</p>
-        <button onClick={onExport} className="btn-ghost text-xs flex items-center gap-1">
-          <Download size={12} />
-          Export CSV
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={onExport} className="btn-ghost text-xs flex items-center gap-1">
+            <Download size={12} />
+            Export CSV
+          </button>
+          {onExportParquet && (
+            <button
+              onClick={onExportParquet}
+              disabled={parquetExporting}
+              className="btn-ghost text-xs flex items-center gap-1"
+            >
+              <Download size={12} />
+              Export Parquet
+            </button>
+          )}
+        </div>
       </div>
       <table className="w-full text-xs min-w-[520px]">
         <thead>
@@ -345,7 +362,8 @@ function MetricBarChart({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function SimulationSummary() {
-  const { pendingLogPath, setPendingLogPath } = useAppStore();
+  const { pendingLogPath, setPendingLogPath, projectRoot } = useAppStore();
+  const [parquetExporting, setParquetExporting] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
@@ -380,19 +398,39 @@ export function SimulationSummary() {
   const stats = useMemo(() => aggregateByPolicy(filteredEntries), [filteredEntries]);
   const policies = useMemo(() => Object.keys(stats), [stats]);
 
-  const exportRankingCsv = useCallback(() => {
+  const rankingExportData = useCallback(() => {
     const cols: MetricKey[] = ["profit", "km", "overflows", "kg"];
-    downloadCsv(
-      "simulation-ranking.csv",
-      ["policy", ...cols.map((c) => `mean_${c}`), ...cols.map((c) => `std_${c}`), "days"],
-      policies.map((p) => [
-        p,
-        ...cols.map((c) => mean(stats[p][c]).toFixed(4)),
-        ...cols.map((c) => std(stats[p][c]).toFixed(4)),
-        stats[p].days,
-      ])
-    );
+    const headers = ["policy", ...cols.map((c) => `mean_${c}`), ...cols.map((c) => `std_${c}`), "days"];
+    const rows = policies.map((p) => [
+      p,
+      ...cols.map((c) => mean(stats[p][c]).toFixed(4)),
+      ...cols.map((c) => std(stats[p][c]).toFixed(4)),
+      stats[p].days,
+    ]);
+    return { headers, rows };
   }, [policies, stats]);
+
+  const exportRankingCsv = useCallback(() => {
+    const { headers, rows } = rankingExportData();
+    downloadCsv("simulation-ranking.csv", headers, rows);
+  }, [rankingExportData]);
+
+  const exportRankingParquet = useCallback(async () => {
+    if (!projectRoot) {
+      toast.error("Set project root in Settings to export Parquet");
+      return;
+    }
+    const { headers, rows } = rankingExportData();
+    setParquetExporting(true);
+    try {
+      const out = await downloadParquetTable(projectRoot, "simulation-ranking.parquet", headers, rows);
+      if (out) toast.success("Parquet export complete", { description: out.split("/").pop() });
+    } catch (err) {
+      toast.error("Parquet export failed", { description: String(err) });
+    } finally {
+      setParquetExporting(false);
+    }
+  }, [projectRoot, rankingExportData]);
 
   const metricValues = (key: MetricKey) =>
     policies.map((p) => ({
@@ -423,7 +461,13 @@ export function SimulationSummary() {
       {policies.length > 0 && (
         <>
           {/* Policy ranking table */}
-          <RankingTable stats={stats} policies={policies} onExport={exportRankingCsv} />
+          <RankingTable
+            stats={stats}
+            policies={policies}
+            onExport={exportRankingCsv}
+            onExportParquet={projectRoot ? exportRankingParquet : undefined}
+            parquetExporting={parquetExporting}
+          />
 
           {/* Per-day trajectory */}
           <TrajectoryChart entries={filteredEntries} policies={policies} />

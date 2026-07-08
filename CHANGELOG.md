@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twentieth pass
+
+Twentieth implementation pass: command palette (§G.7); Parquet table export;
+bundle round-trip integration test; Vite manual chunk splitting for faster
+initial load.
+
+**Rust backend**
+- `data::export_csv_to_parquet` — converts an on-disk CSV to Parquet via pandas/pyarrow subprocess
+- `data::export_table_parquet` — writes in-memory tabular data to Parquet (temp CSV → convert)
+- `wsroute_bundle_round_trip_preserves_jsonl` unit test — create → extract → verify `.jsonl` content
+
+**React frontend**
+- `components/layout/CommandPalette.tsx` — fuzzy-search overlay for all 17 views + theme/shortcuts actions; `Ctrl+K` or TopBar search button
+- `constants/commands.ts` — shared palette command registry
+- `utils/tableExport.ts` — `downloadParquetFromCsv()` and `downloadParquetTable()` helpers
+- `DataExplorer`, `OutputBrowser`, `SimulationSummary` — Parquet export buttons alongside CSV
+- `vite.config.ts` — `manualChunks` for echarts, maplibre, deck.gl, monaco vendor bundles
+
+**ROADMAP**
+- §G.7 command palette and Parquet export checked; manual chunk splitting noted (partial — <2s load target deferred)
+- §G.8 bundle round-trip integration test checked (partial — Tauri bundler/updater deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — nineteenth pass
 
 Nineteenth implementation pass: `.wsroute` bundle create/extract (§G.8); deck.gl
