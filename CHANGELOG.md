@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventeenth pass
+
+Seventeenth implementation pass: Monaco YAML editor in Config Editor (§G.13);
+ZenML pipeline run browser with step-duration Gantt chart (§G.18); table CSV
+export utility; global filters in Simulation Summary; HPO chart PNG export;
+responsive layout container (§G.7).
+
+**Rust backend**
+- `commands/zenml.rs` — `list_zenml_pipeline_runs`, `load_zenml_run_steps`: Python subprocess queries ZenML via `Client.list_pipeline_runs` and `get_pipeline_run`
+
+**React frontend**
+- `components/editors/YamlEditor.tsx` — Monaco YAML editor (lazy-loaded) with dark/light theme sync; replaces raw textarea in ConfigEditor
+- `pages/analysis/ZenMLPipelineView.tsx` — pipeline run table, step-duration horizontal bar chart (Gantt-style), CSV/PNG export
+- `pages/analysis/ExperimentTracker.tsx` — embeds ZenML section; MLflow runs CSV export
+- `pages/analysis/SimulationSummary.tsx` — respects `useGlobalFiltersStore`; ranking table CSV export; active filter badge
+- `pages/analysis/HPOTracker.tsx` — PNG export buttons on all four ECharts panels
+- `utils/tableExport.ts` — reusable `downloadCsv()` for table data export
+- `components/layout/Layout.tsx` — max-width container (`1920px`) and responsive padding
+- `types/index.ts` — `ZenmlPipelineRun`, `ZenmlPipelineStep` interfaces
+- `package.json` — `@monaco-editor/react` dependency
+
+**ROADMAP**
+- §G.13 Monaco Editor integration checked
+- §G.18 ZenML pipeline view checked
+- §G.7 table CSV export (partial), responsive layout (partial), theme toggle noted done
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixteenth pass
 
 Sixteenth implementation pass: MLflow run browser and metric comparison (§G.18);

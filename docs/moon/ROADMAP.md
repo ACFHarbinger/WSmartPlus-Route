@@ -1041,14 +1041,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Connect all analytics phases into a single cohesive analytical narrative flow, and satisfy all §D UX requirements.
 
 - [ ] App-level navigation: Overview → Drill-Down → Geospatial → Graph → ML → Query → Launchers
-- [x] Global filter state management (Zustand): `useGlobalFiltersStore` propagates policy/sample filters across SimulationMonitor and AlgorithmComparison
+- [x] Global filter state management (Zustand): `useGlobalFiltersStore` propagates policy/sample filters across SimulationMonitor, AlgorithmComparison, and SimulationSummary
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
-- [ ] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4)
+- [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav (§D.7); `P`/`M` shortcuts deferred
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
-- [ ] Responsive layout for different screen sizes (primary target: 2560×1440 research workstation)
+- [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns on HPO/Summary charts; full mobile sidebar collapse deferred
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor and ExperimentTracker charts (partial — SVG/table CSV/Parquet deferred)
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, ExperimentTracker, HPOTracker charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking (partial — SVG/Parquet deferred)
 
 ---
 
@@ -1144,7 +1144,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] "Save" button in toolbar: writes edited Raw content back to the opened file path; active only when unsaved edits exist (dirty state tracked via `savedContentRef`); `Save*` label indicates unsaved changes
 - [x] Load the resolved Hydra config tree via `dump_hydra_config` Rust command (`main.py <task> --cfg job`); task selector + "Load via --cfg job" button in ConfigEditor toolbar
 - [x] Form mode: fourth view toggle with typed widgets (boolean checkbox, number input, text input) inferred from flat YAML values; edits sync to Raw content via `rowsToYaml()` (OmegaConf schema introspection deferred)
-- [ ] Monaco Editor integration for the Raw YAML mode (§D.6 Option C)
+- [x] Monaco Editor integration for the Raw YAML mode (§D.6 Option C): lazy-loaded `YamlEditor` with syntax highlighting and theme sync
 - [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
 
 ---
@@ -1235,7 +1235,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 - [x] **MLflow run table** (`experiment_tracker.py` parity): Rust queries MLflow via Python subprocess (`mlflow.search_runs`); display runs with params, metrics, tags, artifact path
 - [x] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line series; metric name selector and Y-axis normalization toggle
-- [ ] **ZenML pipeline view** (if ZenML is configured): list recent pipeline runs and their step DAG; display step durations as a Gantt-style chart
+- [x] **ZenML pipeline view** (if ZenML is configured): `list_zenml_pipeline_runs` + `load_zenml_run_steps` Rust commands; pipeline run table; step-duration horizontal bar chart (Gantt-style); CSV/PNG export
 - [x] **Optuna study browser** (`hpo_tracker.py` parity): `list_optuna_studies` + `load_optuna_study` Rust commands call Optuna via Python subprocess; trials serialised to JSON; HPOTracker displays:
   - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line

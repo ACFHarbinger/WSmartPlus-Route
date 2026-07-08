@@ -2,11 +2,12 @@
  * HPO Tracker — Optuna study browser with ECharts visualizations (§G.18).
  * Ports Streamlit `hpo_tracker` mode.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Copy, FolderOpen, RefreshCw } from "lucide-react";
+import { Copy, Download, FolderOpen, RefreshCw } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import type { OptunaStudyData, OptunaStudySummary } from "../../types";
@@ -175,6 +176,10 @@ export function HPOTracker() {
   const [compareStudy, setCompareStudy] = useState<string | null>(null);
   const [compareStudyData, setCompareStudyData] = useState<OptunaStudyData | null>(null);
   const [loading, setLoading] = useState(false);
+  const historyChartRef = useRef<ReactECharts>(null);
+  const importanceChartRef = useRef<ReactECharts>(null);
+  const crossStudyChartRef = useRef<ReactECharts>(null);
+  const parallelChartRef = useRef<ReactECharts>(null);
 
   const refreshStudies = useCallback(async () => {
     if (!projectRoot) return;
@@ -380,18 +385,38 @@ export function HPOTracker() {
       )}
 
       {studyData && studyData.trials.filter((t) => t.state === "COMPLETE").length >= 2 && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="card">
-            <p className="text-xs text-canvas-muted mb-2">Optimisation History</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-canvas-muted">Optimisation History</p>
+              <button
+                className="btn-ghost p-0.5"
+                title="Export PNG"
+                onClick={() => exportChartPng(historyChartRef, "hpo-history.png")}
+              >
+                <Download size={11} className="text-canvas-muted" />
+              </button>
+            </div>
             <ReactECharts
+              ref={historyChartRef}
               option={buildHistoryOption(studyData.trials)}
               style={{ height: 260 }}
             />
           </div>
           {Object.keys(studyData.importances).length > 0 && (
             <div className="card">
-              <p className="text-xs text-canvas-muted mb-2">Parameter Importance (FANOVA)</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-canvas-muted">Parameter Importance (FANOVA)</p>
+                <button
+                  className="btn-ghost p-0.5"
+                  title="Export PNG"
+                  onClick={() => exportChartPng(importanceChartRef, "hpo-importance.png")}
+                >
+                  <Download size={11} className="text-canvas-muted" />
+                </button>
+              </div>
               <ReactECharts
+                ref={importanceChartRef}
                 option={buildImportanceOption(studyData.importances)}
                 style={{ height: 260 }}
               />
@@ -402,8 +427,17 @@ export function HPOTracker() {
 
       {crossStudyOption && (
         <div className="card">
-          <p className="text-xs text-canvas-muted mb-2">Cross-Study Comparison — Best-So-Far</p>
-          <ReactECharts option={crossStudyOption} style={{ height: 280 }} />
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-canvas-muted">Cross-Study Comparison — Best-So-Far</p>
+            <button
+              className="btn-ghost p-0.5"
+              title="Export PNG"
+              onClick={() => exportChartPng(crossStudyChartRef, "hpo-cross-study.png")}
+            >
+              <Download size={11} className="text-canvas-muted" />
+            </button>
+          </div>
+          <ReactECharts ref={crossStudyChartRef} option={crossStudyOption} style={{ height: 280 }} />
           {compareStudyData && studyData && (
             <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
               <div className="kpi-card">
@@ -425,8 +459,17 @@ export function HPOTracker() {
 
       {parallelOption && (
         <div className="card">
-          <p className="text-xs text-canvas-muted mb-2">Parallel Coordinates</p>
-          <ReactECharts option={parallelOption} style={{ height: 320 }} />
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-canvas-muted">Parallel Coordinates</p>
+            <button
+              className="btn-ghost p-0.5"
+              title="Export PNG"
+              onClick={() => exportChartPng(parallelChartRef, "hpo-parallel.png")}
+            >
+              <Download size={11} className="text-canvas-muted" />
+            </button>
+          </div>
+          <ReactECharts ref={parallelChartRef} option={parallelOption} style={{ height: 320 }} />
         </div>
       )}
 
