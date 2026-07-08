@@ -18,6 +18,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { useLayoutStore } from "../../store/layout";
 import type { AppMode, NavSection } from "../../types";
 
 const NAV: NavSection[] = [
@@ -85,9 +86,18 @@ const ICON: Record<AppMode, React.ReactNode> = {
 
 export function Sidebar() {
   const { mode, setMode } = useAppStore();
+  const sidebarOpen = useLayoutStore((s) => s.sidebarOpen);
+  const setSidebarOpen = useLayoutStore((s) => s.setSidebarOpen);
 
   return (
-    <aside className="w-56 shrink-0 flex flex-col bg-canvas-surface border-r border-canvas-border h-screen overflow-y-auto">
+    <aside
+      className={[
+        "shrink-0 flex flex-col bg-canvas-surface border-r border-canvas-border h-screen overflow-y-auto z-30",
+        "w-56 transition-transform duration-200",
+        "fixed lg:static inset-y-0 left-0",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-0 lg:border-0 lg:overflow-hidden",
+      ].join(" ")}
+    >
       {/* Brand */}
       <div className="px-4 py-4 border-b border-canvas-border">
         <div className="flex items-center gap-2">
@@ -112,7 +122,10 @@ export function Sidebar() {
                 return (
                   <li key={item.mode}>
                     <button
-                      onClick={() => setMode(item.mode)}
+                      onClick={() => {
+                        setMode(item.mode);
+                        if (window.innerWidth < 1024) setSidebarOpen(false);
+                      }}
                       className={[
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors text-left",
                         active

@@ -4,6 +4,7 @@
  */
 import ReactECharts from "echarts-for-react";
 import { useMemo } from "react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
 
@@ -79,6 +80,8 @@ export function AlgorithmComparison() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar />
+
       <div className="card">
         <p className="text-xs text-canvas-muted mb-3">Radar — normalised average metrics per policy</p>
         <ReactECharts option={radarOption} style={{ height: 340 }} />

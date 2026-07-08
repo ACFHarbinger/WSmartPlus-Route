@@ -5,12 +5,16 @@
  * Also consumes `pendingEvalResults` from EvaluationRunner (§G.12) to display
  * checkpoint comparison charts without requiring simulation log files.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, X } from "lucide-react";
+import { FolderOpen, X, Download } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
+import { filterEntries } from "../../store/sim";
+import { downloadCsv } from "../../utils/tableExport";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
 
 interface RunFile {
@@ -128,6 +132,16 @@ export function BenchmarkAnalysis() {
   } = useAppStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
+  const { policy, sampleId } = useGlobalFiltersStore();
+
+  const filteredRuns = useMemo(
+    () =>
+      runs.map((r) => ({
+        ...r,
+        entries: filterEntries(r.entries, policy, sampleId),
+      })),
+    [runs, policy, sampleId]
+  );
 
   // Consume pending eval results on mount
   useEffect(() => {
@@ -164,14 +178,35 @@ export function BenchmarkAnalysis() {
 
   const removeRun = (path: string) => setRuns((r) => r.filter((x) => x.path !== path));
 
+  const exportComparisonCsv = useCallback(() => {
+    const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
+    downloadCsv(
+      "benchmark-comparison.csv",
+      ["run", "policy", ...SIM_METRICS.map((m) => m.key)],
+      filteredRuns.flatMap((r) =>
+        policies.map((p) => {
+          const vals = r.entries
+            .filter((e) => e.policy === p)
+            .map((e) => e.data as Record<string, number>);
+          const row: Array<string | number> = [r.label, p];
+          for (const { key } of SIM_METRICS) {
+            const v = vals.map((d) => d[key]).filter((x): x is number => x != null);
+            row.push(v.length ? mean(v).toFixed(4) : "");
+          }
+          return row;
+        })
+      )
+    );
+  }, [filteredRuns]);
+
   const makeBarOption = (metricKey: string, metricLabel: string) => {
-    const runLabels = runs.map((r) => r.label);
-    const policies = [...new Set(runs.flatMap((r) => r.entries.map((e) => e.policy)))];
+    const runLabels = filteredRuns.map((r) => r.label);
+    const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
 
     const series = policies.map((p, i) => ({
       name: p,
       type: "bar",
-      data: runs.map((r) => {
+      data: filteredRuns.map((r) => {
         const vals = r.entries
           .filter((e) => e.policy === p)
           .map((e) => (e.data as Record<string, number>)[metricKey] ?? null)
@@ -203,6 +238,8 @@ export function BenchmarkAnalysis() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar />
+
       {evalRows && evalRows.length > 0 && (
         <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />
       )}
@@ -213,6 +250,12 @@ export function BenchmarkAnalysis() {
           Add Simulation Run
         </button>
         <span className="text-xs text-canvas-muted">{runs.length} simulation run(s) loaded</span>
+        {filteredRuns.length > 0 && (
+          <button onClick={exportComparisonCsv} className="btn-ghost text-xs flex items-center gap-1">
+            <Download size={12} />
+            Export CSV
+          </button>
+        )}
       </div>
 
       {runs.length > 0 && (

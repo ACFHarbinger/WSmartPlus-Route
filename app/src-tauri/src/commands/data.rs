@@ -1,8 +1,11 @@
 /// Data loading commands for simulation logs, CSVs, and training metrics.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
 use std::path::Path;
 use std::process::Command;
+use zip::ZipArchive;
 
 use crate::commands::process::resolve_python;
 use crate::commands::sim_watcher::{parse_day_log_line, DayLogEntry};
@@ -321,4 +324,65 @@ pub fn preview_dataset_stats(
         return Err(err.to_string());
     }
     serde_json::from_value(value).map_err(|e| e.to_string())
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct WsrouteBundleFile {
+    pub path: String,
+    pub size_bytes: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct WsrouteBundleInfo {
+    pub path: String,
+    pub version: Option<String>,
+    pub created_at: Option<String>,
+    pub files: Vec<WsrouteBundleFile>,
+}
+
+/// Inspect a `.wsroute` zip bundle produced by `logic/gen/export_for_studio.py`.
+#[tauri::command]
+pub fn inspect_wsroute_bundle(path: String) -> Result<WsrouteBundleInfo, String> {
+    let file = File::open(&path).map_err(|e| format!("Failed to open bundle: {e}"))?;
+    let mut archive = ZipArchive::new(file).map_err(|e| format!("Invalid zip bundle: {e}"))?;
+
+    let mut files = Vec::new();
+    let mut version = None;
+    let mut created_at = None;
+
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        let name = entry.name().to_string();
+        let size = entry.size();
+
+        if name == "manifest.json" {
+            let mut buf = String::new();
+            if entry.read_to_string(&mut buf).is_ok() {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&buf) {
+                    version = v
+                        .get("version")
+                        .and_then(|x| x.as_str())
+                        .map(str::to_string);
+                    created_at = v
+                        .get("created_at")
+                        .and_then(|x| x.as_str())
+                        .map(str::to_string);
+                }
+            }
+        }
+
+        files.push(WsrouteBundleFile {
+            path: name,
+            size_bytes: size,
+        });
+    }
+
+    files.sort_by(|a, b| a.path.cmp(&b.path));
+
+    Ok(WsrouteBundleInfo {
+        path,
+        version,
+        created_at,
+        files,
+    })
 }

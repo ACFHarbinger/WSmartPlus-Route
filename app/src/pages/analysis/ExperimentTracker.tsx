@@ -5,7 +5,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
-import { Download, RefreshCw } from "lucide-react";
+import { open as openUrl } from "@tauri-apps/plugin-shell";
+import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
 import { exportChartPng } from "../../utils/chartExport";
@@ -14,6 +15,9 @@ import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
 const DEFAULT_TRACKING_URI = "mlruns";
 const DEFAULT_EXPERIMENT = "wsmart-route";
+const DEFAULT_MLFLOW_UI = "http://localhost:5000";
+
+type MlflowView = "runs" | "dashboard";
 const RUN_COLORS = [
   "#667eea", "#f093fb", "#4fd1c5", "#f6ad55", "#fc8181",
   "#90cdf4", "#9ae6b4", "#fbd38d",
@@ -43,6 +47,8 @@ export function ExperimentTracker() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outputDirs, setOutputDirs] = useState<OutputDir[]>([]);
+  const [mlflowView, setMlflowView] = useState<MlflowView>("runs");
+  const [mlflowUiUrl, setMlflowUiUrl] = useState(DEFAULT_MLFLOW_UI);
   const chartRef = useRef<ReactECharts>(null);
 
   const refreshRuns = useCallback(async () => {
@@ -191,7 +197,56 @@ export function ExperimentTracker() {
     <div className="space-y-4">
       {/* MLflow connection */}
       <div className="card space-y-3">
-        <h2 className="text-sm font-semibold text-gray-200">MLflow Tracking</h2>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-sm font-semibold text-gray-200">MLflow Tracking</h2>
+          <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+            {(["runs", "dashboard"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setMlflowView(v)}
+                className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                  mlflowView === v
+                    ? "bg-accent-primary text-white"
+                    : "text-canvas-muted hover:text-gray-200"
+                }`}
+              >
+                {v === "runs" ? "Runs" : "Dashboard"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {mlflowView === "dashboard" && (
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2 items-center">
+              <input
+                className="input-base font-mono text-xs flex-1 min-w-[200px]"
+                value={mlflowUiUrl}
+                onChange={(e) => setMlflowUiUrl(e.target.value)}
+                placeholder="http://localhost:5000"
+              />
+              <button
+                onClick={() => openUrl(mlflowUiUrl).catch(() => {})}
+                className="btn-ghost text-xs flex items-center gap-1"
+              >
+                <ExternalLink size={12} />
+                Open in browser
+              </button>
+            </div>
+            <iframe
+              title="MLflow Dashboard"
+              src={mlflowUiUrl}
+              className="w-full h-[480px] rounded-lg border border-canvas-border bg-white"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+            />
+            <p className="text-[10px] text-canvas-muted">
+              Embedded MLflow UI fallback (§G.18). Start the MLflow server locally to use this view.
+            </p>
+          </div>
+        )}
+
+        {mlflowView === "runs" && (
+        <>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-canvas-muted">Tracking URI</label>
@@ -244,7 +299,6 @@ export function ExperimentTracker() {
         {error && (
           <p className="text-xs text-accent-danger">{error}</p>
         )}
-      </div>
 
       {/* MLflow run table */}
       <div className="card overflow-auto">
@@ -354,6 +408,9 @@ export function ExperimentTracker() {
           </div>
         </div>
       )}
+        </>
+        )}
+      </div>
 
       {/* ZenML pipeline runs (§G.18) */}
       <ZenMLPipelineView />

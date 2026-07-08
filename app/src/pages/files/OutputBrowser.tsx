@@ -26,7 +26,7 @@ import {
 import { useAppStore } from "../../store/app";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
-import type { DirEntry, OutputDir, DayLogEntry } from "../../types";
+import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo } from "../../types";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -40,6 +40,7 @@ const LOG_EXTENSIONS = new Set(["jsonl"]);
 
 function FileIcon({ entry }: { entry: DirEntry }) {
   if (entry.is_dir) return <Folder size={13} className="text-accent-warning" />;
+  if (entry.extension === "wsroute") return <File size={13} className="text-accent-primary" />;
   if (CSV_EXTENSIONS.has(entry.extension)) return <File size={13} className="text-accent-success" />;
   if (TEXT_EXTENSIONS.has(entry.extension)) return <FileText size={13} className="text-accent-secondary" />;
   return <File size={13} className="text-canvas-muted" />;
@@ -114,6 +115,7 @@ export function OutputBrowser() {
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [subEntries, setSubEntries] = useState<Record<string, DirEntry[]>>({});
   const [fileContent, setFileContent] = useState<string | null>(null);
+  const [wsrouteBundle, setWsrouteBundle] = useState<WsrouteBundleInfo | null>(null);
   const [csvRows, setCsvRows] = useState<Array<Record<string, string | number | null>> | null>(null);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [viewingPath, setViewingPath] = useState<string | null>(null);
@@ -238,10 +240,16 @@ export function OutputBrowser() {
     setViewingExt(entry.extension);
     setFileContent(null);
     setCsvRows(null);
+    setWsrouteBundle(null);
     setFileLoading(true);
 
     try {
-      if (CSV_EXTENSIONS.has(entry.extension)) {
+      if (entry.extension === "wsroute") {
+        const info = await invoke<WsrouteBundleInfo>("inspect_wsroute_bundle", {
+          path: entry.path,
+        });
+        setWsrouteBundle(info);
+      } else if (CSV_EXTENSIONS.has(entry.extension)) {
         const csvFile = await invoke<{ headers: string[]; rows: Array<Record<string, string | number | null>> }>(
           "load_csv_file",
           { path: entry.path }
@@ -537,7 +545,7 @@ export function OutputBrowser() {
           </div>
         )}
 
-        {!fileLoading && (fileContent !== null || csvRows !== null) && (
+        {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null) && (
           <div className="flex items-center gap-3 shrink-0">
             <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
             {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
@@ -555,6 +563,38 @@ export function OutputBrowser() {
         {!fileLoading && fileContent !== null && (
           <div className="card flex-1 overflow-auto">
             <pre className="font-mono text-xs text-gray-300 whitespace-pre-wrap">{fileContent}</pre>
+          </div>
+        )}
+
+        {!fileLoading && wsrouteBundle !== null && (
+          <div className="card flex-1 overflow-auto space-y-3">
+            <div className="flex flex-wrap gap-4 text-xs">
+              <span className="text-canvas-muted">
+                Version: <span className="font-mono text-gray-300">{wsrouteBundle.version ?? "—"}</span>
+              </span>
+              <span className="text-canvas-muted">
+                Created: <span className="font-mono text-gray-300">{wsrouteBundle.created_at ?? "—"}</span>
+              </span>
+              <span className="text-canvas-muted">
+                Files: <span className="font-mono text-gray-300">{wsrouteBundle.files.length}</span>
+              </span>
+            </div>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-canvas-border">
+                  <th className="text-left py-2 px-3 text-canvas-muted font-medium">Path</th>
+                  <th className="text-right py-2 px-3 text-canvas-muted font-medium">Size</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-canvas-border">
+                {wsrouteBundle.files.map((f) => (
+                  <tr key={f.path} className="hover:bg-canvas-hover">
+                    <td className="py-1.5 px-3 font-mono text-gray-300">{f.path}</td>
+                    <td className="py-1.5 px-3 text-right text-canvas-muted">{formatBytes(f.size_bytes)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
