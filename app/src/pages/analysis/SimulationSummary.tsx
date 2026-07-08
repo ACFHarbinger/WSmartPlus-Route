@@ -13,6 +13,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { downloadCsv } from "../../utils/tableExport";
@@ -345,7 +346,7 @@ function MetricBarChart({
 
 export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath } = useAppStore();
-  const { policy, sampleId } = useGlobalFiltersStore();
+  const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
 
@@ -401,6 +402,8 @@ export function SimulationSummary() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar />
+
       <div className="flex items-center gap-3">
         <button onClick={openLog} className="btn-primary flex items-center gap-2">
           <FolderOpen size={14} />
@@ -408,12 +411,6 @@ export function SimulationSummary() {
         </button>
         {logPath && (
           <span className="text-xs text-canvas-muted font-mono truncate">{logPath.split("/").pop()}</span>
-        )}
-        {(policy || sampleId != null) && (
-          <span className="text-xs text-canvas-muted">
-            Filter: {policy ?? "all policies"}
-            {sampleId != null ? ` · sample ${sampleId}` : ""}
-          </span>
         )}
       </div>
 

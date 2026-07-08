@@ -132,6 +132,18 @@ export default function App() {
         setMode("hpo_tracker");
         return;
       }
+      // P → Process monitor (§G.7 / §D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "p") {
+        e.preventDefault();
+        setMode("process_monitor");
+        return;
+      }
+      // M → Map / simulation digital twin (§G.7 / §D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "m") {
+        e.preventDefault();
+        setMode("simulation");
+        return;
+      }
       // Ctrl+R → launch on active launcher page (§G.7)
       if ((e.ctrlKey || e.metaKey) && e.key === "r") {
         e.preventDefault();

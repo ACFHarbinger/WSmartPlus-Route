@@ -1040,13 +1040,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Connect all analytics phases into a single cohesive analytical narrative flow, and satisfy all §D UX requirements.
 
-- [ ] App-level navigation: Overview → Drill-Down → Geospatial → Graph → ML → Query → Launchers
-- [x] Global filter state management (Zustand): `useGlobalFiltersStore` propagates policy/sample filters across SimulationMonitor, AlgorithmComparison, and SimulationSummary
+- [x] App-level navigation: `WorkflowNav` strip — Overview → Drill-Down → Geospatial → Registry → ML → HPO → Launch (§G.7)
+- [x] Global filter state management (Zustand): `useGlobalFiltersStore` + `GlobalFilterBar` propagates policy/sample filters across SimulationMonitor, AlgorithmComparison, SimulationSummary, and BenchmarkAnalysis
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
-- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav (§D.7); `P`/`M` shortcuts deferred
+- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav (§D.7)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
-- [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns on HPO/Summary charts; full mobile sidebar collapse deferred
+- [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, ExperimentTracker, HPOTracker charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking (partial — SVG/Parquet deferred)
 
@@ -1056,8 +1056,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
-- [ ] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a single `.wsroute` bundle (zipped Parquet + Arrow IPC)
-- [ ] Rust backend: open `.wsroute` bundle directly (no separate file management)
+- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a `.wsroute` zip bundle with `manifest.json` (Parquet/Arrow IPC deferred)
+- [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser (full import/decompress deferred)
 - [ ] Tauri bundler: produce signed `.deb`/`.AppImage` (Linux), `.dmg` (macOS), `.msi` (Windows) distributables
 - [ ] Auto-update via Tauri updater plugin
 - [ ] Integration test: round-trip export → import → verify all simulation rows load correctly
@@ -1242,7 +1242,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
   - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
-- [ ] **Tauri WebView embed fallback**: if the MLflow UI is running locally, add an optional embedded WebView tab that renders the MLflow dashboard at `http://localhost:5000`; guarded behind a feature flag in `tauri.conf.json`
+- [x] **MLflow dashboard embed fallback**: Runs/Dashboard tab toggle in ExperimentTracker; iframe embed of local MLflow UI (`http://localhost:5000` default) + open-in-browser via shell plugin (native WebView window deferred)
 
 ---
 

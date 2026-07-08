@@ -197,6 +197,20 @@ export interface ZenmlPipelineStep {
   duration_seconds: number | null;
 }
 
+// ── Studio data bundles (§G.8) ───────────────────────────────────────────────
+
+export interface WsrouteBundleFile {
+  path: string;
+  size_bytes: number;
+}
+
+export interface WsrouteBundleInfo {
+  path: string;
+  version: string | null;
+  created_at: string | null;
+  files: WsrouteBundleFile[];
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 export type AppMode =

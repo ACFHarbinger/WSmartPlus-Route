@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighteenth pass
+
+Eighteenth implementation pass: analytical workflow navigation strip and
+collapsible sidebar (§G.7); `P`/`M` keyboard shortcuts; `GlobalFilterBar`
+propagated to Benchmark Analysis; MLflow dashboard iframe embed (§G.18);
+`.wsroute` bundle export script and inspector (§G.8 partial).
+
+**Python**
+- `logic/gen/export_for_studio.py` — packages run output artefacts (CSV, JSON/JSONL, YAML, NPZ, PKL, PT, Parquet) into a `.wsroute` zip with `manifest.json`
+
+**Rust backend**
+- `data::inspect_wsroute_bundle(path)` — lists zip contents and parses bundle manifest
+- `zip` crate dependency for bundle inspection
+
+**React frontend**
+- `components/layout/WorkflowNav.tsx` — Overview → Drill-Down → Geospatial → Registry → ML → HPO → Launch strip (§G.7)
+- `components/layout/GlobalFilterBar.tsx` — shared policy/sample filter controls
+- `store/layout.ts` — `sidebarOpen` state with persistence; TopBar toggle + mobile overlay backdrop
+- `App.tsx` — `P` → Process Monitor, `M` → Simulation Digital Twin
+- `pages/analysis/BenchmarkAnalysis.tsx` — global filter propagation + comparison CSV export
+- `pages/analysis/ExperimentTracker.tsx` — MLflow Runs/Dashboard tabs; iframe embed + open-in-browser
+- `pages/files/OutputBrowser.tsx` — `.wsroute` bundle manifest viewer
+- `SimulationSummary`, `AlgorithmComparison` — `GlobalFilterBar` integration
+
+**ROADMAP**
+- §G.7 workflow nav, P/M shortcuts, sidebar collapse (partial), global filters to Benchmark checked
+- §G.18 MLflow iframe embed fallback checked
+- §G.8 export script + bundle inspector checked (partial — full import deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventeenth pass
 
 Seventeenth implementation pass: Monaco YAML editor in Config Editor (§G.13);

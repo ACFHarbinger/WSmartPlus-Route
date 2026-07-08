@@ -1,5 +1,6 @@
-import { Moon, Sun, AlertTriangle, Settings } from "lucide-react";
+import { Moon, PanelLeft, Sun, AlertTriangle, Settings } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { useLayoutStore } from "../../store/layout";
 import { useProcessStore } from "../../store/process";
 
 const TITLES: Record<string, string> = {
@@ -23,15 +24,25 @@ const TITLES: Record<string, string> = {
 
 export function TopBar() {
   const { mode, theme, setTheme, projectRoot, setMode } = useAppStore();
+  const { sidebarOpen, toggleSidebar } = useLayoutStore();
   const processes = useProcessStore((s) => s.processes);
   const running = Object.values(processes).filter((p) => p.status === "running").length;
 
   return (
     <>
       <header className="h-11 shrink-0 flex items-center justify-between px-5 bg-canvas-surface border-b border-canvas-border">
-        <h1 className="text-sm font-semibold text-gray-100">
-          {TITLES[mode] ?? mode}
-        </h1>
+        <div className="flex items-center gap-2 min-w-0">
+          <button
+            onClick={toggleSidebar}
+            className="btn-ghost p-1.5 shrink-0"
+            title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+          >
+            <PanelLeft size={14} className={sidebarOpen ? "" : "text-canvas-muted"} />
+          </button>
+          <h1 className="text-sm font-semibold text-gray-100 truncate">
+            {TITLES[mode] ?? mode}
+          </h1>
+        </div>
 
         <div className="flex items-center gap-3">
           {running > 0 && (
