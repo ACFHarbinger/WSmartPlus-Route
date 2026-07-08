@@ -5,7 +5,10 @@
 import { useCallback, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, Download } from "lucide-react";
+import { toast } from "sonner";
+import { useAppStore } from "../../store/app";
+import { downloadParquetFromCsv } from "../../utils/tableExport";
 
 interface CsvRow {
   [key: string]: string | number | null;
@@ -18,7 +21,9 @@ interface CsvFile {
 }
 
 export function DataExplorer() {
+  const { projectRoot } = useAppStore();
   const [file, setFile] = useState<CsvFile | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
@@ -45,9 +50,35 @@ export function DataExplorer() {
           Open CSV
         </button>
         {file && (
-          <span className="text-xs text-canvas-muted">
-            {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
-          </span>
+          <>
+            <span className="text-xs text-canvas-muted">
+              {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
+            </span>
+            {projectRoot && (
+              <button
+                disabled={exporting}
+                onClick={async () => {
+                  setExporting(true);
+                  try {
+                    const out = await downloadParquetFromCsv(
+                      projectRoot,
+                      file.path,
+                      file.path.replace(/\.csv$/i, ".parquet")
+                    );
+                    if (out) toast.success("Parquet export complete", { description: out.split("/").pop() });
+                  } catch (err) {
+                    toast.error("Parquet export failed", { description: String(err) });
+                  } finally {
+                    setExporting(false);
+                  }
+                }}
+                className="btn-ghost text-xs flex items-center gap-1.5"
+              >
+                <Download size={12} />
+                Export Parquet
+              </button>
+            )}
+          </>
         )}
       </div>
 

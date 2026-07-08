@@ -142,6 +142,8 @@ const DIGIT_MODES: AppMode[] = [
 
 export default function App() {
   const { theme, setMode, mode } = useAppStore();
+  const commandPaletteOpen = useLayoutStore((s) => s.commandPaletteOpen);
+  const setCommandPaletteOpen = useLayoutStore((s) => s.setCommandPaletteOpen);
   const setShortcutsOpen = useLayoutStore((s) => s.setShortcutsOpen);
   const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
 
@@ -156,26 +158,36 @@ export default function App() {
     }
   }, [theme]);
 
-  // Global keyboard shortcuts (skip when focus is in a text field)
+  // Global keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Ctrl+K → command palette (§G.7) — works even inside text fields
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen(!commandPaletteOpen);
+        return;
+      }
+
       const target = e.target as HTMLElement;
-      if (
+      const inTextField =
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
-        target.isContentEditable
-      ) return;
+        target.isContentEditable;
+
+      // Escape → close overlays
+      if (e.key === "Escape") {
+        if (commandPaletteOpen) setCommandPaletteOpen(false);
+        else setShortcutsOpen(false);
+        return;
+      }
+
+      if (inTextField) return;
 
       // ? → keyboard shortcuts help overlay (§G.7)
       if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key === "?") {
         e.preventDefault();
         setShortcutsOpen(true);
-        return;
-      }
-      // Escape → close shortcuts overlay
-      if (e.key === "Escape") {
-        setShortcutsOpen(false);
         return;
       }
       // Ctrl+, → Settings
@@ -234,7 +246,17 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setMode, mode, triggerSim, triggerTrain, triggerDataGen, triggerEval, setShortcutsOpen]);
+  }, [
+    setMode,
+    mode,
+    triggerSim,
+    triggerTrain,
+    triggerDataGen,
+    triggerEval,
+    setShortcutsOpen,
+    setCommandPaletteOpen,
+    commandPaletteOpen,
+  ]);
 
   // Global process event listener
   useProcessMonitor();

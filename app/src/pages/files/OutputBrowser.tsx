@@ -29,6 +29,7 @@ import { useAppStore } from "../../store/app";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
+import { downloadParquetFromCsv } from "../../utils/tableExport";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -126,6 +127,7 @@ export function OutputBrowser() {
   const [fileLoading, setFileLoading] = useState(false);
   const [bundleExporting, setBundleExporting] = useState(false);
   const [bundleExtracting, setBundleExtracting] = useState(false);
+  const [parquetExporting, setParquetExporting] = useState(false);
   // Run metadata from pruned_config.yaml
   const [runMeta, setRunMeta] = useState<Array<{ key: string; value: string }> | null>(null);
   // KPI summary parsed from the first .jsonl found in the run directory
@@ -630,6 +632,34 @@ export function OutputBrowser() {
                   <Archive size={12} />
                 )}
                 Extract & Open
+              </button>
+            )}
+            {viewingPath && CSV_EXTENSIONS.has(viewingExt) && projectRoot && (
+              <button
+                onClick={async () => {
+                  setParquetExporting(true);
+                  try {
+                    const out = await downloadParquetFromCsv(
+                      projectRoot,
+                      viewingPath,
+                      viewingPath.replace(/\.csv$/i, ".parquet")
+                    );
+                    if (out) toast.success("Parquet export complete", { description: out.split("/").pop() });
+                  } catch (err) {
+                    toast.error("Parquet export failed", { description: String(err) });
+                  } finally {
+                    setParquetExporting(false);
+                  }
+                }}
+                disabled={parquetExporting}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+              >
+                {parquetExporting ? (
+                  <RefreshCw size={12} className="animate-spin" />
+                ) : (
+                  <Save size={12} />
+                )}
+                Export Parquet
               </button>
             )}
             {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
