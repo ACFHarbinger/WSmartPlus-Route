@@ -21,6 +21,8 @@ pub fn run() {
             data::list_dir,
             data::preview_dataset_stats,
             data::inspect_wsroute_bundle,
+            data::create_wsroute_bundle,
+            data::extract_wsroute_bundle,
             // Simulation file watcher
             sim_watcher::start_sim_watcher,
             sim_watcher::stop_sim_watcher,
