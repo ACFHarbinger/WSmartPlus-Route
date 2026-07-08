@@ -907,7 +907,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
 - [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
 - [ ] Computed Pareto front drawn as white dashed step line
-- [ ] Log-scale toggle (symlog X) for the same view
+- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog scatter/Pareto deferred)
 - [ ] Hover tooltip: all config values + KPI values
 
 #### 1.3 Policy Configuration Heatmaps
@@ -968,8 +968,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 3.3 Algorithm Comparison Mode
 - [ ] Side-by-side view: BPC routes vs ACO_HH routes on same map
-- [ ] Toggle visibility per policy
-- [ ] Overlay profit nodes that were skipped (dimmed) vs visited (bright)
+- [x] Toggle visibility per policy: map policy chip row in SimulationMonitor; `DeckRouteMap` multi-route overlay with per-policy colour paths
+- [x] Overlay skipped vs visited nodes: idle bins dimmed grey, tour stops fill-coded (bright) in `DeckRouteMap`
 
 #### 3.4 Non-Geographic Cartesian Mode (OrbitView)
 - [ ] Switch between geographic (Mercator) and abstract Cartesian coordinate system
@@ -1071,7 +1071,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` Rust unit test — create bundle → extract → verify `.jsonl` log content (full simulation row parity deferred)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
-- [ ] Auto-update via Tauri updater plugin
+- [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
 
 ---
 

@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-third pass
+
+Twenty-third implementation pass: multi-policy route map overlay (§G.16);
+log-scale bar charts (§G.1 partial); app version command; recent-run navigation.
+
+**Rust backend**
+- `system::get_app_version` — returns `CARGO_PKG_VERSION` for Settings About panel
+
+**React frontend**
+- `DeckRouteMap` — refactored for multi-policy `routes[]` overlay with per-policy colour paths and legend
+- `SimulationMonitor` — map policy visibility chips; overlays all policies for the selected day on tile map
+- `SimulationSummary` — log-scale toggle on policy ranking bar charts (values clamped to 0.001 for log axis)
+- `store/app.ts` — `pendingRunPath` for command-palette recent-run deep link
+- `OutputBrowser` — auto-selects run when opened via `pendingRunPath`
+- `Settings` — version loaded from Rust; notes auto-update requires release endpoint
+
+**ROADMAP**
+- §G.16 multi-policy map overlay + toggle visibility checked (partial — side-by-side deferred)
+- §G.1 log-scale toggle on bar charts checked (partial — symlog/Pareto deferred)
+- §G.8 `get_app_version` checked (partial — updater plugin deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-second pass
 
 Twenty-second implementation pass: TripsLayer route trail animation and depot

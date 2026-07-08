@@ -318,11 +318,13 @@ function MetricBarChart({
   policies,
   values,
   color,
+  logScale = false,
 }: {
   title: string;
   policies: string[];
   values: Array<{ mean: number; std: number }>;
   color: string;
+  logScale?: boolean;
 }) {
   const option = useMemo(() => ({
     backgroundColor: "transparent",
@@ -339,18 +341,23 @@ function MetricBarChart({
       data: policies,
       axisLabel: { color: "#9090b0", fontSize: 9, rotate: 30 },
     },
-    yAxis: { type: "value" as const, axisLabel: { color: "#9090b0", fontSize: 9 } },
+    yAxis: {
+      type: (logScale ? "log" : "value") as "log" | "value",
+      logBase: 10,
+      axisLabel: { color: "#9090b0", fontSize: 9 },
+      minorSplitLine: { show: false },
+    },
     grid: { left: 45, right: 10, top: 16, bottom: 55 },
     series: [
       {
         type: "bar" as const,
-        data: values.map((v) => v.mean),
+        data: values.map((v) => (logScale ? Math.max(v.mean, 0.001) : v.mean)),
         itemStyle: { color },
         // ECharts error bar using markLine on each bar is not natively supported;
         // std dev is shown in the tooltip instead.
       },
     ],
-  }), [policies, values, color]);
+  }), [policies, values, color, logScale]);
 
   return (
     <div className="card">
@@ -365,6 +372,7 @@ function MetricBarChart({
 export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath, projectRoot } = useAppStore();
   const [parquetExporting, setParquetExporting] = useState(false);
+  const [logScale, setLogScale] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
@@ -476,6 +484,15 @@ export function SimulationSummary() {
           {/* Per-day trajectory */}
           <TrajectoryChart entries={filteredEntries} policies={policies} />
 
+          <div className="flex items-center justify-end">
+            <button
+              onClick={() => setLogScale((v) => !v)}
+              className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
+            >
+              {logScale ? "Log scale (on)" : "Log scale (off)"}
+            </button>
+          </div>
+
           {/* 4-metric bar charts */}
           <div className="grid grid-cols-2 gap-4">
             <MetricBarChart
@@ -483,24 +500,28 @@ export function SimulationSummary() {
               policies={policies}
               values={metricValues("profit")}
               color="#6366f1"
+              logScale={logScale}
             />
             <MetricBarChart
               title="Avg Distance by Policy (km)"
               policies={policies}
               values={metricValues("km")}
               color="#38bdf8"
+              logScale={logScale}
             />
             <MetricBarChart
               title="Avg Overflows by Policy"
               policies={policies}
               values={metricValues("overflows")}
               color="#f87171"
+              logScale={logScale}
             />
             <MetricBarChart
               title="Avg Waste Collected by Policy (kg)"
               policies={policies}
               values={metricValues("kg")}
               color="#34d399"
+              logScale={logScale}
             />
           </div>
         </>

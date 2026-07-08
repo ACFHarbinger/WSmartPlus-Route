@@ -109,7 +109,7 @@ function sortEntries(list: DirEntry[]): DirEntry[] {
 }
 
 export function OutputBrowser() {
-  const { projectRoot, setMode, setPendingLogPath, setPendingBenchmarkLogs } = useAppStore();
+  const { projectRoot, setMode, setPendingLogPath, setPendingBenchmarkLogs, pendingRunPath, setPendingRunPath } = useAppStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
   const [compareSelection, setCompareSelection] = useState<Set<string>>(new Set());
@@ -225,6 +225,15 @@ export function OutputBrowser() {
       toast.error("Failed to list run directory", { description: String(err) });
     }
   }, [pushRecent]);
+
+  useEffect(() => {
+    if (!pendingRunPath || runs.length === 0) return;
+    const run = runs.find((r) => r.path === pendingRunPath);
+    if (run) {
+      void selectRun(run);
+      setPendingRunPath(null);
+    }
+  }, [pendingRunPath, runs, setPendingRunPath, selectRun]);
 
   const toggleDir = useCallback(async (entry: DirEntry) => {
     setExpandedDirs((prev) => {

@@ -16,7 +16,7 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 }
 
 export function CommandPalette() {
-  const { setMode, theme, setTheme, setPendingLogPath } = useAppStore();
+  const { setMode, theme, setTheme, setPendingLogPath, setPendingRunPath } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen } = useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
   const importWsroute = useWsrouteImport();
@@ -135,6 +135,7 @@ export function CommandPalette() {
                     onClick={() => {
                       if (file.kind === "log") void openRecentLog(file.path);
                       else if (file.kind === "run") {
+                        setPendingRunPath(file.path);
                         setMode("output_browser");
                         setCommandPaletteOpen(false);
                       } else {
