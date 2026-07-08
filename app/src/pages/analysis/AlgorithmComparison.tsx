@@ -4,6 +4,7 @@
  */
 import { useCallback, useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { Download, Map } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
@@ -29,6 +30,7 @@ export function AlgorithmComparison() {
   const { setMode, setPendingMapCompare } = useAppStore();
   const { policy, sampleId } = useGlobalFiltersStore();
   const radarRef = useRef<ReactECharts>(null);
+  const barRefs = useRef<Record<string, EChartsReact | null>>({});
 
   const filtered = useMemo(
     () => filterEntries(entries, policy, sampleId),
@@ -151,8 +153,23 @@ export function AlgorithmComparison() {
           };
           return (
             <div key={key} className="card">
-              <p className="text-xs text-canvas-muted mb-2">{label}</p>
-              <ReactECharts option={option} style={{ height: 140 }} />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-canvas-muted">{label}</p>
+                <button
+                  onClick={() => exportChartPng({ current: barRefs.current[key] }, `algorithm-${key}.png`)}
+                  className="btn-ghost text-xs flex items-center gap-1"
+                >
+                  <Download size={12} />
+                  PNG
+                </button>
+              </div>
+              <ReactECharts
+                ref={(el) => {
+                  barRefs.current[key] = el;
+                }}
+                option={option}
+                style={{ height: 140 }}
+              />
             </div>
           );
         })}

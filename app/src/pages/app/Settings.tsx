@@ -67,7 +67,7 @@ export function Settings() {
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
   const [appVersion, setAppVersion] = useState("…");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const startupMs = useStartupTiming();
+  const { firstPaintMs, prefetchMs } = useStartupTiming();
   const { setGuidedTourOpen, setGuidedTourStep } = useLayoutStore();
 
   useEffect(() => {
@@ -313,8 +313,11 @@ export function Settings() {
       <div className="card space-y-2 text-xs text-canvas-muted">
         <p className="font-semibold text-gray-300 text-sm">About WSmart-Route Studio</p>
         <p>Version: <span className="font-mono">{appVersion}</span></p>
-        {startupMs !== null && (
-          <p>Startup to first paint: <span className="font-mono">{startupMs} ms</span></p>
+        {firstPaintMs !== null && (
+          <p>Startup to first paint: <span className="font-mono">{firstPaintMs} ms</span></p>
+        )}
+        {prefetchMs !== null && (
+          <p>Route prefetch complete: <span className="font-mono">{prefetchMs} ms</span></p>
         )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
         <button

@@ -92,6 +92,7 @@ export function Sidebar() {
 
   return (
     <aside
+      data-tour="sidebar"
       className={[
         "shrink-0 flex flex-col bg-canvas-surface border-r border-canvas-border h-screen overflow-y-auto z-30",
         "w-56 transition-transform duration-200",
@@ -123,6 +124,15 @@ export function Sidebar() {
                 return (
                   <li key={item.mode}>
                     <button
+                      data-tour={
+                        item.mode === "simulation"
+                          ? "simulation"
+                          : item.mode === "output_browser"
+                          ? "output-browser"
+                          : item.mode === "sim_launcher"
+                          ? "launch"
+                          : undefined
+                      }
                       onMouseEnter={() => prefetchPage(item.mode)}
                       onClick={() => {
                         setMode(item.mode);

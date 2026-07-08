@@ -5,8 +5,9 @@
  * Also consumes `pendingEvalResults` from EvaluationRunner (§G.12) to display
  * checkpoint comparison charts without requiring simulation log files.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, X, Download } from "lucide-react";
@@ -14,6 +15,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
+import { exportChartPng } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
 
@@ -43,6 +45,7 @@ const EVAL_METRICS = [
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
 
 function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDismiss: () => void }) {
+  const chartRefs = useRef<Record<string, EChartsReact | null>>({});
   const checkpoints = rows.map((r) => r.checkpoint);
 
   const makeBarOption = (metricKey: string, metricLabel: string) => ({
@@ -89,8 +92,23 @@ function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDis
       <div className="grid grid-cols-3 gap-4">
         {EVAL_METRICS.map(({ key, label }) => (
           <div key={key} className="card">
-            <p className="text-xs text-canvas-muted mb-2">{label}</p>
-            <ReactECharts option={makeBarOption(key, label)} style={{ height: 220 }} />
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-canvas-muted">{label}</p>
+              <button
+                onClick={() => exportChartPng({ current: chartRefs.current[key] }, `eval-${key}.png`)}
+                className="btn-ghost text-xs flex items-center gap-1"
+              >
+                <Download size={12} />
+                PNG
+              </button>
+            </div>
+            <ReactECharts
+              ref={(el) => {
+                chartRefs.current[key] = el;
+              }}
+              option={makeBarOption(key, label)}
+              style={{ height: 220 }}
+            />
           </div>
         ))}
       </div>
@@ -126,6 +144,7 @@ function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDis
 }
 
 export function BenchmarkAnalysis() {
+  const chartRefs = useRef<Record<string, EChartsReact | null>>({});
   const {
     pendingEvalResults, setPendingEvalResults,
     pendingBenchmarkLogs, setPendingBenchmarkLogs,
@@ -290,8 +309,23 @@ export function BenchmarkAnalysis() {
         <div className="grid grid-cols-2 gap-4">
           {SIM_METRICS.map(({ key, label }) => (
             <div key={key} className="card">
-              <p className="text-xs text-canvas-muted mb-2">{label}</p>
-              <ReactECharts option={makeBarOption(key, label)} style={{ height: 220 }} />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-canvas-muted">{label}</p>
+                <button
+                  onClick={() => exportChartPng({ current: chartRefs.current[key] }, `benchmark-${key}.png`)}
+                  className="btn-ghost text-xs flex items-center gap-1"
+                >
+                  <Download size={12} />
+                  PNG
+                </button>
+              </div>
+              <ReactECharts
+                ref={(el) => {
+                  chartRefs.current[key] = el;
+                }}
+                option={makeBarOption(key, label)}
+                style={{ height: 220 }}
+              />
             </div>
           ))}
         </div>

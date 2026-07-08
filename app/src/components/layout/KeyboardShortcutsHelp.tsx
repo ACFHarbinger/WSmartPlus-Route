@@ -11,6 +11,7 @@ const SHORTCUTS: Array<{ keys: string; action: string }> = [
   { keys: "Ctrl+.", action: "Cancel first running process" },
   { keys: "Ctrl+Shift+P", action: "Process monitor" },
   { keys: "Ctrl+K", action: "Command palette — search views and actions" },
+  { keys: "Ctrl+Shift+/", action: "Guided tour" },
   { keys: "Ctrl+,", action: "Settings" },
   { keys: "?", action: "Show this help overlay" },
 ];

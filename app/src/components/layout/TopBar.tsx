@@ -54,6 +54,7 @@ export function TopBar() {
           )}
 
           <button
+            data-tour="command-palette"
             onClick={() => setCommandPaletteOpen(true)}
             className="btn-ghost p-1.5"
             title="Command palette (Ctrl+K)"

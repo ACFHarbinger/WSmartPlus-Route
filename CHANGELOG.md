@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-sixth pass
+
+Twenty-sixth implementation pass: global file drop (§G.8); extended startup
+timing (§G.7); chart PNG exports; guided tour spotlights (§G.19).
+
+**React frontend**
+- `hooks/useGlobalFileDrop.ts` — app-wide `.wsroute` extract + `.jsonl` log open from OS file drop
+- `utils/startupTiming.ts` — shared startup milestone marks; prefetch-complete timing in Settings
+- `GuidedTour` — `data-tour` spotlight rings highlight sidebar, palette, and nav targets per step
+- `OnboardingDialog` — auto-offers guided tour after first project-root configuration
+- `BenchmarkAnalysis` — PNG export on simulation and eval comparison bar charts
+- `AlgorithmComparison` — PNG export on per-metric bar charts (radar already supported)
+- `App.tsx` — `Ctrl+Shift+/` opens guided tour; Escape dismisses tour overlay
+
+**ROADMAP**
+- §G.3.1 deck.gl + MapLibre integration checked (was implemented, now documented)
+- §G.7 prefetch timing probe + BenchmarkAnalysis PNG export checked (partial — <2s target deferred)
+- §G.8 global file drop checked
+- §G.19 guided tour spotlight + auto-offer checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-fifth pass
 
 Twenty-fifth implementation pass: `.wsroute` drag-drop (§G.14); map compare

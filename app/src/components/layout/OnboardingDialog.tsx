@@ -8,7 +8,8 @@ import { useLayoutStore } from "../../store/layout";
 
 export function OnboardingDialog() {
   const { projectRoot, setProjectRoot, setMode } = useAppStore();
-  const { onboardingDismissed, setOnboardingDismissed } = useLayoutStore();
+  const { onboardingDismissed, setOnboardingDismissed, guidedTourDismissed, setGuidedTourOpen, setGuidedTourStep } =
+    useLayoutStore();
   const [draftRoot, setDraftRoot] = useState(projectRoot);
   const [validating, setValidating] = useState(false);
 
@@ -34,12 +35,18 @@ export function OnboardingDialog() {
       setProjectRoot(path);
       setOnboardingDismissed(true);
       toast.success("Project root configured — launchers are now enabled");
+      if (!guidedTourDismissed) {
+        window.setTimeout(() => {
+          setGuidedTourStep(0);
+          setGuidedTourOpen(true);
+        }, 600);
+      }
     } catch (err) {
       toast.error("Invalid project root", { description: String(err) });
     } finally {
       setValidating(false);
     }
-  }, [draftRoot, setProjectRoot, setOnboardingDismissed]);
+  }, [draftRoot, setProjectRoot, setOnboardingDismissed, guidedTourDismissed, setGuidedTourOpen, setGuidedTourStep]);
 
   const dismiss = useCallback(() => {
     setOnboardingDismissed(true);
