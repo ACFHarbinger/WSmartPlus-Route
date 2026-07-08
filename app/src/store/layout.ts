@@ -9,6 +9,7 @@ interface LayoutState {
   guidedTourOpen: boolean;
   guidedTourStep: number;
   guidedTourDismissed: boolean;
+  fileDropDragging: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setShortcutsOpen: (open: boolean) => void;
@@ -17,6 +18,7 @@ interface LayoutState {
   setGuidedTourOpen: (open: boolean) => void;
   setGuidedTourStep: (step: number) => void;
   setGuidedTourDismissed: (dismissed: boolean) => void;
+  setFileDropDragging: (dragging: boolean) => void;
 }
 
 export const useLayoutStore = create<LayoutState>()(
@@ -29,6 +31,7 @@ export const useLayoutStore = create<LayoutState>()(
       guidedTourOpen: false,
       guidedTourStep: 0,
       guidedTourDismissed: false,
+      fileDropDragging: false,
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
       setShortcutsOpen: (shortcutsOpen) => set({ shortcutsOpen }),
@@ -37,6 +40,7 @@ export const useLayoutStore = create<LayoutState>()(
       setGuidedTourOpen: (guidedTourOpen) => set({ guidedTourOpen }),
       setGuidedTourStep: (guidedTourStep) => set({ guidedTourStep }),
       setGuidedTourDismissed: (guidedTourDismissed) => set({ guidedTourDismissed }),
+      setFileDropDragging: (fileDropDragging) => set({ fileDropDragging }),
     }),
     {
       name: "wsmart-studio-layout",

@@ -8,6 +8,7 @@ import { useAppStore } from "./store/app";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
 import { prefetchPage } from "./utils/pagePrefetch";
+import { markStartup } from "./utils/startupTiming";
 import type { AppMode } from "./types";
 
 // Lazy-loaded pages (§G.7 performance)
@@ -146,12 +147,21 @@ export default function App() {
   const commandPaletteOpen = useLayoutStore((s) => s.commandPaletteOpen);
   const setCommandPaletteOpen = useLayoutStore((s) => s.setCommandPaletteOpen);
   const setShortcutsOpen = useLayoutStore((s) => s.setShortcutsOpen);
+  const setGuidedTourOpen = useLayoutStore((s) => s.setGuidedTourOpen);
+  const setGuidedTourStep = useLayoutStore((s) => s.setGuidedTourStep);
+  const guidedTourOpen = useLayoutStore((s) => s.guidedTourOpen);
   const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
 
   useHashSync();
 
   // Warm critical route chunks on startup (§G.7)
   useEffect(() => {
+    void Promise.all([
+      import("./pages/monitor/SimulationMonitor"),
+      import("./pages/analysis/SimulationSummary"),
+      import("./pages/monitor/ProcessMonitor"),
+      import("./pages/files/OutputBrowser"),
+    ]).then(() => markStartup("prefetchDone"));
     prefetchPage("simulation");
     prefetchPage("simulation_summary");
     prefetchPage("process_monitor");
@@ -187,7 +197,16 @@ export default function App() {
       // Escape → close overlays
       if (e.key === "Escape") {
         if (commandPaletteOpen) setCommandPaletteOpen(false);
+        else if (guidedTourOpen) setGuidedTourOpen(false);
         else setShortcutsOpen(false);
+        return;
+      }
+
+      // Ctrl+Shift+/ → guided tour (§G.19)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "/") {
+        e.preventDefault();
+        setGuidedTourStep(0);
+        setGuidedTourOpen(true);
         return;
       }
 
@@ -265,6 +284,9 @@ export default function App() {
     setShortcutsOpen,
     setCommandPaletteOpen,
     commandPaletteOpen,
+    guidedTourOpen,
+    setGuidedTourOpen,
+    setGuidedTourStep,
   ]);
 
   // Global process event listener

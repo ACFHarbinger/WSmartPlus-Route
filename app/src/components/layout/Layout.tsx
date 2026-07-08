@@ -1,3 +1,4 @@
+import { useGlobalFileDrop } from "../../hooks/useGlobalFileDrop";
 import { useLayoutStore } from "../../store/layout";
 import { CommandPalette } from "./CommandPalette";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
@@ -14,6 +15,7 @@ interface Props {
 export function Layout({ children }: Props) {
   const sidebarOpen = useLayoutStore((s) => s.sidebarOpen);
   const setSidebarOpen = useLayoutStore((s) => s.setSidebarOpen);
+  useGlobalFileDrop();
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">

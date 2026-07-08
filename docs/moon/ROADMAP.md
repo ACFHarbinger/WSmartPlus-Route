@@ -953,7 +953,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Animate the physical routes constructed by each algorithm over the real-world city graphs.
 
 #### 3.1 Base Map Layer
-- [ ] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles)
+- [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
 - [ ] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files
 - [ ] Render nodes as ScatterplotLayer: radius ∝ profit value, color = fill level / overflow status
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
@@ -1054,11 +1054,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
 - [x] Startup route prefetch: `App.tsx` warms simulation, summary, process monitor, output browser chunks on mount (§G.7 performance partial)
-- [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount in Settings About (§G.7 performance partial)
+- [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, AlgorithmComparison, ExperimentTracker, HPOTracker charts; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), ExperimentTracker, HPOTracker charts; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 
 ---
 
@@ -1072,6 +1072,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
+- [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary from anywhere in the app
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` Rust unit test — create bundle → extract → verify `.jsonl` log content (full simulation row parity deferred)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
@@ -1277,7 +1278,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Save blocked if either validation fails; toast shown with "Fix validation errors before saving"
 - [x] Import/export settings JSON: "Export Settings" serialises `{projectRoot, pythonPath, theme}` to a user-chosen JSON file via `write_text_file`; "Import Settings" reads a JSON file and populates drafts for review before saving
 - [x] First-run onboarding wizard: `OnboardingDialog` modal when `projectRoot` is empty; inline directory picker + validation; dismissible via `useLayoutStore.onboardingDismissed` persistence
-- [x] Guided tour: `GuidedTour` 5-step overlay (sidebar, command palette, simulation twin, output browser, launch/monitor); TopBar compass button, command palette action, Settings "Take Guided Tour"; dismissal persisted via `guidedTourDismissed` (partial — spotlight/highlight deferred)
+- [x] Guided tour: `GuidedTour` 5-step overlay with `data-tour` spotlight rings (sidebar, command palette, simulation twin, output browser, launch/monitor); TopBar compass button, command palette action, Settings "Take Guided Tour", `Ctrl+Shift+/` shortcut; auto-offered after first onboarding; dismissal persisted via `guidedTourDismissed`
 
 ---
 

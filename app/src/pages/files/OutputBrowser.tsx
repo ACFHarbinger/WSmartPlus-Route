@@ -9,7 +9,7 @@
  *   - "Open in Sim Summary" button for .jsonl log files
  */
 import { useCallback, useEffect, useState } from "react";
-import { useFileDrop } from "../../hooks/useFileDrop";
+import { useLayoutStore } from "../../store/layout";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import {
@@ -251,37 +251,7 @@ export function OutputBrowser() {
     }
   }, [subEntries]);
 
-  const loadWsroutePath = useCallback(async (path: string) => {
-    setViewingPath(path);
-    setViewingExt("wsroute");
-    setFileContent(null);
-    setCsvRows(null);
-    setWsrouteBundle(null);
-    setFileLoading(true);
-    try {
-      const info = await invoke<WsrouteBundleInfo>("inspect_wsroute_bundle", { path });
-      setWsrouteBundle(info);
-    } catch (err) {
-      toast.error("Failed to inspect bundle", { description: String(err) });
-    } finally {
-      setFileLoading(false);
-    }
-  }, []);
-
-  const handleFileDrop = useCallback(
-    (paths: string[]) => {
-      const bundle = paths.find((p) => p.toLowerCase().endsWith(".wsroute"));
-      if (!bundle) {
-        toast.error("Drop a .wsroute bundle file");
-        return;
-      }
-      void loadWsroutePath(bundle);
-      toast.success("Bundle loaded", { description: bundle.split("/").pop() });
-    },
-    [loadWsroutePath]
-  );
-
-  const draggingBundle = useFileDrop(handleFileDrop);
+  const draggingBundle = useLayoutStore((s) => s.fileDropDragging);
 
   const openFile = useCallback(async (entry: DirEntry) => {
     if (entry.is_dir) {
@@ -658,7 +628,7 @@ export function OutputBrowser() {
         {!viewingPath && !fileLoading && (
           <div className="card flex-1 flex flex-col items-center justify-center text-canvas-muted text-sm gap-2">
             <p>Select a file to view its contents.</p>
-            <p className="text-xs">Or drag a <code className="font-mono">.wsroute</code> bundle here</p>
+            <p className="text-xs">Or drag a <code className="font-mono">.wsroute</code> bundle anywhere in the app</p>
           </div>
         )}
 

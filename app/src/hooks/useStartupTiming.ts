@@ -1,14 +1,36 @@
 import { useEffect, useState } from "react";
+import { getStartupElapsed, markStartup } from "../utils/startupTiming";
 
-const START = performance.now();
+export interface StartupTiming {
+  firstPaintMs: number | null;
+  prefetchMs: number | null;
+}
 
-/** Time from module load to first React mount (§G.7 performance probe). */
-export function useStartupTiming() {
-  const [ms, setMs] = useState<number | null>(null);
+/** Time from module load to first React mount + prefetch milestones (§G.7). */
+export function useStartupTiming(): StartupTiming {
+  const [timing, setTiming] = useState<StartupTiming>({
+    firstPaintMs: null,
+    prefetchMs: null,
+  });
 
   useEffect(() => {
-    setMs(Math.round(performance.now() - START));
+    markStartup("firstPaint");
+    setTiming({
+      firstPaintMs: getStartupElapsed("firstPaint"),
+      prefetchMs: getStartupElapsed("prefetchDone"),
+    });
   }, []);
 
-  return ms;
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const prefetchMs = getStartupElapsed("prefetchDone");
+      if (prefetchMs != null) {
+        setTiming((prev) => ({ ...prev, prefetchMs }));
+        window.clearInterval(id);
+      }
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return timing;
 }
