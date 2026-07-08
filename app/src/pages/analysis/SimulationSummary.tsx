@@ -13,6 +13,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
@@ -368,11 +369,14 @@ export function SimulationSummary() {
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
 
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
   const loadLog = useCallback(async (path: string) => {
     const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     setEntries(loaded);
     setLogPath(path);
-  }, []);
+    pushRecent({ path, label: recentFileLabel(path), kind: "log" });
+  }, [pushRecent]);
 
   // Auto-load when another page hands off a log path (e.g. OutputBrowser)
   useEffect(() => {

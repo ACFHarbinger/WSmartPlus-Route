@@ -1,15 +1,17 @@
 /**
  * deck.gl route map with tile basemap (§G.16).
- * Requires lat/lng in `all_bin_coords`; lazy-loaded from SimulationMonitor.
+ * TripsLayer trail animation during day playback; depot marker; fill-coded stops.
  */
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DeckGL from "@deck.gl/react";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { SimDayData } from "../../types";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+const TRIP_SEGMENT_MS = 120;
 
 function fillRgb(pct: number): [number, number, number] {
   if (pct >= 100) return [248, 113, 113];
@@ -17,17 +19,27 @@ function fillRgb(pct: number): [number, number, number] {
   return [52, 211, 153];
 }
 
-export default function DeckRouteMap({ data }: { data: SimDayData }) {
+interface Props {
+  data: SimDayData;
+  animate?: boolean;
+  playbackSpeed?: number;
+}
+
+export default function DeckRouteMap({ data, animate = false, playbackSpeed = 1 }: Props) {
   const { all_bin_coords, tour_indices, bin_state_c } = data;
+  const [currentTime, setCurrentTime] = useState(0);
 
   const hasGeo = all_bin_coords?.some((b) => b.lat != null && b.lng != null);
 
-  const { path, tourPoints, idlePoints, viewState } = useMemo(() => {
+  const { path, tripPath, tripLength, tourPoints, idlePoints, depotPoint, viewState } = useMemo(() => {
     if (!all_bin_coords?.length) {
       return {
         path: [] as [number, number][],
+        tripPath: [] as [number, number, number][],
+        tripLength: 0,
         tourPoints: [] as Array<{ position: [number, number]; fill: number }>,
         idlePoints: [] as Array<{ position: [number, number] }>,
+        depotPoint: null as { position: [number, number] } | null,
         viewState: { longitude: 0, latitude: 0, zoom: 12, pitch: 0, bearing: 0 },
       };
     }
@@ -41,13 +53,24 @@ export default function DeckRouteMap({ data }: { data: SimDayData }) {
 
     const tourSet = new Set(tour_indices ?? []);
     const pathCoords: [number, number][] = [];
-    const depot = posById.get(-1);
-    if (depot) pathCoords.push(depot);
-    for (const id of tour_indices ?? []) {
+    const tripCoords: [number, number, number][] = [];
+    let t = 0;
+
+    const pushStop = (id: number) => {
       const p = posById.get(id);
-      if (p) pathCoords.push(p);
+      if (!p) return;
+      pathCoords.push(p);
+      tripCoords.push([p[0], p[1], t]);
+      t += TRIP_SEGMENT_MS;
+    };
+
+    const depot = posById.get(-1);
+    if (depot) pushStop(-1);
+    for (const id of tour_indices ?? []) pushStop(id);
+    if (depot && pathCoords.length > 1) {
+      pathCoords.push(depot);
+      tripCoords.push([depot[0], depot[1], t]);
     }
-    if (depot && pathCoords.length > 1) pathCoords.push(depot);
 
     const tourPts = (tour_indices ?? [])
       .map((id) => {
@@ -69,15 +92,58 @@ export default function DeckRouteMap({ data }: { data: SimDayData }) {
 
     return {
       path: pathCoords,
+      tripPath: tripCoords,
+      tripLength: t,
       tourPoints: tourPts,
       idlePoints: idlePts,
+      depotPoint: depot ? { position: depot } : null,
       viewState: { longitude: centerLng, latitude: centerLat, zoom: 13, pitch: 0, bearing: 0 },
     };
   }, [all_bin_coords, tour_indices, bin_state_c]);
 
+  useEffect(() => {
+    setCurrentTime(0);
+  }, [tripPath, animate]);
+
+  useEffect(() => {
+    if (!animate || tripLength <= 0) return;
+
+    let frame: number;
+    let last = performance.now();
+
+    const tick = (now: number) => {
+      const dt = (now - last) * playbackSpeed;
+      last = now;
+      setCurrentTime((t) => {
+        const next = t + dt;
+        return next > tripLength ? 0 : next;
+      });
+      frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [animate, playbackSpeed, tripLength]);
+
   const layers = useMemo(() => {
     const result = [];
-    if (path.length >= 2) {
+
+    if (animate && tripPath.length >= 2) {
+      result.push(
+        new TripsLayer({
+          id: "route-trips",
+          data: [{ path: tripPath }],
+          getPath: (d: { path: [number, number, number][] }) => d.path,
+          getTimestamps: (d: { path: [number, number, number][] }) => d.path.map((p) => p[2]),
+          getColor: [99, 102, 241, 220],
+          currentTime,
+          trailLength: Math.max(tripLength * 0.6, TRIP_SEGMENT_MS * 2),
+          capRounded: true,
+          fadeTrail: true,
+          widthMinPixels: 3,
+        })
+      );
+    } else if (path.length >= 2) {
       result.push(
         new PathLayer({
           id: "route-path",
@@ -89,19 +155,37 @@ export default function DeckRouteMap({ data }: { data: SimDayData }) {
         })
       );
     }
+
     if (idlePoints.length) {
       result.push(
         new ScatterplotLayer({
           id: "idle-bins",
           data: idlePoints,
           getPosition: (d: { position: [number, number] }) => d.position,
-          getFillColor: [75, 85, 99, 180],
+          getFillColor: [75, 85, 99, 140],
           getRadius: 40,
           radiusMinPixels: 3,
           radiusMaxPixels: 8,
         })
       );
     }
+
+    if (depotPoint) {
+      result.push(
+        new ScatterplotLayer({
+          id: "depot",
+          data: [depotPoint],
+          getPosition: (d: { position: [number, number] }) => d.position,
+          getFillColor: [251, 191, 36, 255],
+          getLineColor: [255, 255, 255, 200],
+          stroked: true,
+          getRadius: 90,
+          radiusMinPixels: 8,
+          radiusMaxPixels: 14,
+        })
+      );
+    }
+
     if (tourPoints.length) {
       result.push(
         new ScatterplotLayer({
@@ -115,8 +199,9 @@ export default function DeckRouteMap({ data }: { data: SimDayData }) {
         })
       );
     }
+
     return result;
-  }, [path, idlePoints, tourPoints]);
+  }, [path, tripPath, tripLength, idlePoints, depotPoint, tourPoints, animate, currentTime]);
 
   if (!hasGeo) {
     return (

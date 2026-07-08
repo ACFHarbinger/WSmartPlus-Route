@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { PALETTE_COMMANDS } from "../../constants/commands";
 import { useWsrouteImport } from "../../hooks/useWsrouteImport";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
+import { useRecentFilesStore } from "../../store/recentFiles";
+import type { DayLogEntry } from "../../types";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
   const q = query.trim().toLowerCase();
@@ -13,16 +16,46 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 }
 
 export function CommandPalette() {
-  const { setMode, theme, setTheme } = useAppStore();
+  const { setMode, theme, setTheme, setPendingLogPath } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen } = useLayoutStore();
+  const recentFiles = useRecentFilesStore((s) => s.files);
   const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filtered = useMemo(
+  const filteredCommands = useMemo(
     () => PALETTE_COMMANDS.filter((cmd) => matchQuery(query, cmd.label, cmd.keywords)),
     [query]
+  );
+
+  const filteredRecent = useMemo(() => {
+    if (!query.trim()) return recentFiles;
+    const q = query.trim().toLowerCase();
+    return recentFiles.filter(
+      (f) => f.label.toLowerCase().includes(q) || f.path.toLowerCase().includes(q)
+    );
+  }, [query, recentFiles]);
+
+  const filtered = filteredCommands;
+  const showRecent = filteredRecent.length > 0 && (query.trim() === "" || filteredCommands.length < 6);
+
+  const openRecentLog = useCallback(
+    async (path: string) => {
+      try {
+        await invoke<DayLogEntry[]>("load_simulation_log", { path });
+        setPendingLogPath(path);
+        setMode("simulation_summary");
+        setCommandPaletteOpen(false);
+        setQuery("");
+      } catch {
+        setPendingLogPath(path);
+        setMode("simulation");
+        setCommandPaletteOpen(false);
+        setQuery("");
+      }
+    },
+    [setPendingLogPath, setMode, setCommandPaletteOpen]
   );
 
   const runCommand = useCallback(
@@ -90,8 +123,41 @@ export function CommandPalette() {
         </div>
 
         <ul className="max-h-72 overflow-y-auto py-1">
-          {filtered.length === 0 && (
+          {showRecent && (
+            <>
+              <li className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-canvas-muted">
+                Recent
+              </li>
+              {filteredRecent.map((file) => (
+                <li key={file.path}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (file.kind === "log") void openRecentLog(file.path);
+                      else if (file.kind === "run") {
+                        setMode("output_browser");
+                        setCommandPaletteOpen(false);
+                      } else {
+                        setMode("data_explorer");
+                        setCommandPaletteOpen(false);
+                      }
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
+                  >
+                    <span className="truncate">{file.label}</span>
+                    <span className="text-[10px] text-canvas-muted shrink-0 ml-2">{file.kind}</span>
+                  </button>
+                </li>
+              ))}
+            </>
+          )}
+          {filtered.length === 0 && !showRecent && (
             <li className="px-3 py-4 text-xs text-canvas-muted text-center">No matching commands</li>
+          )}
+          {filtered.length > 0 && (
+            <li className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-canvas-muted">
+              Commands
+            </li>
           )}
           {filtered.map((cmd, i) => (
             <li key={cmd.id}>

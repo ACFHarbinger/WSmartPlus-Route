@@ -956,12 +956,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles)
 - [ ] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files
 - [ ] Render nodes as ScatterplotLayer: radius ∝ profit value, color = fill level / overflow status
-- [ ] Render depot as distinct marker
+- [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
 - [ ] Pan/zoom/tilt with 3D perspective
 
 #### 3.2 Route Animation (TripsLayer)
-- [ ] Parse per-day route files from simulation output into timestamped coordinate arrays
-- [ ] Feed routes into deck.gl TripsLayer with vehicle-color-coded trails
+- [x] Parse per-day route from `tour_indices` + `all_bin_coords` into timestamped coordinate arrays (`DeckRouteMap`)
+- [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.16 partial — multi-vehicle deferred)
 - [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
 - [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber (§G.16 partial — TripsLayer animation deferred)
 - [ ] Multi-vehicle rendering with distinct color coding per vehicle
@@ -1051,6 +1051,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Vite `manualChunks`: echarts, maplibre, deck.gl, monaco split into separate vendor bundles (§G.7 performance partial)
 - [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
+- [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
+- [x] Startup route prefetch: `App.tsx` warms simulation, summary, process monitor, output browser chunks on mount (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [ ] Performance: app loads and renders all baseline charts in < 2 s on target hardware
@@ -1172,6 +1174,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Simulation result summary: on `selectRun`, scans top-level entries for a `.jsonl` file ≤ 20 MB; reads it via `read_text_file`, parses each line as `DayLogEntry`, aggregates overflows / kg/km / profit per policy; displays a compact 3-column KPI table (policy / overflows / kg/km) below the config metadata card; overflows colour-coded (green = 0, amber = low, red > 20)
 - [x] "Compare runs": per-run checkbox multi-select (≥2); `findRunJsonl()` locates logs in top-level or `hydra/`; navigates to BenchmarkAnalysis with `pendingBenchmarkLogs`
 - [x] Session profiles (§D.4 Option C): `useSessionProfilesStore` persists named snapshots of all three launcher stores; save/load/delete UI in Output Browser sidebar (max 20 profiles)
+- [x] Recent files/runs: `useRecentFilesStore` tracks last 12 opened logs, output runs, and CSVs; surfaced in command palette
 
 ---
 

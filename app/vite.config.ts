@@ -22,6 +22,7 @@ export default defineConfig({
           if (id.includes("echarts") || id.includes("zrender")) return "echarts";
           if (id.includes("maplibre-gl")) return "maplibre";
           if (id.includes("@deck.gl") || id.includes("deck.gl")) return "deckgl";
+          if (id.includes("@deck.gl/geo-layers")) return "deckgl";
           if (id.includes("@monaco-editor") || id.includes("monaco-editor")) return "monaco";
         },
       },
