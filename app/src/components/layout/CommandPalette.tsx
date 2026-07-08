@@ -17,7 +17,8 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 
 export function CommandPalette() {
   const { setMode, theme, setTheme, setPendingLogPath, setPendingRunPath } = useAppStore();
-  const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen } = useLayoutStore();
+  const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
+    useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
   const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
@@ -64,11 +65,15 @@ export function CommandPalette() {
       else if (cmd.action === "toggle_theme") setTheme(theme === "dark" ? "light" : "dark");
       else if (cmd.action === "shortcuts_help") setShortcutsOpen(true);
       else if (cmd.action === "import_wsroute") void importWsroute();
+      else if (cmd.action === "guided_tour") {
+        setGuidedTourStep(0);
+        setGuidedTourOpen(true);
+      }
       setCommandPaletteOpen(false);
       setQuery("");
       setActiveIndex(0);
     },
-    [setMode, setTheme, theme, setShortcutsOpen, setCommandPaletteOpen, importWsroute]
+    [setMode, setTheme, theme, setShortcutsOpen, setCommandPaletteOpen, importWsroute, setGuidedTourOpen, setGuidedTourStep]
   );
 
   useEffect(() => {

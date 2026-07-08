@@ -9,6 +9,7 @@
  *   - "Open in Sim Summary" button for .jsonl log files
  */
 import { useCallback, useEffect, useState } from "react";
+import { useFileDrop } from "../../hooks/useFileDrop";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import {
@@ -250,6 +251,38 @@ export function OutputBrowser() {
     }
   }, [subEntries]);
 
+  const loadWsroutePath = useCallback(async (path: string) => {
+    setViewingPath(path);
+    setViewingExt("wsroute");
+    setFileContent(null);
+    setCsvRows(null);
+    setWsrouteBundle(null);
+    setFileLoading(true);
+    try {
+      const info = await invoke<WsrouteBundleInfo>("inspect_wsroute_bundle", { path });
+      setWsrouteBundle(info);
+    } catch (err) {
+      toast.error("Failed to inspect bundle", { description: String(err) });
+    } finally {
+      setFileLoading(false);
+    }
+  }, []);
+
+  const handleFileDrop = useCallback(
+    (paths: string[]) => {
+      const bundle = paths.find((p) => p.toLowerCase().endsWith(".wsroute"));
+      if (!bundle) {
+        toast.error("Drop a .wsroute bundle file");
+        return;
+      }
+      void loadWsroutePath(bundle);
+      toast.success("Bundle loaded", { description: bundle.split("/").pop() });
+    },
+    [loadWsroutePath]
+  );
+
+  const draggingBundle = useFileDrop(handleFileDrop);
+
   const openFile = useCallback(async (entry: DirEntry) => {
     if (entry.is_dir) {
       toggleDir(entry);
@@ -440,7 +473,7 @@ export function OutputBrowser() {
   }
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-8rem)]">
+    <div className="flex gap-4 h-[calc(100vh-8rem)] relative">
       {/* Left: run list */}
       <div className="w-56 shrink-0 flex flex-col gap-2">
         <div className="flex items-center gap-2">
@@ -616,10 +649,16 @@ export function OutputBrowser() {
       </div>
 
       {/* Right: file viewer */}
-      <div className="flex-1 min-w-0 flex flex-col gap-2">
+      <div className="flex-1 min-w-0 flex flex-col gap-2 relative">
+        {draggingBundle && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-accent-primary bg-accent-primary/10 pointer-events-none">
+            <p className="text-sm text-accent-primary font-medium">Drop .wsroute bundle to inspect</p>
+          </div>
+        )}
         {!viewingPath && !fileLoading && (
-          <div className="card flex-1 flex items-center justify-center text-canvas-muted text-sm">
-            Select a file to view its contents.
+          <div className="card flex-1 flex flex-col items-center justify-center text-canvas-muted text-sm gap-2">
+            <p>Select a file to view its contents.</p>
+            <p className="text-xs">Or drag a <code className="font-mono">.wsroute</code> bundle here</p>
           </div>
         )}
 

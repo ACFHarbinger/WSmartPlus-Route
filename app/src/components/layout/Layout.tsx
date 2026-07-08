@@ -1,6 +1,7 @@
 import { useLayoutStore } from "../../store/layout";
 import { CommandPalette } from "./CommandPalette";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
+import { GuidedTour } from "./GuidedTour";
 import { OnboardingDialog } from "./OnboardingDialog";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -36,6 +37,7 @@ export function Layout({ children }: Props) {
         </main>
       </div>
       <OnboardingDialog />
+      <GuidedTour />
       <CommandPalette />
       <KeyboardShortcutsHelp />
     </div>

@@ -448,7 +448,8 @@ export function SimulationMonitor() {
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
-  const { pendingLogPath, setPendingLogPath } = useAppStore();
+  const { pendingLogPath, setPendingLogPath, pendingMapCompare, setPendingMapCompare } =
+    useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const loadLogFile = useCallback(
@@ -531,6 +532,15 @@ export function SimulationMonitor() {
     },
     [policies]
   );
+
+  useEffect(() => {
+    if (!pendingMapCompare) return;
+    setShowRouteMap(true);
+    setMapPolicies(pendingMapCompare.policies);
+    setMapLayout(pendingMapCompare.layout);
+    if (pendingMapCompare.mapMode) setRouteMapMode(pendingMapCompare.mapMode);
+    setPendingMapCompare(null);
+  }, [pendingMapCompare, setPendingMapCompare]);
 
   const mapRoutes = useMemo(() => {
     const dayEntries = entries.filter(
@@ -828,7 +838,7 @@ export function SimulationMonitor() {
                 })}
               </div>
             )}
-            {showRouteMap && mapRoutes.length === 2 && routeMapMode === "deckgl" && (
+            {showRouteMap && mapRoutes.length === 2 && (
               <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
                 {(["overlay", "split"] as const).map((layout) => (
                   <button
@@ -888,6 +898,15 @@ export function SimulationMonitor() {
                   />
                 )}
               </Suspense>
+            ) : mapLayout === "split" && mapRoutes.length === 2 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {mapRoutes.map((route) => (
+                  <div key={route.id} className="space-y-1">
+                    <p className="text-xs font-mono text-canvas-muted px-1">{route.label}</p>
+                    <RouteMapChart data={route.data} />
+                  </div>
+                ))}
+              </div>
             ) : displayEntry ? (
               <RouteMapChart data={displayEntry.data} />
             ) : null

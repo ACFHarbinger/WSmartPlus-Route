@@ -16,10 +16,11 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
-import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw } from "lucide-react";
+import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw, Compass } from "lucide-react";
 import { useStartupTiming } from "../../hooks/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { useLayoutStore } from "../../store/layout";
 
 
 
@@ -67,6 +68,7 @@ export function Settings() {
   const [appVersion, setAppVersion] = useState("…");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const startupMs = useStartupTiming();
+  const { setGuidedTourOpen, setGuidedTourStep } = useLayoutStore();
 
   useEffect(() => {
     invoke<string>("get_app_version")
@@ -343,6 +345,16 @@ export function Settings() {
         >
           <RefreshCw size={12} className={checkingUpdate ? "animate-spin" : ""} />
           Check for Updates
+        </button>
+        <button
+          onClick={() => {
+            setGuidedTourStep(0);
+            setGuidedTourOpen(true);
+          }}
+          className="btn-ghost text-xs flex items-center gap-1.5 mt-1"
+        >
+          <Compass size={12} />
+          Take Guided Tour
         </button>
         <p className="text-[10px]">Set <code className="font-mono">WSMART_UPDATE_URL</code> to a JSON manifest with a <code className="font-mono">version</code> field.</p>
         <p>ROADMAP: <code className="font-mono">docs/moon/ROADMAP.md §G</code></p>

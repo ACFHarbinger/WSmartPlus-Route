@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-fifth pass
+
+Twenty-fifth implementation pass: `.wsroute` drag-drop (§G.14); map compare
+deep link (§G.16); ECharts side-by-side split; guided tour (§G.19).
+
+**React frontend**
+- `hooks/useFileDrop.ts` — Tauri window `onDragDropEvent` listener for OS file drops
+- `OutputBrowser` — drag-drop `.wsroute` onto file viewer; dashed overlay + manifest inspect
+- `store/app.ts` — `pendingMapCompare` ephemeral state for Algorithm Comparison → map navigation
+- `AlgorithmComparison` — "Compare on Map" sets policy filters + split layout when 2 policies
+- `SimulationMonitor` — consumes `pendingMapCompare`; ECharts Cartesian side-by-side when split + 2 policies
+- `GuidedTour` — 5-step studio walkthrough; TopBar compass, command palette, Settings entry
+- `store/layout.ts` — `guidedTourOpen` / `guidedTourStep` / `guidedTourDismissed` persistence
+
+**ROADMAP**
+- §G.14 `.wsroute` drag-drop checked
+- §G.16 ECharts side-by-side + map deep link checked
+- §G.19 guided tour checked (partial — spotlight deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-fourth pass
 
 Twenty-fourth implementation pass: side-by-side route map compare (§G.16);
