@@ -103,7 +103,7 @@ export function DataExplorer() {
                 downloadCsv(
                   file.path.split("/").pop() ?? "data.csv",
                   file.headers,
-                  file.rows.map((row) => file.headers.map((h) => row[h] ?? ""))
+                  sortedRows.map((row) => file.headers.map((h) => row[h] ?? ""))
                 )
               }
               className="btn-ghost text-xs flex items-center gap-1.5"

@@ -2,7 +2,7 @@
  * Algorithm Comparison — side-by-side policy metric comparison.
  * Ports Streamlit `algorithms` mode.
  */
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download, Map } from "lucide-react";
@@ -31,6 +31,7 @@ export function AlgorithmComparison() {
   const { policy, sampleId } = useGlobalFiltersStore();
   const radarRef = useRef<ReactECharts>(null);
   const barRefs = useRef<Record<string, EChartsReact | null>>({});
+  const [logScale, setLogScale] = useState(false);
 
   const filtered = useMemo(
     () => filterEntries(entries, policy, sampleId),
@@ -109,6 +110,12 @@ export function AlgorithmComparison() {
           <Map size={12} />
           Compare on Map
         </button>
+        <button
+          onClick={() => setLogScale((v) => !v)}
+          className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
+        >
+          {logScale ? "Log scale (on)" : "Log scale (off)"}
+        </button>
       </div>
 
       <div className="card">
@@ -135,18 +142,26 @@ export function AlgorithmComparison() {
               data: policies,
               axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
             },
-            yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 10 } },
+            yAxis: {
+              type: logScale ? "log" : "value",
+              logBase: 10,
+              axisLabel: { color: "#9090b0", fontSize: 10 },
+              minorSplitLine: { show: false },
+            },
             series: [
               {
                 type: "bar",
-                data: policies.map((p, i) => ({
-                  value: mean(
+                data: policies.map((p, i) => {
+                  const raw = mean(
                     filtered
                       .filter((e) => e.policy === p)
                       .map((e) => (e.data as Record<string, number>)[key] ?? 0)
-                  ),
-                  itemStyle: { color: COLORS[i % COLORS.length] },
-                })),
+                  );
+                  return {
+                    value: logScale ? Math.max(raw, 0.001) : raw,
+                    itemStyle: { color: COLORS[i % COLORS.length] },
+                  };
+                }),
               },
             ],
             tooltip: { trigger: "axis" },

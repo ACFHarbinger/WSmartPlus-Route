@@ -108,6 +108,14 @@ interface Props {
 export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 1 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [pitch3d, setPitch3d] = useState(false);
+  const [mapView, setMapView] = useState({
+    longitude: 0,
+    latitude: 0,
+    zoom: 13,
+    pitch: 0,
+    bearing: 0,
+  });
 
   const exportPng = useCallback(() => {
     const canvas = containerRef.current?.querySelector("canvas");
@@ -122,15 +130,23 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   const hasGeo = geometries.some((g) => g.hasGeo);
   const maxTripLength = Math.max(...geometries.map((g) => g.tripLength), 0);
 
-  const viewState = useMemo(() => {
+  const centerView = useMemo(() => {
     const centers = geometries.filter((g) => g.hasGeo).map((g) => g.center);
     if (!centers.length) {
-      return { longitude: 0, latitude: 0, zoom: 12, pitch: 0, bearing: 0 };
+      return { longitude: 0, latitude: 0, zoom: 12 };
     }
     const longitude = centers.reduce((a, c) => a + c.longitude, 0) / centers.length;
     const latitude = centers.reduce((a, c) => a + c.latitude, 0) / centers.length;
-    return { longitude, latitude, zoom: 13, pitch: 0, bearing: 0 };
+    return { longitude, latitude, zoom: 13 };
   }, [geometries]);
+
+  useEffect(() => {
+    setMapView((v) => ({
+      ...v,
+      ...centerView,
+      pitch: pitch3d ? 45 : 0,
+    }));
+  }, [centerView, pitch3d]);
 
   const tripSignature = geometries.map((g) => g.tripPath.length).join(",");
 
@@ -261,17 +277,43 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
       ref={containerRef}
       className="relative h-[320px] rounded-lg overflow-hidden border border-canvas-border"
     >
-      <DeckGL initialViewState={viewState} controller layers={layers}>
+      <DeckGL
+        viewState={mapView}
+        onViewStateChange={({ viewState }) => {
+          if ("latitude" in viewState && "longitude" in viewState) {
+            setMapView({
+              longitude: viewState.longitude,
+              latitude: viewState.latitude,
+              zoom: viewState.zoom ?? mapView.zoom,
+              pitch: viewState.pitch ?? mapView.pitch,
+              bearing: viewState.bearing ?? mapView.bearing,
+            });
+          }
+        }}
+        controller
+        layers={layers}
+      >
         <MapGL mapStyle={MAP_STYLE} />
       </DeckGL>
-      <button
-        onClick={exportPng}
-        className="absolute top-2 right-2 btn-ghost text-xs flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"
-        title="Export map as PNG"
-      >
-        <Download size={11} />
-        PNG
-      </button>
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        <button
+          onClick={() => setPitch3d((v) => !v)}
+          className={`btn-ghost text-xs px-1.5 py-0.5 bg-black/50 rounded ${
+            pitch3d ? "text-accent-secondary" : ""
+          }`}
+          title="Toggle 3D pitch"
+        >
+          {pitch3d ? "3D (on)" : "3D (off)"}
+        </button>
+        <button
+          onClick={exportPng}
+          className="btn-ghost text-xs flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"
+          title="Export map as PNG"
+        >
+          <Download size={11} />
+          PNG
+        </button>
+      </div>
       {routes.length > 1 && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5 max-w-[90%]">
           {routes.map((r) => (

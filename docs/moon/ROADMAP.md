@@ -911,6 +911,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
 - [x] Symlog overflows bar chart: `symlog.ts` + `useSymlog` on overflows `MetricBarChart` when log scale on (§G.1 partial — profit/km symlog deferred)
 - [x] BenchmarkAnalysis log-scale toggle on multi-run comparison bar charts (§G.1 partial)
+- [x] AlgorithmComparison log-scale toggle on per-metric bar charts (§G.1 partial)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [ ] Hover tooltip: all config values + KPI values
@@ -919,7 +920,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Heatmap split by distribution (Gamma-3 vs Empirical)
 - [ ] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350)
 - [ ] Cell value = mean overflows or mean kg/km (toggle)
-- [ ] Color gradient from dark (worst) to bright (best)
+- [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [ ] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit
@@ -964,7 +965,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Auto-detect graph preset from log path segments or day-1 bin count: `guessGraphPreset()` + SimulationMonitor auto-select (§G.3.1 partial)
 - [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred; fill-scaled radius checked)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
-- [ ] Pan/zoom/tilt with 3D perspective
+- [x] Pan/zoom/tilt with 3D perspective: `DeckRouteMap` controlled view state + 3D pitch toggle (0°/45°) (§G.3.1 partial — OrbitView/Cartesian deferred)
 
 #### 3.2 Route Animation (TripsLayer)
 - [x] Parse per-day route from `tour_indices` + `all_bin_coords` into timestamped coordinate arrays (`DeckRouteMap`)
@@ -1066,9 +1067,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6 partial)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6 partial)
+- [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6 partial)
 
 ---
 

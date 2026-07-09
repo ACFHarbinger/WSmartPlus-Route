@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-second pass
+
+Thirty-second implementation pass: policy heatmap (§G.1); deck.gl 3D pitch;
+AlgorithmComparison log scale; filtered CSV export.
+
+**React frontend**
+- `SimulationSummary` — policy × metric heatmap with normalised scores and PNG export
+- `DeckRouteMap` — 3D pitch toggle (0°/45°); controlled pan/zoom view state
+- `AlgorithmComparison` — log-scale toggle on per-metric bar charts
+- `DataExplorer` — CSV export respects active filter/sort (exports visible subset)
+
+**ROADMAP**
+- §G.1 policy configuration heatmap checked (partial — multi-config/multi-city deferred)
+- §G.3.1 deck.gl 3D pitch toggle checked (partial — OrbitView deferred)
+- §G.1 AlgorithmComparison log-scale toggle noted
+- §G.6 Data Explorer filtered CSV export noted
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-first pass
 
 Thirty-first implementation pass: graph preset auto-detect (§G.3.1); symlog
