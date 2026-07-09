@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-first pass
+
+Thirty-first implementation pass: graph preset auto-detect (§G.3.1); symlog
+overflows; Data Explorer filter; deck.gl fill-scaled nodes; benchmark log scale.
+
+**React frontend**
+- `utils/graphCoords.ts` — `guessGraphPreset()` infers RM-100/RM-170/FFZ-350 from log path or bin count
+- `utils/symlog.ts` — symmetric log transform for near-zero overflow values
+- `SimulationMonitor` — auto-selects graph preset on log load; shows "auto-detected" badge
+- `SimulationSummary` — symlog overflows bar when log scale on; efficiency ranking error bars
+- `DataExplorer` — row filter search across all columns with match count
+- `DeckRouteMap` — tour-stop scatter radius scales with fill level
+- `BenchmarkAnalysis` — log-scale toggle on multi-run comparison bar charts
+
+**ROADMAP**
+- §G.3.1 graph preset auto-detect from log path/bin count checked (partial)
+- §G.1 symlog overflows bar + efficiency ranking error bars checked (partial)
+- §G.6 Data Explorer row filter checked (partial)
+- §G.16 deck.gl node radius ∝ fill level checked (partial — profit deferred)
+- §G.1 BenchmarkAnalysis log-scale toggle noted
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirtieth pass
 
 Thirtieth implementation pass: graph JSON coordinate loader (§G.3.1); Pareto

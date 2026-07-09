@@ -168,3 +168,30 @@ export async function loadGraphCoordinates(
   if (!preset) throw new Error(`Unknown graph preset: ${presetId}`);
   return buildGraphCoordTable(projectRoot, preset, sampleIndex);
 }
+
+/** Infer graph preset from log path segments or bin count in day-1 coords. */
+export function guessGraphPreset(
+  logPath?: string | null,
+  entries?: DayLogEntry[]
+): string | null {
+  const path = (logPath ?? "").toLowerCase();
+  if (path.includes("figueiradafoz") || path.includes("figdafoz") || path.includes("ffz")) {
+    if (path.includes("350") || !path.match(/\d{2,3}/)) return "ffz-350";
+  }
+  if (path.includes("riomaior") || path.includes("rio_maior") || path.includes("rm")) {
+    if (path.includes("170")) return "rm-170";
+    if (path.includes("100")) return "rm-100";
+  }
+  if (path.includes("170")) return "rm-170";
+  if (path.includes("350")) return "ffz-350";
+  if (path.includes("100")) return "rm-100";
+
+  if (entries?.length) {
+    const day1 = entries.find((e) => e.day === 1 && e.data.all_bin_coords?.length);
+    const n = day1?.data.all_bin_coords?.filter((b) => b.id >= 0).length ?? 0;
+    if (n >= 320) return "ffz-350";
+    if (n >= 150) return "rm-170";
+    if (n >= 80) return "rm-100";
+  }
+  return null;
+}

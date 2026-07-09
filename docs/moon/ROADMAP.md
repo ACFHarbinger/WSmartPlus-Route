@@ -907,8 +907,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
 - [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
-- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — true symlog deferred)
-- [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial — symlog deferred)
+- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog on other metrics deferred)
+- [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
+- [x] Symlog overflows bar chart: `symlog.ts` + `useSymlog` on overflows `MetricBarChart` when log scale on (§G.1 partial — profit/km symlog deferred)
+- [x] BenchmarkAnalysis log-scale toggle on multi-run comparison bar charts (§G.1 partial)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [ ] Hover tooltip: all config values + KPI values
@@ -929,7 +931,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.5 Constructor Ranking Chart
 - [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering (§G.1 partial — multi-config benchmark deferred)
 - [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + BenchmarkAnalysis `kg/km` metric column (§G.1 partial)
-- [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial — dedicated ranking chart deferred)
+- [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial)
+- [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 
 #### 1.6 Secondary Log-Scale Views
 - [ ] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges)
@@ -957,8 +960,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 3.1 Base Map Layer
 - [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
-- [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1 partial — auto-detect from log metadata deferred)
-- [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred)
+- [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1 partial)
+- [x] Auto-detect graph preset from log path segments or day-1 bin count: `guessGraphPreset()` + SimulationMonitor auto-select (§G.3.1 partial)
+- [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred; fill-scaled radius checked)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
 - [ ] Pan/zoom/tilt with 3D perspective
 
@@ -1064,6 +1068,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6 partial)
+- [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6 partial)
 
 ---
 
