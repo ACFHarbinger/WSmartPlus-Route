@@ -10,9 +10,11 @@
  * and parses JSON metric lines emitted by the Lightning CSV logger / custom
  * training scripts. Accumulates metrics into a live ECharts chart.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
+import type EChartsReact from "echarts-for-react";
+import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle, Download } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -71,6 +73,7 @@ function parseMetricLine(line: string): TrainingMetricsRow | null {
 }
 
 function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const option = useMemo(() => {
     const xs = metrics.map((_, i) => i + 1);
     const trainLoss = metrics.map((m) => m.train_loss ?? null);
@@ -145,7 +148,20 @@ function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
     };
   }, [metrics]);
 
-  return <ReactECharts option={option} style={{ height: 200 }} />;
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-end">
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "training-live.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
+    </div>
+  );
 }
 
 // Compact single-metric sparkline for grad_norm / entropy
@@ -154,18 +170,33 @@ function MiniSparkline({
   metricKey,
   label,
   color,
+  exportName,
 }: {
   metrics: TrainingMetricsRow[];
   metricKey: keyof TrainingMetricsRow;
   label: string;
   color: string;
+  exportName?: string;
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const data = metrics.map((m) => m[metricKey] ?? null);
   if (data.every((v) => v === null)) return null;
   return (
     <div>
-      <p className="text-xs text-canvas-muted mb-1">{label}</p>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-canvas-muted">{label}</p>
+        {exportName && (
+          <button
+            onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+            className="btn-ghost text-xs flex items-center gap-1"
+          >
+            <Download size={10} />
+            PNG
+          </button>
+        )}
+      </div>
       <ReactECharts
+        ref={chartRef}
         option={{
           backgroundColor: "transparent",
           grid: { left: 40, right: 10, top: 5, bottom: 20 },
@@ -634,12 +665,14 @@ export function TrainingHub() {
                 metricKey="grad_norm"
                 label="Gradient Norm ‖∇‖"
                 color="#f87171"
+                exportName="hub-grad-norm"
               />
               <MiniSparkline
                 metrics={liveMetrics}
                 metricKey="entropy"
                 label="Policy Entropy"
                 color="#a78bfa"
+                exportName="hub-entropy"
               />
             </div>
           )}

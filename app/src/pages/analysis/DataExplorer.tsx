@@ -9,7 +9,7 @@ import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
-import { downloadParquetFromCsv } from "../../utils/tableExport";
+import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
 
 interface CsvRow {
   [key: string]: string | number | null;
@@ -57,6 +57,19 @@ export function DataExplorer() {
             <span className="text-xs text-canvas-muted">
               {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
             </span>
+            <button
+              onClick={() =>
+                downloadCsv(
+                  file.path.split("/").pop() ?? "data.csv",
+                  file.headers,
+                  file.rows.map((row) => file.headers.map((h) => row[h] ?? ""))
+                )
+              }
+              className="btn-ghost text-xs flex items-center gap-1.5"
+            >
+              <Download size={12} />
+              Export CSV
+            </button>
             {projectRoot && (
               <button
                 disabled={exporting}

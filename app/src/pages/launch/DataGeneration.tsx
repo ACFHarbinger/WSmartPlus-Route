@@ -5,10 +5,12 @@
  * Key Hydra args: data.problem, data.data_distributions, data.dataset_type,
  * data.seed, plus per-graph overrides via "Advanced" panel.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
-import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen, BarChart2 } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen, BarChart2, Download } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
@@ -36,6 +38,25 @@ function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
   if (b < 1024 ** 2) return `${(b / 1024).toFixed(1)} KB`;
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
+}
+
+function DemandHistogram({ option }: { option: object }) {
+  const chartRef = useRef<EChartsReact | null>(null);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-canvas-muted">Demand distribution</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "dataset-demand-hist.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 140 }} />
+    </div>
+  );
 }
 
 export function DataGeneration() {
@@ -298,10 +319,7 @@ export function DataGeneration() {
               </div>
             </div>
             {demandHistOption && (
-              <div>
-                <p className="text-xs text-canvas-muted mb-1">Demand distribution</p>
-                <ReactECharts option={demandHistOption} style={{ height: 140 }} />
-              </div>
+              <DemandHistogram option={demandHistOption} />
             )}
           </div>
         ) : (

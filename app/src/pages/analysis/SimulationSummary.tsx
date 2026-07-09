@@ -327,12 +327,82 @@ function TrajectoryChart({
   );
 }
 
+const RADAR_METRICS: Array<{ key: MetricKey; label: string }> = [
+  { key: "profit", label: "Profit (€)" },
+  { key: "km", label: "Distance (km)" },
+  { key: "overflows", label: "Overflows" },
+  { key: "kg", label: "Waste (kg)" },
+];
+
+function PolicyRadarChart({
+  stats,
+  policies,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+
+  const option = useMemo(() => {
+    const metricMeans: Record<string, Record<string, number>> = {};
+    for (const p of policies) {
+      metricMeans[p] = {};
+      for (const { key } of RADAR_METRICS) {
+        metricMeans[p][key] = mean(stats[p][key]);
+      }
+    }
+    const maxes = RADAR_METRICS.map(({ key }) =>
+      Math.max(...policies.map((p) => metricMeans[p][key] ?? 0), 1)
+    );
+
+    return {
+      backgroundColor: "transparent",
+      legend: { data: policies, textStyle: { color: "#9090b0", fontSize: 10 } },
+      radar: {
+        indicator: RADAR_METRICS.map(({ label }, i) => ({ name: label, max: maxes[i] * 1.1 })),
+        axisLine: { lineStyle: { color: "#2d2d50" } },
+        splitLine: { lineStyle: { color: "#2d2d50" } },
+        name: { textStyle: { color: "#9090b0", fontSize: 9 } },
+      },
+      series: [
+        {
+          type: "radar" as const,
+          data: policies.map((p, i) => ({
+            name: p,
+            value: RADAR_METRICS.map(({ key }) => metricMeans[p][key] ?? 0),
+            lineStyle: { color: POLICY_COLORS[i % POLICY_COLORS.length] },
+            areaStyle: { color: `${POLICY_COLORS[i % POLICY_COLORS.length]}20` },
+          })),
+        },
+      ],
+      tooltip: {},
+    };
+  }, [stats, policies]);
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-300">Policy Radar</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "summary-radar.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
+    </div>
+  );
+}
+
 function MetricBarChart({
   title,
   policies,
   values,
   color,
   logScale = false,
+  showErrorBars = false,
   exportName,
 }: {
   title: string;
@@ -340,6 +410,7 @@ function MetricBarChart({
   values: Array<{ mean: number; std: number }>;
   color: string;
   logScale?: boolean;
+  showErrorBars?: boolean;
   exportName: string;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
@@ -370,11 +441,52 @@ function MetricBarChart({
         type: "bar" as const,
         data: values.map((v) => (logScale ? Math.max(v.mean, 0.001) : v.mean)),
         itemStyle: { color },
-        // ECharts error bar using markLine on each bar is not natively supported;
-        // std dev is shown in the tooltip instead.
       },
+      ...(showErrorBars && !logScale
+        ? [
+            {
+              type: "custom" as const,
+              renderItem: (
+                params: { dataIndex: number },
+                api: {
+                  coord: (v: [number, number]) => [number, number];
+                  style: (s: object) => object;
+                }
+              ) => {
+                const i = params.dataIndex;
+                const v = values[i];
+                const x = api.coord([i, v.mean])[0];
+                const yTop = api.coord([i, v.mean + v.std])[1];
+                const yBot = api.coord([i, Math.max(0, v.mean - v.std)])[1];
+                const cap = 5;
+                return {
+                  type: "group",
+                  children: [
+                    {
+                      type: "line",
+                      shape: { x1: x, y1: yTop, x2: x, y2: yBot },
+                      style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                    },
+                    {
+                      type: "line",
+                      shape: { x1: x - cap, y1: yTop, x2: x + cap, y2: yTop },
+                      style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                    },
+                    {
+                      type: "line",
+                      shape: { x1: x - cap, y1: yBot, x2: x + cap, y2: yBot },
+                      style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                    },
+                  ],
+                };
+              },
+              data: policies.map((_, i) => i),
+              z: 10,
+            },
+          ]
+        : []),
     ],
-  }), [policies, values, color, logScale]);
+  }), [policies, values, color, logScale, showErrorBars]);
 
   return (
     <div className="card">
@@ -399,6 +511,7 @@ export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath, projectRoot } = useAppStore();
   const [parquetExporting, setParquetExporting] = useState(false);
   const [logScale, setLogScale] = useState(false);
+  const [showErrorBars, setShowErrorBars] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
@@ -510,7 +623,15 @@ export function SimulationSummary() {
           {/* Per-day trajectory */}
           <TrajectoryChart entries={filteredEntries} policies={policies} />
 
-          <div className="flex items-center justify-end">
+          <PolicyRadarChart stats={stats} policies={policies} />
+
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => setShowErrorBars((v) => !v)}
+              className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
+            >
+              {showErrorBars ? "Error bars (on)" : "Error bars (off)"}
+            </button>
             <button
               onClick={() => setLogScale((v) => !v)}
               className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
@@ -527,6 +648,7 @@ export function SimulationSummary() {
               values={metricValues("profit")}
               color="#6366f1"
               logScale={logScale}
+              showErrorBars={showErrorBars}
               exportName="summary-profit"
             />
             <MetricBarChart
@@ -535,6 +657,7 @@ export function SimulationSummary() {
               values={metricValues("km")}
               color="#38bdf8"
               logScale={logScale}
+              showErrorBars={showErrorBars}
               exportName="summary-km"
             />
             <MetricBarChart
@@ -543,6 +666,7 @@ export function SimulationSummary() {
               values={metricValues("overflows")}
               color="#f87171"
               logScale={logScale}
+              showErrorBars={showErrorBars}
               exportName="summary-overflows"
             />
             <MetricBarChart
@@ -551,6 +675,7 @@ export function SimulationSummary() {
               values={metricValues("kg")}
               color="#34d399"
               logScale={logScale}
+              showErrorBars={showErrorBars}
               exportName="summary-kg"
             />
           </div>
