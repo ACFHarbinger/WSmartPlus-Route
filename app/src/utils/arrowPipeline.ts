@@ -1,0 +1,98 @@
+/**
+ * CSV → Rust Arrow IPC → DuckDB-Wasm pipeline (§G.0 Phase 0).
+ */
+import { invoke } from "@tauri-apps/api/core";
+import { duckDbRowCount, ingestArrowIpc, initDuckDb } from "./duckdbClient";
+
+export const ARROW_PIPELINE_BUDGET_MS = 500;
+
+export interface ArrowIpcMeta {
+  path: string;
+  row_count: number;
+  column_count: number;
+  rust_ms: number;
+}
+
+export interface ArrowPipelineTiming {
+  rowCount: number;
+  columnCount: number;
+  rustMs: number;
+  readMs: number;
+  duckdbMs: number;
+  totalMs: number;
+  withinBudget: boolean;
+  tableName: string;
+}
+
+function toUint8Array(bytes: number[]): Uint8Array {
+  return Uint8Array.from(bytes);
+}
+
+async function readIpcBytes(ipcPath: string): Promise<Uint8Array> {
+  const bytes = await invoke<number[]>("read_binary_file", { path: ipcPath });
+  return toUint8Array(bytes);
+}
+
+/** Full pipeline for an on-disk CSV file. */
+export async function runCsvArrowPipeline(
+  csvPath: string,
+  tableName = "studio_csv"
+): Promise<ArrowPipelineTiming> {
+  const t0 = performance.now();
+  await initDuckDb();
+
+  const ipc = await invoke<ArrowIpcMeta>("csv_to_arrow_ipc", { path: csvPath });
+  const t1 = performance.now();
+
+  const buffer = await readIpcBytes(ipc.path);
+  const t2 = performance.now();
+
+  await ingestArrowIpc(tableName, buffer);
+  const t3 = performance.now();
+
+  const rowCount = await duckDbRowCount(tableName);
+  const totalMs = Math.round(t3 - t0);
+
+  return {
+    rowCount,
+    columnCount: ipc.column_count,
+    rustMs: ipc.rust_ms,
+    readMs: Math.round(t2 - t1),
+    duckdbMs: Math.round(t3 - t2),
+    totalMs,
+    withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
+    tableName,
+  };
+}
+
+/** Full pipeline for a simulation JSONL log. */
+export async function runSimulationArrowPipeline(
+  logPath: string,
+  tableName = "studio_sim"
+): Promise<ArrowPipelineTiming> {
+  const t0 = performance.now();
+  await initDuckDb();
+
+  const ipc = await invoke<ArrowIpcMeta>("simulation_log_to_arrow_ipc", { path: logPath });
+  const t1 = performance.now();
+
+  const buffer = await readIpcBytes(ipc.path);
+  const t2 = performance.now();
+
+  await ingestArrowIpc(tableName, buffer);
+  const t3 = performance.now();
+
+  const rowCount = await duckDbRowCount(tableName);
+  const totalMs = Math.round(t3 - t0);
+
+  return {
+    rowCount,
+    columnCount: ipc.column_count,
+    rustMs: ipc.rust_ms,
+    readMs: Math.round(t2 - t1),
+    duckdbMs: Math.round(t3 - t2),
+    totalMs,
+    withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
+    tableName,
+  };
+}

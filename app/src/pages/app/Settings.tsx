@@ -21,6 +21,11 @@ import { useStartupTiming } from "../../hooks/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
+import { useDuckDbStore } from "../../store/duckdb";
+import {
+  ARROW_PIPELINE_BUDGET_MS,
+  runCsvArrowPipeline,
+} from "../../utils/arrowPipeline";
 
 
 
@@ -67,8 +72,11 @@ export function Settings() {
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
   const [appVersion, setAppVersion] = useState("…");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
-  const { firstPaintMs, prefetchMs, withinBudget } = useStartupTiming();
+  const { firstPaintMs, prefetchMs, duckdbMs, withinBudget } = useStartupTiming();
   const { setGuidedTourOpen, setGuidedTourStep } = useLayoutStore();
+  const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
+    useDuckDbStore();
+  const [benchRunning, setBenchRunning] = useState(false);
 
   useEffect(() => {
     invoke<string>("get_app_version")
@@ -309,6 +317,68 @@ export function Settings() {
         </div>
       </div>
 
+      {/* Phase 0 — Arrow / DuckDB pipeline */}
+      <div className="card space-y-3">
+        <h2 className="text-sm font-semibold text-gray-200">Data Pipeline (Phase 0)</h2>
+        <p className="text-xs text-canvas-muted">
+          CSV → Rust Arrow IPC → DuckDB-Wasm. Target end-to-end latency &lt;{" "}
+          {ARROW_PIPELINE_BUDGET_MS} ms.
+        </p>
+        <p className="text-xs">
+          DuckDB worker:{" "}
+          <span className={duckdbReady ? "text-accent-success" : "text-canvas-muted"}>
+            {duckdbReady ? "ready" : "initialising…"}
+          </span>
+          {duckdbMs !== null && (
+            <>
+              {" "}
+              · worker ready in <span className="font-mono">{duckdbMs} ms</span>
+            </>
+          )}
+        </p>
+        {lastPipeline && (
+          <div className="text-xs text-canvas-muted space-y-0.5 font-mono">
+            <p>
+              Last run: {lastPipeline.rowCount} rows × {lastPipeline.columnCount} cols ·{" "}
+              <span className={lastPipeline.withinBudget ? "text-accent-success" : "text-accent-warning"}>
+                {lastPipeline.totalMs} ms total
+              </span>
+            </p>
+            <p>
+              rust {lastPipeline.rustMs} ms · read {lastPipeline.readMs} ms · duckdb{" "}
+              {lastPipeline.duckdbMs} ms
+            </p>
+          </div>
+        )}
+        <button
+          disabled={!duckdbReady || benchRunning || loading}
+          onClick={async () => {
+            const path = (await open({
+              filters: [{ name: "CSV", extensions: ["csv"] }],
+            })) as string | null;
+            if (!path) return;
+            setBenchRunning(true);
+            setLoading(true);
+            try {
+              const timing = await runCsvArrowPipeline(path, "bench_csv");
+              setLastPipeline(timing);
+              toast.success("Arrow pipeline complete", {
+                description: `${timing.totalMs} ms (${timing.rowCount} rows)`,
+              });
+            } catch (err) {
+              toast.error("Arrow pipeline failed", { description: String(err) });
+            } finally {
+              setBenchRunning(false);
+              setLoading(false);
+            }
+          }}
+          className="btn-ghost text-xs flex items-center gap-1.5"
+        >
+          <RefreshCw size={12} className={benchRunning ? "animate-spin" : ""} />
+          Run Arrow Pipeline Benchmark
+        </button>
+      </div>
+
       {/* About */}
       <div className="card space-y-2 text-xs text-canvas-muted">
         <p className="font-semibold text-gray-300 text-sm">About WSmart-Route Studio</p>
@@ -324,6 +394,9 @@ export function Settings() {
               {withinBudget ? "within 2s budget" : "over 2s budget"}
             </span>
           </p>
+        )}
+        {duckdbMs !== null && (
+          <p>DuckDB-Wasm worker ready: <span className="font-mono">{duckdbMs} ms</span></p>
         )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
         <button

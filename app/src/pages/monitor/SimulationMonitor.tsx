@@ -34,6 +34,8 @@ import {
   guessGraphPreset,
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
+import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
 
@@ -463,6 +465,7 @@ export function SimulationMonitor() {
     projectRoot,
   } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { ready: duckdbReady, setLastPipeline, setLoading: setDuckdbLoading } = useDuckDbStore();
 
   const [activeLogPath, setActiveLogPath] = useState<string | null>(null);
   const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
@@ -476,8 +479,16 @@ export function SimulationMonitor() {
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
       pushRecent({ path, label: recentFileLabel(path), kind: "log" });
+
+      if (duckdbReady) {
+        setDuckdbLoading(true);
+        runSimulationArrowPipeline(path, "monitor_sim")
+          .then(setLastPipeline)
+          .catch((err) => console.warn("Simulation Arrow pipeline:", err))
+          .finally(() => setDuckdbLoading(false));
+      }
     },
-    [reset, loadEntries, setWatchPath, pushRecent]
+    [reset, loadEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
   );
 
   const openLog = useCallback(async () => {

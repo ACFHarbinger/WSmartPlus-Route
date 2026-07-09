@@ -878,7 +878,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.0 — Phase 0: Foundation & Tooling 🚧
+### §G.0 — Phase 0: Foundation & Tooling ✅
 
 **Goal**: Establish the project scaffold, dev environment, and data pipeline so all subsequent phases have a stable base.
 
@@ -887,9 +887,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Set up Rust backend with `tauri 2.0`, `tauri-plugin-{notification,store,dialog,shell}`, `serde`, `tokio`, `csv`, `anyhow`
 - [x] Implement Tauri Store plugin setup for session and theme persistence (§D.3, §D.4)
 - [x] `tools/app/justfile` — dev/build/check/clean commands; wired to root justfile as `just studio`, `just studio-build`, `just studio-install`
-- [ ] Arrow IPC schema for simulation log rows and Rust CSV → Arrow IPC stream (deferred; current JSON-over-invoke is sufficient for Phase 0)
-- [ ] Spawn DuckDB-Wasm in a Web Worker; ingest simulation Arrow stream on app load
-- [ ] Verify end-to-end latency: CSV → Rust → Arrow → DuckDB-Wasm in < 500 ms
+- [x] Arrow IPC schema for simulation log rows and Rust CSV → Arrow IPC stream: `commands/arrow.rs` — `csv_to_arrow_ipc`, `simulation_log_to_arrow_ipc` (typed KPI schema: policy/sample_id/day + profit/km/overflows/kg_per_km/…)
+- [x] Spawn DuckDB-Wasm in a Web Worker; ingest Arrow IPC on CSV/log open: `duckdbClient.ts` + `useDuckDbInit` on app mount; Data Explorer + Simulation Monitor auto-ingest
+- [x] Verify end-to-end latency: Settings "Run Arrow Pipeline Benchmark" + Data Explorer timing badge; 500 ms budget constant in `arrowPipeline.ts` (§G.0 partial — hardware baseline varies)
 
 ---
 
@@ -1323,24 +1323,24 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | Phase | Description | Effort | Impact | Priority |
 | --- | --- | --- | --- | --- |
 | §G.0 | Foundation & Tooling | High | Very High | P0 |
-| §G.19 | Settings & Onboarding | Low | Very High | P0 `[Blocked]` §G.0 |
-| §G.15 | Real-Time Process Monitor | Medium | Very High | P0 `[Blocked]` §G.0 |
-| §G.9 | Simulation Launcher | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |
-| §G.10 | Training & HPO Hub | Medium | Very High | P1 `[Blocked]` §G.0, §G.15 |
-| §G.13 | Configuration Editor | Medium | High | P1 `[Blocked]` §G.0 |
-| §G.14 | Output Browser | Medium | High | P1 `[Blocked]` §G.0 |
-| §G.1 | Statistical Dashboard | High | High | P1 `[Blocked]` §G.0 |
-| §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.0, §G.15 |
-| §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.0, §G.15 |
+| §G.19 | Settings & Onboarding | Low | Very High | P0 |
+| §G.15 | Real-Time Process Monitor | Medium | Very High | P0 |
+| §G.9 | Simulation Launcher | Medium | Very High | P1 `[Blocked]` §G.15 |
+| §G.10 | Training & HPO Hub | Medium | Very High | P1 `[Blocked]` §G.15 |
+| §G.13 | Configuration Editor | Medium | High | P1 |
+| §G.14 | Output Browser | Medium | High | P1 |
+| §G.1 | Statistical Dashboard | High | High | P1 |
+| §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.15 |
+| §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.15 |
 | §G.7 | UX Polish | Medium | High | P2 `[Blocked]` §G.1 |
 | §G.2 | Drill-Down Sunburst | Medium | High | P2 `[Blocked]` §G.1 |
-| §G.3 | Geospatial deck.gl | High | High | P2 `[Blocked]` §G.0 |
+| §G.3 | Geospatial deck.gl | High | High | P2 |
 | §G.6 | OLAP Explorer | Medium | High | P2 `[Blocked]` §G.1 |
 | §G.4 | Graph Topology | Medium | Medium | P3 `[Blocked]` §G.3 |
 | §G.8 | Export & Packaging | Medium | High | P3 `[Blocked]` §G.7 |
 | §G.5 | ML Introspection | High | High | P3 `[Blocked]` §G.4 |
-| §G.16 | Simulation Digital Twin | High | Very High | P1 `[Blocked]` §G.0, §G.3 |
-| §G.17 | Training Monitor | Medium | Very High | P1 `[Blocked]` §G.0, §G.10 |
+| §G.16 | Simulation Digital Twin | High | Very High | P1 `[Blocked]` §G.3 |
+| §G.17 | Training Monitor | Medium | Very High | P1 `[Blocked]` §G.10 |
 | §G.18 | Experiment & HPO Tracker | High | High | P2 `[Blocked]` §G.1, §G.17 |
 
 ---

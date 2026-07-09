@@ -7,6 +7,7 @@ import { useProcessMonitor } from "./hooks/useProcessMonitor";
 import { useAppStore } from "./store/app";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
+import { useDuckDbInit } from "./hooks/useDuckDbInit";
 import { prefetchPage } from "./utils/pagePrefetch";
 import { markStartup } from "./utils/startupTiming";
 import type { AppMode } from "./types";
@@ -153,6 +154,7 @@ export default function App() {
   const { triggerSim, triggerTrain, triggerDataGen, triggerEval } = useLaunchTriggerStore();
 
   useHashSync();
+  useDuckDbInit();
 
   // Warm critical route chunks on startup (§G.7)
   useEffect(() => {
