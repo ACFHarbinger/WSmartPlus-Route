@@ -28,6 +28,12 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
 import { hexToRgb } from "../../utils/colors";
+import {
+  enrichEntriesWithGraphCoords,
+  GRAPH_PRESETS,
+  loadGraphCoordinates,
+} from "../../utils/graphCoords";
+import { toast } from "sonner";
 import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
@@ -448,8 +454,13 @@ export function SimulationMonitor() {
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
-  const { pendingLogPath, setPendingLogPath, pendingMapCompare, setPendingMapCompare } =
-    useAppStore();
+  const {
+    pendingLogPath,
+    setPendingLogPath,
+    pendingMapCompare,
+    setPendingMapCompare,
+    projectRoot,
+  } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const loadLogFile = useCallback(
@@ -486,6 +497,30 @@ export function SimulationMonitor() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
   const [mapLayout, setMapLayout] = useState<"overlay" | "split">("overlay");
+  const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
+  const [loadingGraphCoords, setLoadingGraphCoords] = useState(false);
+
+  const applyGraphCoords = useCallback(async () => {
+    if (!projectRoot) {
+      toast.error("Set project root in Settings to load graph coordinates");
+      return;
+    }
+    if (!entries.length) return;
+    setLoadingGraphCoords(true);
+    try {
+      const sampleIndex = selectedSample ?? 0;
+      const table = await loadGraphCoordinates(projectRoot, graphPreset, sampleIndex);
+      loadEntries(enrichEntriesWithGraphCoords(entries, table));
+      setRouteMapMode("deckgl");
+      toast.success("Graph coordinates loaded", {
+        description: GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label,
+      });
+    } catch (err) {
+      toast.error("Failed to load graph coordinates", { description: String(err) });
+    } finally {
+      setLoadingGraphCoords(false);
+    }
+  }, [projectRoot, entries, graphPreset, selectedSample, loadEntries]);
 
   const hasGeoCoords = useMemo(
     () => displayEntry?.data.all_bin_coords?.some((b) => b.lat != null && b.lng != null) ?? false,
@@ -853,6 +888,28 @@ export function SimulationMonitor() {
                     {layout}
                   </button>
                 ))}
+              </div>
+            )}
+            {showRouteMap && !hasGeoCoords && entries.length > 0 && (
+              <div className="flex items-center gap-2 ml-1">
+                <select
+                  className="select-base text-xs py-0.5"
+                  value={graphPreset}
+                  onChange={(e) => setGraphPreset(e.target.value)}
+                >
+                  {GRAPH_PRESETS.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => void applyGraphCoords()}
+                  disabled={loadingGraphCoords}
+                  className="btn-ghost text-xs"
+                >
+                  {loadingGraphCoords ? "Loading…" : "Load graph coords"}
+                </button>
               </div>
             )}
             {showRouteMap && hasGeoCoords && (

@@ -219,6 +219,52 @@ export function BenchmarkAnalysis() {
     );
   }, [filteredRuns]);
 
+  const efficiencyRanking = useMemo(() => {
+    const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
+    return policies
+      .map((p) => {
+        const vals = filteredRuns.flatMap((r) =>
+          r.entries
+            .filter((e) => e.policy === p)
+            .map((e) => (e.data as Record<string, number>)["kg/km"])
+            .filter((v): v is number => v != null)
+        );
+        return { policy: p, value: mean(vals) };
+      })
+      .filter((r) => r.value > 0)
+      .sort((a, b) => b.value - a.value);
+  }, [filteredRuns]);
+
+  const efficiencyRankOption = useMemo(
+    () => ({
+      backgroundColor: "transparent",
+      grid: { left: 110, right: 24, top: 12, bottom: 12 },
+      xAxis: {
+        type: "value",
+        name: "kg/km",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "category",
+        data: efficiencyRanking.map((r) => r.policy),
+        inverse: true,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      series: [
+        {
+          type: "bar",
+          data: efficiencyRanking.map((r, i) => ({
+            value: r.value,
+            itemStyle: { color: COLORS[i % COLORS.length] },
+          })),
+        },
+      ],
+      tooltip: { trigger: "axis" },
+    }),
+    [efficiencyRanking]
+  );
+
   const makeBarOption = (metricKey: string, metricLabel: string) => {
     const runLabels = filteredRuns.map((r) => r.label);
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
@@ -303,6 +349,30 @@ export function BenchmarkAnalysis() {
       {runs.length === 0 && !evalRows && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           Add simulation run logs to compare, or use &quot;Open in Analytics →&quot; from the Evaluation Runner.
+        </div>
+      )}
+
+      {runs.length >= 1 && efficiencyRanking.length > 0 && (
+        <div className="card">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-canvas-muted">Efficiency Ranking (kg/km)</p>
+            <button
+              onClick={() =>
+                exportChartPng({ current: chartRefs.current["efficiency-rank"] }, "benchmark-efficiency-rank.png")
+              }
+              className="btn-ghost text-xs flex items-center gap-1"
+            >
+              <Download size={12} />
+              PNG
+            </button>
+          </div>
+          <ReactECharts
+            ref={(el) => {
+              chartRefs.current["efficiency-rank"] = el;
+            }}
+            option={efficiencyRankOption}
+            style={{ height: Math.max(180, efficiencyRanking.length * 28) }}
+          />
         </div>
       )}
 

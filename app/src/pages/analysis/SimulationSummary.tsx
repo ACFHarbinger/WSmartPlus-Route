@@ -464,9 +464,11 @@ function EfficiencyRankingChart({
 function PolicyParetoChart({
   stats,
   policies,
+  logScale = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -478,6 +480,8 @@ function PolicyParetoChart({
     }));
     const frontIds = new Set(paretoFront(points).map((p) => p.id));
     const step = paretoStepLine(paretoFront(points));
+    const displayY = (y: number) => (logScale ? Math.max(y, 0.001) : y);
+    const displayStep = step.map(([x, y]) => [x, displayY(y)] as [number, number]);
 
     return {
       backgroundColor: "transparent",
@@ -489,10 +493,12 @@ function PolicyParetoChart({
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
       yAxis: {
-        type: "value" as const,
+        type: (logScale ? "log" : "value") as "log" | "value",
+        logBase: 10,
         name: "Overflows",
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
       },
       series: [
         {
@@ -500,7 +506,7 @@ function PolicyParetoChart({
           type: "scatter" as const,
           data: points.map((pt, i) => ({
             name: pt.id,
-            value: [pt.x, pt.y],
+            value: [pt.x, displayY(pt.y)],
             itemStyle: {
               color: frontIds.has(pt.id)
                 ? POLICY_COLORS[i % POLICY_COLORS.length]
@@ -510,15 +516,15 @@ function PolicyParetoChart({
           })),
           tooltip: {
             formatter: (p: { name: string; value: [number, number] }) =>
-              `${p.name}<br/>Profit: ${fmt(p.value[0], 1)} €<br/>Overflows: ${fmt(p.value[1], 1)}`,
+              `${p.name}<br/>Profit: ${fmt(p.value[0], 1)} €<br/>Overflows: ${fmt(points.find((pt) => pt.id === p.name)?.y ?? p.value[1], 1)}`,
           },
         },
-        ...(step.length > 1
+        ...(displayStep.length > 1
           ? [
               {
                 name: "Pareto front",
                 type: "line" as const,
-                data: step,
+                data: displayStep,
                 lineStyle: { color: "#f3f4f6", type: "dashed" as const, width: 1.5 },
                 symbol: "none",
                 tooltip: { show: false },
@@ -528,12 +534,12 @@ function PolicyParetoChart({
           : []),
       ],
       legend: {
-        data: step.length > 1 ? ["Policies", "Pareto front"] : ["Policies"],
+        data: displayStep.length > 1 ? ["Policies", "Pareto front"] : ["Policies"],
         textStyle: { color: "#9090b0", fontSize: 9 },
         top: 0,
       },
     };
-  }, [stats, policies]);
+  }, [stats, policies, logScale]);
 
   return (
     <div className="card space-y-2">
@@ -783,7 +789,7 @@ export function SimulationSummary() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <EfficiencyRankingChart stats={stats} policies={policies} />
-            <PolicyParetoChart stats={stats} policies={policies} />
+            <PolicyParetoChart stats={stats} policies={policies} logScale={logScale} />
           </div>
 
           <div className="flex items-center justify-end gap-2">

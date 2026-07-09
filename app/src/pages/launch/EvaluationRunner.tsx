@@ -10,7 +10,10 @@
  *   eval.val_size, eval.decoding.strategy
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -39,6 +42,14 @@ interface EvalResult {
   [key: string]: number | string | undefined;
 }
 
+const EVAL_CHART_METRICS = [
+  { key: "cost", label: "Tour Cost" },
+  { key: "gap", label: "Optimality Gap (%)" },
+  { key: "time", label: "Time (s)" },
+] as const;
+
+const EVAL_COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
+
 function ResultsGrid({
   results,
   onOpenAnalytics,
@@ -46,12 +57,40 @@ function ResultsGrid({
   results: EvalResult[];
   onOpenAnalytics: () => void;
 }) {
+  const chartRefs = useRef<Record<string, EChartsReact | null>>({});
   const allKeys = Array.from(
     new Set(results.flatMap((r) => Object.keys(r).filter((k) => k !== "checkpointName")))
   );
   const numKeys = allKeys.filter((k) =>
     results.some((r) => typeof r[k] === "number")
   );
+  const checkpoints = results.map((r) => r.checkpointName);
+
+  const makeBarOption = (metricKey: string, metricLabel: string) => ({
+    backgroundColor: "transparent",
+    grid: { left: 50, right: 10, top: 20, bottom: 55 },
+    xAxis: {
+      type: "category",
+      data: checkpoints,
+      axisLabel: { color: "#9090b0", fontSize: 9, rotate: 25 },
+    },
+    yAxis: {
+      type: "value",
+      name: metricLabel,
+      nameTextStyle: { color: "#9090b0" },
+      axisLabel: { color: "#9090b0", fontSize: 10 },
+    },
+    series: [
+      {
+        type: "bar",
+        data: results.map((r, i) => ({
+          value: (r[metricKey] as number | undefined) ?? 0,
+          itemStyle: { color: EVAL_COLORS[i % EVAL_COLORS.length] },
+        })),
+      },
+    ],
+    tooltip: { trigger: "axis" },
+  });
 
   const exportCsv = () => {
     const cols = ["checkpoint", ...numKeys];
@@ -83,6 +122,30 @@ function ResultsGrid({
           </button>
         </div>
       </div>
+      <div className="grid grid-cols-3 gap-3">
+        {EVAL_CHART_METRICS.filter(({ key }) => numKeys.includes(key)).map(({ key, label }) => (
+          <div key={key} className="rounded-lg border border-canvas-border/40 p-2">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-canvas-muted">{label}</p>
+              <button
+                onClick={() => exportChartPng({ current: chartRefs.current[key] }, `eval-runner-${key}.png`)}
+                className="btn-ghost text-xs flex items-center gap-1"
+              >
+                <Download size={10} />
+                PNG
+              </button>
+            </div>
+            <ReactECharts
+              ref={(el) => {
+                chartRefs.current[key] = el;
+              }}
+              option={makeBarOption(key, label)}
+              style={{ height: 180 }}
+            />
+          </div>
+        ))}
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
