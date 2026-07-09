@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-ninth pass
+
+Twenty-ninth implementation pass: Pareto + efficiency charts (§G.1); Data
+Explorer column sort; BenchmarkAnalysis kg/km metric.
+
+**React frontend**
+- `SimulationSummary` — horizontal efficiency ranking chart (kg/km); profit vs overflows Pareto scatter with dashed frontier
+- `utils/pareto.ts` — Pareto front + step-line helpers for policy comparison
+- `BenchmarkAnalysis` — `kg/km` added to simulation comparison metrics
+- `DataExplorer` — sortable column headers (asc/desc toggle on click)
+
+**ROADMAP**
+- §G.1 Pareto front + horizontal kg/km ranking checked (partial — multi-config deferred)
+- §G.6 Data Explorer column sort checked (partial)
+- §G.7 BenchmarkAnalysis kg/km export line updated
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-eighth pass
 
 Twenty-eighth implementation pass: launcher/monitor PNG exports (§G.7);
