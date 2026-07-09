@@ -12,11 +12,13 @@
  *   - Gradient norm sparkline: separate chart for the grad_norm column
  *   - Checkpoint browser: lists checkpoints/ dir, "Load in Eval Runner" button
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FolderOpen, Radio, RefreshCw } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import type { DirEntry, StdoutLine, TrainingRun, TrainingMetricsRow } from "../../types";
@@ -104,6 +106,7 @@ function MultiRunChart({
 }: {
   runsMetrics: { name: string; metrics: TrainingMetricsRow[] }[];
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   if (runsMetrics.length === 0) return null;
 
   const series: object[] = [];
@@ -161,8 +164,19 @@ function MultiRunChart({
   });
 
   return (
-    <div className="card">
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-canvas-muted">Multi-run overlay</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "training-overlay.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
       <ReactECharts
+        ref={chartRef}
         option={{
           backgroundColor: "transparent",
           legend: {
@@ -206,16 +220,31 @@ function MetricSparkline({
   label,
   data,
   color,
+  exportName,
 }: {
   label: string;
   data: [number, number][];
   color: string;
+  exportName?: string;
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   if (data.length === 0) return null;
   return (
     <div className="card">
-      <p className="text-xs text-canvas-muted mb-1">{label}</p>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-canvas-muted">{label}</p>
+        {exportName && (
+          <button
+            onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+            className="btn-ghost text-xs flex items-center gap-1"
+          >
+            <Download size={10} />
+            PNG
+          </button>
+        )}
+      </div>
       <ReactECharts
+        ref={chartRef}
         option={{
           backgroundColor: "transparent",
           grid: { left: 40, right: 10, top: 8, bottom: 28 },
@@ -241,14 +270,14 @@ function GradNormSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
   const data = metrics
     .filter((r) => r.grad_norm != null)
     .map((r): [number, number] => [r.epoch ?? r.step ?? 0, r.grad_norm!]);
-  return <MetricSparkline label="Gradient Norm" data={data} color="#f87171" />;
+  return <MetricSparkline label="Gradient Norm" data={data} color="#f87171" exportName="training-grad-norm" />;
 }
 
 function LrSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
   const data = metrics
     .filter((r) => r.lr != null)
     .map((r): [number, number] => [r.step ?? r.epoch ?? 0, r.lr!]);
-  return <MetricSparkline label="Learning Rate" data={data} color="#fbbf24" />;
+  return <MetricSparkline label="Learning Rate" data={data} color="#fbbf24" exportName="training-lr" />;
 }
 
 // ── Hyperparameter panel (reads hparams.yaml, renders flat key-value table)

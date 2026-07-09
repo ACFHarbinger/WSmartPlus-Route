@@ -908,6 +908,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
 - [ ] Computed Pareto front drawn as white dashed step line
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog scatter/Pareto deferred)
+- [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
+- [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [ ] Hover tooltip: all config values + KPI values
 
 #### 1.3 Policy Configuration Heatmaps
@@ -1058,7 +1060,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 
 ---
 
@@ -1110,7 +1112,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] WandB toggle: adds `tracker.enabled=false` when disabled
 - [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
 - [x] Live training progress panel (§D.2): `parseMetricLine` parses JSON and `key=value` stdout lines; `LiveChart` ECharts canvas shows train_loss (solid), val_loss (dashed), reward (dotted, right y-axis); latest snapshot row shows epoch/train_loss/val_loss/reward/grad_norm inline
-- [x] Gradient norm and entropy sparklines: `MiniSparkline` component (70 px ECharts, area fill at 13% opacity); grad_norm in red `#f87171`, entropy in purple `#a78bfa`; rendered as 2-column grid below `LiveChart`; component returns `null` when no data for the given metric key
+- [x] Gradient norm and entropy sparklines: `MiniSparkline` component (70 px ECharts, area fill at 13% opacity); grad_norm in red `#f87171`, entropy in purple `#a78bfa`; rendered as 2-column grid below `LiveChart`; PNG export on live chart and sparklines; component returns `null` when no data for the given metric key
 - [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
 - [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
 
@@ -1127,7 +1129,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Advanced Overrides collapsible + command preview (`python main.py gen_data ...`)
 - [x] TSPLIB source option: `dataSource` radio (synthetic / TSPLIB); `.vrp`/`.tsp` file picker via Tauri dialog; Hydra overrides `data.source=tsplib` + `data.tsplib_instance=<path>`; graph form hidden in TSPLIB mode
 - [x] Sensor data source option: third `dataSource` radio; CSV file picker (timestamp,bin_id,fill_level,waste_type); Hydra overrides `data.source=sensor` + `data.sensor_file=<path>`
-- [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram
+- [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram with PNG export
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 
@@ -1234,7 +1236,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 
 - [x] **Run discovery** (`discover_training_runs` parity): scan `<projectRoot>/logs/` for Lightning log directories; detect `metrics.csv` and `hparams.yaml`; checkbox multi-select
 - [x] **Metrics CSV loading**: `load_training_metrics` Rust command parses Lightning `metrics.csv`; epoch/step x-axis; train_loss, val_loss, reward columns handled
-- [x] **Multi-run overlay chart**: single ECharts canvas with one colour-coded series set per run (8-colour palette); train loss (solid), val loss (dashed), reward (dotted, right y-axis); scrollable legend; replaces one-chart-per-run layout
+- [x] **Multi-run overlay chart**: single ECharts canvas with one colour-coded series set per run (8-colour palette); train loss (solid), val loss (dashed), reward (dotted, right y-axis); scrollable legend; PNG export; replaces one-chart-per-run layout
 - [x] **Gradient norm sparkline**: separate compact ECharts chart for `grad_norm` column, shown per selected run
 - [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
 - [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode

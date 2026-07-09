@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — twenty-eighth pass
+
+Twenty-eighth implementation pass: launcher/monitor PNG exports (§G.7);
+Simulation Summary radar + error bars (§G.1); Data Explorer CSV export.
+
+**React frontend**
+- `TrainingMonitor` — PNG export on multi-run overlay chart and grad-norm / LR sparklines
+- `TrainingHub` — PNG export on live training chart and grad-norm / entropy sparklines
+- `DataGeneration` — PNG export on dataset demand histogram preview
+- `SimulationSummary` — policy radar chart; error-bar whiskers toggle on bar charts (linear scale)
+- `DataExplorer` — Export CSV button for loaded table data
+- `App.tsx` — `DeckRouteMap` chunk included in startup prefetch batch
+
+**ROADMAP**
+- §G.1 policy radar + error bars checked (partial — symlog/Pareto deferred)
+- §G.7 TrainingMonitor / TrainingHub / DataGeneration PNG export checked
+- §G.7 Data Explorer CSV export checked
+- §G.10 / §G.11 / §G.17 launcher & monitor PNG export noted
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-seventh pass
 
 Twenty-seventh implementation pass: SimulationSummary chart PNG export (§G.7);
