@@ -898,14 +898,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Reproduce and extend the existing static `simulation_analysis.md` charts as interactive ECharts panels.
 
 #### 1.1 KPI Summary Bar / Box Charts
-- [ ] Mean ± std overflows per constructor, grouped by mandatory-selection strategy
-- [ ] Mean ± std kg/km per constructor, grouped by city/scale
-- [ ] Interactive brushing: selecting a bar cross-filters all panels on the dashboard
+- [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary (§G.1 partial — multi-city benchmark deferred)
+- [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary (§G.1 partial — single-run city/scale from log path banner)
+- [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts (§G.1 partial — DuckDB SQL deferred)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
 - [ ] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS
-- [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
-- [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
+- [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1 partial — multi-run 4-panel deferred)
+- [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on Pareto scatter (§G.1 partial — per-policy multi-city deferred)
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog on other metrics deferred)
 - [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
@@ -914,18 +914,18 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] AlgorithmComparison log-scale toggle on per-metric bar charts (§G.1 partial)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
-- [ ] Hover tooltip: all config values + KPI values
+- [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts (§G.1 partial — multi-run config matrix deferred)
 
 #### 1.3 Policy Configuration Heatmaps
 - [ ] Heatmap split by distribution (Gamma-3 vs Empirical)
 - [ ] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350)
-- [ ] Cell value = mean overflows or mean kg/km (toggle)
+- [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
-- [ ] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit
+- [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
 - [ ] Each of the 480 simulation logs rendered as a polyline
-- [ ] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL)
+- [x] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL): click polyline → `toggleBrush` cross-filter (§G.1 partial — axis brush + DuckDB SQL deferred)
 - [ ] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs
 - [ ] Color polylines by mandatory-selection strategy
 
@@ -936,7 +936,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 
 #### 1.6 Secondary Log-Scale Views
-- [ ] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges)
+- [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit + symlog-overflows row when global log toggle off (§G.1 partial — all metrics deferred)
 - [ ] City Comparison section uses log scale only (not outlier removal) to preserve extreme values
 
 ---

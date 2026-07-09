@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-fourth pass (§G.1)
+
+Thirty-fourth pass implements **§G.1 Statistical Overview Dashboard** cross-filter
+brushing, grouped KPI charts, parallel coordinates, and richer policy metadata tooltips.
+
+**React frontend**
+- `utils/simMetadata.ts` — parse log paths and policy labels into city/scale/distribution/strategy metadata
+- `utils/chartHighlight.ts` — `isHighlighted`, `barOpacity`, `toggleBrush` for dashboard cross-filtering
+- `SimulationSummary` — `ConfigMetaBanner` run-config strip; `PolicyBrushBar` chip cross-filter
+- `GroupedMetricBarChart` — overflows by selection strategy; kg/km by constructor (mean ± std)
+- `PolicyParallelChart` — ECharts parallel coordinates (profit · kg/km · overflows · km)
+- `PolicyHeatmapChart` — metric mode toggle (all / overflows / kg/km); brush dimming
+- `PolicyParetoChart` — strategy color + city/scale marker shape encoding; brush dimming
+- `EfficiencyRankingChart` / `MetricBarChart` — bar opacity by brush; click-to-filter; rich tooltips
+- §G.1.6 — auto log-scale duplicate row for profit and overflows when global log toggle is off
+
+**ROADMAP**
+- §G.1 grouped KPI bars, interactive brushing, parallel coords (partial), heatmap metric toggle,
+  Pareto color/shape encoding, rich tooltips, secondary log-scale views checked (partial)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-third pass (Phase 0)
 
 Thirty-third pass completes **§G.0 Phase 0** foundation items deferred by later-phase
