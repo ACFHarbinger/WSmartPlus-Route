@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirtieth pass
+
+Thirtieth implementation pass: graph JSON coordinate loader (§G.3.1); Pareto
+log-scale; BenchmarkAnalysis efficiency rank; Evaluation Runner charts (§G.12).
+
+**React frontend**
+- `utils/graphCoords.ts` — load RM-100/RM-170/FFZ-350 coordinates from graph JSON + area CSV via project root
+- `SimulationMonitor` — graph preset selector + "Load graph coords" enriches logs for deck.gl tile map
+- `SimulationSummary` — log-scale toggle applies to Pareto scatter y-axis (overflows)
+- `BenchmarkAnalysis` — horizontal efficiency ranking chart (kg/km) with PNG export
+- `EvaluationRunner` — inline cost/gap/time bar charts with PNG export on results grid
+- `App.tsx` — maplibre-gl + @deck.gl/react included in startup prefetch batch
+
+**ROADMAP**
+- §G.3.1 graph JSON coordinate loader checked (partial — auto-detect from log metadata deferred)
+- §G.1 Pareto log-scale y-axis checked (partial — true symlog deferred)
+- §G.12 Evaluation Runner inline charts + PNG export checked
+- §G.7 maplibre/deck.gl vendor prefetch noted
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — twenty-ninth pass
 
 Twenty-ninth implementation pass: Pareto + efficiency charts (§G.1); Data

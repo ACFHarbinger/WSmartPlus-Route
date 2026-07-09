@@ -907,7 +907,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
 - [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
-- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog scatter/Pareto deferred)
+- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — true symlog deferred)
+- [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial — symlog deferred)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [ ] Hover tooltip: all config values + KPI values
@@ -956,7 +957,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 3.1 Base Map Layer
 - [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
-- [ ] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files
+- [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1 partial — auto-detect from log metadata deferred)
 - [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
 - [ ] Pan/zoom/tilt with 3D perspective
@@ -1056,6 +1057,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
 - [x] Startup route prefetch: `App.tsx` warms simulation, summary, process monitor, output browser chunks on mount (§G.7 performance partial)
+- [x] Startup vendor prefetch: maplibre-gl + @deck.gl/react warmed alongside echarts and DeckRouteMap chunk (§G.7 performance partial)
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
@@ -1147,6 +1149,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Results grid: global `process:stdout` listener parses JSON lines with `cost`/`gap`/`tour_cost`/`time`/`policy` fields; keyed by checkpoint name; dynamic column discovery from first result; updates in real time as results stream in
 - [x] "Export CSV" button: builds CSV from result rows, triggers browser download via `Blob` + `URL.createObjectURL`
 - [x] "Open in Analytics" button pre-loads eval results into BenchmarkAnalysis via `pendingEvalResults` store field; shows cost/gap/time bar charts + summary table
+- [x] Inline results bar charts on Evaluation Runner results grid with per-metric PNG export (§G.12 partial)
 
 ---
 
