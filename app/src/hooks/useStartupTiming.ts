@@ -4,6 +4,7 @@ import { getStartupElapsed, markStartup } from "../utils/startupTiming";
 export interface StartupTiming {
   firstPaintMs: number | null;
   prefetchMs: number | null;
+  duckdbMs: number | null;
   withinBudget: boolean | null;
 }
 
@@ -12,6 +13,7 @@ export function useStartupTiming(): StartupTiming {
   const [timing, setTiming] = useState<StartupTiming>({
     firstPaintMs: null,
     prefetchMs: null,
+    duckdbMs: null,
     withinBudget: null,
   });
 
@@ -20,6 +22,7 @@ export function useStartupTiming(): StartupTiming {
     setTiming({
       firstPaintMs: getStartupElapsed("firstPaint"),
       prefetchMs,
+      duckdbMs: getStartupElapsed("duckdbReady"),
       withinBudget: prefetchMs != null ? prefetchMs <= 2000 : null,
     });
   };
@@ -31,7 +34,7 @@ export function useStartupTiming(): StartupTiming {
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      if (getStartupElapsed("prefetchDone") != null) {
+      if (getStartupElapsed("prefetchDone") != null && getStartupElapsed("duckdbReady") != null) {
         refresh();
         window.clearInterval(id);
       }

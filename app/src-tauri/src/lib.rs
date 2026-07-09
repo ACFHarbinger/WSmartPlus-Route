@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{data, hpo, mlflow, policies, process, sim_watcher, system, zenml};
+use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, zenml};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -11,6 +11,10 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             // Data loading
+            arrow::csv_to_arrow_ipc,
+            arrow::simulation_log_to_arrow_ipc,
+            arrow::benchmark_arrow_pipeline,
+            arrow::read_binary_file,
             data::load_simulation_log,
             data::load_csv_file,
             data::list_output_dirs,

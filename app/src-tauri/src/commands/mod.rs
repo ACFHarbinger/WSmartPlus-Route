@@ -1,3 +1,4 @@
+pub mod arrow;
 pub mod data;
 pub mod hpo;
 pub mod mlflow;

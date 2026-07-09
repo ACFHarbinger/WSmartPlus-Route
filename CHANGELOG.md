@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-third pass (Phase 0)
+
+Thirty-third pass completes **§G.0 Phase 0** foundation items deferred by later-phase
+work: Arrow IPC serialization, DuckDB-Wasm worker, and end-to-end latency probe.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/arrow.rs` — CSV + simulation JSONL → Arrow IPC file; `read_binary_file` for zero-copy handoff
+- Simulation Arrow schema: policy, sample_id, day, profit, km, overflows, kg, kg_per_km, cost, ncol, kg_lost
+- `benchmark_arrow_pipeline` command for Rust-side timing
+
+**React frontend**
+- `@duckdb/duckdb-wasm` + `apache-arrow` dependencies; `duckdb` vendor chunk in Vite
+- `duckdbClient.ts` — DuckDB-Wasm worker singleton; `insertArrowFromIPCStream` table registration
+- `arrowPipeline.ts` — CSV/log → Rust → Arrow → DuckDB orchestration with 500 ms budget
+- `useDuckDbInit` — spawns worker on app mount; startup timing milestone `duckdbReady`
+- `Settings` — Phase 0 pipeline panel + "Run Arrow Pipeline Benchmark" button
+- `DataExplorer` — auto-ingests opened CSV into DuckDB; shows row count + latency
+- `SimulationMonitor` — auto-ingests opened simulation log into DuckDB
+
+**ROADMAP**
+- §G.0 Arrow IPC + DuckDB-Wasm worker + latency benchmark checked (Phase 0 complete)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-second pass
 
 Thirty-second implementation pass: policy heatmap (§G.1); deck.gl 3D pitch;

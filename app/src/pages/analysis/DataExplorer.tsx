@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
+import { runCsvArrowPipeline } from "../../utils/arrowPipeline";
+import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {
   [key: string]: string | number | null;
@@ -25,6 +27,8 @@ interface CsvFile {
 export function DataExplorer() {
   const { projectRoot } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
+    useDuckDbStore();
   const [file, setFile] = useState<CsvFile | null>(null);
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
@@ -45,7 +49,19 @@ export function DataExplorer() {
     setSortDir("asc");
     setFilterText("");
     pushRecent({ path, label: recentFileLabel(path), kind: "csv" });
-  }, [pushRecent]);
+
+    if (duckdbReady) {
+      setLoading(true);
+      try {
+        const timing = await runCsvArrowPipeline(path, "explorer_csv");
+        setLastPipeline(timing);
+      } catch (err) {
+        console.warn("DuckDB ingest failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [pushRecent, duckdbReady, setLastPipeline, setLoading]);
 
   const filteredRows = useMemo(() => {
     if (!file) return [];
@@ -97,6 +113,14 @@ export function DataExplorer() {
           <>
             <span className="text-xs text-canvas-muted">
               {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
+              {loading && " · DuckDB ingesting…"}
+              {!loading && lastPipeline?.tableName === "explorer_csv" && (
+                <>
+                  {" "}
+                  · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
+                  {lastPipeline.withinBudget ? "" : " (over 500ms budget)"}
+                </>
+              )}
             </span>
             <button
               onClick={() =>
