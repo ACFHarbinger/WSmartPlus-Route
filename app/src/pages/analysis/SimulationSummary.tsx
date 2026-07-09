@@ -20,6 +20,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
+import { symlog } from "../../utils/symlog";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
@@ -400,17 +401,23 @@ function PolicyRadarChart({
 function EfficiencyRankingChart({
   stats,
   policies,
+  showErrorBars = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
+  showErrorBars?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
   const ranked = useMemo(
     () =>
       [...policies]
-        .map((p) => ({ policy: p, value: mean(stats[p]["kg/km"]) }))
-        .sort((a, b) => b.value - a.value),
+        .map((p) => ({
+          policy: p,
+          mean: mean(stats[p]["kg/km"]),
+          std: std(stats[p]["kg/km"]),
+        }))
+        .sort((a, b) => b.mean - a.mean),
     [stats, policies]
   );
 
@@ -430,18 +437,68 @@ function EfficiencyRankingChart({
         inverse: true,
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
+      tooltip: {
+        trigger: "axis" as const,
+        formatter: (params: unknown[]) => {
+          const p = (params as Array<{ name: string; value: number; dataIndex: number }>)[0];
+          const r = ranked[p.dataIndex];
+          return `${p.name}: ${fmt(r.mean, 2)} ± ${fmt(r.std, 2)} kg/km`;
+        },
+      },
       series: [
         {
           type: "bar" as const,
           data: ranked.map((r, i) => ({
-            value: r.value,
+            value: r.mean,
             itemStyle: { color: POLICY_COLORS[i % POLICY_COLORS.length] },
           })),
         },
+        ...(showErrorBars
+          ? [
+              {
+                type: "custom" as const,
+                renderItem: (
+                  params: { dataIndex: number },
+                  api: {
+                    coord: (v: [number, number]) => [number, number];
+                    style: (s: object) => object;
+                  }
+                ) => {
+                  const i = params.dataIndex;
+                  const r = ranked[i];
+                  const y = api.coord([r.mean, i])[1];
+                  const xLeft = api.coord([Math.max(0, r.mean - r.std), i])[0];
+                  const xRight = api.coord([r.mean + r.std, i])[0];
+                  const cap = 4;
+                  return {
+                    type: "group",
+                    children: [
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y, x2: xRight, y2: y },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y - cap, x2: xLeft, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xRight, y1: y - cap, x2: xRight, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                    ],
+                  };
+                },
+                data: ranked.map((_, i) => i),
+                z: 10,
+              },
+            ]
+          : []),
       ],
-      tooltip: { trigger: "axis" as const },
     }),
-    [ranked]
+    [ranked, showErrorBars]
   );
 
   return (
@@ -564,6 +621,7 @@ function MetricBarChart({
   values,
   color,
   logScale = false,
+  useSymlog = false,
   showErrorBars = false,
   exportName,
 }: {
@@ -572,18 +630,20 @@ function MetricBarChart({
   values: Array<{ mean: number; std: number }>;
   color: string;
   logScale?: boolean;
+  useSymlog?: boolean;
   showErrorBars?: boolean;
   exportName: string;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
+  const symlogMode = logScale && useSymlog;
   const option = useMemo(() => ({
     backgroundColor: "transparent",
     tooltip: {
       trigger: "axis" as const,
       formatter: (params: unknown[]) => {
         const p = (params as Array<{ name: string; value: number; dataIndex: number }>)[0];
-        const sd = values[p.dataIndex]?.std ?? 0;
-        return `${p.name}: ${fmt(p.value, 2)} ± ${fmt(sd, 2)}`;
+        const raw = values[p.dataIndex];
+        return `${p.name}: ${fmt(raw?.mean ?? p.value, 2)} ± ${fmt(raw?.std ?? 0, 2)}`;
       },
     },
     xAxis: {
@@ -592,7 +652,7 @@ function MetricBarChart({
       axisLabel: { color: "#9090b0", fontSize: 9, rotate: 30 },
     },
     yAxis: {
-      type: (logScale ? "log" : "value") as "log" | "value",
+      type: (logScale && !symlogMode ? "log" : "value") as "log" | "value",
       logBase: 10,
       axisLabel: { color: "#9090b0", fontSize: 9 },
       minorSplitLine: { show: false },
@@ -601,7 +661,11 @@ function MetricBarChart({
     series: [
       {
         type: "bar" as const,
-        data: values.map((v) => (logScale ? Math.max(v.mean, 0.001) : v.mean)),
+        data: values.map((v) => {
+          if (!logScale) return v.mean;
+          if (symlogMode) return symlog(v.mean);
+          return Math.max(v.mean, 0.001);
+        }),
         itemStyle: { color },
       },
       ...(showErrorBars && !logScale
@@ -648,7 +712,7 @@ function MetricBarChart({
           ]
         : []),
     ],
-  }), [policies, values, color, logScale, showErrorBars]);
+  }), [policies, values, color, logScale, symlogMode, showErrorBars]);
 
   return (
     <div className="card">
@@ -788,7 +852,7 @@ export function SimulationSummary() {
           <PolicyRadarChart stats={stats} policies={policies} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <EfficiencyRankingChart stats={stats} policies={policies} />
+            <EfficiencyRankingChart stats={stats} policies={policies} showErrorBars={showErrorBars} />
             <PolicyParetoChart stats={stats} policies={policies} logScale={logScale} />
           </div>
 
@@ -833,6 +897,7 @@ export function SimulationSummary() {
               values={metricValues("overflows")}
               color="#f87171"
               logScale={logScale}
+              useSymlog
               showErrorBars={showErrorBars}
               exportName="summary-overflows"
             />

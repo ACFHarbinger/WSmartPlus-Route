@@ -31,6 +31,7 @@ import { hexToRgb } from "../../utils/colors";
 import {
   enrichEntriesWithGraphCoords,
   GRAPH_PRESETS,
+  guessGraphPreset,
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
 import { toast } from "sonner";
@@ -463,11 +464,16 @@ export function SimulationMonitor() {
   } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
+  const [activeLogPath, setActiveLogPath] = useState<string | null>(null);
+  const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
+  const [loadingGraphCoords, setLoadingGraphCoords] = useState(false);
+
   const loadLogFile = useCallback(
     async (path: string, watch = true) => {
       reset();
       const historical = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       loadEntries(historical);
+      setActiveLogPath(path);
       if (watch) setWatchPath(path);
       pushRecent({ path, label: recentFileLabel(path), kind: "log" });
     },
@@ -497,8 +503,12 @@ export function SimulationMonitor() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
   const [mapLayout, setMapLayout] = useState<"overlay" | "split">("overlay");
-  const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
-  const [loadingGraphCoords, setLoadingGraphCoords] = useState(false);
+
+  useEffect(() => {
+    if (!activeLogPath || !entries.length) return;
+    const guessed = guessGraphPreset(activeLogPath, entries);
+    if (guessed) setGraphPreset(guessed);
+  }, [activeLogPath, entries]);
 
   const applyGraphCoords = useCallback(async () => {
     if (!projectRoot) {
@@ -891,7 +901,7 @@ export function SimulationMonitor() {
               </div>
             )}
             {showRouteMap && !hasGeoCoords && entries.length > 0 && (
-              <div className="flex items-center gap-2 ml-1">
+              <div className="flex items-center gap-2 ml-1 flex-wrap">
                 <select
                   className="select-base text-xs py-0.5"
                   value={graphPreset}
@@ -903,6 +913,9 @@ export function SimulationMonitor() {
                     </option>
                   ))}
                 </select>
+                {activeLogPath && guessGraphPreset(activeLogPath, entries) === graphPreset && (
+                  <span className="text-[10px] text-accent-secondary">auto-detected</span>
+                )}
                 <button
                   onClick={() => void applyGraphCoords()}
                   disabled={loadingGraphCoords}

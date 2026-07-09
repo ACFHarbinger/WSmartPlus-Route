@@ -233,9 +233,13 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             getFillColor: (d: { fill: number }) => [...fillRgb(d.fill), 230] as [number, number, number, number],
             getLineColor: [...g.route.color, 255],
             stroked: routes.length > 1,
-            getRadius: routes.length > 1 ? 50 : 60,
+            getRadius: (d: { fill: number }) => {
+              const base = routes.length > 1 ? 40 : 50;
+              const scale = 0.5 + (Math.min(100, d.fill) / 100) * 0.5;
+              return base * scale;
+            },
             radiusMinPixels: 4,
-            radiusMaxPixels: 12,
+            radiusMaxPixels: 14,
           })
         );
       }

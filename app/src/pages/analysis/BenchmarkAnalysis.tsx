@@ -152,6 +152,7 @@ export function BenchmarkAnalysis() {
   } = useAppStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
+  const [logScale, setLogScale] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore();
 
   const filteredRuns = useMemo(
@@ -292,12 +293,17 @@ export function BenchmarkAnalysis() {
         axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
       },
       yAxis: {
-        type: "value",
+        type: logScale ? "log" : "value",
+        logBase: 10,
         name: metricLabel,
         nameTextStyle: { color: "#9090b0" },
         axisLabel: { color: "#9090b0", fontSize: 10 },
+        minorSplitLine: { show: false },
       },
-      series,
+      series: series.map((s) => ({
+        ...s,
+        data: (s.data as number[]).map((v) => (logScale ? Math.max(v, 0.001) : v)),
+      })),
       tooltip: { trigger: "axis" },
     };
   };
@@ -349,6 +355,17 @@ export function BenchmarkAnalysis() {
       {runs.length === 0 && !evalRows && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           Add simulation run logs to compare, or use &quot;Open in Analytics →&quot; from the Evaluation Runner.
+        </div>
+      )}
+
+      {runs.length >= 1 && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setLogScale((v) => !v)}
+            className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
+          >
+            {logScale ? "Log scale (on)" : "Log scale (off)"}
+          </button>
         </div>
       )}
 

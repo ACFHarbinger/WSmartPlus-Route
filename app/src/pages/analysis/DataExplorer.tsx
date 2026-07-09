@@ -30,6 +30,7 @@ export function DataExplorer() {
   const [page, setPage] = useState(0);
   const [sortCol, setSortCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [filterText, setFilterText] = useState("");
   const PAGE_SIZE = 50;
 
   const openCsv = useCallback(async () => {
@@ -42,12 +43,23 @@ export function DataExplorer() {
     setPage(0);
     setSortCol(null);
     setSortDir("asc");
+    setFilterText("");
     pushRecent({ path, label: recentFileLabel(path), kind: "csv" });
   }, [pushRecent]);
 
+  const filteredRows = useMemo(() => {
+    if (!file) return [];
+    const q = filterText.trim().toLowerCase();
+    if (!q) return file.rows;
+    return file.rows.filter((row) =>
+      file.headers.some((h) => String(row[h] ?? "").toLowerCase().includes(q))
+    );
+  }, [file, filterText]);
+
   const sortedRows = useMemo(() => {
-    if (!file || !sortCol) return file?.rows ?? [];
-    const rows = [...file.rows];
+    if (!file) return [];
+    if (!sortCol) return filteredRows;
+    const rows = [...filteredRows];
     rows.sort((a, b) => {
       const av = a[sortCol];
       const bv = b[sortCol];
@@ -60,7 +72,7 @@ export function DataExplorer() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return rows;
-  }, [file, sortCol, sortDir]);
+  }, [file, filteredRows, sortCol, sortDir]);
 
   const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = file ? Math.ceil(sortedRows.length / PAGE_SIZE) : 0;
@@ -135,6 +147,23 @@ export function DataExplorer() {
 
       {file && (
         <>
+          <div className="flex items-center gap-3">
+            <input
+              type="search"
+              className="input-base text-xs flex-1 max-w-sm"
+              placeholder="Filter rows (matches any column)…"
+              value={filterText}
+              onChange={(e) => {
+                setFilterText(e.target.value);
+                setPage(0);
+              }}
+            />
+            {filterText && (
+              <span className="text-xs text-canvas-muted">
+                {sortedRows.length.toLocaleString()} / {file.rows.length.toLocaleString()} rows
+              </span>
+            )}
+          </div>
           <div className="overflow-auto rounded-xl border border-canvas-border">
             <table className="w-full text-xs">
               <thead className="bg-canvas-elevated sticky top-0">
