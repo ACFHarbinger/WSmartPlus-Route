@@ -398,6 +398,108 @@ function PolicyRadarChart({
   );
 }
 
+const HEATMAP_METRICS: Array<{ key: MetricKey | "kg/km"; label: string; higherBetter: boolean }> = [
+  { key: "profit", label: "Profit", higherBetter: true },
+  { key: "kg/km", label: "kg/km", higherBetter: true },
+  { key: "overflows", label: "Overflows", higherBetter: false },
+  { key: "km", label: "km", higherBetter: false },
+];
+
+function PolicyHeatmapChart({
+  stats,
+  policies,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+
+  const option = useMemo(() => {
+    const cells: Array<[number, number, number]> = [];
+    for (let mi = 0; mi < HEATMAP_METRICS.length; mi++) {
+      const { key, higherBetter } = HEATMAP_METRICS[mi];
+      const raw = policies.map((p) =>
+        key === "kg/km" ? mean(stats[p]["kg/km"]) : mean(stats[p][key as MetricKey])
+      );
+      const min = Math.min(...raw);
+      const max = Math.max(...raw);
+      const span = max - min || 1;
+      for (let pi = 0; pi < policies.length; pi++) {
+        let norm = (raw[pi] - min) / span;
+        if (!higherBetter) norm = 1 - norm;
+        cells.push([pi, mi, norm]);
+      }
+    }
+
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 72, right: 24, top: 8, bottom: 48 },
+      xAxis: {
+        type: "category" as const,
+        data: policies,
+        axisLabel: { color: "#9090b0", fontSize: 8, rotate: 30 },
+      },
+      yAxis: {
+        type: "category" as const,
+        data: HEATMAP_METRICS.map((m) => m.label),
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      visualMap: {
+        min: 0,
+        max: 1,
+        calculable: false,
+        orient: "horizontal" as const,
+        left: "center",
+        bottom: 0,
+        inRange: { color: ["#1e1b4b", "#6366f1", "#34d399"] },
+        textStyle: { color: "#9090b0", fontSize: 9 },
+        show: false,
+      },
+      series: [
+        {
+          type: "heatmap" as const,
+          data: cells,
+          label: { show: false },
+          emphasis: {
+            itemStyle: { shadowBlur: 6, shadowColor: "rgba(0,0,0,0.4)" },
+          },
+        },
+      ],
+      tooltip: {
+        formatter: (p: { value: [number, number, number] }) => {
+          const [pi, mi, norm] = p.value;
+          const { key, label } = HEATMAP_METRICS[mi];
+          const raw =
+            key === "kg/km"
+              ? mean(stats[policies[pi]]["kg/km"])
+              : mean(stats[policies[pi]][key as MetricKey]);
+          return `${policies[pi]}<br/>${label}: ${fmt(raw, 2)}<br/>Score: ${fmt(norm * 100, 0)}%`;
+        },
+      },
+    };
+  }, [stats, policies]);
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-300">Policy Metric Heatmap</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "summary-heatmap.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: Math.max(160, HEATMAP_METRICS.length * 36 + 60) }}
+      />
+    </div>
+  );
+}
+
 function EfficiencyRankingChart({
   stats,
   policies,
@@ -850,6 +952,8 @@ export function SimulationSummary() {
           <TrajectoryChart entries={filteredEntries} policies={policies} />
 
           <PolicyRadarChart stats={stats} policies={policies} />
+
+          <PolicyHeatmapChart stats={stats} policies={policies} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <EfficiencyRankingChart stats={stats} policies={policies} showErrorBars={showErrorBars} />
