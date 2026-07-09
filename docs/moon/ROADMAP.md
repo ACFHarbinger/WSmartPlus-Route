@@ -906,7 +906,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS
 - [ ] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
 - [ ] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond
-- [ ] Computed Pareto front drawn as white dashed step line
+- [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog scatter/Pareto deferred)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
@@ -926,9 +926,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [ ] Color polylines by mandatory-selection strategy
 
 #### 1.5 Constructor Ranking Chart
-- [ ] Horizontal bar chart, bars growing left-to-right (bottom-up ordering)
-- [ ] Rank by mean kg/km across all configurations
-- [ ] Error bars showing std deviation
+- [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering (§G.1 partial — multi-config benchmark deferred)
+- [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + BenchmarkAnalysis `kg/km` metric column (§G.1 partial)
+- [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial — dedicated ranking chart deferred)
 
 #### 1.6 Secondary Log-Scale Views
 - [ ] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges)
@@ -1060,7 +1060,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6 partial)
 
 ---
 

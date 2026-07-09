@@ -2,7 +2,8 @@
  * Data Explorer — browse and inspect simulation output CSV files.
  * Ports Streamlit `data_explorer` mode.
  */
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
@@ -27,6 +28,8 @@ export function DataExplorer() {
   const [file, setFile] = useState<CsvFile | null>(null);
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
+  const [sortCol, setSortCol] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const PAGE_SIZE = 50;
 
   const openCsv = useCallback(async () => {
@@ -37,13 +40,39 @@ export function DataExplorer() {
     const loaded = await invoke<CsvFile>("load_csv_file", { path });
     setFile(loaded);
     setPage(0);
+    setSortCol(null);
+    setSortDir("asc");
     pushRecent({ path, label: recentFileLabel(path), kind: "csv" });
   }, [pushRecent]);
 
-  const pageRows = file
-    ? file.rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-    : [];
-  const totalPages = file ? Math.ceil(file.rows.length / PAGE_SIZE) : 0;
+  const sortedRows = useMemo(() => {
+    if (!file || !sortCol) return file?.rows ?? [];
+    const rows = [...file.rows];
+    rows.sort((a, b) => {
+      const av = a[sortCol];
+      const bv = b[sortCol];
+      const an = typeof av === "number" ? av : Number(av);
+      const bn = typeof bv === "number" ? bv : Number(bv);
+      const bothNumeric = !Number.isNaN(an) && !Number.isNaN(bn) && av !== "" && bv !== "";
+      const cmp = bothNumeric
+        ? an - bn
+        : String(av ?? "").localeCompare(String(bv ?? ""));
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [file, sortCol, sortDir]);
+
+  const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = file ? Math.ceil(sortedRows.length / PAGE_SIZE) : 0;
+
+  const toggleSort = (col: string) => {
+    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortCol(col);
+      setSortDir("asc");
+    }
+    setPage(0);
+  };
 
   return (
     <div className="space-y-4">
@@ -113,9 +142,14 @@ export function DataExplorer() {
                   {file.headers.map((h) => (
                     <th
                       key={h}
-                      className="px-3 py-2 text-left text-canvas-muted font-medium whitespace-nowrap"
+                      onClick={() => toggleSort(h)}
+                      className="px-3 py-2 text-left text-canvas-muted font-medium whitespace-nowrap cursor-pointer hover:text-gray-200 select-none"
                     >
-                      {h}
+                      <span className="inline-flex items-center gap-1">
+                        {h}
+                        {sortCol === h &&
+                          (sortDir === "asc" ? <ChevronUp size={10} /> : <ChevronDown size={10} />)}
+                      </span>
                     </th>
                   ))}
                 </tr>

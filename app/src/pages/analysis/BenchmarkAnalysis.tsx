@@ -33,6 +33,7 @@ const SIM_METRICS = [
   { key: "profit", label: "Profit (€)", lowerIsBetter: false },
   { key: "km", label: "Distance (km)", lowerIsBetter: true },
   { key: "overflows", label: "Overflows", lowerIsBetter: true },
+  { key: "kg/km", label: "Efficiency (kg/km)", lowerIsBetter: false },
   { key: "cost", label: "Cost (€)", lowerIsBetter: true },
 ];
 

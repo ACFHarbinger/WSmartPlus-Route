@@ -19,6 +19,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
+import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
@@ -396,6 +397,161 @@ function PolicyRadarChart({
   );
 }
 
+function EfficiencyRankingChart({
+  stats,
+  policies,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+
+  const ranked = useMemo(
+    () =>
+      [...policies]
+        .map((p) => ({ policy: p, value: mean(stats[p]["kg/km"]) }))
+        .sort((a, b) => b.value - a.value),
+    [stats, policies]
+  );
+
+  const option = useMemo(
+    () => ({
+      backgroundColor: "transparent",
+      grid: { left: 110, right: 24, top: 12, bottom: 12 },
+      xAxis: {
+        type: "value" as const,
+        name: "kg/km",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "category" as const,
+        data: ranked.map((r) => r.policy),
+        inverse: true,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      series: [
+        {
+          type: "bar" as const,
+          data: ranked.map((r, i) => ({
+            value: r.value,
+            itemStyle: { color: POLICY_COLORS[i % POLICY_COLORS.length] },
+          })),
+        },
+      ],
+      tooltip: { trigger: "axis" as const },
+    }),
+    [ranked]
+  );
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-300">Efficiency Ranking (kg/km)</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "summary-efficiency-rank.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: Math.max(160, ranked.length * 28) }} />
+    </div>
+  );
+}
+
+function PolicyParetoChart({
+  stats,
+  policies,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+
+  const option = useMemo(() => {
+    const points = policies.map((p) => ({
+      id: p,
+      x: mean(stats[p].profit),
+      y: mean(stats[p].overflows),
+    }));
+    const frontIds = new Set(paretoFront(points).map((p) => p.id));
+    const step = paretoStepLine(paretoFront(points));
+
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 50, right: 16, top: 24, bottom: 40 },
+      xAxis: {
+        type: "value" as const,
+        name: "Profit (€)",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "value" as const,
+        name: "Overflows",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      series: [
+        {
+          name: "Policies",
+          type: "scatter" as const,
+          data: points.map((pt, i) => ({
+            name: pt.id,
+            value: [pt.x, pt.y],
+            itemStyle: {
+              color: frontIds.has(pt.id)
+                ? POLICY_COLORS[i % POLICY_COLORS.length]
+                : "#6b7280",
+            },
+            symbolSize: frontIds.has(pt.id) ? 10 : 7,
+          })),
+          tooltip: {
+            formatter: (p: { name: string; value: [number, number] }) =>
+              `${p.name}<br/>Profit: ${fmt(p.value[0], 1)} €<br/>Overflows: ${fmt(p.value[1], 1)}`,
+          },
+        },
+        ...(step.length > 1
+          ? [
+              {
+                name: "Pareto front",
+                type: "line" as const,
+                data: step,
+                lineStyle: { color: "#f3f4f6", type: "dashed" as const, width: 1.5 },
+                symbol: "none",
+                tooltip: { show: false },
+                z: 1,
+              },
+            ]
+          : []),
+      ],
+      legend: {
+        data: step.length > 1 ? ["Policies", "Pareto front"] : ["Policies"],
+        textStyle: { color: "#9090b0", fontSize: 9 },
+        top: 0,
+      },
+    };
+  }, [stats, policies]);
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-300">Profit vs Overflows (Pareto)</p>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, "summary-pareto.png")}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 260 }} />
+    </div>
+  );
+}
+
 function MetricBarChart({
   title,
   policies,
@@ -624,6 +780,11 @@ export function SimulationSummary() {
           <TrajectoryChart entries={filteredEntries} policies={policies} />
 
           <PolicyRadarChart stats={stats} policies={policies} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <EfficiencyRankingChart stats={stats} policies={policies} />
+            <PolicyParetoChart stats={stats} policies={policies} />
+          </div>
 
           <div className="flex items-center justify-end gap-2">
             <button
