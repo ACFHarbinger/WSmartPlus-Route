@@ -21,6 +21,15 @@ import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { symlog } from "../../utils/symlog";
+import { barOpacity, isHighlighted, toggleBrush } from "../../utils/chartHighlight";
+import {
+  formatLogMeta,
+  formatPolicyMeta,
+  parseLogPath,
+  parsePolicyLabel,
+  type LogPathMeta,
+  type PolicyMeta,
+} from "../../utils/simMetadata";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
@@ -101,6 +110,234 @@ const POLICY_COLORS = [
   "#6366f1", "#34d399", "#f87171", "#fbbf24",
   "#a78bfa", "#fb923c", "#38bdf8", "#f472b6",
 ];
+
+const STRATEGY_COLORS: Record<string, string> = {
+  LA: "#6366f1",
+  LM: "#fbbf24",
+  "LM-CF70": "#fb923c",
+  "LM-CF90": "#f87171",
+  "SL-SL1": "#34d399",
+  "SL-SL2": "#38bdf8",
+};
+
+function strategyColor(policy: string, policyMeta?: Record<string, PolicyMeta>): string {
+  const strat = policyMeta?.[policy]?.selectionStrategy ?? parsePolicyLabel(policy).selectionStrategy;
+  return STRATEGY_COLORS[strat] ?? POLICY_COLORS[0];
+}
+
+function citySymbol(logMeta: LogPathMeta | null): "circle" | "rect" | "diamond" {
+  if (logMeta?.cityShort === "FFZ") return "diamond";
+  if (logMeta?.scale === 170) return "rect";
+  return "circle";
+}
+
+function policyTooltipFooter(
+  policy: string,
+  policyMeta: Record<string, PolicyMeta> | undefined,
+  days: number
+): string {
+  const meta = policyMeta?.[policy];
+  const lines = meta ? [formatPolicyMeta(meta)] : [];
+  lines.push(`Days: ${days}`);
+  return lines.join("<br/>");
+}
+
+function ConfigMetaBanner({ logPath, logMeta }: { logPath: string; logMeta: LogPathMeta }) {
+  return (
+    <div className="card flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-canvas-muted">
+      <span className="font-semibold text-gray-300">Run config</span>
+      <span>{formatLogMeta(logMeta)}</span>
+      <span className="font-mono truncate opacity-70">{logPath.split("/").slice(-4).join("/")}</span>
+    </div>
+  );
+}
+
+function PolicyBrushBar({
+  policies,
+  brushed,
+  onToggle,
+  onClear,
+}: {
+  policies: string[];
+  brushed: string[] | null;
+  onToggle: (policy: string) => void;
+  onClear: () => void;
+}) {
+  const active = brushed ?? [];
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-300">Cross-filter (§G.1)</p>
+        {active.length > 0 && (
+          <button onClick={onClear} className="btn-ghost text-xs">
+            Clear filter
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {policies.map((p, i) => {
+          const on = active.length === 0 || active.includes(p);
+          return (
+            <button
+              key={p}
+              onClick={() => onToggle(p)}
+              className={`text-xs px-2 py-0.5 rounded-full border transition-opacity ${
+                on ? "opacity-100" : "opacity-35"
+              }`}
+              style={{
+                borderColor: POLICY_COLORS[i % POLICY_COLORS.length],
+                color: on ? POLICY_COLORS[i % POLICY_COLORS.length] : undefined,
+              }}
+            >
+              {parsePolicyLabel(p).selectionStrategy}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[10px] text-canvas-muted">
+        Click a policy chip or any bar chart to cross-filter all panels.
+      </p>
+    </div>
+  );
+}
+
+interface GroupRow {
+  label: string;
+  mean: number;
+  std: number;
+  policies: string[];
+}
+
+function buildGroupedStats(
+  policies: string[],
+  stats: Record<string, PolicyStats>,
+  groupFn: (p: string) => string,
+  metric: "overflows" | "kg/km"
+): GroupRow[] {
+  const map = new Map<string, string[]>();
+  for (const p of policies) {
+    const g = groupFn(p);
+    const list = map.get(g) ?? [];
+    list.push(p);
+    map.set(g, list);
+  }
+  return [...map.entries()].map(([label, ps]) => {
+    const vals = ps.flatMap((p) => stats[p][metric]);
+    return { label, policies: ps, mean: mean(vals), std: std(vals) };
+  });
+}
+
+function GroupedMetricBarChart({
+  title,
+  subtitle,
+  groups,
+  color,
+  showErrorBars,
+  exportName,
+}: {
+  title: string;
+  subtitle?: string;
+  groups: GroupRow[];
+  color: string;
+  showErrorBars?: boolean;
+  exportName: string;
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+  const labels = groups.map((g) => g.label);
+
+  const option = useMemo(
+    () => ({
+      backgroundColor: "transparent",
+      tooltip: {
+        trigger: "axis" as const,
+        formatter: (params: unknown[]) => {
+          const p = (params as Array<{ dataIndex: number }>)[0];
+          const g = groups[p.dataIndex];
+          return `${g.label}<br/>${fmt(g.mean, 2)} ± ${fmt(g.std, 2)}<br/>${g.policies.length} policy variant(s)`;
+        },
+      },
+      grid: { left: 50, right: 10, top: 24, bottom: 40 },
+      xAxis: {
+        type: "category" as const,
+        data: labels,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "value" as const,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      series: [
+        {
+          type: "bar" as const,
+          data: groups.map((g) => g.mean),
+          itemStyle: { color },
+        },
+        ...(showErrorBars
+          ? [
+              {
+                type: "custom" as const,
+                renderItem: (
+                  params: { dataIndex: number },
+                  api: {
+                    coord: (v: [number, number]) => [number, number];
+                    style: (s: object) => object;
+                  }
+                ) => {
+                  const g = groups[params.dataIndex];
+                  const x = api.coord([params.dataIndex, g.mean])[0];
+                  const yTop = api.coord([params.dataIndex, g.mean + g.std])[1];
+                  const yBot = api.coord([params.dataIndex, Math.max(0, g.mean - g.std)])[1];
+                  const cap = 5;
+                  return {
+                    type: "group",
+                    children: [
+                      {
+                        type: "line",
+                        shape: { x1: x, y1: yTop, x2: x, y2: yBot },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: x - cap, y1: yTop, x2: x + cap, y2: yTop },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: x - cap, y1: yBot, x2: x + cap, y2: yBot },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                    ],
+                  };
+                },
+                data: groups.map((_, i) => i),
+                z: 10,
+              },
+            ]
+          : []),
+      ],
+    }),
+    [groups, labels, color, showErrorBars]
+  );
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-1">
+        <div>
+          <p className="text-xs text-canvas-muted">{title}</p>
+          {subtitle && <p className="text-[10px] text-canvas-muted">{subtitle}</p>}
+        </div>
+        <button
+          onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+          className="btn-ghost text-xs flex items-center gap-1"
+        >
+          <Download size={12} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
+    </div>
+  );
+}
 
 // ── Subcomponents ─────────────────────────────────────────────────────────────
 
@@ -234,9 +471,11 @@ type TrajectoryMetric = "overflows" | "profit" | "km" | "kg";
 function TrajectoryChart({
   entries,
   policies,
+  brushed,
 }: {
   entries: DayLogEntry[];
   policies: string[];
+  brushed?: string[] | null;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const [metric, setMetric] = useState<TrajectoryMetric>("overflows");
@@ -273,14 +512,14 @@ function TrajectoryChart({
       type: "line" as const,
       smooth: true,
       symbol: "none",
-      lineStyle: { width: 1.5 },
+      lineStyle: { width: 1.5, opacity: barOpacity(policy, brushed ?? null) },
       color: POLICY_COLORS[i % POLICY_COLORS.length],
       data: allDays.map((day) => {
         const pt = traj[policy]?.find(([d]) => d === day);
         return pt ? pt[1] : null;
       }),
     })),
-  }), [traj, allDays, policies]);
+  }), [traj, allDays, policies, brushed]);
 
   const METRIC_OPTS: Array<{ key: TrajectoryMetric; label: string }> = [
     { key: "overflows", label: "Overflows" },
@@ -339,9 +578,13 @@ const RADAR_METRICS: Array<{ key: MetricKey; label: string }> = [
 function PolicyRadarChart({
   stats,
   policies,
+  brushed,
+  policyMeta,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
+  brushed?: string[] | null;
+  policyMeta?: Record<string, PolicyMeta>;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -372,14 +615,27 @@ function PolicyRadarChart({
           data: policies.map((p, i) => ({
             name: p,
             value: RADAR_METRICS.map(({ key }) => metricMeans[p][key] ?? 0),
-            lineStyle: { color: POLICY_COLORS[i % POLICY_COLORS.length] },
-            areaStyle: { color: `${POLICY_COLORS[i % POLICY_COLORS.length]}20` },
+            lineStyle: {
+              color: POLICY_COLORS[i % POLICY_COLORS.length],
+              opacity: barOpacity(p, brushed ?? null),
+            },
+            areaStyle: {
+              color: `${POLICY_COLORS[i % POLICY_COLORS.length]}20`,
+              opacity: barOpacity(p, brushed ?? null),
+            },
           })),
         },
       ],
-      tooltip: {},
+      tooltip: {
+        formatter: (p: { name: string }) => {
+          const meta = policyMeta?.[p.name];
+          return meta
+            ? `${p.name}<br/>${formatPolicyMeta(meta)}`
+            : p.name;
+        },
+      },
     };
-  }, [stats, policies]);
+  }, [stats, policies, brushed, policyMeta]);
 
   return (
     <div className="card space-y-2">
@@ -405,19 +661,37 @@ const HEATMAP_METRICS: Array<{ key: MetricKey | "kg/km"; label: string; higherBe
   { key: "km", label: "km", higherBetter: false },
 ];
 
+type HeatmapMode = "all" | "overflows" | "kg/km";
+
 function PolicyHeatmapChart({
   stats,
   policies,
+  mode,
+  onModeChange,
+  brushed,
+  policyMeta,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
+  mode: HeatmapMode;
+  onModeChange?: (mode: HeatmapMode) => void;
+  brushed?: string[] | null;
+  policyMeta?: Record<string, PolicyMeta>;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
+  const activeMetrics = useMemo(
+    () =>
+      mode === "all"
+        ? HEATMAP_METRICS
+        : HEATMAP_METRICS.filter((m) => m.key === mode),
+    [mode]
+  );
+
   const option = useMemo(() => {
     const cells: Array<[number, number, number]> = [];
-    for (let mi = 0; mi < HEATMAP_METRICS.length; mi++) {
-      const { key, higherBetter } = HEATMAP_METRICS[mi];
+    for (let mi = 0; mi < activeMetrics.length; mi++) {
+      const { key, higherBetter } = activeMetrics[mi];
       const raw = policies.map((p) =>
         key === "kg/km" ? mean(stats[p]["kg/km"]) : mean(stats[p][key as MetricKey])
       );
@@ -427,6 +701,7 @@ function PolicyHeatmapChart({
       for (let pi = 0; pi < policies.length; pi++) {
         let norm = (raw[pi] - min) / span;
         if (!higherBetter) norm = 1 - norm;
+        if (!isHighlighted(policies[pi], brushed ?? null)) norm *= 0.15;
         cells.push([pi, mi, norm]);
       }
     }
@@ -441,7 +716,7 @@ function PolicyHeatmapChart({
       },
       yAxis: {
         type: "category" as const,
-        data: HEATMAP_METRICS.map((m) => m.label),
+        data: activeMetrics.map((m) => m.label),
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
       visualMap: {
@@ -468,23 +743,144 @@ function PolicyHeatmapChart({
       tooltip: {
         formatter: (p: { value: [number, number, number] }) => {
           const [pi, mi, norm] = p.value;
-          const { key, label } = HEATMAP_METRICS[mi];
+          const { key, label } = activeMetrics[mi];
+          const policy = policies[pi];
           const raw =
             key === "kg/km"
-              ? mean(stats[policies[pi]]["kg/km"])
-              : mean(stats[policies[pi]][key as MetricKey]);
-          return `${policies[pi]}<br/>${label}: ${fmt(raw, 2)}<br/>Score: ${fmt(norm * 100, 0)}%`;
+              ? mean(stats[policy]["kg/km"])
+              : mean(stats[policy][key as MetricKey]);
+          const meta = policyMeta?.[policy];
+          return [
+            policy,
+            meta ? formatPolicyMeta(meta) : "",
+            `${label}: ${fmt(raw, 2)}`,
+            `Score: ${fmt(norm * 100, 0)}%`,
+          ]
+            .filter(Boolean)
+            .join("<br/>");
         },
       },
     };
-  }, [stats, policies]);
+  }, [stats, policies, activeMetrics, brushed, policyMeta]);
+
+  const MODE_OPTS: Array<{ key: HeatmapMode; label: string }> = [
+    { key: "all", label: "All metrics" },
+    { key: "overflows", label: "Overflows" },
+    { key: "kg/km", label: "kg/km" },
+  ];
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-xs font-semibold text-gray-300">Policy Metric Heatmap</p>
+        <div className="flex items-center gap-2">
+          {onModeChange && (
+            <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+              {MODE_OPTS.map((o) => (
+                <button
+                  key={o.key}
+                  onClick={() => onModeChange(o.key)}
+                  className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                    mode === o.key
+                      ? "bg-accent-primary text-white"
+                      : "text-canvas-muted hover:text-gray-200"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          )}
+          <button
+            onClick={() => exportChartPng({ current: chartRef.current }, "summary-heatmap.png")}
+            className="btn-ghost text-xs flex items-center gap-1"
+          >
+            <Download size={12} />
+            PNG
+          </button>
+        </div>
+      </div>
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: Math.max(120, activeMetrics.length * 36 + 60) }}
+      />
+    </div>
+  );
+}
+
+function PolicyParallelChart({
+  stats,
+  policies,
+  policyMeta,
+  brushed,
+  onPolicyClick,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+  policyMeta: Record<string, PolicyMeta>;
+  brushed?: string[] | null;
+  onPolicyClick?: (policy: string) => void;
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+
+  const option = useMemo(() => {
+    const schema = [
+      { dim: 0, name: "Profit", max: Math.max(...policies.map((p) => mean(stats[p].profit)), 1) * 1.1 },
+      { dim: 1, name: "kg/km", max: Math.max(...policies.map((p) => mean(stats[p]["kg/km"])), 0.01) * 1.1 },
+      { dim: 2, name: "Overflows", max: Math.max(...policies.map((p) => mean(stats[p].overflows)), 1) * 1.1 },
+      { dim: 3, name: "km", max: Math.max(...policies.map((p) => mean(stats[p].km)), 1) * 1.1 },
+    ];
+
+    return {
+      backgroundColor: "transparent",
+      parallelAxis: schema.map((s) => ({
+        dim: s.dim,
+        name: s.name,
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLine: { lineStyle: { color: "#2d2d50" } },
+        axisLabel: { color: "#9090b0", fontSize: 8 },
+      })),
+      parallel: {
+        left: 50,
+        right: 24,
+        top: 28,
+        bottom: 36,
+      },
+      series: [
+        {
+          type: "parallel" as const,
+          lineStyle: { width: 2 },
+          data: policies.map((p, i) => ({
+            name: p,
+            value: [
+              mean(stats[p].profit),
+              mean(stats[p]["kg/km"]),
+              mean(stats[p].overflows),
+              mean(stats[p].km),
+            ],
+            lineStyle: {
+              color: POLICY_COLORS[i % POLICY_COLORS.length],
+              opacity: barOpacity(p, brushed ?? null),
+            },
+          })),
+        },
+      ],
+      tooltip: {
+        formatter: (p: { name: string }) => {
+          const meta = policyMeta[p.name];
+          return meta ? `${p.name}<br/>${formatPolicyMeta(meta)}` : p.name;
+        },
+      },
+    };
+  }, [stats, policies, policyMeta, brushed]);
 
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-gray-300">Policy Metric Heatmap</p>
+        <p className="text-xs font-semibold text-gray-300">Policy Parallel Coordinates</p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "summary-heatmap.png")}
+          onClick={() => exportChartPng({ current: chartRef.current }, "summary-parallel.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -494,7 +890,16 @@ function PolicyHeatmapChart({
       <ReactECharts
         ref={chartRef}
         option={option}
-        style={{ height: Math.max(160, HEATMAP_METRICS.length * 36 + 60) }}
+        style={{ height: 220 }}
+        onEvents={
+          onPolicyClick
+            ? {
+                click: (params: { name?: string }) => {
+                  if (params.name) onPolicyClick(params.name);
+                },
+              }
+            : undefined
+        }
       />
     </div>
   );
@@ -504,10 +909,16 @@ function EfficiencyRankingChart({
   stats,
   policies,
   showErrorBars = false,
+  brushed,
+  onPolicyClick,
+  policyMeta,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   showErrorBars?: boolean;
+  brushed?: string[] | null;
+  onPolicyClick?: (policy: string) => void;
+  policyMeta?: Record<string, PolicyMeta>;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -544,15 +955,21 @@ function EfficiencyRankingChart({
         formatter: (params: unknown[]) => {
           const p = (params as Array<{ name: string; value: number; dataIndex: number }>)[0];
           const r = ranked[p.dataIndex];
-          return `${p.name}: ${fmt(r.mean, 2)} ± ${fmt(r.std, 2)} kg/km`;
+          const days = stats[r.policy]?.days ?? 0;
+          const footer = policyTooltipFooter(r.policy, policyMeta, days);
+          return `${r.policy}<br/>${fmt(r.mean, 2)} ± ${fmt(r.std, 2)} kg/km<br/>${footer}`;
         },
       },
       series: [
         {
           type: "bar" as const,
-          data: ranked.map((r, i) => ({
+          data: ranked.map((r) => ({
             value: r.mean,
-            itemStyle: { color: POLICY_COLORS[i % POLICY_COLORS.length] },
+            name: r.policy,
+            itemStyle: {
+              color: strategyColor(r.policy, policyMeta),
+              opacity: barOpacity(r.policy, brushed ?? null),
+            },
           })),
         },
         ...(showErrorBars
@@ -600,7 +1017,7 @@ function EfficiencyRankingChart({
           : []),
       ],
     }),
-    [ranked, showErrorBars]
+    [ranked, showErrorBars, brushed, policyMeta, stats]
   );
 
   return (
@@ -615,7 +1032,20 @@ function EfficiencyRankingChart({
           PNG
         </button>
       </div>
-      <ReactECharts ref={chartRef} option={option} style={{ height: Math.max(160, ranked.length * 28) }} />
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: Math.max(160, ranked.length * 28) }}
+        onEvents={
+          onPolicyClick
+            ? {
+                click: (params: { name?: string }) => {
+                  if (params.name) onPolicyClick(params.name);
+                },
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -624,10 +1054,18 @@ function PolicyParetoChart({
   stats,
   policies,
   logScale = false,
+  brushed,
+  onPolicyClick,
+  policyMeta,
+  logMeta,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   logScale?: boolean;
+  brushed?: string[] | null;
+  onPolicyClick?: (policy: string) => void;
+  policyMeta?: Record<string, PolicyMeta>;
+  logMeta?: LogPathMeta | null;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -663,19 +1101,33 @@ function PolicyParetoChart({
         {
           name: "Policies",
           type: "scatter" as const,
-          data: points.map((pt, i) => ({
-            name: pt.id,
-            value: [pt.x, displayY(pt.y)],
-            itemStyle: {
-              color: frontIds.has(pt.id)
-                ? POLICY_COLORS[i % POLICY_COLORS.length]
-                : "#6b7280",
-            },
-            symbolSize: frontIds.has(pt.id) ? 10 : 7,
-          })),
+          data: points.map((pt) => {
+            const onFront = frontIds.has(pt.id);
+            const highlighted = isHighlighted(pt.id, brushed ?? null);
+            return {
+              name: pt.id,
+              value: [pt.x, displayY(pt.y)],
+              itemStyle: {
+                color: onFront ? strategyColor(pt.id, policyMeta) : "#6b7280",
+                opacity: highlighted ? 1 : 0.2,
+              },
+              symbol: citySymbol(logMeta ?? null),
+              symbolSize: onFront ? 10 : 7,
+            };
+          }),
           tooltip: {
-            formatter: (p: { name: string; value: [number, number] }) =>
-              `${p.name}<br/>Profit: ${fmt(p.value[0], 1)} €<br/>Overflows: ${fmt(points.find((pt) => pt.id === p.name)?.y ?? p.value[1], 1)}`,
+            formatter: (p: { name: string; value: [number, number] }) => {
+              const pt = points.find((x) => x.id === p.name);
+              const meta = policyMeta?.[p.name];
+              const lines = [
+                p.name,
+                meta ? formatPolicyMeta(meta) : "",
+                `Profit: ${fmt(p.value[0], 1)} €`,
+                `Overflows: ${fmt(pt?.y ?? p.value[1], 1)}`,
+                frontIds.has(p.name) ? "Pareto-optimal" : "",
+              ].filter(Boolean);
+              return lines.join("<br/>");
+            },
           },
         },
         ...(displayStep.length > 1
@@ -698,7 +1150,7 @@ function PolicyParetoChart({
         top: 0,
       },
     };
-  }, [stats, policies, logScale]);
+  }, [stats, policies, logScale, brushed, policyMeta, logMeta]);
 
   return (
     <div className="card space-y-2">
@@ -712,7 +1164,20 @@ function PolicyParetoChart({
           PNG
         </button>
       </div>
-      <ReactECharts ref={chartRef} option={option} style={{ height: 260 }} />
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: 260 }}
+        onEvents={
+          onPolicyClick
+            ? {
+                click: (params: { name?: string }) => {
+                  if (params.name && params.name !== "Pareto front") onPolicyClick(params.name);
+                },
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -726,6 +1191,10 @@ function MetricBarChart({
   useSymlog = false,
   showErrorBars = false,
   exportName,
+  brushed,
+  onPolicyClick,
+  policyMeta,
+  stats,
 }: {
   title: string;
   policies: string[];
@@ -735,6 +1204,10 @@ function MetricBarChart({
   useSymlog?: boolean;
   showErrorBars?: boolean;
   exportName: string;
+  brushed?: string[] | null;
+  onPolicyClick?: (policy: string) => void;
+  policyMeta?: Record<string, PolicyMeta>;
+  stats?: Record<string, PolicyStats>;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const symlogMode = logScale && useSymlog;
@@ -745,7 +1218,9 @@ function MetricBarChart({
       formatter: (params: unknown[]) => {
         const p = (params as Array<{ name: string; value: number; dataIndex: number }>)[0];
         const raw = values[p.dataIndex];
-        return `${p.name}: ${fmt(raw?.mean ?? p.value, 2)} ± ${fmt(raw?.std ?? 0, 2)}`;
+        const days = stats?.[p.name]?.days ?? 0;
+        const footer = policyTooltipFooter(p.name, policyMeta, days);
+        return `${p.name}<br/>${fmt(raw?.mean ?? p.value, 2)} ± ${fmt(raw?.std ?? 0, 2)}<br/>${footer}`;
       },
     },
     xAxis: {
@@ -763,12 +1238,16 @@ function MetricBarChart({
     series: [
       {
         type: "bar" as const,
-        data: values.map((v) => {
-          if (!logScale) return v.mean;
-          if (symlogMode) return symlog(v.mean);
-          return Math.max(v.mean, 0.001);
+        data: policies.map((policy, i) => {
+          const v = values[i];
+          const display =
+            !logScale ? v.mean : symlogMode ? symlog(v.mean) : Math.max(v.mean, 0.001);
+          return {
+            value: display,
+            name: policy,
+            itemStyle: { color, opacity: barOpacity(policy, brushed ?? null) },
+          };
         }),
-        itemStyle: { color },
       },
       ...(showErrorBars && !logScale
         ? [
@@ -814,7 +1293,7 @@ function MetricBarChart({
           ]
         : []),
     ],
-  }), [policies, values, color, logScale, symlogMode, showErrorBars]);
+  }), [policies, values, color, logScale, symlogMode, showErrorBars, brushed, policyMeta, stats]);
 
   return (
     <div className="card">
@@ -828,7 +1307,20 @@ function MetricBarChart({
           PNG
         </button>
       </div>
-      <ReactECharts ref={chartRef} option={option} style={{ height: 190 }} />
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: 190 }}
+        onEvents={
+          onPolicyClick
+            ? {
+                click: (params: { name?: string }) => {
+                  if (params.name) onPolicyClick(params.name);
+                },
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -840,6 +1332,8 @@ export function SimulationSummary() {
   const [parquetExporting, setParquetExporting] = useState(false);
   const [logScale, setLogScale] = useState(false);
   const [showErrorBars, setShowErrorBars] = useState(false);
+  const [brushed, setBrushed] = useState<string[] | null>(null);
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
@@ -876,6 +1370,39 @@ export function SimulationSummary() {
 
   const stats = useMemo(() => aggregateByPolicy(filteredEntries), [filteredEntries]);
   const policies = useMemo(() => Object.keys(stats), [stats]);
+
+  const logMeta = useMemo(() => parseLogPath(logPath), [logPath]);
+  const policyMeta = useMemo(() => {
+    const map: Record<string, PolicyMeta> = {};
+    for (const p of policies) map[p] = parsePolicyLabel(p);
+    return map;
+  }, [policies]);
+
+  const handlePolicyClick = useCallback((p: string) => {
+    setBrushed((prev) => toggleBrush(prev, p));
+  }, []);
+
+  const overflowGroups = useMemo(
+    () =>
+      buildGroupedStats(
+        policies,
+        stats,
+        (p) => policyMeta[p]?.selectionStrategy ?? "—",
+        "overflows"
+      ),
+    [policies, stats, policyMeta]
+  );
+
+  const kgkmGroups = useMemo(
+    () =>
+      buildGroupedStats(
+        policies,
+        stats,
+        (p) => policyMeta[p]?.constructor ?? "—",
+        "kg/km"
+      ),
+    [policies, stats, policyMeta]
+  );
 
   const rankingExportData = useCallback(() => {
     const cols: MetricKey[] = ["profit", "km", "overflows", "kg"];
@@ -939,6 +1466,15 @@ export function SimulationSummary() {
 
       {policies.length > 0 && (
         <>
+          {logPath && <ConfigMetaBanner logPath={logPath} logMeta={logMeta} />}
+
+          <PolicyBrushBar
+            policies={policies}
+            brushed={brushed}
+            onToggle={handlePolicyClick}
+            onClear={() => setBrushed(null)}
+          />
+
           {/* Policy ranking table */}
           <RankingTable
             stats={stats}
@@ -948,16 +1484,71 @@ export function SimulationSummary() {
             parquetExporting={parquetExporting}
           />
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <GroupedMetricBarChart
+              title="Overflows by Selection Strategy"
+              subtitle="Mean ± std across constructor variants (§G.1.1)"
+              groups={overflowGroups}
+              color="#f87171"
+              showErrorBars={showErrorBars}
+              exportName="summary-overflows-grouped"
+            />
+            <GroupedMetricBarChart
+              title="kg/km by Constructor"
+              subtitle="Mean ± std across selection strategies (§G.1.1)"
+              groups={kgkmGroups}
+              color="#34d399"
+              showErrorBars={showErrorBars}
+              exportName="summary-kgkm-grouped"
+            />
+          </div>
+
           {/* Per-day trajectory */}
-          <TrajectoryChart entries={filteredEntries} policies={policies} />
-
-          <PolicyRadarChart stats={stats} policies={policies} />
-
-          <PolicyHeatmapChart stats={stats} policies={policies} />
+          <TrajectoryChart entries={filteredEntries} policies={policies} brushed={brushed} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <EfficiencyRankingChart stats={stats} policies={policies} showErrorBars={showErrorBars} />
-            <PolicyParetoChart stats={stats} policies={policies} logScale={logScale} />
+            <PolicyRadarChart
+              stats={stats}
+              policies={policies}
+              brushed={brushed}
+              policyMeta={policyMeta}
+            />
+            <PolicyParallelChart
+              stats={stats}
+              policies={policies}
+              policyMeta={policyMeta}
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+            />
+          </div>
+
+          <PolicyHeatmapChart
+            stats={stats}
+            policies={policies}
+            mode={heatmapMode}
+            onModeChange={setHeatmapMode}
+            brushed={brushed}
+            policyMeta={policyMeta}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <EfficiencyRankingChart
+              stats={stats}
+              policies={policies}
+              showErrorBars={showErrorBars}
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+            />
+            <PolicyParetoChart
+              stats={stats}
+              policies={policies}
+              logScale={logScale}
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+              logMeta={logMeta}
+            />
           </div>
 
           <div className="flex items-center justify-end gap-2">
@@ -985,6 +1576,10 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-profit"
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+              stats={stats}
             />
             <MetricBarChart
               title="Avg Distance by Policy (km)"
@@ -994,6 +1589,10 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-km"
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+              stats={stats}
             />
             <MetricBarChart
               title="Avg Overflows by Policy"
@@ -1004,6 +1603,10 @@ export function SimulationSummary() {
               useSymlog
               showErrorBars={showErrorBars}
               exportName="summary-overflows"
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+              stats={stats}
             />
             <MetricBarChart
               title="Avg Waste Collected by Policy (kg)"
@@ -1013,8 +1616,45 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-kg"
+              brushed={brushed}
+              onPolicyClick={handlePolicyClick}
+              policyMeta={policyMeta}
+              stats={stats}
             />
           </div>
+
+          {!logScale && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300">Log-scale views (§G.1.6)</p>
+              <div className="grid grid-cols-2 gap-4">
+                <MetricBarChart
+                  title="Avg Profit by Policy (€) — log scale"
+                  policies={policies}
+                  values={metricValues("profit")}
+                  color="#6366f1"
+                  logScale
+                  exportName="summary-profit-log"
+                  brushed={brushed}
+                  onPolicyClick={handlePolicyClick}
+                  policyMeta={policyMeta}
+                  stats={stats}
+                />
+                <MetricBarChart
+                  title="Avg Overflows by Policy — symlog scale"
+                  policies={policies}
+                  values={metricValues("overflows")}
+                  color="#f87171"
+                  logScale
+                  useSymlog
+                  exportName="summary-overflows-log"
+                  brushed={brushed}
+                  onPolicyClick={handlePolicyClick}
+                  policyMeta={policyMeta}
+                  stats={stats}
+                />
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
