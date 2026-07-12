@@ -54,7 +54,8 @@ def load_data(load_path: Optional[str], resume: Optional[str]) -> Any:
 
     load_path = load_path if load_path is not None else resume
     if load_path is not None:
-        print("  [*] Loading data from {}".format(load_path))
+        rel_load_path = load_path.replace(os.path.expanduser("~"), "~")
+        print("  [*] Loading data from {}".format(rel_load_path))
         data = torch_load_cpu(load_path)
     return data
 
@@ -72,7 +73,8 @@ def _load_model_file(load_path: str, model: nn.Module) -> Tuple[nn.Module, Optio
     """
     # Load the model parameters from a saved state
     load_optimizer_state_dict = None
-    print("  [*] Loading model from {}".format(load_path))
+    rel_load_path = load_path.replace(os.path.expanduser("~"), "~")
+    print("  [*] Loading model from {}".format(rel_load_path))
 
     checkpoint_data: object = torch.load(
         os.path.join(os.getcwd(), load_path), map_location=lambda storage, loc: storage, weights_only=False

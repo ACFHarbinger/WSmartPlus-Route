@@ -168,7 +168,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
                 if psc.bias is not None:
                     psc.bias.zero_()
 
-    print("  [*] Loaded model from {}".format(model_filename))
+    rel_model_filename = model_filename.replace(os.path.expanduser("~"), "~")
+    print("  [*] Loaded model from {}".format(rel_model_filename))
     model.eval()
     return model, args
 
