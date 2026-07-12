@@ -1,34 +1,35 @@
 """
 Generate the WSmart+ Route results PowerPoint presentation.
 
-Builds a 19-slide deck under assets/windows/ following the agreed structure:
+Builds a 20-slide deck under assets/windows/ following the agreed structure:
 
-  1.  Cover (author, optional co-authors and research groups)
-  2.  Index / agenda
+  1.  Cover (title/authors/affiliations, as in the conference abstract)
+  2.  Index / agenda (condensed)
   3.  The VRPP problem                          (equation + caption)
-  4.  Routing simulator philosophy              (pipeline diagram + caption)
-  5.  Mandatory node selection strategies       (equation + caption)
-  6.  Exact solvers (BPC + SWC-TCF)             (equation + caption)
-  7.  Meta-heuristics & hyper-heuristics        (equation + caption)
-  8.  Evolutionary algorithms (HGS)             (equation + caption)
-  9.  Swarm intelligence (PSOMA + ACO-HH)       (equation + caption)
-  10. Neighborhood search (SANS + PG-CLNS)      (equation + caption)
-  11. CLS vs Fast-TSP route improvers           (equation + caption)
+  4.  Objective of this work                    (bullets)
+  5.  Routing simulator philosophy              (pipeline diagram + caption)
+  6.  Mandatory node selection strategies       (equation + caption)
+  7.  Big picture: policy configuration space   (grid diagram + caption)
+  8.  Exact methods (BPC + SWC-TCF)             (equation + figure + caption)
+  9.  Meta-heuristics & hyper-heuristics        (equation + caption, all algorithms)
+  10. CLS vs Fast-TSP route improvers           (equation + figure + caption)
+  11. Design of experiments                     (tree diagram + caption)
   12. Pareto front plot (log X, per-scenario coloured fronts, figure caption)
   13. Summary KPI plots (stacked vertically, full width, figure caption)
-  14. Per-scenario heatmaps (30 days, figure caption)
-  15. Overflow + kg/km policy × scenario heatmaps (90 days, figure caption)
-  16. Route improver bubble chart (figure caption)
-  17. Full results table (user-selected horizon, or all horizons — table caption)
-  18. Conclusions, limitations & future work    (radar figure + caption)
-  19. End / Q&A
+  14. Strategy trade-off bubble chart (figure caption)
+  15. Per-scenario heatmaps (30 days, figure caption)
+  16. Overflow + kg/km policy × scenario heatmaps (90 days, side legend + caption)
+  17. Route improver bubble chart (figure caption)
+  18. Full results table (user-selected horizon, or all horizons — table caption)
+  19. Conclusions, limitations & future work    (radar figure + caption)
+  20. End / Q&A (figure)
 
-Slide text, equations (matplotlib mathtext) and captions live in
-json/presentation_content.json; result figures are pulled from the simulation
-analysis figures directories (30-day set by default; individual figure slides
-may override via "figures_dir"). The full results table (slide 17) is built
-directly from the horizon CSV(s) referenced in
-json/simulation_analysis_config.json.
+Slide text, equations (LaTeX, embedded as native editable OMML equations)
+and captions live in json/presentation_content.json; result figures are
+pulled from the simulation analysis figures directories (30-day set by
+default; individual figure slides may override via "figures_dir"). The full
+results table (slide 18) is built directly from the horizon CSV(s)
+referenced in json/simulation_analysis_config.json.
 
 A per-slide speaker script can also be generated as a .docx (see
 gen_speaker_script / --speaker-script), rendered via docxtpl from a template
@@ -50,8 +51,12 @@ Usage
 from __future__ import annotations
 
 import argparse
+import re
+import subprocess
+import xml.sax.saxutils as saxutils
 import tempfile
 import textwrap
+import zipfile
 from pathlib import Path
 
 import matplotlib
@@ -67,12 +72,81 @@ from gen_simulation_analysis import (
     filter_data,
     load_horizon_csv,
 )
+from lxml import etree
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN
+from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 from report_utils import load_json
+
+# ── Editable (OMML) equations ───────────────────────────────────────────────
+# Equations are converted from LaTeX to Office Math Markup (OMML) via pandoc
+# and embedded directly in the slide XML (mc:AlternateContent / a14:m), so
+# they open as native, editable equation objects in PowerPoint rather than
+# rasterised images. Non-Microsoft viewers fall back to a plain-text run.
+_MATH_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+_A14_NS = "http://schemas.microsoft.com/office/drawing/2010/main"
+_MC_NS = "http://schemas.openxmlformats.org/markup-compatibility/2006"
+_A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+
+
+def _latex_to_omath(latex: str) -> etree._Element:
+    """Convert one LaTeX equation line to an <m:oMath> element via pandoc."""
+    with tempfile.TemporaryDirectory() as td:
+        md_path, docx_path = Path(td) / "eq.md", Path(td) / "eq.docx"
+        md_path.write_text(f"$${latex}$$", encoding="utf-8")
+        subprocess.run(["pandoc", str(md_path), "-o", str(docx_path)], check=True, capture_output=True)
+        with zipfile.ZipFile(docx_path) as z:
+            doc_xml = z.read("word/document.xml")
+    root = etree.fromstring(doc_xml)
+    omath = root.find(f".//{{{_MATH_NS}}}oMath")
+    # Drop WordprocessingML control-run props (word/pptx sizing units differ);
+    # the equation instead inherits the paragraph's own default run formatting.
+    for ctrl_pr in omath.findall(f".//{{{_MATH_NS}}}ctrlPr"):
+        for child in list(ctrl_pr):
+            ctrl_pr.remove(child)
+    return omath
+
+
+def _plain_fallback(latex: str) -> str:
+    """A readable, non-mathematical fallback string for non-OOXML-math viewers."""
+    text = re.sub(r"\\(mathbf|mathrm|textbf|text|mathcal|left|right)\b", "", latex)
+    text = re.sub(r"[\\{}$]", "", text).replace("\\,", " ").replace("\\ ", " ").replace("\\quad", "  ")
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _apply_equation_to_paragraph(p, latex: str, size_pt: int = 22, color: str = "1F2D3D", align: str = "ctr"):
+    """Turn an (empty) paragraph into a native, editable PowerPoint equation."""
+    omath = _latex_to_omath(latex)
+    p_el = p._p
+    pPr = etree.SubElement(p_el, qn("a:pPr"))
+    pPr.set("algn", align)
+    def_rpr = etree.SubElement(pPr, qn("a:defRPr"))
+    def_rpr.set("sz", str(size_pt * 100))
+    fill = etree.SubElement(def_rpr, qn("a:solidFill"))
+    etree.SubElement(fill, qn("a:srgbClr")).set("val", color)
+    alt_xml = (
+        f'<mc:AlternateContent xmlns:mc="{_MC_NS}" xmlns:a14="{_A14_NS}" xmlns:m="{_MATH_NS}" xmlns:a="{_A_NS}">'
+        f'<mc:Choice xmlns:a14="{_A14_NS}" Requires="a14">'
+        f'<a14:m><m:oMathPara xmlns:m="{_MATH_NS}">{etree.tostring(omath, encoding="unicode")}</m:oMathPara></a14:m>'
+        f"</mc:Choice>"
+        f"<mc:Fallback><a:r><a:rPr lang=\"en-US\" sz=\"{size_pt * 100}\">"
+        f'<a:solidFill><a:srgbClr val="{color}"/></a:solidFill></a:rPr>'
+        f'<a:t>{saxutils.escape(_plain_fallback(latex))}</a:t></a:r></mc:Fallback>'
+        f"</mc:AlternateContent>"
+    )
+    p_el.append(etree.fromstring(alt_xml))
+    return p
+
+
+def add_equation_paragraphs(text_frame, lines: list[str], size_pt: int = 22, color: str = "1F2D3D", align: str = "ctr"):
+    """Render each line of `lines` as its own native-equation paragraph in `text_frame`."""
+    for i, latex in enumerate(lines):
+        p = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
+        _apply_equation_to_paragraph(p, latex, size_pt=size_pt, color=color, align=align)
 
 # 16:9 slide geometry
 SLIDE_W = Inches(13.333)
@@ -105,28 +179,27 @@ def _textbox(slide, left, top, width, height):
     return box, tf
 
 
-def render_equation(lines: list[str], out_path: Path, color: str = "#1F2D3D") -> Path:
-    """Render mathtext equation lines to a transparent PNG."""
-    fig = plt.figure(figsize=(11, 1.1 * len(lines) + 0.3))
-    fig.patch.set_alpha(0)
-    for i, line in enumerate(lines):
-        fig.text(
-            0.5,
-            1 - (i + 0.5) / len(lines),
-            line,
-            ha="center",
-            va="center",
-            fontsize=26,
-            color=color,
-        )
-    fig.savefig(out_path, dpi=220, transparent=True, bbox_inches="tight", pad_inches=0.15)
-    plt.close(fig)
-    return out_path
-
-
 def _wrap_label(label, width: int) -> str:
     """Wrap a table header/cell label onto multiple lines so it fits its cell."""
     return "\n".join(textwrap.wrap(str(label), width=width)) or str(label)
+
+
+_CELL_RE = re.compile(r"([-\d.]+(?:±[-\d.]+)?)\s*ov\s*(?:<br>|\n)\s*([-\d.]+(?:±[-\d.]+)?)\s*kg/km")
+
+
+def _parse_result_cell(text: str):
+    """Split a formatted result cell ('X ov<br>Y kg/km') into (overflow, kgkm) as (raw_str, numeric_mean)."""
+    m = _CELL_RE.match(text)
+    if not m:
+        return None, None
+
+    def _pair(raw: str):
+        try:
+            return raw, float(raw.split("±")[0])
+        except ValueError:
+            return raw, None
+
+    return _pair(m.group(1)), _pair(m.group(2))
 
 
 def render_hier_table_image(
@@ -192,13 +265,26 @@ def render_hier_table_image(
                     fontsize=fontsize, color="#1F2D3D", fontweight="bold")
 
     for ri, rk in enumerate(row_keys):
-        for ci, lk in enumerate(col_lookup_keys):
+        parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
+        ov_vals = {ci: v[0][1] for ci, v in parsed.items() if v[0] and v[0][1] is not None}
+        kg_vals = {ci: v[1][1] for ci, v in parsed.items() if v[1] and v[1][1] is not None}
+        best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None
+        best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None
+        for ci in range(n_cols):
             xs, ys = x0 + ci * cell_w, y0 + ri * cell_h
-            text = cells.get((rk, lk), "—").replace("<br>", "\n")
             ax.add_patch(mpatches.Rectangle(
                 (xs, ys), cell_w, cell_h, fill=False, edgecolor="#CCCCCC", linewidth=0.4,
             ))
-            ax.text(xs + cell_w / 2, ys + cell_h / 2, text, ha="center", va="center", fontsize=fontsize * 0.85)
+            ov, kg = parsed.get(ci, (None, None))
+            if ov is None and kg is None:
+                ax.text(xs + cell_w / 2, ys + cell_h / 2, "—", ha="center", va="center", fontsize=fontsize * 0.85)
+                continue
+            ov_color, ov_weight = ("#1A7A34", "bold") if ci == best_ov_ci else ("#333333", "normal")
+            kg_color, kg_weight = ("#1A7A34", "bold") if ci == best_kg_ci else ("#333333", "normal")
+            ax.text(xs + cell_w / 2, ys + cell_h * 0.3, ov[0] if ov else "—", ha="center", va="center",
+                    fontsize=fontsize * 0.85, color=ov_color, fontweight=ov_weight)
+            ax.text(xs + cell_w / 2, ys + cell_h * 0.7, kg[0] if kg else "—", ha="center", va="center",
+                    fontsize=fontsize * 0.85, color=kg_color, fontweight=kg_weight)
 
     fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -289,10 +375,13 @@ class DeckBuilder:
             str(path), left + Emu(int((max_w - w) / 2)), top + Emu(int((max_h - h) / 2)), w, h
         )
 
-    def _caption_box(self, slide, label: str, text: str, top=None) -> None:
+    def _caption_box(self, slide, label: str, text: str, top=None, left=None, width=None) -> None:
         """A numbered caption ('**Figure N:** ...' / '**Equation N:** ...' / '**Table N:** ...')."""
         top = top if top is not None else SLIDE_H - Inches(0.55)
-        _, tf = _textbox(slide, Inches(0.6), top, SLIDE_W - Inches(1.2), Inches(0.6))
+        left = left if left is not None else Inches(0.6)
+        width = width if width is not None else SLIDE_W - Inches(1.2)
+        _, tf = _textbox(slide, left, top, width, Inches(0.9))
+        tf.word_wrap = True
         p = tf.paragraphs[0]
         r1 = p.add_run()
         r1.text = f"{label}: "
@@ -305,29 +394,32 @@ class DeckBuilder:
         r2.font.size = Pt(11)
         r2.font.color.rgb = MUTED
 
-    def _figure_caption(self, slide, text: str, top=None) -> None:
+    def _figure_caption(self, slide, text: str, top=None, left=None, width=None) -> None:
         self._fig_count += 1
-        self._caption_box(slide, f"Figure {self._fig_count}", text, top=top)
+        self._caption_box(slide, f"Figure {self._fig_count}", text, top=top, left=left, width=width)
 
-    def _equation_caption(self, slide, text: str, top=None) -> None:
-        self._caption_box(slide, f"Equation {self._eq_count}", text, top=top)
+    def _equation_caption(self, slide, text: str, top=None, left=None, width=None) -> None:
+        self._caption_box(slide, f"Equation {self._eq_count}", text, top=top, left=left, width=width)
 
     def _table_caption(self, slide, text: str, top=None) -> None:
         self._tab_count += 1
         self._caption_box(slide, f"Table {self._tab_count}", text, top=top)
 
-    def _equation_focus(self, slide, lines: list[str]):
-        """Render mathtext lines and place them as the slide's visual focus."""
+    def _equation_focus(self, slide, lines: list[str], left=None, top=None, width=None, size_pt: int = 22):
+        """Place native, editable equation lines as the slide's visual focus."""
         self._eq_count += 1
-        path = render_equation(lines, self._tmp / f"eq_{self._eq_count}.png")
-        area_h = Inches(0.75 + 0.75 * len(lines))
-        band = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(1.25), SLIDE_W - Inches(1.2), area_h
-        )
+        left = left if left is not None else Inches(0.6)
+        top = top if top is not None else Inches(1.25)
+        width = width if width is not None else SLIDE_W - Inches(1.2)
+        area_h = Inches(0.62 * len(lines) + 0.4)
+        band = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, area_h)
         _fill(band, RGBColor(0xF0, 0xF4, 0xFA))
         band.shadow.inherit = False
-        self._picture_fit(slide, path, Inches(0.9), Inches(1.35), SLIDE_W - Inches(1.8), area_h - Inches(0.2))
-        return Inches(1.25) + area_h + Inches(0.25)
+        box = slide.shapes.add_textbox(left + Inches(0.2), top + Inches(0.1), width - Inches(0.4), area_h - Inches(0.2))
+        tf = box.text_frame
+        tf.word_wrap = True
+        add_equation_paragraphs(tf, lines, size_pt=size_pt)
+        return top + area_h + Inches(0.2)
 
     def _pipeline_diagram(self, slide) -> None:
         """Draw the policy pipeline as chevron stages with captions."""
@@ -372,6 +464,150 @@ class DeckBuilder:
         p.font.color.rgb = WHITE
         p.alignment = PP_ALIGN.CENTER
 
+    def _policy_grid_diagram(self, slide) -> None:
+        """Draw the Mandatory Selection x Route Constructor x Route Improver big picture."""
+        columns = [
+            ("Mandatory Selection", ["Look-Ahead (LA)", "Last-Minute (LM, CF70)", "Last-Minute (LM, CF90)",
+                                      "Service-Level (SL1)", "Service-Level (SL2)"], "flat"),
+            ("Route Constructor", [
+                ("Exact Methods", ["BPC", "SWC-TCF"]),
+                ("Meta-Heuristics", ["HGS", "ALNS", "SANS", "PG-CLNS"]),
+                ("Hyper-Heuristics", ["PSOMA", "ACO-HH"]),
+            ], "grouped"),
+            ("Route Improver", ["Fast-TSP", "Local Search (CLS)"], "flat"),
+        ]
+        top, bottom = Inches(1.15), Inches(5.75)
+        gap = Inches(0.3)
+        left0 = Inches(0.6)
+        col_w = int((SLIDE_W - Inches(1.2) - gap * (len(columns) - 1)) / len(columns))
+        header_h = Inches(0.55)
+        for ci, (header, items, kind) in enumerate(columns):
+            left = left0 + ci * (col_w + gap)
+            hd = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, col_w, header_h)
+            _fill(hd, DARK)
+            hd.shadow.inherit = False
+            p = hd.text_frame.paragraphs[0]
+            p.text = header
+            p.font.size = Pt(15)
+            p.font.bold = True
+            p.font.color.rgb = WHITE
+            p.alignment = PP_ALIGN.CENTER
+            body_top = top + header_h + Inches(0.15)
+            body_h = bottom - body_top
+            if kind == "flat":
+                item_gap = Inches(0.12)
+                item_h = int((body_h - item_gap * (len(items) - 1)) / len(items))
+                for ii, label in enumerate(items):
+                    it_top = body_top + ii * (item_h + item_gap)
+                    box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, it_top, col_w, item_h)
+                    _fill(box, ACCENT)
+                    box.shadow.inherit = False
+                    p = box.text_frame.paragraphs[0]
+                    p.text = label
+                    p.font.size = Pt(13)
+                    p.font.bold = True
+                    p.font.color.rgb = WHITE
+                    p.alignment = PP_ALIGN.CENTER
+            else:
+                grp_gap = Inches(0.15)
+                grp_h = int((body_h - grp_gap * (len(items) - 1)) / len(items))
+                for gi, (grp_label, sub_items) in enumerate(items):
+                    grp_top = body_top + gi * (grp_h + grp_gap)
+                    grp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, grp_top, col_w, grp_h)
+                    grp.fill.background()
+                    grp.line.color.rgb = MUTED
+                    grp.line.width = Pt(1)
+                    grp.line.dash_style = MSO_LINE_DASH_STYLE.DASH
+                    grp.shadow.inherit = False
+                    tf = grp.text_frame
+                    tf.word_wrap = True
+                    tf.margin_top = Inches(0.05)
+                    p = tf.paragraphs[0]
+                    p.text = grp_label
+                    p.font.size = Pt(12)
+                    p.font.bold = True
+                    p.font.color.rgb = ACCENT
+                    p.alignment = PP_ALIGN.CENTER
+                    pi = tf.add_paragraph()
+                    pi.text = "  ·  ".join(sub_items)
+                    pi.font.size = Pt(11)
+                    pi.font.color.rgb = DARK
+                    pi.alignment = PP_ALIGN.CENTER
+
+    def _doe_tree_diagram(self, slide) -> None:
+        """Draw the design-of-experiments tree: horizon -> scenario -> distribution."""
+        horizons = [
+            ("30 Days", [
+                ("RM-100", ["Empirical", "Gamma-3"]),
+                ("RM-170", ["Empirical", "Gamma-3"]),
+                ("FFZ-350", ["Empirical", "Gamma-3"]),
+            ]),
+            ("90 Days\n(Pareto-front policies only)", [
+                ("RM-100", ["Empirical", "Gamma-3"]),
+                ("RM-170", ["Empirical", "Gamma-3"]),
+                ("FFZ-350", ["Empirical", "Gamma-3"]),
+            ]),
+        ]
+        top = Inches(1.25)
+        root_w, root_h = Inches(2.2), Inches(0.5)
+        root_left = (SLIDE_W - root_w) / 2
+        root = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, root_left, top, root_w, root_h)
+        _fill(root, DARK)
+        root.shadow.inherit = False
+        p = root.text_frame.paragraphs[0]
+        p.text = "Simulation Runs"
+        p.font.size = Pt(15)
+        p.font.bold = True
+        p.font.color.rgb = WHITE
+        p.alignment = PP_ALIGN.CENTER
+
+        n_h = len(horizons)
+        gap_h = Inches(0.4)
+        hz_top = top + root_h + Inches(0.35)
+        hz_w = int((SLIDE_W - Inches(1.2) - gap_h * (n_h - 1)) / n_h)
+        hz_h = Inches(0.6)
+        left0 = Inches(0.6)
+        for hi, (hz_label, scenarios) in enumerate(horizons):
+            hz_left = left0 + hi * (hz_w + gap_h)
+            hz_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, hz_left, hz_top, hz_w, hz_h)
+            _fill(hz_box, ACCENT)
+            hz_box.shadow.inherit = False
+            tf = hz_box.text_frame
+            tf.word_wrap = True
+            for li, line in enumerate(hz_label.split("\n")):
+                p = tf.paragraphs[0] if li == 0 else tf.add_paragraph()
+                p.text = line
+                p.font.size = Pt(13)
+                p.font.bold = True
+                p.font.color.rgb = WHITE
+                p.alignment = PP_ALIGN.CENTER
+
+            n_s = len(scenarios)
+            gap_s = Inches(0.15)
+            sc_top = hz_top + hz_h + Inches(0.3)
+            sc_w = int((hz_w - gap_s * (n_s - 1)) / n_s)
+            sc_h = Inches(0.5)
+            for si, (sc_label, dists) in enumerate(scenarios):
+                sc_left = hz_left + si * (sc_w + gap_s)
+                sc_box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, sc_left, sc_top, sc_w, sc_h)
+                _fill(sc_box, MUTED)
+                sc_box.shadow.inherit = False
+                p = sc_box.text_frame.paragraphs[0]
+                p.text = sc_label
+                p.font.size = Pt(11)
+                p.font.bold = True
+                p.font.color.rgb = WHITE
+                p.alignment = PP_ALIGN.CENTER
+
+                dist_top = sc_top + sc_h + Inches(0.1)
+                dist_h = Inches(0.4)
+                _, dtf = _textbox(slide, sc_left, dist_top, sc_w, dist_h)
+                p = dtf.paragraphs[0]
+                p.text = " / ".join(dists)
+                p.font.size = Pt(10)
+                p.font.color.rgb = DARK
+                p.alignment = PP_ALIGN.CENTER
+
     def _figure_slide(self, spec: dict) -> None:
         slide = self._new_slide()
         self._title_bar(slide, spec["title"])
@@ -388,17 +624,37 @@ class DeckBuilder:
                 print(f"  [WARN] Figure not found: {p}")
         area_top = Inches(1.15)
         area_h = SLIDE_H - area_top - Inches(0.75)
+        legend_w = Inches(3.1) if spec.get("side_legend") else 0
+        fig_area_w = SLIDE_W - Inches(0.6) - (legend_w + Inches(0.2) if legend_w else 0)
         if resolved:
             if spec.get("layout") == "vertical":
                 h_each = int(area_h / len(resolved))
                 for i, p in enumerate(resolved):
                     self._picture_fit(
-                        slide, p, Inches(0.3), area_top + h_each * i, SLIDE_W - Inches(0.6), h_each - Inches(0.1)
+                        slide, p, Inches(0.3), area_top + h_each * i, fig_area_w, h_each - Inches(0.1)
                     )
             else:
-                w_each = int((SLIDE_W - Inches(0.6)) / len(resolved))
+                w_each = int(fig_area_w / len(resolved))
                 for i, p in enumerate(resolved):
                     self._picture_fit(slide, p, Inches(0.3) + w_each * i, area_top, w_each - Inches(0.2), area_h)
+        if legend_w:
+            legend_left = Inches(0.3) + fig_area_w + Inches(0.2)
+            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, area_top, legend_w, area_h)
+            _fill(box, RGBColor(0xF0, 0xF4, 0xFA))
+            box.shadow.inherit = False
+            _, tf = _textbox(slide, legend_left + Inches(0.2), area_top + Inches(0.15),
+                              legend_w - Inches(0.4), area_h - Inches(0.3))
+            p = tf.paragraphs[0]
+            p.text = "Shared axis labels"
+            p.font.size = Pt(14)
+            p.font.bold = True
+            p.font.color.rgb = ACCENT
+            for para in spec.get("side_legend_text", "").split("\n\n"):
+                pp = tf.add_paragraph()
+                pp.text = para
+                pp.font.size = Pt(12)
+                pp.font.color.rgb = DARK
+                pp.space_before = Pt(10)
         caption = spec.get("caption") or spec.get("note")
         if caption:
             self._figure_caption(slide, caption)
@@ -410,35 +666,41 @@ class DeckBuilder:
         slide = self._new_slide()
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
         _fill(bg, DARK)
-        band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, Inches(4.5), SLIDE_W, Inches(0.08))
+        title_len = len(self.content["title"])
+        title_sz = 26 if title_len > 80 else 32 if title_len > 55 else 36
+        band_top = Inches(4.15)
+        band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, band_top, SLIDE_W, Inches(0.06))
         _fill(band, ACCENT)
-        _, tf = _textbox(slide, Inches(0.9), Inches(2.1), SLIDE_W - Inches(1.8), Inches(2.2))
+        _, tf = _textbox(slide, Inches(0.9), Inches(1.15), SLIDE_W - Inches(1.8), Inches(2.85))
         p = tf.paragraphs[0]
         p.text = self.content["title"]
-        p.font.size = Pt(36)
+        p.font.size = Pt(title_sz)
         p.font.bold = True
         p.font.color.rgb = WHITE
         p2 = tf.add_paragraph()
         p2.text = self.content["subtitle"]
-        p2.font.size = Pt(20)
+        p2.font.size = Pt(17)
         p2.font.color.rgb = LIGHT_TXT
-        _, tf2 = _textbox(slide, Inches(0.9), Inches(4.85), SLIDE_W - Inches(1.8), Inches(2.2))
+        p2.space_before = Pt(10)
+        _, tf2 = _textbox(slide, Inches(0.9), band_top + Inches(0.25), SLIDE_W - Inches(1.8), Inches(3.0))
         p3 = tf2.paragraphs[0]
         p3.text = self.author
-        p3.font.size = Pt(22)
+        p3.font.size = Pt(19)
         p3.font.bold = True
         p3.font.color.rgb = WHITE
         if self.coauthors:
             p4 = tf2.add_paragraph()
             p4.text = "with " + ", ".join(self.coauthors)
-            p4.font.size = Pt(15)
+            p4.font.size = Pt(14)
             p4.font.color.rgb = LIGHT_TXT
+            p4.space_before = Pt(6)
         if self.groups:
             p5 = tf2.add_paragraph()
-            p5.text = " · ".join(self.groups)
-            p5.font.size = Pt(13)
+            p5.text = "   ·   ".join(self.groups)
+            p5.font.size = Pt(11)
             p5.font.italic = True
             p5.font.color.rgb = RGBColor(0x8A, 0x9B, 0xB0)
+            p5.space_before = Pt(10)
         self._record_script(
             self.content["title"],
             [f"Presented by {self.author}." + (f" With {', '.join(self.coauthors)}." if self.coauthors else "")],
@@ -469,12 +731,26 @@ class DeckBuilder:
         spec = self.content["slides"][key]
         slide = self._new_slide()
         self._title_bar(slide, spec["title"])
+        fig_path = self.figures_dir / spec["figure"] if spec.get("figure") else None
+        has_fig = bool(fig_path) and fig_path.exists()
+        if spec.get("figure") and not has_fig:
+            print(f"  [WARN] Figure not found: {fig_path}")
+
         if spec.get("equation"):
-            bullets_top = self._equation_focus(slide, spec["equation"])
+            col_w = int(SLIDE_W / 2) - Inches(0.4) if has_fig else SLIDE_W - Inches(1.2)
+            eq_left = Inches(0.6)
+            bullets_top = self._equation_focus(
+                slide, spec["equation"], left=eq_left, width=col_w, size_pt=15 if has_fig else 20
+            )
             if spec.get("caption"):
-                self._equation_caption(slide, spec["caption"], top=bullets_top)
-                bullets_top += Inches(0.75)
-            self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
+                self._equation_caption(slide, spec["caption"], top=bullets_top, left=eq_left, width=col_w)
+                bullets_top += Inches(0.85)
+            self._bullets(slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14)
+            if has_fig:
+                self._picture_fit(
+                    slide, fig_path, int(SLIDE_W / 2) + Inches(0.2), Inches(1.2),
+                    int(SLIDE_W / 2) - Inches(0.8), SLIDE_H - Inches(1.7),
+                )
         elif spec.get("diagram") == "pipeline":
             self._pipeline_diagram(slide)
             bullets_top = Inches(5.6)
@@ -482,20 +758,29 @@ class DeckBuilder:
                 self._figure_caption(slide, spec["caption"], top=bullets_top)
                 bullets_top += Inches(0.75)
             self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
-        elif spec.get("figure"):
-            fig_path = self.figures_dir / spec["figure"]
-            if fig_path.exists():
-                self._picture_fit(
-                    slide, fig_path, int(SLIDE_W / 2), Inches(1.2), int(SLIDE_W / 2) - Inches(0.4),
-                    SLIDE_H - Inches(1.7)
-                )
-                if spec.get("caption"):
-                    self._figure_caption(slide, spec["caption"])
-                self._bullets(slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4),
-                              width=int(SLIDE_W / 2) - Inches(0.7), size=13)
-            else:
-                print(f"  [WARN] Figure not found: {fig_path}")
-                self._bullets(slide, spec["bullets"])
+        elif spec.get("diagram") == "policy_grid":
+            self._policy_grid_diagram(slide)
+            bullets_top = Inches(5.85)
+            if spec.get("caption"):
+                self._figure_caption(slide, spec["caption"], top=bullets_top)
+                bullets_top += Inches(0.6)
+            self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
+        elif spec.get("diagram") == "doe_tree":
+            self._doe_tree_diagram(slide)
+            bullets_top = Inches(5.85)
+            if spec.get("caption"):
+                self._figure_caption(slide, spec["caption"], top=bullets_top)
+                bullets_top += Inches(0.6)
+            self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
+        elif has_fig:
+            self._picture_fit(
+                slide, fig_path, int(SLIDE_W / 2), Inches(1.2), int(SLIDE_W / 2) - Inches(0.4),
+                SLIDE_H - Inches(1.7)
+            )
+            if spec.get("caption"):
+                self._figure_caption(slide, spec["caption"])
+            self._bullets(slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4),
+                          width=int(SLIDE_W / 2) - Inches(0.7), size=13)
         else:
             self._bullets(slide, spec["bullets"])
         self._record_script(spec["title"], [spec.get("caption", "")] + list(spec["bullets"]))
@@ -600,7 +885,8 @@ class DeckBuilder:
         self._table_caption(
             slide,
             f"Full results table — rows: graph size × region × data distribution; columns: {col_desc}. "
-            "Each cell reports mean±std overflows and mean±std kg/km.",
+            "In every cell, the top value is mean±std overflows (lower is better) and the bottom value is "
+            "mean±std kg/km (higher is better); the best value per row is shown in bold green.",
         )
         self._record_script(title, [f"Full results table, columns grouped by {col_desc}."])
 
@@ -609,41 +895,51 @@ class DeckBuilder:
         slide = self._new_slide()
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
         _fill(bg, DARK)
-        _, tf = _textbox(slide, Inches(0.9), Inches(2.8), SLIDE_W - Inches(1.8), Inches(2.0))
+        fig_path = self.figures_dir / spec["figure"] if spec.get("figure") else None
+        has_fig = bool(fig_path) and fig_path.exists()
+        text_left = Inches(0.9)
+        text_w = (int(SLIDE_W / 2) - Inches(1.1)) if has_fig else (SLIDE_W - Inches(1.8))
+        _, tf = _textbox(slide, text_left, Inches(2.8), text_w, Inches(2.4))
         p = tf.paragraphs[0]
         p.text = spec["title"]
-        p.font.size = Pt(36)
+        p.font.size = Pt(30 if has_fig else 36)
         p.font.bold = True
         p.font.color.rgb = WHITE
-        p.alignment = PP_ALIGN.CENTER
+        p.alignment = PP_ALIGN.CENTER if not has_fig else PP_ALIGN.LEFT
         for line in spec["bullets"]:
             pp = tf.add_paragraph()
             pp.text = line
             pp.font.size = Pt(16)
             pp.font.color.rgb = LIGHT_TXT
-            pp.alignment = PP_ALIGN.CENTER
+            pp.alignment = PP_ALIGN.CENTER if not has_fig else PP_ALIGN.LEFT
+        if has_fig:
+            self._picture_fit(
+                slide, fig_path, int(SLIDE_W / 2) + Inches(0.2), Inches(0.6),
+                int(SLIDE_W / 2) - Inches(0.8), SLIDE_H - Inches(1.2),
+            )
         self._record_script(spec["title"], list(spec["bullets"]))
 
     def build(self) -> Presentation:
         self.cover()  # 1
         self.agenda()  # 2
         self.content_slide("vrpp")  # 3
-        self.content_slide("simulator")  # 4
-        self.content_slide("strategies")  # 5
-        self.content_slide("exact")  # 6
-        self.content_slide("metaheuristics")  # 7
-        self.content_slide("evolutionary")  # 8
-        self.content_slide("swarm")  # 9
-        self.content_slide("neighborhood")  # 10
-        self.content_slide("improvers")  # 11
+        self.content_slide("objective")  # 4
+        self.content_slide("simulator")  # 5
+        self.content_slide("strategies")  # 6
+        self.content_slide("policy_overview")  # 7
+        self.content_slide("exact")  # 8
+        self.content_slide("metaheuristics")  # 9
+        self.content_slide("improvers")  # 10
+        self.content_slide("design_of_experiments")  # 11
         self._figure_slide(self.content["figure_slides"]["pareto"])  # 12
         self._figure_slide(self.content["figure_slides"]["kpi"])  # 13
-        self._figure_slide(self.content["figure_slides"]["scenario_heatmaps"])  # 14 (30d, first)
-        self._figure_slide(self.content["figure_slides"]["heatmaps"])  # 15 (90d)
-        self._figure_slide(self.content["figure_slides"]["improver_bubble"])  # 16
-        self._results_table_slide()  # 17 (full results table, if requested)
-        self.content_slide("conclusion")  # 18
-        self.qa()  # 19
+        self._figure_slide(self.content["figure_slides"]["strategy_bubble"])  # 14
+        self._figure_slide(self.content["figure_slides"]["scenario_heatmaps"])  # 15 (30d)
+        self._figure_slide(self.content["figure_slides"]["heatmaps"])  # 16 (90d)
+        self._figure_slide(self.content["figure_slides"]["improver_bubble"])  # 17
+        self._results_table_slide()  # 18 (full results table, if requested)
+        self.content_slide("conclusion")  # 19
+        self.qa()  # 20
         return self.prs
 
 

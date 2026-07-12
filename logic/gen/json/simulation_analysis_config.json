@@ -22,6 +22,7 @@
     "improver_bubble": {"enabled": true, "x_scale": ["linear", "symlog"]},
     "constructor_ranking": {"enabled": true},
     "radar": {"enabled": true, "constructors": ["ACO_HH", "HGS", "BPC", "SANS"]},
+    "radar_combined": {"enabled": true},
     "improver_delta": {"enabled": true},
     "interactive": {"enabled": true}
   },

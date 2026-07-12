@@ -369,9 +369,10 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=10)
-            ax.set_ylabel("Efficiency (kg/km)", fontsize=10)
-            ax.set_title(f"{dist}", fontsize=11)
+            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=13)
+            ax.set_ylabel("Efficiency (kg/km)", fontsize=13)
+            ax.set_title(f"{dist}", fontsize=13)
+            ax.tick_params(axis="both", labelsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.xaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
@@ -398,7 +399,7 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             )
             for s in scenarios
         ]
-        fig.legend(handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=9, bbox_to_anchor=(0.5, -0.02))
+        fig.legend(handles=leg, loc="lower center", ncol=min(len(leg), 4), fontsize=13, bbox_to_anchor=(0.5, -0.04))
         plt.tight_layout()
         return fig
 
@@ -458,9 +459,10 @@ def gen_kpi_bar(dfm: pd.DataFrame, metric: str, ylabel: str, fname: str, ctx: di
             if yscale != "linear":
                 ax.set_yscale("symlog", linthresh=1)
             ax.set_xticks(x)
-            ax.set_xticklabels(labels, fontsize=7)
-            ax.set_ylabel(f"{ylabel} ({ctx['n_days']} days)", fontsize=10)
-            ax.set_title(f"{dist}", fontsize=11)
+            ax.set_xticklabels(labels, fontsize=10)
+            ax.set_ylabel(f"{ylabel} ({ctx['n_days']} days)", fontsize=13)
+            ax.set_title(f"{dist}", fontsize=13)
+            ax.tick_params(axis="y", labelsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
         patches = [mpatches.Patch(color=META["strategy_colors"].get(s, "#a0a0a0"), label=s) for s in strategies]
@@ -468,7 +470,7 @@ def gen_kpi_bar(dfm: pd.DataFrame, metric: str, ylabel: str, fname: str, ctx: di
             mpatches.Patch(facecolor="#909090", hatch=HATCH_CYCLE[i % len(HATCH_CYCLE)], label=imp)
             for i, imp in enumerate(improvers)
         ]
-        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=10, bbox_to_anchor=(0.5, -0.02))
+        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=14, bbox_to_anchor=(0.5, -0.05))
         plt.tight_layout()
         return fig
 
@@ -535,17 +537,19 @@ def gen_policy_scenario_heatmap(df: pd.DataFrame, ctx: dict, out_dir: Path) -> N
                 vals = _scen_sub(sub_p, s)[metric]
                 if len(vals):
                     mat[ri, ci] = vals.mean()
-        fig, ax = plt.subplots(figsize=(max(10, 1.6 * len(scenarios)), max(8, 0.32 * len(rows)) + 1.2))
+        fig, ax = plt.subplots(figsize=(max(12, 1.9 * len(scenarios)), max(9, 0.4 * len(rows)) + 1.4))
         ax.set_title(
-            f"Policy × Scenario Heatmap — {mlabel} ({ctx['n_days']} days)", fontsize=14, fontweight="bold", pad=14
+            f"Policy × Scenario Heatmap — {mlabel} ({ctx['n_days']} days)", fontsize=16, fontweight="bold", pad=16
         )
         norm = matplotlib.colors.SymLogNorm(linthresh=10, vmin=0) if metric == "overflows" else None
         im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
-        plt.colorbar(im, ax=ax, shrink=0.8, label=mlabel)
+        cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+        cbar.set_label(mlabel, fontsize=13)
+        cbar.ax.tick_params(labelsize=11)
         ax.set_xticks(range(len(col_labels)))
-        ax.set_xticklabels(col_labels, fontsize=8, rotation=30, ha="right")
+        ax.set_xticklabels(col_labels, fontsize=12, rotation=30, ha="right")
         ax.set_yticks(range(len(row_labels)))
-        ax.set_yticklabels(row_labels, fontsize=7)
+        ax.set_yticklabels(row_labels, fontsize=11)
         plt.tight_layout()
         savefig(fig, out_dir / f"policy_scenario_heatmap_{metric}.png")
 
@@ -579,15 +583,16 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
                         mat[ci, bi] = vals.mean()
             norm = matplotlib.colors.SymLogNorm(linthresh=10, vmin=0) if metric == "overflows" else None
             im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
-            plt.colorbar(im, ax=ax, shrink=0.75)
+            cbar = plt.colorbar(im, ax=ax, shrink=0.75)
+            cbar.ax.tick_params(labelsize=9)
             ax.set_xticks(range(len(combo_labels)))
-            ax.set_xticklabels(combo_labels, fontsize=9, fontweight="bold", rotation=0)
+            ax.set_xticklabels(combo_labels, fontsize=10, fontweight="bold", rotation=0)
             ax.set_yticks(range(len(constructors)))
-            ax.set_yticklabels(constructors if col_i == 0 else [], fontsize=7)
+            ax.set_yticklabels(constructors if col_i == 0 else [], fontsize=9)
             if row_i == 0:
-                ax.set_title(scenario_label(s), fontsize=9, fontweight="bold")
+                ax.set_title(scenario_label(s), fontsize=10, fontweight="bold")
             if col_i == 0:
-                ax.set_ylabel(mlabel, fontsize=10)
+                ax.set_ylabel(mlabel, fontsize=11)
     plt.tight_layout()
     savefig(fig, out_dir / "scenario_constructor_heatmap.png")
 
@@ -624,19 +629,20 @@ def gen_strategy_bubble(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                         region_label(s["city"], s["N"]),
                         (ov, eff),
                         textcoords="offset points",
-                        xytext=(4, 3),
-                        fontsize=7,
+                        xytext=(5, 4),
+                        fontsize=10,
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Mean overflows ({ctx['n_days']} days)", fontsize=10)
-            ax.set_ylabel("Mean kg/km efficiency", fontsize=10)
-            ax.set_title(f"{dist}", fontsize=11)
+            ax.set_xlabel(f"Mean overflows ({ctx['n_days']} days)", fontsize=13)
+            ax.set_ylabel("Mean kg/km efficiency", fontsize=13)
+            ax.set_title(f"{dist}", fontsize=13)
+            ax.tick_params(axis="both", labelsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.xaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
         patches = [mpatches.Patch(color=META["strategy_colors"].get(s, "#a0a0a0"), label=s) for s in strategies]
-        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=10, bbox_to_anchor=(0.5, -0.01))
+        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=14, bbox_to_anchor=(0.5, -0.05))
         plt.tight_layout()
         return fig
 
@@ -684,19 +690,20 @@ def gen_improver_bubble(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                         region_label(s["city"], s["N"]),
                         (ov, eff),
                         textcoords="offset points",
-                        xytext=(4, 3),
-                        fontsize=6,
+                        xytext=(5, 4),
+                        fontsize=9,
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Mean overflows ({ctx['n_days']} days)", fontsize=10)
-            ax.set_ylabel("Mean kg/km efficiency", fontsize=10)
-            ax.set_title(f"{dist}", fontsize=11)
+            ax.set_xlabel(f"Mean overflows ({ctx['n_days']} days)", fontsize=13)
+            ax.set_ylabel("Mean kg/km efficiency", fontsize=13)
+            ax.set_title(f"{dist}", fontsize=13)
+            ax.tick_params(axis="both", labelsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.xaxis.grid(True, alpha=0.4)
             ax.set_axisbelow(True)
         patches = [mpatches.Patch(color=META["improver_colors"].get(i, "#a0a0a0"), label=i) for i in improvers]
-        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=10, bbox_to_anchor=(0.5, -0.01))
+        fig.legend(handles=patches, loc="lower center", ncol=len(patches), fontsize=14, bbox_to_anchor=(0.5, -0.05))
         plt.tight_layout()
         return fig
 
@@ -737,12 +744,9 @@ def gen_constructor_ranking(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None
     savefig(fig, out_dir / "constructor_ranking.png")
 
 
-def gen_radar(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
-    """Normalised radar chart for key constructors."""
-    opts = ctx["charts"].get("radar", {})
-    key = [c for c in opts.get("constructors", ctx["constructors"][:4]) if c in ctx["constructors"]]
-    if not key:
-        key = ctx["constructors"][:4]
+def _render_radar(dfm: pd.DataFrame, ctx: dict, key: list[str], title: str, figsize: tuple[float, float],
+                   legend_anchor: tuple[float, float]) -> plt.Figure:
+    """Shared normalised-radar renderer for a given set of constructors `key`."""
     metrics = ["overflows", "kgkm", "km", "profit"]
     axes_labels = ["Overflows\n(fewer ↓)", "kg/km\n(higher ↑)", "km\n(fewer ↓)", "Profit\n(higher ↑)"]
     invert = [True, False, True, False]
@@ -761,22 +765,45 @@ def gen_radar(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     n_axes = len(metrics)
     angles = [i / n_axes * 2 * np.pi for i in range(n_axes)]
     angles += angles[:1]
-    fig, ax = plt.subplots(figsize=(9, 9), subplot_kw=dict(polar=True))
+    fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(polar=True))
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(axes_labels, fontsize=11)
+    ax.set_xticklabels(axes_labels, fontsize=15)
+    ax.tick_params(axis="x", pad=28)
     ax.set_ylim(0, 1)
-    ax.yaxis.set_tick_params(labelcolor=ctx["theme"]["muted"], labelsize=8)
+    ax.yaxis.set_tick_params(labelcolor=ctx["theme"]["muted"], labelsize=10)
     for r, lbl in zip([0.25, 0.5, 0.75, 1.0], ["25%", "50%", "75%", "100%"], strict=True):
         ax.plot(angles, [r] * (n_axes + 1), "--", color=ctx["theme"]["faint"], linewidth=0.8)
-        ax.text(0, r + 0.02, lbl, ha="center", va="bottom", fontsize=8, color=ctx["theme"]["muted"])
+        ax.text(0, r + 0.02, lbl, ha="center", va="bottom", fontsize=10, color=ctx["theme"]["muted"])
     for c in key:
         vals = scores[c] + scores[c][:1]
         color = META["constructor_colors"].get(c, ctx["theme"]["fg"])
         ax.plot(angles, vals, "o-", color=color, linewidth=2.5, markersize=5, label=c)
         ax.fill(angles, vals, color=color, alpha=0.08)
-    ax.set_title("Policy Performance Radar\n(normalised; outer = better)", fontsize=13, fontweight="bold", pad=20)
-    ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.1), fontsize=11)
+    ax.set_title(title, fontsize=15, fontweight="bold", pad=28)
+    ax.legend(loc="upper right", bbox_to_anchor=legend_anchor, fontsize=13)
+    return fig
+
+
+def gen_radar(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
+    """Normalised radar chart for a curated set of key constructors."""
+    opts = ctx["charts"].get("radar", {})
+    key = [c for c in opts.get("constructors", ctx["constructors"][:4]) if c in ctx["constructors"]]
+    if not key:
+        key = ctx["constructors"][:4]
+    fig = _render_radar(
+        dfm, ctx, key, "Policy Performance Radar\n(normalised; outer = better)", (10, 10), (1.4, 1.12)
+    )
     savefig(fig, out_dir / "policy_radar.png")
+
+
+def gen_radar_combined(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
+    """Normalised radar chart overlaying every route constructor (not just the curated subset)."""
+    key = list(ctx["constructors"])
+    fig = _render_radar(
+        dfm, ctx, key, "Policy Performance Radar — All Constructors\n(normalised; outer = better)", (11, 10),
+        (1.45, 1.12)
+    )
+    savefig(fig, out_dir / "policy_radar_combined.png")
 
 
 def gen_improver_delta(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
@@ -1411,6 +1438,8 @@ def gen_horizon_figures(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, figures_
         gen_constructor_ranking(dfm, ctx, figures_dir)
     if _on("radar"):
         gen_radar(dfm, ctx, figures_dir)
+    if _on("radar_combined"):
+        gen_radar_combined(dfm, ctx, figures_dir)
     if _on("improver_delta") and len(ctx["improvers"]) > 1:
         gen_improver_delta(dfm, ctx, figures_dir)
     if _on("interactive"):
