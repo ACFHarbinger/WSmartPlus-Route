@@ -59,7 +59,7 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from report_utils import (
+from report_utils import (  # pyrefly: ignore [missing-import]
     PLACEHOLDER,
     finalize_markdown,
     load_js,
@@ -378,15 +378,30 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             ax.set_axisbelow(True)
         leg = [mpatches.Patch(color=vcolors[v], label=v) for v in variants]
         leg += [
-            plt.Line2D([], [], marker=markers[tuple(r)], linestyle="", color=ctx["theme"]["muted"],
-                       label=region_label(r[0], r[1]))
+            plt.Line2D(
+                [],
+                [],
+                marker=markers[tuple(r)],
+                linestyle="",
+                color=ctx["theme"]["muted"],
+                label=region_label(r[0], r[1]),
+            )
             for r in regions
         ]
         if len(improvers) > 1:
             leg += [
-                plt.Line2D([], [], marker="o", linestyle="", color=ctx["theme"]["fg"], label=f"{improvers[0]} (filled)"),
-                plt.Line2D([], [], marker="o", linestyle="", markerfacecolor="none", color=ctx["theme"]["fg"],
-                           label=f"{improvers[-1]} (open)"),
+                plt.Line2D(
+                    [], [], marker="o", linestyle="", color=ctx["theme"]["fg"], label=f"{improvers[0]} (filled)"
+                ),
+                plt.Line2D(
+                    [],
+                    [],
+                    marker="o",
+                    linestyle="",
+                    markerfacecolor="none",
+                    color=ctx["theme"]["fg"],
+                    label=f"{improvers[-1]} (open)",
+                ),
             ]
         leg += [
             plt.Line2D(
@@ -454,8 +469,15 @@ def gen_kpi_bar(dfm: pd.DataFrame, metric: str, ylabel: str, fname: str, ctx: di
                 )
                 for xi, m_, l_, h_ in zip(xs, means, lo, hi, strict=True):
                     if not np.isnan(m_):
-                        ax.errorbar(xi, m_, yerr=[[max(l_, 0)], [max(h_, 0)]], fmt="none",
-                                    color=ctx["theme"]["fg"], capsize=2, linewidth=0.9)
+                        ax.errorbar(
+                            xi,
+                            m_,
+                            yerr=[[max(l_, 0)], [max(h_, 0)]],
+                            fmt="none",
+                            color=ctx["theme"]["fg"],
+                            capsize=2,
+                            linewidth=0.9,
+                        )
             if yscale != "linear":
                 ax.set_yscale("symlog", linthresh=1)
             ax.set_xticks(x)
@@ -744,8 +766,14 @@ def gen_constructor_ranking(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None
     savefig(fig, out_dir / "constructor_ranking.png")
 
 
-def _render_radar(dfm: pd.DataFrame, ctx: dict, key: list[str], title: str, figsize: tuple[float, float],
-                   legend_anchor: tuple[float, float]) -> plt.Figure:
+def _render_radar(
+    dfm: pd.DataFrame,
+    ctx: dict,
+    key: list[str],
+    title: str,
+    figsize: tuple[float, float],
+    legend_anchor: tuple[float, float],
+) -> plt.Figure:
     """Shared normalised-radar renderer for a given set of constructors `key`."""
     metrics = ["overflows", "kgkm", "km", "profit"]
     axes_labels = ["Overflows\n(fewer ↓)", "kg/km\n(higher ↑)", "km\n(fewer ↓)", "Profit\n(higher ↑)"]
@@ -757,8 +785,8 @@ def _render_radar(dfm: pd.DataFrame, ctx: dict, key: list[str], title: str, figs
         scores[c] = []
         for metric, inv in zip(metrics, invert, strict=True):
             all_vals = dfm[metric].values
-            v = sub[metric].mean() if len(sub) else np.nanmean(all_vals)
-            mn, mx = np.nanmin(all_vals), np.nanmax(all_vals)
+            v = sub[metric].mean() if len(sub) else np.nanmean(all_vals)  # pyrefly: ignore [no-matching-overload]
+            mn, mx = np.nanmin(all_vals), np.nanmax(all_vals)  # pyrefly: ignore [no-matching-overload]
             norm = (v - mn) / (mx - mn + 1e-9) if mx > mn else 0.5
             scores[c].append(1 - norm if inv else norm)
 
@@ -790,9 +818,7 @@ def gen_radar(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     key = [c for c in opts.get("constructors", ctx["constructors"][:4]) if c in ctx["constructors"]]
     if not key:
         key = ctx["constructors"][:4]
-    fig = _render_radar(
-        dfm, ctx, key, "Policy Performance Radar\n(normalised; outer = better)", (10, 10), (1.4, 1.12)
-    )
+    fig = _render_radar(dfm, ctx, key, "Policy Performance Radar\n(normalised; outer = better)", (10, 10), (1.4, 1.12))
     savefig(fig, out_dir / "policy_radar.png")
 
 
@@ -800,8 +826,12 @@ def gen_radar_combined(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     """Normalised radar chart overlaying every route constructor (not just the curated subset)."""
     key = list(ctx["constructors"])
     fig = _render_radar(
-        dfm, ctx, key, "Policy Performance Radar — All Constructors\n(normalised; outer = better)", (11, 10),
-        (1.45, 1.12)
+        dfm,
+        ctx,
+        key,
+        "Policy Performance Radar — All Constructors\n(normalised; outer = better)",
+        (11, 10),
+        (1.45, 1.12),
     )
     savefig(fig, out_dir / "policy_radar_combined.png")
 
@@ -888,7 +918,7 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
                     hovertemplate="%{text}<extra></extra>",
                 )
             )
-    n_scatter_traces = len(fig.data)
+    n_scatter_traces = len(fig.data)  # pyrefly: ignore [bad-argument-type]
 
     # Pareto front lines + front-only markers per scenario (one colour per scenario)
     front_colors = {
@@ -915,7 +945,7 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
                 hoverinfo="skip",
             )
         )
-    n_line_traces = len(fig.data) - n_scatter_traces
+    n_line_traces = len(fig.data) - n_scatter_traces  # pyrefly: ignore [bad-argument-type]
     for s in scenarios:
         sub = _scen_sub(df, s).reset_index(drop=True)
         if sub.empty:
@@ -929,7 +959,9 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
                 mode="markers",
                 name=f"★ Pareto — {scenario_label(s)}",
                 marker=dict(
-                    symbol=[sym_base if r.improver == improvers[0] else f"{sym_base}-open" for r in front_rows.itertuples()],
+                    symbol=[
+                        sym_base if r.improver == improvers[0] else f"{sym_base}-open" for r in front_rows.itertuples()
+                    ],
                     color=[vcolors[r.variant] for r in front_rows.itertuples()],
                     size=13,
                     opacity=1.0,
@@ -944,11 +976,13 @@ def gen_interactive_html(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, out_dir
                 visible=False,
             )
         )
-    n_front_traces = len(fig.data) - n_scatter_traces - n_line_traces
+    n_front_traces = len(fig.data) - n_scatter_traces - n_line_traces  # pyrefly: ignore [bad-argument-type]
     all_vis = [True] * n_scatter_traces + [True] * n_line_traces + [False] * n_front_traces
     front_vis = [False] * n_scatter_traces + [True] * n_line_traces + [True] * n_front_traces
     fig.update_layout(
-        title=dict(text=f"Overflow vs Efficiency — All Runs ({ctx['n_days']} days; hover for details)", x=0.5, xanchor="center"),
+        title=dict(
+            text=f"Overflow vs Efficiency — All Runs ({ctx['n_days']} days; hover for details)", x=0.5, xanchor="center"
+        ),
         xaxis_title=f"Overflows ({ctx['n_days']} days)",
         yaxis_title="kg/km",
         template=template,
@@ -1353,9 +1387,7 @@ def build_full_results_matrix(
         for strat in ctx["strategies"]:
             for con in ctx["constructors"]:
                 for imp in ctx["improvers"]:
-                    sub = _scen_sub(
-                        dfm[(dfm.strategy == strat) & (dfm.constructor == con) & (dfm.improver == imp)], s
-                    )
+                    sub = _scen_sub(dfm[(dfm.strategy == strat) & (dfm.constructor == con) & (dfm.improver == imp)], s)
                     ckey = (strat, con, imp) if horizon_label is None else (horizon_label, strat, con, imp)
                     cells[((N, city, dist), ckey)] = _fmt_result_cell(sub)
     return row_keys, col_keys, cells
@@ -1420,8 +1452,9 @@ def gen_horizon_figures(df: pd.DataFrame, dfm: pd.DataFrame, ctx: dict, figures_
     if _on("pareto_scatter"):
         gen_pareto_scatter(df, ctx, figures_dir)
     if _on("overflow_bar"):
-        gen_kpi_bar(dfm, "overflows", "Overflow Count", "overflow_by_config", ctx, figures_dir,
-                    charts.get("overflow_bar", {}))
+        gen_kpi_bar(
+            dfm, "overflows", "Overflow Count", "overflow_by_config", ctx, figures_dir, charts.get("overflow_bar", {})
+        )
     if _on("kgkm_bar"):
         gen_kpi_bar(dfm, "kgkm", "kg/km Efficiency", "kgkm_by_config", ctx, figures_dir, charts.get("kgkm_bar", {}))
     if _on("km_violin"):
@@ -1478,14 +1511,28 @@ def _to_rel(p: Path) -> str:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--config", default=None, help="Analysis config JSON (defaults to json/simulation_analysis_config.json)")
+    p.add_argument(
+        "--config", default=None, help="Analysis config JSON (defaults to json/simulation_analysis_config.json)"
+    )
     p.add_argument("--theme", choices=["dark", "light"], default=None, help="Chart theme override")
-    p.add_argument("--pareto-points", choices=["all", "front"], default=None,
-                   help="Plot all points or only the Pareto-front points in the static Pareto charts")
-    p.add_argument("--horizon", action="append", default=None, metavar="DAYS=CSV",
-                   help="Horizon spec (repeatable), e.g. --horizon 30=path/to.csv; overrides config horizons")
-    p.add_argument("--scenarios", default=None,
-                   help="Scenario filter: 'City:N:Dist;City:N:Dist;...' (e.g. 'Rio Maior:100:Gamma-3')")
+    p.add_argument(
+        "--pareto-points",
+        choices=["all", "front"],
+        default=None,
+        help="Plot all points or only the Pareto-front points in the static Pareto charts",
+    )
+    p.add_argument(
+        "--horizon",
+        action="append",
+        default=None,
+        metavar="DAYS=CSV",
+        help="Horizon spec (repeatable), e.g. --horizon 30=path/to.csv; overrides config horizons",
+    )
+    p.add_argument(
+        "--scenarios",
+        default=None,
+        help="Scenario filter: 'City:N:Dist;City:N:Dist;...' (e.g. 'Rio Maior:100:Gamma-3')",
+    )
     p.add_argument("--strategies", default=None, help="Comma-separated selection strategies to include")
     p.add_argument("--constructors", default=None, help="Comma-separated route constructors to include")
     p.add_argument("--improvers", default=None, help="Comma-separated route improvers to include")
@@ -1498,8 +1545,11 @@ def parse_args() -> argparse.Namespace:
     # merged gen_simulation_csv mode
     p.add_argument("--parse-output", action="store_true", help="Parse a raw output tree into a summary CSV and exit")
     p.add_argument("--output-dir", default="assets/output/90days", help="Root of the raw simulation output tree")
-    p.add_argument("--out-csv", default="public/global/simulation/simulation_summary_90d.csv",
-                   help="Destination CSV path (with --parse-output)")
+    p.add_argument(
+        "--out-csv",
+        default="public/global/simulation/simulation_summary_90d.csv",
+        help="Destination CSV path (with --parse-output)",
+    )
     return p.parse_args()
 
 
@@ -1655,11 +1705,13 @@ def main() -> None:  # noqa: C901
     if multi:
         sec = len(horizons) + 2
         label = " vs ".join(f"{h['days']}d" for h in horizons)
-        toc_items.append(f"{sec}. [Horizon Comparison ({label})](#{sec}-horizon-comparison-{label.replace(' ', '-').lower()})")
+        toc_items.append(
+            f"{sec}. [Horizon Comparison ({label})](#{sec}-horizon-comparison-{label.replace(' ', '-').lower()})"
+        )
         comparison = {
             "section_num": sec,
             "label": label,
-            "figures_rel": _to_rel(cmp_dir),
+            "figures_rel": _to_rel(cmp_dir),  # pyrefly: ignore [bad-argument-type]
             "first_days": horizons[0]["days"],
             "last_days": horizons[-1]["days"],
             "full_results_table": build_full_results_table_all_horizons(horizons),

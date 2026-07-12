@@ -53,9 +53,9 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
-import xml.sax.saxutils as saxutils
 import tempfile
 import textwrap
+import xml.sax.saxutils as saxutils
 import zipfile
 from pathlib import Path
 
@@ -64,7 +64,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from gen_simulation_analysis import (
+from gen_simulation_analysis import (  # pyrefly: ignore [missing-import]
     _group_spans,
     aggregate,
     build_context,
@@ -79,8 +79,9 @@ from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN
 from pptx.oxml.ns import qn
+from pptx.presentation import Presentation as PresentationClass
 from pptx.util import Emu, Inches, Pt
-from report_utils import load_json
+from report_utils import load_json  # pyrefly: ignore [missing-import]
 
 # ── Editable (OMML) equations ───────────────────────────────────────────────
 # Equations are converted from LaTeX to Office Math Markup (OMML) via pandoc
@@ -133,9 +134,9 @@ def _apply_equation_to_paragraph(p, latex: str, size_pt: int = 22, color: str = 
         f'<mc:Choice xmlns:a14="{_A14_NS}" Requires="a14">'
         f'<a14:m><m:oMathPara xmlns:m="{_MATH_NS}">{etree.tostring(omath, encoding="unicode")}</m:oMathPara></a14:m>'
         f"</mc:Choice>"
-        f"<mc:Fallback><a:r><a:rPr lang=\"en-US\" sz=\"{size_pt * 100}\">"
+        f'<mc:Fallback><a:r><a:rPr lang="en-US" sz="{size_pt * 100}">'
         f'<a:solidFill><a:srgbClr val="{color}"/></a:solidFill></a:rPr>'
-        f'<a:t>{saxutils.escape(_plain_fallback(latex))}</a:t></a:r></mc:Fallback>'
+        f"<a:t>{saxutils.escape(_plain_fallback(latex))}</a:t></a:r></mc:Fallback>"
         f"</mc:AlternateContent>"
     )
     p_el.append(etree.fromstring(alt_xml))
@@ -147,6 +148,7 @@ def add_equation_paragraphs(text_frame, lines: list[str], size_pt: int = 22, col
     for i, latex in enumerate(lines):
         p = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
         _apply_equation_to_paragraph(p, latex, size_pt=size_pt, color=color, align=align)
+
 
 # 16:9 slide geometry
 SLIDE_W = Inches(13.333)
@@ -246,45 +248,97 @@ def render_hier_table_image(
         y_top = lvl * header_h
         for start, end, label in _group_spans(col_keys, lvl):
             xs, xe = x0 + start * cell_w, x0 + end * cell_w
-            ax.add_patch(mpatches.Rectangle(
-                (xs, y_top), xe - xs, header_h, facecolor=header_colors[lvl % len(header_colors)],
-                edgecolor="white", linewidth=0.8,
-            ))
+            ax.add_patch(
+                mpatches.Rectangle(
+                    (xs, y_top),
+                    xe - xs,
+                    header_h,
+                    facecolor=header_colors[lvl % len(header_colors)],
+                    edgecolor="white",
+                    linewidth=0.8,
+                )
+            )
             wrap_chars = max(6, int((xe - xs) / cell_w) * 10)
-            ax.text((xs + xe) / 2, y_top + header_h / 2, _wrap_label(label, wrap_chars), ha="center",
-                    va="center", fontsize=fontsize, color="white", fontweight="bold")
+            ax.text(
+                (xs + xe) / 2,
+                y_top + header_h / 2,
+                _wrap_label(label, wrap_chars),
+                ha="center",
+                va="center",
+                fontsize=fontsize,
+                color="white",
+                fontweight="bold",
+            )
 
     for lvl in range(n_row_levels):
         x_left = lvl * label_w
         for start, end, label in _group_spans(row_keys, lvl):
             ys, ye = y0 + start * cell_h, y0 + end * cell_h
-            ax.add_patch(mpatches.Rectangle(
-                (x_left, ys), label_w, ye - ys, facecolor="#F0F4FA", edgecolor="#5A6A7A", linewidth=0.6,
-            ))
-            ax.text(x_left + label_w / 2, (ys + ye) / 2, _wrap_label(label, 10), ha="center", va="center",
-                    fontsize=fontsize, color="#1F2D3D", fontweight="bold")
+            ax.add_patch(
+                mpatches.Rectangle(
+                    (x_left, ys),
+                    label_w,
+                    ye - ys,
+                    facecolor="#F0F4FA",
+                    edgecolor="#5A6A7A",
+                    linewidth=0.6,
+                )
+            )
+            ax.text(
+                x_left + label_w / 2,
+                (ys + ye) / 2,
+                _wrap_label(label, 10),
+                ha="center",
+                va="center",
+                fontsize=fontsize,
+                color="#1F2D3D",
+                fontweight="bold",
+            )
 
     for ri, rk in enumerate(row_keys):
         parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
         ov_vals = {ci: v[0][1] for ci, v in parsed.items() if v[0] and v[0][1] is not None}
         kg_vals = {ci: v[1][1] for ci, v in parsed.items() if v[1] and v[1][1] is not None}
-        best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None
-        best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None
+        best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None  # pyrefly: ignore [no-matching-overload]
+        best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None  # pyrefly: ignore [no-matching-overload]
         for ci in range(n_cols):
             xs, ys = x0 + ci * cell_w, y0 + ri * cell_h
-            ax.add_patch(mpatches.Rectangle(
-                (xs, ys), cell_w, cell_h, fill=False, edgecolor="#CCCCCC", linewidth=0.4,
-            ))
+            ax.add_patch(
+                mpatches.Rectangle(
+                    (xs, ys),
+                    cell_w,
+                    cell_h,
+                    fill=False,
+                    edgecolor="#CCCCCC",
+                    linewidth=0.4,
+                )
+            )
             ov, kg = parsed.get(ci, (None, None))
             if ov is None and kg is None:
                 ax.text(xs + cell_w / 2, ys + cell_h / 2, "—", ha="center", va="center", fontsize=fontsize * 0.85)
                 continue
             ov_color, ov_weight = ("#1A7A34", "bold") if ci == best_ov_ci else ("#333333", "normal")
             kg_color, kg_weight = ("#1A7A34", "bold") if ci == best_kg_ci else ("#333333", "normal")
-            ax.text(xs + cell_w / 2, ys + cell_h * 0.3, ov[0] if ov else "—", ha="center", va="center",
-                    fontsize=fontsize * 0.85, color=ov_color, fontweight=ov_weight)
-            ax.text(xs + cell_w / 2, ys + cell_h * 0.7, kg[0] if kg else "—", ha="center", va="center",
-                    fontsize=fontsize * 0.85, color=kg_color, fontweight=kg_weight)
+            ax.text(
+                xs + cell_w / 2,
+                ys + cell_h * 0.3,
+                ov[0] if ov else "—",
+                ha="center",
+                va="center",
+                fontsize=fontsize * 0.85,
+                color=ov_color,
+                fontweight=ov_weight,
+            )
+            ax.text(
+                xs + cell_w / 2,
+                ys + cell_h * 0.7,
+                kg[0] if kg else "—",
+                ha="center",
+                va="center",
+                fontsize=fontsize * 0.85,
+                color=kg_color,
+                fontweight=kg_weight,
+            )
 
     fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -306,9 +360,16 @@ def gen_speaker_script(deck_title: str, author: str, slides: list[dict], out_pat
 
 
 class DeckBuilder:
-    def __init__(self, content: dict, figures_dir: Path, author: str | None,
-                 coauthors: list[str] | None = None, groups: list[str] | None = None,
-                 results_table: str = "30d", results_table_split: str = "none"):
+    def __init__(
+        self,
+        content: dict,
+        figures_dir: Path,
+        author: str | None,
+        coauthors: list[str] | None = None,
+        groups: list[str] | None = None,
+        results_table: str = "30d",
+        results_table_split: str = "none",
+    ):
         self.content = content
         self.figures_dir = figures_dir
         self.author = author or content["author"]
@@ -329,11 +390,13 @@ class DeckBuilder:
 
     def _record_script(self, title: str, paragraphs: list[str]) -> None:
         """Append a speaker-script entry for the slide just built."""
-        self.slide_scripts.append({
-            "number": len(self.slide_scripts) + 1,
-            "title": title,
-            "script": "\n\n".join(p for p in paragraphs if p),
-        })
+        self.slide_scripts.append(
+            {
+                "number": len(self.slide_scripts) + 1,
+                "title": title,
+                "script": "\n\n".join(p for p in paragraphs if p),
+            }
+        )
 
     # ── Building blocks ─────────────────────────────────────────────────────────
 
@@ -371,9 +434,7 @@ class DeckBuilder:
             w_px, h_px = im.size
         ratio = min(max_w / w_px, max_h / h_px)
         w, h = int(w_px * ratio), int(h_px * ratio)
-        slide.shapes.add_picture(
-            str(path), left + Emu(int((max_w - w) / 2)), top + Emu(int((max_h - h) / 2)), w, h
-        )
+        slide.shapes.add_picture(str(path), left + Emu(int((max_w - w) / 2)), top + Emu(int((max_h - h) / 2)), w, h)
 
     def _caption_box(self, slide, label: str, text: str, top=None, left=None, width=None) -> None:
         """A numbered caption ('**Figure N:** ...' / '**Equation N:** ...' / '**Table N:** ...')."""
@@ -467,13 +528,26 @@ class DeckBuilder:
     def _policy_grid_diagram(self, slide) -> None:
         """Draw the Mandatory Selection x Route Constructor x Route Improver big picture."""
         columns = [
-            ("Mandatory Selection", ["Look-Ahead (LA)", "Last-Minute (LM, CF70)", "Last-Minute (LM, CF90)",
-                                      "Service-Level (SL1)", "Service-Level (SL2)"], "flat"),
-            ("Route Constructor", [
-                ("Exact Methods", ["BPC", "SWC-TCF"]),
-                ("Meta-Heuristics", ["HGS", "ALNS", "SANS", "PG-CLNS"]),
-                ("Hyper-Heuristics", ["PSOMA", "ACO-HH"]),
-            ], "grouped"),
+            (
+                "Mandatory Selection",
+                [
+                    "Look-Ahead (LA)",
+                    "Last-Minute (LM, CF70)",
+                    "Last-Minute (LM, CF90)",
+                    "Service-Level (SL1)",
+                    "Service-Level (SL2)",
+                ],
+                "flat",
+            ),
+            (
+                "Route Constructor",
+                [
+                    ("Exact Methods", ["BPC", "SWC-TCF"]),
+                    ("Meta-Heuristics", ["HGS", "ALNS", "SANS", "PG-CLNS"]),
+                    ("Hyper-Heuristics", ["PSOMA", "ACO-HH"]),
+                ],
+                "grouped",
+            ),
             ("Route Improver", ["Fast-TSP", "Local Search (CLS)"], "flat"),
         ]
         top, bottom = Inches(1.15), Inches(5.75)
@@ -537,16 +611,22 @@ class DeckBuilder:
     def _doe_tree_diagram(self, slide) -> None:
         """Draw the design-of-experiments tree: horizon -> scenario -> distribution."""
         horizons = [
-            ("30 Days", [
-                ("RM-100", ["Empirical", "Gamma-3"]),
-                ("RM-170", ["Empirical", "Gamma-3"]),
-                ("FFZ-350", ["Empirical", "Gamma-3"]),
-            ]),
-            ("90 Days\n(Pareto-front policies only)", [
-                ("RM-100", ["Empirical", "Gamma-3"]),
-                ("RM-170", ["Empirical", "Gamma-3"]),
-                ("FFZ-350", ["Empirical", "Gamma-3"]),
-            ]),
+            (
+                "30 Days",
+                [
+                    ("RM-100", ["Empirical", "Gamma-3"]),
+                    ("RM-170", ["Empirical", "Gamma-3"]),
+                    ("FFZ-350", ["Empirical", "Gamma-3"]),
+                ],
+            ),
+            (
+                "90 Days\n(Pareto-front policies only)",
+                [
+                    ("RM-100", ["Empirical", "Gamma-3"]),
+                    ("RM-170", ["Empirical", "Gamma-3"]),
+                    ("FFZ-350", ["Empirical", "Gamma-3"]),
+                ],
+            ),
         ]
         top = Inches(1.25)
         root_w, root_h = Inches(2.2), Inches(0.5)
@@ -630,20 +710,19 @@ class DeckBuilder:
             if spec.get("layout") == "vertical":
                 h_each = int(area_h / len(resolved))
                 for i, p in enumerate(resolved):
-                    self._picture_fit(
-                        slide, p, Inches(0.3), area_top + h_each * i, fig_area_w, h_each - Inches(0.1)
-                    )
+                    self._picture_fit(slide, p, Inches(0.3), area_top + h_each * i, fig_area_w, h_each - Inches(0.1))
             else:
                 w_each = int(fig_area_w / len(resolved))
                 for i, p in enumerate(resolved):
                     self._picture_fit(slide, p, Inches(0.3) + w_each * i, area_top, w_each - Inches(0.2), area_h)
         if legend_w:
             legend_left = Inches(0.3) + fig_area_w + Inches(0.2)
-            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, area_top, legend_w, area_h)
+            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, area_top, legend_w, area_h)  # pyrefly: ignore [bad-argument-type]
             _fill(box, RGBColor(0xF0, 0xF4, 0xFA))
             box.shadow.inherit = False
-            _, tf = _textbox(slide, legend_left + Inches(0.2), area_top + Inches(0.15),
-                              legend_w - Inches(0.4), area_h - Inches(0.3))
+            _, tf = _textbox(
+                slide, legend_left + Inches(0.2), area_top + Inches(0.15), legend_w - Inches(0.4), area_h - Inches(0.3)
+            )
             p = tf.paragraphs[0]
             p.text = "Shared axis labels"
             p.font.size = Pt(14)
@@ -664,12 +743,12 @@ class DeckBuilder:
 
     def cover(self) -> None:
         slide = self._new_slide()
-        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)  # pyrefly: ignore [bad-argument-type]
         _fill(bg, DARK)
         title_len = len(self.content["title"])
         title_sz = 26 if title_len > 80 else 32 if title_len > 55 else 36
         band_top = Inches(4.15)
-        band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, band_top, SLIDE_W, Inches(0.06))
+        band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, band_top, SLIDE_W, Inches(0.06))  # pyrefly: ignore [bad-argument-type]
         _fill(band, ACCENT)
         _, tf = _textbox(slide, Inches(0.9), Inches(1.15), SLIDE_W - Inches(1.8), Inches(2.85))
         p = tf.paragraphs[0]
@@ -745,11 +824,17 @@ class DeckBuilder:
             if spec.get("caption"):
                 self._equation_caption(slide, spec["caption"], top=bullets_top, left=eq_left, width=col_w)
                 bullets_top += Inches(0.85)
-            self._bullets(slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14)
+            self._bullets(
+                slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14
+            )
             if has_fig:
                 self._picture_fit(
-                    slide, fig_path, int(SLIDE_W / 2) + Inches(0.2), Inches(1.2),
-                    int(SLIDE_W / 2) - Inches(0.8), SLIDE_H - Inches(1.7),
+                    slide,
+                    fig_path,
+                    int(SLIDE_W / 2) + Inches(0.2),
+                    Inches(1.2),
+                    int(SLIDE_W / 2) - Inches(0.8),
+                    SLIDE_H - Inches(1.7),
                 )
         elif spec.get("diagram") == "pipeline":
             self._pipeline_diagram(slide)
@@ -774,13 +859,13 @@ class DeckBuilder:
             self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
         elif has_fig:
             self._picture_fit(
-                slide, fig_path, int(SLIDE_W / 2), Inches(1.2), int(SLIDE_W / 2) - Inches(0.4),
-                SLIDE_H - Inches(1.7)
+                slide, fig_path, int(SLIDE_W / 2), Inches(1.2), int(SLIDE_W / 2) - Inches(0.4), SLIDE_H - Inches(1.7)
             )
             if spec.get("caption"):
                 self._figure_caption(slide, spec["caption"])
-            self._bullets(slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4),
-                          width=int(SLIDE_W / 2) - Inches(0.7), size=13)
+            self._bullets(
+                slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4), width=int(SLIDE_W / 2) - Inches(0.7), size=13
+            )
         else:
             self._bullets(slide, spec["bullets"])
         self._record_script(spec["title"], [spec.get("caption", "")] + list(spec["bullets"]))
@@ -835,8 +920,10 @@ class DeckBuilder:
             multi = False
 
         level_phrases = {
-            "horizon": "horizon", "strategy": "mandatory selection strategy",
-            "constructor": "route constructor", "improver": "route improver",
+            "horizon": "horizon",
+            "strategy": "mandatory selection strategy",
+            "constructor": "route constructor",
+            "improver": "route improver",
         }
         level_names = (["horizon"] if multi else []) + ["strategy", "constructor", "improver"]
         col_desc = " × ".join(level_phrases[n] for n in level_names)
@@ -855,7 +942,7 @@ class DeckBuilder:
             part_h = int((area_bottom - area_top) / len(partition_values))
             for pi, val in enumerate(partition_values):
                 sub_full = [ck for ck in col_keys if ck[level_idx] == val]
-                sub_display = [ck[:level_idx] + ck[level_idx + 1:] for ck in sub_full]
+                sub_display = [ck[:level_idx] + ck[level_idx + 1 :] for ck in sub_full]
                 part_top = area_top + pi * part_h
                 _, tf = _textbox(slide, Inches(0.4), part_top, SLIDE_W - Inches(0.8), Inches(0.3))
                 p = tf.paragraphs[0]
@@ -864,12 +951,20 @@ class DeckBuilder:
                 p.font.size = Pt(12)
                 p.font.color.rgb = ACCENT
                 img_path = render_hier_table_image(
-                    row_keys, sub_display, cells, ["N", "Region", "Dist"],
-                    self._tmp / f"full_results_table_{split}_{pi}.png", col_lookup_keys=sub_full,
+                    row_keys,
+                    sub_display,
+                    cells,
+                    ["N", "Region", "Dist"],
+                    self._tmp / f"full_results_table_{split}_{pi}.png",
+                    col_lookup_keys=sub_full,
                 )
                 self._picture_fit(
-                    slide, img_path, Inches(0.3), part_top + Inches(0.32),
-                    SLIDE_W - Inches(0.6), part_h - Inches(0.35),
+                    slide,
+                    img_path,
+                    Inches(0.3),
+                    part_top + Inches(0.32),
+                    SLIDE_W - Inches(0.6),
+                    part_h - Inches(0.35),
                 )
             remaining_desc = " × ".join(level_phrases[n] for n in level_names if n != split)
             col_desc = (
@@ -893,7 +988,7 @@ class DeckBuilder:
     def qa(self) -> None:
         spec = self.content["slides"]["qa"]
         slide = self._new_slide()
-        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)  # pyrefly: ignore [bad-argument-type]
         _fill(bg, DARK)
         fig_path = self.figures_dir / spec["figure"] if spec.get("figure") else None
         has_fig = bool(fig_path) and fig_path.exists()
@@ -914,12 +1009,16 @@ class DeckBuilder:
             pp.alignment = PP_ALIGN.CENTER if not has_fig else PP_ALIGN.LEFT
         if has_fig:
             self._picture_fit(
-                slide, fig_path, int(SLIDE_W / 2) + Inches(0.2), Inches(0.6),
-                int(SLIDE_W / 2) - Inches(0.8), SLIDE_H - Inches(1.2),
+                slide,
+                fig_path,
+                int(SLIDE_W / 2) + Inches(0.2),
+                Inches(0.6),
+                int(SLIDE_W / 2) - Inches(0.8),
+                SLIDE_H - Inches(1.2),
             )
         self._record_script(spec["title"], list(spec["bullets"]))
 
-    def build(self) -> Presentation:
+    def build(self) -> PresentationClass:
         self.cover()  # 1
         self.agenda()  # 2
         self.content_slide("vrpp")  # 3
@@ -945,26 +1044,42 @@ class DeckBuilder:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--figures-dir", default="public/figures/simulation/30d",
-                   help="Directory with the simulation analysis figures to embed")
+    p.add_argument(
+        "--figures-dir",
+        default="public/figures/simulation/30d",
+        help="Directory with the simulation analysis figures to embed",
+    )
     p.add_argument("--out", default="assets/windows/wsmart_route_results.pptx", help="Destination .pptx path")
     p.add_argument("--author", default=None, help="Presenting author shown on the cover slide")
-    p.add_argument("--coauthors", default=None,
-                   help="Optional semicolon-separated co-authors (shown with less emphasis)")
-    p.add_argument("--groups", default=None,
-                   help="Optional semicolon-separated research groups of the authors")
-    p.add_argument("--results-table", default="30d", choices=["30d", "90d", "all", "none"],
-                   help="Full results table slide: a single horizon, 'all' horizons "
-                        "(horizon added to the column hierarchy), or 'none' to omit the slide")
-    p.add_argument("--results-table-split", default="none",
-                   choices=["none", "strategy", "constructor", "improver"],
-                   help="Partition the results table by this column-hierarchy level: it becomes the "
-                        "outermost grouping and each value gets its own stacked partial table on the slide "
-                        "(e.g. 'improver' -> one partial table for CLS, one for FTSP)")
-    p.add_argument("--speaker-script", action="store_true",
-                   help="Also generate a per-slide speaker script .docx alongside the .pptx")
-    p.add_argument("--speaker-script-out", default=None,
-                   help="Destination .docx path (default: same name as --out, .docx extension)")
+    p.add_argument(
+        "--coauthors", default=None, help="Optional semicolon-separated co-authors (shown with less emphasis)"
+    )
+    p.add_argument("--groups", default=None, help="Optional semicolon-separated research groups of the authors")
+    p.add_argument(
+        "--results-table",
+        default="30d",
+        choices=["30d", "90d", "all", "none"],
+        help="Full results table slide: a single horizon, 'all' horizons "
+        "(horizon added to the column hierarchy), or 'none' to omit the slide",
+    )
+    p.add_argument(
+        "--results-table-split",
+        default="none",
+        choices=["none", "strategy", "constructor", "improver"],
+        help="Partition the results table by this column-hierarchy level: it becomes the "
+        "outermost grouping and each value gets its own stacked partial table on the slide "
+        "(e.g. 'improver' -> one partial table for CLS, one for FTSP)",
+    )
+    p.add_argument(
+        "--speaker-script",
+        action="store_true",
+        help="Also generate a per-slide speaker script .docx alongside the .pptx",
+    )
+    p.add_argument(
+        "--speaker-script-out",
+        default=None,
+        help="Destination .docx path (default: same name as --out, .docx extension)",
+    )
     return p.parse_args()
 
 
