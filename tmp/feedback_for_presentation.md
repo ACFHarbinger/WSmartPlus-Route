@@ -1,0 +1,15 @@
+To be changed in the slides:
+- Make the title the same as in the Abstract, all authors' names and their respective affiliations
+- Make the slide index/agenda less granular (e.g., Intro, Explanation of Mandatory Selection Strategies, Route Builders and Route Improvers, Results, Conclusion)
+- Create a new slide between 3 and 4 about the objective of this work (testing the various different exact solvers, metaheuristics and hyperheuristics) -> Already created, it is the new slide 4, now we need to add all the info and improve the slide
+- Align the strategiy names of Slide 7 by the first letter in the image and put the full name plus the acronym in parentheses [e.g., Look-Ahead (LA)]
+- Change the name "Exact Solvers" to "Exact Methods" everywhere
+- Add a slide between 5 and 6 with the big picture overview of the various combinations of the policy configs (Mandatory Selection x Route Constructor x Route Improver, e.g., as shown in the PowerPoint presentation Methodology.pptx) -> Already created, it is the new slide 6, needs to be transformed to have the same format/theme as the others
+- Compress the slides on the various families of heuristic algorithms (Meta-Heuristics vs Hyper-Heuristics, Evolutionary, Trajectory-based, and Swarm Intelligence) into just 1 slide that briefly describes all the heuristic algorithms (slides 8 to 11) -> Slides on the families already removed, need to redo slides 8 and 9
+- Need to redo slide 11 to only have the 30 and 90-day runs in the image, and have the same format/theme as the rest of the slides
+- Recreate LaTeX equations with an add-in so that they are editable
+- Increase (significantly) the size of the legends of the Figures to make them legible
+- Add a large caption next to the figure on slide 15 instead of increasing the size of the legend, as the heatmaps all have the same legend for both the x and y axes, and repeating it with very small characters makes them all illegible, particularly when presenting at a conference, so it is better to have a single matrix to the side of the heatmaps showing the column and row labels
+- In the tables on slide 18, do not repeat ov and kg/km, indicate only once (e.g. in the caption) that the overflows are the ones at the top and the ones at the bottom are the kg/km (also use bold/green for the best ones) and/or make a separate cell for each metric
+- In the figure on slide 19, increase the gap between the legend for km (fewer) and overflows (fewer) and the graph itself
+- Add a figure to the final slide (slide 20), and to slides 8 and 10 (possibly also to the first and the agenda/index slides?)

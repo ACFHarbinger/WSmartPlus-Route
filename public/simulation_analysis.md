@@ -315,9 +315,13 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 **Figure 14:** *Overlaid radar chart for key constructors. Outer = better on all axes.*
 
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/30d/policy_radar_combined.png" alt="Policy Performance Radar — All Constructors" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+
+**Figure 15:** *Same normalised radar, overlaying every route constructor instead of the curated subset above.*
+
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/30d/constructor_ranking.png" alt="Route Constructor Average Rank" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 15:** *Average rank of each route constructor across all scenarios and strategies (improvers pooled). Bars grow upward — shorter = better.*
+**Figure 16:** *Average rank of each route constructor across all scenarios and strategies (improvers pooled). Bars grow upward — shorter = better.*
 
 <!-- [ANALYSIS: Insert your observations here] -->
 
@@ -348,12 +352,12 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/pareto_scatter.png" alt="Overflow vs Efficiency — Pareto Front" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 16:** *Scatter of all 90-day runs in the overflows–kg/km space, one panel per waste distribution. Colour encodes the mandatory selection variant, marker shape encodes the scenario (region/N), filled markers = FTSP, open markers = CLS. Dashed lines = Pareto fronts, one colour per scenario (region × N × distribution).*
+**Figure 17:** *Scatter of all 90-day runs in the overflows–kg/km space, one panel per waste distribution. Colour encodes the mandatory selection variant, marker shape encodes the scenario (region/N), filled markers = FTSP, open markers = CLS. Dashed lines = Pareto fronts, one colour per scenario (region × N × distribution).*
 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/pareto_scatter_log.png" alt="Overflow vs Efficiency — Pareto Front (log scale)" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 17:** *Same chart with symlog X-axis — spreads the densely clustered low-overflow region.*
+**Figure 18:** *Same chart with symlog X-axis — spreads the densely clustered low-overflow region.*
 
 
 **[Interactive version](private/simulation/90d/pareto_scatter_interactive.html)**
@@ -387,12 +391,12 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/overflow_by_config.png" alt="Overflow Count by Configuration" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 18:** *Mean overflow count per scenario and selection strategy (mean ± min/max range across route constructors); route improvers shown as paired bars within each configuration.*
+**Figure 19:** *Mean overflow count per scenario and selection strategy (mean ± min/max range across route constructors); route improvers shown as paired bars within each configuration.*
 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/overflow_by_config_log.png" alt="Overflow Count by Configuration (log scale)" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 19:** *Same chart with symlog Y axis — reveals structure compressed in the linear scale.*
+**Figure 20:** *Same chart with symlog Y axis — reveals structure compressed in the linear scale.*
 
 
 **Table 9:** *Overflow counts by configuration over 90 days — min/max/mean across route constructors, per route improver.*
@@ -424,7 +428,7 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/kgkm_by_config.png" alt="kg/km Efficiency by Configuration" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 20:** *Mean kg/km efficiency per scenario and selection strategy, with min–max whiskers across constructors; improvers as paired bars.*
+**Figure 21:** *Mean kg/km efficiency per scenario and selection strategy, with min–max whiskers across constructors; improvers as paired bars.*
 
 **Table 10:** *Route efficiency (kg/km) by configuration over 90 days — min/max/mean across route constructors, per route improver.*
 
@@ -455,7 +459,7 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/km_violin.png" alt="Vehicle Distance by Strategy" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 21:** *Distribution of total vehicle distance (km) per selection strategy and scenario (all constructors and improvers pooled), one panel per waste distribution.*
+**Figure 22:** *Distribution of total vehicle distance (km) per selection strategy and scenario (all constructors and improvers pooled), one panel per waste distribution.*
 
 **Table 11:** *Vehicle distance driven (km) by configuration over 90 days — min/max/mean across route constructors, per route improver.*
 
@@ -486,15 +490,15 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/policy_scenario_heatmap_overflows.png" alt="Policy × Scenario Heatmap — Overflows" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 22:** *Overflow count heatmap: each row is a full policy configuration (selection variant + constructor + improver), each column a simulation scenario (region × N × distribution).*
+**Figure 23:** *Overflow count heatmap: each row is a full policy configuration (selection variant + constructor + improver), each column a simulation scenario (region × N × distribution).*
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/policy_scenario_heatmap_kgkm.png" alt="Policy × Scenario Heatmap — Efficiency" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 23:** *kg/km efficiency heatmap with the same layout (rows = policy configurations, columns = scenarios).*
+**Figure 24:** *kg/km efficiency heatmap with the same layout (rows = policy configurations, columns = scenarios).*
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/scenario_constructor_heatmap.png" alt="Per-Scenario Constructor Heatmaps" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 24:** *One panel per scenario: route constructors on the rows, selection strategy × route improver combinations on the columns.*
+**Figure 25:** *One panel per scenario: route constructors on the rows, selection strategy × route improver combinations on the columns.*
 
 **[Interactive heatmap](private/simulation/90d/policy_heatmap_interactive.html)**
 
@@ -505,12 +509,12 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/strategy_bubble.png" alt="Strategy Trade-off Bubble Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 25:** *One panel per waste distribution. Each bubble = one (strategy, scenario) combination, averaged over constructors and improvers; bubble size ∝ N.*
+**Figure 26:** *One panel per waste distribution. Each bubble = one (strategy, scenario) combination, averaged over constructors and improvers; bubble size ∝ N.*
 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/strategy_bubble_log.png" alt="Strategy Trade-off Bubble Chart (log X scale)" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 26:** *Same chart with symlog X axis.*
+**Figure 27:** *Same chart with symlog X axis.*
 
 
 **[Interactive bubble chart](private/simulation/90d/strategy_bubble_interactive.html)**
@@ -571,12 +575,12 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/improver_bubble.png" alt="Improver Trade-off Bubble Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 27:** *Each bubble = one (improver, scenario) combination averaged over strategies and constructors — contrasts the route improvers directly.*
+**Figure 28:** *Each bubble = one (improver, scenario) combination averaged over strategies and constructors — contrasts the route improvers directly.*
 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/improver_delta.png" alt="Improver Delta Heatmap" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 28:** *Delta heatmap (CLS − FTSP) per constructor × configuration.*
+**Figure 29:** *Delta heatmap (CLS − FTSP) per constructor × configuration.*
 
 
 <!-- [ANALYSIS: Insert your observations here] -->
@@ -585,11 +589,15 @@ For Last-Minute (LM), two critical fill threshold variants are tested: **CF70** 
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/policy_radar.png" alt="Policy Performance Radar" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 29:** *Overlaid radar chart for key constructors. Outer = better on all axes.*
+**Figure 30:** *Overlaid radar chart for key constructors. Outer = better on all axes.*
+
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/policy_radar_combined.png" alt="Policy Performance Radar — All Constructors" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+
+**Figure 31:** *Same normalised radar, overlaying every route constructor instead of the curated subset above.*
 
 <figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/simulation/90d/constructor_ranking.png" alt="Route Constructor Average Rank" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
-**Figure 30:** *Average rank of each route constructor across all scenarios and strategies (improvers pooled). Bars grow upward — shorter = better.*
+**Figure 32:** *Average rank of each route constructor across all scenarios and strategies (improvers pooled). Bars grow upward — shorter = better.*
 
 <!-- [ANALYSIS: Insert your observations here] -->
 
