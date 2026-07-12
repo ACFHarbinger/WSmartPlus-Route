@@ -135,7 +135,7 @@ hydra:
   runtime:
     version: 1.3.2
     version_base: '1.3'
-    cwd: /home/pkhunter/Repositories/WSmart-Route
+    cwd: ~/Repositories/WSmart-Route
     config_sources:
     - path: hydra.conf
       schema: pkg
@@ -149,7 +149,7 @@ hydra:
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /home/pkhunter/Repositories/WSmart-Route/outputs/2026-06-03/11-08-23
+    output_dir: ~/Repositories/WSmart-Route/outputs/2026-06-03/11-08-23
     choices:
       tasks: test_sim
       policies@p.vpl: policy_vpl

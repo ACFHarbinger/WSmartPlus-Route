@@ -303,7 +303,7 @@ tracking:
   log_step: 10
   log_level: INFO
   real_time_log: true
-  log_file: /home/pkhunter/Repositories/WSmart-Route/logs/simulations/2026-07-02_23-19-39.log
+  log_file: ~/Repositories/WSmart-Route/logs/simulations/2026-07-02_23-19-39.log
   log_gradients: false
   log_weights: false
   log_activations: false

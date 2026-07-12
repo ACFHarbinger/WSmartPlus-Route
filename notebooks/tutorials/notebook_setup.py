@@ -12,7 +12,8 @@ def setup_home_directory(notebook_name):
         try:
             home_dir = os.path.dirname(os.getcwd())
             sys.path.insert(0, home_dir)
-            print(f"Setup completed - added home_dir to system path: {home_dir}")
+            rel_home_dir = home_dir.replace(os.path.expanduser("~"), "~")
+            print(f"Setup completed - added home_dir to system path: {rel_home_dir}")
 
             # Update the global variables
             globals()["SETUP_EXECUTED"][notebook_name] = True
@@ -25,7 +26,8 @@ def setup_home_directory(notebook_name):
             return None
     else:
         home_dir = HOME_DIRECTORY[notebook_name]
-        print("Already added home_dir to system path:", home_dir)
+        rel_home_dir = home_dir.replace(os.path.expanduser("~"), "~") if home_dir else home_dir
+        print("Already added home_dir to system path:", rel_home_dir)
         return home_dir
 
 

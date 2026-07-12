@@ -104,7 +104,9 @@ def generate_pruned_config(full: dict, root_dir: str) -> str:
             )
     pruned["p"] = p_pruned
 
-    return yaml.dump(pruned, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    repo_path = os.path.join(os.path.expanduser("~"), "Repositories", "WSmart-Route")
+    yaml_str = yaml.dump(pruned, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    return yaml_str.replace(repo_path, "~/Repositories/WSmart-Route")
 
 
 # ---------------------------------------------------------------------------

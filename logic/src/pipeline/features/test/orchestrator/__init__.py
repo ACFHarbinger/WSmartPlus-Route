@@ -85,7 +85,7 @@ def _expand_other_ref(ref_dict: dict, root_dir: str) -> dict:
             return ref_dict  # Keep original if file not found
         with open(full_path) as f:
             yaml_data = yaml.safe_load(f) or {}
-        for key in (keys or []):
+        for key in keys or []:
             if key in yaml_data:
                 result[key] = yaml_data[key]
     return result
@@ -126,17 +126,22 @@ def _generate_pruned_config(cfg: Config, root_dir: str) -> str:
     import yaml
 
     full = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=False)  # type: ignore[arg-type]
-    sim = full.get("sim", {})
+    sim = full.get("sim", {})  # pyrefly: ignore [missing-attribute]
     active_policies: List[str] = sim.get("policies", []) or []
 
     pruned: dict = {}
     for key in ("task", "seed", "device", "start", "run_name"):
+        # pyrefly: ignore [not-iterable]
         if key in full:
+            # pyrefly: ignore [bad-index, unsupported-operation]
             pruned[key] = full[key]
     for section in ("sim", "tracking"):
+        # pyrefly: ignore [not-iterable]
         if section in full:
+            # pyrefly: ignore [bad-index, unsupported-operation]
             pruned[section] = copy.deepcopy(full[section])
 
+    # pyrefly: ignore [missing-attribute]
     p_full = full.get("p", {})
     p_pruned = {}
     for pol_name in active_policies:
@@ -144,7 +149,9 @@ def _generate_pruned_config(cfg: Config, root_dir: str) -> str:
             p_pruned[pol_name] = _expand_refs_recursive(copy.deepcopy(p_full[pol_name]), root_dir)
     pruned["p"] = p_pruned
 
-    return yaml.dump(pruned, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    repo_path = os.path.join(os.path.expanduser("~"), "Repositories", "WSmart-Route")
+    yaml_str = yaml.dump(pruned, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    return yaml_str.replace(repo_path, "~/Repositories/WSmart-Route")
 
 
 def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa: C901
@@ -203,6 +210,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
         # ── Config snapshot ─────────────────────────────────────────────────────
         # Persist the fully-resolved Hydra config (including all CLI overrides)
         # into the results directory so every run is self-contained.
+        # pyrefly: ignore [no-matching-overload]
         _snapshot_dir = os.path.join(
             udef.ROOT_DIR,
             "assets",
@@ -227,10 +235,15 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
                 source_hydra_dir = os.path.join(os.getcwd(), ".hydra")
 
             if os.path.exists(source_hydra_dir):
+                repo_path = os.path.join(os.path.expanduser("~"), "Repositories", "WSmart-Route")
                 for fname in ["config.yaml", "hydra.yaml", "overrides.yaml"]:
                     src_file = os.path.join(source_hydra_dir, fname)
                     if os.path.exists(src_file):
-                        shutil.copy2(src_file, os.path.join(target_hydra_dir, fname))
+                        with open(src_file, "r") as f_in:
+                            content = f_in.read()
+                        relative_content = content.replace(repo_path, "~/Repositories/WSmart-Route")
+                        with open(os.path.join(target_hydra_dir, fname), "w") as f_out:
+                            f_out.write(relative_content)
                 logger.info(f"Hydra config snapshot saved → {target_hydra_dir}")
             else:
                 logger.warning(f"Could not find source .hydra directory at {source_hydra_dir}")
@@ -309,6 +322,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
                 cfg, device, indices, sample_idx_ls, weights_path, lock, shared_metrics, task_count
             )
 
+        # pyrefly: ignore [no-matching-overload]
         realtime_log_path = os.path.join(
             udef.ROOT_DIR,
             "assets",
