@@ -144,7 +144,7 @@
     },
     "qa": {
       "title": "Thank You — Questions & Answers",
-      "figure": "policy_radar_combined.png",
+      "figure": "qa_route_illustration.png",
       "bullets": [
         "Thank you for your attention!",
         "Time for questions"
@@ -172,7 +172,7 @@
       "title": "Results — Per-Scenario Heatmaps (Constructors × Strategy·Improver)",
       "figure": "scenario_constructor_heatmap.png",
       "note": "30-day runs. One panel per scenario; route constructors on the rows, selection × improver combinations on the columns.",
-      "side_legend": true,
+      "bottom_legend": true,
       "side_legend_text": "Rows (all 12 panels): route constructor — ACO_HH, ALNS, BPC, HGS, PG-CLNS, PSOMA, SANS, SWC-TCF.\n\nColumns (all 12 panels): mandatory selection strategy × route improver — LA/LM/SL × FTSP/CLS.\n\nAxis tick labels are shown once here rather than repeated in tiny print on every one of the 6 scenario panels."
     },
     "heatmaps": {

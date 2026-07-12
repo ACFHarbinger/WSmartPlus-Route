@@ -51,6 +51,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import numpy as np
 import re
 import subprocess
 import tempfile
@@ -703,18 +704,21 @@ class DeckBuilder:
             else:
                 print(f"  [WARN] Figure not found: {p}")
         area_top = Inches(1.15)
+        bottom_legend = spec.get("bottom_legend", False)
         area_h = SLIDE_H - area_top - Inches(0.75)
+        fig_area_h = area_h - Inches(1.8) if bottom_legend else area_h
+
         legend_w = Inches(3.1) if spec.get("side_legend") else 0
         fig_area_w = SLIDE_W - Inches(0.6) - (legend_w + Inches(0.2) if legend_w else 0)
         if resolved:
             if spec.get("layout") == "vertical":
-                h_each = int(area_h / len(resolved))
+                h_each = int(fig_area_h / len(resolved))
                 for i, p in enumerate(resolved):
                     self._picture_fit(slide, p, Inches(0.3), area_top + h_each * i, fig_area_w, h_each - Inches(0.1))
             else:
                 w_each = int(fig_area_w / len(resolved))
                 for i, p in enumerate(resolved):
-                    self._picture_fit(slide, p, Inches(0.3) + w_each * i, area_top, w_each - Inches(0.2), area_h)
+                    self._picture_fit(slide, p, Inches(0.3) + w_each * i, area_top, w_each - Inches(0.2), fig_area_h)
         if legend_w:
             legend_left = Inches(0.3) + fig_area_w + Inches(0.2)
             box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, area_top, legend_w, area_h)  # pyrefly: ignore [bad-argument-type]
@@ -734,9 +738,34 @@ class DeckBuilder:
                 pp.font.size = Pt(12)
                 pp.font.color.rgb = DARK
                 pp.space_before = Pt(10)
+        elif bottom_legend:
+            legend_top = area_top + fig_area_h + Inches(0.15)
+            legend_h = Inches(1.1)
+            legend_left = Inches(0.3)
+            legend_w = fig_area_w
+            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, legend_top, legend_w, legend_h)
+            _fill(box, RGBColor(0xF0, 0xF4, 0xFA))
+            box.shadow.inherit = False
+            _, tf = _textbox(
+                slide, legend_left + Inches(0.2), legend_top + Inches(0.1), legend_w - Inches(0.4), legend_h - Inches(0.2)
+            )
+            p = tf.paragraphs[0]
+            p.text = "Shared axis labels"
+            p.font.size = Pt(13)
+            p.font.bold = True
+            p.font.color.rgb = ACCENT
+
+            legend_text = spec.get("side_legend_text") or spec.get("bottom_legend_text", "")
+            for para in legend_text.split("\n\n"):
+                pp = tf.add_paragraph()
+                pp.text = para.replace("\n", " ")
+                pp.font.size = Pt(10.5)
+                pp.font.color.rgb = DARK
+                pp.space_before = Pt(3)
         caption = spec.get("caption") or spec.get("note")
         if caption:
-            self._figure_caption(slide, caption)
+            caption_top = SLIDE_H - Inches(0.65) if bottom_legend else None
+            self._figure_caption(slide, caption, top=caption_top)
         self._record_script(spec["title"], [caption or ""])
 
     # ── Slides ──────────────────────────────────────────────────────────────────
@@ -1042,6 +1071,102 @@ class DeckBuilder:
         return self.prs
 
 
+def generate_qa_route_image(out_path: Path) -> Path:
+    """Generate a VRP with Profits routing illustration with multiple routes and unvisited nodes."""
+    # Set seed for reproducibility
+    np.random.seed(42)
+
+    # Generate nodes
+    n_nodes = 45
+    coords = np.random.rand(n_nodes, 2)
+    depot = np.array([0.5, 0.5])
+
+    # Calculate angles and distances from depot
+    diffs = coords - depot
+    angles = np.arctan2(diffs[:, 1], diffs[:, 0])
+    distances = np.linalg.norm(diffs, axis=1)
+
+    route1_idx = []
+    route2_idx = []
+    route3_idx = []
+    unvisited_idx = []
+
+    for i in range(n_nodes):
+        # Leave about 30% of the nodes unvisited to show the profit-based node selection
+        if i % 3 == 0 and distances[i] > 0.15:
+            unvisited_idx.append(i)
+            continue
+
+        angle = angles[i]
+        if -np.pi <= angle < -np.pi/3:
+            route1_idx.append(i)
+        elif -np.pi/3 <= angle < np.pi/3:
+            route2_idx.append(i)
+        else:
+            route3_idx.append(i)
+
+    # Sort nodes in each route by polar angle to make smooth tours
+    def sort_route(indices):
+        if not indices:
+            return []
+        sub_angles = angles[indices]
+        sorted_indices = [indices[idx] for idx in np.argsort(sub_angles)]
+        return sorted_indices
+
+    r1 = sort_route(route1_idx)
+    r2 = sort_route(route2_idx)
+    r3 = sort_route(route3_idx)
+
+    fig, ax = plt.subplots(figsize=(8, 8), dpi=200)
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
+
+    # Draw faint gray edges between nearby nodes to represent the road network
+    for i in range(n_nodes):
+        for j in range(i+1, n_nodes):
+            dist = np.linalg.norm(coords[i] - coords[j])
+            if dist < 0.22:
+                ax.plot([coords[i, 0], coords[j, 0]], [coords[i, 1], coords[j, 1]],
+                        color="#E2E8F0", lw=0.6, zorder=1)
+
+    # Plot unvisited nodes (selection part of VRPP)
+    ax.scatter(coords[unvisited_idx, 0], coords[unvisited_idx, 1],
+               color="#CBD5E1", edgecolor="#64748B", s=100, label="Unvisited Bins (No Profit)", zorder=3)
+
+    # Premium colors for the 3 routes (different vehicles)
+    colors = ["#10B981", "#6366F1", "#F59E0B"]
+    route_labels = ["Vehicle Route 1", "Vehicle Route 2", "Vehicle Route 3"]
+
+    # Plot each route
+    def plot_tour(route_nodes, color, label):
+        if not route_nodes:
+            return
+        tour_coords = [depot] + [coords[idx] for idx in route_nodes] + [depot]
+        tour_coords = np.array(tour_coords)
+
+        ax.plot(tour_coords[:, 0], tour_coords[:, 1], color=color, lw=3, label=label, zorder=2)
+        ax.scatter(tour_coords[1:-1, 0], tour_coords[1:-1, 1], color=color, edgecolor="black", s=120, zorder=4)
+
+    plot_tour(r1, colors[0], route_labels[0])
+    plot_tour(r2, colors[1], route_labels[1])
+    plot_tour(r3, colors[2], route_labels[2])
+
+    # Plot depot clearly marked
+    ax.scatter(depot[0], depot[1], color="#EF4444", marker="s", s=220, edgecolor="black", linewidth=2, label="Depot / Warehouse", zorder=5)
+
+    ax.set_xlim(-0.05, 1.05)
+    ax.set_ylim(-0.05, 1.05)
+    ax.axis("off")
+
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.08), ncol=2, frameon=True, facecolor="white", edgecolor="#E2E8F0", fontsize=10)
+
+    plt.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument(
@@ -1089,6 +1214,10 @@ def main() -> None:
     figures_dir = Path(args.figures_dir)
     if not figures_dir.is_dir():
         raise SystemExit(f"Figures dir not found: {figures_dir} — run gen_simulation_analysis.py first")
+
+    # Generate the QA route illustration dynamically
+    generate_qa_route_image(figures_dir / "qa_route_illustration.png")
+
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     coauthors = [c.strip() for c in args.coauthors.split(";")] if args.coauthors else None
