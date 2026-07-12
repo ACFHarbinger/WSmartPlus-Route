@@ -51,7 +51,6 @@ Usage
 from __future__ import annotations
 
 import argparse
-import numpy as np
 import re
 import subprocess
 import tempfile
@@ -61,6 +60,7 @@ import zipfile
 from pathlib import Path
 
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.patches as mpatches
@@ -212,6 +212,7 @@ def render_hier_table_image(
     row_labels: list[str],
     out_path: Path,
     col_lookup_keys: list[tuple] | None = None,
+    partition_label: str | None = None,
 ) -> Path:
     """
     Render a hierarchical (merged-header) results table as a PNG, in the style
@@ -230,23 +231,50 @@ def render_hier_table_image(
     n_rows = len(row_keys)
     n_cols = len(col_keys)
 
+    # Reserve an extra banner row at the top when a partition label is supplied
+    banner_h = 0.5 if partition_label else 0.0
+
     cell_w, cell_h, label_w, header_h = 1.05, 0.5, 1.3, 0.5
     fontsize = max(5.5, min(9, 260 / max(n_cols, 1)))
 
     x0 = label_w * n_row_levels
-    y0 = header_h * n_col_levels
-    fig_w = min(x0 + cell_w * n_cols, 42)
-    fig_h = min(y0 + cell_h * n_rows, 32)
+    y0 = banner_h + header_h * n_col_levels
+    total_h = banner_h + header_h * n_col_levels + cell_h * n_rows
+    total_w = x0 + cell_w * n_cols
+    fig_w = min(total_w, 42)
+    fig_h = min(total_h, 32)
 
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
-    ax.set_xlim(0, x0 + cell_w * n_cols)
-    ax.set_ylim(0, y0 + cell_h * n_rows)
+    ax.set_xlim(0, total_w)
+    ax.set_ylim(0, total_h)
     ax.invert_yaxis()
     ax.axis("off")
 
+    # Banner row spanning all columns (including the row-label area)
+    if partition_label:
+        ax.add_patch(
+            mpatches.Rectangle(
+                (0, 0),
+                total_w,
+                banner_h,
+                facecolor="#0D1B2A",
+                edgecolor="none",
+            )
+        )
+        ax.text(
+            total_w / 2,
+            banner_h / 2,
+            partition_label,
+            ha="center",
+            va="center",
+            fontsize=fontsize + 1,
+            color="white",
+            fontweight="bold",
+        )
+
     header_colors = ["#1F2D3D", "#2E74B5", "#5A6A7A", "#8A9BB0"]
     for lvl in range(n_col_levels):
-        y_top = lvl * header_h
+        y_top = banner_h + lvl * header_h
         for start, end, label in _group_spans(col_keys, lvl):
             xs, xe = x0 + start * cell_w, x0 + end * cell_w
             ax.add_patch(
@@ -437,12 +465,13 @@ class DeckBuilder:
         w, h = int(w_px * ratio), int(h_px * ratio)
         slide.shapes.add_picture(str(path), left + Emu(int((max_w - w) / 2)), top + Emu(int((max_h - h) / 2)), w, h)
 
-    def _caption_box(self, slide, label: str, text: str, top=None, left=None, width=None) -> None:
+    def _caption_box(self, slide, label: str, text: str, top=None, left=None, width=None, height=None) -> None:
         """A numbered caption ('**Figure N:** ...' / '**Equation N:** ...' / '**Table N:** ...')."""
         top = top if top is not None else SLIDE_H - Inches(0.55)
         left = left if left is not None else Inches(0.6)
         width = width if width is not None else SLIDE_W - Inches(1.2)
-        _, tf = _textbox(slide, left, top, width, Inches(0.9))
+        box_h = height if height is not None else Inches(0.9)
+        _, tf = _textbox(slide, left, top, width, box_h)
         tf.word_wrap = True
         p = tf.paragraphs[0]
         r1 = p.add_run()
@@ -456,9 +485,9 @@ class DeckBuilder:
         r2.font.size = Pt(11)
         r2.font.color.rgb = MUTED
 
-    def _figure_caption(self, slide, text: str, top=None, left=None, width=None) -> None:
+    def _figure_caption(self, slide, text: str, top=None, left=None, width=None, height=None) -> None:
         self._fig_count += 1
-        self._caption_box(slide, f"Figure {self._fig_count}", text, top=top, left=left, width=width)
+        self._caption_box(slide, f"Figure {self._fig_count}", text, top=top, left=left, width=width, height=height)
 
     def _equation_caption(self, slide, text: str, top=None, left=None, width=None) -> None:
         self._caption_box(slide, f"Equation {self._eq_count}", text, top=top, left=left, width=width)
@@ -705,8 +734,20 @@ class DeckBuilder:
                 print(f"  [WARN] Figure not found: {p}")
         area_top = Inches(1.15)
         bottom_legend = spec.get("bottom_legend", False)
-        area_h = SLIDE_H - area_top - Inches(0.75)
-        fig_area_h = area_h - Inches(1.8) if bottom_legend else area_h
+        caption_top = None
+        caption_h = None
+        legend_top = None
+        legend_h = None
+        area_h = None
+        if bottom_legend:
+            fig_area_h = Inches(4.2)
+            caption_top = area_top + fig_area_h + Inches(0.05)
+            caption_h = Inches(0.35)
+            legend_top = caption_top + caption_h + Inches(0.05)
+            legend_h = SLIDE_H - legend_top - Inches(0.4)
+        else:
+            area_h = SLIDE_H - area_top - Inches(0.75)
+            fig_area_h = area_h
 
         legend_w = Inches(3.1) if spec.get("side_legend") else 0
         fig_area_w = SLIDE_W - Inches(0.6) - (legend_w + Inches(0.2) if legend_w else 0)
@@ -719,13 +760,24 @@ class DeckBuilder:
                 w_each = int(fig_area_w / len(resolved))
                 for i, p in enumerate(resolved):
                     self._picture_fit(slide, p, Inches(0.3) + w_each * i, area_top, w_each - Inches(0.2), fig_area_h)
+
+        caption = spec.get("caption") or spec.get("note")
+        if caption:
+            caption_top_val = caption_top if bottom_legend else None
+            caption_h_val = caption_h if bottom_legend else None
+            self._figure_caption(slide, caption, top=caption_top_val, width=fig_area_w, height=caption_h_val)
+
         if legend_w:
             legend_left = Inches(0.3) + fig_area_w + Inches(0.2)
             box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, area_top, legend_w, area_h)  # pyrefly: ignore [bad-argument-type]
             _fill(box, RGBColor(0xF0, 0xF4, 0xFA))
             box.shadow.inherit = False
             _, tf = _textbox(
-                slide, legend_left + Inches(0.2), area_top + Inches(0.15), legend_w - Inches(0.4), area_h - Inches(0.3)
+                slide,
+                legend_left + Inches(0.2),
+                area_top + Inches(0.15),
+                legend_w - Inches(0.4),
+                area_h - Inches(0.3),  # pyrefly: ignore [unsupported-operation]
             )
             p = tf.paragraphs[0]
             p.text = "Shared axis labels"
@@ -739,15 +791,17 @@ class DeckBuilder:
                 pp.font.color.rgb = DARK
                 pp.space_before = Pt(10)
         elif bottom_legend:
-            legend_top = area_top + fig_area_h + Inches(0.15)
-            legend_h = Inches(1.1)
             legend_left = Inches(0.3)
             legend_w = fig_area_w
-            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, legend_top, legend_w, legend_h)
+            box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, legend_left, legend_top, legend_w, legend_h)  # pyrefly: ignore [bad-argument-type]
             _fill(box, RGBColor(0xF0, 0xF4, 0xFA))
             box.shadow.inherit = False
             _, tf = _textbox(
-                slide, legend_left + Inches(0.2), legend_top + Inches(0.1), legend_w - Inches(0.4), legend_h - Inches(0.2)
+                slide,
+                legend_left + Inches(0.2),
+                legend_top + Inches(0.1),  # pyrefly: ignore [unsupported-operation]
+                legend_w - Inches(0.4),
+                legend_h - Inches(0.2),  # pyrefly: ignore [unsupported-operation]
             )
             p = tf.paragraphs[0]
             p.text = "Shared axis labels"
@@ -762,10 +816,6 @@ class DeckBuilder:
                 pp.font.size = Pt(10.5)
                 pp.font.color.rgb = DARK
                 pp.space_before = Pt(3)
-        caption = spec.get("caption") or spec.get("note")
-        if caption:
-            caption_top = SLIDE_H - Inches(0.65) if bottom_legend else None
-            self._figure_caption(slide, caption, top=caption_top)
         self._record_script(spec["title"], [caption or ""])
 
     # ── Slides ──────────────────────────────────────────────────────────────────
@@ -973,12 +1023,7 @@ class DeckBuilder:
                 sub_full = [ck for ck in col_keys if ck[level_idx] == val]
                 sub_display = [ck[:level_idx] + ck[level_idx + 1 :] for ck in sub_full]
                 part_top = area_top + pi * part_h
-                _, tf = _textbox(slide, Inches(0.4), part_top, SLIDE_W - Inches(0.8), Inches(0.3))
-                p = tf.paragraphs[0]
-                p.text = f"{split.capitalize()}: {val}"
-                p.font.bold = True
-                p.font.size = Pt(12)
-                p.font.color.rgb = ACCENT
+                # Embed the partition label directly in the table image — no separate textbox
                 img_path = render_hier_table_image(
                     row_keys,
                     sub_display,
@@ -986,14 +1031,15 @@ class DeckBuilder:
                     ["N", "Region", "Dist"],
                     self._tmp / f"full_results_table_{split}_{pi}.png",
                     col_lookup_keys=sub_full,
+                    partition_label=f"{split.capitalize()}: {val}",
                 )
                 self._picture_fit(
                     slide,
                     img_path,
                     Inches(0.3),
-                    part_top + Inches(0.32),
+                    part_top,
                     SLIDE_W - Inches(0.6),
-                    part_h - Inches(0.35),
+                    part_h,
                 )
             remaining_desc = " × ".join(level_phrases[n] for n in level_names if n != split)
             col_desc = (
@@ -1098,9 +1144,9 @@ def generate_qa_route_image(out_path: Path) -> Path:
             continue
 
         angle = angles[i]
-        if -np.pi <= angle < -np.pi/3:
+        if -np.pi <= angle < -np.pi / 3:
             route1_idx.append(i)
-        elif -np.pi/3 <= angle < np.pi/3:
+        elif -np.pi / 3 <= angle < np.pi / 3:
             route2_idx.append(i)
         else:
             route3_idx.append(i)
@@ -1123,15 +1169,21 @@ def generate_qa_route_image(out_path: Path) -> Path:
 
     # Draw faint gray edges between nearby nodes to represent the road network
     for i in range(n_nodes):
-        for j in range(i+1, n_nodes):
+        for j in range(i + 1, n_nodes):
             dist = np.linalg.norm(coords[i] - coords[j])
             if dist < 0.22:
-                ax.plot([coords[i, 0], coords[j, 0]], [coords[i, 1], coords[j, 1]],
-                        color="#E2E8F0", lw=0.6, zorder=1)
+                ax.plot([coords[i, 0], coords[j, 0]], [coords[i, 1], coords[j, 1]], color="#E2E8F0", lw=0.6, zorder=1)
 
     # Plot unvisited nodes (selection part of VRPP)
-    ax.scatter(coords[unvisited_idx, 0], coords[unvisited_idx, 1],
-               color="#CBD5E1", edgecolor="#64748B", s=100, label="Unvisited Bins (No Profit)", zorder=3)
+    ax.scatter(
+        coords[unvisited_idx, 0],
+        coords[unvisited_idx, 1],
+        color="#CBD5E1",
+        edgecolor="#64748B",
+        s=100,
+        label="Unvisited Bins (No Profit)",
+        zorder=3,
+    )
 
     # Premium colors for the 3 routes (different vehicles)
     colors = ["#10B981", "#6366F1", "#F59E0B"]
@@ -1152,13 +1204,31 @@ def generate_qa_route_image(out_path: Path) -> Path:
     plot_tour(r3, colors[2], route_labels[2])
 
     # Plot depot clearly marked
-    ax.scatter(depot[0], depot[1], color="#EF4444", marker="s", s=220, edgecolor="black", linewidth=2, label="Depot / Warehouse", zorder=5)
+    ax.scatter(
+        depot[0],
+        depot[1],
+        color="#EF4444",
+        marker="s",
+        s=220,
+        edgecolor="black",
+        linewidth=2,
+        label="Depot / Warehouse",
+        zorder=5,
+    )
 
     ax.set_xlim(-0.05, 1.05)
     ax.set_ylim(-0.05, 1.05)
     ax.axis("off")
 
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.08), ncol=2, frameon=True, facecolor="white", edgecolor="#E2E8F0", fontsize=10)
+    ax.legend(
+        loc="lower center",
+        bbox_to_anchor=(0.5, -0.08),
+        ncol=2,
+        frameon=True,
+        facecolor="white",
+        edgecolor="#E2E8F0",
+        fontsize=10,
+    )
 
     plt.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)

@@ -587,7 +587,7 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
     combos = [(s, i) for s in strategies for i in improvers]
     combo_labels = [f"{s}\n{i}" for s, i in combos]
     n = len(scenarios)
-    fig, axes = plt.subplots(2, n, figsize=(3.8 * n, 13), squeeze=False)
+    fig, axes = plt.subplots(2, n, figsize=(3.8 * n, 7.2), squeeze=False)
     fig.suptitle("Per-Scenario Heatmaps — Constructors × (Strategy × Improver)", fontsize=14, fontweight="bold")
     for row_i, (metric, cmap, mlabel) in enumerate(
         [("overflows", "RdYlGn_r", "Overflows"), ("kgkm", "RdYlGn", "kg/km")]
