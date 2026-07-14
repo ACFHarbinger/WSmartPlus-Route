@@ -1,7 +1,7 @@
 /**
  * ML Introspection — TensorDict/NPZ inspector, attention heatmap, loss contour (§G.5).
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -9,15 +9,24 @@ import { Download, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { exportChartPng } from "../../utils/chartExport";
+import { analyzeLossMinima } from "../../utils/lossLandscape";
 import {
+  applySparseTopK,
   buildMatrixHeatmapOption,
   defaultIndices,
+  detectHeadAxis,
+  diffMatrices,
   leadingIndexCount,
   suggestAttentionKeys,
 } from "../../utils/tensorHeatmap";
 import type { NpzArchiveInfo, TensorSlicePreview } from "../../types";
 
+const LossLandscape3D = lazy(() =>
+  import("./LossLandscape3D").then((m) => ({ default: m.LossLandscape3D }))
+);
+
 type IntrospectionTab = "tensor" | "attention" | "loss";
+type CompareMode = "single" | "side-by-side" | "overlay";
 
 function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
@@ -33,11 +42,17 @@ export function MLIntrospectionPanel() {
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [indices, setIndices] = useState<number[]>([]);
   const [decodeStep, setDecodeStep] = useState(0);
+  const [compareStep, setCompareStep] = useState(0);
   const [preview, setPreview] = useState<TensorSlicePreview | null>(null);
+  const [comparePreview, setComparePreview] = useState<TensorSlicePreview | null>(null);
   const [lossPreview, setLossPreview] = useState<TensorSlicePreview | null>(null);
   const [loading, setLoading] = useState(false);
   const [topK, setTopK] = useState(32);
+  const [sparseK, setSparseK] = useState(0);
+  const [compareMode, setCompareMode] = useState<CompareMode>("single");
+  const [headIndex, setHeadIndex] = useState(0);
   const chartRef = useRef<ReactECharts>(null);
+  const compareChartRef = useRef<ReactECharts>(null);
   const lossChartRef = useRef<ReactECharts>(null);
 
   const pickArchive = useCallback(async () => {
@@ -62,6 +77,7 @@ export function MLIntrospectionPanel() {
       if (defaultKey) {
         const shape = info.arrays.find((a) => a.key === defaultKey)?.shape ?? [];
         setIndices(defaultIndices(shape));
+        setHeadIndex(0);
       }
       toast.success("Archive inspected", { description: `${info.arrays.length} array(s)` });
     } catch (err) {
@@ -78,40 +94,68 @@ export function MLIntrospectionPanel() {
 
   const selectedArray = archive?.arrays.find((a) => a.key === selectedKey);
   const leading = selectedArray ? leadingIndexCount(selectedArray.shape) : 0;
+  const headAxis = selectedArray ? detectHeadAxis(selectedArray.shape, selectedKey) : null;
+  const headCount = headAxis != null ? selectedArray?.shape[headAxis] ?? 1 : 0;
 
   const effectiveIndices = useMemo(() => {
     const base = [...indices];
+    if (headAxis != null) base[headAxis] = headIndex;
     if (leading >= 1 && tab === "attention") {
-      base[leading - 1] = decodeStep;
+      const stepDim = leading - 1;
+      if (stepDim >= 0) base[stepDim] = decodeStep;
     }
     return base;
-  }, [indices, leading, decodeStep, tab]);
+  }, [indices, leading, decodeStep, tab, headAxis, headIndex]);
+
+  const compareIndices = useMemo(() => {
+    const base = [...effectiveIndices];
+    if (leading >= 1 && tab === "attention" && compareMode !== "single") {
+      const stepDim = leading - 1;
+      if (stepDim >= 0) base[stepDim] = compareStep;
+    }
+    return base;
+  }, [effectiveIndices, leading, compareStep, tab, compareMode]);
+
+  const loadSlice = useCallback(
+    async (idx: number[]) => {
+      if (!archivePath || !selectedKey) return null;
+      return invoke<TensorSlicePreview>("load_tensor_slice", {
+        path: archivePath,
+        key: archivePath.endsWith(".npy") ? null : selectedKey,
+        indices: idx,
+        maxDim: tab === "loss" ? 96 : topK,
+      });
+    },
+    [archivePath, selectedKey, tab, topK]
+  );
 
   const loadPreview = useCallback(async () => {
     if (!archivePath || !selectedKey) return;
     setLoading(true);
     try {
-      const slice = await invoke<TensorSlicePreview>("load_tensor_slice", {
-        path: archivePath,
-        key: archivePath.endsWith(".npy") ? null : selectedKey,
-        indices: effectiveIndices,
-        maxDim: tab === "loss" ? 96 : topK,
-      });
+      const slice = await loadSlice(effectiveIndices);
+      if (!slice) return;
       if (tab === "loss") {
         setLossPreview(slice);
       } else {
         setPreview(slice);
+        if (tab === "attention" && compareMode !== "single") {
+          const cmp = await loadSlice(compareIndices);
+          setComparePreview(cmp);
+        } else {
+          setComparePreview(null);
+        }
       }
     } catch (err) {
       toast.error("Slice load failed", { description: String(err) });
     } finally {
       setLoading(false);
     }
-  }, [archivePath, selectedKey, effectiveIndices, tab, topK]);
+  }, [archivePath, selectedKey, effectiveIndices, compareIndices, tab, compareMode, loadSlice]);
 
   useEffect(() => {
     if (archivePath && selectedKey) void loadPreview();
-  }, [archivePath, selectedKey, effectiveIndices, tab, topK, loadPreview]);
+  }, [archivePath, selectedKey, effectiveIndices, compareIndices, tab, topK, compareMode, loadPreview]);
 
   useEffect(() => {
     if (!archive || tab !== "loss") return;
@@ -121,21 +165,53 @@ export function MLIntrospectionPanel() {
     }
   }, [archive, tab, selectedKey]);
 
-  const heatmapOption = useMemo(() => {
+  const processedValues = useMemo(() => {
     if (!preview) return null;
+    let grid = preview.values;
+    if (sparseK > 0) grid = applySparseTopK(grid, sparseK);
+    return grid;
+  }, [preview, sparseK]);
+
+  const compareValues = useMemo(() => {
+    if (!comparePreview) return null;
+    let grid = comparePreview.values;
+    if (sparseK > 0) grid = applySparseTopK(grid, sparseK);
+    return grid;
+  }, [comparePreview, sparseK]);
+
+  const heatmapOption = useMemo(() => {
+    if (!processedValues) return null;
+    const values =
+      compareMode === "overlay" && compareValues
+        ? diffMatrices(processedValues, compareValues)
+        : processedValues;
     const label =
       tab === "attention"
-        ? `Attention · ${preview.key} [${effectiveIndices.join(",")}]`
-        : `${preview.key} [${preview.full_shape.join("×")}]`;
-    return buildMatrixHeatmapOption(preview.values, {
+        ? `Attention · ${preview?.key} [${effectiveIndices.join(",")}]${
+            compareMode === "overlay" && compareValues ? " Δ" : ""
+          }`
+        : `${preview?.key} [${preview?.full_shape.join("×")}]`;
+    return buildMatrixHeatmapOption(values, {
       title: label,
-      min: preview.min,
-      max: preview.max,
+      min: compareMode === "overlay" ? undefined : preview?.min,
+      max: compareMode === "overlay" ? undefined : preview?.max,
       theme,
       xLabel: tab === "attention" ? "Key" : "X",
       yLabel: tab === "attention" ? "Query" : "Y",
     });
-  }, [preview, tab, effectiveIndices, theme]);
+  }, [processedValues, compareValues, compareMode, preview, tab, effectiveIndices, theme]);
+
+  const compareHeatmapOption = useMemo(() => {
+    if (!compareValues || compareMode !== "side-by-side") return null;
+    return buildMatrixHeatmapOption(compareValues, {
+      title: `Compare step ${compareStep}`,
+      min: comparePreview?.min,
+      max: comparePreview?.max,
+      theme,
+      xLabel: "Key",
+      yLabel: "Query",
+    });
+  }, [compareValues, compareMode, compareStep, comparePreview, theme]);
 
   const lossOption = useMemo(() => {
     if (!lossPreview) return null;
@@ -148,6 +224,11 @@ export function MLIntrospectionPanel() {
       yLabel: "θ₂",
     });
   }, [lossPreview, theme]);
+
+  const lossMinima = useMemo(
+    () => (lossPreview ? analyzeLossMinima(lossPreview.values) : null),
+    [lossPreview]
+  );
 
   const maxDecodeStep = selectedArray && leading >= 1 ? selectedArray.shape[leading - 1] - 1 : 0;
 
@@ -165,7 +246,7 @@ export function MLIntrospectionPanel() {
         <div>
           <h2 className="text-sm font-semibold text-gray-200">ML Introspection (§G.5)</h2>
           <p className="text-[10px] text-canvas-muted">
-            NPZ/NPY inspector · attention heatmaps · loss landscape contour
+            NPZ/NPY inspector · attention heatmaps · 3D loss topography
           </p>
         </div>
         <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
@@ -229,6 +310,7 @@ export function MLIntrospectionPanel() {
                     setSelectedKey(a.key);
                     setIndices(defaultIndices(a.shape));
                     setDecodeStep(0);
+                    setHeadIndex(0);
                   }}
                 >
                   <td className="py-2 px-2 font-mono text-gray-300">{a.key}</td>
@@ -259,6 +341,7 @@ export function MLIntrospectionPanel() {
                 const shape = archive.arrays.find((a) => a.key === key)?.shape ?? [];
                 setIndices(defaultIndices(shape));
                 setDecodeStep(0);
+                setHeadIndex(0);
               }}
             >
               {(tab === "attention"
@@ -276,27 +359,49 @@ export function MLIntrospectionPanel() {
             </select>
           </label>
 
-          {tab === "attention" && leading > 1 &&
-            indices.slice(0, leading - 1).map((_, dim) => (
-              <label key={dim} className="flex items-center gap-1 text-canvas-muted">
-                d{dim}
-                <input
-                  type="number"
-                  min={0}
-                  max={(selectedArray?.shape[dim] ?? 1) - 1}
-                  value={indices[dim] ?? 0}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setIndices((prev) => {
-                      const next = [...prev];
-                      next[dim] = v;
-                      return next;
-                    });
-                  }}
-                  className="input-base w-14 text-xs py-0.5"
-                />
-              </label>
-            ))}
+          {tab === "attention" && headCount > 1 && (
+            <label className="flex items-center gap-1 text-canvas-muted">
+              Head
+              <select
+                className="select-base text-xs py-0.5 w-14"
+                value={headIndex}
+                onChange={(e) => setHeadIndex(Number(e.target.value))}
+              >
+                {Array.from({ length: headCount }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {tab === "attention" &&
+            leading > 1 &&
+            indices
+              .slice(0, leading - 1)
+              .map((_, dim) =>
+                dim === headAxis ? null : (
+                  <label key={dim} className="flex items-center gap-1 text-canvas-muted">
+                    d{dim}
+                    <input
+                      type="number"
+                      min={0}
+                      max={(selectedArray?.shape[dim] ?? 1) - 1}
+                      value={indices[dim] ?? 0}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setIndices((prev) => {
+                          const next = [...prev];
+                          next[dim] = v;
+                          return next;
+                        });
+                      }}
+                      className="input-base w-14 text-xs py-0.5"
+                    />
+                  </label>
+                )
+              )}
 
           {tab === "attention" && leading >= 1 && (
             <div className="flex items-center gap-2 flex-1 min-w-[180px]">
@@ -314,20 +419,63 @@ export function MLIntrospectionPanel() {
           )}
 
           {tab === "attention" && (
-            <label className="flex items-center gap-1 text-canvas-muted">
-              Top-k cap
-              <select
-                className="select-base text-xs py-0.5 w-16"
-                value={topK}
-                onChange={(e) => setTopK(Number(e.target.value))}
-              >
-                {[24, 32, 48, 64].map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <>
+              <label className="flex items-center gap-1 text-canvas-muted">
+                Compare
+                <select
+                  className="select-base text-xs py-0.5"
+                  value={compareMode}
+                  onChange={(e) => setCompareMode(e.target.value as CompareMode)}
+                >
+                  <option value="single">Single</option>
+                  <option value="side-by-side">Side-by-side</option>
+                  <option value="overlay">Overlay Δ</option>
+                </select>
+              </label>
+              {compareMode !== "single" && (
+                <div className="flex items-center gap-2 min-w-[140px]">
+                  <span className="text-canvas-muted">vs step</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={Math.max(0, maxDecodeStep)}
+                    value={compareStep}
+                    onChange={(e) => setCompareStep(Number(e.target.value))}
+                    className="flex-1 accent-accent-warning"
+                  />
+                  <span className="font-mono text-gray-300 w-8">{compareStep}</span>
+                </div>
+              )}
+              <label className="flex items-center gap-1 text-canvas-muted">
+                Sparse top-k
+                <select
+                  className="select-base text-xs py-0.5 w-16"
+                  value={sparseK}
+                  onChange={(e) => setSparseK(Number(e.target.value))}
+                >
+                  <option value={0}>Off</option>
+                  {[4, 8, 16, 32].map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1 text-canvas-muted">
+                Matrix cap
+                <select
+                  className="select-base text-xs py-0.5 w-16"
+                  value={topK}
+                  onChange={(e) => setTopK(Number(e.target.value))}
+                >
+                  {[24, 32, 48, 64].map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
           )}
 
           {preview && tab === "attention" && (
@@ -347,28 +495,66 @@ export function MLIntrospectionPanel() {
               Export PNG
             </button>
           </div>
-          <ReactECharts ref={chartRef} option={heatmapOption} style={{ height: 360 }} notMerge />
+          <div
+            className={
+              compareMode === "side-by-side" && compareHeatmapOption
+                ? "grid grid-cols-1 lg:grid-cols-2 gap-3"
+                : ""
+            }
+          >
+            <ReactECharts ref={chartRef} option={heatmapOption} style={{ height: 360 }} notMerge />
+            {compareMode === "side-by-side" && compareHeatmapOption && (
+              <ReactECharts
+                ref={compareChartRef}
+                option={compareHeatmapOption}
+                style={{ height: 360 }}
+                notMerge
+              />
+            )}
+          </div>
           <p className="text-[10px] text-canvas-muted">
-            Edge opacity ∝ attention magnitude (downsampled matrix). Use decode-step slider for
-            sequential decoding timeline (§G.5.3 partial).
+            Head selector · sparse top-k · decode-step compare (side-by-side / overlay Δ). Sigma.js
+            node overlay deferred (§G.5.3 partial).
           </p>
         </div>
       )}
 
       {tab === "loss" && (
         <div className="space-y-2">
-          {lossOption ? (
+          {lossPreview ? (
             <>
-              <div className="flex justify-end">
-                <button
-                  className="btn-ghost text-xs flex items-center gap-1"
-                  onClick={() => exportChartPng(lossChartRef, "loss-landscape.png")}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <Suspense
+                  fallback={
+                    <div className="h-[280px] flex items-center justify-center text-xs text-canvas-muted">
+                      Loading 3D canvas…
+                    </div>
+                  }
                 >
-                  <Download size={12} />
-                  Export PNG
-                </button>
+                  <LossLandscape3D values={lossPreview.values} />
+                </Suspense>
+                <div className="space-y-2">
+                  <div className="flex justify-end">
+                    <button
+                      className="btn-ghost text-xs flex items-center gap-1"
+                      onClick={() => exportChartPng(lossChartRef, "loss-landscape.png")}
+                    >
+                      <Download size={12} />
+                      Export PNG
+                    </button>
+                  </div>
+                  {lossOption && (
+                    <ReactECharts ref={lossChartRef} option={lossOption} style={{ height: 248 }} notMerge />
+                  )}
+                </div>
               </div>
-              <ReactECharts ref={lossChartRef} option={lossOption} style={{ height: 360 }} notMerge />
+              {lossMinima && (
+                <p className="text-[10px] text-canvas-muted">
+                  Minima annotation: {lossMinima.label} basin (sharpness {lossMinima.sharpness.toFixed(3)}).
+                  Flatter minima often generalize better across Empirical vs Gamma-3 distributions.
+                  BPC optimum marker deferred until solver coordinates are bundled in NPZ.
+                </p>
+              )}
             </>
           ) : (
             <p className="text-xs text-canvas-muted">
@@ -377,9 +563,6 @@ export function MLIntrospectionPanel() {
               <code className="font-mono">loss_grid</code> 2D array.
             </p>
           )}
-          <p className="text-[10px] text-canvas-muted">
-            2D ECharts contour heatmap adjacent to future React Three Fiber topography (§G.5.2 partial).
-          </p>
         </div>
       )}
     </div>
