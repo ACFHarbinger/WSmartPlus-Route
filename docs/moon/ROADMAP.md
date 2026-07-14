@@ -898,15 +898,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Reproduce and extend the existing static `simulation_analysis.md` charts as interactive ECharts panels.
 
 #### 1.1 KPI Summary Bar / Box Charts
-- [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary (§G.1 partial — multi-city benchmark deferred)
+- [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary; portfolio mode swaps to overflows by city/scale across loaded runs (§G.1.1)
 - [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary; portfolio mode swaps to kg/km by city/scale across loaded runs (§G.1.1)
 - [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts; `SimulationSummary` ingests log → DuckDB + `SqlQueryPanel` `brushSqlSync` / `brushedPoliciesSql` (§G.1)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
 - [x] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS: `BenchmarkAnalysis` + `SimulationSummary` `BenchmarkParetoPanel` grid + `paretoPortfolio.ts` / `paretoPanels.ts` run classifier (§G.1.2)
-- [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1 partial — multi-run 4-panel deferred)
-- [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on Pareto scatter (§G.1 partial — per-policy multi-city deferred)
-- [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
+- [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1.2)
+- [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on `BenchmarkParetoPanel` multi-run scatter (§G.1.2)
+- [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` + `BenchmarkParetoPanel` on Simulation Summary / Benchmark Analysis (§G.1.2)
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1)
 - [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
 - [x] Symlog bar charts: `symlog.ts` + `useSymlog` on profit · km · overflows `MetricBarChart` when log scale on; secondary log-scale row adds profit/km symlog duplicates (§G.1)
@@ -914,24 +914,24 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] AlgorithmComparison log-scale toggle on per-metric bar charts (§G.1 partial)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
-- [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts (§G.1 partial — multi-run config matrix deferred)
+- [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts; `BenchmarkParetoPanel` adds `formatLogMeta` + `formatPolicyMeta` per run×policy point (§G.1.2)
 
 #### 1.3 Policy Configuration Heatmaps
-- [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions (§G.1 partial — multi-log benchmark deferred)
+- [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions; portfolio mode adds `BenchmarkDistributionHeatmap` facets via `groupRunsByDistribution()` (§G.1.3)
 - [x] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350): shared `BenchmarkGraphHeatmap` facets by `cityScaleLabel()` on Benchmark Analysis + Simulation Summary portfolio mode (§G.1.3)
 - [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
-- [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary (§G.1 partial — multi-log deferred)
+- [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary; shared `BenchmarkPortfolioParallel` on Simulation Summary + Benchmark Analysis (§G.1.4)
 - [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` / `loadPortfolioLogs()` batch loader (up to 480 runs) on Benchmark Analysis (§G.1.4)
 - [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush`; DuckDB SQL sync via `brushSqlSync` (§G.1)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
 #### 1.5 Constructor Ranking Chart
-- [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering (§G.1 partial — multi-config benchmark deferred)
-- [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + BenchmarkAnalysis `kg/km` metric column (§G.1 partial)
+- [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering; portfolio mode adds `PortfolioEfficiencyRanking` for run×policy configs (§G.1.5)
+- [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + `PortfolioEfficiencyRanking` + BenchmarkAnalysis `kg/km` metric column (§G.1.5)
 - [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial)
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 

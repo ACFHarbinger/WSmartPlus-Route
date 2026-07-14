@@ -5,7 +5,13 @@ import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
-import { parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
+import {
+  citySymbol,
+  formatLogMeta,
+  formatPolicyMeta,
+  parsePolicyLabel,
+  strategyColor,
+} from "../../utils/simMetadata";
 import type { ParetoPoint } from "../../utils/paretoPortfolio";
 
 function fmt(n: number, d = 1) {
@@ -48,17 +54,34 @@ export function BenchmarkParetoPanel({
       series: [
         {
           type: "scatter",
-          data: points.map((pt) => ({
-            name: pt.policy,
-            value: [pt.x, displayY(pt.y)],
-            itemStyle: {
-              color: strategyColor(pt.policy, { [pt.policy]: parsePolicyLabel(pt.policy) }),
-            },
-            symbolSize: frontIds.has(pt.id) ? 9 : 6,
-          })),
+          data: points.map((pt) => {
+            const policyMeta = parsePolicyLabel(pt.policy);
+            const onFront = frontIds.has(pt.id);
+            return {
+              name: pt.id,
+              value: [pt.x, displayY(pt.y)],
+              itemStyle: {
+                color: onFront ? strategyColor(pt.policy, { [pt.policy]: policyMeta }) : "#6b7280",
+              },
+              symbol: citySymbol(pt.logMeta),
+              symbolSize: onFront ? 9 : 6,
+            };
+          }),
           tooltip: {
-            formatter: (p: { name: string; value: [number, number] }) =>
-              `${p.name}<br/>Profit: ${fmt(p.value[0])} €<br/>Overflows: ${fmt(points.find((x) => x.policy === p.name)?.y ?? p.value[1])}`,
+            formatter: (p: { name: string; value: [number, number] }) => {
+              const pt = points.find((x) => x.id === p.name);
+              if (!pt) return p.name;
+              const meta = parsePolicyLabel(pt.policy);
+              const lines = [
+                pt.policy,
+                formatLogMeta(pt.logMeta),
+                formatPolicyMeta(meta),
+                `Profit: ${fmt(p.value[0])} €`,
+                `Overflows: ${fmt(pt.y)}`,
+                frontIds.has(pt.id) ? "Pareto-optimal" : "",
+              ].filter(Boolean);
+              return lines.join("<br/>");
+            },
           },
         },
         ...(step.length > 1

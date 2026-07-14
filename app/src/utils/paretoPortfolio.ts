@@ -2,7 +2,7 @@
  * Build per-panel Pareto scatter points from loaded simulation runs (§G.1.2).
  */
 
-import { parseLogPath } from "./simMetadata";
+import { parseLogPath, type LogPathMeta } from "./simMetadata";
 import { panelForRun, PARETO_PANELS } from "./paretoPanels";
 import type { DayLogEntry } from "../types";
 
@@ -17,6 +17,8 @@ export interface ParetoPoint {
   x: number;
   y: number;
   policy: string;
+  path: string;
+  logMeta: LogPathMeta;
 }
 
 function mean(arr: number[]) {
@@ -31,7 +33,8 @@ export function buildParetoByPanel(
   for (const panel of PARETO_PANELS) panels[panel.id] = [];
 
   for (const run of runs) {
-    const panelId = panelForRun(parseLogPath(run.path));
+    const logMeta = parseLogPath(run.path);
+    const panelId = panelForRun(logMeta);
     if (!panelId) continue;
     const policies = [...new Set(run.entries.map((e) => e.policy))];
     for (const p of policies) {
@@ -43,6 +46,8 @@ export function buildParetoByPanel(
       panels[panelId].push({
         id: `${run.path}::${p}`,
         policy: p,
+        path: run.path,
+        logMeta,
         x: profit,
         y: overflows,
       });
