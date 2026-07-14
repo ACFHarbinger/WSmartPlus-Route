@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-eighth pass (§G.4 / §G.5)
+
+Forty-eighth pass closes the remaining **§G.4** deferred WebGL/layout items and adds
+**§G.5.1** compressed NPZ plane slicing.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `load_npz_plane_decompress` inflates deflated `.npz` entries and
+  slices the trailing 2-D plane via `load_plane_from_npy_bytes`; `TensorSlicePreview.used_decompress_slice`
+  flag; `probe_npy_mmap` reports large compressed entries; unit test
+  `npz_decompress_plane_reads_trailing_2d_slice`
+
+**React frontend**
+- `TopologyCosmographView` — Cosmograph-style dense Sigma.js point renderer (no labels,
+  `hideEdgesOnMove`, ForceAtlas2 strong-gravity settings)
+- `TopologySigmaView` — Graphology ForceAtlas2 layout on force mode
+- `GraphTopologyPanel` — ECharts / Sigma.js / Cosmograph view toggle
+- `MLIntrospectionPanel` — decompress-slice timing badge
+
+**ROADMAP**
+- §G.4 Cosmograph WebGL + Graphology/ForceAtlas2 checked
+- §G.5.1 compressed NPZ decompress slice checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-seventh pass (§G.4 / §G.5)
 
 Forty-seventh pass closes remaining deferred **§G.5** infrastructure items and adds

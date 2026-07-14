@@ -1,21 +1,20 @@
 /**
- * Sigma.js WebGL topology graph — distance-matrix k-NN overlay (§G.4).
+ * Cosmograph-style dense-graph WebGL renderer — Sigma.js point mode (§G.4).
  */
 import Graph from "graphology";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Sigma from "sigma";
 import { useEffect, useRef } from "react";
-import type { GraphEdge, TopologyLayoutMode, TopologyNodeMeta } from "../../utils/graphTopology";
+import type { GraphEdge, TopologyNodeMeta } from "../../utils/graphTopology";
 import {
   pheromoneEdgeKey,
   topologyNodeStyle,
 } from "../../utils/graphTopology";
 
-export interface TopologySigmaOpts {
+export interface TopologyCosmographOpts {
   nodeMeta: TopologyNodeMeta[];
   edges: GraphEdge[];
   positions: [number, number][];
-  layoutMode?: TopologyLayoutMode;
   fillRange?: [number, number] | null;
   pheromoneWeights?: Map<string, number>;
   showPheromone?: boolean;
@@ -34,17 +33,16 @@ function normalizePositions(
   const spanX = maxX - minX || 1;
   const spanY = maxY - minY || 1;
   return positions.map(([x, y]) => ({
-    x: ((x - minX) / spanX) * 100,
-    y: ((y - minY) / spanY) * 100,
+    x: ((x - minX) / spanX) * 120,
+    y: ((y - minY) / spanY) * 120,
   }));
 }
 
-function buildGraph(opts: TopologySigmaOpts): Graph | null {
+function buildDenseGraph(opts: TopologyCosmographOpts): Graph | null {
   const {
     nodeMeta,
     edges,
     positions,
-    layoutMode = "force",
     fillRange = null,
     pheromoneWeights,
     showPheromone = false,
@@ -59,11 +57,10 @@ function buildGraph(opts: TopologySigmaOpts): Graph | null {
     const pos = norm[meta.matrixIndex] ?? { x: 0, y: 0 };
     const style = topologyNodeStyle(meta, fillRange);
     graph.addNode(String(meta.matrixIndex), {
-      label: meta.nodeId === 0 ? "Depot" : `#${meta.nodeId}`,
       x: pos.x,
       y: -pos.y,
-      size: style.size * 0.45,
-      color: style.color,
+      size: Math.max(1.2, style.size * 0.22),
+      color: style.dimmed ? `${style.color}55` : style.color,
     });
   }
 
@@ -83,39 +80,42 @@ function buildGraph(opts: TopologySigmaOpts): Graph | null {
 
     const tNorm = maxD > minD ? (maxD - edge.distance) / (maxD - minD) : 0.5;
     const ph = showPheromone ? (pheromoneWeights?.get(edgeId) ?? 0) / phMax : 0;
-    const baseOpacity = theme === "dark" ? 0.22 : 0.35;
-    const opacity = ph > 0 ? 0.15 + ph * 0.75 : baseOpacity;
-    const width = ph > 0 ? 0.6 + ph * 3 : 0.4 + tNorm * 1.6;
+    const baseOpacity = theme === "dark" ? 0.08 : 0.14;
+    const opacity = ph > 0 ? 0.12 + ph * 0.55 : baseOpacity;
+    const width = ph > 0 ? 0.3 + ph * 1.4 : 0.15 + tNorm * 0.6;
     const color =
       ph > 0
         ? `rgba(251, 191, 36, ${opacity})`
         : theme === "dark"
-          ? `rgba(100, 116, 139, ${opacity})`
-          : `rgba(71, 85, 105, ${opacity})`;
+          ? `rgba(71, 85, 105, ${opacity})`
+          : `rgba(148, 163, 184, ${opacity})`;
 
     graph.addEdgeWithKey(edgeId, src, tgt, { size: width, color, weight: ph || tNorm });
   }
 
-  if (layoutMode === "force") {
-    forceAtlas2.assign(graph, {
-      iterations: 50,
-      settings: { gravity: 0.6, scalingRatio: 6, strongGravityMode: false },
-    });
-  }
+  forceAtlas2.assign(graph, {
+    iterations: 80,
+    settings: {
+      gravity: 1.2,
+      scalingRatio: 12,
+      strongGravityMode: true,
+      barnesHutOptimize: true,
+      barnesHutTheta: 0.5,
+    },
+  });
 
   return graph;
 }
 
-export function TopologySigmaView({
+export function TopologyCosmographView({
   nodeMeta,
   edges,
   positions,
-  layoutMode = "force",
   fillRange = null,
   pheromoneWeights,
   showPheromone = false,
   theme = "dark",
-}: TopologySigmaOpts) {
+}: TopologyCosmographOpts) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sigmaRef = useRef<Sigma | null>(null);
 
@@ -123,11 +123,10 @@ export function TopologySigmaView({
     const container = containerRef.current;
     if (!container) return;
 
-    const graph = buildGraph({
+    const graph = buildDenseGraph({
       nodeMeta,
       edges,
       positions,
-      layoutMode,
       fillRange,
       pheromoneWeights,
       showPheromone,
@@ -138,9 +137,12 @@ export function TopologySigmaView({
     sigmaRef.current?.kill();
     const sigma = new Sigma(graph, container, {
       renderEdgeLabels: false,
-      labelDensity: 0.05,
-      labelGridCellSize: 80,
-      defaultNodeType: "circle",
+      renderLabels: false,
+      labelDensity: 0,
+      hideEdgesOnMove: true,
+      hideLabelsOnMove: true,
+      defaultNodeType: "point",
+      defaultEdgeType: "line",
       zIndex: true,
     });
     sigmaRef.current = sigma;
@@ -149,7 +151,7 @@ export function TopologySigmaView({
       sigma.kill();
       sigmaRef.current = null;
     };
-  }, [nodeMeta, edges, positions, layoutMode, fillRange, pheromoneWeights, showPheromone, theme]);
+  }, [nodeMeta, edges, positions, fillRange, pheromoneWeights, showPheromone, theme]);
 
   return (
     <div
