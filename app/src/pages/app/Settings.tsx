@@ -24,6 +24,7 @@ import { useLayoutStore } from "../../store/layout";
 import { useDuckDbStore } from "../../store/duckdb";
 import {
   ARROW_PIPELINE_BUDGET_MS,
+  formatPipelineTimingBadge,
   runCsvArrowPipeline,
   runSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
@@ -346,13 +347,14 @@ export function Settings() {
         {lastPipeline && (
           <div className="text-xs text-canvas-muted space-y-0.5 font-mono">
             <p>
-              Last run: {lastPipeline.rowCount} rows × {lastPipeline.columnCount} cols ·{" "}
               <span className={lastPipeline.withinBudget ? "text-accent-success" : "text-accent-warning"}>
-                {lastPipeline.totalMs} ms total
+                {formatPipelineTimingBadge(lastPipeline)}
               </span>
+              {lastPipeline.columnCount > 0 && (
+                <> · {lastPipeline.columnCount} cols</>
+              )}
             </p>
             <p>
-              {lastPipeline.usedSidecar ? "sidecar fast-path · " : ""}
               rust {lastPipeline.rustMs} ms · read {lastPipeline.readMs} ms · duckdb{" "}
               {lastPipeline.duckdbMs} ms
             </p>

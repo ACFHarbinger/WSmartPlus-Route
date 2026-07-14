@@ -577,6 +577,7 @@ export function BenchmarkAnalysis() {
           tableName={BENCHMARK_SIM_TABLE}
           theme={theme}
           highlightPolicies={policy ? [policy] : null}
+          portfolioMode={runs.length > 1}
         />
       )}
 

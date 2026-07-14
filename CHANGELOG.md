@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-first pass (§G.6 / §G.7)
+
+Sixty-first pass adds portfolio-aware OLAP query templates and closes the DuckDB ingest
+gap on Algorithm Comparison.
+
+**React frontend**
+- `duckdbTemplates.ts` — `portfolioSqlTemplates()` for cross-run robustness, run
+  leaderboard, run×policy variance, and Pareto-by-run when `run_label` is present
+- `SqlQueryPanel` — `portfolioMode` prop merges portfolio templates on multi-log views
+- `AlgorithmComparison` — DuckDB ingest into `algorithm_sim`, timing badge, `SqlQueryPanel`
+- `Settings` — last-ingest summary uses shared `formatPipelineTimingBadge()`
+
+**ROADMAP**
+- §G.6 portfolio query templates + Algorithm Comparison DuckDB checked
+- §G.7 Settings timing badge helper checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixtieth pass (§G.1.4 / §G.6 / §G.7)
 
 Sixtieth pass unions multi-run simulation portfolios into DuckDB-Wasm and surfaces
