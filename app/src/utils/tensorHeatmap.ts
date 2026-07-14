@@ -48,6 +48,8 @@ export function buildMatrixHeatmapOption(
     xLabel?: string;
     yLabel?: string;
     attentionRole?: AttentionRole;
+    clusterBandSplits?: number[];
+    clusterPalette?: string[];
   } = {}
 ): Record<string, unknown> {
   const {
@@ -58,6 +60,8 @@ export function buildMatrixHeatmapOption(
     xLabel = "Col",
     yLabel = "Row",
     attentionRole,
+    clusterBandSplits = [],
+    clusterPalette,
   } = opts;
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
@@ -123,6 +127,22 @@ export function buildMatrixHeatmapOption(
         type: "heatmap",
         data,
         emphasis: { itemStyle: { shadowBlur: 6, shadowColor: "rgba(0,0,0,0.4)" } },
+        markArea:
+          clusterBandSplits.length > 0
+            ? {
+                silent: true,
+                itemStyle: { opacity: 0.12, borderWidth: 0 },
+                data: clusterBandSplits.map((split, idx) => [
+                  {
+                    yAxis: String(split),
+                    itemStyle: {
+                      color: (clusterPalette ?? ROLE_PALETTES.weights)[idx % 8],
+                    },
+                  },
+                  { yAxis: String(split) },
+                ]),
+              }
+            : undefined,
       },
     ],
   };

@@ -1,7 +1,7 @@
 /**
  * React Three Fiber 3D loss topography (§G.5.2).
  */
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -12,6 +12,8 @@ import {
   normalizeGrid,
   type LandscapeMarker,
 } from "../../utils/lossLandscape";
+
+export type LossLandscapeView = "surface" | "voxels";
 
 interface TerrainProps {
   values: number[][];
@@ -25,7 +27,7 @@ function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProp
   const cols = values[0]?.length ?? 0;
 
   const { geometry, minimaPos, markerPositions } = useMemo(() => {
-    const { norm, min, max } = normalizeGrid(values);
+    const { norm } = normalizeGrid(values);
     const geo = new THREE.PlaneGeometry(cols - 1, rows - 1, cols - 1, rows - 1);
     const pos = geo.attributes.position;
     const colors = new Float32Array(pos.count * 3);
@@ -62,7 +64,6 @@ function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProp
       geometry: geo,
       minimaPos,
       markerPositions,
-      range: { min, max },
     };
   }, [values, rows, cols, minimaRow, minimaCol, markers]);
 
@@ -91,14 +92,108 @@ function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProp
   );
 }
 
+function VoxelInstanced({ values, markers = [] }: TerrainProps) {
+  const rows = values.length;
+  const cols = values[0]?.length ?? 0;
+  const count = rows * cols;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+
+  const { norm, minimaRow, minimaCol } = useMemo(() => {
+    const { norm: n } = normalizeGrid(values);
+    const minima = analyzeLossMinima(values);
+    return { norm: n, minimaRow: minima?.row, minimaCol: minima?.col };
+  }, [values]);
+
+  const markerPositions = useMemo(
+    () =>
+      markers.map((m) => {
+        const h = (norm[m.row]?.[m.col] ?? 0) * 1.5;
+        return {
+          marker: m,
+          pos: gridCellToTerrainPosition(m.row, m.col, rows, cols, h),
+        };
+      }),
+    [markers, norm, rows, cols]
+  );
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh || count === 0) return;
+
+    const dummy = new THREE.Object3D();
+    const color = new THREE.Color();
+    const scale = Math.min(4 / Math.max(cols, rows), 0.14);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        const h = norm[r]?.[c] ?? 0;
+        const pos = gridCellToTerrainPosition(r, c, rows, cols, h * 1.5);
+        dummy.position.set(pos[0], pos[1] + scale * 0.5, pos[2]);
+        dummy.scale.setScalar(scale);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        const [cr, cg, cb] = lossToColor(h);
+        color.setRGB(cr, cg, cb);
+        mesh.setColorAt(i, color);
+      }
+    }
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [norm, rows, cols, count]);
+
+  if (count === 0) return null;
+
+  return (
+    <group rotation={[-Math.PI / 2.2, 0, 0]}>
+      <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial metalness={0.15} roughness={0.55} />
+      </instancedMesh>
+      {minimaRow != null && minimaCol != null && (
+        <mesh
+          position={gridCellToTerrainPosition(
+            minimaRow,
+            minimaCol,
+            rows,
+            cols,
+            (norm[minimaRow]?.[minimaCol] ?? 0) * 1.5
+          )}
+        >
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshStandardMaterial color="#22d3ee" emissive="#0891b2" emissiveIntensity={0.6} />
+        </mesh>
+      )}
+      {markerPositions.map(({ marker, pos }) => (
+        <mesh key={marker.label} position={pos}>
+          <octahedronGeometry args={[0.12, 0]} />
+          <meshStandardMaterial
+            color={marker.color ?? "#f59e0b"}
+            emissive="#b45309"
+            emissiveIntensity={0.55}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 interface LossLandscape3DProps {
   values: number[][];
   markers?: LandscapeMarker[];
+  view?: LossLandscapeView;
   height?: number;
   className?: string;
 }
 
-export function LossLandscape3D({ values, markers = [], height = 280, className }: LossLandscape3DProps) {
+export function LossLandscape3D({
+  values,
+  markers = [],
+  view = "surface",
+  height = 280,
+  className,
+}: LossLandscape3DProps) {
   const minima = useMemo(() => analyzeLossMinima(values), [values]);
 
   if (!values.length || !values[0]?.length) {
@@ -118,16 +213,21 @@ export function LossLandscape3D({ values, markers = [], height = 280, className 
         <ambientLight intensity={0.55} />
         <directionalLight position={[5, 8, 3]} intensity={0.85} />
         <directionalLight position={[-4, 2, -2]} intensity={0.35} />
-        <TerrainMesh
-          values={values}
-          minimaRow={minima?.row}
-          minimaCol={minima?.col}
-          markers={markers}
-        />
+        {view === "voxels" ? (
+          <VoxelInstanced values={values} markers={markers} />
+        ) : (
+          <TerrainMesh
+            values={values}
+            minimaRow={minima?.row}
+            minimaCol={minima?.col}
+            markers={markers}
+          />
+        )}
         <OrbitControls enableDamping dampingFactor={0.08} minDistance={2} maxDistance={12} />
       </Canvas>
       {(minima || markers.length > 0) && (
         <p className="text-[10px] text-canvas-muted px-2 py-1 border-t border-canvas-border">
+          {view === "voxels" ? "InstancedMesh voxels · " : "Surface mesh · "}
           {minima && (
             <>
               Global min {minima.value.toFixed(4)} at ({minima.row}, {minima.col}) · sharpness{" "}

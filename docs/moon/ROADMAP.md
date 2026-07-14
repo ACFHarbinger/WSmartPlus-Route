@@ -1007,14 +1007,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Expose the internals of trained neural CO models (Attention Models, Routing Transformers).
 
 #### 5.1 TensorDict Data Pipeline
-- [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — `.td` TensorDict deferred)
+- [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — full native `.td` parse deferred)
+- [x] TensorDict (`.td`) inspect + slice via Python subprocess (`torch.load` + key/shape listing; slice export matches NPZ path): `inspect_npz_archive` / `load_tensor_slice` accept `project_root` + `python_executable`; Archive tab opens `.td` files (§G.5.1)
 - [x] Memory-map large tensor files (avoid full RAM load): `probe_npy_mmap` flags standalone `.npy` > 8 MB; archive inspect reads NPY headers only (§G.5.1 partial — full mmap slice deferred)
-- [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab (§G.5.1 partial — `.td` TensorDict deferred)
+- [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab; `.td` slices supported via Python handoff (§G.5.1)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
 - [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` (§G.5.2 partial — full training-loss probe deferred)
 - [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
-- [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2 partial — `InstancedMesh` cubes deferred)
+- [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2)
+- [x] `InstancedMesh` voxel alternative: per-cell `boxGeometry` cubes with height ∝ loss; Loss tab "Surface mesh / InstancedMesh voxels" toggle (§G.5.2)
 - [x] Color gradient: low loss = deep blue, high loss = bright red (`lossToColor` vertex colours)
 - [x] Camera: orbit, zoom, perspective controls (`OrbitControls` + `Canvas`)
 - [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid (§G.5.2)
@@ -1024,9 +1026,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
 - [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
 - [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap + `buildAttentionGraphOption` graph-on-coords view with graph preset loader (§G.5.3 partial — Sigma.js WebGL deferred)
-- [x] Attention head selector: `detectHeadAxis` + per-head index dropdown; Q/K/V role filter + per-role colour palettes via `classifyAttentionRole` / `groupAttentionKeys` (§G.5.3 partial — spherical k-means deferred)
+- [x] Attention head selector: `detectHeadAxis` + per-head index dropdown; Q/K/V role filter + per-role colour palettes via `classifyAttentionRole` / `groupAttentionKeys` (§G.5.3)
 - [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
-- [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3 partial — spherical k-means clusters deferred)
+- [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3)
+- [x] Spherical k-means query-row clustering: `sphericalKMeans` + row reorder + ECharts `markArea` cluster bands; K-means selector (2–8) on Attention tab (§G.5.3)
 - [x] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions: Attention tab "Empirical vs Gamma-3" compare mode; dual archive picker; `inferDistributionLabel` path heuristics; side-by-side heatmaps + overlay Δ diff (§G.5.3)
 - [x] Side-by-side vs overlay toggle: decode-step compare (side-by-side dual heatmap / overlay Δ diff) (§G.5.3 partial)
 
@@ -1078,7 +1081,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
-- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs into a `.wsroute` zip bundle with `manifest.json` (Parquet/Arrow IPC deferred)
+- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json` (Parquet/Arrow IPC deferred)
 - [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser
 - [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
