@@ -37,6 +37,7 @@ import {
   childrenAtPath,
   enrichDrillChildren,
   policiesAtPath,
+  type HierarchyColorMode,
 } from "../../utils/policyHierarchy";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
@@ -940,11 +941,12 @@ function PolicyHierarchyPanel({
   const chartRef = useRef<EChartsReact | null>(null);
   const drillRef = useRef<EChartsReact | null>(null);
   const [view, setView] = useState<HierarchyView>("sunburst");
+  const [colorMode, setColorMode] = useState<HierarchyColorMode>("kgkm");
   const [drillPath, setDrillPath] = useState<string[]>([]);
 
   const tree = useMemo(
-    () => buildPolicyHierarchy(policies, stats, policyMeta, logMeta),
-    [policies, stats, policyMeta, logMeta]
+    () => buildPolicyHierarchy(policies, stats, policyMeta, logMeta, colorMode),
+    [policies, stats, policyMeta, logMeta, colorMode]
   );
 
   const hierarchyOption = useMemo(
@@ -1085,9 +1087,27 @@ function PolicyHierarchyPanel({
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <p className="text-xs font-semibold text-gray-300">Policy Hierarchy (§G.2)</p>
-          <p className="text-[10px] text-canvas-muted">Span = profit · color = kg/km efficiency</p>
+          <p className="text-[10px] text-canvas-muted">
+            Span = profit · color ={" "}
+            {colorMode === "kgkm" ? "kg/km efficiency" : "mean overflows"}
+          </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+            {(["kgkm", "overflows"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setColorMode(m)}
+                className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                  colorMode === m
+                    ? "bg-accent-primary text-white"
+                    : "text-canvas-muted hover:text-gray-200"
+                }`}
+              >
+                {m === "kgkm" ? "kg/km" : "Overflows"}
+              </button>
+            ))}
+          </div>
           <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
             {(["sunburst", "treemap"] as const).map((v) => (
               <button

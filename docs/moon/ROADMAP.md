@@ -951,7 +951,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): drill-down horizontal profit bars on segment click (§G.2 partial — animated morph deferred)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
-- [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary (§G.2 partial — overflows color mode deferred; kg/km gradient used)
+- [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
 
 ---
 
@@ -995,10 +995,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance; View toggle adds `TopologySigmaView` Sigma.js WebGL with fill/pheromone styling + `TopologyCosmographView` dense point-mode WebGL (§G.4)
 - [x] Force-directed layout (ForceAtlas2) via Graphology: `TopologySigmaView` runs `graphology-layout-forceatlas2` on force layout; ECharts path keeps Fruchterman-Reingold in `forceDirectedLayout()` (§G.4)
 - [x] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration: `accumulateTourPheromone()` deposits τ on consecutive tour edges; amber edge styling in `GraphTopologyPanel` (§G.4 partial — live ACO solver τ matrix deferred)
-- [x] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes: fill-% dual slider + SQL "Brush profit range" / day row click → topology panel (§G.4 partial — bidirectional chart brush deferred)
+- [x] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes: fill-% dual slider + SQL "Brush profit range" / day row click → topology panel; click node in ECharts/Sigma/Cosmograph view → fill-% brush (§G.4)
 - [x] Dynamic re-layout when filter applied: clusters emerge based on algorithm prioritization: "Re-layout on filter" toggle re-runs spring layout on filtered subgraph (§G.4 partial)
 - [x] Cosmograph alternative for large dense graphs (N=350): `radialDenseLayout()` + auto radial when N≥200; layout mode selector (auto/force/radial) on `GraphTopologyPanel`; `TopologyCosmographView` Sigma.js point renderer with ForceAtlas2 dense settings (§G.4)
-- [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback (§G.4 partial — per-ACO-iteration stepping deferred)
+- [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback; "By tour step" mode steps τ per consecutive tour edge via `accumulateTourPheromoneByStep` (§G.4)
 
 ---
 

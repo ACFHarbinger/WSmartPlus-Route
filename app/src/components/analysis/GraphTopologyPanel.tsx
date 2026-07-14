@@ -8,12 +8,15 @@ import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
   accumulateTourPheromone,
+  accumulateTourPheromoneByStep,
   buildTopologyFromMatrix,
+  countTourEdgeSteps,
   DENSE_GRAPH_NODE_THRESHOLD,
   loadDistanceMatrixForLog,
   resolveLayoutMode,
   type DistanceMatrixData,
   type TopologyLayoutMode,
+  type TopologyNodeMeta,
 } from "../../utils/graphTopology";
 
 const TopologySigmaView = lazy(() =>
@@ -24,6 +27,7 @@ const TopologyCosmographView = lazy(() =>
 );
 
 type TopologyView = "echarts" | "sigma" | "cosmograph";
+type PheromoneTimelineMode = "day" | "iteration";
 
 interface Props {
   logPath: string | null;
@@ -62,6 +66,8 @@ export function GraphTopologyPanel({
   const [layoutMode, setLayoutMode] = useState<TopologyLayoutMode | "auto">("auto");
   const [showPheromone, setShowPheromone] = useState(false);
   const [pheromoneDay, setPheromoneDay] = useState(displayDay);
+  const [pheromoneMode, setPheromoneMode] = useState<PheromoneTimelineMode>("day");
+  const [pheromoneStep, setPheromoneStep] = useState(1);
   const [timelineSync, setTimelineSync] = useState(syncTimeline);
   const [topologyView, setTopologyView] = useState<TopologyView>("echarts");
 
@@ -103,10 +109,41 @@ export function GraphTopologyPanel({
     return [fillMin, fillMax];
   }, [fillMin, fillMax]);
 
+  const pheromoneDayEntry = useMemo(
+    () => entries.find((e) => e.day === pheromoneDay),
+    [entries, pheromoneDay]
+  );
+
+  const maxTourSteps = useMemo(
+    () => countTourEdgeSteps(pheromoneDayEntry, matrix?.nodeIds ?? []),
+    [pheromoneDayEntry, matrix]
+  );
+
+  useEffect(() => {
+    if (pheromoneStep > maxTourSteps) {
+      setPheromoneStep(Math.max(1, maxTourSteps));
+    }
+  }, [maxTourSteps, pheromoneStep]);
+
   const pheromoneWeights = useMemo(() => {
     if (!showPheromone || !matrix || !entries.length) return new Map<string, number>();
+    if (pheromoneMode === "iteration" && pheromoneDayEntry) {
+      return accumulateTourPheromoneByStep(
+        pheromoneDayEntry,
+        matrix.nodeIds,
+        pheromoneStep
+      );
+    }
     return accumulateTourPheromone(entries, matrix.nodeIds, pheromoneDay);
-  }, [showPheromone, matrix, entries, pheromoneDay]);
+  }, [
+    showPheromone,
+    matrix,
+    entries,
+    pheromoneDay,
+    pheromoneMode,
+    pheromoneDayEntry,
+    pheromoneStep,
+  ]);
 
   const resolvedLayout = matrix
     ? resolveLayoutMode(matrix.nodeIds.length, layoutMode)
@@ -140,7 +177,11 @@ export function GraphTopologyPanel({
   const chartOption = useMemo(() => {
     if (!graphPayload || !matrix) return null;
     const layoutLabel = resolvedLayout === "radial" ? "radial dense" : "force";
-    const phLabel = showPheromone ? ` · τ≤day ${pheromoneDay}` : "";
+    const phLabel = showPheromone
+      ? pheromoneMode === "iteration"
+        ? ` · τ step ${pheromoneStep}/${maxTourSteps || 0} (day ${pheromoneDay})`
+        : ` · τ≤day ${pheromoneDay}`
+      : "";
     const title = matrixPath
       ? `Topology · ${matrix.nodeIds.length} nodes · k=${kNeighbors} · ${layoutLabel}${phLabel}`
       : undefined;
@@ -163,6 +204,9 @@ export function GraphTopologyPanel({
     resolvedLayout,
     showPheromone,
     pheromoneDay,
+    pheromoneMode,
+    pheromoneStep,
+    maxTourSteps,
     theme,
   ]);
 
@@ -176,6 +220,29 @@ export function GraphTopologyPanel({
     setPheromoneDay(day);
     if (timelineSync) onDaySelect?.(day);
   };
+
+  const brushNodeFill = useCallback((meta: TopologyNodeMeta) => {
+    if (meta.fillPct == null) return;
+    const pad = 5;
+    setFillMin(Math.max(0, meta.fillPct - pad));
+    setFillMax(Math.min(100, meta.fillPct + pad));
+  }, []);
+
+  const clearFillBrush = useCallback(() => {
+    setFillMin(0);
+    setFillMax(100);
+  }, []);
+
+  const topologyClickEvents = useMemo(
+    () => ({
+      click: (params: { dataType?: string; data?: { id?: string } }) => {
+        if (params.dataType !== "node" || params.data?.id == null) return;
+        const meta = graphPayload?.nodeMeta[Number(params.data.id)];
+        if (meta) brushNodeFill(meta);
+      },
+    }),
+    [graphPayload, brushNodeFill]
+  );
 
   return (
     <div className="card space-y-3">
@@ -295,21 +362,40 @@ export function GraphTopologyPanel({
 
               {showPheromone && (
                 <div className="space-y-1">
-                  <div className="flex items-center justify-between text-[10px] text-canvas-muted">
-                    <span>Pheromone timeline (tour edges ≤ day)</span>
-                    <label className="flex items-center gap-1">
-                      <input
-                        type="checkbox"
-                        checked={timelineSync}
-                        onChange={(e) => {
-                          const on = e.target.checked;
-                          setTimelineSync(on);
-                          if (on) setPheromoneDay(displayDay);
-                        }}
-                        className="accent-accent-primary"
-                      />
-                      Sync with day scrubber
-                    </label>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-canvas-muted">
+                    <span>
+                      {pheromoneMode === "day"
+                        ? "Pheromone timeline (tour edges ≤ day)"
+                        : "Tour iteration stepping (τ per ant step)"}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-1">
+                        Mode
+                        <select
+                          className="select-base text-xs py-0.5 w-24"
+                          value={pheromoneMode}
+                          onChange={(e) =>
+                            setPheromoneMode(e.target.value as PheromoneTimelineMode)
+                          }
+                        >
+                          <option value="day">By day</option>
+                          <option value="iteration">By tour step</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={timelineSync}
+                          onChange={(e) => {
+                            const on = e.target.checked;
+                            setTimelineSync(on);
+                            if (on) setPheromoneDay(displayDay);
+                          }}
+                          className="accent-accent-primary"
+                        />
+                        Sync day scrubber
+                      </label>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -324,18 +410,43 @@ export function GraphTopologyPanel({
                       Day {pheromoneDay}
                     </span>
                   </div>
+                  {pheromoneMode === "iteration" && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="range"
+                        min={maxTourSteps > 0 ? 1 : 0}
+                        max={Math.max(maxTourSteps, 1)}
+                        value={pheromoneStep}
+                        onChange={(e) => setPheromoneStep(Number(e.target.value))}
+                        className="flex-1 accent-amber-400"
+                        disabled={maxTourSteps === 0}
+                      />
+                      <span className="text-xs font-mono text-amber-400/90 w-24 text-right">
+                        Step {pheromoneStep}/{maxTourSteps}
+                      </span>
+                    </div>
+                  )}
                   <p className="text-[10px] text-canvas-muted">
-                    Edge warmth ∝ accumulated τ from consecutive tour stops (decay 0.88/day).
+                    {pheromoneMode === "day"
+                      ? "Edge warmth ∝ accumulated τ from consecutive tour stops (decay 0.88/day)."
+                      : "Step through tour edge construction; each step deposits τ on the next consecutive stop pair."}
                   </p>
                 </div>
               )}
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-[10px] text-canvas-muted">
-                  <span>Fill % cross-filter (node highlight)</span>
-                  <span>
-                    {fillMin}% – {fillMax}%
-                  </span>
+                  <span>Fill % cross-filter (click node to brush)</span>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {fillMin}% – {fillMax}%
+                    </span>
+                    {(fillMin > 0 || fillMax < 100) && (
+                      <button onClick={clearFillBrush} className="text-accent-primary hover:underline">
+                        Clear
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -400,6 +511,7 @@ export function GraphTopologyPanel({
                     pheromoneWeights={pheromoneWeights}
                     showPheromone={showPheromone}
                     theme={theme}
+                    onNodeClick={brushNodeFill}
                   />
                 </Suspense>
               )}
@@ -419,11 +531,17 @@ export function GraphTopologyPanel({
                     pheromoneWeights={pheromoneWeights}
                     showPheromone={showPheromone}
                     theme={theme}
+                    onNodeClick={brushNodeFill}
                   />
                 </Suspense>
               )}
               {chartOption && topologyView === "echarts" && (
-                <ReactECharts option={chartOption} style={{ height: 360 }} notMerge />
+                <ReactECharts
+                  option={chartOption}
+                  style={{ height: 360 }}
+                  notMerge
+                  onEvents={topologyClickEvents}
+                />
               )}
             </>
           )}

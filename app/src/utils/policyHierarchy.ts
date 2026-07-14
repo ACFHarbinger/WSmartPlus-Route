@@ -28,6 +28,8 @@ function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
 
+export type HierarchyColorMode = "kgkm" | "overflows";
+
 function kgEfficiencyColor(kg: number, minKg: number, span: number): string {
   const t = Math.min(1, Math.max(0, (kg - minKg) / span));
   const r = Math.round(30 + t * 22);
@@ -36,12 +38,22 @@ function kgEfficiencyColor(kg: number, minKg: number, span: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
+/** Green (0 overflows) → amber → red (high overflows). */
+function overflowsColor(ov: number, minOv: number, span: number): string {
+  const t = Math.min(1, Math.max(0, (ov - minOv) / span));
+  const r = Math.round(34 + t * 205);
+  const g = Math.round(197 - t * 132);
+  const b = Math.round(94 - t * 60);
+  return `rgb(${r},${g},${b})`;
+}
+
 /** Inner = city/scale · middle = selection strategy · outer = constructor. */
 export function buildPolicyHierarchy(
   policies: string[],
   stats: Record<string, PolicyAgg>,
   policyMeta: Record<string, PolicyMeta>,
-  logMeta: LogPathMeta
+  logMeta: LogPathMeta,
+  colorMode: HierarchyColorMode = "kgkm"
 ): HierarchyNode[] {
   const rootLabel = cityScaleLabel(logMeta);
 
@@ -60,6 +72,20 @@ export function buildPolicyHierarchy(
   const maxKg = Math.max(...kgkmValues, 0.01);
   const kgSpan = maxKg - minKg || 1;
 
+  const overflowValues = policies.map((p) => mean(stats[p].overflows));
+  const minOv = Math.min(...overflowValues, 0);
+  const maxOv = Math.max(...overflowValues, 0.01);
+  const ovSpan = maxOv - minOv || 1;
+
+  const segmentColor = (ps: string[]) => {
+    if (colorMode === "overflows") {
+      const ov = mean(ps.map((p) => mean(stats[p].overflows)));
+      return overflowsColor(ov, minOv, ovSpan);
+    }
+    const kg = mean(ps.map((p) => mean(stats[p]["kg/km"])));
+    return kgEfficiencyColor(kg, minKg, kgSpan);
+  };
+
   const profitSum = (ps: string[]) =>
     ps.reduce((s, p) => s + Math.max(mean(stats[p].profit), 0), 0);
 
@@ -69,11 +95,10 @@ export function buildPolicyHierarchy(
     const ctorChildren: HierarchyNode[] = [];
     for (const [ctor, ps] of ctorMap) {
       const ctorProfit = profitSum(ps);
-      const ctorKg = mean(ps.map((p) => mean(stats[p]["kg/km"])));
       ctorChildren.push({
         name: ctor,
         value: Math.max(ctorProfit, 0.01),
-        itemStyle: { color: kgEfficiencyColor(ctorKg, minKg, kgSpan) },
+        itemStyle: { color: segmentColor(ps) },
         policies: ps,
       });
     }

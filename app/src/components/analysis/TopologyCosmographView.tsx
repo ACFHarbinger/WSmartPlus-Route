@@ -19,6 +19,7 @@ export interface TopologyCosmographOpts {
   pheromoneWeights?: Map<string, number>;
   showPheromone?: boolean;
   theme?: "dark" | "light";
+  onNodeClick?: (meta: TopologyNodeMeta) => void;
 }
 
 function normalizePositions(
@@ -115,6 +116,7 @@ export function TopologyCosmographView({
   pheromoneWeights,
   showPheromone = false,
   theme = "dark",
+  onNodeClick,
 }: TopologyCosmographOpts) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sigmaRef = useRef<Sigma | null>(null);
@@ -147,11 +149,20 @@ export function TopologyCosmographView({
     });
     sigmaRef.current = sigma;
 
+    const handleClick = onNodeClick
+      ? ({ node }: { node: string }) => {
+          const meta = nodeMeta[Number(node)];
+          if (meta) onNodeClick(meta);
+        }
+      : null;
+    if (handleClick) sigma.on("clickNode", handleClick);
+
     return () => {
+      if (handleClick) sigma.off("clickNode", handleClick);
       sigma.kill();
       sigmaRef.current = null;
     };
-  }, [nodeMeta, edges, positions, fillRange, pheromoneWeights, showPheromone, theme]);
+  }, [nodeMeta, edges, positions, fillRange, pheromoneWeights, showPheromone, theme, onNodeClick]);
 
   return (
     <div
