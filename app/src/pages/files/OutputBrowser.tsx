@@ -563,7 +563,7 @@ export function OutputBrowser() {
                 onChange={(e) => setIncludeArrowSidecars(e.target.checked)}
                 className="accent-accent-primary"
               />
-              Include Arrow IPC sidecars (§G.8)
+              Include Arrow IPC sidecars for CSV + JSONL (§G.8)
             </label>
             <button
               onClick={exportRunAsBundle}

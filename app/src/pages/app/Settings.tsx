@@ -25,6 +25,7 @@ import { useDuckDbStore } from "../../store/duckdb";
 import {
   ARROW_PIPELINE_BUDGET_MS,
   runCsvArrowPipeline,
+  runSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import {
   getChartRenderBudgetMs,
@@ -361,13 +362,17 @@ export function Settings() {
           disabled={!duckdbReady || benchRunning || loading}
           onClick={async () => {
             const path = (await open({
-              filters: [{ name: "CSV", extensions: ["csv"] }],
+              filters: [
+                { name: "CSV / JSONL", extensions: ["csv", "jsonl"] },
+              ],
             })) as string | null;
             if (!path) return;
             setBenchRunning(true);
             setLoading(true);
             try {
-              const timing = await runCsvArrowPipeline(path, "bench_csv");
+              const timing = path.toLowerCase().endsWith(".jsonl")
+                ? await runSimulationArrowPipeline(path, "bench_sim")
+                : await runCsvArrowPipeline(path, "bench_csv");
               setLastPipeline(timing);
               toast.success("Arrow pipeline complete", {
                 description: `${timing.totalMs} ms (${timing.rowCount} rows)`,

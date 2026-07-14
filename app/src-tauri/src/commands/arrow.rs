@@ -207,6 +207,28 @@ pub fn write_csv_arrow_sidecar(csv_path: &str, arrow_path: &PathBuf) -> Result<u
     Ok(row_count)
 }
 
+/// Write an Arrow IPC sidecar for a simulation JSONL log (§G.8).
+pub fn write_simulation_log_arrow_sidecar(
+    log_path: &str,
+    arrow_path: &PathBuf,
+) -> Result<usize, String> {
+    let content = fs::read_to_string(log_path).map_err(|e| e.to_string())?;
+    let entries: Vec<DayLogEntry> = content
+        .lines()
+        .filter_map(parse_day_log_line)
+        .collect();
+    if entries.is_empty() {
+        return Err("No simulation log entries found".to_string());
+    }
+    let batch = simulation_entries_to_batch(&entries)?;
+    let row_count = batch.num_rows();
+    if let Some(parent) = arrow_path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    write_ipc_file(&batch, arrow_path)?;
+    Ok(row_count)
+}
+
 pub fn export_batch(batch: &RecordBatch, label: &str, start: Instant) -> Result<ArrowIpcFile, String> {
     let path = arrow_temp_path(label)?;
     write_ipc_file(batch, &path)?;
