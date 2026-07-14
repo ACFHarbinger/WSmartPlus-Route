@@ -19,7 +19,11 @@ import { exportChartPng } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { PARETO_PANELS, panelForRun } from "../../utils/paretoPanels";
 import { cityScaleLabel, parseLogPath, parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
-import { symlog } from "../../utils/symlog";
+import {
+  buildCityComparisonSeries,
+  cityComparisonChartOption,
+  groupRunsByCity,
+} from "../../utils/cityComparison";
 import {
   loadPortfolioLogs,
   PORTFOLIO_SCAN_DEFAULT,
@@ -552,64 +556,12 @@ export function BenchmarkAnalysis() {
     return panels;
   }, [filteredRuns]);
 
-  const cityGroups = useMemo(() => {
-    const map = new Map<string, RunFile[]>();
-    for (const run of filteredRuns) {
-      const label = cityScaleLabel(parseLogPath(run.path));
-      const list = map.get(label) ?? [];
-      list.push(run);
-      map.set(label, list);
-    }
-    return [...map.entries()];
-  }, [filteredRuns]);
+  const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
 
-  const cityComparisonOption = useMemo(() => {
-    const labels = cityGroups.map(([city]) => city);
-    const profitSeries = cityGroups.map(([, runs]) => {
-      const vals = runs.flatMap((r) =>
-        r.entries.map((e) => e.data.profit).filter((v): v is number => v != null)
-      );
-      return Math.max(mean(vals), 0.001);
-    });
-    const overflowSeries = cityGroups.map(([, runs]) => {
-      const vals = runs.flatMap((r) =>
-        r.entries.map((e) => e.data.overflows).filter((v): v is number => v != null)
-      );
-      return symlog(mean(vals));
-    });
-
-    return {
-      backgroundColor: "transparent",
-      legend: { textStyle: { color: "#9090b0", fontSize: 10 } },
-      grid: { left: 50, right: 10, top: 30, bottom: 40 },
-      xAxis: {
-        type: "category",
-        data: labels,
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-      },
-      yAxis: {
-        type: "log",
-        logBase: 10,
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-        minorSplitLine: { show: false },
-      },
-      series: [
-        {
-          name: "Mean profit (€)",
-          type: "bar",
-          data: profitSeries,
-          itemStyle: { color: "#6366f1" },
-        },
-        {
-          name: "Mean overflows (symlog)",
-          type: "bar",
-          data: overflowSeries,
-          itemStyle: { color: "#f87171" },
-        },
-      ],
-      tooltip: { trigger: "axis" },
-    };
-  }, [cityGroups]);
+  const cityComparisonOption = useMemo(
+    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
+    [cityGroups]
+  );
 
   const efficiencyRankOption = useMemo(
     () => ({

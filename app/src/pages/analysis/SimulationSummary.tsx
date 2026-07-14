@@ -2144,6 +2144,7 @@ export function SimulationSummary() {
               theme={theme}
               highlightPolicies={effectiveBrushed}
               brushSqlSync
+              autoRunOnBrushSync
             />
           )}
         </>

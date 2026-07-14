@@ -7,6 +7,8 @@ const PREFETCH: Partial<Record<AppMode, () => Promise<unknown>>> = {
   process_monitor: () => import("../pages/monitor/ProcessMonitor"),
   simulation_summary: () => import("../pages/analysis/SimulationSummary"),
   benchmark: () => import("../pages/analysis/BenchmarkAnalysis"),
+  city_comparison: () => import("../pages/analysis/CityComparison"),
+  olap_explorer: () => import("../pages/analysis/OlapExplorer"),
   data_explorer: () => import("../pages/analysis/DataExplorer"),
   experiment_tracker: () => import("../pages/analysis/ExperimentTracker"),
   algorithms: () => import("../pages/analysis/AlgorithmComparison"),

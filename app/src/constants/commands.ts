@@ -18,6 +18,8 @@ export const PALETTE_COMMANDS: PaletteCommand[] = [
   { id: "process_monitor", label: "Process Monitor", section: "Monitor", mode: "process_monitor", keywords: "logs spawn" },
   { id: "simulation_summary", label: "Simulation Summary", section: "Analysis", mode: "simulation_summary", keywords: "overview ranking" },
   { id: "benchmark", label: "Benchmark Analysis", section: "Analysis", mode: "benchmark", keywords: "compare runs" },
+  { id: "city_comparison", label: "City Comparison", section: "Analysis", mode: "city_comparison", keywords: "graph scale rm ffz" },
+  { id: "olap_explorer", label: "OLAP Explorer", section: "Analysis", mode: "olap_explorer", keywords: "duckdb sql pivot cube" },
   { id: "data_explorer", label: "Data Explorer", section: "Analysis", mode: "data_explorer", keywords: "csv table" },
   { id: "experiment_tracker", label: "Experiment Tracker", section: "Analysis", mode: "experiment_tracker", keywords: "mlflow zenml" },
   { id: "algorithms", label: "Algorithm Registry", section: "Analysis", mode: "algorithms", keywords: "policies constructors" },
