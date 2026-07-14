@@ -26,7 +26,15 @@ import {
   PORTFOLIO_SCAN_DEFAULT,
   scanOutputPortfolio,
 } from "../../utils/outputRunLogs";
+import {
+  formatPipelineTimingBadge,
+  runPortfolioSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { useDuckDbStore } from "../../store/duckdb";
 import type { DayLogEntry } from "../../types";
+
+const CITY_SIM_TABLE = "city_sim";
 
 interface RunFile extends CityRunSlice {}
 
@@ -35,8 +43,15 @@ function mean(arr: number[]) {
 }
 
 export function CityComparison() {
-  const { projectRoot } = useAppStore();
+  const { projectRoot, theme } = useAppStore();
   const { policy: filterPolicy, sampleId: filterSample } = useGlobalFiltersStore();
+  const {
+    ready: duckdbReady,
+    loading: duckdbLoading,
+    lastPipeline,
+    setLastPipeline,
+    setLoading: setDuckdbLoading,
+  } = useDuckDbStore();
   const chartRef = useRef<EChartsReact | null>(null);
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
@@ -104,6 +119,18 @@ export function CityComparison() {
   const { pendingBenchmarkLogs, setPendingBenchmarkLogs } = useAppStore();
 
   useEffect(() => {
+    if (!duckdbReady || runs.length === 0) return;
+    setDuckdbLoading(true);
+    runPortfolioSimulationArrowPipeline(
+      runs.map((r) => ({ path: r.path, label: r.label })),
+      CITY_SIM_TABLE
+    )
+      .then(setLastPipeline)
+      .catch((err) => console.warn("City comparison Arrow pipeline:", err))
+      .finally(() => setDuckdbLoading(false));
+  }, [runs, duckdbReady, setLastPipeline, setDuckdbLoading]);
+
+  useEffect(() => {
     if (!pendingBenchmarkLogs?.length) return;
     void (async () => {
       const loaded: RunFile[] = [];
@@ -162,7 +189,13 @@ export function CityComparison() {
             {portfolioLoading ? "Loading portfolio…" : "Load output portfolio"}
           </button>
         )}
-        <span className="text-xs text-canvas-muted">{runs.length} run(s) loaded</span>
+        <span className="text-xs text-canvas-muted">
+          {runs.length} run(s) loaded
+          {duckdbLoading && " · DuckDB ingesting…"}
+          {!duckdbLoading && lastPipeline?.tableName === CITY_SIM_TABLE && (
+            <> · {formatPipelineTimingBadge(lastPipeline)}</>
+          )}
+        </span>
       </div>
 
       {runs.length > 0 && (
@@ -209,6 +242,14 @@ export function CityComparison() {
           </div>
           <ReactECharts ref={chartRef} option={chartOption} style={{ height: 280 }} />
         </div>
+      )}
+
+      {runs.length >= 1 && duckdbReady && (
+        <SqlQueryPanel
+          tableName={CITY_SIM_TABLE}
+          theme={theme}
+          highlightPolicies={filterPolicy ? [filterPolicy] : null}
+        />
       )}
 
       {citySummaryRows.length > 0 && (

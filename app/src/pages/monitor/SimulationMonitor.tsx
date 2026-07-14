@@ -37,7 +37,7 @@ import {
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
-import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
@@ -683,11 +683,7 @@ export function SimulationMonitor() {
             {watchPath.split("/").pop()}
             {duckdbLoading && " · DuckDB ingesting…"}
             {!duckdbLoading && lastPipeline?.tableName === "monitor_sim" && (
-              <>
-                {" "}
-                · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
-                {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
-              </>
+              <> · {formatPipelineTimingBadge(lastPipeline)}</>
             )}
           </span>
         )}

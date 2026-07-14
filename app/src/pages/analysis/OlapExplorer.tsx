@@ -12,7 +12,11 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { runCsvArrowPipeline, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import {
+  formatPipelineTimingBadge,
+  runCsvArrowPipeline,
+  runSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
 import { duckDbRowCount, listDuckDbTables } from "../../utils/duckdbClient";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
@@ -117,13 +121,7 @@ export function OlapExplorer() {
           <Database size={12} />
           {duckdbReady ? `${tables.length} table(s) in DuckDB-Wasm` : "DuckDB initialising…"}
           {loading && " · ingesting…"}
-          {!loading && lastPipeline && (
-            <>
-              {" "}
-              · last ingest {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
-              {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
-            </>
-          )}
+          {!loading && lastPipeline && <> · last ingest {formatPipelineTimingBadge(lastPipeline)}</>}
         </span>
       </div>
 

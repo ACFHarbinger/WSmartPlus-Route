@@ -4,7 +4,7 @@
  * (CSV and simulation JSONL; §G.8).
  */
 import { invoke } from "@tauri-apps/api/core";
-import { duckDbRowCount, ingestArrowIpc, initDuckDb } from "./duckdbClient";
+import { duckDbRowCount, ingestArrowIpc, initDuckDb, queryDuckDb } from "./duckdbClient";
 
 export const ARROW_PIPELINE_BUDGET_MS = 500;
 
@@ -26,6 +26,60 @@ export interface ArrowPipelineTiming {
   tableName: string;
   /** True when a sibling ``.arrow`` sidecar was ingested instead of re-parsing CSV. */
   usedSidecar?: boolean;
+  /** Portfolio ingest: number of logs combined into the table. */
+  logCount?: number;
+  /** Portfolio ingest: logs ingested via Arrow sidecar fast-path. */
+  sidecarCount?: number;
+}
+
+function sqlStringLiteral(value: string): string {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+/** Human-readable DuckDB ingest timing for toolbar badges (§G.0 / §G.7). */
+export function formatPipelineTimingBadge(timing: ArrowPipelineTiming): string {
+  let badge = `DuckDB ${timing.rowCount} rows`;
+  if (timing.logCount != null && timing.logCount > 1) {
+    badge += ` (${timing.logCount} runs)`;
+  }
+  badge += ` in ${timing.totalMs} ms`;
+  if (
+    timing.sidecarCount != null &&
+    timing.logCount != null &&
+    timing.logCount > 1 &&
+    timing.sidecarCount > 0
+  ) {
+    badge += ` (${timing.sidecarCount}/${timing.logCount} Arrow sidecars)`;
+  } else if (timing.usedSidecar) {
+    badge += " (Arrow sidecar)";
+  }
+  if (!timing.withinBudget) {
+    badge += " (over 500ms budget)";
+  }
+  return badge;
+}
+
+async function resolveSimulationArrowBuffer(logPath: string): Promise<{
+  buffer: Uint8Array;
+  usedSidecar: boolean;
+  rustMs: number;
+  columnCount: number;
+}> {
+  const sidecar = jsonlArrowSidecarPath(logPath);
+  const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
+  if (hasSidecar) {
+    const buffer = await readIpcBytes(sidecar);
+    return { buffer, usedSidecar: true, rustMs: 0, columnCount: 0 };
+  }
+
+  const ipc = await invoke<ArrowIpcMeta>("simulation_log_to_arrow_ipc", { path: logPath });
+  const buffer = await readIpcBytes(ipc.path);
+  return {
+    buffer,
+    usedSidecar: false,
+    rustMs: ipc.rust_ms,
+    columnCount: ipc.column_count,
+  };
 }
 
 function toUint8Array(bytes: number[]): Uint8Array {
@@ -172,33 +226,101 @@ export async function runSimulationArrowPipeline(
   const sidecar = jsonlArrowSidecarPath(logPath);
   const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
   if (hasSidecar) {
-    return runArrowSidecarPipeline(sidecar, tableName);
+    const timing = await runArrowSidecarPipeline(sidecar, tableName);
+    return { ...timing, logCount: 1, sidecarCount: 1 };
   }
 
   const t0 = performance.now();
   await initDuckDb();
 
-  const ipc = await invoke<ArrowIpcMeta>("simulation_log_to_arrow_ipc", { path: logPath });
+  const { buffer, rustMs, columnCount } = await resolveSimulationArrowBuffer(logPath);
   const t1 = performance.now();
 
-  const buffer = await readIpcBytes(ipc.path);
+  await ingestArrowIpc(tableName, buffer);
   const t2 = performance.now();
 
-  await ingestArrowIpc(tableName, buffer);
-  const t3 = performance.now();
-
   const rowCount = await duckDbRowCount(tableName);
-  const totalMs = Math.round(t3 - t0);
+  const totalMs = Math.round(t2 - t0);
 
   return {
     rowCount,
-    columnCount: ipc.column_count,
-    rustMs: ipc.rust_ms,
-    readMs: Math.round(t2 - t1),
-    duckdbMs: Math.round(t3 - t2),
+    columnCount,
+    rustMs,
+    readMs: Math.round(t1 - t0),
+    duckdbMs: Math.round(t2 - t1),
     totalMs,
     withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
     tableName,
     usedSidecar: false,
+    logCount: 1,
+    sidecarCount: 0,
+  };
+}
+
+/**
+ * Portfolio pipeline: union multiple simulation JSONL logs into one DuckDB table with
+ * a ``run_label`` column (§G.1.4 / §G.6).
+ */
+export async function runPortfolioSimulationArrowPipeline(
+  logs: { path: string; label: string }[],
+  tableName = "studio_portfolio"
+): Promise<ArrowPipelineTiming> {
+  if (logs.length === 0) {
+    throw new Error("No simulation logs to ingest");
+  }
+  if (logs.length === 1) {
+    const timing = await runSimulationArrowPipeline(logs[0].path, tableName);
+    return { ...timing, logCount: 1, sidecarCount: timing.usedSidecar ? 1 : 0 };
+  }
+
+  const t0 = performance.now();
+  await initDuckDb();
+
+  const tempTables: string[] = [];
+  let totalRustMs = 0;
+  let sidecarCount = 0;
+  let maxCols = 0;
+
+  for (let i = 0; i < logs.length; i++) {
+    const tmpName = `_portfolio_${i}`;
+    const { buffer, usedSidecar, rustMs, columnCount } = await resolveSimulationArrowBuffer(
+      logs[i].path
+    );
+    await ingestArrowIpc(tmpName, buffer);
+    tempTables.push(tmpName);
+    totalRustMs += rustMs;
+    if (usedSidecar) sidecarCount++;
+    maxCols = Math.max(maxCols, columnCount);
+  }
+
+  const unionSql = logs
+    .map(
+      (log, i) =>
+        `SELECT *, ${sqlStringLiteral(log.label)} AS run_label FROM "${tempTables[i]}"`
+    )
+    .join("\nUNION ALL BY NAME\n");
+
+  await queryDuckDb(`DROP TABLE IF EXISTS "${tableName}"`);
+  await queryDuckDb(`CREATE TABLE "${tableName}" AS ${unionSql}`);
+
+  for (const tmp of tempTables) {
+    await queryDuckDb(`DROP TABLE IF EXISTS "${tmp}"`).catch(() => {});
+  }
+
+  const rowCount = await duckDbRowCount(tableName);
+  const totalMs = Math.round(performance.now() - t0);
+
+  return {
+    rowCount,
+    columnCount: maxCols,
+    rustMs: totalRustMs,
+    readMs: 0,
+    duckdbMs: 0,
+    totalMs,
+    withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
+    tableName,
+    usedSidecar: sidecarCount === logs.length,
+    logCount: logs.length,
+    sidecarCount,
   };
 }

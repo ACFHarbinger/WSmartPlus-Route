@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixtieth pass (§G.1.4 / §G.6 / §G.7)
+
+Sixtieth pass unions multi-run simulation portfolios into DuckDB-Wasm and surfaces
+consistent ingest timing badges across all portfolio analytics views.
+
+**React frontend**
+- `arrowPipeline.ts` — `runPortfolioSimulationArrowPipeline()` unions JSONL logs with
+  `run_label`; `formatPipelineTimingBadge()` shared timing text (sidecar count, budget)
+- `SimulationSummary` — portfolio mode re-ingests primary + comparison runs into
+  `summary_sim`
+- `BenchmarkAnalysis` / `CityComparison` — DuckDB ingest + `SqlQueryPanel` on loaded
+  portfolios (`benchmark_sim` / `city_sim`)
+- `DataExplorer` / `OlapExplorer` / `SimulationMonitor` — unified timing badge format
+
+**ROADMAP**
+- §G.0 portfolio DuckDB union + timing badge helper checked
+- §G.1.4 portfolio DuckDB ingest across summary/benchmark/city views checked
+- §G.6 portfolio SQL panels on Benchmark Analysis + City Comparison checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-ninth pass (§G.6 / §G.7)
 
 Fifty-ninth pass extends JSONL Arrow sidecar coverage to the standalone OLAP Explorer and
