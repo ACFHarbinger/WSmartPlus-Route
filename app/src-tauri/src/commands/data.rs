@@ -463,9 +463,7 @@ pub fn create_wsroute_bundle(
         fs::create_dir_all(&staging).map_err(|e| e.to_string())?;
 
         for (rel, abs) in &files {
-            if abs.extension().and_then(|e| e.to_str()) != Some("csv") {
-                continue;
-            }
+            let ext = abs.extension().and_then(|e| e.to_str()).unwrap_or("");
             let arrow_rel = Path::new(rel)
                 .with_extension("arrow")
                 .to_string_lossy()
@@ -474,7 +472,12 @@ pub fn create_wsroute_bundle(
                 continue;
             }
             let arrow_abs = staging.join(&arrow_rel);
-            arrow::write_csv_arrow_sidecar(&abs.to_string_lossy(), &arrow_abs)?;
+            let path_str = abs.to_string_lossy();
+            match ext {
+                "csv" => arrow::write_csv_arrow_sidecar(&path_str, &arrow_abs)?,
+                "jsonl" => arrow::write_simulation_log_arrow_sidecar(&path_str, &arrow_abs)?,
+                _ => continue,
+            };
             arrow_sidecars.push((arrow_rel, arrow_abs));
         }
     }
@@ -678,7 +681,11 @@ mod tests {
         let mut f = File::create(log)?;
         writeln!(
             f,
-            r#"{{"day":1,"policy":"test","sample_id":0,"data":{{"profit":10.0,"km":5.0,"overflows":0}}}}"#
+            r#"GUI_DAY_LOG_START:test_policy,0,1,{{"profit":10.0,"km":5.0,"overflows":0,"kg":42.0,"kg/km":8.4,"cost":-32.0,"ncol":10,"kg_lost":0.0}}"#,
+        )?;
+        writeln!(
+            f,
+            r#"GUI_DAY_LOG_START:test_policy,0,2,{{"profit":11.5,"km":5.2,"overflows":1,"kg":40.0,"kg/km":7.7,"cost":-28.5,"ncol":9,"kg_lost":0.5}}"#,
         )?;
         Ok(())
     }
@@ -724,7 +731,36 @@ mod tests {
 
         let log_path = extracted.log_path.expect("jsonl path");
         let content = fs::read_to_string(&log_path).expect("read extracted log");
-        assert!(content.contains("\"policy\":\"test\""));
+        assert!(content.contains("GUI_DAY_LOG_START:test_policy"));
+
+        let entries = load_simulation_log(log_path).expect("parse extracted log");
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].policy, "test_policy");
+        assert_eq!(entries[0].day, 1);
+
+        let _ = fs::remove_dir_all(&base);
+    }
+
+    #[test]
+    fn simulation_arrow_sidecar_row_parity() {
+        let base = std::env::temp_dir().join(format!(
+            "sim_arrow_parity_{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&base).expect("create base");
+        write_sample_run(&base).expect("write sample run");
+
+        let log_path = base.join("sim_log.jsonl");
+        let arrow_path = base.join("sim_log.arrow");
+        let entries = load_simulation_log(log_path.to_string_lossy().to_string())
+            .expect("load simulation log");
+        let row_count =
+            arrow::write_simulation_log_arrow_sidecar(&log_path.to_string_lossy(), &arrow_path)
+                .expect("write simulation arrow sidecar");
+        assert_eq!(row_count, entries.len());
 
         let _ = fs::remove_dir_all(&base);
     }
@@ -752,8 +788,9 @@ mod tests {
         )
         .expect("create bundle with arrow");
 
-        assert_eq!(info.arrow_sidecars, Some(1));
+        assert_eq!(info.arrow_sidecars, Some(2));
         assert!(info.files.iter().any(|f| f.path.ends_with("metrics.arrow")));
+        assert!(info.files.iter().any(|f| f.path.ends_with("sim_log.arrow")));
 
         let _ = fs::remove_dir_all(&base);
     }

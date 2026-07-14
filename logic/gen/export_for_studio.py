@@ -2,8 +2,9 @@
 
 Creates a zip archive with a ``manifest.json`` index and all recognised data
 files from a run output directory (CSV, JSON/JSONL, YAML, NPZ, PKL, PT, Parquet).
-Optional ``--arrow`` emits Arrow IPC sidecars (``.arrow``) for each CSV so the
-Studio DuckDB-Wasm pipeline can ingest without re-parsing.
+Optional ``--arrow`` emits Arrow IPC sidecars (``.arrow``) for each CSV and
+simulation JSONL log so the Studio DuckDB-Wasm pipeline can ingest without
+re-parsing.
 
 Usage
 -----
@@ -19,6 +20,7 @@ import json
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 BUNDLE_VERSION = "1"
 INCLUDE_EXTENSIONS = frozenset(
@@ -45,17 +47,104 @@ def csv_to_arrow_ipc(csv_path: Path, arrow_path: Path) -> None:
             writer.write_table(table)
 
 
-def build_arrow_sidecars(source: Path, csv_files: list[Path]) -> list[Path]:
-    """Emit ``.arrow`` IPC sidecars next to each CSV under a temp staging tree."""
+def parse_day_log_line(line: str) -> Optional[Dict[str, Any]]:
+    """Parse a ``GUI_DAY_LOG_START:`` simulation log line (matches Rust ``sim_watcher``)."""
+    line = line.strip()
+    marker = "GUI_DAY_LOG_START:"
+    if not line.startswith(marker):
+        return None
+    content = line[len(marker) :]
+    parts = content.split(",", 3)
+    if len(parts) < 4:
+        return None
+    policy, sample_id, day, payload = (
+        parts[0].strip(),
+        parts[1].strip(),
+        parts[2].strip(),
+        parts[3].strip(),
+    )
+    try:
+        data = json.loads(payload)
+    except json.JSONDecodeError:
+        return None
+    return {
+        "policy": policy,
+        "sample_id": int(sample_id),
+        "day": int(day),
+        "data": data,
+    }
+
+
+def jsonl_to_arrow_ipc(jsonl_path: Path, arrow_path: Path) -> None:
+    """Write a simulation JSONL log as an Arrow IPC file (§G.8 Arrow sidecar)."""
+    import pyarrow as pa
+
+    rows: List[Dict[str, Any]] = []
+    with jsonl_path.open(encoding="utf-8") as handle:
+        for line in handle:
+            entry = parse_day_log_line(line)
+            if entry is None:
+                continue
+            data = entry["data"]
+            rows.append(
+                {
+                    "policy": entry["policy"],
+                    "sample_id": entry["sample_id"],
+                    "day": entry["day"],
+                    "profit": data.get("profit"),
+                    "km": data.get("km"),
+                    "overflows": data.get("overflows"),
+                    "kg": data.get("kg"),
+                    "kg_per_km": data.get("kg/km"),
+                    "cost": data.get("cost"),
+                    "ncol": data.get("ncol"),
+                    "kg_lost": data.get("kg_lost"),
+                }
+            )
+    if not rows:
+        raise ValueError(f"No simulation log entries found in {jsonl_path}")
+
+    table = pa.Table.from_pylist(
+        rows,
+        schema=pa.schema(
+            [
+                ("policy", pa.string()),
+                ("sample_id", pa.int32()),
+                ("day", pa.int32()),
+                ("profit", pa.float64()),
+                ("km", pa.float64()),
+                ("overflows", pa.float64()),
+                ("kg", pa.float64()),
+                ("kg_per_km", pa.float64()),
+                ("cost", pa.float64()),
+                ("ncol", pa.float64()),
+                ("kg_lost", pa.float64()),
+            ]
+        ),
+    )
+    arrow_path.parent.mkdir(parents=True, exist_ok=True)
+    with pa.OSFile(str(arrow_path), "wb") as sink:
+        with pa.ipc.new_file(sink, table.schema) as writer:
+            writer.write_table(table)
+
+
+def build_arrow_sidecars(source: Path, data_files: list[Path]) -> list[Path]:
+    """Emit ``.arrow`` IPC sidecars next to each CSV or JSONL under the source tree."""
     sidecars: list[Path] = []
-    for csv_path in csv_files:
-        rel = csv_path.relative_to(source)
+    for data_path in data_files:
+        rel = data_path.relative_to(source)
         arrow_rel = rel.with_suffix(".arrow")
         arrow_path = source / arrow_rel
         if arrow_path.exists():
             sidecars.append(arrow_path)
             continue
-        csv_to_arrow_ipc(csv_path, arrow_path)
+        suffix = data_path.suffix.lower()
+        if suffix == ".csv":
+            csv_to_arrow_ipc(data_path, arrow_path)
+        elif suffix == ".jsonl":
+            jsonl_to_arrow_ipc(data_path, arrow_path)
+        else:
+            continue
         sidecars.append(arrow_path)
     return sidecars
 
@@ -69,8 +158,10 @@ def export_bundle(source: Path, output: Path, *, include_arrow: bool = False) ->
     files = collect_files(source)
     arrow_sidecars: list[Path] = []
     if include_arrow:
-        csv_files = [f for f in files if f.suffix.lower() == ".csv"]
-        arrow_sidecars = build_arrow_sidecars(source, csv_files)
+        arrow_targets = [
+            f for f in files if f.suffix.lower() in {".csv", ".jsonl"}
+        ]
+        arrow_sidecars = build_arrow_sidecars(source, arrow_targets)
         files = sorted(set(files) | set(arrow_sidecars))
 
     manifest = {
@@ -103,7 +194,7 @@ def main() -> None:
     parser.add_argument(
         "--arrow",
         action="store_true",
-        help="Emit Arrow IPC (.arrow) sidecars for each CSV before bundling",
+        help="Emit Arrow IPC (.arrow) sidecars for each CSV and JSONL log before bundling",
     )
     args = parser.parse_args()
 

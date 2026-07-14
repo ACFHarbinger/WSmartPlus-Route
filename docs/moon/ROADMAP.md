@@ -890,7 +890,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Arrow IPC schema for simulation log rows and Rust CSV → Arrow IPC stream: `commands/arrow.rs` — `csv_to_arrow_ipc`, `simulation_log_to_arrow_ipc` (typed KPI schema: policy/sample_id/day + profit/km/overflows/kg_per_km/…)
 - [x] Spawn DuckDB-Wasm in a Web Worker; ingest Arrow IPC on CSV/log open: `duckdbClient.ts` + `useDuckDbInit` on app mount; Data Explorer + Simulation Monitor auto-ingest
 - [x] Verify end-to-end latency: Settings "Run Arrow Pipeline Benchmark" + Data Explorer timing badge; 500 ms budget constant in `arrowPipeline.ts` (§G.0 partial — hardware baseline varies)
-- [x] Arrow sidecar fast-path: `runCsvArrowPipeline()` prefers sibling ``.arrow`` IPC from extracted `.wsroute` bundles via `path_exists` + `runArrowSidecarPipeline()` (skips Rust CSV re-parse; §G.0 / §G.8)
+- [x] Arrow sidecar fast-path: `runCsvArrowPipeline()` + `runSimulationArrowPipeline()` prefer sibling ``.arrow`` IPC from extracted `.wsroute` bundles via `path_exists` + `runArrowSidecarPipeline()` (skips Rust CSV/JSONL re-parse; §G.0 / §G.8)
 
 ---
 
@@ -1082,16 +1082,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
-- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json`; `--arrow` emits Arrow IPC (`.arrow`) sidecars for each CSV (§G.8)
-- [x] Rust bundle Arrow export: `create_wsroute_bundle(..., include_arrow)` emits `.arrow` sidecars via `write_csv_arrow_sidecar()`; Output Browser checkbox + manifest `arrow_sidecars` count (§G.8)
-- [x] Studio sidecar ingest: DuckDB-Wasm pipeline auto-loads sibling `.arrow` when opening CSV in Data Explorer / OLAP / Settings benchmark (§G.8)
+- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json`; `--arrow` emits Arrow IPC (`.arrow`) sidecars for each CSV and simulation JSONL log (§G.8)
+- [x] Rust bundle Arrow export: `create_wsroute_bundle(..., include_arrow)` emits `.arrow` sidecars via `write_csv_arrow_sidecar()` + `write_simulation_log_arrow_sidecar()`; Output Browser checkbox + manifest `arrow_sidecars` count (§G.8)
+- [x] Studio sidecar ingest: DuckDB-Wasm pipeline auto-loads sibling `.arrow` when opening CSV or JSONL in Data Explorer / Simulation Summary / OLAP / Settings benchmark (§G.8)
 - [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser
 - [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
 - [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary from anywhere in the app
-- [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` Rust unit test — create bundle → extract → verify `.jsonl` log content (full simulation row parity deferred)
+- [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` + `simulation_arrow_sidecar_row_parity` Rust unit tests — create bundle → extract → verify `.jsonl` log content and Arrow sidecar row counts match parsed entries (§G.8)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
 - [x] Update check command: `system::check_for_updates` fetches JSON manifest from `WSMART_UPDATE_URL`; Settings "Check for Updates" button (partial — Tauri updater plugin / signed releases deferred)
@@ -1245,7 +1245,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 
 ---
 
-### §G.17 — Phase 17: Training Monitor Page
+### §G.17 — Phase 17: Training Monitor Page ✅
 
 **Goal**: Full Streamlit `training` mode parity — training run discovery, Lightning CSV metrics, hyperparameter inspection, and multi-run comparison.
 
@@ -1264,7 +1264,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 
 ---
 
-### §G.18 — Phase 18: Experiment & HPO Tracker
+### §G.18 — Phase 18: Experiment & HPO Tracker ✅
 
 **Goal**: Full Streamlit `experiment_tracker` and `hpo_tracker` mode parity — MLflow/ZenML run browser, Optuna study visualization, and cross-experiment comparison.
 

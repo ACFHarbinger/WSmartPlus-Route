@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-eighth pass (§G.0 / §G.8)
+
+Fifty-eighth pass extends the Arrow IPC loop to simulation JSONL logs: DuckDB ingest
+prefers pre-built ``.arrow`` sidecars for logs, bundles can emit log sidecars, and
+integration tests verify row parity.
+
+**React frontend**
+- `arrowPipeline.ts` — `jsonlArrowSidecarPath()`, `runSimulationArrowPipeline()`
+  sidecar fast-path via `path_exists` + `runArrowSidecarPipeline()`
+- `Settings` — Arrow benchmark accepts CSV or JSONL; timing badge notes sidecar path
+- `OutputBrowser` — export toggle label covers CSV + JSONL sidecars
+
+**Rust**
+- `arrow.rs` — `write_simulation_log_arrow_sidecar()` for on-disk JSONL → Arrow IPC
+- `data.rs` — `create_wsroute_bundle(..., include_arrow)` emits sidecars for CSV and
+  JSONL; `simulation_arrow_sidecar_row_parity` + updated round-trip tests
+
+**Python**
+- `export_for_studio.py` — `--arrow` emits Arrow IPC sidecars for JSONL logs via
+  `parse_day_log_line()` + `jsonl_to_arrow_ipc()`
+
+**ROADMAP**
+- §G.0 JSONL Arrow sidecar fast-path ingest checked
+- §G.8 JSONL bundle export + simulation row parity tests checked
+- §G.17 Training Monitor + §G.18 Experiment & HPO Tracker marked ✅ complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-seventh pass (§G.0 / §G.8)
 
 Fifty-seventh pass closes the Arrow IPC loop: Studio DuckDB ingest prefers pre-built

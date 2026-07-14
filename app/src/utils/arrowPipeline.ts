@@ -1,6 +1,7 @@
 /**
  * CSV → Rust Arrow IPC → DuckDB-Wasm pipeline (§G.0 Phase 0).
- * Prefers pre-built ``.arrow`` sidecars from ``.wsroute`` bundles when present (§G.8).
+ * Prefers pre-built ``.arrow`` sidecars from ``.wsroute`` bundles when present
+ * (CSV and simulation JSONL; §G.8).
  */
 import { invoke } from "@tauri-apps/api/core";
 import { duckDbRowCount, ingestArrowIpc, initDuckDb } from "./duckdbClient";
@@ -39,6 +40,11 @@ async function readIpcBytes(ipcPath: string): Promise<Uint8Array> {
 /** Resolve the Arrow IPC sidecar path for a CSV file. */
 export function csvArrowSidecarPath(csvPath: string): string {
   return csvPath.replace(/\.csv$/i, ".arrow");
+}
+
+/** Resolve the Arrow IPC sidecar path for a simulation JSONL log. */
+export function jsonlArrowSidecarPath(logPath: string): string {
+  return logPath.replace(/\.jsonl$/i, ".arrow");
 }
 
 /** Ingest a pre-built Arrow IPC file directly into DuckDB-Wasm. */
@@ -158,11 +164,17 @@ export async function runTensorArrowPipeline(
   };
 }
 
-/** Full pipeline for a simulation JSONL log. */
+/** Full pipeline for a simulation JSONL log; prefers a sibling ``.arrow`` sidecar when present. */
 export async function runSimulationArrowPipeline(
   logPath: string,
   tableName = "studio_sim"
 ): Promise<ArrowPipelineTiming> {
+  const sidecar = jsonlArrowSidecarPath(logPath);
+  const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
+  if (hasSidecar) {
+    return runArrowSidecarPipeline(sidecar, tableName);
+  }
+
   const t0 = performance.now();
   await initDuckDb();
 
