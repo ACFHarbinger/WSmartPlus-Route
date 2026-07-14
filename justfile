@@ -53,6 +53,7 @@ resume := "true"
 
 # --- Submodules ---
 
+mod agent 'tools/agent'
 mod app 'tools/app'
 mod benchmark 'tools/benchmark'
 mod ci 'tools/ci'
@@ -186,3 +187,11 @@ batch-run batch_cfg=batch_cfg dry_run=dry_run fail_fast=fail_fast n_cores=n_core
 # Commit using the .gitmessage template
 commit message: helper::_print_header
     just helper::commit '{{ message }}'
+
+# Loop the Claude Code agent on a stateful context with live-streaming reasoning steps
+loop-claude prompt="Continue implementing the studio, updating the ROADMAP and CHANGELOG, and commiting your work": helper::_print_header
+    just agent::loop-claude '{{ prompt }}'
+
+# Loop the Grok agent on a stateful context with live-streaming reasoning steps
+loop-grok prompt="Continue implementing the studio, updating the ROADMAP and CHANGELOG, and commiting your work": helper::_print_header
+    just agent::loop-grok '{{ prompt }}'

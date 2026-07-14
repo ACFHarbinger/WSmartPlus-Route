@@ -1027,6 +1027,10 @@ export function SimulationMonitor() {
             simData={displayEntry?.data ?? null}
             theme={theme}
             duckdbProfitRange={duckdbProfitRange}
+            entries={filteredEntries}
+            displayDay={displayDay}
+            dayRange={dayRange}
+            onDaySelect={setSelectedDay}
           />
 
           {duckdbReady && lastPipeline?.tableName === "monitor_sim" && (
