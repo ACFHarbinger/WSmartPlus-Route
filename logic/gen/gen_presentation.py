@@ -51,10 +51,13 @@ Usage
 from __future__ import annotations
 
 import argparse
+import copy
 import re
+import shutil
 import subprocess
 import tempfile
 import textwrap
+import xml.etree.ElementTree as ET
 import xml.sax.saxutils as saxutils
 import zipfile
 from pathlib import Path
@@ -66,10 +69,12 @@ matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from gen_simulation_analysis import (  # pyrefly: ignore [missing-import]
+    KGKM_LABEL,
     _group_spans,
     aggregate,
     build_context,
     build_full_results_matrix,
+    disp,
     filter_data,
     load_horizon_csv,
 )
@@ -78,7 +83,7 @@ from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
 from pptx.presentation import Presentation as PresentationClass
 from pptx.util import Emu, Inches, Pt
@@ -110,13 +115,34 @@ def _latex_to_omath(latex: str) -> etree._Element:
     for ctrl_pr in omath.findall(f".//{{{_MATH_NS}}}ctrlPr"):
         for child in list(ctrl_pr):
             ctrl_pr.remove(child)
+    # omath is still attached to the docx's w:document tree, so serializing it
+    # in place would drag in the inherited-but-unused xmlns:w/o/v/w10/pic/wp
+    # declarations from that root. Foreign WordprocessingML namespaces on an
+    # <m:oMath> embedded in a PresentationML part make real PowerPoint's parser
+    # reject/blank the a14:m math branch outright (LibreOffice tolerates it,
+    # but it never even evaluates that branch since it lacks a14 support, so
+    # this never showed up in headless verification). Detach and clean up.
+    omath = copy.deepcopy(omath)
+    etree.cleanup_namespaces(omath)
     return omath
+
+
+_FALLBACK_SYMBOLS = {
+    r"\Rightarrow": " => ", r"\rightarrow": " -> ", r"\geq": " >= ", r"\leq": " <= ",
+    r"\in": " in ", r"\notin": " not in ", r"\times": " x ", r"\cdot": " * ",
+    r"\quad": "   ", r"\qquad": "     ",
+}
+_FALLBACK_DROP = ("mathbf", "mathrm", "textbf", "text", "mathcal", "left", "right", "dfrac", "frac")
 
 
 def _plain_fallback(latex: str) -> str:
     """A readable, non-mathematical fallback string for non-OOXML-math viewers."""
-    text = re.sub(r"\\(mathbf|mathrm|textbf|text|mathcal|left|right)\b", "", latex)
-    text = re.sub(r"[\\{}$]", "", text).replace("\\,", " ").replace("\\ ", " ").replace("\\quad", "  ")
+    text = latex
+    for sym, plain in _FALLBACK_SYMBOLS.items():
+        text = text.replace(sym, plain)
+    text = re.sub(r"\\(" + "|".join(_FALLBACK_DROP) + r")\b", "", text)
+    text = re.sub(r"\\([a-zA-Z]+)", r"\1", text)  # keep the word, drop the backslash (e.g. \tau -> tau)
+    text = re.sub(r"[\\{}$]", "", text).replace(",", " ")
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -205,6 +231,30 @@ def _parse_result_cell(text: str):
     return _pair(m.group(1)), _pair(m.group(2))
 
 
+def compute_global_best(row_keys: list[tuple], col_keys: list[tuple], cells: dict[tuple, str]) -> dict:
+    """Best (lowest overflow / highest kg-km) column per row, across the FULL column set.
+
+    Computed once over every strategy/constructor/improver combination so that,
+    when the table is later split into per-strategy partial images, the same
+    single best cell is highlighted rather than one (possibly different) best
+    per partition.
+    """
+    best: dict = {}
+    for rk in row_keys:
+        ov_vals, kg_vals = {}, {}
+        for ck in col_keys:
+            ov, kg = _parse_result_cell(cells.get((rk, ck), "—"))
+            if ov and ov[1] is not None:
+                ov_vals[ck] = ov[1]
+            if kg and kg[1] is not None:
+                kg_vals[ck] = kg[1]
+        best[rk] = {
+            "ov": min(ov_vals, key=ov_vals.get) if ov_vals else None,  # pyrefly: ignore [no-matching-overload]
+            "kg": max(kg_vals, key=kg_vals.get) if kg_vals else None,  # pyrefly: ignore [no-matching-overload]
+        }
+    return best
+
+
 def render_hier_table_image(
     row_keys: list[tuple],
     col_keys: list[tuple],
@@ -213,10 +263,13 @@ def render_hier_table_image(
     out_path: Path,
     col_lookup_keys: list[tuple] | None = None,
     partition_label: str | None = None,
+    target_size_in: tuple[float, float] | None = None,
+    global_best: dict | None = None,
+    corner_note: str | None = None,
 ) -> Path:
     """
     Render a hierarchical (merged-header) results table as a PNG, in the style
-    of a LaTeX multi-row/multi-column table: row groups (graph size > region >
+    of a LaTeX multi-row/multi-column table: row groups (region > graph size >
     distribution) and column groups (strategy > constructor > improver, plus
     horizon if present) are drawn as merged header spans.
 
@@ -224,6 +277,14 @@ def render_hier_table_image(
     it to look cells up in `cells` — lets a hierarchy level be dropped from the
     displayed header (e.g. when the table has been partitioned by that level)
     while the underlying data lookup still uses the full key.
+
+    `target_size_in`, if given, stretches the table to exactly fill that
+    (width, height) in inches instead of using its own natural aspect ratio —
+    lets a narrow partial table still occupy the full slide width.
+
+    `global_best`, if given, overrides the per-partition best-cell computation
+    with a row_key -> {"ov": lookup_key, "kg": lookup_key} mapping computed
+    once across every partition (see `compute_global_best`).
     """
     col_lookup_keys = col_lookup_keys if col_lookup_keys is not None else col_keys
     n_row_levels = len(row_labels)
@@ -233,18 +294,45 @@ def render_hier_table_image(
 
     # Reserve an extra banner row at the top when a partition label is supplied
     banner_h = 0.5 if partition_label else 0.0
+    header_h = 0.5
+    # Per-level row-label widths: level 0 (region) needs room for names like "Figueira
+    # da Foz", level 1 (graph size) just a short number, level 2 (distribution) a medium
+    # word. Weighted rather than equal-width, and always a FRACTION of the target width
+    # (not fixed inches) so they don't eat a growing share of a shrunk target box.
+    level_weights = ([1.6, 0.7, 1.1] + [1.0] * n_row_levels)[:n_row_levels]
+    weight_sum = sum(level_weights)
 
-    cell_w, cell_h, label_w, header_h = 1.05, 0.5, 1.3, 0.5
-    fontsize = max(5.5, min(9, 260 / max(n_cols, 1)))
+    if target_size_in:
+        fig_w, fig_h = target_size_in
+        # Headers/banner must not swallow the whole target height when many rows are
+        # stacked into a small box (e.g. a per-strategy partial table) — cap their
+        # share of fig_h so every data row keeps a visible sliver of height.
+        if partition_label:
+            banner_h = min(banner_h, fig_h * 0.16)
+        header_h = min(header_h, fig_h * 0.14)
+        x0 = fig_w * 0.27
+        label_ws = [x0 * w / weight_sum for w in level_weights]
+        y0 = banner_h + header_h * n_col_levels
+        cell_w = (fig_w - x0) / max(n_cols, 1)
+        cell_h = (fig_h - y0) / max(n_rows, 1)
+        total_w, total_h = fig_w, fig_h
+    else:
+        cell_w, cell_h = 1.05, 0.5
+        x0 = 3.6
+        label_ws = [x0 * w / weight_sum for w in level_weights]
+        y0 = banner_h + header_h * n_col_levels
+        total_h = banner_h + header_h * n_col_levels + cell_h * n_rows
+        total_w = x0 + cell_w * n_cols
+        fig_w = min(total_w, 42)
+        fig_h = min(total_h, 32)
+    label_lefts = [sum(label_ws[:i]) for i in range(n_row_levels)]
 
-    x0 = label_w * n_row_levels
-    y0 = banner_h + header_h * n_col_levels
-    total_h = banner_h + header_h * n_col_levels + cell_h * n_rows
-    total_w = x0 + cell_w * n_cols
-    fig_w = min(total_w, 42)
-    fig_h = min(total_h, 32)
+    fontsize = max(5.5, min(10, 260 / max(n_cols, 1)))
+    # Two stacked values (overflow/kg-km) must fit within cell_h — cap the font accordingly.
+    fontsize = min(fontsize, cell_h * 72 * 0.32)
 
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, total_w)
     ax.set_ylim(0, total_h)
     ax.invert_yaxis()
@@ -252,24 +340,18 @@ def render_hier_table_image(
 
     # Banner row spanning all columns (including the row-label area)
     if partition_label:
-        ax.add_patch(
-            mpatches.Rectangle(
-                (0, 0),
-                total_w,
-                banner_h,
-                facecolor="#0D1B2A",
-                edgecolor="none",
-            )
-        )
+        ax.add_patch(mpatches.Rectangle((0, 0), total_w, banner_h, facecolor="#0D1B2A", edgecolor="none"))
         ax.text(
-            total_w / 2,
-            banner_h / 2,
-            partition_label,
-            ha="center",
-            va="center",
-            fontsize=fontsize + 1,
-            color="white",
-            fontweight="bold",
+            total_w / 2, banner_h / 2, partition_label, ha="center", va="center",
+            fontsize=fontsize + 2, color="white", fontweight="bold",
+        )
+
+    # Corner note (top-left, above the row labels / left of the column headers):
+    # explains that the top value in every cell is overflows, bottom is kg/km.
+    if corner_note:
+        ax.text(
+            x0 / 2, banner_h + (header_h * n_col_levels) / 2, corner_note, ha="center", va="center",
+            fontsize=fontsize * 0.85, color="#1F2D3D", fontweight="bold", linespacing=1.6,
         )
 
     header_colors = ["#1F2D3D", "#2E74B5", "#5A6A7A", "#8A9BB0"]
@@ -279,97 +361,81 @@ def render_hier_table_image(
             xs, xe = x0 + start * cell_w, x0 + end * cell_w
             ax.add_patch(
                 mpatches.Rectangle(
-                    (xs, y_top),
-                    xe - xs,
-                    header_h,
-                    facecolor=header_colors[lvl % len(header_colors)],
-                    edgecolor="white",
-                    linewidth=0.8,
+                    (xs, y_top), xe - xs, header_h,
+                    facecolor=header_colors[lvl % len(header_colors)], edgecolor="white", linewidth=0.8,
                 )
             )
             wrap_chars = max(6, int((xe - xs) / cell_w) * 10)
             ax.text(
-                (xs + xe) / 2,
-                y_top + header_h / 2,
-                _wrap_label(label, wrap_chars),
-                ha="center",
-                va="center",
-                fontsize=fontsize,
-                color="white",
-                fontweight="bold",
+                (xs + xe) / 2, y_top + header_h / 2, _wrap_label(disp(label), wrap_chars),
+                ha="center", va="center", fontsize=fontsize, color="white", fontweight="bold",
             )
 
     for lvl in range(n_row_levels):
-        x_left = lvl * label_w
+        x_left, lw = label_lefts[lvl], label_ws[lvl]
+        # Single-line label sized to fit the cell width, so it can never look like it
+        # straddles two rows (a wrapped 2-line label centred on a 2-row span can land
+        # one line per row and read as two separate cells).
+        lvl_fontsize = min(fontsize, lw * 72 * 0.16)
         for start, end, label in _group_spans(row_keys, lvl):
             ys, ye = y0 + start * cell_h, y0 + end * cell_h
             ax.add_patch(
-                mpatches.Rectangle(
-                    (x_left, ys),
-                    label_w,
-                    ye - ys,
-                    facecolor="#F0F4FA",
-                    edgecolor="#5A6A7A",
-                    linewidth=0.6,
-                )
+                mpatches.Rectangle((x_left, ys), lw, ye - ys, facecolor="#F0F4FA", edgecolor="#5A6A7A", linewidth=0.6)
             )
             ax.text(
-                x_left + label_w / 2,
-                (ys + ye) / 2,
-                _wrap_label(label, 10),
-                ha="center",
-                va="center",
-                fontsize=fontsize,
-                color="#1F2D3D",
-                fontweight="bold",
+                x_left + lw / 2, (ys + ye) / 2, str(label),
+                ha="center", va="center", fontsize=lvl_fontsize, color="#1F2D3D", fontweight="bold",
             )
+            # Separator across the data area (not the row-label area) at every
+            # innermost row-group boundary (e.g. between the Empirical and Gamma-3 rows).
+            if lvl == n_row_levels - 1 and start > 0:
+                ax.plot([x0, total_w], [ys, ys], color="#5A6A7A", linewidth=1.2, zorder=5)
 
     for ri, rk in enumerate(row_keys):
-        parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
-        ov_vals = {ci: v[0][1] for ci, v in parsed.items() if v[0] and v[0][1] is not None}
-        kg_vals = {ci: v[1][1] for ci, v in parsed.items() if v[1] and v[1][1] is not None}
-        best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None  # pyrefly: ignore [no-matching-overload]
-        best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None  # pyrefly: ignore [no-matching-overload]
+        best_ov_key = None
+        best_kg_key = None
+        best_ov_ci = None
+        best_kg_ci = None
+        if global_best is not None:
+            best_ov_key = global_best.get(rk, {}).get("ov")
+            best_kg_key = global_best.get(rk, {}).get("kg")
+            parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
+        else:
+            parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
+            ov_vals = {ci: v[0][1] for ci, v in parsed.items() if v[0] and v[0][1] is not None}
+            kg_vals = {ci: v[1][1] for ci, v in parsed.items() if v[1] and v[1][1] is not None}
+            best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None  # pyrefly: ignore [no-matching-overload]
+            best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None  # pyrefly: ignore [no-matching-overload]
         for ci in range(n_cols):
             xs, ys = x0 + ci * cell_w, y0 + ri * cell_h
-            ax.add_patch(
-                mpatches.Rectangle(
-                    (xs, ys),
-                    cell_w,
-                    cell_h,
-                    fill=False,
-                    edgecolor="#CCCCCC",
-                    linewidth=0.4,
-                )
-            )
+            ax.add_patch(mpatches.Rectangle((xs, ys), cell_w, cell_h, fill=False, edgecolor="#CCCCCC", linewidth=0.4))
             ov, kg = parsed.get(ci, (None, None))
             if ov is None and kg is None:
                 ax.text(xs + cell_w / 2, ys + cell_h / 2, "—", ha="center", va="center", fontsize=fontsize * 0.85)
                 continue
-            ov_color, ov_weight = ("#1A7A34", "bold") if ci == best_ov_ci else ("#333333", "normal")
-            kg_color, kg_weight = ("#1A7A34", "bold") if ci == best_kg_ci else ("#333333", "normal")
+            # Dotted separator between the overflow (top) and kg/km (bottom) values in the cell.
+            ax.plot(
+                [xs + cell_w * 0.12, xs + cell_w * 0.88], [ys + cell_h * 0.5, ys + cell_h * 0.5],
+                linestyle=":", color="#AAAAAA", linewidth=0.8,
+            )
+            if global_best is not None:
+                is_best_ov = best_ov_key is not None and col_lookup_keys[ci] == best_ov_key
+                is_best_kg = best_kg_key is not None and col_lookup_keys[ci] == best_kg_key
+            else:
+                is_best_ov = ci == best_ov_ci
+                is_best_kg = ci == best_kg_ci
+            ov_color, ov_weight = ("#1A7A34", "bold") if is_best_ov else ("#333333", "normal")
+            kg_color, kg_weight = ("#1A7A34", "bold") if is_best_kg else ("#333333", "normal")
             ax.text(
-                xs + cell_w / 2,
-                ys + cell_h * 0.3,
-                ov[0] if ov else "—",
-                ha="center",
-                va="center",
-                fontsize=fontsize * 0.85,
-                color=ov_color,
-                fontweight=ov_weight,
+                xs + cell_w / 2, ys + cell_h * 0.28, ov[0] if ov else "—", ha="center", va="center",
+                fontsize=fontsize * 0.85, color=ov_color, fontweight=ov_weight,
             )
             ax.text(
-                xs + cell_w / 2,
-                ys + cell_h * 0.7,
-                kg[0] if kg else "—",
-                ha="center",
-                va="center",
-                fontsize=fontsize * 0.85,
-                color=kg_color,
-                fontweight=kg_weight,
+                xs + cell_w / 2, ys + cell_h * 0.72, kg[0] if kg else "—", ha="center", va="center",
+                fontsize=fontsize * 0.85, color=kg_color, fontweight=kg_weight,
             )
 
-    fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
+    fig.savefig(out_path, dpi=180, bbox_inches=None, pad_inches=0, facecolor="white")
     plt.close(fig)
     return out_path
 
@@ -444,7 +510,9 @@ class DeckBuilder:
         p.font.bold = True
         p.font.color.rgb = WHITE
 
-    def _bullets(self, slide, bullets: list[str], left=None, top=None, width=None, height=None, size=16) -> None:
+    def _bullets(self, slide, bullets: list[str], left=None, top=None, width=None, height=None, size=16, gap=10) -> None:
+        if not bullets:
+            return
         left = left if left is not None else Inches(0.6)
         top = top if top is not None else Inches(1.3)
         width = width if width is not None else SLIDE_W - Inches(1.2)
@@ -454,7 +522,7 @@ class DeckBuilder:
             p.text = f"•  {text}"
             p.font.size = Pt(size)
             p.font.color.rgb = DARK
-            p.space_after = Pt(10)
+            p.space_after = Pt(gap)
 
     def _picture_fit(self, slide, path: Path, left, top, max_w, max_h) -> None:
         from PIL import Image
@@ -496,13 +564,13 @@ class DeckBuilder:
         self._tab_count += 1
         self._caption_box(slide, f"Table {self._tab_count}", text, top=top)
 
-    def _equation_focus(self, slide, lines: list[str], left=None, top=None, width=None, size_pt: int = 22):
+    def _equation_focus(self, slide, lines: list[str], left=None, top=None, width=None, size_pt: int = 22, line_h: float = 0.62):
         """Place native, editable equation lines as the slide's visual focus."""
         self._eq_count += 1
         left = left if left is not None else Inches(0.6)
         top = top if top is not None else Inches(1.25)
         width = width if width is not None else SLIDE_W - Inches(1.2)
-        area_h = Inches(0.62 * len(lines) + 0.4)
+        area_h = Inches(line_h * len(lines) + 0.4)
         band = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, area_h)
         _fill(band, RGBColor(0xF0, 0xF4, 0xFA))
         band.shadow.inherit = False
@@ -512,14 +580,14 @@ class DeckBuilder:
         add_equation_paragraphs(tf, lines, size_pt=size_pt)
         return top + area_h + Inches(0.2)
 
-    def _pipeline_diagram(self, slide) -> None:
-        """Draw the policy pipeline as chevron stages with captions."""
+    def _pipeline_diagram(self, slide):
+        """Draw the policy pipeline as chevron stages with captions. Returns the diagram's bottom y."""
         n = len(PIPELINE_STAGES)
         gap = Inches(0.25)
-        left0 = Inches(0.6)
-        total_w = SLIDE_W - Inches(1.2)
+        left0 = Inches(0.5)
+        total_w = SLIDE_W - Inches(1.0)
         stage_w = int((total_w - gap * (n - 1)) / n)
-        top = Inches(1.7)
+        top = Inches(1.9)
         h = Inches(1.5)
         for i, (name, caption) in enumerate(PIPELINE_STAGES):
             left = left0 + i * (stage_w + gap)
@@ -536,24 +604,24 @@ class DeckBuilder:
                 p.font.bold = True
                 p.font.color.rgb = WHITE
                 p.alignment = PP_ALIGN.CENTER
-            _, ctf = _textbox(slide, left, top + h + Inches(0.1), stage_w, Inches(0.9))
+            _, ctf = _textbox(slide, left, top + h + Inches(0.15), stage_w, Inches(1.1))
             for li, line in enumerate(caption.split("\n")):
                 p = ctf.paragraphs[0] if li == 0 else ctf.add_paragraph()
                 p.text = line
-                p.font.size = Pt(12)
+                p.font.size = Pt(14)
                 p.font.color.rgb = MUTED
                 p.alignment = PP_ALIGN.CENTER
-        sim = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.1), top + h + Inches(1.2), SLIDE_W - Inches(6.2), Inches(0.8)
-        )
+        sim_top = top + h + Inches(1.55)
+        sim = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.6), sim_top, SLIDE_W - Inches(5.2), Inches(0.9))
         _fill(sim, DARK)
         sim.shadow.inherit = False
         p = sim.text_frame.paragraphs[0]
         p.text = "Multi-day simulator: region × graph size × distribution"
-        p.font.size = Pt(14)
+        p.font.size = Pt(17)
         p.font.bold = True
         p.font.color.rgb = WHITE
         p.alignment = PP_ALIGN.CENTER
+        return sim_top + Inches(0.9)
 
     def _policy_grid_diagram(self, slide) -> None:
         """Draw the Mandatory Selection x Route Constructor x Route Improver big picture."""
@@ -573,14 +641,14 @@ class DeckBuilder:
                 "Route Constructor",
                 [
                     ("Exact Methods", ["BPC", "SWC-TCF"]),
-                    ("Meta-Heuristics", ["HGS", "ALNS", "SANS", "PG-CLNS"]),
-                    ("Hyper-Heuristics", ["PSOMA", "ACO-HH"]),
+                    ("Meta-Heuristics", ["HGS", "ALNS", "SANS", "PG-CLNS", "PSOMA"]),
+                    ("Hyper-Heuristics", ["ACO-HH"]),
                 ],
                 "grouped",
             ),
             ("Route Improver", ["Fast-TSP", "Local Search (CLS)"], "flat"),
         ]
-        top, bottom = Inches(1.15), Inches(5.75)
+        top, bottom = Inches(1.15), Inches(6.5)
         gap = Inches(0.3)
         left0 = Inches(0.6)
         col_w = int((SLIDE_W - Inches(1.2) - gap * (len(columns) - 1)) / len(columns))
@@ -638,7 +706,49 @@ class DeckBuilder:
                     pi.font.color.rgb = DARK
                     pi.alignment = PP_ALIGN.CENTER
 
-    def _doe_tree_diagram(self, slide) -> None:
+    def _algo_taxonomy_diagram(self, slide) -> None:
+        """Draw the Exact / Meta-Heuristic / Hyper-Heuristic route-constructor taxonomy."""
+        groups = [
+            ("Exact Methods", ACCENT, ["BPC", "SWC-TCF"]),
+            ("Meta-Heuristics", RGBColor(0x3E, 0x8E, 0x41), ["HGS", "ALNS", "SANS", "PG-CLNS", "PSOMA"]),
+            ("Hyper-Heuristics", RGBColor(0xB0, 0x6A, 0x2E), ["ACO-HH"]),
+        ]
+        top, bottom = Inches(1.25), Inches(4.15)
+        gap = Inches(0.35)
+        left0 = Inches(0.6)
+        col_w = int((SLIDE_W - Inches(1.2) - gap * (len(groups) - 1)) / len(groups))
+        header_h = Inches(0.6)
+        for ci, (header, color, items) in enumerate(groups):
+            left = left0 + ci * (col_w + gap)
+            hd = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, col_w, header_h)
+            _fill(hd, color)
+            hd.shadow.inherit = False
+            p = hd.text_frame.paragraphs[0]
+            p.text = header
+            p.font.size = Pt(17)
+            p.font.bold = True
+            p.font.color.rgb = WHITE
+            p.alignment = PP_ALIGN.CENTER
+            body_top = top + header_h + Inches(0.15)
+            body_h = bottom - body_top
+            item_gap = Inches(0.12)
+            item_h = int((body_h - item_gap * (len(items) - 1)) / len(items))
+            for ii, label in enumerate(items):
+                it_top = body_top + ii * (item_h + item_gap)
+                box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, it_top, col_w, item_h)
+                box.fill.solid()
+                box.fill.fore_color.rgb = RGBColor(0xF0, 0xF4, 0xFA)
+                box.line.color.rgb = color
+                box.line.width = Pt(1.25)
+                box.shadow.inherit = False
+                p = box.text_frame.paragraphs[0]
+                p.text = label
+                p.font.size = Pt(16)
+                p.font.bold = True
+                p.font.color.rgb = DARK
+                p.alignment = PP_ALIGN.CENTER
+
+    def _doe_tree_diagram(self, slide) -> int:
         """Draw the design-of-experiments tree: horizon -> scenario -> distribution."""
         horizons = [
             (
@@ -677,6 +787,8 @@ class DeckBuilder:
         hz_w = int((SLIDE_W - Inches(1.2) - gap_h * (n_h - 1)) / n_h)
         hz_h = Inches(0.6)
         left0 = Inches(0.6)
+        dist_h = Inches(0.4)
+        dist_top = Inches(0.1)
         for hi, (hz_label, scenarios) in enumerate(horizons):
             hz_left = left0 + hi * (hz_w + gap_h)
             hz_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, hz_left, hz_top, hz_w, hz_h)
@@ -717,6 +829,7 @@ class DeckBuilder:
                 p.font.size = Pt(10)
                 p.font.color.rgb = DARK
                 p.alignment = PP_ALIGN.CENTER
+        return dist_top + dist_h
 
     def _figure_slide(self, spec: dict) -> None:
         slide = self._new_slide()
@@ -826,20 +939,15 @@ class DeckBuilder:
         _fill(bg, DARK)
         title_len = len(self.content["title"])
         title_sz = 26 if title_len > 80 else 32 if title_len > 55 else 36
-        band_top = Inches(4.15)
+        band_top = Inches(4.55)
         band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, band_top, SLIDE_W, Inches(0.06))  # pyrefly: ignore [bad-argument-type]
         _fill(band, ACCENT)
-        _, tf = _textbox(slide, Inches(0.9), Inches(1.15), SLIDE_W - Inches(1.8), Inches(2.85))
+        _, tf = _textbox(slide, Inches(0.9), Inches(1.95), SLIDE_W - Inches(1.8), Inches(2.4))
         p = tf.paragraphs[0]
         p.text = self.content["title"]
         p.font.size = Pt(title_sz)
         p.font.bold = True
         p.font.color.rgb = WHITE
-        p2 = tf.add_paragraph()
-        p2.text = self.content["subtitle"]
-        p2.font.size = Pt(17)
-        p2.font.color.rgb = LIGHT_TXT
-        p2.space_before = Pt(10)
         _, tf2 = _textbox(slide, Inches(0.9), band_top + Inches(0.25), SLIDE_W - Inches(1.8), Inches(3.0))
         p3 = tf2.paragraphs[0]
         p3.text = self.author
@@ -866,86 +974,207 @@ class DeckBuilder:
 
     def agenda(self) -> None:
         slide = self._new_slide()
-        self._title_bar(slide, "Agenda")
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)  # pyrefly: ignore [bad-argument-type]
+        _fill(bg, DARK)
+        _, tf = _textbox(slide, Inches(0.9), Inches(0.5), SLIDE_W - Inches(1.8), Inches(0.9))
+        p = tf.paragraphs[0]
+        p.text = "Agenda"
+        p.font.size = Pt(34)
+        p.font.bold = True
+        p.font.color.rgb = WHITE
+
         items = self.content["agenda"]
         half = (len(items) + 1) // 2
-        for col, chunk in enumerate([items[:half], items[half:]]):
-            _, tf = _textbox(
-                slide,
-                Inches(0.7) + col * int((SLIDE_W - Inches(1.4)) / 2),
-                Inches(1.4),
-                int((SLIDE_W - Inches(1.6)) / 2),
-                SLIDE_H - Inches(1.8),
-            )
+        cols = [items[:half], items[half:]]
+        top0 = Inches(1.65)
+        avail_h = SLIDE_H - top0 - Inches(0.5)
+        gap_x = Inches(0.4)
+        col_w = int((SLIDE_W - Inches(1.2) - gap_x) / 2)
+        card_colors = [ACCENT, RGBColor(0x3E, 0x8E, 0x41), RGBColor(0xB0, 0x6A, 0x2E), RGBColor(0x8E, 0x3E, 0x7A)]
+        for col, chunk in enumerate(cols):
+            left = Inches(0.6) + col * (col_w + gap_x)
+            card_gap = Inches(0.22)
+            card_h = int((avail_h - card_gap * (len(chunk) - 1)) / max(len(chunk), 1))
             for i, item in enumerate(chunk):
-                p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-                p.text = f"{col * half + i + 1}.  {item}"
-                p.font.size = Pt(16)
-                p.font.color.rgb = DARK
-                p.space_after = Pt(12)
+                idx = col * half + i
+                top = top0 + i * (card_h + card_gap)
+                card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, col_w, card_h) # pyrefly: ignore [bad-argument-type]
+                _fill(card, RGBColor(0x27, 0x37, 0x49))
+                card.line.color.rgb = card_colors[idx % len(card_colors)] # pyrefly: ignore [bad-assignment]
+                card.line.width = Pt(1.25)
+                card.shadow.inherit = False
+                badge_d = min(Inches(0.62), card_h - Inches(0.15))
+                badge_left = left + Inches(0.18)
+                badge_top = top + int((card_h - badge_d) / 2)
+                badge = slide.shapes.add_shape(MSO_SHAPE.OVAL, badge_left, badge_top, badge_d, badge_d) # pyrefly: ignore [bad-argument-type]
+                _fill(badge, card_colors[idx % len(card_colors)])
+                badge.shadow.inherit = False
+                bp = badge.text_frame.paragraphs[0]
+                bp.text = str(idx + 1)
+                bp.font.size = Pt(22)
+                bp.font.bold = True
+                bp.font.color.rgb = WHITE
+                bp.alignment = PP_ALIGN.CENTER
+                _, itf = _textbox(
+                    slide, badge_left + badge_d + Inches(0.2), top, col_w - badge_d - Inches(0.55), card_h
+                )
+                itf.vertical_anchor = MSO_ANCHOR.MIDDLE
+                ip = itf.paragraphs[0]
+                ip.text = item
+                ip.font.size = Pt(19)
+                ip.font.bold = True
+                ip.font.color.rgb = WHITE
         self._record_script("Agenda", ["Today's agenda: " + "; ".join(items) + "."])
+
+    def _figures_side_by_side(self, slide, paths: list[Path], left, top, total_w, total_h) -> None:
+        w_each = int(total_w / len(paths))
+        for i, p in enumerate(paths):
+            self._picture_fit(slide, p, left + w_each * i, top, w_each - Inches(0.1), total_h)
+
+    def _figures_equal_height(self, slide, paths: list[Path], left, top, total_w, total_h) -> None:
+        """Place images side by side sharing one common height (no per-image aspect-fit height drift)."""
+        from PIL import Image
+
+        aspects = []
+        for p in paths:
+            with Image.open(p) as im:
+                w_px, h_px = im.size
+            aspects.append(w_px / h_px)
+        common_h = total_h
+        total_needed_w = sum(a * common_h for a in aspects)
+        if total_needed_w > total_w:
+            common_h = int(common_h * (total_w / total_needed_w))
+            total_needed_w = total_w
+        group_left = left + int((total_w - total_needed_w) / 2)
+        x = group_left
+        for p, a in zip(paths, aspects, strict=True):
+            w = int(a * common_h)
+            slide.shapes.add_picture(str(p), x, top + int((total_h - common_h) / 2), w, common_h)
+            x += w
+
+    def _figures_grid_2x2(self, slide, paths: list[Path], left, top, total_w, total_h) -> None:
+        gap = Inches(0.15)
+        cell_w = int((total_w - gap) / 2)
+        cell_h = int((total_h - gap) / 2)
+        positions = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        for p, (cx, cy) in zip(paths, positions, strict=False):
+            px = left + cx * (cell_w + gap)
+            py = top + cy * (cell_h + gap)
+            self._picture_fit(slide, p, px, py, cell_w, cell_h)
 
     def content_slide(self, key: str) -> None:
         spec = self.content["slides"][key]
         slide = self._new_slide()
         self._title_bar(slide, spec["title"])
-        fig_path = self.figures_dir / spec["figure"] if spec.get("figure") else None
-        has_fig = bool(fig_path) and fig_path.exists()
-        if spec.get("figure") and not has_fig:
-            print(f"  [WARN] Figure not found: {fig_path}")
+        show_bullets = spec.get("show_bullets", True)
+        fig_names = spec.get("figures") or ([spec["figure"]] if spec.get("figure") else [])
+        candidate_paths = [self.figures_dir / n for n in fig_names]
+        fig_paths = []
+        for p in candidate_paths:
+            if p.exists():
+                fig_paths.append(p)
+            else:
+                print(f"  [WARN] Figure not found: {p}")
+        has_fig = bool(fig_paths)
 
         if spec.get("equation"):
             col_w = int(SLIDE_W / 2) - Inches(0.4) if has_fig else SLIDE_W - Inches(1.2)
             eq_left = Inches(0.6)
             bullets_top = self._equation_focus(
-                slide, spec["equation"], left=eq_left, width=col_w, size_pt=15 if has_fig else 20
+                slide, spec["equation"], left=eq_left, width=col_w,
+                size_pt=spec.get("eq_size_pt", 15 if has_fig else 20), line_h=spec.get("eq_line_h", 0.62),
             )
             if spec.get("caption"):
                 self._equation_caption(slide, spec["caption"], top=bullets_top, left=eq_left, width=col_w)
                 bullets_top += Inches(0.85)
-            self._bullets(
-                slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14
-            )
+            if show_bullets:
+                self._bullets(
+                    slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14
+                )
             if has_fig:
-                self._picture_fit(
-                    slide,
-                    fig_path,
-                    int(SLIDE_W / 2) + Inches(0.2),
-                    Inches(1.2),
-                    int(SLIDE_W / 2) - Inches(0.8),
-                    SLIDE_H - Inches(1.7),
+                self._figures_side_by_side(
+                    slide, fig_paths, int(SLIDE_W / 2) + Inches(0.2), Inches(1.2),
+                    int(SLIDE_W / 2) - Inches(0.8), SLIDE_H - Inches(1.7),
                 )
         elif spec.get("diagram") == "pipeline":
-            self._pipeline_diagram(slide)
-            bullets_top = Inches(5.6)
+            diagram_bottom = self._pipeline_diagram(slide)
+            bullets_top = diagram_bottom + Inches(0.1)
             if spec.get("caption"):
                 self._figure_caption(slide, spec["caption"], top=bullets_top)
                 bullets_top += Inches(0.75)
-            self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
+            if show_bullets:
+                self._bullets(slide, spec["bullets"], top=bullets_top, size=14)
         elif spec.get("diagram") == "policy_grid":
             self._policy_grid_diagram(slide)
-            bullets_top = Inches(5.85)
+            bullets_top = Inches(6.6)
             if spec.get("caption"):
-                self._figure_caption(slide, spec["caption"], top=bullets_top)
-                bullets_top += Inches(0.6)
-            self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
+                self._figure_caption(slide, spec["caption"], top=bullets_top, height=Inches(0.55))
+                bullets_top += Inches(0.55)
+            if show_bullets:
+                self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
+        elif spec.get("diagram") == "metaheuristic_families":
+            grid_bottom = Inches(6.7)
+            if len(fig_paths) >= 3:
+                self._figures_grid_2x2(slide, fig_paths, Inches(0.4), Inches(1.15), SLIDE_W - Inches(0.8), grid_bottom - Inches(1.15))
+            else:
+                self._figures_side_by_side(slide, fig_paths, Inches(0.4), Inches(1.15), SLIDE_W - Inches(0.8), grid_bottom - Inches(1.15))
+            if spec.get("caption"):
+                self._figure_caption(slide, spec["caption"], top=grid_bottom, height=Inches(0.55))
+            if show_bullets:
+                self._bullets(slide, spec["bullets"], top=grid_bottom + Inches(0.55), size=12)
+        elif spec.get("diagram") == "algo_taxonomy":
+            self._algo_taxonomy_diagram(slide)
+            bullets_top = Inches(4.35)
+            bullets_w = int(SLIDE_W / 2) - Inches(0.7) if has_fig else None
+            if show_bullets:
+                self._bullets(slide, spec["bullets"], top=bullets_top, width=bullets_w, size=13, gap=6)
+            if has_fig:
+                self._figures_side_by_side(
+                    slide, fig_paths, int(SLIDE_W / 2) + Inches(0.1), bullets_top,
+                    int(SLIDE_W / 2) - Inches(0.7), SLIDE_H - bullets_top - Inches(0.3),
+                )
         elif spec.get("diagram") == "doe_tree":
-            self._doe_tree_diagram(slide)
-            bullets_top = Inches(5.85)
+            diagram_bottom = self._doe_tree_diagram(slide)
+            caption_top = diagram_bottom + Inches(0.15)
+            content_top = caption_top
             if spec.get("caption"):
-                self._figure_caption(slide, spec["caption"], top=bullets_top)
-                bullets_top += Inches(0.6)
-            self._bullets(slide, spec["bullets"], top=bullets_top, size=13)
+                self._figure_caption(slide, spec["caption"], top=caption_top)
+                content_top = caption_top + Inches(0.55)
+            if fig_paths:
+                map_captions = spec.get("figure_captions")
+                cap_h = Inches(0.4) if map_captions else 0
+                self._figures_side_by_side(
+                    slide, fig_paths, Inches(0.6), content_top,
+                    SLIDE_W - Inches(1.2), SLIDE_H - content_top - Inches(0.2) - cap_h,
+                )
+                if map_captions:
+                    n = len(fig_paths)
+                    w_each = int((SLIDE_W - Inches(1.2)) / n)
+                    cap_top = SLIDE_H - Inches(0.2) - cap_h
+                    for i, cap in enumerate(map_captions[:n]):
+                        _, ctf = _textbox(slide, Inches(0.6) + w_each * i, cap_top, w_each - Inches(0.1), cap_h)
+                        p = ctf.paragraphs[0]
+                        p.text = cap
+                        p.font.size = Pt(11)
+                        p.font.italic = True
+                        p.font.color.rgb = MUTED
+                        p.alignment = PP_ALIGN.CENTER
+            elif show_bullets:
+                self._bullets(slide, spec["bullets"], top=content_top, size=13)
         elif has_fig:
-            self._picture_fit(
-                slide, fig_path, int(SLIDE_W / 2), Inches(1.2), int(SLIDE_W / 2) - Inches(0.4), SLIDE_H - Inches(1.7)
-            )
+            if show_bullets:
+                fig_left, fig_w = int(SLIDE_W / 2), int(SLIDE_W / 2) - Inches(0.4)
+            else:
+                fig_left, fig_w = Inches(0.5), SLIDE_W - Inches(1.0)
+            self._figures_equal_height(slide, fig_paths, fig_left, Inches(1.2), fig_w, SLIDE_H - Inches(1.7))
             if spec.get("caption"):
                 self._figure_caption(slide, spec["caption"])
-            self._bullets(
-                slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4), width=int(SLIDE_W / 2) - Inches(0.7), size=13
-            )
-        else:
+            if show_bullets:
+                self._bullets(
+                    slide, spec["bullets"], left=Inches(0.5), top=Inches(1.4),
+                    width=int(SLIDE_W / 2) - Inches(0.7), size=13,
+                )
+        elif show_bullets:
             self._bullets(slide, spec["bullets"])
         self._record_script(spec["title"], [spec.get("caption", "")] + list(spec["bullets"]))
 
@@ -1006,11 +1235,19 @@ class DeckBuilder:
         }
         level_names = (["horizon"] if multi else []) + ["strategy", "constructor", "improver"]
         col_desc = " × ".join(level_phrases[n] for n in level_names)
+        row_labels = ["Region", "N", "Dist"]
+        corner_note = "TOP:\nOverflows\n\nBOTTOM:\nKG / KM"
 
         slide = self._new_slide()
         self._title_bar(slide, title)
         area_top, area_bottom = Inches(1.15), SLIDE_H - Inches(0.95)
+        area_w_in = Emu(SLIDE_W - Inches(0.6)).inches
         split = self.results_table_split
+
+        # Best cell per row is computed once, across every strategy/constructor/
+        # improver combination, so a later per-partition split still highlights
+        # a single best value per row rather than one per partition.
+        global_best = compute_global_best(row_keys, col_keys, cells)
 
         if split != "none" and split in level_names:
             level_idx = level_names.index(split)
@@ -1019,6 +1256,7 @@ class DeckBuilder:
                 if ck[level_idx] not in partition_values:
                     partition_values.append(ck[level_idx])
             part_h = int((area_bottom - area_top) / len(partition_values))
+            part_h_in = Emu(part_h).inches
             for pi, val in enumerate(partition_values):
                 sub_full = [ck for ck in col_keys if ck[level_idx] == val]
                 sub_display = [ck[:level_idx] + ck[level_idx + 1 :] for ck in sub_full]
@@ -1028,35 +1266,34 @@ class DeckBuilder:
                     row_keys,
                     sub_display,
                     cells,
-                    ["N", "Region", "Dist"],
+                    row_labels,
                     self._tmp / f"full_results_table_{split}_{pi}.png",
                     col_lookup_keys=sub_full,
                     partition_label=f"{split.capitalize()}: {val}",
+                    target_size_in=(area_w_in, part_h_in),
+                    global_best=global_best,
+                    corner_note=corner_note if pi == 0 else None,
                 )
-                self._picture_fit(
-                    slide,
-                    img_path,
-                    Inches(0.3),
-                    part_top,
-                    SLIDE_W - Inches(0.6),
-                    part_h,
-                )
+                slide.shapes.add_picture(str(img_path), Inches(0.3), part_top, SLIDE_W - Inches(0.6), part_h) # pyrefly: ignore [bad-argument-type]
             remaining_desc = " × ".join(level_phrases[n] for n in level_names if n != split)
             col_desc = (
                 f"partitioned by {level_phrases[split]} ({', '.join(str(v) for v in partition_values)}), "
                 f"one partial table per value; each partial table then grouped by {remaining_desc}"
             )
         else:
+            area_h_in = Emu(area_bottom - area_top).inches
             img_path = render_hier_table_image(
-                row_keys, col_keys, cells, ["N", "Region", "Dist"], self._tmp / "full_results_table.png"
+                row_keys, col_keys, cells, row_labels, self._tmp / "full_results_table.png",
+                target_size_in=(area_w_in, area_h_in), global_best=global_best, corner_note=corner_note,
             )
-            self._picture_fit(slide, img_path, Inches(0.3), area_top, SLIDE_W - Inches(0.6), area_bottom - area_top)
+            slide.shapes.add_picture(str(img_path), Inches(0.3), area_top, SLIDE_W - Inches(0.6), area_bottom - area_top) # pyrefly: ignore [bad-argument-type]
 
         self._table_caption(
             slide,
-            f"Full results table — rows: graph size × region × data distribution; columns: {col_desc}. "
+            f"Full results table — rows: region × graph size × data distribution; columns: {col_desc}. "
             "In every cell, the top value is mean±std overflows (lower is better) and the bottom value is "
-            "mean±std kg/km (higher is better); the best value per row is shown in bold green.",
+            f"mean±std {KGKM_LABEL} (higher is better), separated by a dotted line; the single best value per "
+            "row (across every partial table) is shown in bold green.",
         )
         self._record_script(title, [f"Full results table, columns grouped by {col_desc}."])
 
@@ -1099,8 +1336,8 @@ class DeckBuilder:
         self.content_slide("vrpp")  # 3
         self.content_slide("objective")  # 4
         self.content_slide("simulator")  # 5
-        self.content_slide("strategies")  # 6
-        self.content_slide("policy_overview")  # 7
+        self.content_slide("policy_overview")  # 6
+        self.content_slide("strategies")  # 7
         self.content_slide("exact")  # 8
         self.content_slide("metaheuristics")  # 9
         self.content_slide("improvers")  # 10
@@ -1237,6 +1474,412 @@ def generate_qa_route_image(out_path: Path) -> Path:
     return out_path
 
 
+# ── Native reference-style diagrams (see links/reference_image_links.xml for
+# the third-party images that inspired their layout/content) ──────────────────
+
+
+def generate_bb_tree_image(out_path: Path) -> Path:
+    """A small Branch-and-Bound search tree: BPC/SWC-TCF both branch, price and cut at each node."""
+    fig, ax = plt.subplots(figsize=(8.1, 6), dpi=200)
+    ax.set_xlim(0, 11.6)
+    ax.set_ylim(0, 10)
+    ax.axis("off")
+
+    nodes = {
+        "root": (5.6, 9, "LP Relaxation\n(+ cuts)", "#1F2D3D"),
+        "l1": (2.3, 6.2, "Branch: x_ij = 0", "#2E74B5"),
+        "r1": (8.6, 6.2, "Branch: x_ij = 1", "#2E74B5"),
+        "l2": (2.3, 3.2, "Pruned\n(bound ≤ incumbent)", "#8A9BB0"),
+        "r2a": (6.9, 3.2, "Branch again", "#2E74B5"),
+        "r2b": (10.2, 3.2, "Integer feasible\nnew incumbent", "#3E8E41"),
+        "leaf1": (5.3, 0.6, "Pruned\n(infeasible)", "#8A9BB0"),
+        "leaf2": (8.7, 0.6, "Optimal route set", "#3E8E41"),
+    }
+    edges = [("root", "l1"), ("root", "r1"), ("l1", "l2"), ("r1", "r2a"), ("r1", "r2b"), ("r2a", "leaf1"), ("r2a", "leaf2")]
+    for a, b in edges:
+        xa, ya, *_ = nodes[a]
+        xb, yb, *_ = nodes[b]
+        ax.plot([xa, xb], [ya - 0.35, yb + 0.35], color="#8A9BB0", linewidth=1.4, zorder=1)
+
+    for _key, (x, y, label, color) in nodes.items():
+        w, h = 2.6, 0.9
+        box = mpatches.FancyBboxPatch(
+            (x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.06,rounding_size=0.12",
+            facecolor=color, edgecolor="white", linewidth=1.2, zorder=2,
+        )
+        ax.add_patch(box)
+        ax.text(x, y, label, ha="center", va="center", fontsize=9.5, color="white", fontweight="bold", zorder=3)
+
+    ax.text(5.6, 9.85, "Branch-and-Bound (BPC / SWC-TCF)", ha="center", va="center", fontsize=13, fontweight="bold")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def _ls_axis(ax) -> None:
+    ax.set_xlim(-0.15, 1.05)
+    ax.set_ylim(-0.1, 1.05)
+    ax.axis("off")
+
+
+def _ls_points(ax, pts, labels, colors=None) -> None:
+    colors = colors or ["#1F2D3D"] * len(pts)
+    ax.scatter(pts[:, 0], pts[:, 1], s=150, c=colors, zorder=5, edgecolor="white", linewidth=1.5)
+    for (x, y), lbl in zip(pts, labels, strict=True):
+        ax.text(x, y + 0.1, lbl, ha="center", va="center", fontsize=12, fontweight="bold", color="#1F2D3D")
+
+
+def generate_ls_operators_image(out_path: Path) -> Path:
+    """Before/after illustration of three CLS neighbourhood moves: 2-opt, swap and relocate."""
+    fig, axes = plt.subplots(2, 3, figsize=(13.5, 7.2), dpi=200)
+
+    # -- 2-opt: remove a crossing by reversing the segment between the two edges --
+    pts = np.array([[0.1, 0.15], [0.85, 0.75], [0.75, 0.1], [0.15, 0.85]])
+    labels = ["A", "B", "C", "D"]
+    ax = axes[0, 0]
+    _ls_points(ax, pts, labels)
+    ax.plot(*zip(pts[0], pts[1]), color="#C0392B", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[2], pts[3]), color="#C0392B", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[2]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[3], pts[0]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    _ls_axis(ax)
+    ax.set_title("2-opt — before", fontsize=12, fontweight="bold", color="#C0392B")
+    ax = axes[1, 0]
+    _ls_points(ax, pts, labels)
+    ax.plot(*zip(pts[0], pts[2]), color="#3E8E41", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[3]), color="#3E8E41", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[2]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[3], pts[0]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    _ls_axis(ax)
+    ax.set_title("2-opt — after: A–C, B–D", fontsize=12, fontweight="bold", color="#3E8E41")
+
+    # -- Swap: exchange two nodes between routes --
+    r1 = np.array([[0.05, 0.85], [0.4, 0.85], [0.75, 0.85]])
+    r2 = np.array([[0.05, 0.15], [0.4, 0.15], [0.75, 0.15]])
+    ax = axes[0, 1]
+    _ls_points(ax, np.vstack([r1, r2]), ["A", "B", "C", "D", "E", "F"],
+               colors=["#2E74B5"] * 3 + ["#B06A2E"] * 3)
+    ax.plot(r1[:, 0], r1[:, 1], color="#2E74B5", linewidth=3, zorder=3)
+    ax.plot(r2[:, 0], r2[:, 1], color="#B06A2E", linewidth=3, zorder=3)
+    _ls_axis(ax)
+    ax.set_title("Swap — before", fontsize=12, fontweight="bold", color="#C0392B")
+    ax = axes[1, 1]
+    r1s, r2s = r1.copy(), r2.copy()
+    r1s[1], r2s[1] = r2[1], r1[1]
+    _ls_points(ax, np.vstack([r1s, r2s]), ["A", "E", "C", "D", "B", "F"],
+               colors=["#2E74B5"] * 3 + ["#B06A2E"] * 3)
+    ax.plot(r1s[:, 0], r1s[:, 1], color="#2E74B5", linewidth=3, zorder=3)
+    ax.plot(r2s[:, 0], r2s[:, 1], color="#B06A2E", linewidth=3, zorder=3)
+    _ls_axis(ax)
+    ax.set_title("Swap — after: B ↔ E", fontsize=12, fontweight="bold", color="#3E8E41")
+
+    # -- Relocate: move a single node to a better position in the same route --
+    before = np.array([[0.05, 0.5], [0.35, 0.85], [0.65, 0.15], [0.95, 0.5]])
+    ax = axes[0, 2]
+    _ls_points(ax, before, ["A", "B", "C", "D"])
+    ax.plot(before[:, 0], before[:, 1], color="#C0392B", linewidth=3, zorder=3)
+    _ls_axis(ax)
+    ax.set_title("Relocate — before", fontsize=12, fontweight="bold", color="#C0392B")
+    ax = axes[1, 2]
+    after = np.array([[0.05, 0.5], [0.65, 0.15], [0.35, 0.85], [0.95, 0.5]])
+    _ls_points(ax, after, ["A", "C", "B", "D"])
+    ax.plot(after[:, 0], after[:, 1], color="#3E8E41", linewidth=3, zorder=3)
+    _ls_axis(ax)
+    ax.set_title("Relocate — after: B moved", fontsize=12, fontweight="bold", color="#3E8E41")
+
+    fig.suptitle("Classical Local Search Neighbourhood Moves", fontsize=15, fontweight="bold")
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_knapsack_image(out_path: Path) -> Path:
+    """Illustrates mandatory selection as a knapsack decision: which bins fit today's budget."""
+    fig, ax = plt.subplots(figsize=(7.4, 6.6), dpi=200)
+    ax.set_xlim(0, 11.6)
+    ax.set_ylim(0, 10)
+    ax.axis("off")
+    ax.set_title("Mandatory Selection ≈ a Knapsack Problem", fontsize=13, fontweight="bold")
+
+    # Knapsack outline
+    sack = mpatches.FancyBboxPatch(
+        (0.6, 1.6), 4.0, 5.2, boxstyle="round,pad=0.05,rounding_size=0.3",
+        facecolor="#F0F4FA", edgecolor="#1F2D3D", linewidth=2.5,
+    )
+    ax.add_patch(sack)
+    ax.text(2.6, 7.15, "Today's Route\n(capacity Q)", ha="center", va="center", fontsize=11, fontweight="bold")
+
+    items_in = [("Bin 1\n90% full", "#3E8E41"), ("Bin 2\n85% full", "#3E8E41"), ("Bin 3\n70% full", "#3E8E41")]
+    for i, (label, color) in enumerate(items_in):
+        y = 2.3 + i * 1.5
+        box = mpatches.FancyBboxPatch((1.0, y), 3.2, 1.1, boxstyle="round,pad=0.03,rounding_size=0.12",
+                                       facecolor=color, edgecolor="white", linewidth=1.2)
+        ax.add_patch(box)
+        ax.text(2.6, y + 0.55, label, ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+
+    items_out = ["Bin 4\n30% full", "Bin 5\n20% full", "Bin 6\n15% full"]
+    for i, label in enumerate(items_out):
+        x = 6.4 + (i % 2) * 2.5
+        y = 7.4 - (i // 2) * 1.6
+        box = mpatches.FancyBboxPatch((x, y), 2.1, 1.1, boxstyle="round,pad=0.03,rounding_size=0.12",
+                                       facecolor="#CBD5E1", edgecolor="#5A6A7A", linewidth=1.2)
+        ax.add_patch(box)
+        ax.text(x + 1.05, y + 0.55, label, ha="center", va="center", fontsize=9.5, color="#333333", fontweight="bold")
+
+    ax.text(
+        5.8, 0.9,
+        "maximise Σ value (waste kg)  subject to  Σ weight (fill/urgency) ≤ today's budget",
+        ha="center", va="center", fontsize=10.5, fontstyle="italic", color="#5A6A7A",
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_framework_objective_image(out_path: Path) -> Path:
+    """One simulator, many algorithms in, one comparable benchmark out."""
+    fig, ax = plt.subplots(figsize=(6.2, 6.6), dpi=200)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+    ax.axis("off")
+
+    algos = ["Exact\nMethods", "Meta-\nHeuristics", "Hyper-\nHeuristics"]
+    colors = [ACCENT_HEX, "#3E8E41", "#B06A2E"]
+    for i, (label, color) in enumerate(zip(algos, colors, strict=True)):
+        y = 8.4 - i * 1.7
+        box = mpatches.FancyBboxPatch((0.4, y), 2.6, 1.15, boxstyle="round,pad=0.04,rounding_size=0.14",
+                                       facecolor=color, edgecolor="white", linewidth=1.4)
+        ax.add_patch(box)
+        ax.text(1.7, y + 0.575, label, ha="center", va="center", fontsize=11, color="white", fontweight="bold")
+        ax.annotate("", xy=(4.4, 5.2), xytext=(3.0, y + 0.575),
+                    arrowprops=dict(arrowstyle="-|>", color="#8A9BB0", linewidth=1.6))
+
+    sim = mpatches.FancyBboxPatch((4.4, 4.2), 3.0, 2.0, boxstyle="round,pad=0.05,rounding_size=0.2",
+                                   facecolor="#1F2D3D", edgecolor="white", linewidth=1.6)
+    ax.add_patch(sim)
+    ax.text(5.9, 5.2, "One Shared\nSimulator", ha="center", va="center", fontsize=12, color="white",
+            fontweight="bold")
+
+    ax.annotate("", xy=(7.9, 5.2), xytext=(7.4, 5.2),
+                arrowprops=dict(arrowstyle="-|>", color="#8A9BB0", linewidth=2.0))
+    out = mpatches.FancyBboxPatch((7.9, 4.2), 1.7, 2.0, boxstyle="round,pad=0.05,rounding_size=0.2",
+                                   facecolor="#5A6A7A", edgecolor="white", linewidth=1.4)
+    ax.add_patch(out)
+    ax.text(8.75, 5.2, "Fair\nBenchmark", ha="center", va="center", fontsize=10.5, color="white",
+            fontweight="bold")
+
+    ax.text(
+        5.9, 1.6,
+        "Same scenarios, same KPIs (overflows, KG / KM)\nfor every exact / meta- / hyper-heuristic method",
+        ha="center", va="center", fontsize=10.5, fontstyle="italic", color="#5A6A7A",
+    )
+    ax.set_title("Objective: One Framework to Compare Them All", fontsize=13, fontweight="bold")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_metaheuristic_overview_image(out_path: Path) -> Path:
+    """A fitness-landscape view of meta-heuristic explore/exploit search."""
+    fig, ax = plt.subplots(figsize=(8.6, 4.0), dpi=200)
+    x = np.linspace(0, 10, 400)
+    y = (
+        3 + 1.4 * np.sin(x * 1.3) + 0.6 * np.sin(x * 3.7 + 1) - 0.12 * (x - 5) ** 2 * 0.15
+    )
+    ax.plot(x, y, color="#1F2D3D", linewidth=2.5)
+    ax.fill_between(x, y, y.min() - 0.5, color="#F0F4FA")
+    # incumbent walking down toward a local/global optimum
+    idx_start, idx_mid, idx_end = 40, 180, 305
+    ax.scatter([x[idx_start]], [y[idx_start]], s=140, color="#B06A2E", zorder=5, edgecolor="white", linewidth=1.5)
+    ax.annotate("start", (x[idx_start], y[idx_start]), textcoords="offset points", xytext=(0, 14),
+                ha="center", fontsize=10, fontweight="bold", color="#B06A2E")
+    ax.annotate(
+        "", xy=(x[idx_mid], y[idx_mid] + 0.15), xytext=(x[idx_start], y[idx_start] + 0.15),
+        arrowprops=dict(arrowstyle="-|>", color="#C0392B", linewidth=1.8, connectionstyle="arc3,rad=-0.3"),
+    )
+    ax.text((x[idx_start] + x[idx_mid]) / 2, y[idx_mid] + 1.1, "explore\n(escape local optima)",
+            ha="center", fontsize=9.5, color="#C0392B", fontweight="bold")
+    ax.scatter([x[idx_end]], [y[idx_end]], s=170, color="#3E8E41", zorder=5, edgecolor="white", linewidth=1.5)
+    ax.annotate(
+        "", xy=(x[idx_end], y[idx_end] + 0.1), xytext=(x[idx_mid], y[idx_mid] + 0.1),
+        arrowprops=dict(arrowstyle="-|>", color="#3E8E41", linewidth=1.8, connectionstyle="arc3,rad=0.2"),
+    )
+    ax.text((x[idx_mid] + x[idx_end]) / 2, y[idx_end] - 1.0, "exploit\n(intensify the best region)",
+            ha="center", fontsize=9.5, color="#3E8E41", fontweight="bold")
+    ax.set_title("Meta-Heuristics: Explore the Landscape, Exploit the Best Region", fontsize=12, fontweight="bold")
+    ax.axis("off")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_hyperheuristic_overview_image(out_path: Path) -> Path:
+    """A controller selecting among low-level heuristics based on feedback."""
+    fig, ax = plt.subplots(figsize=(8.6, 4.0), dpi=200)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 8)
+    ax.axis("off")
+    ctrl = mpatches.FancyBboxPatch((3.5, 5.6), 3.0, 1.4, boxstyle="round,pad=0.05,rounding_size=0.2",
+                                    facecolor="#B06A2E", edgecolor="white", linewidth=1.6)
+    ax.add_patch(ctrl)
+    ax.text(5.0, 6.3, "Hyper-Heuristic\nController (ACO-HH)", ha="center", va="center", fontsize=11,
+            color="white", fontweight="bold")
+
+    heuristics = ["H1: 2-opt", "H2: relocate", "H3: swap", "H4: or-opt"]
+    for i, h in enumerate(heuristics):
+        x = 0.6 + i * 2.35
+        box = mpatches.FancyBboxPatch((x, 2.6), 2.0, 1.1, boxstyle="round,pad=0.04,rounding_size=0.12",
+                                       facecolor="#2E74B5", edgecolor="white", linewidth=1.3)
+        ax.add_patch(box)
+        ax.text(x + 1.0, 3.15, h, ha="center", va="center", fontsize=10, color="white", fontweight="bold")
+        ax.annotate("", xy=(x + 1.0, 3.7), xytext=(5.0, 5.6),
+                    arrowprops=dict(arrowstyle="-|>", color="#8A9BB0", linewidth=1.6))
+
+    ax.annotate(
+        "", xy=(6.8, 6.1), xytext=(6.8, 1.6),
+        arrowprops=dict(arrowstyle="-|>", color="#3E8E41", linewidth=1.8, connectionstyle="arc3,rad=0.6"),
+    )
+    ax.text(8.9, 3.8, "pheromone /\nreward feedback\non each heuristic", ha="center", fontsize=9, color="#3E8E41",
+            fontweight="bold")
+    ax.text(5.0, 0.9, "Picks which low-level heuristic to apply next — searches\nthe space of heuristics, not the space of solutions",
+            ha="center", fontsize=10, fontstyle="italic", color="#5A6A7A")
+    ax.set_title("Hyper-Heuristics: Choosing Among Heuristics", fontsize=12, fontweight="bold")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_trajectory_overview_image(out_path: Path) -> Path:
+    """A single incumbent solution taking a step-by-step trajectory (SANS, PG-CLNS)."""
+    fig, ax = plt.subplots(figsize=(8.6, 4.0), dpi=200)
+    rng = np.random.default_rng(7)
+    steps = 9
+    xs = np.linspace(0.5, 9.5, steps)
+    ys = 4 + np.cumsum(rng.normal(0, 0.5, steps))
+    ys[-1] = min(ys[:-1]) - 0.4
+    ax.plot(xs, ys, "-", color="#8A9BB0", linewidth=1.5, zorder=1)
+    ax.scatter(xs[:-1], ys[:-1], s=90, color="#B06A2E", zorder=4, edgecolor="white", linewidth=1.2)
+    ax.scatter([xs[-1]], [ys[-1]], s=170, color="#3E8E41", zorder=5, edgecolor="white", linewidth=1.5)
+    ax.annotate("incumbent", (xs[0], ys[0]), textcoords="offset points", xytext=(-10, 14), fontsize=9.5,
+                fontweight="bold", color="#B06A2E")
+    ax.annotate("best found", (xs[-1], ys[-1]), textcoords="offset points", xytext=(0, 14), fontsize=9.5,
+                fontweight="bold", color="#3E8E41", ha="center")
+    for i in range(steps - 2):
+        if ys[i + 1] > ys[i]:
+            ax.annotate("", xy=(xs[i + 1], ys[i + 1]), xytext=(xs[i], ys[i]),
+                        arrowprops=dict(arrowstyle="-|>", color="#C0392B", linewidth=1.2, alpha=0.7))
+    ax.text(5, min(ys) - 1.3, "one solution moves step by step; occasional uphill\nmoves escape local optima (e.g. simulated annealing)",
+            ha="center", fontsize=10, fontstyle="italic", color="#5A6A7A")
+    ax.set_title("Trajectory-Based: SANS, PG-CLNS", fontsize=12, fontweight="bold")
+    ax.axis("off")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+def generate_population_overview_image(out_path: Path) -> Path:
+    """A whole population of candidate solutions evolving together (HGS, PSOMA)."""
+    fig, ax = plt.subplots(figsize=(8.6, 4.0), dpi=200)
+    rng = np.random.default_rng(3)
+    gens = [1.5, 5.0, 8.5]
+    gen_labels = ["Generation t", "Generation t+1", "Generation t+2"]
+    spread = [1.6, 1.0, 0.55]
+    for gi, (gx, spr) in enumerate(zip(gens, spread, strict=True)):
+        ys = 4 + rng.normal(0, spr, 8)
+        color = ["#B06A2E", "#2E74B5", "#3E8E41"][gi]
+        ax.scatter([gx] * 8 + rng.normal(0, 0.15, 8), ys, s=70, color=color, alpha=0.85, zorder=4,
+                   edgecolor="white", linewidth=1.0)
+        ax.text(gx, 7.2, gen_labels[gi], ha="center", fontsize=10, fontweight="bold", color=color)
+        if gi < len(gens) - 1:
+            ax.annotate(
+                "", xy=(gens[gi + 1] - 0.6, 4), xytext=(gx + 0.6, 4),
+                arrowprops=dict(arrowstyle="-|>", color="#8A9BB0", linewidth=1.8),
+            )
+    ax.text(5, 0.6, "selection + crossover + mutation narrow the population\ntoward better solutions each generation",
+            ha="center", fontsize=10, fontstyle="italic", color="#5A6A7A")
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 8)
+    ax.axis("off")
+    ax.set_title("Population-Based: HGS, PSOMA", fontsize=12, fontweight="bold")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
+ACCENT_HEX = "#2E74B5"
+
+IMAGES_DIR = Path(__file__).resolve().parent / "images"
+LINKS_DIR = Path(__file__).resolve().parent / "links"
+
+
+def generate_vrpp_illustration_fallback(out_path: Path) -> Path:
+    """Native fallback for the VRPP illustration: copy the locally stored reference image
+    (see logic/gen/images/vrpp_illustration_source.png) instead of a code-drawn diagram."""
+    src = IMAGES_DIR / "vrpp_illustration_source.png"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, out_path)
+    return out_path
+
+
+NATIVE_DIAGRAM_BUILDERS = {
+    "bb_tree.png": generate_bb_tree_image,
+    "ls_operators.png": generate_ls_operators_image,
+    "knapsack_illustration.png": generate_knapsack_image,
+    "framework_objective.png": generate_framework_objective_image,
+    "metaheuristic_overview.png": generate_metaheuristic_overview_image,
+    "hyperheuristic_overview.png": generate_hyperheuristic_overview_image,
+    "trajectory_overview.png": generate_trajectory_overview_image,
+    "population_overview.png": generate_population_overview_image,
+    "vrpp_illustration.png": generate_vrpp_illustration_fallback,
+}
+
+
+def _load_reference_links() -> dict:
+    """Parse logic/gen/links/reference_image_links.xml -> {key: {"url": ...}}."""
+    path = LINKS_DIR / "reference_image_links.xml"
+    if not path.exists():
+        return {}
+    root = ET.parse(path).getroot()
+    links: dict = {}
+    for img in root.findall("image"):
+        key = img.get("key")
+        url_el = img.find("url")
+        if key and url_el is not None and url_el.text:
+            links[key] = {"url": url_el.text.strip()}
+    return links
+
+
+def ensure_reference_images(figures_dir: Path, image_mode: str) -> None:
+    """Populate the native (or fetched) reference-style diagrams used across the deck."""
+    links = _load_reference_links() if image_mode == "fetch" else {}
+    for fname, builder in NATIVE_DIAGRAM_BUILDERS.items():
+        out_path = figures_dir / fname
+        if image_mode == "fetch":
+            key = Path(fname).stem
+            url = links.get(key, {}).get("url")
+            if url:
+                try:
+                    import urllib.request
+
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    urllib.request.urlretrieve(url, out_path)  # noqa: S310
+                    print(f"  Fetched: {out_path} <- {url}")
+                    continue
+                except Exception as exc:  # noqa: BLE001
+                    print(f"  [WARN] Fetch failed for {key} ({exc}); falling back to native diagram")
+        builder(out_path)
+        print(f"  Saved (native): {out_path}")
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument(
@@ -1275,6 +1918,15 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Destination .docx path (default: same name as --out, .docx extension)",
     )
+    p.add_argument(
+        "--image-mode",
+        default="native",
+        choices=["native", "fetch"],
+        help="How to source the conceptual diagrams (B&B tree, GA cycle, 2-opt swap, VRPP illustration): "
+        "'native' draws them in-house / copies the locally stored reference image (default, no "
+        "licensing/network concerns); 'fetch' downloads the images listed in "
+        "links/reference_image_links.xml instead.",
+    )
     return p.parse_args()
 
 
@@ -1285,8 +1937,9 @@ def main() -> None:
     if not figures_dir.is_dir():
         raise SystemExit(f"Figures dir not found: {figures_dir} — run gen_simulation_analysis.py first")
 
-    # Generate the QA route illustration dynamically
+    # Generate the QA route illustration and the conceptual diagrams (incl. the VRPP illustration) dynamically
     generate_qa_route_image(figures_dir / "qa_route_illustration.png")
+    ensure_reference_images(figures_dir, args.image_mode)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
