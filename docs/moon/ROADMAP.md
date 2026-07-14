@@ -924,7 +924,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
-- [ ] Each of the 480 simulation logs rendered as a polyline
+- [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` on Benchmark Analysis — one polyline per loaded run (§G.1.4 partial — full 480-log portfolio batch deferred)
 - [x] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL): click polyline → `toggleBrush` cross-filter (§G.1 partial — axis brush + DuckDB SQL deferred)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + `effectiveBrushed` cross-filter on Simulation Summary (§G.1 partial — axis drag brush deferred)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
@@ -981,9 +981,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Overlay skipped vs visited nodes: idle bins dimmed grey, tour stops fill-coded (bright) in `DeckRouteMap`
 
 #### 3.4 Non-Geographic Cartesian Mode (OrbitView)
-- [ ] Switch between geographic (Mercator) and abstract Cartesian coordinate system
-- [ ] OrbitView camera: orbit, pan, zoom a 3D point cloud
-- [ ] Used for normalized/synthetic datasets where coordinates are not GPS
+- [x] Switch between geographic (Mercator) and abstract Cartesian coordinate system: Simulation Monitor ECharts vs deck.gl toggle; `DeckRouteMap` auto-selects Mercator (geo) or OrbitView (abstract) (§G.3.4 partial)
+- [x] OrbitView camera: orbit, pan, zoom a 3D point cloud: `DeckRouteMap` OrbitView with fill-scaled Z elevation on tour stops (§G.3.4 partial)
+- [x] Used for normalized/synthetic datasets where coordinates are not GPS: circular `resolveBinPositions()` layout when log lacks lat/lng (§G.3.4 partial)
 
 ---
 
@@ -1039,7 +1039,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer (§G.6 partial — standalone OLAP page deferred)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
-- [ ] Auto-chart: map query result columns to ECharts chart type suggestions
+- [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
 - [ ] Pivot table UI: drag dimensions/measures onto row/column/value wells
 - [ ] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally
 
