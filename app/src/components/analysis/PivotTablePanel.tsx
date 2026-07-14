@@ -13,9 +13,11 @@ interface Props {
   columns: string[];
   rows: Record<string, unknown>[];
   onRowClick?: (rowKey: string, rowLabel: string) => void;
+  /** Bidirectional brush: dim pivot rows not matching active policy filter (§G.6). */
+  highlightRowLabels?: string[] | null;
 }
 
-export function PivotTablePanel({ columns, rows, onRowClick }: Props) {
+export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels }: Props) {
   const [rowKey, setRowKey] = useState(columns[0] ?? "");
   const [colKey, setColKey] = useState<string>("");
   const [valueKey, setValueKey] = useState(columns.find((c) => c !== rowKey) ?? "");
@@ -42,12 +44,21 @@ export function PivotTablePanel({ columns, rows, onRowClick }: Props) {
     });
   }, [rows, rowKey, colKey, valueKey, agg]);
 
+  const pivotHighlights = useMemo(() => {
+    if (!highlightRowLabels?.length || !/^policy$/i.test(rowKey)) return null;
+    return highlightRowLabels;
+  }, [highlightRowLabels, rowKey]);
+
   const chartOption = useMemo(
     () =>
       pivot
-        ? pivotHeatmapOption(pivot, `${agg}(${valueKey}) by ${rowKey}${colKey ? ` × ${colKey}` : ""}`)
+        ? pivotHeatmapOption(
+            pivot,
+            `${agg}(${valueKey}) by ${rowKey}${colKey ? ` × ${colKey}` : ""}`,
+            pivotHighlights
+          )
         : null,
-    [pivot, agg, valueKey, rowKey, colKey]
+    [pivot, agg, valueKey, rowKey, colKey, pivotHighlights]
   );
 
   if (columns.length < 2 || rows.length < 2) return null;
@@ -133,7 +144,10 @@ export function PivotTablePanel({ columns, rows, onRowClick }: Props) {
       )}
 
       {onRowClick && /policy/i.test(rowKey) && (
-        <p className="text-[10px] text-canvas-muted">Click a pivot row to cross-filter analytics views.</p>
+        <p className="text-[10px] text-canvas-muted">
+          Click a pivot row to cross-filter analytics views
+          {pivotHighlights?.length ? " · highlighted rows match active filter" : ""}.
+        </p>
       )}
     </div>
   );

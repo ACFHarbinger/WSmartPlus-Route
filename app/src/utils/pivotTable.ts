@@ -67,10 +67,17 @@ export function buildPivot(
   return { rowLabels, colLabels, cells };
 }
 
-export function pivotHeatmapOption(result: PivotResult, title: string) {
+export function pivotHeatmapOption(
+  result: PivotResult,
+  title: string,
+  highlightRowLabels?: string[] | null
+) {
   const flat: Array<[number, number, number]> = [];
   let min = Infinity;
   let max = -Infinity;
+  const highlightSet = highlightRowLabels?.length
+    ? new Set(highlightRowLabels)
+    : null;
   for (let ri = 0; ri < result.rowLabels.length; ri++) {
     for (let ci = 0; ci < result.colLabels.length; ci++) {
       const v = result.cells[ri][ci];
@@ -107,7 +114,17 @@ export function pivotHeatmapOption(result: PivotResult, title: string) {
     series: [
       {
         type: "heatmap",
-        data: flat.map(([ci, ri, v]) => [ci, ri, v]),
+        data: flat.map(([ci, ri, v]) => {
+          const rowLabel = result.rowLabels[ri];
+          const highlighted =
+            !highlightSet || highlightSet.has(rowLabel);
+          return {
+            value: [ci, ri, v],
+            itemStyle: highlighted
+              ? undefined
+              : { opacity: 0.18, borderColor: "transparent" },
+          };
+        }),
         label: {
           show: result.rowLabels.length * result.colLabels.length <= 48,
           color: "#c0c0d8",
@@ -116,6 +133,9 @@ export function pivotHeatmapOption(result: PivotResult, title: string) {
             const v = p.value[2];
             return Number.isInteger(v) ? String(v) : v.toFixed(1);
           },
+        },
+        emphasis: {
+          itemStyle: { borderColor: "#a78bfa", borderWidth: 2 },
         },
       },
     ],
