@@ -12,7 +12,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { runCsvArrowPipeline } from "../../utils/arrowPipeline";
+import { runCsvArrowPipeline, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { duckDbRowCount, listDuckDbTables } from "../../utils/duckdbClient";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
@@ -20,7 +20,13 @@ const CUSTOM_TABLE_PREFIX = "olap_";
 export function OlapExplorer() {
   const { theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
-  const { ready: duckdbReady, setLoading, setLastPipeline } = useDuckDbStore();
+  const {
+    ready: duckdbReady,
+    loading,
+    lastPipeline,
+    setLoading,
+    setLastPipeline,
+  } = useDuckDbStore();
   const [tables, setTables] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState("summary_sim");
   const [rowCounts, setRowCounts] = useState<Record<string, number>>({});
@@ -53,24 +59,32 @@ export function OlapExplorer() {
     void refreshTables();
   }, [refreshTables]);
 
-  const ingestCsv = useCallback(async () => {
+  const ingestData = useCallback(async () => {
     const path = (await open({
-      filters: [{ name: "CSV Files", extensions: ["csv"] }],
+      filters: [{ name: "CSV / JSONL", extensions: ["csv", "jsonl"] }],
     })) as string | null;
     if (!path) return;
-    const base = path.split(/[/\\]/).pop()?.replace(/\.csv$/i, "") ?? "data";
+    const base =
+      path
+        .split(/[/\\]/)
+        .pop()
+        ?.replace(/\.(csv|jsonl)$/i, "") ?? "data";
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
+    const isJsonl = path.toLowerCase().endsWith(".jsonl");
     setLoading(true);
     try {
-      const timing = await runCsvArrowPipeline(path, tableName);
+      const timing = isJsonl
+        ? await runSimulationArrowPipeline(path, tableName)
+        : await runCsvArrowPipeline(path, tableName);
       setLastPipeline(timing);
       setSelectedTable(tableName);
       await refreshTables();
-      toast.success("CSV ingested", {
-        description: `${timing.rowCount} rows → ${tableName}`,
+      const sidecarNote = timing.usedSidecar ? " (Arrow sidecar)" : "";
+      toast.success(isJsonl ? "JSONL ingested" : "CSV ingested", {
+        description: `${timing.rowCount} rows → ${tableName}${sidecarNote}`,
       });
     } catch (err) {
-      toast.error("CSV ingest failed", { description: String(err) });
+      toast.error("Ingest failed", { description: String(err) });
     } finally {
       setLoading(false);
     }
@@ -92,16 +106,24 @@ export function OlapExplorer() {
           Refresh tables
         </button>
         <button
-          onClick={() => void ingestCsv()}
-          disabled={!duckdbReady}
+          onClick={() => void ingestData()}
+          disabled={!duckdbReady || loading}
           className="btn-primary text-xs flex items-center gap-1"
         >
           <FolderOpen size={12} />
-          Ingest CSV
+          Ingest CSV / JSONL
         </button>
         <span className="text-xs text-canvas-muted flex items-center gap-1">
           <Database size={12} />
           {duckdbReady ? `${tables.length} table(s) in DuckDB-Wasm` : "DuckDB initialising…"}
+          {loading && " · ingesting…"}
+          {!loading && lastPipeline && (
+            <>
+              {" "}
+              · last ingest {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
+              {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
+            </>
+          )}
         </span>
       </div>
 
@@ -146,7 +168,11 @@ export function OlapExplorer() {
 
       {duckdbReady && tables.length === 0 && (
         <div className="card text-sm text-canvas-muted space-y-2">
-          <p>No tables ingested yet. Load a simulation log in Simulation Summary, open a CSV in Data Explorer, or ingest a CSV above.</p>
+          <p>
+            No tables ingested yet. Load a simulation log in Simulation Summary, open a CSV in
+            Data Explorer, or ingest a CSV / JSONL above (prefers sibling ``.arrow`` sidecars from
+            ``.wsroute`` bundles).
+          </p>
         </div>
       )}
     </div>

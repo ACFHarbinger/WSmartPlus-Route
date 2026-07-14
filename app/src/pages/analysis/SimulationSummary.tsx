@@ -1740,7 +1740,13 @@ interface ComparisonRun extends PortfolioRunSlice {}
 
 export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath, projectRoot, theme } = useAppStore();
-  const { ready: duckdbReady, setLastPipeline, setLoading: setDuckdbLoading } = useDuckDbStore();
+  const {
+    ready: duckdbReady,
+    loading: duckdbLoading,
+    lastPipeline,
+    setLastPipeline,
+    setLoading: setDuckdbLoading,
+  } = useDuckDbStore();
   const [parquetExporting, setParquetExporting] = useState(false);
   const [logScale, setLogScale] = useState(false);
   const [showErrorBars, setShowErrorBars] = useState(false);
@@ -2059,7 +2065,18 @@ export function SimulationSummary() {
           </>
         )}
         {logPath && (
-          <span className="text-xs text-canvas-muted font-mono truncate">{logPath.split("/").pop()}</span>
+          <span className="text-xs text-canvas-muted font-mono truncate">
+            {logPath.split("/").pop()}
+            {duckdbLoading && " · DuckDB ingesting…"}
+            {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
+              <>
+                {" "}
+                · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
+                {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
+                {lastPipeline.withinBudget ? "" : " (over 500ms budget)"}
+              </>
+            )}
+          </span>
         )}
         {allRuns.length > 1 && (
           <span className="text-xs text-canvas-muted">{allRuns.length} runs loaded</span>

@@ -199,5 +199,6 @@ export async function runSimulationArrowPipeline(
     totalMs,
     withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
     tableName,
+    usedSidecar: false,
   };
 }
