@@ -26,6 +26,10 @@ import {
   ARROW_PIPELINE_BUDGET_MS,
   runCsvArrowPipeline,
 } from "../../utils/arrowPipeline";
+import {
+  getChartRenderBudgetMs,
+  runChartRenderBenchmark,
+} from "../../utils/chartRenderBenchmark";
 
 
 
@@ -77,6 +81,8 @@ export function Settings() {
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
   const [benchRunning, setBenchRunning] = useState(false);
+  const [chartBenchRunning, setChartBenchRunning] = useState(false);
+  const [chartRenderMs, setChartRenderMs] = useState<number | null>(null);
 
   useEffect(() => {
     invoke<string>("get_app_version")
@@ -377,6 +383,28 @@ export function Settings() {
           <RefreshCw size={12} className={benchRunning ? "animate-spin" : ""} />
           Run Arrow Pipeline Benchmark
         </button>
+        <button
+          disabled={chartBenchRunning}
+          onClick={async () => {
+            setChartBenchRunning(true);
+            try {
+              const ms = await runChartRenderBenchmark();
+              setChartRenderMs(ms);
+              const budget = getChartRenderBudgetMs();
+              toast.success("Chart render benchmark complete", {
+                description: `${ms} ms (budget ${budget} ms)`,
+              });
+            } catch (err) {
+              toast.error("Chart render benchmark failed", { description: String(err) });
+            } finally {
+              setChartBenchRunning(false);
+            }
+          }}
+          className="btn-ghost text-xs flex items-center gap-1.5"
+        >
+          <RefreshCw size={12} className={chartBenchRunning ? "animate-spin" : ""} />
+          Run Chart Render Benchmark
+        </button>
       </div>
 
       {/* About */}
@@ -397,6 +425,23 @@ export function Settings() {
         )}
         {duckdbMs !== null && (
           <p>DuckDB-Wasm worker ready: <span className="font-mono">{duckdbMs} ms</span></p>
+        )}
+        {chartRenderMs !== null && (
+          <p>
+            Chart render benchmark: <span className="font-mono">{chartRenderMs} ms</span>
+            {" · "}
+            <span
+              className={
+                chartRenderMs <= getChartRenderBudgetMs()
+                  ? "text-accent-success"
+                  : "text-accent-warning"
+              }
+            >
+              {chartRenderMs <= getChartRenderBudgetMs()
+                ? `within ${getChartRenderBudgetMs()} ms budget`
+                : `over ${getChartRenderBudgetMs()} ms budget`}
+            </span>
+          </p>
         )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
         <button

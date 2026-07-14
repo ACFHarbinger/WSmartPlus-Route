@@ -899,11 +899,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.1 KPI Summary Bar / Box Charts
 - [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary (§G.1 partial — multi-city benchmark deferred)
-- [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary (§G.1 partial — single-run city/scale from log path banner)
+- [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary; portfolio mode swaps to kg/km by city/scale across loaded runs (§G.1.1)
 - [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts; `SimulationSummary` ingests log → DuckDB + `SqlQueryPanel` `brushSqlSync` / `brushedPoliciesSql` (§G.1)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
-- [x] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS: `BenchmarkAnalysis` `BenchmarkParetoPanel` grid + `paretoPanels.ts` run classifier (§G.1 partial — single-log Simulation Summary deferred)
+- [x] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS: `BenchmarkAnalysis` + `SimulationSummary` `BenchmarkParetoPanel` grid + `paretoPortfolio.ts` / `paretoPanels.ts` run classifier (§G.1.2)
 - [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1 partial — multi-run 4-panel deferred)
 - [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on Pareto scatter (§G.1 partial — per-policy multi-city deferred)
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
@@ -918,7 +918,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.3 Policy Configuration Heatmaps
 - [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions (§G.1 partial — multi-log benchmark deferred)
-- [x] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350): `BenchmarkGraphHeatmap` facets by `cityScaleLabel()` when multiple runs loaded (§G.1.3 partial — single-log Simulation Summary deferred)
+- [x] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350): shared `BenchmarkGraphHeatmap` facets by `cityScaleLabel()` on Benchmark Analysis + Simulation Summary portfolio mode (§G.1.3)
 - [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
@@ -945,7 +945,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Enable macro → micro navigation from algorithm family level down to individual config variants.
 
-- [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary (§G.2 partial — multi-log portfolio deferred)
+- [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary; `buildPortfolioHierarchy()` multi-root sunburst when ≥2 logs loaded (§G.2)
 - [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter; `SqlQueryPanel` `brushSqlSync` + `autoRunOnBrushSync` executes `brushedPoliciesSql` (§G.2)
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click (§G.2)
@@ -1069,7 +1069,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
-- [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge (§G.7 partial — full chart-render benchmark on target hardware deferred)
+- [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6 partial)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6 partial)
@@ -1336,7 +1336,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.15 |
 | §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.15 |
 | §G.7 | UX Polish | Medium | High | P2 `[Blocked]` §G.1 |
-| §G.2 | Drill-Down Sunburst | Medium | High | P2 🚧 partial — Simulation Summary sunburst/treemap |
+| §G.2 | Drill-Down Sunburst | Medium | High | P2 |
 | §G.3 | Geospatial deck.gl | High | High | P2 |
 | §G.6 | OLAP Explorer | Medium | High | P2 `[Blocked]` §G.1 |
 | §G.4 | Graph Topology | Medium | Medium | P3 `[Blocked]` §G.3 |

@@ -2,7 +2,7 @@
  * Build hierarchical policy trees for §G.2 sunburst / treemap charts.
  */
 
-import { cityScaleLabel } from "./simMetadata";
+import { cityScaleLabel, parseLogPath } from "./simMetadata";
 import type { LogPathMeta, PolicyMeta } from "./simMetadata";
 
 export { cityScaleLabel };
@@ -118,6 +118,29 @@ export function buildPolicyHierarchy(
       policies,
     },
   ];
+}
+
+export interface PortfolioHierarchyRun {
+  path: string;
+  policies: string[];
+  stats: Record<string, PolicyAgg>;
+  policyMeta: Record<string, PolicyMeta>;
+}
+
+/** Multi-root sunburst: one city/scale ring per loaded simulation log (§G.2 portfolio). */
+export function buildPortfolioHierarchy(
+  runs: PortfolioHierarchyRun[],
+  colorMode: HierarchyColorMode = "kgkm"
+): HierarchyNode[] {
+  return runs.flatMap((run) =>
+    buildPolicyHierarchy(
+      run.policies,
+      run.stats,
+      run.policyMeta,
+      parseLogPath(run.path),
+      colorMode
+    )
+  );
 }
 
 /** Find node policies along a breadcrumb path (e.g. RM-100 → LA → SWC-TCF). */
