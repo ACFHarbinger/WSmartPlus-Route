@@ -17,9 +17,11 @@ const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 interface Props {
   tableName: string;
   theme: "dark" | "light";
+  onDaySelect?: (day: number) => void;
+  onProfitRange?: (min: number, max: number) => void;
 }
 
-export function SqlQueryPanel({ tableName, theme }: Props) {
+export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: Props) {
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const [open, setOpen] = useState(false);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
@@ -100,6 +102,25 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
     }
   };
 
+  const profitCol = useMemo(
+    () => columns.find((c) => /^profit$/i.test(c)) ?? null,
+    [columns]
+  );
+
+  const applyProfitBrush = useCallback(() => {
+    if (!profitCol || !rows.length || !onProfitRange) return;
+    const vals = rows
+      .map((r) => Number(r[profitCol]))
+      .filter((v) => Number.isFinite(v));
+    if (!vals.length) return;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    onProfitRange(min, max);
+    toast.success("Profit brush applied", {
+      description: `€${min.toFixed(0)} – €${max.toFixed(0)}`,
+    });
+  }, [profitCol, rows, onProfitRange]);
+
   const handlePivotCrossFilter = (rowKey: string, label: string) => {
     applyCrossFilter(rowKey, label);
   };
@@ -171,6 +192,11 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
             {rows.length > 0 && (
               <span className="text-xs text-canvas-muted">{rows.length} row(s)</span>
             )}
+            {profitCol && onProfitRange && rows.length > 0 && (
+              <button onClick={applyProfitBrush} className="btn-ghost text-xs">
+                Brush profit range
+              </button>
+            )}
           </div>
 
           {error && <p className="text-xs text-accent-danger font-mono">{error}</p>}
@@ -221,6 +247,11 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
                         const policyCol = columns.find((c) => /^policy$/i.test(c));
                         if (policyCol && row[policyCol] != null) {
                           applyCrossFilter(policyCol, String(row[policyCol]));
+                        }
+                        const dayCol = columns.find((c) => /^day$/i.test(c));
+                        if (dayCol && row[dayCol] != null && onDaySelect) {
+                          const day = Number(row[dayCol]);
+                          if (Number.isFinite(day)) onDaySelect(day);
                         }
                       }}
                     >

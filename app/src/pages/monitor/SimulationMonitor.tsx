@@ -35,6 +35,7 @@ import {
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
+import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
@@ -527,6 +528,7 @@ export function SimulationMonitor() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
   const [mapLayout, setMapLayout] = useState<"overlay" | "split">("overlay");
+  const [duckdbProfitRange, setDuckdbProfitRange] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     if (!activeLogPath || !entries.length) return;
@@ -1019,8 +1021,21 @@ export function SimulationMonitor() {
             />
           )}
 
+          <GraphTopologyPanel
+            logPath={activeLogPath}
+            projectRoot={projectRoot}
+            simData={displayEntry?.data ?? null}
+            theme={theme}
+            duckdbProfitRange={duckdbProfitRange}
+          />
+
           {duckdbReady && lastPipeline?.tableName === "monitor_sim" && (
-            <SqlQueryPanel tableName={lastPipeline.tableName} theme={theme} />
+            <SqlQueryPanel
+              tableName={lastPipeline.tableName}
+              theme={theme}
+              onDaySelect={(day) => setSelectedDay(day)}
+              onProfitRange={(min, max) => setDuckdbProfitRange([min, max])}
+            />
           )}
         </>
       )}

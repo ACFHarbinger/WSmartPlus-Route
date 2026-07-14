@@ -11,6 +11,21 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-ninth pass (§G.4)
+
+Thirty-ninth pass starts **§G.4 topological graph analytics** on Simulation Monitor.
+
+**React frontend**
+- `utils/graphTopology.ts` — distance-matrix CSV parser, k-NN edge list, Fruchterman-Reingold layout, ECharts graph option builder
+- `GraphTopologyPanel` — collapsible topology view with k-NN selector, fill-% cross-filter, re-layout toggle
+- `SimulationMonitor` — topology panel below route map; SQL panel day click → day scrubber; profit brush → topology hint
+- `SqlQueryPanel` — optional `onDaySelect` / `onProfitRange` callbacks for §G.4 cross-filter
+
+**ROADMAP**
+- §G.4 distance matrix load, ECharts topology graph, force layout, fill/profit cross-filter, dynamic re-layout checked (partial — Sigma.js, ACO pheromone, Cosmograph deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-eighth pass (§G.1.4 / §G.6)
 
 Thirty-eighth pass adds **pivot table OLAP**, **SQL cross-filtering**, and **output
