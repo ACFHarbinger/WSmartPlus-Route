@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-sixth pass (§G.1.3 / §G.2 / §G.8)
+
+Fifty-sixth pass closes deferred **§G.1.3** portfolio policy×metric heatmap and
+unified heatmap mode across facets, **§G.2** hierarchy breadcrumb root reset,
+and **§G.8** Arrow IPC sidecar export for `.wsroute` bundles.
+
+**React frontend**
+- `heatmapMetrics.ts` — shared `HeatmapMode`, metric schema, normalised cell builder
+- `BenchmarkPortfolioHeatmap` — portfolio-wide policy×metric heatmap with brush dimming
+- `BenchmarkDistributionHeatmap` / `BenchmarkGraphHeatmap` — support `all` / `overflows` / `kg/km` modes
+- `SimulationSummary` — portfolio heatmap panel; unified `heatmapMode` drives distribution/graph facets
+- `BenchmarkAnalysis` — graph facet heatmaps use same three-mode toggle
+- `HierarchyBreadcrumb` — root **All** button resets sunburst drill-down (§G.2)
+
+**Python**
+- `export_for_studio.py` — `--arrow` flag writes Arrow IPC (`.arrow`) sidecars for each CSV;
+  manifest records `arrow_sidecars` count
+
+**ROADMAP**
+- §G.1.3 unified heatmap mode + portfolio policy×metric heatmap checked
+- §G.2 breadcrumb root **All** navigation checked
+- §G.8 Arrow IPC bundle export checked
+- §G.9–§G.15, §G.19 phase headers marked ✅ complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-fifth pass (§G.1.2 / §G.1.3 / §G.1.4 / §G.1.5)
 
 Fifty-fifth pass closes deferred **§G.1** portfolio Pareto markers/tooltips,

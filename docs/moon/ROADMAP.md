@@ -919,8 +919,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.3 Policy Configuration Heatmaps
 - [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions; portfolio mode adds `BenchmarkDistributionHeatmap` facets via `groupRunsByDistribution()` (§G.1.3)
 - [x] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350): shared `BenchmarkGraphHeatmap` facets by `cityScaleLabel()` on Benchmark Analysis + Simulation Summary portfolio mode (§G.1.3)
-- [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
-- [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
+- [x] Cell value = mean overflows or mean kg/km (toggle): unified `heatmapMode` buttons (all / overflows / kg/km) on Simulation Summary + Benchmark Analysis; portfolio distribution/graph facets share the same mode (§G.1.3)
+- [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` + `BenchmarkPortfolioHeatmap` + shared `heatmapMetrics.ts` normalised indigo→green gradient; portfolio policy×metric heatmap when ≥2 runs loaded (§G.1.3)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary; shared `BenchmarkPortfolioParallel` on Simulation Summary + Benchmark Analysis (§G.1.4)
@@ -950,7 +950,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter; `SqlQueryPanel` `brushSqlSync` + `autoRunOnBrushSync` executes `brushedPoliciesSql` (§G.2)
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click (§G.2)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
-- [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
+- [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` with root **All** reset (§G.2)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
 
 ---
@@ -1081,7 +1081,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
-- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json` (Parquet/Arrow IPC deferred)
+- [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json`; `--arrow` emits Arrow IPC (`.arrow`) sidecars for each CSV (§G.8)
 - [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser
 - [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
@@ -1095,7 +1095,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.9 — Phase 9: Simulation Launcher & Run Manager 🚧
+### §G.9 — Phase 9: Simulation Launcher & Run Manager ✅
 
 **Goal**: Port the PySide6 simulation tab to Tauri/React and add the improvements identified in §D.
 
@@ -1112,7 +1112,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.10 — Phase 10: Training & HPO Launch Hub 🚧
+### §G.10 — Phase 10: Training & HPO Launch Hub ✅
 
 **Goal**: Port the PySide6 reinforcement learning/training tab to Tauri/React.
 
@@ -1131,7 +1131,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.11 — Phase 11: Data Generation Wizard 🚧
+### §G.11 — Phase 11: Data Generation Wizard ✅
 
 **Goal**: Port the PySide6 data generation tab to Tauri/React.
 
@@ -1148,7 +1148,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.12 — Phase 12: Evaluation Runner 🚧
+### §G.12 — Phase 12: Evaluation Runner ✅
 
 **Goal**: Port the PySide6 evaluation tab and expose multi-checkpoint comparison.
 
@@ -1163,7 +1163,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.13 — Phase 13: Configuration Editor (Hydra YAML) 🚧
+### §G.13 — Phase 13: Configuration Editor (Hydra YAML) ✅
 
 **Goal**: Provide a full-featured Hydra configuration editor so users never need to touch config files manually.
 
@@ -1181,7 +1181,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.14 — Phase 14: Output Browser & Session Management 🚧
+### §G.14 — Phase 14: Output Browser & Session Management ✅
 
 **Goal**: Replace the PySide6 file system tab with a native file browser tailored to WSmart-Route's output directory structure.
 
@@ -1199,7 +1199,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 ---
 
-### §G.15 — Phase 15: Real-Time Process Monitor & Log Viewer 🚧
+### §G.15 — Phase 15: Real-Time Process Monitor & Log Viewer ✅
 
 **Goal**: Provide a unified view of all running and recently completed processes, replacing the PySide6 file-tailer pattern.
 
@@ -1280,7 +1280,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ---
 
-### §G.19 — Phase 19: Settings & First-Run Onboarding 🚧
+### §G.19 — Phase 19: Settings & First-Run Onboarding ✅
 
 **Goal**: Provide a persistent Settings page so users can configure the project root and Python executable without touching environment variables, and surface a first-run onboarding banner.
 
