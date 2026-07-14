@@ -63,7 +63,11 @@ import {
 } from "../../utils/outputRunLogs";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
-import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import {
+  formatPipelineTimingBadge,
+  runPortfolioSimulationArrowPipeline,
+  runSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
 
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
@@ -1767,15 +1771,33 @@ export function SimulationSummary() {
     setEntries(loaded);
     setLogPath(path);
     pushRecent({ path, label: recentFileLabel(path), kind: "log" });
+  }, [pushRecent]);
 
-    if (duckdbReady) {
-      setDuckdbLoading(true);
-      runSimulationArrowPipeline(path, SUMMARY_SIM_TABLE)
-        .then(setLastPipeline)
-        .catch((err) => console.warn("Summary Arrow pipeline:", err))
-        .finally(() => setDuckdbLoading(false));
+  const allDuckDbLogs = useMemo(() => {
+    const logs: { path: string; label: string }[] = [];
+    if (logPath) {
+      logs.push({ path: logPath, label: logPath.split(/[/\\]/).pop() ?? logPath });
     }
-  }, [pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]);
+    for (const r of comparisonRuns) {
+      if (!logs.some((l) => l.path === r.path)) {
+        logs.push({ path: r.path, label: r.label });
+      }
+    }
+    return logs;
+  }, [logPath, comparisonRuns]);
+
+  useEffect(() => {
+    if (!duckdbReady || allDuckDbLogs.length === 0) return;
+    setDuckdbLoading(true);
+    const pipeline =
+      allDuckDbLogs.length === 1
+        ? runSimulationArrowPipeline(allDuckDbLogs[0].path, SUMMARY_SIM_TABLE)
+        : runPortfolioSimulationArrowPipeline(allDuckDbLogs, SUMMARY_SIM_TABLE);
+    pipeline
+      .then(setLastPipeline)
+      .catch((err) => console.warn("Summary Arrow pipeline:", err))
+      .finally(() => setDuckdbLoading(false));
+  }, [allDuckDbLogs, duckdbReady, setLastPipeline, setDuckdbLoading]);
 
   // Auto-load when another page hands off a log path (e.g. OutputBrowser)
   useEffect(() => {
@@ -2069,12 +2091,7 @@ export function SimulationSummary() {
             {logPath.split("/").pop()}
             {duckdbLoading && " · DuckDB ingesting…"}
             {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
-              <>
-                {" "}
-                · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
-                {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
-                {lastPipeline.withinBudget ? "" : " (over 500ms budget)"}
-              </>
+              <> · {formatPipelineTimingBadge(lastPipeline)}</>
             )}
           </span>
         )}

@@ -891,6 +891,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Spawn DuckDB-Wasm in a Web Worker; ingest Arrow IPC on CSV/log open: `duckdbClient.ts` + `useDuckDbInit` on app mount; Data Explorer + Simulation Monitor auto-ingest
 - [x] Verify end-to-end latency: Settings "Run Arrow Pipeline Benchmark" + Data Explorer timing badge; 500 ms budget constant in `arrowPipeline.ts` (§G.0 partial — hardware baseline varies)
 - [x] Arrow sidecar fast-path: `runCsvArrowPipeline()` + `runSimulationArrowPipeline()` prefer sibling ``.arrow`` IPC from extracted `.wsroute` bundles via `path_exists` + `runArrowSidecarPipeline()` (skips Rust CSV/JSONL re-parse; §G.0 / §G.8)
+- [x] Portfolio DuckDB union: `runPortfolioSimulationArrowPipeline()` unions multiple JSONL logs into one table with `run_label`; `formatPipelineTimingBadge()` shared toolbar timing text (§G.0 / §G.1.4)
 
 ---
 
@@ -926,6 +927,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary; shared `BenchmarkPortfolioParallel` on Simulation Summary + Benchmark Analysis (§G.1.4)
 - [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` / `loadPortfolioLogs()` batch loader (up to 480 runs) on Benchmark Analysis (§G.1.4)
+- [x] Portfolio DuckDB ingest: Simulation Summary unions primary + comparison runs into `summary_sim`; Benchmark Analysis → `benchmark_sim`; City Comparison → `city_sim` with sidecar-aware timing badges (§G.1.4 / §G.6)
 - [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush`; DuckDB SQL sync via `brushSqlSync` (§G.1)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
@@ -1041,6 +1043,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Give the researcher a free-form SQL/pivot interface backed by DuckDB-Wasm for custom analysis queries.
 
 - [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer + standalone `OlapExplorer` page with table picker + CSV/JSONL ingest (prefers ``.arrow`` sidecars; §G.6)
+- [x] Portfolio SQL panels: `SqlQueryPanel` on Benchmark Analysis (`benchmark_sim`) and City Comparison (`city_sim`) when multi-run portfolios are loaded (§G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)

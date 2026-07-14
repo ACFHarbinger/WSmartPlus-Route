@@ -12,7 +12,7 @@ import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
-import { runCsvArrowPipeline } from "../../utils/arrowPipeline";
+import { formatPipelineTimingBadge, runCsvArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {
@@ -116,12 +116,7 @@ export function DataExplorer() {
               {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
               {loading && " · DuckDB ingesting…"}
               {!loading && lastPipeline?.tableName === "explorer_csv" && (
-                <>
-                  {" "}
-                  · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
-                  {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
-                  {lastPipeline.withinBudget ? "" : " (over 500ms budget)"}
-                </>
+                <> · {formatPipelineTimingBadge(lastPipeline)}</>
               )}
             </span>
             <button

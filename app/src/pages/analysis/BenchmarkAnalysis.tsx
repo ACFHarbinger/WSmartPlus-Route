@@ -33,8 +33,16 @@ import {
   scanOutputPortfolio,
 } from "../../utils/outputRunLogs";
 import { downloadCsv } from "../../utils/tableExport";
+import {
+  formatPipelineTimingBadge,
+  runPortfolioSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
+
+const BENCHMARK_SIM_TABLE = "benchmark_sim";
 
 interface RunFile {
   path: string;
@@ -167,7 +175,15 @@ export function BenchmarkAnalysis() {
     pendingEvalResults, setPendingEvalResults,
     pendingBenchmarkLogs, setPendingBenchmarkLogs,
     projectRoot,
+    theme,
   } = useAppStore();
+  const {
+    ready: duckdbReady,
+    loading: duckdbLoading,
+    lastPipeline,
+    setLastPipeline,
+    setLoading: setDuckdbLoading,
+  } = useDuckDbStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
@@ -191,6 +207,18 @@ export function BenchmarkAnalysis() {
       setPendingEvalResults(null);
     }
   }, [pendingEvalResults, setPendingEvalResults]);
+
+  useEffect(() => {
+    if (!duckdbReady || runs.length === 0) return;
+    setDuckdbLoading(true);
+    runPortfolioSimulationArrowPipeline(
+      runs.map((r) => ({ path: r.path, label: r.label })),
+      BENCHMARK_SIM_TABLE
+    )
+      .then(setLastPipeline)
+      .catch((err) => console.warn("Benchmark Arrow pipeline:", err))
+      .finally(() => setDuckdbLoading(false));
+  }, [runs, duckdbReady, setLastPipeline, setDuckdbLoading]);
 
   // Consume pending benchmark logs from Output Browser compare action
   useEffect(() => {
@@ -393,7 +421,13 @@ export function BenchmarkAnalysis() {
             {portfolioLoading ? "Scanning output…" : "Load output portfolio (§G.1.4)"}
           </button>
         )}
-        <span className="text-xs text-canvas-muted">{runs.length} simulation run(s) loaded</span>
+        <span className="text-xs text-canvas-muted">
+          {runs.length} simulation run(s) loaded
+          {duckdbLoading && " · DuckDB ingesting…"}
+          {!duckdbLoading && lastPipeline?.tableName === BENCHMARK_SIM_TABLE && (
+            <> · {formatPipelineTimingBadge(lastPipeline)}</>
+          )}
+        </span>
         {filteredRuns.length > 0 && (
           <button onClick={exportComparisonCsv} className="btn-ghost text-xs flex items-center gap-1">
             <Download size={12} />
@@ -536,6 +570,14 @@ export function BenchmarkAnalysis() {
             style={{ height: Math.max(180, efficiencyRanking.length * 28) }}
           />
         </div>
+      )}
+
+      {runs.length >= 1 && duckdbReady && (
+        <SqlQueryPanel
+          tableName={BENCHMARK_SIM_TABLE}
+          theme={theme}
+          highlightPolicies={policy ? [policy] : null}
+        />
       )}
 
       {runs.length >= 1 && (
