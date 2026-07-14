@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-seventh pass (§G.4 / §G.5)
+
+Forty-seventh pass closes remaining deferred **§G.5** infrastructure items and adds
+**§G.4** Sigma.js WebGL topology rendering on Simulation Monitor.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `load_npz_plane_mmap` reads trailing 2-D planes from stored
+  `.npz` entries via zip `data_start` + `memmap2`; `probe_npy_mmap` covers `.npz`;
+  unit test `npz_mmap_plane_reads_trailing_2d_slice`
+
+**Python**
+- `logic/gen/export_loss_landscape.py` — `--batch-size` (default 4) averages training
+  forward-loss across multiple synthetic instances per grid point; `batch_size` bundled in NPZ
+
+**React frontend**
+- `TopologySigmaView` — Sigma.js WebGL k-NN topology graph with fill/pheromone styling
+- `GraphTopologyPanel` — ECharts / Sigma.js view toggle
+- `graphTopology.ts` — exported `topologyNodeStyle()` shared by both renderers
+- `MLIntrospectionPanel` — mmap badge text covers `.npz` archives
+
+**ROADMAP**
+- §G.4 Sigma.js WebGL topology overlay checked (partial — Cosmograph deferred)
+- §G.5.1 NPZ-in-zip mmap slice checked (partial — compressed entries deferred)
+- §G.5.2 multi-batch training-loss probe checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-sixth pass (§G.5)
 
 Forty-sixth pass closes the remaining **§G.5** deferred infrastructure items:

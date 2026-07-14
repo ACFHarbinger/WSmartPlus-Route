@@ -102,11 +102,25 @@ def _td_to_batch_dict(td) -> dict:
     return batch
 
 
+def _forward_loss(model, input_dict) -> float:
+    import torch
+
+    out = model(input_dict, strategy="greedy")
+    cost = out.get("cost")
+    if cost is not None:
+        return float(cost.mean().cpu())
+    reward = out.get("reward")
+    if reward is not None:
+        return float(-reward.mean().cpu())
+    return float("nan")
+
+
 def _probe_training_loss_surface(
     checkpoint: Path,
     n: int,
     span: float,
     device: str,
+    batch_size: int = 1,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
     import torch
 
@@ -127,8 +141,7 @@ def _probe_training_loss_surface(
     problem_name = str(args.get("problem", "vrpp"))
     num_loc = int(args.get("num_loc", args.get("graph_size", 20)) or 20)
     generator = get_generator(problem_name, num_loc=num_loc, device=device)
-    instance = generator(batch_size=1)
-    input_dict = _td_to_batch_dict(instance)
+    batch_size = max(1, int(batch_size))
 
     alphas = np.linspace(-span, span, n)
     betas = np.linspace(-span, span, n)
@@ -139,19 +152,21 @@ def _probe_training_loss_surface(
             for j, b in enumerate(betas):
                 perturbed = base_t + float(a) * d1 + float(b) * d2
                 _assign_flat_vector(model, perturbed.cpu().numpy())
-                out = model(input_dict, strategy="greedy")
-                cost = out.get("cost")
-                if cost is None:
-                    reward = out.get("reward")
-                    if reward is not None:
-                        grid[i, j] = float(-reward.mean().cpu())
-                    else:
-                        grid[i, j] = float((perturbed - base_t).pow(2).mean().sqrt().cpu())
+                losses: list[float] = []
+                for _ in range(batch_size):
+                    instance = generator(batch_size=1)
+                    input_dict = _td_to_batch_dict(instance)
+                    loss_val = _forward_loss(model, input_dict)
+                    if np.isfinite(loss_val):
+                        losses.append(loss_val)
+                if losses:
+                    grid[i, j] = float(np.mean(losses))
                 else:
-                    grid[i, j] = float(cost.mean().cpu())
+                    grid[i, j] = float((perturbed - base_t).pow(2).mean().sqrt().cpu())
 
     _assign_flat_vector(model, base_flat)
-    return alphas, betas, grid, "training_forward"
+    probe_label = "training_forward" if batch_size == 1 else f"training_forward_b{batch_size}"
+    return alphas, betas, grid, probe_label
 
 
 def _resolve_probe(
@@ -160,13 +175,14 @@ def _resolve_probe(
     span: float,
     device: str,
     probe_mode: str,
+    batch_size: int = 1,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
     if probe_mode == "proxy":
         t1, t2, loss = _probe_parameter_proxy_surface(checkpoint, n, span, device)
         return t1, t2, loss, "parameter_proxy"
 
     if probe_mode == "training":
-        return _probe_training_loss_surface(checkpoint, n, span, device)
+        return _probe_training_loss_surface(checkpoint, n, span, device, batch_size)
 
     # auto: prefer training forward when hyperparameters are discoverable
     parent = checkpoint.parent if checkpoint.is_file() else checkpoint
@@ -175,7 +191,7 @@ def _resolve_probe(
     )
     if has_hparams:
         try:
-            return _probe_training_loss_surface(checkpoint, n, span, device)
+            return _probe_training_loss_surface(checkpoint, n, span, device, batch_size)
         except Exception as exc:
             print(f"  [!] Training-loss probe failed ({exc}); falling back to parameter proxy")
     t1, t2, loss = _probe_parameter_proxy_surface(checkpoint, n, span, device)
@@ -206,6 +222,12 @@ def main() -> None:
         help="Loss probe: training forward pass, parameter-distance proxy, or auto-detect",
     )
     parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=4,
+        help="Synthetic instances averaged per grid point in training-loss probe (§G.5.2)",
+    )
+    parser.add_argument(
         "--bpc-theta1",
         type=float,
         default=None,
@@ -228,7 +250,12 @@ def main() -> None:
     probe_label = "rosenbrock_demo"
     if args.checkpoint and args.checkpoint.exists():
         t1, t2, loss, probe_label = _resolve_probe(
-            args.checkpoint, args.grid_size, args.span, args.device, args.probe_mode
+            args.checkpoint,
+            args.grid_size,
+            args.span,
+            args.device,
+            args.probe_mode,
+            args.batch_size,
         )
         source = str(args.checkpoint)
         default_bpc_t1 = 0.0
@@ -256,6 +283,7 @@ def main() -> None:
         bpc_loss=np.array(bpc_loss),
         distribution=np.array(args.distribution),
         probe_mode=np.array(probe_label),
+        batch_size=np.array(max(1, args.batch_size)),
         source=np.array(source),
     )
     print(

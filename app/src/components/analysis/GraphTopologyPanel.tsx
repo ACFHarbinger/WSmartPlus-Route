@@ -1,7 +1,7 @@
 /**
  * Topological graph analytics panel — ECharts force-directed graph (§G.4).
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,12 @@ import {
   type DistanceMatrixData,
   type TopologyLayoutMode,
 } from "../../utils/graphTopology";
+
+const TopologySigmaView = lazy(() =>
+  import("./TopologySigmaView").then((m) => ({ default: m.TopologySigmaView }))
+);
+
+type TopologyView = "echarts" | "sigma";
 
 interface Props {
   logPath: string | null;
@@ -54,6 +60,7 @@ export function GraphTopologyPanel({
   const [showPheromone, setShowPheromone] = useState(false);
   const [pheromoneDay, setPheromoneDay] = useState(displayDay);
   const [timelineSync, setTimelineSync] = useState(syncTimeline);
+  const [topologyView, setTopologyView] = useState<TopologyView>("echarts");
 
   const loadMatrix = useCallback(async () => {
     if (!logPath) return;
@@ -241,6 +248,17 @@ export function GraphTopologyPanel({
                   </select>
                 </label>
                 <label className="flex items-center gap-1.5 text-canvas-muted">
+                  View
+                  <select
+                    className="select-base text-xs py-0.5 w-28"
+                    value={topologyView}
+                    onChange={(e) => setTopologyView(e.target.value as TopologyView)}
+                  >
+                    <option value="echarts">ECharts</option>
+                    <option value="sigma">Sigma.js WebGL</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-1.5 text-canvas-muted">
                   <input
                     type="checkbox"
                     checked={relayoutOnFilter}
@@ -361,7 +379,26 @@ export function GraphTopologyPanel({
                 </span>
               </div>
 
-              {chartOption && (
+              {graphPayload && topologyView === "sigma" && (
+                <Suspense
+                  fallback={
+                    <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
+                      Loading Sigma.js…
+                    </div>
+                  }
+                >
+                  <TopologySigmaView
+                    nodeMeta={graphPayload.nodeMeta}
+                    edges={graphPayload.edges}
+                    positions={graphPayload.positions}
+                    fillRange={fillRange}
+                    pheromoneWeights={pheromoneWeights}
+                    showPheromone={showPheromone}
+                    theme={theme}
+                  />
+                </Suspense>
+              )}
+              {chartOption && topologyView === "echarts" && (
                 <ReactECharts option={chartOption} style={{ height: 360 }} notMerge />
               )}
             </>

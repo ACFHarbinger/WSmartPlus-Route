@@ -992,7 +992,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Visualize the raw optimization graph structure, pheromone trails, and node-edge weights.
 
 - [x] Load distance matrix from `assets/` as a weighted edge list: `graphTopology.ts` resolves sibling `gmaps_distmat.csv` or project `data/wsr_simulator/distance_matrix/`; k-NN edge list builder (§G.4 partial)
-- [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance (§G.4 partial — Sigma.js WebGL deferred)
+- [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance; View toggle adds `TopologySigmaView` Sigma.js WebGL with fill/pheromone styling (§G.4 partial — Cosmograph WebGL deferred)
 - [x] Force-directed layout (ForceAtlas2) via Graphology: Fruchterman-Reingold spring layout in `forceDirectedLayout()` (§G.4 partial — Graphology/ForceAtlas2 deferred)
 - [x] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration: `accumulateTourPheromone()` deposits τ on consecutive tour edges; amber edge styling in `GraphTopologyPanel` (§G.4 partial — live ACO solver τ matrix deferred)
 - [x] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes: fill-% dual slider + SQL "Brush profit range" / day row click → topology panel (§G.4 partial — bidirectional chart brush deferred)
@@ -1009,11 +1009,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.1 TensorDict Data Pipeline
 - [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — full native `.td` parse deferred)
 - [x] TensorDict (`.td`) inspect + slice via Python subprocess (`torch.load` + key/shape listing; slice export matches NPZ path): `inspect_npz_archive` / `load_tensor_slice` accept `project_root` + `python_executable`; Archive tab opens `.td` files (§G.5.1)
-- [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `memmap2` reads only the trailing 2-D plane for standalone `.npy` > 8 MB; `TensorSlicePreview.used_memmap` surfaced in Archive/Attention tabs; `probe_npy_mmap` eligibility probe (§G.5.1 partial — NPZ-in-zip mmap deferred)
+- [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `load_npz_plane_mmap` via `memmap2` reads only the trailing 2-D plane for standalone `.npy` or stored `.npz` entries > 8 MB; `TensorSlicePreview.used_memmap` surfaced in Archive/Attention tabs; `probe_npy_mmap` eligibility probe covers `.npz` stored arrays (§G.5.1 partial — compressed NPZ entries deferred)
 - [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab; `.td` slices supported via Python handoff (§G.5.1)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
-- [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` with `--probe-mode auto|training|proxy`; auto runs greedy forward-loss probe via `load_model` when `config.yaml`/`hparams.yaml`/`args.json` is present, else parameter-distance proxy; bundles `probe_mode` in NPZ (§G.5.2 partial — multi-batch training-loss deferred)
+- [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` with `--probe-mode auto|training|proxy` and `--batch-size` (default 4); training probe averages greedy forward-loss across N synthetic instances per grid point; bundles `probe_mode` + `batch_size` in NPZ (§G.5.2)
 - [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
 - [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2)
 - [x] `InstancedMesh` voxel alternative: per-cell `boxGeometry` cubes with height ∝ loss; Loss tab "Surface mesh / InstancedMesh voxels" toggle (§G.5.2)

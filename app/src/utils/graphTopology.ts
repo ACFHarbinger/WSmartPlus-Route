@@ -352,6 +352,23 @@ function nodeColor(
   return "#94a3b8";
 }
 
+/** Shared node styling for ECharts and Sigma.js topology views (§G.4). */
+export function topologyNodeStyle(
+  meta: TopologyNodeMeta,
+  fillRange: [number, number] | null
+): { size: number; color: string; dimmed: boolean } {
+  const hasFilter = fillRange != null && (fillRange[0] > 0 || fillRange[1] < 100);
+  const highlighted =
+    !hasFilter ||
+    meta.fillPct == null ||
+    (meta.fillPct >= fillRange![0] && meta.fillPct <= fillRange![1]);
+  return {
+    size: nodeSize(meta),
+    color: nodeColor(meta, fillRange, !highlighted),
+    dimmed: !highlighted,
+  };
+}
+
 /** Extract consecutive tour segments as undirected matrix-index pairs. */
 export function tourIndicesToMatrixPairs(
   tourIndices: number[] | undefined,
