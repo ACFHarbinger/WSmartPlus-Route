@@ -20,7 +20,11 @@ import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { PARETO_PANELS, panelForRun } from "../../utils/paretoPanels";
 import { cityScaleLabel, parseLogPath, parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
 import { symlog } from "../../utils/symlog";
-import { scanOutputPortfolio } from "../../utils/outputRunLogs";
+import {
+  loadPortfolioLogs,
+  PORTFOLIO_SCAN_DEFAULT,
+  scanOutputPortfolio,
+} from "../../utils/outputRunLogs";
 import { downloadCsv } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
@@ -460,18 +464,25 @@ export function BenchmarkAnalysis() {
     }
     setPortfolioLoading(true);
     try {
-      const refs = await scanOutputPortfolio(`${projectRoot}/assets/output`, 48);
+      const refs = await scanOutputPortfolio(
+        `${projectRoot}/assets/output`,
+        PORTFOLIO_SCAN_DEFAULT
+      );
       if (!refs.length) {
         toast.error("No simulation logs found under assets/output");
         return;
       }
-      const loaded: RunFile[] = [];
-      for (const ref of refs) {
-        const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
-        loaded.push({ path: ref.path, label: ref.label, entries });
-      }
+      const progressId = toast.loading(`Scanning portfolio… 0 / ${refs.length}`);
+      const loaded = await loadPortfolioLogs(refs, {
+        batchSize: 24,
+        onProgress: (n, total) => {
+          toast.loading(`Loading portfolio… ${n} / ${total}`, { id: progressId });
+        },
+      });
       setRuns(loaded);
-      toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`);
+      toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {
+        id: progressId,
+      });
     } catch (err) {
       toast.error("Portfolio load failed", { description: String(err) });
     } finally {

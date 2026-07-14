@@ -1,14 +1,14 @@
 /**
  * DuckDB-Wasm SQL query editor panel (§G.6).
  */
-import { lazy, Suspense, useCallback, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PivotTablePanel } from "./PivotTablePanel";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { queryDuckDb } from "../../utils/duckdbClient";
-import { sqlTemplates } from "../../utils/duckdbTemplates";
+import { brushedPoliciesSql, sqlTemplates } from "../../utils/duckdbTemplates";
 import { buildAutoChartOption, suggestChart } from "../../utils/queryAutoChart";
 import { downloadCsv } from "../../utils/tableExport";
 
@@ -19,9 +19,20 @@ interface Props {
   theme: "dark" | "light";
   onDaySelect?: (day: number) => void;
   onProfitRange?: (min: number, max: number) => void;
+  /** Multi-policy brush from chart panels (§G.1 / §G.6 bidirectional filter). */
+  highlightPolicies?: string[] | null;
+  /** Sync Monaco SQL to brushed-policies query when chart brush changes (§G.1). */
+  brushSqlSync?: boolean;
 }
 
-export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: Props) {
+export function SqlQueryPanel({
+  tableName,
+  theme,
+  onDaySelect,
+  onProfitRange,
+  highlightPolicies: highlightPoliciesProp = null,
+  brushSqlSync = false,
+}: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const [open, setOpen] = useState(false);
@@ -33,6 +44,11 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const templates = useMemo(() => sqlTemplates(tableName), [tableName]);
+
+  useEffect(() => {
+    if (!brushSqlSync) return;
+    setSql(brushedPoliciesSql(tableName, highlightPoliciesProp ?? []));
+  }, [brushSqlSync, highlightPoliciesProp, tableName]);
 
   const columns = useMemo(() => {
     if (!rows.length) return [];
@@ -113,10 +129,11 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
     [columns]
   );
 
-  const highlightPolicies = useMemo(
-    () => (activePolicy ? [activePolicy] : null),
-    [activePolicy]
-  );
+  const highlightPolicies = useMemo(() => {
+    if (highlightPoliciesProp?.length) return highlightPoliciesProp;
+    if (activePolicy) return [activePolicy];
+    return null;
+  }, [highlightPoliciesProp, activePolicy]);
 
   const rowMatchesHighlight = useCallback(
     (row: Record<string, unknown>) => {

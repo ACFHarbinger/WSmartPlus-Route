@@ -27,7 +27,7 @@ export interface TopologyNodeMeta {
   fillPct: number | null;
   onTour: boolean;
   mandatory: boolean;
-  collected: boolean;
+  collected: number;
 }
 
 export interface TopologyBuildOptions {

@@ -900,7 +900,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.1 KPI Summary Bar / Box Charts
 - [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary (§G.1 partial — multi-city benchmark deferred)
 - [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary (§G.1 partial — single-run city/scale from log path banner)
-- [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts (§G.1 partial — DuckDB SQL deferred)
+- [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts; `SimulationSummary` ingests log → DuckDB + `SqlQueryPanel` `brushSqlSync` / `brushedPoliciesSql` (§G.1)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
 - [x] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS: `BenchmarkAnalysis` `BenchmarkParetoPanel` grid + `paretoPanels.ts` run classifier (§G.1 partial — single-log Simulation Summary deferred)
@@ -924,8 +924,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary (§G.1 partial — multi-log deferred)
-- [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` batch loader (up to 48 runs) on Benchmark Analysis (§G.1.4 partial — full 480-log scan deferred)
-- [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush` (§G.1 partial — DuckDB SQL deferred)
+- [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` / `loadPortfolioLogs()` batch loader (up to 480 runs) on Benchmark Analysis (§G.1.4)
+- [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush`; DuckDB SQL sync via `brushSqlSync` (§G.1)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
@@ -948,7 +948,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary (§G.2 partial — multi-log portfolio deferred)
 - [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter (§G.2 partial — DuckDB SQL deferred)
-- [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): drill-down horizontal profit bars on segment click (§G.2 partial — animated morph deferred)
+- [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click (§G.2)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
@@ -963,7 +963,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
 - [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1 partial)
 - [x] Auto-detect graph preset from log path segments or day-1 bin count: `guessGraphPreset()` + SimulationMonitor auto-select (§G.3.1 partial)
-- [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap` (§G.16 partial — radius ∝ profit deferred; fill-scaled radius checked)
+- [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap`; radius scales with fill % and collected kg (`bin_state_collected`) (§G.3.1)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
 - [x] Pan/zoom/tilt with 3D perspective: `DeckRouteMap` controlled view state + 3D pitch toggle (0°/45°) (§G.3.1 partial — OrbitView/Cartesian deferred)
 
@@ -971,7 +971,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Parse per-day route from `tour_indices` + `all_bin_coords` into timestamped coordinate arrays (`DeckRouteMap`)
 - [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.16 partial — multi-vehicle deferred)
 - [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
-- [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber (§G.16 partial — TripsLayer animation deferred)
+- [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber; `TripsLayer` animated trail in Mercator and OrbitView Cartesian modes (§G.3.2)
 - [x] Multi-vehicle rendering with distinct color coding per vehicle: `vehicleTours.ts` splits depot-delimited `tour` sequences; `DeckRouteMap` + `RouteMapChart` render per-vehicle paths and per-vehicle tour-stop scatter layers (§G.3.2)
 
 #### 3.3 Algorithm Comparison Mode

@@ -8,6 +8,21 @@ export interface SqlTemplate {
   sql: string;
 }
 
+/** SQL that mirrors the Simulation Summary policy brush (§G.1). */
+export function brushedPoliciesSql(
+  tableName: string,
+  policies: string[]
+): string {
+  const t = `"${tableName}"`;
+  if (!policies.length) {
+    return `SELECT * FROM ${t} ORDER BY day, policy LIMIT 500`;
+  }
+  const quoted = policies.map((p) => `'${p.replace(/'/g, "''")}'`).join(", ");
+  return `SELECT * FROM ${t}
+WHERE policy IN (${quoted})
+ORDER BY day, policy`;
+}
+
 export function sqlTemplates(tableName: string): SqlTemplate[] {
   const t = `"${tableName}"`;
   return [
