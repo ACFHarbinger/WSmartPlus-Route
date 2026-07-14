@@ -1014,21 +1014,21 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
 - [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` (§G.5.2 partial — full training-loss probe deferred)
 - [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
-- [ ] React Three Fiber: render grid as `InstancedMesh` continuous 3D topography
-- [ ] Color gradient: low loss = deep blue, high loss = bright red
-- [ ] Camera: orbit, zoom, perspective controls
-- [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab heatmap (§G.5.2 partial — R3F canvas deferred)
+- [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2 partial — `InstancedMesh` cubes deferred)
+- [x] Color gradient: low loss = deep blue, high loss = bright red (`lossToColor` vertex colours)
+- [x] Camera: orbit, zoom, perspective controls (`OrbitControls` + `Canvas`)
+- [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid (§G.5.2)
 - [ ] Project exact-solver solutions (BPC optimum) as a marker on the landscape
-- [ ] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical)
+- [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + cyan global-min sphere marker (§G.5.2 partial)
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
 - [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
 - [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap in `MLIntrospectionPanel` (§G.5.3 partial — Sigma.js/node overlay deferred)
-- [ ] Query/Key/Value color coding per attention head
+- [x] Attention head selector: `detectHeadAxis` + per-head index dropdown (§G.5.3 partial — Q/K/V colour coding deferred)
 - [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
-- [ ] Sparse Routing Transformer mode: show only top-k attention connections (spherical k-means clusters)
+- [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3 partial — spherical k-means clusters deferred)
 - [ ] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions
-- [ ] Side-by-side vs overlay toggle
+- [x] Side-by-side vs overlay toggle: decode-step compare (side-by-side dual heatmap / overlay Δ diff) (§G.5.3 partial)
 
 ---
 

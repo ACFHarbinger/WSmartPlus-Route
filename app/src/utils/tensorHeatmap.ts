@@ -103,3 +103,48 @@ export function leadingIndexCount(shape: number[]): number {
 export function defaultIndices(shape: number[]): number[] {
   return Array.from({ length: leadingIndexCount(shape) }, () => 0);
 }
+
+/** Guess which leading dimension is the attention head axis. */
+export function detectHeadAxis(shape: number[], key: string): number | null {
+  const leading = leadingIndexCount(shape);
+  if (leading < 1) return null;
+  if (/head/i.test(key)) {
+    const idx = shape.findIndex((_, i) => i < leading);
+    return idx >= 0 ? idx : 0;
+  }
+  // Common layouts: (H, N, N) or (L, H, N, N) — first small leading dim is often heads.
+  for (let i = 0; i < leading; i++) {
+    const dim = shape[i];
+    if (dim >= 2 && dim <= 32 && /attn|attention|weights|alpha/i.test(key)) {
+      return i;
+    }
+  }
+  return null;
+}
+
+/** Keep only top-k values per query row (sparse attention, §G.5.3). */
+export function applySparseTopK(values: number[][], k: number): number[][] {
+  if (k <= 0) return values;
+  return values.map((row) => {
+    const indexed = row
+      .map((v, i) => ({ v: Number.isFinite(v) ? v : -Infinity, i }))
+      .sort((a, b) => b.v - a.v);
+    const keep = new Set(indexed.slice(0, k).map((x) => x.i));
+    return row.map((v, i) => (keep.has(i) ? v : 0));
+  });
+}
+
+/** Difference heatmap for overlay-compare mode (current − baseline). */
+export function diffMatrices(a: number[][], b: number[][]): number[][] {
+  const rows = Math.min(a.length, b.length);
+  const cols = Math.min(a[0]?.length ?? 0, b[0]?.length ?? 0);
+  const out: number[][] = [];
+  for (let r = 0; r < rows; r++) {
+    const row: number[] = [];
+    for (let c = 0; c < cols; c++) {
+      row.push((a[r]?.[c] ?? 0) - (b[r]?.[c] ?? 0));
+    }
+    out.push(row);
+  }
+  return out;
+}

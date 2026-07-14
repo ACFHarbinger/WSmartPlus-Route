@@ -25,6 +25,7 @@ export default defineConfig({
           if (id.includes("@deck.gl/geo-layers")) return "deckgl";
           if (id.includes("@monaco-editor") || id.includes("monaco-editor")) return "monaco";
           if (id.includes("@duckdb/duckdb-wasm")) return "duckdb";
+          if (id.includes("three") || id.includes("@react-three")) return "r3f";
         },
       },
     },

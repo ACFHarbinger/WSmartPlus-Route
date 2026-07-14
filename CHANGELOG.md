@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-second pass (§G.5)
+
+Forty-second pass completes remaining **§G.5 Machine Learning Introspection** items:
+React Three Fiber 3D loss topography, minima sharpness annotations, attention head
+selector, sparse top-k, and decode-step compare modes.
+
+**Dependencies**
+- `three`, `@react-three/fiber`, `@react-three/drei` — lazy `r3f` vendor chunk in `vite.config.ts`
+
+**React frontend**
+- `LossLandscape3D` — vertex-coloured `PlaneGeometry` topography, cyan global-min marker, `OrbitControls`
+- `utils/lossLandscape.ts` — `analyzeLossMinima`, `lossToColor`, `normalizeGrid`
+- `MLIntrospectionPanel` — Loss tab 3D + 2D side-by-side grid; attention head selector; sparse top-k; side-by-side / overlay Δ compare
+- `utils/tensorHeatmap.ts` — `detectHeadAxis`, `applySparseTopK`, `diffMatrices`
+
+**ROADMAP**
+- §G.5.2 R3F topography + colour gradient + orbit camera + minima annotation checked (partial — BPC marker deferred)
+- §G.5.3 head selector + sparse top-k + side-by-side/overlay compare checked (partial — Sigma.js, Q/K/V, Empirical vs Gamma-3 deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-first pass (§G.5)
 
 Forty-first pass starts **§G.5 Machine Learning Introspection**: NPZ/NPY tensor

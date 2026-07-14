@@ -19,6 +19,8 @@
     "@deck.gl/react": "^9.3.6",
     "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
     "@monaco-editor/react": "^4.7.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-notification": "^2",
@@ -34,12 +36,14 @@
     "react-map-gl": "^8.1.1",
     "react-router-dom": "^7",
     "sonner": "^1",
+    "three": "^0.185.1",
     "zustand": "^5"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "^4",
     "autoprefixer": "^10",
     "postcss": "^8",
