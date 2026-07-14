@@ -9,6 +9,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
 
+use crate::commands::arrow;
 use crate::commands::process::resolve_python;
 use crate::commands::sim_watcher::{parse_day_log_line, DayLogEntry};
 
@@ -339,6 +340,7 @@ pub struct WsrouteBundleInfo {
     pub path: String,
     pub version: Option<String>,
     pub created_at: Option<String>,
+    pub arrow_sidecars: Option<u32>,
     pub files: Vec<WsrouteBundleFile>,
 }
 
@@ -351,6 +353,7 @@ pub fn inspect_wsroute_bundle(path: String) -> Result<WsrouteBundleInfo, String>
     let mut files = Vec::new();
     let mut version = None;
     let mut created_at = None;
+    let mut arrow_sidecars = None;
 
     for i in 0..archive.len() {
         let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
@@ -369,6 +372,10 @@ pub fn inspect_wsroute_bundle(path: String) -> Result<WsrouteBundleInfo, String>
                         .get("created_at")
                         .and_then(|x| x.as_str())
                         .map(str::to_string);
+                    arrow_sidecars = v
+                        .get("arrow_sidecars")
+                        .and_then(|x| x.as_u64())
+                        .map(|n| n as u32);
                 }
             }
         }
@@ -385,12 +392,13 @@ pub fn inspect_wsroute_bundle(path: String) -> Result<WsrouteBundleInfo, String>
         path,
         version,
         created_at,
+        arrow_sidecars,
         files,
     })
 }
 
 const BUNDLE_EXTENSIONS: &[&str] = &[
-    "csv", "json", "jsonl", "yaml", "yml", "npz", "pkl", "pt", "parquet",
+    "arrow", "csv", "json", "jsonl", "yaml", "yml", "npz", "pkl", "pt", "parquet",
 ];
 
 fn is_bundle_extension(path: &Path) -> bool {
@@ -429,7 +437,11 @@ fn iso_timestamp() -> String {
 
 /// Package a run output directory into a `.wsroute` zip bundle (§G.8).
 #[tauri::command]
-pub fn create_wsroute_bundle(source_dir: String, output_path: String) -> Result<WsrouteBundleInfo, String> {
+pub fn create_wsroute_bundle(
+    source_dir: String,
+    output_path: String,
+    include_arrow: Option<bool>,
+) -> Result<WsrouteBundleInfo, String> {
     let source = Path::new(&source_dir);
     if !source.is_dir() {
         return Err(format!("Source directory not found: {source_dir}"));
@@ -439,12 +451,45 @@ pub fn create_wsroute_bundle(source_dir: String, output_path: String) -> Result<
     collect_bundle_files(source, source, &mut files)?;
     files.sort_by(|a, b| a.0.cmp(&b.0));
 
-    let rel_paths: Vec<String> = files.iter().map(|(r, _)| r.clone()).collect();
+    let mut arrow_sidecars: Vec<(String, PathBuf)> = Vec::new();
+    if include_arrow.unwrap_or(false) {
+        let staging = std::env::temp_dir().join(format!(
+            "wsroute_arrow_{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.as_nanos())
+                .unwrap_or(0)
+        ));
+        fs::create_dir_all(&staging).map_err(|e| e.to_string())?;
+
+        for (rel, abs) in &files {
+            if abs.extension().and_then(|e| e.to_str()) != Some("csv") {
+                continue;
+            }
+            let arrow_rel = Path::new(rel)
+                .with_extension("arrow")
+                .to_string_lossy()
+                .replace('\\', "/");
+            if files.iter().any(|(r, _)| r == &arrow_rel) {
+                continue;
+            }
+            let arrow_abs = staging.join(&arrow_rel);
+            arrow::write_csv_arrow_sidecar(&abs.to_string_lossy(), &arrow_abs)?;
+            arrow_sidecars.push((arrow_rel, arrow_abs));
+        }
+    }
+
+    let mut packaged: Vec<(String, PathBuf)> = files.clone();
+    packaged.extend(arrow_sidecars.clone());
+    packaged.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let rel_paths: Vec<String> = packaged.iter().map(|(r, _)| r.clone()).collect();
     let manifest = serde_json::json!({
         "version": "1",
         "created_at": iso_timestamp(),
         "source": source_dir,
         "file_count": rel_paths.len(),
+        "arrow_sidecars": arrow_sidecars.len(),
         "files": rel_paths,
     });
 
@@ -462,7 +507,7 @@ pub fn create_wsroute_bundle(source_dir: String, output_path: String) -> Result<
     zip.write_all(manifest.to_string().as_bytes())
         .map_err(|e| e.to_string())?;
 
-    for (rel, abs) in &files {
+    for (rel, abs) in &packaged {
         zip.start_file(rel, options).map_err(|e| e.to_string())?;
         let mut f = File::open(abs).map_err(|e| e.to_string())?;
         let mut buf = Vec::new();
@@ -471,6 +516,11 @@ pub fn create_wsroute_bundle(source_dir: String, output_path: String) -> Result<
     }
 
     zip.finish().map_err(|e| e.to_string())?;
+    if let Some((_, path)) = arrow_sidecars.first() {
+        if let Some(parent) = path.parent() {
+            let _ = fs::remove_dir_all(parent);
+        }
+    }
     inspect_wsroute_bundle(output_path)
 }
 
@@ -633,6 +683,15 @@ mod tests {
         Ok(())
     }
 
+    fn write_sample_csv(dir: &Path) -> std::io::Result<()> {
+        let csv = dir.join("metrics.csv");
+        let mut f = File::create(csv)?;
+        writeln!(f, "policy,profit,overflows")?;
+        writeln!(f, "gurobi,12.5,0")?;
+        writeln!(f, "alns,10.1,2")?;
+        Ok(())
+    }
+
     #[test]
     fn wsroute_bundle_round_trip_preserves_jsonl() {
         let base = std::env::temp_dir().join(format!(
@@ -652,6 +711,7 @@ mod tests {
         let info = create_wsroute_bundle(
             source.to_string_lossy().to_string(),
             bundle_path.to_string_lossy().to_string(),
+            None,
         )
         .expect("create bundle");
         assert!(info.files.iter().any(|f| f.path.ends_with(".jsonl")));
@@ -665,6 +725,35 @@ mod tests {
         let log_path = extracted.log_path.expect("jsonl path");
         let content = fs::read_to_string(&log_path).expect("read extracted log");
         assert!(content.contains("\"policy\":\"test\""));
+
+        let _ = fs::remove_dir_all(&base);
+    }
+
+    #[test]
+    fn wsroute_bundle_with_arrow_sidecars() {
+        let base = std::env::temp_dir().join(format!(
+            "wsroute_arrow_test_{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let source = base.join("source");
+        let bundle_path = base.join("run.wsroute");
+
+        fs::create_dir_all(&source).expect("create source");
+        write_sample_run(&source).expect("write sample run");
+        write_sample_csv(&source).expect("write sample csv");
+
+        let info = create_wsroute_bundle(
+            source.to_string_lossy().to_string(),
+            bundle_path.to_string_lossy().to_string(),
+            Some(true),
+        )
+        .expect("create bundle with arrow");
+
+        assert_eq!(info.arrow_sidecars, Some(1));
+        assert!(info.files.iter().any(|f| f.path.ends_with("metrics.arrow")));
 
         let _ = fs::remove_dir_all(&base);
     }

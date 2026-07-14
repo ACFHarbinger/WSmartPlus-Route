@@ -327,8 +327,8 @@ export function Settings() {
       <div className="card space-y-3">
         <h2 className="text-sm font-semibold text-gray-200">Data Pipeline (Phase 0)</h2>
         <p className="text-xs text-canvas-muted">
-          CSV → Rust Arrow IPC → DuckDB-Wasm. Target end-to-end latency &lt;{" "}
-          {ARROW_PIPELINE_BUDGET_MS} ms.
+          CSV → Rust Arrow IPC → DuckDB-Wasm (or pre-built .arrow sidecar from a .wsroute
+          bundle). Target end-to-end latency &lt; {ARROW_PIPELINE_BUDGET_MS} ms.
         </p>
         <p className="text-xs">
           DuckDB worker:{" "}
@@ -351,6 +351,7 @@ export function Settings() {
               </span>
             </p>
             <p>
+              {lastPipeline.usedSidecar ? "sidecar fast-path · " : ""}
               rust {lastPipeline.rustMs} ms · read {lastPipeline.readMs} ms · duckdb{" "}
               {lastPipeline.duckdbMs} ms
             </p>

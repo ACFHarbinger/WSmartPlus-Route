@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-seventh pass (§G.0 / §G.8)
+
+Fifty-seventh pass closes the Arrow IPC loop: Studio DuckDB ingest prefers pre-built
+``.arrow`` sidecars from extracted bundles, and the Output Browser can emit sidecars
+when packaging runs.
+
+**React frontend**
+- `arrowPipeline.ts` — `csvArrowSidecarPath()`, `runArrowSidecarPipeline()` sidecar
+  fast-path; `runCsvArrowPipeline()` auto-detects sibling ``.arrow`` via `path_exists`
+- `DataExplorer` / `Settings` — pipeline timing badge notes sidecar fast-path
+- `OutputBrowser` — “Include Arrow IPC sidecars” export toggle; manifest
+  `arrow_sidecars` count in bundle inspector
+
+**Rust**
+- `arrow.rs` — `write_csv_arrow_sidecar()`, `path_exists` command
+- `data.rs` — `create_wsroute_bundle(..., include_arrow)` emits ``.arrow`` sidecars;
+  `inspect_wsroute_bundle` surfaces `arrow_sidecars` from manifest; `.arrow` in bundle extensions
+
+**ROADMAP**
+- §G.0 Arrow sidecar fast-path ingest checked
+- §G.8 Studio sidecar ingest + Rust bundle Arrow export checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-sixth pass (§G.1.3 / §G.2 / §G.8)
 
 Fifty-sixth pass closes deferred **§G.1.3** portfolio policy×metric heatmap and

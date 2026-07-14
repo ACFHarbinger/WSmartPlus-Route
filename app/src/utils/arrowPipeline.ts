@@ -1,5 +1,6 @@
 /**
  * CSV → Rust Arrow IPC → DuckDB-Wasm pipeline (§G.0 Phase 0).
+ * Prefers pre-built ``.arrow`` sidecars from ``.wsroute`` bundles when present (§G.8).
  */
 import { invoke } from "@tauri-apps/api/core";
 import { duckDbRowCount, ingestArrowIpc, initDuckDb } from "./duckdbClient";
@@ -22,6 +23,8 @@ export interface ArrowPipelineTiming {
   totalMs: number;
   withinBudget: boolean;
   tableName: string;
+  /** True when a sibling ``.arrow`` sidecar was ingested instead of re-parsing CSV. */
+  usedSidecar?: boolean;
 }
 
 function toUint8Array(bytes: number[]): Uint8Array {
@@ -33,11 +36,53 @@ async function readIpcBytes(ipcPath: string): Promise<Uint8Array> {
   return toUint8Array(bytes);
 }
 
-/** Full pipeline for an on-disk CSV file. */
+/** Resolve the Arrow IPC sidecar path for a CSV file. */
+export function csvArrowSidecarPath(csvPath: string): string {
+  return csvPath.replace(/\.csv$/i, ".arrow");
+}
+
+/** Ingest a pre-built Arrow IPC file directly into DuckDB-Wasm. */
+export async function runArrowSidecarPipeline(
+  arrowPath: string,
+  tableName = "studio_arrow"
+): Promise<ArrowPipelineTiming> {
+  const t0 = performance.now();
+  await initDuckDb();
+
+  const buffer = await readIpcBytes(arrowPath);
+  const t1 = performance.now();
+
+  await ingestArrowIpc(tableName, buffer);
+  const t2 = performance.now();
+
+  const rowCount = await duckDbRowCount(tableName);
+  const totalMs = Math.round(t2 - t0);
+
+  return {
+    rowCount,
+    columnCount: 0,
+    rustMs: 0,
+    readMs: Math.round(t1 - t0),
+    duckdbMs: Math.round(t2 - t1),
+    totalMs,
+    withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
+    tableName,
+    usedSidecar: true,
+  };
+}
+
+/** Full pipeline for an on-disk CSV file; prefers a sibling ``.arrow`` sidecar when present. */
 export async function runCsvArrowPipeline(
   csvPath: string,
   tableName = "studio_csv"
 ): Promise<ArrowPipelineTiming> {
+  const sidecar = csvArrowSidecarPath(csvPath);
+  const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
+  if (hasSidecar) {
+    const timing = await runArrowSidecarPipeline(sidecar, tableName);
+    return { ...timing, columnCount: timing.columnCount };
+  }
+
   const t0 = performance.now();
   await initDuckDb();
 
@@ -62,6 +107,7 @@ export async function runCsvArrowPipeline(
     totalMs,
     withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
     tableName,
+    usedSidecar: false,
   };
 }
 

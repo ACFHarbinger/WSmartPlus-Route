@@ -196,6 +196,17 @@ fn csv_to_batch(path: &str) -> Result<RecordBatch, String> {
     RecordBatch::try_new(schema, columns).map_err(|e| e.to_string())
 }
 
+/// Write an Arrow IPC sidecar for an on-disk CSV (§G.8).
+pub fn write_csv_arrow_sidecar(csv_path: &str, arrow_path: &PathBuf) -> Result<usize, String> {
+    let batch = csv_to_batch(csv_path)?;
+    let row_count = batch.num_rows();
+    if let Some(parent) = arrow_path.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    write_ipc_file(&batch, arrow_path)?;
+    Ok(row_count)
+}
+
 pub fn export_batch(batch: &RecordBatch, label: &str, start: Instant) -> Result<ArrowIpcFile, String> {
     let path = arrow_temp_path(label)?;
     write_ipc_file(batch, &path)?;
@@ -247,4 +258,9 @@ pub fn benchmark_arrow_pipeline(csv_path: String) -> Result<ArrowPipelineBenchma
 #[tauri::command]
 pub fn read_binary_file(path: String) -> Result<Vec<u8>, String> {
     fs::read(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn path_exists(path: String) -> bool {
+    std::path::Path::new(&path).is_file()
 }
