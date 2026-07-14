@@ -41,8 +41,14 @@ import {
 } from "../../utils/policyHierarchy";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
+import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
+
+const SUMMARY_SIM_TABLE = "summary_sim";
 
 type HierarchyView = "sunburst" | "treemap";
 
@@ -997,7 +1003,6 @@ function PolicyHierarchyPanel({
   showErrorBars?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
-  const drillRef = useRef<EChartsReact | null>(null);
   const [view, setView] = useState<HierarchyView>("sunburst");
   const [colorMode, setColorMode] = useState<HierarchyColorMode>("kgkm");
   const [drillPath, setDrillPath] = useState<string[]>([]);
@@ -1007,132 +1012,123 @@ function PolicyHierarchyPanel({
     [policies, stats, policyMeta, logMeta, colorMode]
   );
 
-  const hierarchyOption = useMemo(
-    () => ({
-      backgroundColor: "transparent",
-      tooltip: {
-        formatter: (p: { name: string; value: number }) =>
-          `${p.name}<br/>Profit: ${fmt(p.value, 1)} €`,
-      },
-      series: [
-        view === "sunburst"
-          ? {
-              type: "sunburst" as const,
-              data: tree,
-              radius: ["12%", "90%"],
-              label: { color: "#c0c0d8", fontSize: 9 },
-              itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
-              emphasis: { focus: "ancestor" as const },
-            }
-          : {
-              type: "treemap" as const,
-              data: tree,
-              leafDepth: 2,
-              label: { color: "#c0c0d8", fontSize: 9 },
-              upperLabel: { show: true, height: 22, color: "#9090b0" },
-              itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
-            },
-      ],
-    }),
-    [tree, view]
-  );
-
   const drillChildren = useMemo(
     () => enrichDrillChildren(childrenAtPath(tree, drillPath), stats, policyMeta),
     [tree, drillPath, stats, policyMeta]
   );
 
-  const drillOption = useMemo(
+  const showDrillMorph = drillPath.length > 0 && drillChildren.length > 0;
+
+  const hierarchyOption = useMemo(
     () => ({
       backgroundColor: "transparent",
-      grid: { left: 110, right: 24, top: 12, bottom: 12 },
-      xAxis: {
-        type: "value" as const,
-        name: "Profit (€)",
-        nameTextStyle: { color: "#9090b0", fontSize: 9 },
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-      },
-      yAxis: {
-        type: "category" as const,
-        data: drillChildren.map((c) => c.name),
-        inverse: true,
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-      },
+      animationDurationUpdate: 750,
+      animationEasingUpdate: "cubicOut" as const,
       tooltip: {
-        trigger: "axis" as const,
-        formatter: (params: unknown[]) => {
-          const p = (params as Array<{ dataIndex: number }>)[0];
-          const c = drillChildren[p.dataIndex];
-          const err = Math.max(c.profitStd, c.distSpread);
-          return [
-            `${c.name}`,
-            `Profit: ${fmt(c.profit, 1)} € ± ${fmt(err, 1)}`,
-            `kg/km: ${fmt(c.kgkm, 2)}`,
-            `Overflows: ${fmt(c.overflows, 1)}`,
-            c.distSpread > 0 ? `Empirical↔Gamma spread: ${fmt(c.distSpread, 1)} €` : "",
-          ]
-            .filter(Boolean)
-            .join("<br/>");
-        },
+        formatter: (p: { name: string; value: number }) =>
+          `${p.name}<br/>Profit: ${fmt(p.value, 1)} €`,
       },
-      series: [
-        {
-          type: "bar" as const,
-          data: drillChildren.map((c) => ({
-            value: c.profit,
-            name: c.name,
-            itemStyle: {
-              opacity: c.policies.some((p) => isHighlighted(p, brushed ?? null)) ? 1 : 0.25,
-            },
-          })),
-          itemStyle: { color: "#6366f1" },
-        },
-        ...(showErrorBars
-          ? [
-              {
-                type: "custom" as const,
-                renderItem: (
-                  params: { dataIndex: number },
-                  api: {
-                    coord: (v: [number, number]) => [number, number];
-                    style: (s: object) => object;
-                  }
-                ) => {
-                  const c = drillChildren[params.dataIndex];
-                  const err = Math.max(c.profitStd, c.distSpread);
-                  const y = api.coord([c.profit, params.dataIndex])[1];
-                  const xLeft = api.coord([Math.max(0, c.profit - err), params.dataIndex])[0];
-                  const xRight = api.coord([c.profit + err, params.dataIndex])[0];
-                  const cap = 4;
-                  return {
-                    type: "group",
-                    children: [
-                      {
-                        type: "line",
-                        shape: { x1: xLeft, y1: y, x2: xRight, y2: y },
-                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
-                      },
-                      {
-                        type: "line",
-                        shape: { x1: xLeft, y1: y - cap, x2: xLeft, y2: y + cap },
-                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
-                      },
-                      {
-                        type: "line",
-                        shape: { x1: xRight, y1: y - cap, x2: xRight, y2: y + cap },
-                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
-                      },
-                    ],
-                  };
+      series: showDrillMorph
+        ? [
+            {
+              id: "hierarchy-drill",
+              type: "bar" as const,
+              data: drillChildren.map((c) => ({
+                value: c.profit,
+                name: c.name,
+                itemStyle: {
+                  opacity: c.policies.some((p) => isHighlighted(p, brushed ?? null)) ? 1 : 0.25,
                 },
-                data: drillChildren.map((_, i) => i),
-                z: 10,
-              },
-            ]
-          : []),
-      ],
+              })),
+              itemStyle: { color: "#6366f1" },
+              universalTransition: { enabled: true },
+            },
+            ...(showErrorBars
+              ? [
+                  {
+                    type: "custom" as const,
+                    renderItem: (
+                      params: { dataIndex: number },
+                      api: {
+                        coord: (v: [number, number]) => [number, number];
+                        style: (s: object) => object;
+                      }
+                    ) => {
+                      const c = drillChildren[params.dataIndex];
+                      const err = Math.max(c.profitStd, c.distSpread);
+                      const y = api.coord([c.profit, params.dataIndex])[1];
+                      const xLeft = api.coord([Math.max(0, c.profit - err), params.dataIndex])[0];
+                      const xRight = api.coord([c.profit + err, params.dataIndex])[0];
+                      const cap = 4;
+                      return {
+                        type: "group",
+                        children: [
+                          {
+                            type: "line",
+                            shape: { x1: xLeft, y1: y, x2: xRight, y2: y },
+                            style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                          },
+                          {
+                            type: "line",
+                            shape: { x1: xLeft, y1: y - cap, x2: xLeft, y2: y + cap },
+                            style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                          },
+                          {
+                            type: "line",
+                            shape: { x1: xRight, y1: y - cap, x2: xRight, y2: y + cap },
+                            style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                          },
+                        ],
+                      };
+                    },
+                    data: drillChildren.map((_, i) => i),
+                    z: 10,
+                  },
+                ]
+              : []),
+          ]
+        : [
+            view === "sunburst"
+              ? {
+                  id: "hierarchy-sunburst",
+                  type: "sunburst" as const,
+                  data: tree,
+                  radius: ["12%", "90%"],
+                  label: { color: "#c0c0d8", fontSize: 9 },
+                  itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
+                  emphasis: { focus: "ancestor" as const },
+                  universalTransition: { enabled: true },
+                }
+              : {
+                  id: "hierarchy-treemap",
+                  type: "treemap" as const,
+                  data: tree,
+                  leafDepth: 2,
+                  label: { color: "#c0c0d8", fontSize: 9 },
+                  upperLabel: { show: true, height: 22, color: "#9090b0" },
+                  itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
+                  universalTransition: { enabled: true },
+                },
+          ],
+      ...(showDrillMorph
+        ? {
+            grid: { left: 110, right: 24, top: 12, bottom: 12 },
+            xAxis: {
+              type: "value" as const,
+              name: "Profit (€)",
+              nameTextStyle: { color: "#9090b0", fontSize: 9 },
+              axisLabel: { color: "#9090b0", fontSize: 9 },
+            },
+            yAxis: {
+              type: "category" as const,
+              data: drillChildren.map((c) => c.name),
+              inverse: true,
+              axisLabel: { color: "#9090b0", fontSize: 9 },
+            },
+          }
+        : {}),
     }),
-    [drillChildren, brushed, showErrorBars]
+    [tree, view, showDrillMorph, drillChildren, brushed, showErrorBars]
   );
 
   const handleSegmentClick = (path: string[]) => {
@@ -1205,32 +1201,24 @@ function PolicyHierarchyPanel({
       <ReactECharts
         ref={chartRef}
         option={hierarchyOption}
-        style={{ height: 300 }}
+        notMerge={false}
+        style={{
+          height: showDrillMorph ? Math.max(180, drillChildren.length * 32) : 300,
+        }}
         onEvents={{
-          click: (params: { treePathInfo?: Array<{ name: string }> }) => {
-            const path = params.treePathInfo?.map((n) => n.name) ?? [];
-            if (path.length) handleSegmentClick(path);
+          click: (params: { treePathInfo?: Array<{ name: string }>; name?: string }) => {
+            if (params.treePathInfo?.length) {
+              const path = params.treePathInfo.map((n) => n.name);
+              handleSegmentClick(path);
+              return;
+            }
+            if (showDrillMorph && params.name) {
+              const child = drillChildren.find((c) => c.name === params.name);
+              if (child) onBrushPolicies(child.policies);
+            }
           },
         }}
       />
-
-      {drillPath.length > 0 && drillChildren.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-xs text-canvas-muted">Drill-down variants</p>
-          <ReactECharts
-            ref={drillRef}
-            option={drillOption}
-            style={{ height: Math.max(120, drillChildren.length * 28) }}
-            onEvents={{
-              click: (params: { name?: string }) => {
-                if (!params.name) return;
-                const child = drillChildren.find((c) => c.name === params.name);
-                if (child) onBrushPolicies(child.policies);
-              },
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }
@@ -1719,7 +1707,8 @@ function MetricBarChart({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function SimulationSummary() {
-  const { pendingLogPath, setPendingLogPath, projectRoot } = useAppStore();
+  const { pendingLogPath, setPendingLogPath, projectRoot, theme } = useAppStore();
+  const { ready: duckdbReady, setLastPipeline, setLoading: setDuckdbLoading } = useDuckDbStore();
   const [parquetExporting, setParquetExporting] = useState(false);
   const [logScale, setLogScale] = useState(false);
   const [showErrorBars, setShowErrorBars] = useState(false);
@@ -1737,7 +1726,15 @@ export function SimulationSummary() {
     setEntries(loaded);
     setLogPath(path);
     pushRecent({ path, label: recentFileLabel(path), kind: "log" });
-  }, [pushRecent]);
+
+    if (duckdbReady) {
+      setDuckdbLoading(true);
+      runSimulationArrowPipeline(path, SUMMARY_SIM_TABLE)
+        .then(setLastPipeline)
+        .catch((err) => console.warn("Summary Arrow pipeline:", err))
+        .finally(() => setDuckdbLoading(false));
+    }
+  }, [pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]);
 
   // Auto-load when another page hands off a log path (e.g. OutputBrowser)
   useEffect(() => {
@@ -2139,6 +2136,15 @@ export function SimulationSummary() {
                 />
               </div>
             </div>
+          )}
+
+          {logPath && duckdbReady && (
+            <SqlQueryPanel
+              tableName={SUMMARY_SIM_TABLE}
+              theme={theme}
+              highlightPolicies={effectiveBrushed}
+              brushSqlSync
+            />
           )}
         </>
       )}

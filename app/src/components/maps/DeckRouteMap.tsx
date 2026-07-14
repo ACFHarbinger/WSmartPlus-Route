@@ -42,8 +42,16 @@ interface VehicleGeometry {
 interface VehicleTourStop {
   position: [number, number];
   fill: number;
+  collected: number;
   vehicleId: number;
   color: [number, number, number];
+}
+
+function stopRadius(fill: number, collected: number, multiPolicy: boolean): number {
+  const base = multiPolicy ? 40 : 50;
+  const fillScale = 0.5 + (Math.min(100, fill) / 100) * 0.5;
+  const collectedScale = collected > 0 ? 1 + Math.min(collected, 50) / 50 : 1;
+  return base * fillScale * collectedScale;
 }
 
 function buildVehicleSegment(
@@ -82,14 +90,14 @@ function buildVehicleSegment(
 }
 
 function buildRouteGeometry(data: SimDayData) {
-  const { all_bin_coords, tour_indices, bin_state_c } = data;
+  const { all_bin_coords, tour_indices, bin_state_c, bin_state_collected } = data;
   if (!all_bin_coords?.length) {
     return {
       vehicles: [] as VehicleGeometry[],
       path: [] as [number, number][],
       tripPath: [] as [number, number, number][],
       tripLength: 0,
-      tourPoints: [] as Array<{ position: [number, number]; fill: number }>,
+      tourPoints: [] as Array<{ position: [number, number]; fill: number; collected: number }>,
       vehicleTourStops: [] as VehicleTourStop[],
       idlePoints: [] as Array<{ position: [number, number] }>,
       depotPoint: null as { position: [number, number] } | null,
@@ -119,13 +127,22 @@ function buildRouteGeometry(data: SimDayData) {
     ? Math.max(...vehicles.map((v) => v.tripLength), 0)
     : 0;
 
+  const collectedAt = (id: number) => {
+    const v = bin_state_collected?.[id];
+    return typeof v === "number" && v > 0 ? v : 0;
+  };
+
   const tourPts = [...tourSet]
     .map((id) => {
       const position = posById.get(id);
       if (!position) return null;
-      return { position, fill: (bin_state_c?.[id] ?? 0) * 100 };
+      return {
+        position,
+        fill: (bin_state_c?.[id] ?? 0) * 100,
+        collected: collectedAt(id),
+      };
     })
-    .filter(Boolean) as Array<{ position: [number, number]; fill: number }>;
+    .filter(Boolean) as Array<{ position: [number, number]; fill: number; collected: number }>;
 
   const vehicleTourStops: VehicleTourStop[] = segments.flatMap((segment, vi) =>
     segment
@@ -135,6 +152,7 @@ function buildRouteGeometry(data: SimDayData) {
         return {
           position,
           fill: (bin_state_c?.[id] ?? 0) * 100,
+          collected: collectedAt(id),
           vehicleId: vi,
           color: VEHICLE_COLORS_RGB[vi % VEHICLE_COLORS_RGB.length],
         };
@@ -310,13 +328,28 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             ? [...vehicle.color, 230]
             : policyRgb;
 
-        if (!cartesianMode && animate && vehicle.tripPath.length >= 2) {
+        if (animate && vehicle.tripPath.length >= 2) {
+          const tripData = cartesianMode
+            ? [
+                {
+                  path: vehicle.tripPath.map((p) => pos3d([p[0], p[1]], 0.02)),
+                  timestamps: vehicle.tripPath.map((p) => p[2]),
+                },
+              ]
+            : [{ path: vehicle.tripPath }];
           result.push(
             new TripsLayer({
               id: `trips-${id}-v${vehicle.vehicleId}`,
-              data: [{ path: vehicle.tripPath }],
-              getPath: (d: { path: [number, number, number][] }) => d.path,
-              getTimestamps: (d: { path: [number, number, number][] }) => d.path.map((p) => p[2]),
+              data: tripData,
+              coordinateSystem: cartesianSystem,
+              getPath: (d: {
+                path: [number, number, number][];
+                timestamps?: number[];
+              }) => d.path,
+              getTimestamps: (d: {
+                path: [number, number, number][];
+                timestamps?: number[];
+              }) => d.timestamps ?? d.path.map((p) => p[2]),
               getColor: rgb,
               currentTime,
               trailLength: Math.max(vehicle.tripLength * 0.6, TRIP_SEGMENT_MS * 2),
@@ -365,11 +398,7 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
                 [...fillRgb(d.fill), 230] as [number, number, number, number],
               getLineColor: (d: VehicleTourStop) => [...d.color, 255] as [number, number, number, number],
               stroked: true,
-              getRadius: (d: VehicleTourStop) => {
-                const base = routes.length > 1 ? 40 : 50;
-                const scale = 0.5 + (Math.min(100, d.fill) / 100) * 0.5;
-                return base * scale;
-              },
+              getRadius: (d: VehicleTourStop) => stopRadius(d.fill, d.collected, routes.length > 1),
               radiusMinPixels: 4,
               radiusMaxPixels: 14,
             })
@@ -386,11 +415,8 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             getFillColor: (d: { fill: number }) => [...fillRgb(d.fill), 230] as [number, number, number, number],
             getLineColor: [...g.route.color, 255],
             stroked: routes.length > 1,
-            getRadius: (d: { fill: number }) => {
-              const base = routes.length > 1 ? 40 : 50;
-              const scale = 0.5 + (Math.min(100, d.fill) / 100) * 0.5;
-              return base * scale;
-            },
+            getRadius: (d: { fill: number; collected: number }) =>
+              stopRadius(d.fill, d.collected, routes.length > 1),
             radiusMinPixels: 4,
             radiusMaxPixels: 14,
           })

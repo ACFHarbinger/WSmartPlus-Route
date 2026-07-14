@@ -11,7 +11,7 @@ export interface BinCoord {
 export interface SimDayData {
   tour?: Array<BinCoord | number>;
   bin_state_c?: number[];
-  bin_state_collected?: boolean[];
+  bin_state_collected?: number[];
   mandatory?: number[];
   tour_indices?: number[];
   all_bin_coords?: BinCoord[];

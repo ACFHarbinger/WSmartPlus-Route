@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-second pass (§G.1 / §G.2 / §G.3)
+
+Fifty-second pass closes deferred **§G.1** DuckDB brush sync and 480-log portfolio
+scan, **§G.2** animated sunburst morph, and **§G.3** Cartesian TripsLayer +
+collected-kg node radius.
+
+**React frontend**
+- `SimulationSummary` — ingests log → DuckDB `summary_sim`; `SqlQueryPanel` with
+  `brushSqlSync` + multi-policy `highlightPolicies`
+- `duckdbTemplates.ts` — `brushedPoliciesSql()` mirrors chart policy brush
+- `SqlQueryPanel` — `highlightPolicies` / `brushSqlSync` props for multi-policy dim
+- `PolicyHierarchyPanel` — `universalTransition` morphs sunburst/treemap → drill bars
+- `DeckRouteMap` — `TripsLayer` in OrbitView Cartesian mode; stop radius ∝ collected kg
+- `outputRunLogs.ts` — `PORTFOLIO_SCAN_DEFAULT` (480) + `loadPortfolioLogs()` batches
+- `BenchmarkAnalysis` — progressive portfolio load with toast progress
+
+**Types**
+- `SimDayData.bin_state_collected` corrected to `number[]` (kg collected per bin)
+
+**ROADMAP**
+- §G.1 DuckDB SQL brush sync checked
+- §G.1.4 full 480-log portfolio scan checked
+- §G.2 animated sunburst→bar morph checked
+- §G.3.1 collected-kg node radius checked
+- §G.3.2 Cartesian TripsLayer animation checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-first pass (§G.1 / §G.3)
 
 Fifty-first pass closes deferred **§G.1** kg symlog, ten-axis parallel coordinates,
