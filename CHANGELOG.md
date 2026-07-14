@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-first pass (§G.1 / §G.3)
+
+Fifty-first pass closes deferred **§G.1** kg symlog, ten-axis parallel coordinates,
+overflow-corridor axis brush, and **§G.3.2** per-vehicle tour-stop scatter.
+
+**React frontend**
+- `parallelPolicyAxes.ts` — ten-axis schema: city · N · dist · improver · strategy ·
+  constructor · overflows · kg/km · km · profit
+- `PolicyParallelChart` — uses full schema; overflows-axis `brushEnd` syncs corridor slider
+- `SimulationSummary` — kg symlog on primary + secondary log-scale rows
+- `DeckRouteMap` — per-vehicle `ScatterplotLayer` tour stops when multi-vehicle tour
+
+**ROADMAP**
+- §G.1 kg symlog + ten-axis parallel + overflow corridor axis brush checked
+- §G.3.2 per-vehicle stop scatter checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fiftieth pass (§G.1 / §G.6)
 
 Fiftieth pass closes deferred **§G.1** symlog/axis-brush items and adds **§G.6**
