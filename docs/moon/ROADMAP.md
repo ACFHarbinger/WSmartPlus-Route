@@ -907,9 +907,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1 partial — multi-run 4-panel deferred)
 - [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on Pareto scatter (§G.1 partial — per-policy multi-city deferred)
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
-- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1 partial — symlog on other metrics deferred)
+- [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1)
 - [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
-- [x] Symlog overflows bar chart: `symlog.ts` + `useSymlog` on overflows `MetricBarChart` when log scale on (§G.1 partial — profit/km symlog deferred)
+- [x] Symlog bar charts: `symlog.ts` + `useSymlog` on profit · km · overflows `MetricBarChart` when log scale on; secondary log-scale row adds profit/km symlog duplicates (§G.1)
 - [x] BenchmarkAnalysis log-scale toggle on multi-run comparison bar charts (§G.1 partial)
 - [x] AlgorithmComparison log-scale toggle on per-metric bar charts (§G.1 partial)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
@@ -925,7 +925,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
 - [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` batch loader (up to 48 runs) on Benchmark Analysis (§G.1.4 partial — full 480-log scan deferred)
-- [x] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL): click polyline → `toggleBrush` cross-filter (§G.1 partial — axis brush + DuckDB SQL deferred)
+- [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush` (§G.1 partial — DuckDB SQL deferred)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + `effectiveBrushed` cross-filter on Simulation Summary (§G.1 partial — axis drag brush deferred)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
@@ -936,7 +936,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 
 #### 1.6 Secondary Log-Scale Views
-- [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit + symlog-overflows row when global log toggle off (§G.1 partial — all metrics deferred)
+- [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · symlog-overflows row when global log toggle off (§G.1 partial — kg symlog deferred)
 - [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars (§G.1 partial — dedicated City Comparison page deferred)
 
 ---
@@ -1044,7 +1044,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
 - [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` row/column/value/agg dropdowns + heatmap on `SqlQueryPanel` (§G.6 partial — drag wells deferred)
-- [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy → `GlobalFilterBar` on Summary/Benchmark/Monitor (§G.6 partial — bidirectional brush deferred)
+- [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy; `GlobalFilterBar` policy highlights matching SQL rows + dims pivot heatmap rows via `highlightRowLabels` (§G.6)
 
 ---
 

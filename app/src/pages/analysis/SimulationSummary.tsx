@@ -806,12 +806,14 @@ function PolicyParallelChart({
   policyMeta,
   brushed,
   onPolicyClick,
+  onAxisBrush,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   policyMeta: Record<string, PolicyMeta>;
   brushed?: string[] | null;
   onPolicyClick?: (policy: string) => void;
+  onAxisBrush?: (policies: string[] | null) => void;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -825,6 +827,21 @@ function PolicyParallelChart({
 
     return {
       backgroundColor: "transparent",
+      brush: {
+        toolbox: ["parallelAxis", "clear"],
+        parallelAxisIndex: "all",
+        throttleType: "debounce",
+        throttleDelay: 300,
+      },
+      toolbox: {
+        right: 8,
+        top: 0,
+        itemSize: 12,
+        iconStyle: { borderColor: "#9090b0" },
+        feature: {
+          brush: { type: ["parallelAxis", "clear"] },
+        },
+      },
       parallelAxis: schema.map((s) => ({
         dim: s.dim,
         name: s.name,
@@ -866,10 +883,40 @@ function PolicyParallelChart({
     };
   }, [stats, policies, policyMeta, brushed]);
 
+  const events = useMemo(() => {
+    const handlers: Record<string, (params: unknown) => void> = {};
+    if (onPolicyClick) {
+      handlers.click = (params: unknown) => {
+        const p = params as { name?: string };
+        if (p.name) onPolicyClick(p.name);
+      };
+    }
+    if (onAxisBrush) {
+      handlers.brushselected = (params: unknown) => {
+        const batch = (params as { batch?: Array<{ selected?: Array<{ dataIndex?: number[] }> }> })
+          .batch;
+        const indices = batch?.[0]?.selected?.[0]?.dataIndex;
+        if (!indices?.length) {
+          onAxisBrush(null);
+          return;
+        }
+        onAxisBrush(indices.map((i) => policies[i]).filter(Boolean));
+      };
+    }
+    return Object.keys(handlers).length ? handlers : undefined;
+  }, [onPolicyClick, onAxisBrush, policies]);
+
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-gray-300">Policy Parallel Coordinates</p>
+        <div>
+          <p className="text-xs font-semibold text-gray-300">Policy Parallel Coordinates</p>
+          {onAxisBrush && (
+            <p className="text-[10px] text-canvas-muted">
+              Drag on any axis to brush · toolbox clear resets filter
+            </p>
+          )}
+        </div>
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "summary-parallel.png")}
           className="btn-ghost text-xs flex items-center gap-1"
@@ -882,15 +929,7 @@ function PolicyParallelChart({
         ref={chartRef}
         option={option}
         style={{ height: 220 }}
-        onEvents={
-          onPolicyClick
-            ? {
-                click: (params: { name?: string }) => {
-                  if (params.name) onPolicyClick(params.name);
-                },
-              }
-            : undefined
-        }
+        onEvents={events}
       />
     </div>
   );
@@ -1717,7 +1756,11 @@ export function SimulationSummary() {
   }, []);
 
   const handleBrushPolicies = useCallback(
-    (ps: string[]) => {
+    (ps: string[] | null) => {
+      if (!ps?.length) {
+        setBrushed(null);
+        return;
+      }
       setBrushed(ps.length >= policies.length ? null : ps);
     },
     [policies.length]
@@ -1908,6 +1951,7 @@ export function SimulationSummary() {
                 policyMeta={policyMeta}
                 brushed={effectiveBrushed}
                 onPolicyClick={handlePolicyClick}
+                onAxisBrush={handleBrushPolicies}
               />
             </div>
           </div>
@@ -1964,6 +2008,7 @@ export function SimulationSummary() {
               values={metricValues("profit")}
               color="#6366f1"
               logScale={logScale}
+              useSymlog={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-profit"
               brushed={effectiveBrushed}
@@ -1977,6 +2022,7 @@ export function SimulationSummary() {
               values={metricValues("km")}
               color="#38bdf8"
               logScale={logScale}
+              useSymlog={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-km"
               brushed={effectiveBrushed}
@@ -2018,12 +2064,26 @@ export function SimulationSummary() {
               <p className="text-xs font-semibold text-gray-300">Log-scale views (§G.1.6)</p>
               <div className="grid grid-cols-2 gap-4">
                 <MetricBarChart
-                  title="Avg Profit by Policy (€) — log scale"
+                  title="Avg Profit by Policy (€) — symlog scale"
                   policies={policies}
                   values={metricValues("profit")}
                   color="#6366f1"
                   logScale
+                  useSymlog
                   exportName="summary-profit-log"
+                  brushed={effectiveBrushed}
+                  onPolicyClick={handlePolicyClick}
+                  policyMeta={policyMeta}
+                  stats={stats}
+                />
+                <MetricBarChart
+                  title="Avg Distance by Policy (km) — symlog scale"
+                  policies={policies}
+                  values={metricValues("km")}
+                  color="#38bdf8"
+                  logScale
+                  useSymlog
+                  exportName="summary-km-log"
                   brushed={effectiveBrushed}
                   onPolicyClick={handlePolicyClick}
                   policyMeta={policyMeta}

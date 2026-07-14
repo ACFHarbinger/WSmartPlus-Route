@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fiftieth pass (§G.1 / §G.6)
+
+Fiftieth pass closes deferred **§G.1** symlog/axis-brush items and adds **§G.6**
+bidirectional OLAP brush highlighting.
+
+**React frontend**
+- `SimulationSummary` — profit/km `MetricBarChart` uses `useSymlog` when log scale on;
+  secondary log-scale row adds km symlog duplicate
+- `PolicyParallelChart` — ECharts parallel-axis brush toolbox; `brushselected` →
+  `handleBrushPolicies` cross-filter
+- `SqlQueryPanel` — reads `useGlobalFiltersStore.policy`; highlights matching SQL
+  rows; dims non-matching rows when filter active
+- `PivotTablePanel` / `pivotTable.ts` — `highlightRowLabels` dims non-matching pivot
+  heatmap rows (bidirectional brush with `GlobalFilterBar`)
+
+**ROADMAP**
+- §G.1 profit/km symlog checked
+- §G.1 parallel-axis brush checked
+- §G.6 bidirectional pivot/SQL brush checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-ninth pass (§G.2 / §G.4)
 
 Forty-ninth pass closes remaining **§G.4** deferred timeline/brush items and adds

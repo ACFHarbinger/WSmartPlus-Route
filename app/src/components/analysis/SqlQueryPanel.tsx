@@ -22,6 +22,7 @@ interface Props {
 }
 
 export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: Props) {
+  const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const [open, setOpen] = useState(false);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
@@ -105,6 +106,24 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
   const profitCol = useMemo(
     () => columns.find((c) => /^profit$/i.test(c)) ?? null,
     [columns]
+  );
+
+  const policyCol = useMemo(
+    () => columns.find((c) => /^policy$/i.test(c)) ?? null,
+    [columns]
+  );
+
+  const highlightPolicies = useMemo(
+    () => (activePolicy ? [activePolicy] : null),
+    [activePolicy]
+  );
+
+  const rowMatchesHighlight = useCallback(
+    (row: Record<string, unknown>) => {
+      if (!highlightPolicies?.length || !policyCol) return true;
+      return highlightPolicies.includes(String(row[policyCol] ?? ""));
+    },
+    [highlightPolicies, policyCol]
   );
 
   const applyProfitBrush = useCallback(() => {
@@ -215,6 +234,7 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
               columns={columns}
               rows={rows}
               onRowClick={handlePivotCrossFilter}
+              highlightRowLabels={highlightPolicies}
             />
           )}
 
@@ -239,12 +259,23 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-canvas-border">
-                  {sortedRows.slice(0, 200).map((row, i) => (
+                  {sortedRows.slice(0, 200).map((row, i) => {
+                    const highlighted = rowMatchesHighlight(row);
+                    const isActive =
+                      policyCol &&
+                      activePolicy &&
+                      String(row[policyCol] ?? "") === activePolicy;
+                    return (
                     <tr
                       key={i}
-                      className="hover:bg-canvas-hover cursor-pointer"
+                      className={`hover:bg-canvas-hover cursor-pointer ${
+                        isActive
+                          ? "bg-accent-primary/15 ring-1 ring-inset ring-accent-primary/40"
+                          : highlighted
+                            ? ""
+                            : "opacity-35"
+                      }`}
                       onClick={() => {
-                        const policyCol = columns.find((c) => /^policy$/i.test(c));
                         if (policyCol && row[policyCol] != null) {
                           applyCrossFilter(policyCol, String(row[policyCol]));
                         }
@@ -261,7 +292,8 @@ export function SqlQueryPanel({ tableName, theme, onDaySelect, onProfitRange }: 
                         </td>
                       ))}
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
