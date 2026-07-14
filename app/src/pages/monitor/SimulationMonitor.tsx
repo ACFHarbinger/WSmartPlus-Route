@@ -476,6 +476,7 @@ export function SimulationMonitor() {
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const {
     ready: duckdbReady,
+    loading: duckdbLoading,
     lastPipeline,
     setLastPipeline,
     setLoading: setDuckdbLoading,
@@ -675,11 +676,19 @@ export function SimulationMonitor() {
         </button>
 
         {watchPath && (
-          <span className="flex items-center gap-1.5 text-xs text-canvas-muted truncate max-w-xs">
+          <span className="flex items-center gap-1.5 text-xs text-canvas-muted truncate max-w-md">
             {isWatching && (
               <RefreshCw size={11} className="animate-spin text-accent-success" />
             )}
             {watchPath.split("/").pop()}
+            {duckdbLoading && " · DuckDB ingesting…"}
+            {!duckdbLoading && lastPipeline?.tableName === "monitor_sim" && (
+              <>
+                {" "}
+                · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
+                {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
+              </>
+            )}
           </span>
         )}
 

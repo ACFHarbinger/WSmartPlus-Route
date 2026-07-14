@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-ninth pass (§G.6 / §G.7)
+
+Fifty-ninth pass extends JSONL Arrow sidecar coverage to the standalone OLAP Explorer and
+surfaces DuckDB ingest timing badges across all simulation log views.
+
+**React frontend**
+- `OlapExplorer` — "Ingest CSV / JSONL" uses `runSimulationArrowPipeline()` with sidecar
+  fast-path; last-ingest timing badge notes Arrow sidecar hits
+- `SimulationSummary` / `SimulationMonitor` — DuckDB row count + latency badge on loaded logs;
+  notes sidecar fast-path when a sibling ``.arrow`` is present
+- `arrowPipeline.ts` — `runSimulationArrowPipeline()` slow path sets `usedSidecar: false`
+
+**ROADMAP**
+- §G.6 OLAP JSONL ingest + sidecar fast-path checked
+- Effort × Impact matrix updated: §G.1–§G.18 phases marked ✅ complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-eighth pass (§G.0 / §G.8)
 
 Fifty-eighth pass extends the Arrow IPC loop to simulation JSONL logs: DuckDB ingest

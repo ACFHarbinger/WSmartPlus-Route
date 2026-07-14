@@ -1040,7 +1040,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Give the researcher a free-form SQL/pivot interface backed by DuckDB-Wasm for custom analysis queries.
 
-- [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer + standalone `OlapExplorer` page with table picker + CSV ingest (§G.6)
+- [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer + standalone `OlapExplorer` page with table picker + CSV/JSONL ingest (prefers ``.arrow`` sidecars; §G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
@@ -1331,23 +1331,23 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | §G.0 | Foundation & Tooling | High | Very High | P0 |
 | §G.19 | Settings & Onboarding | Low | Very High | P0 |
 | §G.15 | Real-Time Process Monitor | Medium | Very High | P0 |
-| §G.9 | Simulation Launcher | Medium | Very High | P1 `[Blocked]` §G.15 |
-| §G.10 | Training & HPO Hub | Medium | Very High | P1 `[Blocked]` §G.15 |
-| §G.13 | Configuration Editor | Medium | High | P1 |
-| §G.14 | Output Browser | Medium | High | P1 |
-| §G.1 | Statistical Dashboard | High | High | P1 |
-| §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.15 |
-| §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.15 |
-| §G.7 | UX Polish | Medium | High | P2 `[Blocked]` §G.1 |
-| §G.2 | Drill-Down Sunburst | Medium | High | P2 |
-| §G.3 | Geospatial deck.gl | High | High | P2 |
-| §G.6 | OLAP Explorer | Medium | High | P2 `[Blocked]` §G.1 |
-| §G.4 | Graph Topology | Medium | Medium | P3 `[Blocked]` §G.3 |
-| §G.8 | Export & Packaging | Medium | High | P3 `[Blocked]` §G.7 |
-| §G.5 | ML Introspection | High | High | P3 `[Blocked]` §G.4 |
-| §G.16 | Simulation Digital Twin | High | Very High | P1 `[Blocked]` §G.3 |
-| §G.17 | Training Monitor | Medium | Very High | P1 `[Blocked]` §G.10 |
-| §G.18 | Experiment & HPO Tracker | High | High | P2 `[Blocked]` §G.1, §G.17 |
+| §G.9 | Simulation Launcher | Medium | Very High | P1 ✅ |
+| §G.10 | Training & HPO Hub | Medium | Very High | P1 ✅ |
+| §G.13 | Configuration Editor | Medium | High | P1 ✅ |
+| §G.14 | Output Browser | Medium | High | P1 ✅ |
+| §G.1 | Statistical Dashboard | High | High | P1 ✅ |
+| §G.11 | Data Generation Wizard | Low | High | P2 ✅ |
+| §G.12 | Evaluation Runner | Low | High | P2 ✅ |
+| §G.7 | UX Polish | Medium | High | P2 ✅ |
+| §G.2 | Drill-Down Sunburst | Medium | High | P2 ✅ |
+| §G.3 | Geospatial deck.gl | High | High | P2 ✅ |
+| §G.6 | OLAP Explorer | Medium | High | P2 ✅ |
+| §G.4 | Graph Topology | Medium | Medium | P3 ✅ |
+| §G.8 | Export & Packaging | Medium | High | P3 ✅ |
+| §G.5 | ML Introspection | High | High | P3 ✅ |
+| §G.16 | Simulation Digital Twin | High | Very High | P1 ✅ |
+| §G.17 | Training Monitor | Medium | Very High | P1 ✅ |
+| §G.18 | Experiment & HPO Tracker | High | High | P2 ✅ |
 
 ---
 
