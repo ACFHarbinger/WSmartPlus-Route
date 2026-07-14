@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-eighth pass (§G.1.4 / §G.6)
+
+Thirty-eighth pass adds **pivot table OLAP**, **SQL cross-filtering**, and **output
+portfolio batch loader** for multi-log parallel coordinates.
+
+**React frontend**
+- `utils/pivotTable.ts` — client-side pivot aggregation + heatmap option builder
+- `utils/outputRunLogs.ts` — scan `assets/output` run folders for JSONL logs (cap 48)
+- `PivotTablePanel` — row/column/value/agg selectors with ECharts heatmap
+- `SqlQueryPanel` — pivot below auto-chart; row click sets global `policy` cross-filter
+- `BenchmarkAnalysis` — "Load output portfolio" scans output dirs into portfolio parallel chart
+- `OutputBrowser` — shared `findRunJsonl()` helper
+
+**ROADMAP**
+- §G.6 pivot table UI + cross-filter to Phase 1–2 charts checked (partial — drag wells deferred)
+- §G.1.4 output portfolio batch loader checked (partial — full 480-log scan deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-seventh pass (§G.1.4 / §G.3.4 / §G.6)
 
 Thirty-seventh pass adds **OrbitView Cartesian deck.gl**, **portfolio parallel coords**,

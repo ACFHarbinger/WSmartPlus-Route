@@ -20,7 +20,9 @@ import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { PARETO_PANELS, panelForRun } from "../../utils/paretoPanels";
 import { cityScaleLabel, parseLogPath, parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
 import { symlog } from "../../utils/symlog";
+import { scanOutputPortfolio } from "../../utils/outputRunLogs";
 import { downloadCsv } from "../../utils/tableExport";
+import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
 
 interface RunFile {
@@ -398,8 +400,10 @@ export function BenchmarkAnalysis() {
   const {
     pendingEvalResults, setPendingEvalResults,
     pendingBenchmarkLogs, setPendingBenchmarkLogs,
+    projectRoot,
   } = useAppStore();
   const [runs, setRuns] = useState<RunFile[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
   const [graphHeatmapMode, setGraphHeatmapMode] = useState<"overflows" | "kg/km">("overflows");
@@ -448,6 +452,32 @@ export function BenchmarkAnalysis() {
   }, []);
 
   const removeRun = (path: string) => setRuns((r) => r.filter((x) => x.path !== path));
+
+  const loadOutputPortfolio = useCallback(async () => {
+    if (!projectRoot) {
+      toast.error("Set project root in Settings to scan output portfolio");
+      return;
+    }
+    setPortfolioLoading(true);
+    try {
+      const refs = await scanOutputPortfolio(`${projectRoot}/assets/output`, 48);
+      if (!refs.length) {
+        toast.error("No simulation logs found under assets/output");
+        return;
+      }
+      const loaded: RunFile[] = [];
+      for (const ref of refs) {
+        const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
+        loaded.push({ path: ref.path, label: ref.label, entries });
+      }
+      setRuns(loaded);
+      toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`);
+    } catch (err) {
+      toast.error("Portfolio load failed", { description: String(err) });
+    } finally {
+      setPortfolioLoading(false);
+    }
+  }, [projectRoot]);
 
   const exportComparisonCsv = useCallback(() => {
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
@@ -650,11 +680,21 @@ export function BenchmarkAnalysis() {
         <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <button onClick={addRun} className="btn-primary flex items-center gap-2">
           <FolderOpen size={14} />
           Add Simulation Run
         </button>
+        {projectRoot && (
+          <button
+            onClick={() => void loadOutputPortfolio()}
+            disabled={portfolioLoading}
+            className="btn-ghost flex items-center gap-2 text-xs"
+          >
+            <FolderOpen size={14} />
+            {portfolioLoading ? "Scanning output…" : "Load output portfolio (§G.1.4)"}
+          </button>
+        )}
         <span className="text-xs text-canvas-muted">{runs.length} simulation run(s) loaded</span>
         {filteredRuns.length > 0 && (
           <button onClick={exportComparisonCsv} className="btn-ghost text-xs flex items-center gap-1">

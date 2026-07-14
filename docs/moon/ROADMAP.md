@@ -924,7 +924,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
-- [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` on Benchmark Analysis — one polyline per loaded run (§G.1.4 partial — full 480-log portfolio batch deferred)
+- [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` batch loader (up to 48 runs) on Benchmark Analysis (§G.1.4 partial — full 480-log scan deferred)
 - [x] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL): click polyline → `toggleBrush` cross-filter (§G.1 partial — axis brush + DuckDB SQL deferred)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + `effectiveBrushed` cross-filter on Simulation Summary (§G.1 partial — axis drag brush deferred)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
@@ -1040,8 +1040,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
-- [ ] Pivot table UI: drag dimensions/measures onto row/column/value wells
-- [ ] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally
+- [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` row/column/value/agg dropdowns + heatmap on `SqlQueryPanel` (§G.6 partial — drag wells deferred)
+- [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy → `GlobalFilterBar` on Summary/Benchmark/Monitor (§G.6 partial — bidirectional brush deferred)
 
 ---
 

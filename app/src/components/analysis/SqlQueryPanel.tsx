@@ -4,6 +4,9 @@
 import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
+import { toast } from "sonner";
+import { PivotTablePanel } from "./PivotTablePanel";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { queryDuckDb } from "../../utils/duckdbClient";
 import { sqlTemplates } from "../../utils/duckdbTemplates";
 import { buildAutoChartOption, suggestChart } from "../../utils/queryAutoChart";
@@ -17,6 +20,7 @@ interface Props {
 }
 
 export function SqlQueryPanel({ tableName, theme }: Props) {
+  const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const [open, setOpen] = useState(false);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
   const [running, setRunning] = useState(false);
@@ -87,6 +91,17 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
       setSortCol(col);
       setSortDir("asc");
     }
+  };
+
+  const applyCrossFilter = (col: string, value: string) => {
+    if (/^policy$/i.test(col)) {
+      setPolicy(value);
+      toast.success("Cross-filter applied", { description: `Policy: ${value}` });
+    }
+  };
+
+  const handlePivotCrossFilter = (rowKey: string, label: string) => {
+    applyCrossFilter(rowKey, label);
   };
 
   return (
@@ -170,6 +185,14 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
           )}
 
           {sortedRows.length > 0 && (
+            <PivotTablePanel
+              columns={columns}
+              rows={rows}
+              onRowClick={handlePivotCrossFilter}
+            />
+          )}
+
+          {sortedRows.length > 0 && (
             <div className="overflow-auto max-h-64 rounded-lg border border-canvas-border">
               <table className="w-full text-xs">
                 <thead className="bg-canvas-elevated sticky top-0">
@@ -191,7 +214,16 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
                 </thead>
                 <tbody className="divide-y divide-canvas-border">
                   {sortedRows.slice(0, 200).map((row, i) => (
-                    <tr key={i} className="hover:bg-canvas-hover">
+                    <tr
+                      key={i}
+                      className="hover:bg-canvas-hover cursor-pointer"
+                      onClick={() => {
+                        const policyCol = columns.find((c) => /^policy$/i.test(c));
+                        if (policyCol && row[policyCol] != null) {
+                          applyCrossFilter(policyCol, String(row[policyCol]));
+                        }
+                      }}
+                    >
                       {columns.map((c) => (
                         <td key={c} className="px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono">
                           {String(row[c] ?? "—")}
