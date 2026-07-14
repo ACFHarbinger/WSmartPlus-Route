@@ -1009,11 +1009,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.1 TensorDict Data Pipeline
 - [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — full native `.td` parse deferred)
 - [x] TensorDict (`.td`) inspect + slice via Python subprocess (`torch.load` + key/shape listing; slice export matches NPZ path): `inspect_npz_archive` / `load_tensor_slice` accept `project_root` + `python_executable`; Archive tab opens `.td` files (§G.5.1)
-- [x] Memory-map large tensor files (avoid full RAM load): `probe_npy_mmap` flags standalone `.npy` > 8 MB; archive inspect reads NPY headers only (§G.5.1 partial — full mmap slice deferred)
+- [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `memmap2` reads only the trailing 2-D plane for standalone `.npy` > 8 MB; `TensorSlicePreview.used_memmap` surfaced in Archive/Attention tabs; `probe_npy_mmap` eligibility probe (§G.5.1 partial — NPZ-in-zip mmap deferred)
 - [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab; `.td` slices supported via Python handoff (§G.5.1)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
-- [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` (§G.5.2 partial — full training-loss probe deferred)
+- [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` with `--probe-mode auto|training|proxy`; auto runs greedy forward-loss probe via `load_model` when `config.yaml`/`hparams.yaml`/`args.json` is present, else parameter-distance proxy; bundles `probe_mode` in NPZ (§G.5.2 partial — multi-batch training-loss deferred)
 - [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
 - [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2)
 - [x] `InstancedMesh` voxel alternative: per-cell `boxGeometry` cubes with height ∝ loss; Loss tab "Surface mesh / InstancedMesh voxels" toggle (§G.5.2)
@@ -1025,7 +1025,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
 - [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
-- [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap + `buildAttentionGraphOption` graph-on-coords view with graph preset loader (§G.5.3 partial — Sigma.js WebGL deferred)
+- [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts `buildAttentionGraphOption` + Sigma.js WebGL `AttentionSigmaView` (ForceAtlas2, lazy `sigma` chunk) with graph preset loader; View toggle: Heatmap / ECharts graph / Sigma.js (§G.5.3)
 - [x] Attention head selector: `detectHeadAxis` + per-head index dropdown; Q/K/V role filter + per-role colour palettes via `classifyAttentionRole` / `groupAttentionKeys` (§G.5.3)
 - [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
 - [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3)

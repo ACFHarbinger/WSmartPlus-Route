@@ -5,6 +5,7 @@ use std::path::Path;
 use std::process::Command;
 use std::time::Instant;
 
+use memmap2::Mmap;
 use arrow::array::{Float64Builder, Int32Builder, RecordBatch};
 use arrow::datatypes::{DataType, Field, Schema};
 use ndarray::{ArrayD, IxDyn};
@@ -15,6 +16,8 @@ use zip::ZipArchive;
 
 use crate::commands::arrow::{export_batch, ArrowIpcFile};
 use crate::commands::process::resolve_python;
+
+const MMAP_THRESHOLD_BYTES: u64 = 8 * 1024 * 1024;
 
 const INSPECT_TD_SCRIPT: &str = r#"
 import json, sys
@@ -181,6 +184,7 @@ fn load_td_slice(
     let mut preview: TensorSlicePreview =
         serde_json::from_value(value).map_err(|e| format!("Slice parse error: {e}"))?;
     preview.rust_ms = start.elapsed().as_millis() as u64;
+    preview.used_memmap = false;
     Ok(preview)
 }
 
@@ -216,6 +220,124 @@ pub struct TensorSlicePreview {
     pub min: f64,
     pub max: f64,
     pub rust_ms: u64,
+    pub used_memmap: bool,
+}
+
+fn itemsize_from_descr(descr: &str) -> Result<usize, String> {
+    let d = descr.trim_matches(|c| c == '\'' || c == '"');
+    if d.ends_with("f8") || d.ends_with("i8") || d.ends_with("u8") || d.ends_with("l") {
+        Ok(8)
+    } else if d.ends_with("f4") || d.ends_with("i4") || d.ends_with("u4") || d.ends_with("f") {
+        Ok(4)
+    } else if d.ends_with("f2") || d.ends_with("i2") || d.ends_with("u2") {
+        Ok(2)
+    } else if d.ends_with("i1") || d.ends_with("u1") || d.ends_with("b1") {
+        Ok(1)
+    } else {
+        Err(format!("Unsupported NPY dtype for mmap slice: {descr}"))
+    }
+}
+
+fn c_order_offset(shape: &[usize], indices: &[usize]) -> Result<usize, String> {
+    if shape.len() < 2 {
+        return Ok(0);
+    }
+    let leading = shape.len() - 2;
+    if indices.len() < leading {
+        return Err(format!(
+            "Need {} leading indices for rank-{} tensor, got {}",
+            leading,
+            shape.len(),
+            indices.len()
+        ));
+    }
+    let mut strides = vec![1usize; shape.len()];
+    for i in (0..shape.len() - 1).rev() {
+        strides[i] = strides[i + 1] * shape[i + 1];
+    }
+    let mut offset = 0usize;
+    for i in 0..leading {
+        offset += indices[i] * strides[i];
+    }
+    Ok(offset)
+}
+
+fn read_f64_plane(bytes: &[u8], itemsize: usize) -> Result<Vec<f64>, String> {
+    if bytes.len() % itemsize != 0 {
+        return Err("Mmap plane byte length is not aligned to dtype width".to_string());
+    }
+    let count = bytes.len() / itemsize;
+    let mut out = Vec::with_capacity(count);
+    match itemsize {
+        8 => {
+            for chunk in bytes.chunks_exact(8) {
+                out.push(f64::from_le_bytes(chunk.try_into().unwrap()));
+            }
+        }
+        4 => {
+            for chunk in bytes.chunks_exact(4) {
+                out.push(f32::from_le_bytes(chunk.try_into().unwrap()) as f64);
+            }
+        }
+        2 => {
+            for chunk in bytes.chunks_exact(2) {
+                out.push(f16_to_f64(u16::from_le_bytes(chunk.try_into().unwrap())));
+            }
+        }
+        1 => {
+            for &b in bytes {
+                out.push(b as f64);
+            }
+        }
+        _ => return Err(format!("Unsupported itemsize {itemsize}")),
+    }
+    Ok(out)
+}
+
+fn f16_to_f64(bits: u16) -> f64 {
+    let sign = (bits >> 15) & 1;
+    let exp = (bits >> 10) & 0x1f;
+    let frac = bits & 0x3ff;
+    if exp == 0 {
+        if frac == 0 {
+            return if sign == 1 { -0.0 } else { 0.0 };
+        }
+        let val = (frac as f64) / 1024.0 * 2.0_f64.powi(-14);
+        return if sign == 1 { -val } else { val };
+    }
+    if exp == 0x1f {
+        return if frac == 0 {
+            if sign == 1 { f64::NEG_INFINITY } else { f64::INFINITY }
+        } else {
+            f64::NAN
+        };
+    }
+    let val = (1.0 + (frac as f64) / 1024.0) * 2.0_f64.powi(exp as i32 - 15);
+    if sign == 1 { -val } else { val }
+}
+
+fn load_npy_plane_mmap(
+    path: &Path,
+    indices: &[usize],
+) -> Result<(Vec<usize>, Vec<f64>, bool), String> {
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    let mmap = unsafe { Mmap::map(&file).map_err(|e| format!("mmap failed: {e}"))? };
+    let (shape, dtype, data_offset) = parse_npy_header(&mmap)?;
+    let itemsize = itemsize_from_descr(&dtype)?;
+    let rows = *shape.get(shape.len().saturating_sub(2)).unwrap_or(&0);
+    let cols = shape.last().copied().unwrap_or(0);
+    if rows == 0 || cols == 0 {
+        return Err("Cannot mmap-slice empty tensor plane".to_string());
+    }
+    let elem_offset = c_order_offset(&shape, indices)?;
+    let plane_elems = rows * cols;
+    let byte_start = data_offset + elem_offset * itemsize;
+    let byte_end = byte_start + plane_elems * itemsize;
+    if byte_end > mmap.len() {
+        return Err("Mmap slice exceeds file bounds".to_string());
+    }
+    let flat = read_f64_plane(&mmap[byte_start..byte_end], itemsize)?;
+    Ok((vec![rows, cols], flat, true))
 }
 
 fn parse_npy_header(raw: &[u8]) -> Result<(Vec<usize>, String, usize), String> {
@@ -251,11 +373,15 @@ fn parse_shape_from_header(header: &str) -> Result<Vec<usize>, String> {
 
 fn parse_descr_from_header(header: &str) -> Option<String> {
     let start = header.find("'descr'")?;
-    let rest = &header[start..];
-    let q1 = rest.find('\'')?;
-    let rest2 = &rest[q1 + 1..];
-    let q2 = rest2.find('\'')?;
-    Some(rest2[..q2].to_string())
+    let rest = &header[start + "'descr'".len()..];
+    let colon = rest.find(':')?;
+    let after = rest[colon + 1..].trim_start();
+    if !after.starts_with('\'') {
+        return None;
+    }
+    let value = &after[1..];
+    let end = value.find('\'')?;
+    Some(value[..end].to_string())
 }
 
 fn read_zip_npy_entry(
@@ -433,7 +559,7 @@ pub fn inspect_npz_archive(
                 size_bytes: file_meta.len(),
             }],
             total_bytes: file_meta.len(),
-            used_memmap: file_meta.len() > 8 * 1024 * 1024,
+            used_memmap: file_meta.len() > MMAP_THRESHOLD_BYTES,
         });
     }
 
@@ -497,23 +623,39 @@ pub fn load_tensor_slice(
         .unwrap_or("")
         .to_lowercase();
 
-    let (resolved_key, full_shape, arr) = if ext == "npy" {
-        let arr = load_array_from_path(p)?;
-        let shape = arr.shape().to_vec();
-        let k = key.unwrap_or_else(|| {
+    let resolved_key = if ext == "npy" {
+        key.unwrap_or_else(|| {
             p.file_stem()
                 .and_then(|s| s.to_str())
                 .unwrap_or("array")
                 .to_string()
-        });
-        (k, shape, arr)
+        })
     } else {
-        let k = key.ok_or("NPZ requires a key")?;
-        let (shape, arr) = open_npz_array(&path, &k)?;
-        (k, shape, arr)
+        key.ok_or("NPZ requires a key")?
     };
 
-    let (plane_shape, flat) = select_2d_slice(&arr, &indices)?;
+    let meta = std::fs::metadata(p).map_err(|e| e.to_string())?;
+    let use_mmap = ext == "npy" && meta.len() > MMAP_THRESHOLD_BYTES;
+
+    let (full_shape, plane_shape, flat, used_memmap) = if use_mmap {
+        let (plane_shape, flat, mmap_used) = load_npy_plane_mmap(p, &indices)?;
+        let mut header_buf = vec![0u8; 256];
+        let mut file = File::open(p).map_err(|e| e.to_string())?;
+        let n = file.read(&mut header_buf).map_err(|e| e.to_string())?;
+        header_buf.truncate(n);
+        let (shape, _, _) = parse_npy_header(&header_buf)?;
+        (shape, plane_shape, flat, mmap_used)
+    } else {
+        let (shape, arr) = if ext == "npy" {
+            let arr = load_array_from_path(p)?;
+            (arr.shape().to_vec(), arr)
+        } else {
+            open_npz_array(&path, &resolved_key)?
+        };
+        let (plane_shape, flat) = select_2d_slice(&arr, &indices)?;
+        (shape, plane_shape, flat, false)
+    };
+
     let rows = plane_shape[0];
     let cols = plane_shape.get(1).copied().unwrap_or(1);
     let (values, slice_shape) = downsample_2d(&flat, rows, cols, max_dim);
@@ -528,6 +670,7 @@ pub fn load_tensor_slice(
         min,
         max,
         rust_ms: start.elapsed().as_millis() as u64,
+        used_memmap,
     })
 }
 
@@ -618,5 +761,58 @@ pub fn probe_npy_mmap(path: String) -> Result<bool, String> {
     file.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
     let mut magic = [0u8; 6];
     file.read_exact(&mut magic).map_err(|e| e.to_string())?;
-    Ok(magic == *b"\x93NUMPY" && meta.len() > 8 * 1024 * 1024)
+    Ok(magic == *b"\x93NUMPY" && meta.len() > MMAP_THRESHOLD_BYTES)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+
+    fn write_test_npy(path: &Path, shape: &[usize], values: &[f64]) {
+        let shape_str = shape
+            .iter()
+            .map(|d| d.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+        let header = format!(
+            "{{'descr': '<f8', 'fortran_order': False, 'shape': ({shape_str},), }}"
+        );
+        let pad = (16 - (10 + header.len()) % 16) % 16;
+        let header_padded = format!("{header}{}", " ".repeat(pad));
+        let header_len = header_padded.len() as u16;
+        let mut file = File::create(path).unwrap();
+        file.write_all(b"\x93NUMPY\x01\x00").unwrap();
+        file.write_all(&header_len.to_le_bytes()).unwrap();
+        file.write_all(header_padded.as_bytes()).unwrap();
+        for v in values {
+            file.write_all(&v.to_le_bytes()).unwrap();
+        }
+    }
+
+    #[test]
+    fn mmap_plane_reads_trailing_2d_slice() {
+        let dir = std::env::temp_dir().join(format!("wsroute_mmap_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("tensor.npy");
+        // shape (2, 3, 4) — plane at index 1 is 3×4
+        let mut vals = Vec::new();
+        for b in 0..2 {
+            for r in 0..3 {
+                for c in 0..4 {
+                    vals.push((b * 100 + r * 10 + c) as f64);
+                }
+            }
+        }
+        write_test_npy(&path, &[2, 3, 4], &vals);
+
+        let (plane_shape, flat, used) = load_npy_plane_mmap(&path, &[1]).unwrap();
+        assert!(used);
+        assert_eq!(plane_shape, vec![3, 4]);
+        assert_eq!(flat.len(), 12);
+        assert!((flat[0] - 100.0).abs() < 1e-9);
+        assert!((flat[11] - 123.0).abs() < 1e-9);
+
+        let _ = std::fs::remove_dir_all(dir);
+    }
 }
