@@ -117,6 +117,89 @@ function BenchmarkParetoPanel({
   );
 }
 
+const GRAPH_HEAT_METRICS = [
+  { key: "profit", label: "Profit", higherBetter: true },
+  { key: "kg/km", label: "kg/km", higherBetter: true },
+  { key: "overflows", label: "Overflows", higherBetter: false },
+] as const;
+
+function BenchmarkGraphHeatmap({
+  graphLabel,
+  runs,
+  heatmapMode,
+}: {
+  graphLabel: string;
+  runs: RunFile[];
+  heatmapMode: "overflows" | "kg/km";
+}) {
+  const policies = useMemo(
+    () => [...new Set(runs.flatMap((r) => r.entries.map((e) => e.policy)))],
+    [runs]
+  );
+
+  const option = useMemo(() => {
+    const metricKey = heatmapMode;
+    const metric = GRAPH_HEAT_METRICS.find((m) => m.key === metricKey) ?? GRAPH_HEAT_METRICS[0];
+    const raw = policies.map((p) => {
+      const vals = runs.flatMap((r) =>
+        r.entries
+          .filter((e) => e.policy === p)
+          .map((e) => (e.data as Record<string, number>)[metricKey])
+          .filter((v): v is number => v != null)
+      );
+      return mean(vals);
+    });
+    const min = Math.min(...raw);
+    const max = Math.max(...raw);
+    const span = max - min || 1;
+    const cells: Array<[number, number, number]> = raw.map((v, pi) => {
+      let norm = (v - min) / span;
+      if (!metric.higherBetter) norm = 1 - norm;
+      return [pi, 0, norm];
+    });
+
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 72, right: 16, top: 8, bottom: 40 },
+      xAxis: {
+        type: "category",
+        data: policies,
+        axisLabel: { color: "#9090b0", fontSize: 8, rotate: 25 },
+      },
+      yAxis: {
+        type: "category",
+        data: [metric.label],
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      visualMap: {
+        min: 0,
+        max: 1,
+        calculable: false,
+        orient: "horizontal",
+        left: "center",
+        bottom: 0,
+        inRange: { color: ["#1e1b4b", "#6366f1", "#34d399"] },
+        textStyle: { color: "#9090b0", fontSize: 9 },
+        show: false,
+      },
+      series: [{ type: "heatmap", data: cells, label: { show: false } }],
+      tooltip: {
+        formatter: (p: { value: [number, number, number] }) => {
+          const pi = p.value[0];
+          return `${policies[pi]}<br/>${metric.label}: ${fmt(raw[pi], 2)}`;
+        },
+      },
+    };
+  }, [policies, runs, heatmapMode]);
+
+  return (
+    <div className="card space-y-1">
+      <p className="text-[10px] text-canvas-muted font-mono">{graphLabel}</p>
+      <ReactECharts option={option} style={{ height: 100 }} />
+    </div>
+  );
+}
+
 const SIM_METRICS = [
   { key: "profit", label: "Profit (€)", lowerIsBetter: false },
   { key: "km", label: "Distance (km)", lowerIsBetter: true },
@@ -241,6 +324,7 @@ export function BenchmarkAnalysis() {
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
+  const [graphHeatmapMode, setGraphHeatmapMode] = useState<"overflows" | "kg/km">("overflows");
   const { policy, sampleId } = useGlobalFiltersStore();
 
   const filteredRuns = useMemo(
@@ -551,6 +635,39 @@ export function BenchmarkAnalysis() {
                 label={panel.label}
                 points={paretoByPanel[panel.id] ?? []}
                 logScale={logScale}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {runs.length >= 2 && cityGroups.length > 1 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-xs font-semibold text-gray-300">Heatmaps by Graph (§G.1.3)</p>
+            <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+              {(["overflows", "kg/km"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setGraphHeatmapMode(m)}
+                  className={`text-xs px-2.5 py-1 rounded-md ${
+                    graphHeatmapMode === m
+                      ? "bg-accent-primary text-white"
+                      : "text-canvas-muted hover:text-gray-200"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {cityGroups.map(([graph, graphRuns]) => (
+              <BenchmarkGraphHeatmap
+                key={graph}
+                graphLabel={graph}
+                runs={graphRuns}
+                heatmapMode={graphHeatmapMode}
               />
             ))}
           </div>

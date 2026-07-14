@@ -927,6 +927,7 @@ function PolicyHierarchyPanel({
   logMeta,
   brushed,
   onBrushPolicies,
+  showErrorBars = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
@@ -934,6 +935,7 @@ function PolicyHierarchyPanel({
   logMeta: LogPathMeta;
   brushed?: string[] | null;
   onBrushPolicies: (ps: string[]) => void;
+  showErrorBars?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const drillRef = useRef<EChartsReact | null>(null);
@@ -976,8 +978,8 @@ function PolicyHierarchyPanel({
   );
 
   const drillChildren = useMemo(
-    () => enrichDrillChildren(childrenAtPath(tree, drillPath), stats),
-    [tree, drillPath, stats]
+    () => enrichDrillChildren(childrenAtPath(tree, drillPath), stats, policyMeta),
+    [tree, drillPath, stats, policyMeta]
   );
 
   const drillOption = useMemo(
@@ -1001,7 +1003,16 @@ function PolicyHierarchyPanel({
         formatter: (params: unknown[]) => {
           const p = (params as Array<{ dataIndex: number }>)[0];
           const c = drillChildren[p.dataIndex];
-          return `${c.name}<br/>Profit: ${fmt(c.profit, 1)} €<br/>kg/km: ${fmt(c.kgkm, 2)}<br/>Overflows: ${fmt(c.overflows, 1)}`;
+          const err = Math.max(c.profitStd, c.distSpread);
+          return [
+            `${c.name}`,
+            `Profit: ${fmt(c.profit, 1)} € ± ${fmt(err, 1)}`,
+            `kg/km: ${fmt(c.kgkm, 2)}`,
+            `Overflows: ${fmt(c.overflows, 1)}`,
+            c.distSpread > 0 ? `Empirical↔Gamma spread: ${fmt(c.distSpread, 1)} €` : "",
+          ]
+            .filter(Boolean)
+            .join("<br/>");
         },
       },
       series: [
@@ -1016,9 +1027,52 @@ function PolicyHierarchyPanel({
           })),
           itemStyle: { color: "#6366f1" },
         },
+        ...(showErrorBars
+          ? [
+              {
+                type: "custom" as const,
+                renderItem: (
+                  params: { dataIndex: number },
+                  api: {
+                    coord: (v: [number, number]) => [number, number];
+                    style: (s: object) => object;
+                  }
+                ) => {
+                  const c = drillChildren[params.dataIndex];
+                  const err = Math.max(c.profitStd, c.distSpread);
+                  const y = api.coord([c.profit, params.dataIndex])[1];
+                  const xLeft = api.coord([Math.max(0, c.profit - err), params.dataIndex])[0];
+                  const xRight = api.coord([c.profit + err, params.dataIndex])[0];
+                  const cap = 4;
+                  return {
+                    type: "group",
+                    children: [
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y, x2: xRight, y2: y },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y - cap, x2: xLeft, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xRight, y1: y - cap, x2: xRight, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                    ],
+                  };
+                },
+                data: drillChildren.map((_, i) => i),
+                z: 10,
+              },
+            ]
+          : []),
       ],
     }),
-    [drillChildren, brushed]
+    [drillChildren, brushed, showErrorBars]
   );
 
   const handleSegmentClick = (path: string[]) => {
@@ -1770,6 +1824,7 @@ export function SimulationSummary() {
             logMeta={logMeta}
             brushed={effectiveBrushed}
             onBrushPolicies={handleBrushPolicies}
+            showErrorBars={showErrorBars}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

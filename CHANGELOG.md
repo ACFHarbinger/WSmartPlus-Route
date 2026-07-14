@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-sixth pass (§G.3 / §G.6)
+
+Thirty-sixth pass adds **multi-vehicle route rendering**, **DuckDB SQL explorer**,
+**graph-split benchmark heatmaps**, and **§G.2 drill-down error bars**.
+
+**React frontend**
+- `utils/vehicleTours.ts` — split depot-delimited tours into per-vehicle segments (ColorBrewer palette)
+- `DeckRouteMap` — distinct PathLayer/TripsLayer per vehicle; legend chips per vehicle
+- `SimulationMonitor` `RouteMapChart` — multi-vehicle colored route lines on Cartesian map
+- `components/analysis/SqlQueryPanel.tsx` — Monaco SQL editor + templates + sortable result grid + CSV export
+- `utils/duckdbTemplates.ts` — robustness, variance, Pareto candidate query templates
+- `DataExplorer` — DuckDB SQL panel when CSV ingested into Wasm worker
+- `BenchmarkAnalysis` — graph-facet heatmaps (RM-100 / RM-170 / FFZ-350) with overflows/kg/km toggle
+- `policyHierarchy.ts` — drill-down profit std + Empirical↔Gamma spread for error-bar whiskers
+- `SimulationSummary` — drill-down bars show distribution variance when error bars enabled
+
+**ROADMAP**
+- §G.3.2 multi-vehicle rendering checked (partial — per-vehicle stop colors deferred)
+- §G.1.3 graph-split heatmaps, §G.2 drill-down error bars checked (partial)
+- §G.6 DuckDB query editor, templates, result grid + CSV export checked (partial)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-fifth pass (§G.1 / §G.2)
 
 Thirty-fifth pass adds **§G.2 hierarchical drill-down** on Simulation Summary and

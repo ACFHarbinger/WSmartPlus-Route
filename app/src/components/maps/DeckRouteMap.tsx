@@ -11,6 +11,7 @@ import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { SimDayData } from "../../types";
+import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const TRIP_SEGMENT_MS = 120;
@@ -28,10 +29,54 @@ function fillRgb(pct: number): [number, number, number] {
   return [52, 211, 153];
 }
 
+interface VehicleGeometry {
+  vehicleId: number;
+  color: [number, number, number];
+  path: [number, number][];
+  tripPath: [number, number, number][];
+  tripLength: number;
+}
+
+function buildVehicleSegment(
+  segment: number[],
+  posById: Map<number, [number, number]>,
+  vehicleId: number,
+  timeOffset: number
+): VehicleGeometry {
+  const pathCoords: [number, number][] = [];
+  const tripCoords: [number, number, number][] = [];
+  let t = timeOffset;
+
+  const pushStop = (id: number) => {
+    const p = posById.get(id);
+    if (!p) return;
+    pathCoords.push(p);
+    tripCoords.push([p[0], p[1], t]);
+    t += TRIP_SEGMENT_MS;
+  };
+
+  const depot = posById.get(-1);
+  if (depot) pushStop(-1);
+  for (const id of segment) pushStop(id);
+  if (depot && pathCoords.length > 1) {
+    pathCoords.push(depot);
+    tripCoords.push([depot[0], depot[1], t]);
+  }
+
+  return {
+    vehicleId,
+    color: VEHICLE_COLORS_RGB[vehicleId % VEHICLE_COLORS_RGB.length],
+    path: pathCoords,
+    tripPath: tripCoords,
+    tripLength: t,
+  };
+}
+
 function buildRouteGeometry(data: SimDayData) {
   const { all_bin_coords, tour_indices, bin_state_c } = data;
   if (!all_bin_coords?.length) {
     return {
+      vehicles: [] as VehicleGeometry[],
       path: [] as [number, number][],
       tripPath: [] as [number, number, number][],
       tripLength: 0,
@@ -48,28 +93,25 @@ function buildRouteGeometry(data: SimDayData) {
     if (b.lat != null && b.lng != null) posById.set(b.id, [b.lng, b.lat]);
   }
 
-  const tourSet = new Set(tour_indices ?? []);
-  const pathCoords: [number, number][] = [];
-  const tripCoords: [number, number, number][] = [];
-  let t = 0;
+  const segments = splitVehicleTourIndices(data);
+  const allTourIds = new Set(segments.flat());
+  const tourSet = new Set(tour_indices ?? allTourIds);
 
-  const pushStop = (id: number) => {
-    const p = posById.get(id);
-    if (!p) return;
-    pathCoords.push(p);
-    tripCoords.push([p[0], p[1], t]);
-    t += TRIP_SEGMENT_MS;
-  };
+  let timeOffset = 0;
+  const vehicles = segments.map((segment, i) => {
+    const geom = buildVehicleSegment(segment, posById, i, timeOffset);
+    timeOffset = geom.tripLength + TRIP_SEGMENT_MS;
+    return geom;
+  });
 
-  const depot = posById.get(-1);
-  if (depot) pushStop(-1);
-  for (const id of tour_indices ?? []) pushStop(id);
-  if (depot && pathCoords.length > 1) {
-    pathCoords.push(depot);
-    tripCoords.push([depot[0], depot[1], t]);
-  }
+  const primary = vehicles[0];
+  const pathCoords = primary?.path ?? [];
+  const tripCoords = primary?.tripPath ?? [];
+  const tripLength = vehicles.length
+    ? Math.max(...vehicles.map((v) => v.tripLength), 0)
+    : 0;
 
-  const tourPts = (tour_indices ?? [])
+  const tourPts = [...tourSet]
     .map((id) => {
       const position = posById.get(id);
       if (!position) return null;
@@ -81,13 +123,15 @@ function buildRouteGeometry(data: SimDayData) {
     .filter((b) => b.id >= 0 && !tourSet.has(b.id) && b.lat != null && b.lng != null)
     .map((b) => ({ position: [b.lng!, b.lat!] as [number, number] }));
 
+  const depot = posById.get(-1);
   const lngs = [...posById.values()].map((p) => p[0]);
   const lats = [...posById.values()].map((p) => p[1]);
 
   return {
+    vehicles,
     path: pathCoords,
     tripPath: tripCoords,
-    tripLength: t,
+    tripLength,
     tourPoints: tourPts,
     idlePoints: idlePts,
     depotPoint: depot ? { position: depot } : null,
@@ -209,35 +253,46 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
     }
 
     for (const g of geometries) {
-      const rgb: [number, number, number, number] = [...g.route.color, 220];
+      const policyRgb: [number, number, number, number] = [...g.route.color, 220];
       const id = g.route.id;
+      const vehicleSegments =
+        g.vehicles.length > 0
+          ? g.vehicles
+          : [{ vehicleId: 0, color: g.route.color, path: g.path, tripPath: g.tripPath, tripLength: g.tripLength }];
 
-      if (animate && g.tripPath.length >= 2) {
-        result.push(
-          new TripsLayer({
-            id: `trips-${id}`,
-            data: [{ path: g.tripPath }],
-            getPath: (d: { path: [number, number, number][] }) => d.path,
-            getTimestamps: (d: { path: [number, number, number][] }) => d.path.map((p) => p[2]),
-            getColor: rgb,
-            currentTime,
-            trailLength: Math.max(g.tripLength * 0.6, TRIP_SEGMENT_MS * 2),
-            capRounded: true,
-            fadeTrail: true,
-            widthMinPixels: 3,
-          })
-        );
-      } else if (g.path.length >= 2) {
-        result.push(
-          new PathLayer({
-            id: `path-${id}`,
-            data: [{ path: g.path }],
-            getPath: (d: { path: [number, number][] }) => d.path,
-            getColor: rgb,
-            getWidth: routes.length > 1 ? 3 : 4,
-            widthMinPixels: 2,
-          })
-        );
+      for (const vehicle of vehicleSegments) {
+        const rgb: [number, number, number, number] =
+          vehicleSegments.length > 1
+            ? [...vehicle.color, 230]
+            : policyRgb;
+
+        if (animate && vehicle.tripPath.length >= 2) {
+          result.push(
+            new TripsLayer({
+              id: `trips-${id}-v${vehicle.vehicleId}`,
+              data: [{ path: vehicle.tripPath }],
+              getPath: (d: { path: [number, number, number][] }) => d.path,
+              getTimestamps: (d: { path: [number, number, number][] }) => d.path.map((p) => p[2]),
+              getColor: rgb,
+              currentTime,
+              trailLength: Math.max(vehicle.tripLength * 0.6, TRIP_SEGMENT_MS * 2),
+              capRounded: true,
+              fadeTrail: true,
+              widthMinPixels: 3,
+            })
+          );
+        } else if (vehicle.path.length >= 2) {
+          result.push(
+            new PathLayer({
+              id: `path-${id}-v${vehicle.vehicleId}`,
+              data: [{ path: vehicle.path }],
+              getPath: (d: { path: [number, number][] }) => d.path,
+              getColor: rgb,
+              getWidth: vehicleSegments.length > 1 || routes.length > 1 ? 3 : 4,
+              widthMinPixels: 2,
+            })
+          );
+        }
       }
 
       if (g.tourPoints.length) {
@@ -314,17 +369,31 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
           PNG
         </button>
       </div>
-      {routes.length > 1 && (
+      {(routes.length > 1 || geometries.some((g) => g.vehicles.length > 1)) && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5 max-w-[90%]">
-          {routes.map((r) => (
-            <span
-              key={r.id}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-black/50 text-gray-200 font-mono"
-              style={{ borderLeft: `3px solid rgb(${r.color.join(",")})` }}
-            >
-              {r.label}
-            </span>
-          ))}
+          {routes.map((r) => {
+            const geom = geometries.find((g) => g.route.id === r.id);
+            if (geom && geom.vehicles.length > 1) {
+              return geom.vehicles.map((v) => (
+                <span
+                  key={`${r.id}-v${v.vehicleId}`}
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-black/50 text-gray-200 font-mono"
+                  style={{ borderLeft: `3px solid rgb(${v.color.join(",")})` }}
+                >
+                  {r.label} · V{v.vehicleId + 1}
+                </span>
+              ));
+            }
+            return (
+              <span
+                key={r.id}
+                className="text-[10px] px-1.5 py-0.5 rounded bg-black/50 text-gray-200 font-mono"
+                style={{ borderLeft: `3px solid rgb(${r.color.join(",")})` }}
+              >
+                {r.label}
+              </span>
+            );
+          })}
         </div>
       )}
     </div>

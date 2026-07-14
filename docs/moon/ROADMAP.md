@@ -918,7 +918,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.3 Policy Configuration Heatmaps
 - [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions (§G.1 partial — multi-log benchmark deferred)
-- [ ] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350)
+- [x] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350): `BenchmarkGraphHeatmap` facets by `cityScaleLabel()` when multiple runs loaded (§G.1.3 partial — single-log Simulation Summary deferred)
 - [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
@@ -949,7 +949,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter (§G.2 partial — DuckDB SQL deferred)
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): drill-down horizontal profit bars on segment click (§G.2 partial — animated morph deferred)
-- [ ] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions
+- [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary (§G.2 partial — overflows color mode deferred; kg/km gradient used)
 
@@ -972,7 +972,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.16 partial — multi-vehicle deferred)
 - [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
 - [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber (§G.16 partial — TripsLayer animation deferred)
-- [ ] Multi-vehicle rendering with distinct color coding per vehicle
+- [x] Multi-vehicle rendering with distinct color coding per vehicle: `vehicleTours.ts` splits depot-delimited `tour` sequences; `DeckRouteMap` + `RouteMapChart` render per-vehicle paths (§G.3.2 partial — per-vehicle stop scatter deferred)
 
 #### 3.3 Algorithm Comparison Mode
 - [x] Side-by-side view: overlay/split toggle in SimulationMonitor when 2 policies visible; split renders dual `DeckRouteMap` or dual ECharts `RouteMapChart` panels (§G.16)
@@ -1036,9 +1036,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Give the researcher a free-form SQL/pivot interface backed by DuckDB-Wasm for custom analysis queries.
 
-- [ ] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror)
-- [ ] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier
-- [ ] Result grid with sortable columns and export to CSV
+- [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer (§G.6 partial — standalone OLAP page deferred)
+- [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
+- [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [ ] Auto-chart: map query result columns to ECharts chart type suggestions
 - [ ] Pivot table UI: drag dimensions/measures onto row/column/value wells
 - [ ] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally
