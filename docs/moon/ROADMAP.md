@@ -1046,6 +1046,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Portfolio SQL panels: `SqlQueryPanel` on Benchmark Analysis (`benchmark_sim`) and City Comparison (`city_sim`) when multi-run portfolios are loaded (§G.6)
 - [x] Portfolio query templates: `portfolioSqlTemplates()` cross-run robustness, run leaderboard, run×policy variance, Pareto-by-run; `SqlQueryPanel` `portfolioMode` on multi-log views (§G.6)
 - [x] Algorithm Comparison DuckDB ingest: `runSimulationArrowPipeline()` → `algorithm_sim` + `SqlQueryPanel` + timing badge when Simulation Monitor watch path is active (§G.6)
+- [x] Algorithm Comparison SQL templates: `algorithmSqlTemplates()` policy ranking, worst overflow days, zero-overflow rate, day-over-day profit Δ; `SqlQueryPanel` `algorithmMode` (§G.6)
+- [x] Algorithm Comparison brush SQL sync: chart click → global policy filter → `brushSqlSync` + `autoRunOnBrushSync` on `algorithm_sim` (§G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)

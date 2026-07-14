@@ -64,6 +64,58 @@ ORDER BY mean_profit DESC`,
   },
 ];
 
+/** Algorithm Comparison templates for single-log policy analysis (§G.6). */
+export function algorithmSqlTemplates(tableName: string): SqlTemplate[] {
+  const t = `"${tableName}"`;
+  return [
+    {
+      id: "algo-ranking",
+      label: "Policy ranking",
+      sql: `SELECT policy,
+  ROUND(AVG(profit), 4) AS mean_profit,
+  ROUND(AVG(overflows), 4) AS mean_overflows,
+  ROUND(AVG(kg_per_km), 4) AS mean_kgkm,
+  COUNT(*)::INTEGER AS days
+FROM ${t}
+GROUP BY policy
+ORDER BY mean_kgkm DESC`,
+    },
+    {
+      id: "algo-worst-days",
+      label: "Worst overflow days",
+      sql: `SELECT day, policy, overflows, profit, kg_per_km
+FROM ${t}
+ORDER BY overflows DESC, day
+LIMIT 20`,
+    },
+    {
+      id: "algo-zero-overflow",
+      label: "Zero-overflow rate",
+      sql: `SELECT policy,
+  COUNT(*) FILTER (WHERE overflows = 0)::INTEGER AS zero_days,
+  COUNT(*)::INTEGER AS total_days,
+  ROUND(100.0 * COUNT(*) FILTER (WHERE overflows = 0) / COUNT(*), 2) AS zero_pct
+FROM ${t}
+GROUP BY policy
+ORDER BY zero_pct DESC`,
+    },
+    {
+      id: "algo-profit-delta",
+      label: "Day-over-day profit Δ",
+      sql: `WITH ranked AS (
+  SELECT policy, day, profit,
+    LAG(profit) OVER (PARTITION BY policy ORDER BY day) AS prev_profit
+  FROM ${t}
+)
+SELECT policy, day,
+  ROUND(profit - prev_profit, 4) AS profit_delta
+FROM ranked
+WHERE prev_profit IS NOT NULL
+ORDER BY policy, day`,
+    },
+  ];
+}
+
 /** Portfolio templates when ``run_label`` is present (§G.1.4 / §G.6). */
 export function portfolioSqlTemplates(tableName: string): SqlTemplate[] {
   const t = `"${tableName}"`;
@@ -117,10 +169,12 @@ ORDER BY run_label, mean_profit DESC`,
 
 export function sqlTemplates(
   tableName: string,
-  opts: { portfolio?: boolean } = {}
+  opts: { portfolio?: boolean; algorithm?: boolean } = {}
 ): SqlTemplate[] {
   const t = `"${tableName}"`;
   const base = BASE_TEMPLATES(t);
-  if (!opts.portfolio) return base;
-  return [...base, ...portfolioSqlTemplates(tableName)];
+  const extras: SqlTemplate[] = [];
+  if (opts.portfolio) extras.push(...portfolioSqlTemplates(tableName));
+  if (opts.algorithm) extras.push(...algorithmSqlTemplates(tableName));
+  return [...base, ...extras];
 }

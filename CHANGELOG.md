@@ -11,6 +11,23 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-second pass (§G.6)
+
+Sixty-second pass adds Algorithm Comparison policy-analysis SQL templates and
+bidirectional chart ↔ DuckDB brush sync on the algorithms view.
+
+**React frontend**
+- `duckdbTemplates.ts` — `algorithmSqlTemplates()` for policy ranking, worst overflow
+  days, zero-overflow rate, and day-over-day profit Δ
+- `SqlQueryPanel` — `algorithmMode` prop merges algorithm templates
+- `AlgorithmComparison` — radar/bar click sets global policy filter with dimming;
+  `brushSqlSync` + `autoRunOnBrushSync` on `algorithm_sim`
+
+**ROADMAP**
+- §G.6 Algorithm Comparison SQL templates + brush SQL sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-first pass (§G.6 / §G.7)
 
 Sixty-first pass adds portfolio-aware OLAP query templates and closes the DuckDB ingest

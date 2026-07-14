@@ -29,6 +29,8 @@ interface Props {
   defaultOpen?: boolean;
   /** Include portfolio ``run_label`` query templates (§G.6). */
   portfolioMode?: boolean;
+  /** Include Algorithm Comparison policy-analysis templates (§G.6). */
+  algorithmMode?: boolean;
 }
 
 export function SqlQueryPanel({
@@ -41,6 +43,7 @@ export function SqlQueryPanel({
   autoRunOnBrushSync = false,
   defaultOpen = false,
   portfolioMode = false,
+  algorithmMode = false,
 }: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
@@ -53,8 +56,8 @@ export function SqlQueryPanel({
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const templates = useMemo(
-    () => sqlTemplates(tableName, { portfolio: portfolioMode }),
-    [tableName, portfolioMode]
+    () => sqlTemplates(tableName, { portfolio: portfolioMode, algorithm: algorithmMode }),
+    [tableName, portfolioMode, algorithmMode]
   );
 
   useEffect(() => {
