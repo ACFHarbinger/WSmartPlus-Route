@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Web-source references for the deck's conceptual diagrams.
-  Used by gen_presentation.py's --image-mode fetch (ensure_reference_images):
+  Used by gen_presentation.py's image-mode fetch (ensure_reference_images):
   for each <image key="..."> whose key matches a NATIVE_DIAGRAM_BUILDERS entry
   (the filename stem), the <url> is downloaded to that filename instead of
   calling the native (in-house) builder. Any file under this repo that embeds
