@@ -1,5 +1,6 @@
 pub mod arrow;
 pub mod data;
+pub mod tensor;
 pub mod hpo;
 pub mod mlflow;
 pub mod zenml;

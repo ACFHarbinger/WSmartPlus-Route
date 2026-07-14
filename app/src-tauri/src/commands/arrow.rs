@@ -196,7 +196,7 @@ fn csv_to_batch(path: &str) -> Result<RecordBatch, String> {
     RecordBatch::try_new(schema, columns).map_err(|e| e.to_string())
 }
 
-fn export_batch(batch: &RecordBatch, label: &str, start: Instant) -> Result<ArrowIpcFile, String> {
+pub fn export_batch(batch: &RecordBatch, label: &str, start: Instant) -> Result<ArrowIpcFile, String> {
     let path = arrow_temp_path(label)?;
     write_ipc_file(batch, &path)?;
     let rust_ms = start.elapsed().as_millis() as u64;
