@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-seventh pass (§G.1.4 / §G.3.4 / §G.6)
+
+Thirty-seventh pass adds **OrbitView Cartesian deck.gl**, **portfolio parallel coords**,
+**SQL auto-chart**, and **Simulation Monitor DuckDB SQL** panel.
+
+**React frontend**
+- `utils/mapPositions.ts` — shared geographic vs circular abstract bin layout
+- `utils/queryAutoChart.ts` — infer bar/line/scatter from query columns; build ECharts option
+- `DeckRouteMap` — OrbitView 3D point cloud when no lat/lng (fill-scaled Z); Mercator tile map when geo present
+- `SimulationMonitor` — deck.gl available without geo coords; Mercator/OrbitView mode labels; SQL panel on `monitor_sim`
+- `SqlQueryPanel` — auto-chart suggestion below query results (§G.6)
+- `BenchmarkAnalysis` — `BenchmarkPortfolioParallel` one polyline per loaded simulation log
+
+**ROADMAP**
+- §G.1.4 multi-log parallel coords checked (partial — 480-log batch deferred)
+- §G.3.4 Mercator vs Cartesian/OrbitView toggle checked (partial)
+- §G.6 auto-chart from SQL results checked (partial)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-sixth pass (§G.3 / §G.6)
 
 Thirty-sixth pass adds **multi-vehicle route rendering**, **DuckDB SQL explorer**,

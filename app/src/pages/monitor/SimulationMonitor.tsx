@@ -35,6 +35,7 @@ import {
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -469,9 +470,15 @@ export function SimulationMonitor() {
     pendingMapCompare,
     setPendingMapCompare,
     projectRoot,
+    theme,
   } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
-  const { ready: duckdbReady, setLastPipeline, setLoading: setDuckdbLoading } = useDuckDbStore();
+  const {
+    ready: duckdbReady,
+    lastPipeline,
+    setLastPipeline,
+    setLoading: setDuckdbLoading,
+  } = useDuckDbStore();
 
   const [activeLogPath, setActiveLogPath] = useState<string | null>(null);
   const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
@@ -551,6 +558,11 @@ export function SimulationMonitor() {
 
   const hasGeoCoords = useMemo(
     () => displayEntry?.data.all_bin_coords?.some((b) => b.lat != null && b.lng != null) ?? false,
+    [displayEntry]
+  );
+
+  const hasBinCoords = useMemo(
+    () => (displayEntry?.data.all_bin_coords?.length ?? 0) > 0,
     [displayEntry]
   );
 
@@ -942,7 +954,7 @@ export function SimulationMonitor() {
                 </button>
               </div>
             )}
-            {showRouteMap && hasGeoCoords && (
+            {showRouteMap && hasBinCoords && (
               <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
                 {(["echarts", "deckgl"] as const).map((m) => (
                   <button
@@ -954,7 +966,7 @@ export function SimulationMonitor() {
                         : "text-canvas-muted hover:text-gray-200"
                     }`}
                   >
-                    {m === "echarts" ? "Cartesian" : "Tile map"}
+                    {m === "echarts" ? "ECharts" : hasGeoCoords ? "Mercator" : "OrbitView"}
                   </button>
                 ))}
               </div>
@@ -962,7 +974,7 @@ export function SimulationMonitor() {
           </div>
 
           {showRouteMap && mapRoutes.length > 0 ? (
-            routeMapMode === "deckgl" && hasGeoCoords ? (
+            routeMapMode === "deckgl" && hasBinCoords ? (
               <Suspense fallback={<p className="text-xs text-canvas-muted">Loading tile map…</p>}>
                 {mapLayout === "split" && mapRoutes.length === 2 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -1005,6 +1017,10 @@ export function SimulationMonitor() {
               day={displayDay}
               policy={displayEntry.policy}
             />
+          )}
+
+          {duckdbReady && lastPipeline?.tableName === "monitor_sim" && (
+            <SqlQueryPanel tableName={lastPipeline.tableName} theme={theme} />
           )}
         </>
       )}

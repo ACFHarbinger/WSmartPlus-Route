@@ -2,9 +2,11 @@
  * DuckDB-Wasm SQL query editor panel (§G.6).
  */
 import { lazy, Suspense, useCallback, useMemo, useState } from "react";
+import ReactECharts from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
 import { queryDuckDb } from "../../utils/duckdbClient";
 import { sqlTemplates } from "../../utils/duckdbTemplates";
+import { buildAutoChartOption, suggestChart } from "../../utils/queryAutoChart";
 import { downloadCsv } from "../../utils/tableExport";
 
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
@@ -29,6 +31,16 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
     if (!rows.length) return [];
     return Object.keys(rows[0]);
   }, [rows]);
+
+  const chartSpec = useMemo(
+    () => (columns.length ? suggestChart(columns, rows) : null),
+    [columns, rows]
+  );
+
+  const chartOption = useMemo(
+    () => (chartSpec ? buildAutoChartOption(chartSpec, rows) : null),
+    [chartSpec, rows]
+  );
 
   const sortedRows = useMemo(() => {
     if (!sortCol) return rows;
@@ -147,6 +159,15 @@ export function SqlQueryPanel({ tableName, theme }: Props) {
           </div>
 
           {error && <p className="text-xs text-accent-danger font-mono">{error}</p>}
+
+          {chartSpec && chartOption && (
+            <div className="space-y-1">
+              <p className="text-xs text-canvas-muted">
+                Auto-chart (§G.6): <span className="text-gray-300">{chartSpec.label}</span>
+              </p>
+              <ReactECharts option={chartOption} style={{ height: 200 }} />
+            </div>
+          )}
 
           {sortedRows.length > 0 && (
             <div className="overflow-auto max-h-64 rounded-lg border border-canvas-border">

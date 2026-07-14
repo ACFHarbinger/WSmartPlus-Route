@@ -1,11 +1,13 @@
 /**
- * deck.gl route map with tile basemap (§G.16).
+ * deck.gl route map with tile basemap (§G.16) or OrbitView Cartesian mode (§G.3.4).
  * Supports multi-policy route overlay; TripsLayer animation; depot marker.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
+import { OrbitView, COORDINATE_SYSTEM } from "@deck.gl/core";
 import { Download } from "lucide-react";
 import { exportCanvasPng } from "../../utils/chartExport";
+import { resolveBinPositions } from "../../utils/mapPositions";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
@@ -84,14 +86,12 @@ function buildRouteGeometry(data: SimDayData) {
       idlePoints: [] as Array<{ position: [number, number] }>,
       depotPoint: null as { position: [number, number] } | null,
       hasGeo: false,
+      hasBins: false,
       center: { longitude: 0, latitude: 0 },
     };
   }
 
-  const posById = new Map<number, [number, number]>();
-  for (const b of all_bin_coords) {
-    if (b.lat != null && b.lng != null) posById.set(b.id, [b.lng, b.lat]);
-  }
+  const { posById, hasGeo } = resolveBinPositions(all_bin_coords);
 
   const segments = splitVehicleTourIndices(data);
   const allTourIds = new Set(segments.flat());
@@ -120,8 +120,12 @@ function buildRouteGeometry(data: SimDayData) {
     .filter(Boolean) as Array<{ position: [number, number]; fill: number }>;
 
   const idlePts = all_bin_coords
-    .filter((b) => b.id >= 0 && !tourSet.has(b.id) && b.lat != null && b.lng != null)
-    .map((b) => ({ position: [b.lng!, b.lat!] as [number, number] }));
+    .filter((b) => b.id >= 0 && !tourSet.has(b.id))
+    .map((b) => {
+      const position = posById.get(b.id);
+      return position ? { position } : null;
+    })
+    .filter(Boolean) as Array<{ position: [number, number] }>;
 
   const depot = posById.get(-1);
   const lngs = [...posById.values()].map((p) => p[0]);
@@ -135,7 +139,8 @@ function buildRouteGeometry(data: SimDayData) {
     tourPoints: tourPts,
     idlePoints: idlePts,
     depotPoint: depot ? { position: depot } : null,
-    hasGeo: all_bin_coords.some((b) => b.lat != null && b.lng != null),
+    hasGeo,
+    hasBins: posById.size > 0,
     center: {
       longitude: lngs.length ? lngs.reduce((a, b) => a + b, 0) / lngs.length : 0,
       latitude: lats.length ? lats.reduce((a, b) => a + b, 0) / lats.length : 0,
@@ -160,6 +165,12 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
     pitch: 0,
     bearing: 0,
   });
+  const [orbitView, setOrbitView] = useState({
+    target: [0, 0, 0] as [number, number, number],
+    rotationX: 35,
+    rotationOrbit: 0,
+    zoom: 1.2,
+  });
 
   const exportPng = useCallback(() => {
     const canvas = containerRef.current?.querySelector("canvas");
@@ -172,7 +183,10 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   );
 
   const hasGeo = geometries.some((g) => g.hasGeo);
+  const hasBins = geometries.some((g) => g.hasBins);
+  const cartesianMode = hasBins && !hasGeo;
   const maxTripLength = Math.max(...geometries.map((g) => g.tripLength), 0);
+  const cartesianSystem = cartesianMode ? COORDINATE_SYSTEM.CARTESIAN : COORDINATE_SYSTEM.LNGLAT;
 
   const centerView = useMemo(() => {
     const centers = geometries.filter((g) => g.hasGeo).map((g) => g.center);
@@ -218,6 +232,8 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
     return () => cancelAnimationFrame(frame);
   }, [animate, playbackSpeed, maxTripLength]);
 
+  const pos3d = (p: [number, number], z = 0): [number, number, number] => [p[0], p[1], z];
+
   const layers = useMemo(() => {
     const result = [];
     const base = geometries[0];
@@ -227,7 +243,9 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
         new ScatterplotLayer({
           id: "idle-bins",
           data: base.idlePoints,
-          getPosition: (d: { position: [number, number] }) => d.position,
+          coordinateSystem: cartesianSystem,
+          getPosition: (d: { position: [number, number] }) =>
+            cartesianMode ? pos3d(d.position, 0) : d.position,
           getFillColor: [75, 85, 99, 120],
           getRadius: 40,
           radiusMinPixels: 3,
@@ -241,7 +259,9 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
         new ScatterplotLayer({
           id: "depot",
           data: [base.depotPoint],
-          getPosition: (d: { position: [number, number] }) => d.position,
+          coordinateSystem: cartesianSystem,
+          getPosition: (d: { position: [number, number] }) =>
+            cartesianMode ? pos3d(d.position, 0.05) : d.position,
           getFillColor: [251, 191, 36, 255],
           getLineColor: [255, 255, 255, 200],
           stroked: true,
@@ -266,7 +286,7 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             ? [...vehicle.color, 230]
             : policyRgb;
 
-        if (animate && vehicle.tripPath.length >= 2) {
+        if (!cartesianMode && animate && vehicle.tripPath.length >= 2) {
           result.push(
             new TripsLayer({
               id: `trips-${id}-v${vehicle.vehicleId}`,
@@ -282,11 +302,15 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             })
           );
         } else if (vehicle.path.length >= 2) {
+          const pathData = cartesianMode
+            ? [{ path: vehicle.path.map((p) => pos3d(p, 0.02)) }]
+            : [{ path: vehicle.path }];
           result.push(
             new PathLayer({
               id: `path-${id}-v${vehicle.vehicleId}`,
-              data: [{ path: vehicle.path }],
-              getPath: (d: { path: [number, number][] }) => d.path,
+              data: pathData,
+              coordinateSystem: cartesianSystem,
+              getPath: (d: { path: [number, number][] | [number, number, number][] }) => d.path,
               getColor: rgb,
               getWidth: vehicleSegments.length > 1 || routes.length > 1 ? 3 : 4,
               widthMinPixels: 2,
@@ -300,7 +324,9 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
           new ScatterplotLayer({
             id: `stops-${id}`,
             data: g.tourPoints,
-            getPosition: (d: { position: [number, number] }) => d.position,
+            coordinateSystem: cartesianSystem,
+            getPosition: (d: { position: [number, number]; fill: number }) =>
+              cartesianMode ? pos3d(d.position, d.fill * 0.003) : d.position,
             getFillColor: (d: { fill: number }) => [...fillRgb(d.fill), 230] as [number, number, number, number],
             getLineColor: [...g.route.color, 255],
             stroked: routes.length > 1,
@@ -317,12 +343,12 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
     }
 
     return result;
-  }, [geometries, animate, currentTime, routes.length]);
+  }, [geometries, animate, currentTime, routes.length, cartesianMode, cartesianSystem]);
 
-  if (!hasGeo) {
+  if (!hasBins) {
     return (
       <p className="text-xs text-canvas-muted py-4 text-center">
-        Tile map requires geographic lat/lng coordinates in the simulation log.
+        Load a simulation log with bin coordinates to view the route map.
       </p>
     );
   }
@@ -332,34 +358,59 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
       ref={containerRef}
       className="relative h-[320px] rounded-lg overflow-hidden border border-canvas-border"
     >
-      <DeckGL
-        viewState={mapView}
-        onViewStateChange={({ viewState }) => {
-          if ("latitude" in viewState && "longitude" in viewState) {
-            setMapView({
-              longitude: viewState.longitude,
-              latitude: viewState.latitude,
-              zoom: viewState.zoom ?? mapView.zoom,
-              pitch: viewState.pitch ?? mapView.pitch,
-              bearing: viewState.bearing ?? mapView.bearing,
-            });
-          }
-        }}
-        controller
-        layers={layers}
-      >
-        <MapGL mapStyle={MAP_STYLE} />
-      </DeckGL>
-      <div className="absolute top-2 right-2 flex items-center gap-1">
-        <button
-          onClick={() => setPitch3d((v) => !v)}
-          className={`btn-ghost text-xs px-1.5 py-0.5 bg-black/50 rounded ${
-            pitch3d ? "text-accent-secondary" : ""
-          }`}
-          title="Toggle 3D pitch"
+      {cartesianMode ? (
+        <DeckGL
+          views={new OrbitView({ orbitAxis: "Z" })}
+          viewState={orbitView}
+          onViewStateChange={({ viewState }) => {
+            if ("rotationOrbit" in viewState) {
+              setOrbitView({
+                target: (viewState.target as [number, number, number]) ?? [0, 0, 0],
+                rotationX: viewState.rotationX ?? orbitView.rotationX,
+                rotationOrbit: viewState.rotationOrbit ?? orbitView.rotationOrbit,
+                zoom: viewState.zoom ?? orbitView.zoom,
+              });
+            }
+          }}
+          controller
+          layers={layers}
+        />
+      ) : (
+        <DeckGL
+          viewState={mapView}
+          onViewStateChange={({ viewState }) => {
+            if ("latitude" in viewState && "longitude" in viewState) {
+              setMapView({
+                longitude: viewState.longitude,
+                latitude: viewState.latitude,
+                zoom: viewState.zoom ?? mapView.zoom,
+                pitch: viewState.pitch ?? mapView.pitch,
+                bearing: viewState.bearing ?? mapView.bearing,
+              });
+            }
+          }}
+          controller
+          layers={layers}
         >
-          {pitch3d ? "3D (on)" : "3D (off)"}
-        </button>
+          <MapGL mapStyle={MAP_STYLE} />
+        </DeckGL>
+      )}
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        {cartesianMode ? (
+          <span className="text-[10px] px-1.5 py-0.5 bg-black/50 rounded text-accent-secondary">
+            OrbitView
+          </span>
+        ) : (
+          <button
+            onClick={() => setPitch3d((v) => !v)}
+            className={`btn-ghost text-xs px-1.5 py-0.5 bg-black/50 rounded ${
+              pitch3d ? "text-accent-secondary" : ""
+            }`}
+            title="Toggle 3D pitch"
+          >
+            {pitch3d ? "3D (on)" : "3D (off)"}
+          </button>
+        )}
         <button
           onClick={exportPng}
           className="btn-ghost text-xs flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"
