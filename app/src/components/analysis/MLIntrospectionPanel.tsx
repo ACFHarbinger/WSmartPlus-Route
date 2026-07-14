@@ -8,20 +8,26 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { Download, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
+import { buildAttentionGraphOption } from "../../utils/attentionGraph";
 import { exportChartPng } from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
 } from "../../utils/distributionCompare";
+import { GRAPH_PRESETS, loadGraphCoordinates } from "../../utils/graphCoords";
 import { analyzeLossMinima, resolveBpcMarker, type LandscapeMarker } from "../../utils/lossLandscape";
 import {
   applySparseTopK,
   buildMatrixHeatmapOption,
+  classifyAttentionRole,
   defaultIndices,
   detectHeadAxis,
   diffMatrices,
+  groupAttentionKeys,
   leadingIndexCount,
   suggestAttentionKeys,
+  type AttentionRole,
 } from "../../utils/tensorHeatmap";
 import type { NpzArchiveInfo, NpzVectorData, TensorSlicePreview } from "../../types";
 
@@ -31,6 +37,7 @@ const LossLandscape3D = lazy(() =>
 
 type IntrospectionTab = "tensor" | "attention" | "loss";
 type CompareMode = "single" | "side-by-side" | "overlay" | "distribution";
+type AttentionView = "heatmap" | "graph";
 
 function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
@@ -58,8 +65,15 @@ export function MLIntrospectionPanel() {
   const [sparseK, setSparseK] = useState(0);
   const [compareMode, setCompareMode] = useState<CompareMode>("single");
   const [headIndex, setHeadIndex] = useState(0);
+  const [attentionRole, setAttentionRole] = useState<AttentionRole | "all">("all");
+  const [attentionView, setAttentionView] = useState<AttentionView>("heatmap");
+  const [graphPreset, setGraphPreset] = useState("rm-100");
+  const [graphCoords, setGraphCoords] = useState<Array<{ lat: number; lng: number }> | null>(null);
+  const [tensorPipeline, setTensorPipeline] = useState<ArrowPipelineTiming | null>(null);
+  const [pipelineLoading, setPipelineLoading] = useState(false);
   const chartRef = useRef<ReactECharts>(null);
   const compareChartRef = useRef<ReactECharts>(null);
+  const graphChartRef = useRef<ReactECharts>(null);
   const lossChartRef = useRef<ReactECharts>(null);
 
   const pickArchive = useCallback(async () => {
@@ -125,6 +139,24 @@ export function MLIntrospectionPanel() {
   const leading = selectedArray ? leadingIndexCount(selectedArray.shape) : 0;
   const headAxis = selectedArray ? detectHeadAxis(selectedArray.shape, selectedKey) : null;
   const headCount = headAxis != null ? selectedArray?.shape[headAxis] ?? 1 : 0;
+  const attentionGroups = useMemo(
+    () => (archive ? groupAttentionKeys(archive.arrays) : null),
+    [archive]
+  );
+  const activeAttentionRole = classifyAttentionRole(selectedKey);
+  const roleFilteredKeys = useMemo(() => {
+    if (!archive || tab !== "attention") return [];
+    if (attentionRole === "all") {
+      const suggested = suggestAttentionKeys(archive.arrays);
+      return suggested.length
+        ? suggested
+        : archive.arrays.filter((a) => a.shape.length >= 2).map((a) => a.key);
+    }
+    const group = attentionGroups?.[attentionRole] ?? [];
+    return group.length
+      ? group
+      : archive.arrays.filter((a) => a.shape.length >= 2).map((a) => a.key);
+  }, [archive, tab, attentionRole, attentionGroups]);
 
   const effectiveIndices = useMemo(() => {
     const base = [...indices];
@@ -230,6 +262,42 @@ export function MLIntrospectionPanel() {
     }
   }, [archive, tab, selectedKey]);
 
+  useEffect(() => {
+    if (!projectRoot || tab !== "attention" || attentionView !== "graph") return;
+    let cancelled = false;
+    void loadGraphCoordinates(projectRoot, graphPreset)
+      .then((coords) => {
+        if (!cancelled) setGraphCoords(coords);
+      })
+      .catch(() => {
+        if (!cancelled) setGraphCoords(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectRoot, tab, attentionView, graphPreset]);
+
+  const ingestTensorSlice = useCallback(async () => {
+    if (!archivePath || !selectedKey) return;
+    setPipelineLoading(true);
+    try {
+      const timing = await runTensorArrowPipeline(archivePath, {
+        key: archivePath.endsWith(".npy") ? null : selectedKey,
+        indices: effectiveIndices,
+        maxDim: topK,
+        tableName: "studio_tensor",
+      });
+      setTensorPipeline(timing);
+      toast.success("Tensor slice ingested", {
+        description: `${timing.rowCount} rows in ${timing.totalMs} ms`,
+      });
+    } catch (err) {
+      toast.error("DuckDB ingest failed", { description: String(err) });
+    } finally {
+      setPipelineLoading(false);
+    }
+  }, [archivePath, selectedKey, effectiveIndices, topK]);
+
   const processedValues = useMemo(() => {
     if (!preview) return null;
     let grid = preview.values;
@@ -276,6 +344,7 @@ export function MLIntrospectionPanel() {
       theme,
       xLabel: tab === "attention" ? "Key" : "X",
       yLabel: tab === "attention" ? "Query" : "Y",
+      attentionRole: tab === "attention" ? activeAttentionRole : undefined,
     });
   }, [
     processedValues,
@@ -287,6 +356,7 @@ export function MLIntrospectionPanel() {
     effectiveIndices,
     theme,
     primaryDistLabel,
+    activeAttentionRole,
   ]);
 
   const compareHeatmapOption = useMemo(() => {
@@ -298,6 +368,7 @@ export function MLIntrospectionPanel() {
         theme,
         xLabel: "Key",
         yLabel: "Query",
+        attentionRole: activeAttentionRole,
       });
     }
     if (compareMode === "distribution" && distValues) {
@@ -308,6 +379,7 @@ export function MLIntrospectionPanel() {
         theme,
         xLabel: "Key",
         yLabel: "Query",
+        attentionRole: activeAttentionRole,
       });
     }
     return null;
@@ -321,6 +393,7 @@ export function MLIntrospectionPanel() {
     distCompareLabel,
     selectedKey,
     theme,
+    activeAttentionRole,
   ]);
 
   const primaryHeatmapOption = useMemo(() => {
@@ -332,6 +405,7 @@ export function MLIntrospectionPanel() {
       theme,
       xLabel: "Key",
       yLabel: "Query",
+      attentionRole: activeAttentionRole,
     });
   }, [
     processedValues,
@@ -342,7 +416,19 @@ export function MLIntrospectionPanel() {
     selectedKey,
     effectiveIndices,
     theme,
+    activeAttentionRole,
   ]);
+
+  const attentionGraphOption = useMemo(() => {
+    if (!processedValues || !graphCoords?.length || attentionView !== "graph") return null;
+    return buildAttentionGraphOption(graphCoords, processedValues, {
+      title: `Attention graph · query row ${decodeStep} · ${selectedKey}`,
+      theme,
+      queryRow: decodeStep,
+      topK: sparseK > 0 ? sparseK : 24,
+      sparseValues: sparseK > 0 ? processedValues : undefined,
+    });
+  }, [processedValues, graphCoords, attentionView, decodeStep, selectedKey, theme, sparseK]);
 
   const lossOption = useMemo(() => {
     if (!lossPreview) return null;
@@ -466,6 +552,26 @@ export function MLIntrospectionPanel() {
               ))}
             </tbody>
           </table>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <button
+              onClick={() => void ingestTensorSlice()}
+              disabled={!selectedKey || pipelineLoading}
+              className="btn-primary text-xs"
+            >
+              {pipelineLoading ? "Ingesting…" : "Ingest slice → DuckDB"}
+            </button>
+            {tensorPipeline && (
+              <span className="text-[10px] text-canvas-muted font-mono">
+                {tensorPipeline.tableName}: {tensorPipeline.rowCount} rows · {tensorPipeline.totalMs} ms
+                {tensorPipeline.withinBudget ? " ✓" : " (budget)"}
+              </span>
+            )}
+          </div>
+          {tensorPipeline && (
+            <p className="text-[10px] text-canvas-muted mt-1 font-mono">
+              SELECT row, col, value FROM &quot;{tensorPipeline.tableName}&quot; ORDER BY value DESC LIMIT 20;
+            </p>
+          )}
           <p className="text-[10px] text-canvas-muted mt-2">
             Total payload {formatBytes(archive.total_bytes)}
             {archive.used_memmap ? " · large .npy eligible for mmap probe" : ""}
@@ -490,9 +596,7 @@ export function MLIntrospectionPanel() {
               }}
             >
               {(tab === "attention"
-                ? suggestAttentionKeys(archive.arrays).length
-                  ? suggestAttentionKeys(archive.arrays)
-                  : archive.arrays.filter((a) => a.shape.length >= 2).map((a) => a.key)
+                ? roleFilteredKeys
                 : archive.arrays
                     .filter((a) => /loss_grid|loss_surface|landscape/i.test(a.key) || a.shape.length === 2)
                     .map((a) => a.key)
@@ -503,6 +607,63 @@ export function MLIntrospectionPanel() {
               ))}
             </select>
           </label>
+
+          {tab === "attention" && (
+            <>
+              <label className="flex items-center gap-1 text-canvas-muted">
+                Q/K/V
+                <select
+                  className="select-base text-xs py-0.5"
+                  value={attentionRole}
+                  onChange={(e) => {
+                    const role = e.target.value as AttentionRole | "all";
+                    setAttentionRole(role);
+                    if (role !== "all" && attentionGroups?.[role]?.[0]) {
+                      const key = attentionGroups[role][0];
+                      setSelectedKey(key);
+                      const shape = archive.arrays.find((a) => a.key === key)?.shape ?? [];
+                      setIndices(defaultIndices(shape));
+                      setDecodeStep(0);
+                      setHeadIndex(0);
+                    }
+                  }}
+                >
+                  <option value="all">All</option>
+                  <option value="query">Query ({attentionGroups?.query.length ?? 0})</option>
+                  <option value="key">Key ({attentionGroups?.key.length ?? 0})</option>
+                  <option value="value">Value ({attentionGroups?.value.length ?? 0})</option>
+                  <option value="weights">Weights ({attentionGroups?.weights.length ?? 0})</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-1 text-canvas-muted">
+                View
+                <select
+                  className="select-base text-xs py-0.5"
+                  value={attentionView}
+                  onChange={(e) => setAttentionView(e.target.value as AttentionView)}
+                >
+                  <option value="heatmap">Heatmap</option>
+                  <option value="graph">Graph on coords</option>
+                </select>
+              </label>
+              {attentionView === "graph" && (
+                <label className="flex items-center gap-1 text-canvas-muted">
+                  Graph
+                  <select
+                    className="select-base text-xs py-0.5"
+                    value={graphPreset}
+                    onChange={(e) => setGraphPreset(e.target.value)}
+                  >
+                    {GRAPH_PRESETS.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </>
+          )}
 
           {tab === "attention" && headCount > 1 && (
             <label className="flex items-center gap-1 text-canvas-muted">
@@ -646,7 +807,26 @@ export function MLIntrospectionPanel() {
         </div>
       )}
 
-      {tab === "attention" && heatmapOption && (
+      {tab === "attention" && attentionView === "graph" && attentionGraphOption && (
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <button
+              className="btn-ghost text-xs flex items-center gap-1"
+              onClick={() => exportChartPng(graphChartRef, `attention-graph-${selectedKey}.png`)}
+            >
+              <Download size={12} />
+              Export PNG
+            </button>
+          </div>
+          <ReactECharts ref={graphChartRef} option={attentionGraphOption} style={{ height: 400 }} notMerge />
+          <p className="text-[10px] text-canvas-muted">
+            Bipartite graph overlay: query node (amber) at decode step {decodeStep}; edge opacity ∝
+            attention weight to key nodes on {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}.
+          </p>
+        </div>
+      )}
+
+      {tab === "attention" && attentionView === "heatmap" && heatmapOption && (
         <div className="space-y-2">
           <div className="flex justify-end">
             <button
@@ -680,8 +860,9 @@ export function MLIntrospectionPanel() {
             )}
           </div>
           <p className="text-[10px] text-canvas-muted">
-            Head selector · sparse top-k · decode-step compare · Empirical vs Gamma-3 distribution
-            compare (side-by-side / overlay Δ). Sigma.js node overlay deferred (§G.5.3 partial).
+            Q/K/V colour palettes ({activeAttentionRole}) · head selector · sparse top-k · decode-step
+            compare · Empirical vs Gamma-3 (side-by-side / overlay Δ). Graph-on-coords view available
+            via View toggle.
           </p>
         </div>
       )}

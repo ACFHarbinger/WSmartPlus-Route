@@ -1009,7 +1009,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.1 TensorDict Data Pipeline
 - [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — `.td` TensorDict deferred)
 - [x] Memory-map large tensor files (avoid full RAM load): `probe_npy_mmap` flags standalone `.npy` > 8 MB; archive inspect reads NPY headers only (§G.5.1 partial — full mmap slice deferred)
-- [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)` (§G.5.1 partial — DuckDB ingest deferred)
+- [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab (§G.5.1 partial — `.td` TensorDict deferred)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
 - [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` (§G.5.2 partial — full training-loss probe deferred)
@@ -1023,8 +1023,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
 - [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
-- [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap in `MLIntrospectionPanel` (§G.5.3 partial — Sigma.js/node overlay deferred)
-- [x] Attention head selector: `detectHeadAxis` + per-head index dropdown (§G.5.3 partial — Q/K/V colour coding deferred)
+- [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap + `buildAttentionGraphOption` graph-on-coords view with graph preset loader (§G.5.3 partial — Sigma.js WebGL deferred)
+- [x] Attention head selector: `detectHeadAxis` + per-head index dropdown; Q/K/V role filter + per-role colour palettes via `classifyAttentionRole` / `groupAttentionKeys` (§G.5.3 partial — spherical k-means deferred)
 - [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
 - [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3 partial — spherical k-means clusters deferred)
 - [x] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions: Attention tab "Empirical vs Gamma-3" compare mode; dual archive picker; `inferDistributionLabel` path heuristics; side-by-side heatmaps + overlay Δ diff (§G.5.3)
