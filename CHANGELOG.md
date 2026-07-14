@@ -11,6 +11,23 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-fourth pass (§G.5)
+
+Forty-fourth pass closes remaining **§G.5** deferred items: DuckDB tensor ingest,
+Q/K/V attention colour coding, and bipartite graph overlay on bin coordinates.
+
+**React frontend**
+- `utils/arrowPipeline.ts` — `runTensorArrowPipeline` (NPZ slice → Arrow IPC → DuckDB-Wasm `studio_tensor`)
+- `utils/tensorHeatmap.ts` — `classifyAttentionRole`, `groupAttentionKeys`, per-role colour palettes (Query blue · Key green · Value amber)
+- `utils/attentionGraph.ts` — `buildAttentionGraphOption` ECharts graph overlay; edge opacity ∝ weight; query node at decode step
+- `MLIntrospectionPanel` — Archive tab "Ingest slice → DuckDB"; Attention tab Q/K/V filter, Heatmap/Graph view toggle, graph preset selector
+
+**ROADMAP**
+- §G.5.1 DuckDB tensor ingest checked (partial — `.td` TensorDict deferred)
+- §G.5.3 Q/K/V colour coding + graph-on-coords overlay checked (partial — Sigma.js WebGL deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-third pass (§G.5)
 
 Forty-third pass completes the remaining **§G.5 Machine Learning Introspection**

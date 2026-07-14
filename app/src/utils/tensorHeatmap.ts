@@ -2,6 +2,42 @@
  * ECharts heatmap builders for tensor slices and loss landscapes (§G.5).
  */
 
+export type AttentionRole = "query" | "key" | "value" | "weights";
+
+const ROLE_PALETTES: Record<AttentionRole, string[]> = {
+  query: ["#0c4a6e", "#0369a1", "#0ea5e9", "#7dd3fc"],
+  key: ["#14532d", "#15803d", "#22c55e", "#86efac"],
+  value: ["#78350f", "#b45309", "#f59e0b", "#fde68a"],
+  weights: ["#1e3a8a", "#6366f1", "#fbbf24", "#ef4444"],
+};
+
+/** Classify tensor key as Q/K/V projection or fused attention weights. */
+export function classifyAttentionRole(key: string): AttentionRole {
+  const k = key.toLowerCase();
+  if (/\bquery\b|_q_|\.q\.|attn_q|q_proj|wq\b/.test(k)) return "query";
+  if (/\bkey\b|_k_|\.k\.|attn_k|k_proj|wk\b/.test(k) && !/keyboard|keypad/.test(k)) return "key";
+  if (/\bvalue\b|_v_|\.v\.|attn_v|v_proj|wv\b/.test(k)) return "value";
+  return "weights";
+}
+
+export function rolePalette(role: AttentionRole): string[] {
+  return ROLE_PALETTES[role];
+}
+
+export function groupAttentionKeys(arrays: { key: string; shape: number[] }[]): {
+  query: string[];
+  key: string[];
+  value: string[];
+  weights: string[];
+} {
+  const groups = { query: [] as string[], key: [] as string[], value: [] as string[], weights: [] as string[] };
+  for (const a of arrays) {
+    const role = classifyAttentionRole(a.key);
+    groups[role].push(a.key);
+  }
+  return groups;
+}
+
 export function buildMatrixHeatmapOption(
   values: number[][],
   opts: {
@@ -11,9 +47,18 @@ export function buildMatrixHeatmapOption(
     theme?: "dark" | "light";
     xLabel?: string;
     yLabel?: string;
+    attentionRole?: AttentionRole;
   } = {}
 ): Record<string, unknown> {
-  const { title, min, max, theme = "dark", xLabel = "Col", yLabel = "Row" } = opts;
+  const {
+    title,
+    min,
+    max,
+    theme = "dark",
+    xLabel = "Col",
+    yLabel = "Row",
+    attentionRole,
+  } = opts;
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
   const flat = values.flat();
@@ -69,7 +114,7 @@ export function buildMatrixHeatmapOption(
       right: 4,
       top: "center",
       inRange: {
-        color: ["#1e3a8a", "#6366f1", "#fbbf24", "#ef4444"],
+        color: attentionRole ? rolePalette(attentionRole) : ROLE_PALETTES.weights,
       },
       textStyle: { color: "#9090b0", fontSize: 9 },
     },

@@ -65,6 +65,49 @@ export async function runCsvArrowPipeline(
   };
 }
 
+/** Tensor slice → Arrow IPC → DuckDB-Wasm (§G.5.1). */
+export async function runTensorArrowPipeline(
+  npzPath: string,
+  opts: {
+    key?: string | null;
+    indices?: number[];
+    maxDim?: number;
+    tableName?: string;
+  } = {}
+): Promise<ArrowPipelineTiming> {
+  const tableName = opts.tableName ?? "studio_tensor";
+  const t0 = performance.now();
+  await initDuckDb();
+
+  const ipc = await invoke<ArrowIpcMeta>("tensor_slice_to_arrow_ipc", {
+    path: npzPath,
+    key: opts.key ?? null,
+    indices: opts.indices ?? [],
+    maxDim: opts.maxDim ?? 64,
+  });
+  const t1 = performance.now();
+
+  const buffer = await readIpcBytes(ipc.path);
+  const t2 = performance.now();
+
+  await ingestArrowIpc(tableName, buffer);
+  const t3 = performance.now();
+
+  const rowCount = await duckDbRowCount(tableName);
+  const totalMs = Math.round(t3 - t0);
+
+  return {
+    rowCount,
+    columnCount: ipc.column_count,
+    rustMs: ipc.rust_ms,
+    readMs: Math.round(t2 - t1),
+    duckdbMs: Math.round(t3 - t2),
+    totalMs,
+    withinBudget: totalMs < ARROW_PIPELINE_BUDGET_MS,
+    tableName,
+  };
+}
+
 /** Full pipeline for a simulation JSONL log. */
 export async function runSimulationArrowPipeline(
   logPath: string,
