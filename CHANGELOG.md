@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — thirty-fifth pass (§G.1 / §G.2)
+
+Thirty-fifth pass adds **§G.2 hierarchical drill-down** on Simulation Summary and
+closes more **§G.1** multi-run / distribution-split items on Benchmark Analysis.
+
+**React frontend**
+- `utils/policyHierarchy.ts` — build sunburst/treemap tree (city → strategy → constructor); breadcrumb path helpers
+- `utils/paretoPanels.ts` — classify runs into Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS panels
+- `utils/simMetadata.ts` — shared `strategyColor`, `citySymbol`, `cityScaleLabel` helpers
+- `SimulationSummary` — `PolicyHierarchyPanel` sunburst/treemap toggle; drill-down bar chart + breadcrumb trail
+- `SimulationSummary` — `DistributionFacetHeatmaps` splits heatmaps when multiple distributions present
+- `SimulationSummary` — zero-overflow corridor slider cross-filters parallel coords + all brushed panels
+- `SimulationSummary` — parallel polylines colored by selection strategy
+- `BenchmarkAnalysis` — 4-panel Pareto grid from loaded runs; City Comparison log-scale bar chart (§G.1.6)
+
+**ROADMAP**
+- §G.2 sunburst/treemap, drill-down bars, breadcrumb checked (partial — DuckDB filter deferred)
+- §G.1.2 four-panel Pareto, §G.1.3 distribution heatmap split, §G.1.4 strategy colors + overflow corridor,
+  §G.1.6 city comparison log scale checked (partial)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-fourth pass (§G.1)
 
 Thirty-fourth pass implements **§G.1 Statistical Overview Dashboard** cross-filter

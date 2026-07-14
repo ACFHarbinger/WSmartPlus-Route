@@ -903,7 +903,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts (§G.1 partial — DuckDB SQL deferred)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
-- [ ] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS
+- [x] 4-panel layout: Gamma-3/FTSP · Empirical/FTSP · Gamma-3/CLS · Empirical/CLS: `BenchmarkAnalysis` `BenchmarkParetoPanel` grid + `paretoPanels.ts` run classifier (§G.1 partial — single-log Simulation Summary deferred)
 - [x] Color encoding: LA · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2: `strategyColor()` on Pareto scatter + efficiency ranking bars (§G.1 partial — multi-run 4-panel deferred)
 - [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on Pareto scatter (§G.1 partial — per-policy multi-city deferred)
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` on Simulation Summary (profit vs overflows; §G.1 partial — multi-run scatter deferred)
@@ -917,7 +917,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts (§G.1 partial — multi-run config matrix deferred)
 
 #### 1.3 Policy Configuration Heatmaps
-- [ ] Heatmap split by distribution (Gamma-3 vs Empirical)
+- [x] Heatmap split by distribution (Gamma-3 vs Empirical): `DistributionFacetHeatmaps` on Simulation Summary when policies span distributions (§G.1 partial — multi-log benchmark deferred)
 - [ ] Heatmap split by graph (RM-100 vs RM-170 vs FFZ-350)
 - [x] Cell value = mean overflows or mean kg/km (toggle): heatmap mode buttons (all / overflows / kg/km) on Simulation Summary (§G.1 partial — distribution/graph split deferred)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
@@ -926,8 +926,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
 - [ ] Each of the 480 simulation logs rendered as a polyline
 - [x] Brushing on any axis instantly filters all other panels (via DuckDB-Wasm SQL): click polyline → `toggleBrush` cross-filter (§G.1 partial — axis brush + DuckDB SQL deferred)
-- [ ] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs
-- [ ] Color polylines by mandatory-selection strategy
+- [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + `effectiveBrushed` cross-filter on Simulation Summary (§G.1 partial — axis drag brush deferred)
+- [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
 #### 1.5 Constructor Ranking Chart
 - [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering (§G.1 partial — multi-config benchmark deferred)
@@ -937,7 +937,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.6 Secondary Log-Scale Views
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit + symlog-overflows row when global log toggle off (§G.1 partial — all metrics deferred)
-- [ ] City Comparison section uses log scale only (not outlier removal) to preserve extreme values
+- [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars (§G.1 partial — dedicated City Comparison page deferred)
 
 ---
 
@@ -945,13 +945,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Enable macro → micro navigation from algorithm family level down to individual config variants.
 
-- [ ] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor
-- [ ] Angular span mapped to accumulated profit; color gradient = kg/km efficiency
-- [ ] Click on any segment fires DuckDB-Wasm filter query
-- [ ] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant)
+- [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary (§G.2 partial — multi-log portfolio deferred)
+- [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
+- [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter (§G.2 partial — DuckDB SQL deferred)
+- [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): drill-down horizontal profit bars on segment click (§G.2 partial — animated morph deferred)
 - [ ] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions
-- [ ] Breadcrumb trail showing current filter path; click to navigate back up
-- [ ] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst)
+- [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
+- [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary (§G.2 partial — overflows color mode deferred; kg/km gradient used)
 
 ---
 
@@ -1333,7 +1333,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | §G.11 | Data Generation Wizard | Low | High | P2 `[Blocked]` §G.15 |
 | §G.12 | Evaluation Runner | Low | High | P2 `[Blocked]` §G.15 |
 | §G.7 | UX Polish | Medium | High | P2 `[Blocked]` §G.1 |
-| §G.2 | Drill-Down Sunburst | Medium | High | P2 `[Blocked]` §G.1 |
+| §G.2 | Drill-Down Sunburst | Medium | High | P2 🚧 partial — Simulation Summary sunburst/treemap |
 | §G.3 | Geospatial deck.gl | High | High | P2 |
 | §G.6 | OLAP Explorer | Medium | High | P2 `[Blocked]` §G.1 |
 | §G.4 | Graph Topology | Medium | Medium | P3 `[Blocked]` §G.3 |

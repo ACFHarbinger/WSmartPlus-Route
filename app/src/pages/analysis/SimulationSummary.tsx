@@ -23,16 +23,26 @@ import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import { symlog } from "../../utils/symlog";
 import { barOpacity, isHighlighted, toggleBrush } from "../../utils/chartHighlight";
 import {
+  citySymbol,
   formatLogMeta,
   formatPolicyMeta,
   parseLogPath,
   parsePolicyLabel,
+  strategyColor,
   type LogPathMeta,
   type PolicyMeta,
 } from "../../utils/simMetadata";
+import {
+  buildPolicyHierarchy,
+  childrenAtPath,
+  enrichDrillChildren,
+  policiesAtPath,
+} from "../../utils/policyHierarchy";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
+
+type HierarchyView = "sunburst" | "treemap";
 
 // ── Stat helpers ──────────────────────────────────────────────────────────────
 
@@ -110,26 +120,6 @@ const POLICY_COLORS = [
   "#6366f1", "#34d399", "#f87171", "#fbbf24",
   "#a78bfa", "#fb923c", "#38bdf8", "#f472b6",
 ];
-
-const STRATEGY_COLORS: Record<string, string> = {
-  LA: "#6366f1",
-  LM: "#fbbf24",
-  "LM-CF70": "#fb923c",
-  "LM-CF90": "#f87171",
-  "SL-SL1": "#34d399",
-  "SL-SL2": "#38bdf8",
-};
-
-function strategyColor(policy: string, policyMeta?: Record<string, PolicyMeta>): string {
-  const strat = policyMeta?.[policy]?.selectionStrategy ?? parsePolicyLabel(policy).selectionStrategy;
-  return STRATEGY_COLORS[strat] ?? POLICY_COLORS[0];
-}
-
-function citySymbol(logMeta: LogPathMeta | null): "circle" | "rect" | "diamond" {
-  if (logMeta?.cityShort === "FFZ") return "diamond";
-  if (logMeta?.scale === 170) return "rect";
-  return "circle";
-}
 
 function policyTooltipFooter(
   policy: string,
@@ -851,7 +841,7 @@ function PolicyParallelChart({
         {
           type: "parallel" as const,
           lineStyle: { width: 2 },
-          data: policies.map((p, i) => ({
+          data: policies.map((p) => ({
             name: p,
             value: [
               mean(stats[p].profit),
@@ -860,7 +850,7 @@ function PolicyParallelChart({
               mean(stats[p].km),
             ],
             lineStyle: {
-              color: POLICY_COLORS[i % POLICY_COLORS.length],
+              color: strategyColor(p, policyMeta),
               opacity: barOpacity(p, brushed ?? null),
             },
           })),
@@ -901,6 +891,275 @@ function PolicyParallelChart({
             : undefined
         }
       />
+    </div>
+  );
+}
+
+function HierarchyBreadcrumb({
+  path,
+  onNavigate,
+}: {
+  path: string[];
+  onNavigate: (depth: number) => void;
+}) {
+  if (path.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1 text-xs">
+      {path.map((seg, i) => (
+        <span key={`${seg}-${i}`} className="flex items-center gap-1">
+          {i > 0 && <span className="text-canvas-muted">›</span>}
+          <button
+            onClick={() => onNavigate(i + 1)}
+            className="text-accent-secondary hover:underline font-mono"
+          >
+            {seg}
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function PolicyHierarchyPanel({
+  stats,
+  policies,
+  policyMeta,
+  logMeta,
+  brushed,
+  onBrushPolicies,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+  policyMeta: Record<string, PolicyMeta>;
+  logMeta: LogPathMeta;
+  brushed?: string[] | null;
+  onBrushPolicies: (ps: string[]) => void;
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+  const drillRef = useRef<EChartsReact | null>(null);
+  const [view, setView] = useState<HierarchyView>("sunburst");
+  const [drillPath, setDrillPath] = useState<string[]>([]);
+
+  const tree = useMemo(
+    () => buildPolicyHierarchy(policies, stats, policyMeta, logMeta),
+    [policies, stats, policyMeta, logMeta]
+  );
+
+  const hierarchyOption = useMemo(
+    () => ({
+      backgroundColor: "transparent",
+      tooltip: {
+        formatter: (p: { name: string; value: number }) =>
+          `${p.name}<br/>Profit: ${fmt(p.value, 1)} €`,
+      },
+      series: [
+        view === "sunburst"
+          ? {
+              type: "sunburst" as const,
+              data: tree,
+              radius: ["12%", "90%"],
+              label: { color: "#c0c0d8", fontSize: 9 },
+              itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
+              emphasis: { focus: "ancestor" as const },
+            }
+          : {
+              type: "treemap" as const,
+              data: tree,
+              leafDepth: 2,
+              label: { color: "#c0c0d8", fontSize: 9 },
+              upperLabel: { show: true, height: 22, color: "#9090b0" },
+              itemStyle: { borderWidth: 1, borderColor: "#1a1a2e" },
+            },
+      ],
+    }),
+    [tree, view]
+  );
+
+  const drillChildren = useMemo(
+    () => enrichDrillChildren(childrenAtPath(tree, drillPath), stats),
+    [tree, drillPath, stats]
+  );
+
+  const drillOption = useMemo(
+    () => ({
+      backgroundColor: "transparent",
+      grid: { left: 110, right: 24, top: 12, bottom: 12 },
+      xAxis: {
+        type: "value" as const,
+        name: "Profit (€)",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "category" as const,
+        data: drillChildren.map((c) => c.name),
+        inverse: true,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      tooltip: {
+        trigger: "axis" as const,
+        formatter: (params: unknown[]) => {
+          const p = (params as Array<{ dataIndex: number }>)[0];
+          const c = drillChildren[p.dataIndex];
+          return `${c.name}<br/>Profit: ${fmt(c.profit, 1)} €<br/>kg/km: ${fmt(c.kgkm, 2)}<br/>Overflows: ${fmt(c.overflows, 1)}`;
+        },
+      },
+      series: [
+        {
+          type: "bar" as const,
+          data: drillChildren.map((c) => ({
+            value: c.profit,
+            name: c.name,
+            itemStyle: {
+              opacity: c.policies.some((p) => isHighlighted(p, brushed ?? null)) ? 1 : 0.25,
+            },
+          })),
+          itemStyle: { color: "#6366f1" },
+        },
+      ],
+    }),
+    [drillChildren, brushed]
+  );
+
+  const handleSegmentClick = (path: string[]) => {
+    setDrillPath(path);
+    onBrushPolicies(policiesAtPath(tree, path));
+  };
+
+  return (
+    <div className="card space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <p className="text-xs font-semibold text-gray-300">Policy Hierarchy (§G.2)</p>
+          <p className="text-[10px] text-canvas-muted">Span = profit · color = kg/km efficiency</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+            {(["sunburst", "treemap"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={`text-xs px-2.5 py-1 rounded-md capitalize transition-colors ${
+                  view === v
+                    ? "bg-accent-primary text-white"
+                    : "text-canvas-muted hover:text-gray-200"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() =>
+              exportChartPng({ current: chartRef.current }, `summary-${view}.png`)
+            }
+            className="btn-ghost text-xs flex items-center gap-1"
+          >
+            <Download size={12} />
+            PNG
+          </button>
+        </div>
+      </div>
+
+      <HierarchyBreadcrumb
+        path={drillPath}
+        onNavigate={(depth) => {
+          const next = drillPath.slice(0, depth);
+          setDrillPath(next);
+          onBrushPolicies(next.length ? policiesAtPath(tree, next) : policies);
+        }}
+      />
+
+      <ReactECharts
+        ref={chartRef}
+        option={hierarchyOption}
+        style={{ height: 300 }}
+        onEvents={{
+          click: (params: { treePathInfo?: Array<{ name: string }> }) => {
+            const path = params.treePathInfo?.map((n) => n.name) ?? [];
+            if (path.length) handleSegmentClick(path);
+          },
+        }}
+      />
+
+      {drillPath.length > 0 && drillChildren.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-xs text-canvas-muted">Drill-down variants</p>
+          <ReactECharts
+            ref={drillRef}
+            option={drillOption}
+            style={{ height: Math.max(120, drillChildren.length * 28) }}
+            onEvents={{
+              click: (params: { name?: string }) => {
+                if (!params.name) return;
+                const child = drillChildren.find((c) => c.name === params.name);
+                if (child) onBrushPolicies(child.policies);
+              },
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DistributionFacetHeatmaps({
+  stats,
+  policies,
+  policyMeta,
+  heatmapMode,
+  onModeChange,
+  brushed,
+}: {
+  stats: Record<string, PolicyStats>;
+  policies: string[];
+  policyMeta: Record<string, PolicyMeta>;
+  heatmapMode: HeatmapMode;
+  onModeChange: (mode: HeatmapMode) => void;
+  brushed?: string[] | null;
+}) {
+  const facets = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const p of policies) {
+      const dist = policyMeta[p]?.distribution ?? "—";
+      const list = map.get(dist) ?? [];
+      list.push(p);
+      map.set(dist, list);
+    }
+    return [...map.entries()];
+  }, [policies, policyMeta]);
+
+  if (facets.length <= 1) {
+    return (
+      <PolicyHeatmapChart
+        stats={stats}
+        policies={policies}
+        mode={heatmapMode}
+        onModeChange={onModeChange}
+        brushed={brushed}
+        policyMeta={policyMeta}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-semibold text-gray-300">Policy Heatmaps by Distribution (§G.1.3)</p>
+      <div className={`grid gap-4 ${facets.length >= 2 ? "grid-cols-1 lg:grid-cols-2" : ""}`}>
+        {facets.map(([dist, ps]) => (
+          <div key={dist} className="space-y-1">
+            <p className="text-[10px] text-canvas-muted font-mono">{dist}</p>
+            <PolicyHeatmapChart
+              stats={stats}
+              policies={ps}
+              mode={heatmapMode}
+              onModeChange={onModeChange}
+              brushed={brushed}
+              policyMeta={policyMeta}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1334,6 +1593,7 @@ export function SimulationSummary() {
   const [showErrorBars, setShowErrorBars] = useState(false);
   const [brushed, setBrushed] = useState<string[] | null>(null);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
+  const [overflowMax, setOverflowMax] = useState<number | null>(null);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
@@ -1381,6 +1641,25 @@ export function SimulationSummary() {
   const handlePolicyClick = useCallback((p: string) => {
     setBrushed((prev) => toggleBrush(prev, p));
   }, []);
+
+  const handleBrushPolicies = useCallback(
+    (ps: string[]) => {
+      setBrushed(ps.length >= policies.length ? null : ps);
+    },
+    [policies.length]
+  );
+
+  const effectiveBrushed = useMemo(() => {
+    if (overflowMax == null) return brushed;
+    const corridor = policies.filter((p) => mean(stats[p].overflows) <= overflowMax);
+    if (!brushed || brushed.length === 0) return corridor;
+    return corridor.filter((p) => brushed.includes(p));
+  }, [brushed, overflowMax, policies, stats]);
+
+  const maxOverflow = useMemo(
+    () => Math.max(...policies.map((p) => mean(stats[p].overflows)), 0),
+    [policies, stats]
+  );
 
   const overflowGroups = useMemo(
     () =>
@@ -1484,6 +1763,15 @@ export function SimulationSummary() {
             parquetExporting={parquetExporting}
           />
 
+          <PolicyHierarchyPanel
+            stats={stats}
+            policies={policies}
+            policyMeta={policyMeta}
+            logMeta={logMeta}
+            brushed={effectiveBrushed}
+            onBrushPolicies={handleBrushPolicies}
+          />
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <GroupedMetricBarChart
               title="Overflows by Selection Strategy"
@@ -1504,31 +1792,58 @@ export function SimulationSummary() {
           </div>
 
           {/* Per-day trajectory */}
-          <TrajectoryChart entries={filteredEntries} policies={policies} brushed={brushed} />
+          <TrajectoryChart entries={filteredEntries} policies={policies} brushed={effectiveBrushed} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <PolicyRadarChart
               stats={stats}
               policies={policies}
-              brushed={brushed}
+              brushed={effectiveBrushed}
               policyMeta={policyMeta}
             />
-            <PolicyParallelChart
-              stats={stats}
-              policies={policies}
-              policyMeta={policyMeta}
-              brushed={brushed}
-              onPolicyClick={handlePolicyClick}
-            />
+            <div className="space-y-2">
+              <div className="card space-y-2">
+                <p className="text-xs font-semibold text-gray-300">Zero-overflow corridor (§G.1.4)</p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min={0}
+                    max={Math.max(maxOverflow, 1)}
+                    step={0.5}
+                    value={overflowMax ?? maxOverflow}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setOverflowMax(v >= maxOverflow ? null : v);
+                    }}
+                    className="flex-1 accent-accent-primary"
+                  />
+                  <span className="text-xs font-mono text-canvas-muted w-24 text-right">
+                    ≤ {overflowMax == null ? "off" : fmt(overflowMax, 1)}
+                  </span>
+                  {overflowMax != null && (
+                    <button onClick={() => setOverflowMax(null)} className="btn-ghost text-xs">
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+              <PolicyParallelChart
+                stats={stats}
+                policies={policies}
+                policyMeta={policyMeta}
+                brushed={effectiveBrushed}
+                onPolicyClick={handlePolicyClick}
+              />
+            </div>
           </div>
 
-          <PolicyHeatmapChart
+          <DistributionFacetHeatmaps
             stats={stats}
             policies={policies}
-            mode={heatmapMode}
-            onModeChange={setHeatmapMode}
-            brushed={brushed}
             policyMeta={policyMeta}
+            heatmapMode={heatmapMode}
+            onModeChange={setHeatmapMode}
+            brushed={effectiveBrushed}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1536,7 +1851,7 @@ export function SimulationSummary() {
               stats={stats}
               policies={policies}
               showErrorBars={showErrorBars}
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
             />
@@ -1544,7 +1859,7 @@ export function SimulationSummary() {
               stats={stats}
               policies={policies}
               logScale={logScale}
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
               logMeta={logMeta}
@@ -1576,7 +1891,7 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-profit"
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
               stats={stats}
@@ -1589,7 +1904,7 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-km"
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
               stats={stats}
@@ -1603,7 +1918,7 @@ export function SimulationSummary() {
               useSymlog
               showErrorBars={showErrorBars}
               exportName="summary-overflows"
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
               stats={stats}
@@ -1616,7 +1931,7 @@ export function SimulationSummary() {
               logScale={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-kg"
-              brushed={brushed}
+              brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
               policyMeta={policyMeta}
               stats={stats}
@@ -1634,7 +1949,7 @@ export function SimulationSummary() {
                   color="#6366f1"
                   logScale
                   exportName="summary-profit-log"
-                  brushed={brushed}
+                  brushed={effectiveBrushed}
                   onPolicyClick={handlePolicyClick}
                   policyMeta={policyMeta}
                   stats={stats}
@@ -1647,7 +1962,7 @@ export function SimulationSummary() {
                   logScale
                   useSymlog
                   exportName="summary-overflows-log"
-                  brushed={brushed}
+                  brushed={effectiveBrushed}
                   onPolicyClick={handlePolicyClick}
                   policyMeta={policyMeta}
                   stats={stats}
