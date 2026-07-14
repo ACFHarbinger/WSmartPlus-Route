@@ -609,7 +609,7 @@ export function MLIntrospectionPanel() {
           )}
           <p className="text-[10px] text-canvas-muted mt-2">
             Total payload {formatBytes(archive.total_bytes)}
-            {archive.used_memmap ? " · large .npy eligible for mmap probe" : ""}
+            {archive.used_memmap ? " · large .npy/.npz eligible for mmap slice" : ""}
           </p>
         </div>
       )}
