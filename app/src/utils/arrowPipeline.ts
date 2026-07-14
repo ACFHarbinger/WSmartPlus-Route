@@ -73,6 +73,8 @@ export async function runTensorArrowPipeline(
     indices?: number[];
     maxDim?: number;
     tableName?: string;
+    projectRoot?: string;
+    pythonExecutable?: string;
   } = {}
 ): Promise<ArrowPipelineTiming> {
   const tableName = opts.tableName ?? "studio_tensor";
@@ -84,6 +86,8 @@ export async function runTensorArrowPipeline(
     key: opts.key ?? null,
     indices: opts.indices ?? [],
     maxDim: opts.maxDim ?? 64,
+    projectRoot: opts.projectRoot ?? null,
+    pythonExecutable: opts.pythonExecutable || null,
   });
   const t1 = performance.now();
 

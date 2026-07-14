@@ -19,7 +19,7 @@ from pathlib import Path
 
 BUNDLE_VERSION = "1"
 INCLUDE_EXTENSIONS = frozenset(
-    {".csv", ".json", ".jsonl", ".yaml", ".yml", ".npz", ".pkl", ".pt", ".parquet"}
+    {".csv", ".json", ".jsonl", ".yaml", ".yml", ".npz", ".pkl", ".pt", ".parquet", ".td"}
 )
 
 

@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-fifth pass (§G.5)
+
+Forty-fifth pass closes the remaining **§G.5** infrastructure deferred items:
+TensorDict (`.td`) inspect/slice, InstancedMesh loss voxels, and spherical k-means
+attention clustering.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `.td` inspect + 2-D slice via Python subprocess (`torch.load`);
+  `project_root` + `python_executable` params on `inspect_npz_archive`, `load_tensor_slice`,
+  `tensor_slice_to_arrow_ipc`
+
+**Python**
+- `logic/gen/export_for_studio.py` — includes `.td` TensorDict datasets in `.wsroute` bundles
+
+**React frontend**
+- `utils/sphericalKMeans.ts` — spherical k-means row clustering + cluster-band reorder
+- `LossLandscape3D` — `InstancedMesh` voxel view; surface/voxels toggle
+- `tensorHeatmap.ts` — cluster `markArea` bands on attention heatmaps
+- `MLIntrospectionPanel` — `.td` file picker; K-means selector; loss 3D view toggle;
+  project-root threaded into tensor commands
+- `arrowPipeline.ts` — `runTensorArrowPipeline` passes `projectRoot` for `.td` ingest
+
+**ROADMAP**
+- §G.5.1 `.td` TensorDict inspect/slice + DuckDB ingest checked
+- §G.5.2 InstancedMesh voxels checked
+- §G.5.3 spherical k-means clustering checked (partial — Sigma.js WebGL deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-fourth pass (§G.5)
 
 Forty-fourth pass closes remaining **§G.5** deferred items: DuckDB tensor ingest,

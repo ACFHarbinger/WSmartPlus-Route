@@ -18,6 +18,11 @@ import {
 import { GRAPH_PRESETS, loadGraphCoordinates } from "../../utils/graphCoords";
 import { analyzeLossMinima, resolveBpcMarker, type LandscapeMarker } from "../../utils/lossLandscape";
 import {
+  CLUSTER_PALETTE,
+  reorderRowsByClusters,
+  sphericalKMeans,
+} from "../../utils/sphericalKMeans";
+import {
   applySparseTopK,
   buildMatrixHeatmapOption,
   classifyAttentionRole,
@@ -30,6 +35,8 @@ import {
   type AttentionRole,
 } from "../../utils/tensorHeatmap";
 import type { NpzArchiveInfo, NpzVectorData, TensorSlicePreview } from "../../types";
+
+import type { LossLandscapeView } from "./LossLandscape3D";
 
 const LossLandscape3D = lazy(() =>
   import("./LossLandscape3D").then((m) => ({ default: m.LossLandscape3D }))
@@ -46,7 +53,7 @@ function formatBytes(b: number): string {
 }
 
 export function MLIntrospectionPanel() {
-  const { projectRoot, theme } = useAppStore();
+  const { projectRoot, pythonPath, theme } = useAppStore();
   const [tab, setTab] = useState<IntrospectionTab>("tensor");
   const [archivePath, setArchivePath] = useState<string | null>(null);
   const [archive, setArchive] = useState<NpzArchiveInfo | null>(null);
@@ -71,6 +78,8 @@ export function MLIntrospectionPanel() {
   const [graphCoords, setGraphCoords] = useState<Array<{ lat: number; lng: number }> | null>(null);
   const [tensorPipeline, setTensorPipeline] = useState<ArrowPipelineTiming | null>(null);
   const [pipelineLoading, setPipelineLoading] = useState(false);
+  const [clusterK, setClusterK] = useState(0);
+  const [lossView, setLossView] = useState<LossLandscapeView>("surface");
   const chartRef = useRef<ReactECharts>(null);
   const compareChartRef = useRef<ReactECharts>(null);
   const graphChartRef = useRef<ReactECharts>(null);
@@ -79,7 +88,7 @@ export function MLIntrospectionPanel() {
   const pickArchive = useCallback(async () => {
     const selected = await open({
       multiple: false,
-      filters: [{ name: "NumPy archives", extensions: ["npz", "npy"] }],
+      filters: [{ name: "Tensor archives", extensions: ["npz", "npy", "td"] }],
     });
     if (!selected || typeof selected !== "string") return;
     setArchivePath(selected);
@@ -88,7 +97,7 @@ export function MLIntrospectionPanel() {
   const pickDistArchive = useCallback(async () => {
     const selected = await open({
       multiple: false,
-      filters: [{ name: "NumPy archives", extensions: ["npz", "npy"] }],
+      filters: [{ name: "Tensor archives", extensions: ["npz", "npy", "td"] }],
     });
     if (!selected || typeof selected !== "string") return;
     setDistArchivePath(selected);
@@ -110,7 +119,11 @@ export function MLIntrospectionPanel() {
   const inspectArchive = useCallback(async (path: string) => {
     setLoading(true);
     try {
-      const info = await invoke<NpzArchiveInfo>("inspect_npz_archive", { path });
+      const info = await invoke<NpzArchiveInfo>("inspect_npz_archive", {
+        path,
+        projectRoot: projectRoot || null,
+        pythonExecutable: pythonPath || null,
+      });
       setArchive(info);
       const attnKeys = suggestAttentionKeys(info.arrays);
       const lossKey = info.arrays.find((a) => /loss_grid|loss_surface|landscape/i.test(a.key));
@@ -129,7 +142,7 @@ export function MLIntrospectionPanel() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [projectRoot, pythonPath]);
 
   useEffect(() => {
     if (archivePath) void inspectArchive(archivePath);
@@ -185,9 +198,11 @@ export function MLIntrospectionPanel() {
         key: path.endsWith(".npy") ? null : key,
         indices: idx,
         maxDim: tab === "loss" ? 96 : topK,
+        projectRoot: projectRoot || null,
+        pythonExecutable: pythonPath || null,
       });
     },
-    [tab, topK]
+    [tab, topK, projectRoot, pythonPath]
   );
 
   const loadLossMarkers = useCallback(async (path: string, rows: number, cols: number) => {
@@ -286,6 +301,8 @@ export function MLIntrospectionPanel() {
         indices: effectiveIndices,
         maxDim: topK,
         tableName: "studio_tensor",
+        projectRoot,
+        pythonExecutable: pythonPath,
       });
       setTensorPipeline(timing);
       toast.success("Tensor slice ingested", {
@@ -296,14 +313,26 @@ export function MLIntrospectionPanel() {
     } finally {
       setPipelineLoading(false);
     }
-  }, [archivePath, selectedKey, effectiveIndices, topK]);
+  }, [archivePath, selectedKey, effectiveIndices, topK, projectRoot, pythonPath]);
+
+  const clusteredAttention = useMemo(() => {
+    if (!preview || tab !== "attention" || clusterK <= 1) {
+      return { values: preview?.values ?? null, bandSplits: [] as number[] };
+    }
+    let grid = preview.values;
+    if (sparseK > 0) grid = applySparseTopK(grid, sparseK);
+    const labels = sphericalKMeans(grid, clusterK);
+    const reordered = reorderRowsByClusters(grid, labels);
+    return { values: reordered.values, bandSplits: reordered.bandSplits };
+  }, [preview, tab, clusterK, sparseK]);
 
   const processedValues = useMemo(() => {
+    if (tab === "attention" && clusterK > 1) return clusteredAttention.values;
     if (!preview) return null;
     let grid = preview.values;
     if (sparseK > 0) grid = applySparseTopK(grid, sparseK);
     return grid;
-  }, [preview, sparseK]);
+  }, [preview, sparseK, tab, clusterK, clusteredAttention.values]);
 
   const compareValues = useMemo(() => {
     if (!comparePreview) return null;
@@ -345,6 +374,8 @@ export function MLIntrospectionPanel() {
       xLabel: tab === "attention" ? "Key" : "X",
       yLabel: tab === "attention" ? "Query" : "Y",
       attentionRole: tab === "attention" ? activeAttentionRole : undefined,
+      clusterBandSplits: tab === "attention" ? clusteredAttention.bandSplits : undefined,
+      clusterPalette: CLUSTER_PALETTE,
     });
   }, [
     processedValues,
@@ -357,6 +388,7 @@ export function MLIntrospectionPanel() {
     theme,
     primaryDistLabel,
     activeAttentionRole,
+    clusteredAttention.bandSplits,
   ]);
 
   const compareHeatmapOption = useMemo(() => {
@@ -477,7 +509,7 @@ export function MLIntrospectionPanel() {
         <div>
           <h2 className="text-sm font-semibold text-gray-200">ML Introspection (§G.5)</h2>
           <p className="text-[10px] text-canvas-muted">
-            NPZ/NPY inspector · attention heatmaps · 3D loss topography
+            NPZ/NPY/TensorDict (.td) inspector · attention heatmaps · 3D loss topography
           </p>
         </div>
         <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
@@ -500,7 +532,7 @@ export function MLIntrospectionPanel() {
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={() => void pickArchive()} className="btn-primary text-xs flex items-center gap-1">
           <FolderOpen size={12} />
-          Open .npz / .npy
+          Open .npz / .npy / .td
         </button>
         {archivePath && (
           <button
@@ -785,6 +817,21 @@ export function MLIntrospectionPanel() {
                 </select>
               </label>
               <label className="flex items-center gap-1 text-canvas-muted">
+                K-means
+                <select
+                  className="select-base text-xs py-0.5 w-16"
+                  value={clusterK}
+                  onChange={(e) => setClusterK(Number(e.target.value))}
+                >
+                  <option value={0}>Off</option>
+                  {[2, 3, 4, 6, 8].map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-1 text-canvas-muted">
                 Matrix cap
                 <select
                   className="select-base text-xs py-0.5 w-16"
@@ -860,9 +907,9 @@ export function MLIntrospectionPanel() {
             )}
           </div>
           <p className="text-[10px] text-canvas-muted">
-            Q/K/V colour palettes ({activeAttentionRole}) · head selector · sparse top-k · decode-step
-            compare · Empirical vs Gamma-3 (side-by-side / overlay Δ). Graph-on-coords view available
-            via View toggle.
+            Q/K/V colour palettes ({activeAttentionRole}) · spherical k-means row bands · head selector ·
+            sparse top-k · decode-step compare · Empirical vs Gamma-3 (side-by-side / overlay Δ).
+            Graph-on-coords view available via View toggle.
           </p>
         </div>
       )}
@@ -871,6 +918,17 @@ export function MLIntrospectionPanel() {
         <div className="space-y-2">
           {lossPreview ? (
             <>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-canvas-muted">3D view</span>
+                <select
+                  className="select-base text-xs py-0.5"
+                  value={lossView}
+                  onChange={(e) => setLossView(e.target.value as LossLandscapeView)}
+                >
+                  <option value="surface">Surface mesh</option>
+                  <option value="voxels">InstancedMesh voxels</option>
+                </select>
+              </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <Suspense
                   fallback={
@@ -879,7 +937,7 @@ export function MLIntrospectionPanel() {
                     </div>
                   }
                 >
-                  <LossLandscape3D values={lossPreview.values} markers={lossMarkers} />
+                  <LossLandscape3D values={lossPreview.values} markers={lossMarkers} view={lossView} />
                 </Suspense>
                 <div className="space-y-2">
                   <div className="flex justify-end">
