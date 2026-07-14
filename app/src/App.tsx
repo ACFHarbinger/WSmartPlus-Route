@@ -28,6 +28,12 @@ const SimulationSummary = lazy(() =>
 const BenchmarkAnalysis = lazy(() =>
   import("./pages/analysis/BenchmarkAnalysis").then((m) => ({ default: m.BenchmarkAnalysis }))
 );
+const CityComparison = lazy(() =>
+  import("./pages/analysis/CityComparison").then((m) => ({ default: m.CityComparison }))
+);
+const OlapExplorer = lazy(() =>
+  import("./pages/analysis/OlapExplorer").then((m) => ({ default: m.OlapExplorer }))
+);
 const DataExplorer = lazy(() =>
   import("./pages/analysis/DataExplorer").then((m) => ({ default: m.DataExplorer }))
 );
@@ -87,6 +93,12 @@ function ActivePage() {
       break;
     case "benchmark":
       page = <BenchmarkAnalysis />;
+      break;
+    case "city_comparison":
+      page = <CityComparison />;
+      break;
+    case "olap_explorer":
+      page = <OlapExplorer />;
       break;
     case "data_explorer":
       page = <DataExplorer />;

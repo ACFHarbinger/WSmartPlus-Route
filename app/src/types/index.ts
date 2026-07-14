@@ -266,6 +266,8 @@ export type AppMode =
   | "training"          // Training Monitor         — logic/src/ui/pages/training.py
   | "simulation_summary"// Simulation Summary       — logic/src/ui/pages/simulation/summary.py
   | "benchmark"         // Benchmark Analysis       — logic/src/ui/components/benchmark_charts.py
+  | "city_comparison"   // City Comparison          — §G.1.6 dedicated page
+  | "olap_explorer"     // OLAP Data Cube Explorer  — §G.6 standalone page
   | "data_explorer"     // Data Explorer            — logic/src/ui/pages/data_explorer.py
   | "experiment_tracker"// Experiment Tracker       — logic/src/ui/pages/experiment_tracker.py
   | "algorithms"        // Algorithms Registry      — logic/src/ui/pages/algorithms.py

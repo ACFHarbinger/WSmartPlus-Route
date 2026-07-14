@@ -937,7 +937,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.6 Secondary Log-Scale Views
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
-- [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars (§G.1 partial — dedicated City Comparison page deferred)
+- [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars; dedicated `CityComparison` page with portfolio load + summary table (§G.1.6)
 
 ---
 
@@ -947,7 +947,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary (§G.2 partial — multi-log portfolio deferred)
 - [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
-- [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter (§G.2 partial — DuckDB SQL deferred)
+- [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter; `SqlQueryPanel` `brushSqlSync` + `autoRunOnBrushSync` executes `brushedPoliciesSql` (§G.2)
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click (§G.2)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` (§G.2 partial)
@@ -1039,11 +1039,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Goal**: Give the researcher a free-form SQL/pivot interface backed by DuckDB-Wasm for custom analysis queries.
 
-- [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer (§G.6 partial — standalone OLAP page deferred)
+- [x] DuckDB-Wasm query editor with syntax highlighting (Monaco or CodeMirror): `SqlQueryPanel` lazy Monaco SQL editor on Data Explorer + standalone `OlapExplorer` page with table picker + CSV ingest (§G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
-- [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` row/column/value/agg dropdowns + heatmap on `SqlQueryPanel` (§G.6 partial — drag wells deferred)
+- [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` draggable column chips + HTML5 drop wells for row/column/value + agg selector + heatmap on `SqlQueryPanel` (§G.6)
 - [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy; `GlobalFilterBar` policy highlights matching SQL rows + dims pivot heatmap rows via `highlightRowLabels` (§G.6)
 
 ---

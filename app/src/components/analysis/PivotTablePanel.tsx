@@ -1,7 +1,7 @@
 /**
  * Lightweight pivot table for SQL/CSV grids (§G.6).
  */
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import {
   buildPivot,
@@ -15,6 +15,58 @@ interface Props {
   onRowClick?: (rowKey: string, rowLabel: string) => void;
   /** Bidirectional brush: dim pivot rows not matching active policy filter (§G.6). */
   highlightRowLabels?: string[] | null;
+}
+
+type PivotWell = "row" | "col" | "value";
+
+function DimensionWell({
+  label,
+  well,
+  value,
+  onDrop,
+  onClear,
+}: {
+  label: string;
+  well: PivotWell;
+  value: string;
+  onDrop: (well: PivotWell, col: string) => void;
+  onClear: (well: PivotWell) => void;
+}) {
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const onDropHandler = (e: React.DragEvent) => {
+    e.preventDefault();
+    const col = e.dataTransfer.getData("text/pivot-col");
+    if (col) onDrop(well, col);
+  };
+
+  return (
+    <div
+      onDragOver={onDragOver}
+      onDrop={onDropHandler}
+      className="flex items-center gap-1 min-w-[120px] px-2 py-1.5 rounded-lg border border-dashed border-canvas-border bg-canvas-elevated/50"
+    >
+      <span className="text-[10px] text-canvas-muted uppercase">{label}</span>
+      {value ? (
+        <span className="flex items-center gap-1 text-xs text-gray-200 font-mono">
+          {value}
+          <button
+            type="button"
+            onClick={() => onClear(well)}
+            className="text-canvas-muted hover:text-accent-danger text-[10px]"
+            aria-label={`Clear ${label}`}
+          >
+            ×
+          </button>
+        </span>
+      ) : (
+        <span className="text-[10px] text-canvas-muted italic">drop column</span>
+      )}
+    </div>
+  );
 }
 
 export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels }: Props) {
@@ -33,6 +85,28 @@ export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels 
       ),
     [columns, rows]
   );
+
+  const handleWellDrop = useCallback(
+    (well: PivotWell, col: string) => {
+      if (well === "row") {
+        setRowKey(col);
+        if (colKey === col) setColKey("");
+        if (valueKey === col) setValueKey(numericCols.find((c) => c !== col) ?? "");
+      } else if (well === "col") {
+        setColKey(col);
+        if (rowKey === col) setRowKey(columns.find((c) => c !== col) ?? col);
+      } else {
+        setValueKey(col);
+      }
+    },
+    [colKey, columns, numericCols, rowKey, valueKey]
+  );
+
+  const clearWell = useCallback((well: PivotWell) => {
+    if (well === "row") setRowKey("");
+    else if (well === "col") setColKey("");
+    else setValueKey("");
+  }, []);
 
   const pivot = useMemo(() => {
     if (!rowKey || !valueKey) return null;
@@ -66,51 +140,43 @@ export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels 
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-gray-300">Pivot Table (§G.6)</p>
-      <div className="flex flex-wrap gap-2 text-xs">
-        <label className="flex items-center gap-1">
-          <span className="text-canvas-muted">Rows</span>
-          <select
-            className="select-base text-xs py-0.5"
-            value={rowKey}
-            onChange={(e) => setRowKey(e.target.value)}
+
+      <div className="flex flex-wrap gap-1.5">
+        {columns.map((c) => (
+          <span
+            key={c}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData("text/pivot-col", c)}
+            className="text-[10px] px-2 py-0.5 rounded-md bg-canvas-elevated border border-canvas-border text-gray-300 cursor-grab active:cursor-grabbing"
           >
-            {columns.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-1">
-          <span className="text-canvas-muted">Columns</span>
-          <select
-            className="select-base text-xs py-0.5"
-            value={colKey}
-            onChange={(e) => setColKey(e.target.value)}
-          >
-            <option value="">— none —</option>
-            {columns.filter((c) => c !== rowKey).map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-1">
-          <span className="text-canvas-muted">Value</span>
-          <select
-            className="select-base text-xs py-0.5"
-            value={valueKey}
-            onChange={(e) => setValueKey(e.target.value)}
-          >
-            {numericCols.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-1">
+            {c}
+          </span>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <DimensionWell
+          label="Rows"
+          well="row"
+          value={rowKey}
+          onDrop={handleWellDrop}
+          onClear={clearWell}
+        />
+        <DimensionWell
+          label="Columns"
+          well="col"
+          value={colKey}
+          onDrop={handleWellDrop}
+          onClear={clearWell}
+        />
+        <DimensionWell
+          label="Value"
+          well="value"
+          value={valueKey}
+          onDrop={handleWellDrop}
+          onClear={clearWell}
+        />
+        <label className="flex items-center gap-1 text-xs self-center">
           <span className="text-canvas-muted">Agg</span>
           <select
             className="select-base text-xs py-0.5"
@@ -145,7 +211,7 @@ export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels 
 
       {onRowClick && /policy/i.test(rowKey) && (
         <p className="text-[10px] text-canvas-muted">
-          Click a pivot row to cross-filter analytics views
+          Drag columns into wells · click pivot row to cross-filter
           {pivotHighlights?.length ? " · highlighted rows match active filter" : ""}.
         </p>
       )}

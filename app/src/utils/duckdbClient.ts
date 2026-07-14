@@ -63,3 +63,9 @@ export async function duckDbRowCount(tableName: string): Promise<number> {
   );
   return rows[0]?.cnt ?? 0;
 }
+
+/** List ingested DuckDB tables (§G.6 standalone OLAP). */
+export async function listDuckDbTables(): Promise<string[]> {
+  const rows = await queryDuckDb<{ name: string }>("SHOW TABLES");
+  return rows.map((r) => r.name).sort();
+}

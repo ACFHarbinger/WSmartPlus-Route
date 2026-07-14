@@ -4,7 +4,8 @@ import { useGlobalFiltersStore } from "../store/filters";
 import type { AppMode } from "../types";
 
 const VALID_MODES = new Set<string>([
-  "simulation", "training", "simulation_summary", "benchmark", "data_explorer",
+  "simulation", "training", "simulation_summary", "benchmark", "city_comparison",
+  "olap_explorer", "data_explorer",
   "experiment_tracker", "algorithms", "hpo_tracker", "process_monitor",
   "sim_launcher", "training_hub", "data_gen", "config_editor", "output_browser",
   "eval_runner", "settings",

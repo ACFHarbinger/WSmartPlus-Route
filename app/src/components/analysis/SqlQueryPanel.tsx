@@ -23,6 +23,10 @@ interface Props {
   highlightPolicies?: string[] | null;
   /** Sync Monaco SQL to brushed-policies query when chart brush changes (§G.1). */
   brushSqlSync?: boolean;
+  /** Auto-execute SQL when brush sync updates the editor (§G.2 segment → DuckDB). */
+  autoRunOnBrushSync?: boolean;
+  /** Panel starts expanded (e.g. when a chart brush is active). */
+  defaultOpen?: boolean;
 }
 
 export function SqlQueryPanel({
@@ -32,10 +36,12 @@ export function SqlQueryPanel({
   onProfitRange,
   highlightPolicies: highlightPoliciesProp = null,
   brushSqlSync = false,
+  autoRunOnBrushSync = false,
+  defaultOpen = false,
 }: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +54,27 @@ export function SqlQueryPanel({
   useEffect(() => {
     if (!brushSqlSync) return;
     setSql(brushedPoliciesSql(tableName, highlightPoliciesProp ?? []));
+    if (highlightPoliciesProp?.length) setOpen(true);
   }, [brushSqlSync, highlightPoliciesProp, tableName]);
+
+  useEffect(() => {
+    if (!brushSqlSync || !autoRunOnBrushSync || !highlightPoliciesProp?.length) return;
+    const nextSql = brushedPoliciesSql(tableName, highlightPoliciesProp);
+    void (async () => {
+      setRunning(true);
+      setError(null);
+      try {
+        const result = await queryDuckDb<Record<string, unknown>>(nextSql);
+        setRows(result);
+        setSortCol(null);
+      } catch (err) {
+        setError(String(err));
+        setRows([]);
+      } finally {
+        setRunning(false);
+      }
+    })();
+  }, [brushSqlSync, autoRunOnBrushSync, highlightPoliciesProp, tableName]);
 
   const columns = useMemo(() => {
     if (!rows.length) return [];

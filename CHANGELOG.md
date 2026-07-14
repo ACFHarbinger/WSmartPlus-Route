@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-third pass (§G.1.6 / §G.2 / §G.6)
+
+Fifty-third pass closes deferred **§G.1.6** dedicated City Comparison page,
+**§G.2** DuckDB auto-run on hierarchy segment brush, and **§G.6** standalone
+OLAP Explorer + pivot drag wells.
+
+**React frontend**
+- `CityComparison` — dedicated city/graph comparison page; portfolio load;
+  log-scale profit · symlog-overflows · kg/km bars + summary table
+- `cityComparison.ts` — shared `groupRunsByCity` + chart builders (reused by BenchmarkAnalysis)
+- `OlapExplorer` — standalone DuckDB-Wasm OLAP page; `listDuckDbTables` table
+  picker; CSV ingest into `olap_*` tables
+- `SqlQueryPanel` — `autoRunOnBrushSync` executes brush SQL; auto-expands on brush
+- `PivotTablePanel` — draggable column chips + HTML5 drop wells (row/column/value)
+- `duckdbClient.ts` — `listDuckDbTables()` for OLAP table discovery
+
+**Navigation**
+- Sidebar + command palette: City Comparison, OLAP Explorer
+- `AppMode`: `city_comparison`, `olap_explorer`
+
+**ROADMAP**
+- §G.1.6 dedicated City Comparison page checked
+- §G.2 DuckDB auto-run on segment brush checked
+- §G.6 standalone OLAP page checked
+- §G.6 pivot drag wells checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-second pass (§G.1 / §G.2 / §G.3)
 
 Fifty-second pass closes deferred **§G.1** DuckDB brush sync and 480-log portfolio
