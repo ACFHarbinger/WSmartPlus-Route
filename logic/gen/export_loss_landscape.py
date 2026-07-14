@@ -7,7 +7,9 @@ Produces an NPZ archive with keys:
 
 When --checkpoint is omitted, exports a demo Rosenbrock surface for UI development.
 With --checkpoint, uses Li et al.-style filter-normalized random directions around the
-loaded weights (simplified single-batch probe).
+loaded weights.  When hyperparameters are discoverable beside the checkpoint, a full
+training-loss probe runs a greedy forward pass on a synthetic instance per grid point;
+otherwise a parameter-distance proxy is used.
 """
 from __future__ import annotations
 
@@ -26,7 +28,19 @@ def _demo_surface(n: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return t1, t2, loss.astype(np.float64)
 
 
-def _probe_checkpoint_surface(
+def _filter_normalized_directions(flat: "np.ndarray") -> Tuple["np.ndarray", "np.ndarray"]:
+    import torch
+
+    t = torch.as_tensor(flat, dtype=torch.float32)
+    d1 = torch.randn_like(t)
+    d2 = torch.randn_like(t)
+    d1 = d1 / (d1.norm() + 1e-9) * t.norm()
+    d2 = d2 - d2.dot(d1) / (d1.dot(d1) + 1e-9) * d1
+    d2 = d2 / (d2.norm() + 1e-9) * t.norm()
+    return d1.numpy(), d2.numpy()
+
+
+def _probe_parameter_proxy_surface(
     checkpoint: Path,
     n: int,
     span: float,
@@ -35,17 +49,14 @@ def _probe_checkpoint_surface(
     import torch
 
     ckpt = torch.load(checkpoint, map_location=device, weights_only=False)
-    state = ckpt.get("state_dict", ckpt)
-    flat = torch.cat([p.detach().float().reshape(-1) for p in state.values() if p.numel() > 0])
+    state = ckpt.get("state_dict", ckpt.get("model", ckpt))
+    flat = torch.cat([p.detach().float().reshape(-1) for p in state.values() if hasattr(p, "numel") and p.numel() > 0])
     if flat.numel() < 2:
         raise ValueError("Checkpoint has too few parameters for a 2D loss grid")
 
-    torch.manual_seed(42)
-    d1 = torch.randn_like(flat)
-    d2 = torch.randn_like(flat)
-    d1 = d1 / (d1.norm() + 1e-9) * flat.norm()
-    d2 = d2 - d2.dot(d1) / (d1.dot(d1) + 1e-9) * d1
-    d2 = d2 / (d2.norm() + 1e-9) * flat.norm()
+    d1_np, d2_np = _filter_normalized_directions(flat.cpu().numpy())
+    d1 = torch.from_numpy(d1_np).to(device)
+    d2 = torch.from_numpy(d2_np).to(device)
 
     alphas = np.linspace(-span, span, n)
     betas = np.linspace(-span, span, n)
@@ -56,6 +67,119 @@ def _probe_checkpoint_surface(
             grid[i, j] = float((theta - flat).pow(2).mean().sqrt())
 
     return alphas, betas, grid
+
+
+def _model_flat_vector(model) -> "np.ndarray":
+    import torch
+
+    return (
+        torch.cat([p.detach().float().reshape(-1) for p in model.parameters() if p.requires_grad])
+        .cpu()
+        .numpy()
+    )
+
+
+def _assign_flat_vector(model, flat_vec: "np.ndarray") -> None:
+    import torch
+
+    offset = 0
+    flat_t = torch.as_tensor(flat_vec, dtype=torch.float32)
+    with torch.no_grad():
+        for param in model.parameters():
+            if not param.requires_grad:
+                continue
+            n = param.numel()
+            param.copy_(flat_t[offset : offset + n].view_as(param))
+            offset += n
+
+
+def _td_to_batch_dict(td) -> dict:
+    batch = {}
+    for key in td.keys():
+        value = td.get(key)
+        if hasattr(value, "shape"):
+            batch[key] = value
+    return batch
+
+
+def _probe_training_loss_surface(
+    checkpoint: Path,
+    n: int,
+    span: float,
+    device: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
+    import torch
+
+    from logic.src.envs.generators import get_generator
+    from logic.src.utils.model.loader import load_model
+
+    load_path = str(checkpoint.resolve())
+    model, args = load_model(load_path)
+    model = model.to(device)
+    model.eval()
+
+    base_flat = _model_flat_vector(model)
+    d1_np, d2_np = _filter_normalized_directions(base_flat)
+    d1 = torch.from_numpy(d1_np).to(device)
+    d2 = torch.from_numpy(d2_np).to(device)
+    base_t = torch.as_tensor(base_flat, dtype=torch.float32, device=device)
+
+    problem_name = str(args.get("problem", "vrpp"))
+    num_loc = int(args.get("num_loc", args.get("graph_size", 20)) or 20)
+    generator = get_generator(problem_name, num_loc=num_loc, device=device)
+    instance = generator(batch_size=1)
+    input_dict = _td_to_batch_dict(instance)
+
+    alphas = np.linspace(-span, span, n)
+    betas = np.linspace(-span, span, n)
+    grid = np.zeros((n, n), dtype=np.float64)
+
+    with torch.no_grad():
+        for i, a in enumerate(alphas):
+            for j, b in enumerate(betas):
+                perturbed = base_t + float(a) * d1 + float(b) * d2
+                _assign_flat_vector(model, perturbed.cpu().numpy())
+                out = model(input_dict, strategy="greedy")
+                cost = out.get("cost")
+                if cost is None:
+                    reward = out.get("reward")
+                    if reward is not None:
+                        grid[i, j] = float(-reward.mean().cpu())
+                    else:
+                        grid[i, j] = float((perturbed - base_t).pow(2).mean().sqrt().cpu())
+                else:
+                    grid[i, j] = float(cost.mean().cpu())
+
+    _assign_flat_vector(model, base_flat)
+    return alphas, betas, grid, "training_forward"
+
+
+def _resolve_probe(
+    checkpoint: Path,
+    n: int,
+    span: float,
+    device: str,
+    probe_mode: str,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
+    if probe_mode == "proxy":
+        t1, t2, loss = _probe_parameter_proxy_surface(checkpoint, n, span, device)
+        return t1, t2, loss, "parameter_proxy"
+
+    if probe_mode == "training":
+        return _probe_training_loss_surface(checkpoint, n, span, device)
+
+    # auto: prefer training forward when hyperparameters are discoverable
+    parent = checkpoint.parent if checkpoint.is_file() else checkpoint
+    has_hparams = any(
+        (parent / name).exists() for name in ("config.yaml", "hparams.yaml", "args.json")
+    )
+    if has_hparams:
+        try:
+            return _probe_training_loss_surface(checkpoint, n, span, device)
+        except Exception as exc:
+            print(f"  [!] Training-loss probe failed ({exc}); falling back to parameter proxy")
+    t1, t2, loss = _probe_parameter_proxy_surface(checkpoint, n, span, device)
+    return t1, t2, loss, "parameter_proxy"
 
 
 def _nearest_grid_index(axis: np.ndarray, value: float) -> int:
@@ -76,6 +200,12 @@ def main() -> None:
     parser.add_argument("--span", type=float, default=1.0, help="Direction span for checkpoint probe")
     parser.add_argument("--device", default="cpu", help="Torch device for checkpoint probe")
     parser.add_argument(
+        "--probe-mode",
+        choices=["auto", "training", "proxy"],
+        default="auto",
+        help="Loss probe: training forward pass, parameter-distance proxy, or auto-detect",
+    )
+    parser.add_argument(
         "--bpc-theta1",
         type=float,
         default=None,
@@ -95,15 +225,17 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    probe_label = "rosenbrock_demo"
     if args.checkpoint and args.checkpoint.exists():
-        t1, t2, loss = _probe_checkpoint_surface(args.checkpoint, args.grid_size, args.span, args.device)
+        t1, t2, loss, probe_label = _resolve_probe(
+            args.checkpoint, args.grid_size, args.span, args.device, args.probe_mode
+        )
         source = str(args.checkpoint)
         default_bpc_t1 = 0.0
         default_bpc_t2 = 0.0
     else:
         t1, t2, loss = _demo_surface(args.grid_size)
         source = "rosenbrock_demo"
-        # Rosenbrock global minimum at (1, 1) → map to demo θ space.
         default_bpc_t1 = 0.82
         default_bpc_t2 = 0.58
 
@@ -123,11 +255,13 @@ def main() -> None:
         bpc_theta2=np.array(bpc_t2),
         bpc_loss=np.array(bpc_loss),
         distribution=np.array(args.distribution),
+        probe_mode=np.array(probe_label),
         source=np.array(source),
     )
     print(
         f"Wrote {args.output} ({args.grid_size}×{args.grid_size}) "
-        f"loss_min={loss.min():.4f} bpc=({bpc_t1:.3f},{bpc_t2:.3f}) loss={bpc_loss:.4f}"
+        f"probe={probe_label} loss_min={loss.min():.4f} "
+        f"bpc=({bpc_t1:.3f},{bpc_t2:.3f}) loss={bpc_loss:.4f}"
     )
 
 

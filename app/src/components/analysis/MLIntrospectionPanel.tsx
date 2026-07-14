@@ -41,10 +41,13 @@ import type { LossLandscapeView } from "./LossLandscape3D";
 const LossLandscape3D = lazy(() =>
   import("./LossLandscape3D").then((m) => ({ default: m.LossLandscape3D }))
 );
+const AttentionSigmaView = lazy(() =>
+  import("./AttentionSigmaView").then((m) => ({ default: m.AttentionSigmaView }))
+);
 
 type IntrospectionTab = "tensor" | "attention" | "loss";
 type CompareMode = "single" | "side-by-side" | "overlay" | "distribution";
-type AttentionView = "heatmap" | "graph";
+type AttentionView = "heatmap" | "graph" | "sigma";
 
 function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
@@ -278,7 +281,7 @@ export function MLIntrospectionPanel() {
   }, [archive, tab, selectedKey]);
 
   useEffect(() => {
-    if (!projectRoot || tab !== "attention" || attentionView !== "graph") return;
+    if (!projectRoot || tab !== "attention" || (attentionView !== "graph" && attentionView !== "sigma")) return;
     let cancelled = false;
     void loadGraphCoordinates(projectRoot, graphPreset)
       .then((coords) => {
@@ -675,10 +678,11 @@ export function MLIntrospectionPanel() {
                   onChange={(e) => setAttentionView(e.target.value as AttentionView)}
                 >
                   <option value="heatmap">Heatmap</option>
-                  <option value="graph">Graph on coords</option>
+                  <option value="graph">Graph on coords (ECharts)</option>
+                  <option value="sigma">Graph on coords (Sigma.js)</option>
                 </select>
               </label>
-              {attentionView === "graph" && (
+              {(attentionView === "graph" || attentionView === "sigma") && (
                 <label className="flex items-center gap-1 text-canvas-muted">
                   Graph
                   <select
@@ -849,7 +853,10 @@ export function MLIntrospectionPanel() {
           )}
 
           {preview && tab === "attention" && (
-            <span className="text-canvas-muted">{preview.rust_ms} ms · downsampled</span>
+            <span className="text-canvas-muted">
+              {preview.rust_ms} ms · downsampled
+              {preview.used_memmap ? " · mmap slice" : ""}
+            </span>
           )}
         </div>
       )}
@@ -869,6 +876,32 @@ export function MLIntrospectionPanel() {
           <p className="text-[10px] text-canvas-muted">
             Bipartite graph overlay: query node (amber) at decode step {decodeStep}; edge opacity ∝
             attention weight to key nodes on {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}.
+          </p>
+        </div>
+      )}
+
+      {tab === "attention" && attentionView === "sigma" && processedValues && graphCoords?.length && (
+        <div className="space-y-2">
+          <Suspense
+            fallback={
+              <div className="h-[400px] flex items-center justify-center text-xs text-canvas-muted">
+                Loading Sigma.js canvas…
+              </div>
+            }
+          >
+            <AttentionSigmaView
+              coords={graphCoords}
+              values={processedValues}
+              queryRow={decodeStep}
+              topK={sparseK > 0 ? sparseK : 24}
+              sparseValues={sparseK > 0 ? processedValues : undefined}
+              theme={theme}
+            />
+          </Suspense>
+          <p className="text-[10px] text-canvas-muted">
+            Sigma.js WebGL bipartite graph: ForceAtlas2 layout on{" "}
+            {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}; query node (amber) at decode step{" "}
+            {decodeStep}; edge opacity ∝ attention weight.
           </p>
         </div>
       )}
@@ -909,7 +942,7 @@ export function MLIntrospectionPanel() {
           <p className="text-[10px] text-canvas-muted">
             Q/K/V colour palettes ({activeAttentionRole}) · spherical k-means row bands · head selector ·
             sparse top-k · decode-step compare · Empirical vs Gamma-3 (side-by-side / overlay Δ).
-            Graph-on-coords view available via View toggle.
+            Graph-on-coords via ECharts or Sigma.js WebGL (View toggle).
           </p>
         </div>
       )}

@@ -11,6 +11,38 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-sixth pass (§G.5)
+
+Forty-sixth pass closes the remaining **§G.5** deferred infrastructure items:
+memory-mapped `.npy` slice loading, Sigma.js WebGL attention overlay, and a full
+training-loss probe for loss landscape export.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `load_npy_plane_mmap` via `memmap2` for standalone `.npy` > 8 MB;
+  `TensorSlicePreview.used_memmap` flag; fixed NPY `descr` header parsing; unit test
+  `mmap_plane_reads_trailing_2d_slice`
+
+**Python**
+- `logic/gen/export_loss_landscape.py` — `--probe-mode auto|training|proxy`; greedy
+  forward-loss grid via `load_model` when hyperparameters are discoverable; `probe_mode`
+  metadata bundled in NPZ
+
+**React frontend**
+- `AttentionSigmaView` — Sigma.js + Graphology ForceAtlas2 bipartite attention graph
+- `MLIntrospectionPanel` — View toggle adds Sigma.js WebGL; mmap slice badge on timing row
+- `vite.config.ts` — lazy `sigma` vendor chunk (`sigma`, `graphology`)
+
+**Dependencies**
+- `sigma`, `graphology`, `graphology-layout-forceatlas2` (frontend)
+- `memmap2` (Rust)
+
+**ROADMAP**
+- §G.5.1 full mmap slice for large `.npy` checked (partial — NPZ-in-zip mmap deferred)
+- §G.5.2 training-loss forward probe checked (partial — multi-batch deferred)
+- §G.5.3 Sigma.js WebGL attention overlay checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-fifth pass (§G.5)
 
 Forty-fifth pass closes the remaining **§G.5** infrastructure deferred items:
