@@ -27,6 +27,8 @@ interface Props {
   autoRunOnBrushSync?: boolean;
   /** Panel starts expanded (e.g. when a chart brush is active). */
   defaultOpen?: boolean;
+  /** Include portfolio ``run_label`` query templates (§G.6). */
+  portfolioMode?: boolean;
 }
 
 export function SqlQueryPanel({
@@ -38,6 +40,7 @@ export function SqlQueryPanel({
   brushSqlSync = false,
   autoRunOnBrushSync = false,
   defaultOpen = false,
+  portfolioMode = false,
 }: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
@@ -49,7 +52,10 @@ export function SqlQueryPanel({
   const [sortCol, setSortCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-  const templates = useMemo(() => sqlTemplates(tableName), [tableName]);
+  const templates = useMemo(
+    () => sqlTemplates(tableName, { portfolio: portfolioMode }),
+    [tableName, portfolioMode]
+  );
 
   useEffect(() => {
     if (!brushSqlSync) return;

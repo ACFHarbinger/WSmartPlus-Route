@@ -2519,6 +2519,7 @@ export function SimulationSummary() {
               highlightPolicies={effectiveBrushed}
               brushSqlSync
               autoRunOnBrushSync
+              portfolioMode={allDuckDbLogs.length > 1}
             />
           )}
         </>

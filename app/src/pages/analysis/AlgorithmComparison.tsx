@@ -2,15 +2,20 @@
  * Algorithm Comparison — side-by-side policy metric comparison.
  * Ports Streamlit `algorithms` mode.
  */
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download, Map } from "lucide-react";
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
+import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
+import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { exportChartPng } from "../../utils/chartExport";
+
+const ALGORITHM_SIM_TABLE = "algorithm_sim";
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -27,11 +32,27 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
-  const { setMode, setPendingMapCompare } = useAppStore();
+  const { setMode, setPendingMapCompare, theme } = useAppStore();
   const { policy, sampleId } = useGlobalFiltersStore();
+  const {
+    ready: duckdbReady,
+    loading: duckdbLoading,
+    lastPipeline,
+    setLastPipeline,
+    setLoading: setDuckdbLoading,
+  } = useDuckDbStore();
   const radarRef = useRef<ReactECharts>(null);
   const barRefs = useRef<Record<string, EChartsReact | null>>({});
   const [logScale, setLogScale] = useState(false);
+
+  useEffect(() => {
+    if (!duckdbReady || !watchPath) return;
+    setDuckdbLoading(true);
+    runSimulationArrowPipeline(watchPath, ALGORITHM_SIM_TABLE)
+      .then(setLastPipeline)
+      .catch((err) => console.warn("Algorithm Arrow pipeline:", err))
+      .finally(() => setDuckdbLoading(false));
+  }, [watchPath, duckdbReady, setLastPipeline, setDuckdbLoading]);
 
   const filtered = useMemo(
     () => filterEntries(entries, policy, sampleId),
@@ -104,6 +125,9 @@ export function AlgorithmComparison() {
         {watchPath && (
           <span className="text-xs text-canvas-muted font-mono truncate">
             {watchPath.split("/").pop()}
+            {!duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE && (
+              <> · {formatPipelineTimingBadge(lastPipeline)}</>
+            )}
           </span>
         )}
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
@@ -189,6 +213,14 @@ export function AlgorithmComparison() {
           );
         })}
       </div>
+
+      {watchPath && duckdbReady && (
+        <SqlQueryPanel
+          tableName={ALGORITHM_SIM_TABLE}
+          theme={theme}
+          highlightPolicies={policy ? [policy] : null}
+        />
+      )}
     </div>
   );
 }

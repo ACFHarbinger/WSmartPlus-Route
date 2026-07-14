@@ -249,6 +249,7 @@ export function CityComparison() {
           tableName={CITY_SIM_TABLE}
           theme={theme}
           highlightPolicies={filterPolicy ? [filterPolicy] : null}
+          portfolioMode={runs.length > 1}
         />
       )}
 
