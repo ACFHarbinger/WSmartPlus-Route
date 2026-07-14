@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, zenml};
+use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, tensor, zenml};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -29,6 +29,11 @@ pub fn run() {
             data::extract_wsroute_bundle,
             data::export_csv_to_parquet,
             data::export_table_parquet,
+            // TensorDict / NumPy archives (§G.5.1)
+            tensor::inspect_npz_archive,
+            tensor::load_tensor_slice,
+            tensor::tensor_slice_to_arrow_ipc,
+            tensor::probe_npy_mmap,
             // Simulation file watcher
             sim_watcher::start_sim_watcher,
             sim_watcher::stop_sim_watcher,

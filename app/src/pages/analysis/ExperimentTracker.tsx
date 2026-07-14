@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
 import { exportChartPng } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
@@ -411,6 +412,9 @@ export function ExperimentTracker() {
         </>
         )}
       </div>
+
+      {/* ML introspection — TensorDict, attention, loss landscape (§G.5) */}
+      <MLIntrospectionPanel />
 
       {/* ZenML pipeline runs (§G.18) */}
       <ZenMLPipelineView />

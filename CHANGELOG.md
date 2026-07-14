@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-first pass (§G.5)
+
+Forty-first pass starts **§G.5 Machine Learning Introspection**: NPZ/NPY tensor
+pipeline, attention heatmaps, and loss landscape contour.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `inspect_npz_archive`, `load_tensor_slice`, `tensor_slice_to_arrow_ipc`, `probe_npy_mmap` via `ndarray-npy` + `zip`
+- Downsampled 2D slice preview with leading-dimension index selection
+
+**Python**
+- `logic/gen/export_loss_landscape.py` — export `loss_grid` NPZ (demo Rosenbrock or checkpoint filter-normalized probe)
+
+**React frontend**
+- `MLIntrospectionPanel` — Archive / Attention / Loss tabs on Experiment Tracker
+- `utils/tensorHeatmap.ts` — ECharts heatmap builder + attention key heuristics
+- `ExperimentTracker` — embeds ML Introspection section (§G.5)
+
+**ROADMAP**
+- §G.5.1 NPZ inspect + slice + Arrow IPC checked (partial)
+- §G.5.2 loss export script + ECharts contour checked (partial — R3F deferred)
+- §G.5.3 attention heatmap + decode-step timeline checked (partial — Sigma.js deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fortieth pass (§G.4)
 
 Fortieth pass completes remaining **§G.4 topological graph analytics** items:

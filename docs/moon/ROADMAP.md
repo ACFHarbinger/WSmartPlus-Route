@@ -1007,25 +1007,25 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Expose the internals of trained neural CO models (Attention Models, Routing Transformers).
 
 #### 5.1 TensorDict Data Pipeline
-- [ ] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate
-- [ ] Memory-map large tensor files (avoid full RAM load)
-- [ ] Stream specific tensor slices to frontend over Arrow IPC on demand
+- [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — `.td` TensorDict deferred)
+- [x] Memory-map large tensor files (avoid full RAM load): `probe_npy_mmap` flags standalone `.npy` > 8 MB; archive inspect reads NPY headers only (§G.5.1 partial — full mmap slice deferred)
+- [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)` (§G.5.1 partial — DuckDB ingest deferred)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
-- [ ] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions
-- [ ] Export 2D grid of loss values as `.npz`
+- [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` (§G.5.2 partial — full training-loss probe deferred)
+- [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
 - [ ] React Three Fiber: render grid as `InstancedMesh` continuous 3D topography
 - [ ] Color gradient: low loss = deep blue, high loss = bright red
 - [ ] Camera: orbit, zoom, perspective controls
-- [ ] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned)
+- [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab heatmap (§G.5.2 partial — R3F canvas deferred)
 - [ ] Project exact-solver solutions (BPC optimum) as a marker on the landscape
 - [ ] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical)
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
-- [ ] Load attention weight matrices from TensorDict for a selected simulation step
-- [ ] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude
+- [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
+- [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts heatmap in `MLIntrospectionPanel` (§G.5.3 partial — Sigma.js/node overlay deferred)
 - [ ] Query/Key/Value color coding per attention head
-- [ ] Timeline slider: step through sequential decoding steps
+- [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
 - [ ] Sparse Routing Transformer mode: show only top-k attention connections (spherical k-means clusters)
 - [ ] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions
 - [ ] Side-by-side vs overlay toggle

@@ -217,6 +217,33 @@ export interface WsrouteExtractResult {
   log_path: string | null;
 }
 
+// ── ML introspection (§G.5) ──────────────────────────────────────────────────
+
+export interface NpzArrayInfo {
+  key: string;
+  shape: number[];
+  dtype: string;
+  size_bytes: number;
+}
+
+export interface NpzArchiveInfo {
+  path: string;
+  arrays: NpzArrayInfo[];
+  total_bytes: number;
+  used_memmap: boolean;
+}
+
+export interface TensorSlicePreview {
+  key: string;
+  full_shape: number[];
+  slice_shape: number[];
+  indices: number[];
+  values: number[][];
+  min: number;
+  max: number;
+  rust_ms: number;
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 /** Ephemeral map compare intent from Algorithm Comparison → Simulation Monitor. */
