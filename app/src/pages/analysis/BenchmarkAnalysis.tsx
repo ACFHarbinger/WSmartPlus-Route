@@ -16,6 +16,10 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
+import { paretoFront, paretoStepLine } from "../../utils/pareto";
+import { PARETO_PANELS, panelForRun } from "../../utils/paretoPanels";
+import { cityScaleLabel, parseLogPath, parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
+import { symlog } from "../../utils/symlog";
 import { downloadCsv } from "../../utils/tableExport";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
 
@@ -27,6 +31,90 @@ interface RunFile {
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+}
+
+function fmt(n: number, d = 1) {
+  return isFinite(n) ? n.toFixed(d) : "—";
+}
+
+function BenchmarkParetoPanel({
+  label,
+  points,
+  logScale,
+}: {
+  label: string;
+  points: Array<{ id: string; x: number; y: number; policy: string }>;
+  logScale: boolean;
+}) {
+  const chartRef = useRef<EChartsReact | null>(null);
+  const option = useMemo(() => {
+    const frontIds = new Set(paretoFront(points).map((p) => p.id));
+    const step = paretoStepLine(paretoFront(points));
+    const displayY = (y: number) => (logScale ? Math.max(y, 0.001) : y);
+
+    return {
+      backgroundColor: "transparent",
+      title: { text: label, left: "center", textStyle: { color: "#9090b0", fontSize: 10 } },
+      grid: { left: 44, right: 10, top: 36, bottom: 32 },
+      xAxis: {
+        type: "value",
+        name: "Profit",
+        nameTextStyle: { color: "#9090b0", fontSize: 8 },
+        axisLabel: { color: "#9090b0", fontSize: 8 },
+      },
+      yAxis: {
+        type: logScale ? "log" : "value",
+        logBase: 10,
+        name: "Ovfl",
+        nameTextStyle: { color: "#9090b0", fontSize: 8 },
+        axisLabel: { color: "#9090b0", fontSize: 8 },
+        minorSplitLine: { show: false },
+      },
+      series: [
+        {
+          type: "scatter",
+          data: points.map((pt) => ({
+            name: pt.policy,
+            value: [pt.x, displayY(pt.y)],
+            itemStyle: {
+              color: strategyColor(pt.policy, { [pt.policy]: parsePolicyLabel(pt.policy) }),
+            },
+            symbolSize: frontIds.has(pt.id) ? 9 : 6,
+          })),
+          tooltip: {
+            formatter: (p: { name: string; value: [number, number] }) =>
+              `${p.name}<br/>Profit: ${fmt(p.value[0])} €<br/>Overflows: ${fmt(points.find((x) => x.policy === p.name)?.y ?? p.value[1])}`,
+          },
+        },
+        ...(step.length > 1
+          ? [
+              {
+                type: "line",
+                data: step.map(([x, y]) => [x, displayY(y)]),
+                lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
+                symbol: "none",
+                tooltip: { show: false },
+                z: 1,
+              },
+            ]
+          : []),
+      ],
+    };
+  }, [label, points, logScale]);
+
+  if (points.length === 0) {
+    return (
+      <div className="card flex items-center justify-center h-[200px] text-xs text-canvas-muted">
+        {label} — no runs
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
+    </div>
+  );
 }
 
 const SIM_METRICS = [
@@ -236,6 +324,90 @@ export function BenchmarkAnalysis() {
       .sort((a, b) => b.value - a.value);
   }, [filteredRuns]);
 
+  const paretoByPanel = useMemo(() => {
+    const panels: Record<string, Array<{ id: string; x: number; y: number; policy: string }>> = {};
+    for (const panel of PARETO_PANELS) panels[panel.id] = [];
+
+    for (const run of filteredRuns) {
+      const panelId = panelForRun(parseLogPath(run.path));
+      if (!panelId) continue;
+      const policies = [...new Set(run.entries.map((e) => e.policy))];
+      for (const p of policies) {
+        const vals = run.entries.filter((e) => e.policy === p);
+        const profit = mean(vals.map((e) => e.data.profit).filter((v): v is number => v != null));
+        const overflows = mean(
+          vals.map((e) => e.data.overflows).filter((v): v is number => v != null)
+        );
+        panels[panelId].push({
+          id: `${run.path}::${p}`,
+          policy: p,
+          x: profit,
+          y: overflows,
+        });
+      }
+    }
+    return panels;
+  }, [filteredRuns]);
+
+  const cityGroups = useMemo(() => {
+    const map = new Map<string, RunFile[]>();
+    for (const run of filteredRuns) {
+      const label = cityScaleLabel(parseLogPath(run.path));
+      const list = map.get(label) ?? [];
+      list.push(run);
+      map.set(label, list);
+    }
+    return [...map.entries()];
+  }, [filteredRuns]);
+
+  const cityComparisonOption = useMemo(() => {
+    const labels = cityGroups.map(([city]) => city);
+    const profitSeries = cityGroups.map(([, runs]) => {
+      const vals = runs.flatMap((r) =>
+        r.entries.map((e) => e.data.profit).filter((v): v is number => v != null)
+      );
+      return Math.max(mean(vals), 0.001);
+    });
+    const overflowSeries = cityGroups.map(([, runs]) => {
+      const vals = runs.flatMap((r) =>
+        r.entries.map((e) => e.data.overflows).filter((v): v is number => v != null)
+      );
+      return symlog(mean(vals));
+    });
+
+    return {
+      backgroundColor: "transparent",
+      legend: { textStyle: { color: "#9090b0", fontSize: 10 } },
+      grid: { left: 50, right: 10, top: 30, bottom: 40 },
+      xAxis: {
+        type: "category",
+        data: labels,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      yAxis: {
+        type: "log",
+        logBase: 10,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+      },
+      series: [
+        {
+          name: "Mean profit (€)",
+          type: "bar",
+          data: profitSeries,
+          itemStyle: { color: "#6366f1" },
+        },
+        {
+          name: "Mean overflows (symlog)",
+          type: "bar",
+          data: overflowSeries,
+          itemStyle: { color: "#f87171" },
+        },
+      ],
+      tooltip: { trigger: "axis" },
+    };
+  }, [cityGroups]);
+
   const efficiencyRankOption = useMemo(
     () => ({
       backgroundColor: "transparent",
@@ -366,6 +538,36 @@ export function BenchmarkAnalysis() {
           >
             {logScale ? "Log scale (on)" : "Log scale (off)"}
           </button>
+        </div>
+      )}
+
+      {runs.length >= 1 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
+          <div className="grid grid-cols-2 gap-4">
+            {PARETO_PANELS.map((panel) => (
+              <BenchmarkParetoPanel
+                key={panel.id}
+                label={panel.label}
+                points={paretoByPanel[panel.id] ?? []}
+                logScale={logScale}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {runs.length >= 2 && cityGroups.length >= 1 && (
+        <div className="card space-y-2">
+          <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
+          <p className="text-[10px] text-canvas-muted">Log scale only — preserves extreme values</p>
+          <ReactECharts
+            ref={(el) => {
+              chartRefs.current["city-compare"] = el;
+            }}
+            option={cityComparisonOption}
+            style={{ height: 240 }}
+          />
         </div>
       )}
 

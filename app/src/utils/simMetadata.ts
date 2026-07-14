@@ -137,3 +137,28 @@ export function formatLogMeta(meta: LogPathMeta): string {
 export function formatPolicyMeta(meta: PolicyMeta): string {
   return `${meta.selectionStrategy} · ${meta.constructor} · ${meta.improver} · ${meta.distribution}`;
 }
+
+const STRATEGY_COLORS: Record<string, string> = {
+  LA: "#6366f1",
+  LM: "#fbbf24",
+  "LM-CF70": "#fb923c",
+  "LM-CF90": "#f87171",
+  "SL-SL1": "#34d399",
+  "SL-SL2": "#38bdf8",
+};
+
+export function strategyColor(policy: string, policyMeta?: Record<string, PolicyMeta>): string {
+  const strat = policyMeta?.[policy]?.selectionStrategy ?? parsePolicyLabel(policy).selectionStrategy;
+  return STRATEGY_COLORS[strat] ?? "#a78bfa";
+}
+
+export function citySymbol(logMeta: LogPathMeta | null): "circle" | "rect" | "diamond" {
+  if (logMeta?.cityShort === "FFZ") return "diamond";
+  if (logMeta?.scale === 170) return "rect";
+  return "circle";
+}
+
+export function cityScaleLabel(logMeta: LogPathMeta): string {
+  if (logMeta.cityShort && logMeta.scale) return `${logMeta.cityShort}-${logMeta.scale}`;
+  return logMeta.city ?? "Run";
+}
