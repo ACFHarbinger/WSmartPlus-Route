@@ -31,6 +31,7 @@ import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
+import { findRunJsonl } from "../../utils/outputRunLogs";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 
 function formatBytes(b: number) {
@@ -78,20 +79,6 @@ const META_KEYS = [
   "sim.graph.area", "sim.graph.num_loc", "sim.data_distribution",
   "sim.policies", "train.max_epochs", "hpo.n_trials",
 ];
-
-/** Find the first .jsonl log in a run directory (top-level or hydra/). */
-async function findRunJsonl(runPath: string): Promise<string | null> {
-  const top = await invoke<DirEntry[]>("list_dir", { path: runPath });
-  const topJsonl = top.find((f) => !f.is_dir && f.extension === "jsonl" && f.size_bytes < 20 * 1024 * 1024);
-  if (topJsonl) return topJsonl.path;
-  const hydra = top.find((f) => f.is_dir && f.name === "hydra");
-  if (hydra) {
-    const sub = await invoke<DirEntry[]>("list_dir", { path: hydra.path });
-    const nested = sub.find((f) => !f.is_dir && f.extension === "jsonl" && f.size_bytes < 20 * 1024 * 1024);
-    if (nested) return nested.path;
-  }
-  return null;
-}
 
 /** Sort: directories first, then key artefacts (config, logs), then alphabetical. */
 function sortEntries(list: DirEntry[]): DirEntry[] {
