@@ -15,6 +15,7 @@ pub fn run() {
             arrow::simulation_log_to_arrow_ipc,
             arrow::benchmark_arrow_pipeline,
             arrow::read_binary_file,
+            arrow::path_exists,
             data::load_simulation_log,
             data::load_csv_file,
             data::list_output_dirs,

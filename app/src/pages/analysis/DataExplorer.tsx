@@ -119,6 +119,7 @@ export function DataExplorer() {
                 <>
                   {" "}
                   · DuckDB {lastPipeline.rowCount} rows in {lastPipeline.totalMs} ms
+                  {lastPipeline.usedSidecar ? " (Arrow sidecar)" : ""}
                   {lastPipeline.withinBudget ? "" : " (over 500ms budget)"}
                 </>
               )}

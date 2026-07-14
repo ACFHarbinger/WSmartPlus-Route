@@ -890,6 +890,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Arrow IPC schema for simulation log rows and Rust CSV → Arrow IPC stream: `commands/arrow.rs` — `csv_to_arrow_ipc`, `simulation_log_to_arrow_ipc` (typed KPI schema: policy/sample_id/day + profit/km/overflows/kg_per_km/…)
 - [x] Spawn DuckDB-Wasm in a Web Worker; ingest Arrow IPC on CSV/log open: `duckdbClient.ts` + `useDuckDbInit` on app mount; Data Explorer + Simulation Monitor auto-ingest
 - [x] Verify end-to-end latency: Settings "Run Arrow Pipeline Benchmark" + Data Explorer timing badge; 500 ms budget constant in `arrowPipeline.ts` (§G.0 partial — hardware baseline varies)
+- [x] Arrow sidecar fast-path: `runCsvArrowPipeline()` prefers sibling ``.arrow`` IPC from extracted `.wsroute` bundles via `path_exists` + `runArrowSidecarPipeline()` (skips Rust CSV re-parse; §G.0 / §G.8)
 
 ---
 
@@ -1082,6 +1083,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Make the Studio distributable and extend the Python pipeline to output Studio-compatible data bundles.
 
 - [x] Python export script: `logic/gen/export_for_studio.py` — packages simulation CSV + graph JSONs + TensorDict NPZs + `.td` datasets into a `.wsroute` zip bundle with `manifest.json`; `--arrow` emits Arrow IPC (`.arrow`) sidecars for each CSV (§G.8)
+- [x] Rust bundle Arrow export: `create_wsroute_bundle(..., include_arrow)` emits `.arrow` sidecars via `write_csv_arrow_sidecar()`; Output Browser checkbox + manifest `arrow_sidecars` count (§G.8)
+- [x] Studio sidecar ingest: DuckDB-Wasm pipeline auto-loads sibling `.arrow` when opening CSV in Data Explorer / OLAP / Settings benchmark (§G.8)
 - [x] Rust backend: `inspect_wsroute_bundle` lists bundle contents in Output Browser
 - [x] Rust backend: `create_wsroute_bundle` packages a run directory into a `.wsroute` zip with `manifest.json`
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary

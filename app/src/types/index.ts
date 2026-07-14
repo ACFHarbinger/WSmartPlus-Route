@@ -208,6 +208,7 @@ export interface WsrouteBundleInfo {
   path: string;
   version: string | null;
   created_at: string | null;
+  arrow_sidecars: number | null;
   files: WsrouteBundleFile[];
 }
 

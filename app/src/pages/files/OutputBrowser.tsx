@@ -115,6 +115,7 @@ export function OutputBrowser() {
   const [loading, setLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
   const [bundleExporting, setBundleExporting] = useState(false);
+  const [includeArrowSidecars, setIncludeArrowSidecars] = useState(true);
   const [bundleExtracting, setBundleExtracting] = useState(false);
   const [parquetExporting, setParquetExporting] = useState(false);
   // Run metadata from pruned_config.yaml
@@ -321,8 +322,13 @@ export function OutputBrowser() {
       const info = await invoke<WsrouteBundleInfo>("create_wsroute_bundle", {
         sourceDir: selectedRun.path,
         outputPath,
+        includeArrow: includeArrowSidecars,
       });
-      toast.success(`Exported ${info.files.length} files`, {
+      const arrowNote =
+        info.arrow_sidecars != null && info.arrow_sidecars > 0
+          ? ` · ${info.arrow_sidecars} Arrow sidecars`
+          : "";
+      toast.success(`Exported ${info.files.length} files${arrowNote}`, {
         description: outputPath.split("/").pop(),
       });
     } catch (err) {
@@ -330,7 +336,7 @@ export function OutputBrowser() {
     } finally {
       setBundleExporting(false);
     }
-  }, [selectedRun]);
+  }, [selectedRun, includeArrowSidecars]);
 
   const extractBundleAndOpen = useCallback(async () => {
     if (!viewingPath || viewingExt !== "wsroute") return;
@@ -550,6 +556,15 @@ export function OutputBrowser() {
       <div className="w-56 shrink-0 flex flex-col gap-2">
         {selectedRun ? (
           <>
+            <label className="flex items-center gap-2 text-[10px] text-canvas-muted px-1 shrink-0 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeArrowSidecars}
+                onChange={(e) => setIncludeArrowSidecars(e.target.checked)}
+                className="accent-accent-primary"
+              />
+              Include Arrow IPC sidecars (§G.8)
+            </label>
             <button
               onClick={exportRunAsBundle}
               disabled={bundleExporting}
@@ -701,6 +716,12 @@ export function OutputBrowser() {
               <span className="text-canvas-muted">
                 Files: <span className="font-mono text-gray-300">{wsrouteBundle.files.length}</span>
               </span>
+              {wsrouteBundle.arrow_sidecars != null && wsrouteBundle.arrow_sidecars > 0 && (
+                <span className="text-canvas-muted">
+                  Arrow sidecars:{" "}
+                  <span className="font-mono text-accent-success">{wsrouteBundle.arrow_sidecars}</span>
+                </span>
+              )}
             </div>
             <table className="w-full text-xs">
               <thead>
