@@ -136,13 +136,49 @@ function summarizeNode(
   };
 }
 
+function std(arr: number[]) {
+  if (arr.length < 2) return 0;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / (arr.length - 1));
+}
+
+export interface EnrichedDrillChild {
+  name: string;
+  policies: string[];
+  profit: number;
+  kgkm: number;
+  overflows: number;
+  profitStd: number;
+  distSpread: number;
+}
+
 export function enrichDrillChildren(
   children: ReturnType<typeof childrenAtPath>,
-  stats: Record<string, PolicyAgg>
-): ReturnType<typeof childrenAtPath> {
+  stats: Record<string, PolicyAgg>,
+  policyMeta?: Record<string, { distribution: string }>
+): EnrichedDrillChild[] {
   return children.map((c) => {
+    const profits = c.policies.flatMap((p) => stats[p].profit);
     const kg = mean(c.policies.flatMap((p) => stats[p]["kg/km"]));
     const ov = mean(c.policies.flatMap((p) => stats[p].overflows));
-    return { ...c, kgkm: kg, overflows: ov };
+
+    let distSpread = 0;
+    if (policyMeta) {
+      const emp = c.policies.filter((p) => /emp/i.test(policyMeta[p]?.distribution ?? ""));
+      const gamma = c.policies.filter((p) => /gamma/i.test(policyMeta[p]?.distribution ?? ""));
+      if (emp.length && gamma.length) {
+        const empMean = mean(emp.flatMap((p) => stats[p].profit));
+        const gammaMean = mean(gamma.flatMap((p) => stats[p].profit));
+        distSpread = Math.abs(empMean - gammaMean);
+      }
+    }
+
+    return {
+      ...c,
+      kgkm: kg,
+      overflows: ov,
+      profitStd: std(profits),
+      distSpread,
+    };
   });
 }

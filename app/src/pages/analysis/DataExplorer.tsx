@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
+import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
@@ -25,7 +26,7 @@ interface CsvFile {
 }
 
 export function DataExplorer() {
-  const { projectRoot } = useAppStore();
+  const { projectRoot, theme } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
@@ -167,6 +168,10 @@ export function DataExplorer() {
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           Open a CSV file from the output directory to explore.
         </div>
+      )}
+
+      {file && duckdbReady && lastPipeline?.tableName && (
+        <SqlQueryPanel tableName={lastPipeline.tableName} theme={theme} />
       )}
 
       {file && (

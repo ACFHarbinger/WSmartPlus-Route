@@ -34,6 +34,7 @@ import {
   guessGraphPreset,
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
+import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -136,13 +137,25 @@ function RouteMapChart({ data }: { data: SimDayData }) {
     const depot = all_bin_coords.find((b) => b.id === -1);
     const depotPos = depot ? positions.get(-1) : null;
 
-    const pathCoords: [number, number][] = [];
-    if (depotPos) pathCoords.push(depotPos);
-    for (const binId of tour_indices ?? []) {
-      const pos = positions.get(binId);
-      if (pos) pathCoords.push(pos);
-    }
-    if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
+    const segments = splitVehicleTourIndices(data);
+    const vehiclePaths = segments.map((segment, vi) => {
+      const pathCoords: [number, number][] = [];
+      if (depotPos) pathCoords.push(depotPos);
+      for (const binId of segment) {
+        const pos = positions.get(binId);
+        if (pos) pathCoords.push(pos);
+      }
+      if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
+      const [r, g, b] = VEHICLE_COLORS_RGB[vi % VEHICLE_COLORS_RGB.length];
+      return {
+        name: segments.length > 1 ? `Vehicle ${vi + 1}` : "Route",
+        type: "line" as const,
+        data: pathCoords,
+        lineStyle: { color: `rgb(${r},${g},${b})`, width: 2 },
+        symbol: "none",
+        z: 1,
+      };
+    });
 
     return {
       backgroundColor: "transparent",
@@ -150,14 +163,7 @@ function RouteMapChart({ data }: { data: SimDayData }) {
       xAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
       yAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
       series: [
-        {
-          name: "Route",
-          type: "line",
-          data: pathCoords,
-          lineStyle: { color: "#6366f1", width: 2 },
-          symbol: "none",
-          z: 1,
-        },
+        ...vehiclePaths,
         {
           name: "Bins",
           type: "scatter",
