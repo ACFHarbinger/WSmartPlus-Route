@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-fifth pass (§G.1.2 / §G.1.3 / §G.1.4 / §G.1.5)
+
+Fifty-fifth pass closes deferred **§G.1** portfolio Pareto markers/tooltips,
+distribution facet heatmaps, Simulation Summary portfolio parallel coordinates,
+and multi-config efficiency ranking.
+
+**React frontend**
+- `BenchmarkParetoPanel` — `citySymbol()` per run×policy point; tooltips with
+  `formatLogMeta` + `formatPolicyMeta` + Pareto-optimal badge
+- `paretoPortfolio.ts` — `ParetoPoint` carries `path` + `logMeta` for multi-run scatter
+- `BenchmarkDistributionHeatmap` — per-distribution policy heatmap facets in portfolio mode
+- `portfolioDistribution.ts` — `groupRunsByDistribution()` buckets loaded runs
+- `BenchmarkPortfolioParallel` — shared component extracted from Benchmark Analysis;
+  wired on Simulation Summary when ≥2 runs loaded
+- `PortfolioEfficiencyRanking` — top run×policy configs ranked by mean kg/km with whiskers
+- `SimulationSummary` — portfolio overflows-by-city bars; distribution + graph heatmap
+  facets; portfolio parallel + efficiency ranking panels
+
+**ROADMAP**
+- §G.1.1 multi-city overflows grouped bars on Simulation Summary checked
+- §G.1.2 Pareto marker shapes + config tooltips on portfolio panels checked
+- §G.1.3 distribution facet heatmaps in portfolio mode checked
+- §G.1.4 portfolio parallel on Simulation Summary checked
+- §G.1.5 portfolio efficiency ranking checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-fourth pass (§G.1 / §G.2 / §G.7)
 
 Fifty-fourth pass closes deferred **§G.1** Simulation Summary portfolio analytics,

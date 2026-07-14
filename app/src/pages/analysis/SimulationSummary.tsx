@@ -43,7 +43,11 @@ import {
 } from "../../utils/policyHierarchy";
 import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
 import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
+import { BenchmarkDistributionHeatmap } from "../../components/analysis/BenchmarkDistributionHeatmap";
+import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
+import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/paretoPortfolio";
+import { groupRunsByDistribution } from "../../utils/portfolioDistribution";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
 import {
   groupRunsByCity,
@@ -1968,6 +1972,20 @@ export function SimulationSummary() {
     });
   }, [cityGroups, portfolioMode]);
 
+  const cityScaleOverflowGroups = useMemo(() => {
+    if (!portfolioMode) return null;
+    return cityGroups.map(([label, runs]) => {
+      const vals = runs.flatMap((r) =>
+        r.entries
+          .map((e) => e.data.overflows)
+          .filter((v): v is number => v != null)
+      );
+      return { label, policies: [] as string[], mean: mean(vals), std: std(vals) };
+    });
+  }, [cityGroups, portfolioMode]);
+
+  const distributionGroups = useMemo(() => groupRunsByDistribution(allRuns), [allRuns]);
+
   const rankingExportData = useCallback(() => {
     const cols: MetricKey[] = ["profit", "km", "overflows", "kg"];
     const headers = ["policy", ...cols.map((c) => `mean_${c}`), ...cols.map((c) => `std_${c}`), "days"];
@@ -2102,6 +2120,10 @@ export function SimulationSummary() {
             showErrorBars={showErrorBars}
           />
 
+          {portfolioMode && allRuns.length >= 2 && (
+            <BenchmarkPortfolioParallel runs={allRuns} />
+          )}
+
           {allRuns.length >= 1 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
@@ -2119,14 +2141,25 @@ export function SimulationSummary() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <GroupedMetricBarChart
-              title="Overflows by Selection Strategy"
-              subtitle="Mean ± std across constructor variants (§G.1.1)"
-              groups={overflowGroups}
-              color="#f87171"
-              showErrorBars={showErrorBars}
-              exportName="summary-overflows-grouped"
-            />
+            {cityScaleOverflowGroups ? (
+              <GroupedMetricBarChart
+                title="Overflows by City / Scale"
+                subtitle="Mean ± std across portfolio runs (§G.1.1 multi-city)"
+                groups={cityScaleOverflowGroups}
+                color="#f87171"
+                showErrorBars={showErrorBars}
+                exportName="summary-overflows-city"
+              />
+            ) : (
+              <GroupedMetricBarChart
+                title="Overflows by Selection Strategy"
+                subtitle="Mean ± std across constructor variants (§G.1.1)"
+                groups={overflowGroups}
+                color="#f87171"
+                showErrorBars={showErrorBars}
+                exportName="summary-overflows-grouped"
+              />
+            )}
             {cityScaleKgkmGroups ? (
               <GroupedMetricBarChart
                 title="kg/km by City / Scale"
@@ -2147,6 +2180,39 @@ export function SimulationSummary() {
               />
             )}
           </div>
+
+          {portfolioMode && distributionGroups.length > 1 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-xs font-semibold text-gray-300">Heatmaps by Distribution (§G.1.3)</p>
+                <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+                  {(["overflows", "kg/km"] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setGraphHeatmapMode(m)}
+                      className={`text-xs px-2.5 py-1 rounded-md ${
+                        graphHeatmapMode === m
+                          ? "bg-accent-primary text-white"
+                          : "text-canvas-muted hover:text-gray-200"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {distributionGroups.map(([dist, distRuns]) => (
+                  <BenchmarkDistributionHeatmap
+                    key={dist}
+                    distributionLabel={dist}
+                    runs={distRuns}
+                    heatmapMode={graphHeatmapMode}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {portfolioMode && cityGroups.length > 1 && (
             <div className="space-y-2">
@@ -2264,24 +2330,37 @@ export function SimulationSummary() {
             brushed={effectiveBrushed}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <EfficiencyRankingChart
-              stats={stats}
-              policies={policies}
+          {portfolioMode && (
+            <PortfolioEfficiencyRanking
+              runs={allRuns}
               showErrorBars={showErrorBars}
               brushed={effectiveBrushed}
               onPolicyClick={handlePolicyClick}
-              policyMeta={policyMeta}
             />
-            <PolicyParetoChart
-              stats={stats}
-              policies={policies}
-              logScale={logScale}
-              brushed={effectiveBrushed}
-              onPolicyClick={handlePolicyClick}
-              policyMeta={policyMeta}
-              logMeta={logMeta}
-            />
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {!portfolioMode && (
+              <EfficiencyRankingChart
+                stats={stats}
+                policies={policies}
+                showErrorBars={showErrorBars}
+                brushed={effectiveBrushed}
+                onPolicyClick={handlePolicyClick}
+                policyMeta={policyMeta}
+              />
+            )}
+            <div className={portfolioMode ? "lg:col-span-2" : ""}>
+              <PolicyParetoChart
+                stats={stats}
+                policies={policies}
+                logScale={logScale}
+                brushed={effectiveBrushed}
+                onPolicyClick={handlePolicyClick}
+                policyMeta={policyMeta}
+                logMeta={logMeta}
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-2">
