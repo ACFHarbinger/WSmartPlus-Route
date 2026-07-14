@@ -1018,7 +1018,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Color gradient: low loss = deep blue, high loss = bright red (`lossToColor` vertex colours)
 - [x] Camera: orbit, zoom, perspective controls (`OrbitControls` + `Canvas`)
 - [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid (§G.5.2)
-- [ ] Project exact-solver solutions (BPC optimum) as a marker on the landscape
+- [x] Project exact-solver solutions (BPC optimum) as a marker on the landscape: `export_loss_landscape.py` bundles `bpc_theta1`/`bpc_theta2`/`bpc_loss`; `load_npz_vectors` + `resolveBpcMarker` + amber octahedron in `LossLandscape3D` + ECharts `markPoint` on contour (§G.5.2)
 - [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + cyan global-min sphere marker (§G.5.2 partial)
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
@@ -1027,7 +1027,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Attention head selector: `detectHeadAxis` + per-head index dropdown (§G.5.3 partial — Q/K/V colour coding deferred)
 - [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
 - [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3 partial — spherical k-means clusters deferred)
-- [ ] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions
+- [x] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions: Attention tab "Empirical vs Gamma-3" compare mode; dual archive picker; `inferDistributionLabel` path heuristics; side-by-side heatmaps + overlay Δ diff (§G.5.3)
 - [x] Side-by-side vs overlay toggle: decode-step compare (side-by-side dual heatmap / overlay Δ diff) (§G.5.3 partial)
 
 ---

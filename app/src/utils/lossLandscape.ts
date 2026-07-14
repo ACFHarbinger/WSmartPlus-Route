@@ -72,3 +72,87 @@ export function normalizeGrid(values: number[][]): { norm: number[][]; min: numb
   const norm = values.map((row) => row.map((v) => (Number.isFinite(v) ? (v - min) / span : 0)));
   return { norm, min, max };
 }
+
+export interface LandscapeMarker {
+  label: string;
+  row: number;
+  col: number;
+  theta1?: number;
+  theta2?: number;
+  loss?: number;
+  color?: string;
+}
+
+function nearestAxisIndex(axis: number[], value: number): number {
+  if (!axis.length) return 0;
+  let best = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < axis.length; i++) {
+    const d = Math.abs(axis[i] - value);
+    if (d < bestDist) {
+      bestDist = d;
+      best = i;
+    }
+  }
+  return best;
+}
+
+/** Map θ coordinates to loss_grid row/col using bundled axis vectors. */
+export function thetaToGridCell(
+  theta1Axis: number[],
+  theta2Axis: number[],
+  t1: number,
+  t2: number
+): { row: number; col: number } {
+  return {
+    row: nearestAxisIndex(theta1Axis, t1),
+    col: nearestAxisIndex(theta2Axis, t2),
+  };
+}
+
+/** Build BPC exact-solver marker from NPZ vector payloads (§G.5.2). */
+export function resolveBpcMarker(
+  vectors: { key: string; values: number[] }[],
+  rows: number,
+  cols: number
+): LandscapeMarker | null {
+  const t1 = vectors.find((v) => v.key === "bpc_theta1")?.values[0];
+  const t2 = vectors.find((v) => v.key === "bpc_theta2")?.values[0];
+  const loss = vectors.find((v) => v.key === "bpc_loss")?.values[0];
+  const theta1Axis = vectors.find((v) => v.key === "theta1")?.values ?? [];
+  const theta2Axis = vectors.find((v) => v.key === "theta2")?.values ?? [];
+
+  if (t1 == null || t2 == null) return null;
+
+  let row: number;
+  let col: number;
+  if (theta1Axis.length && theta2Axis.length) {
+    ({ row, col } = thetaToGridCell(theta1Axis, theta2Axis, t1, t2));
+  } else {
+    row = Math.round(((t1 + 1) / 2) * (rows - 1));
+    col = Math.round(((t2 + 1) / 2) * (cols - 1));
+  }
+
+  return {
+    label: "BPC optimum",
+    row: Math.max(0, Math.min(rows - 1, row)),
+    col: Math.max(0, Math.min(cols - 1, col)),
+    theta1: t1,
+    theta2: t2,
+    loss,
+    color: "#f59e0b",
+  };
+}
+
+/** Convert grid cell to R3F terrain coordinates (matches LossLandscape3D layout). */
+export function gridCellToTerrainPosition(
+  row: number,
+  col: number,
+  rows: number,
+  cols: number,
+  height: number
+): [number, number, number] {
+  const x = col - (cols - 1) / 2;
+  const y = -(row - (rows - 1) / 2);
+  return [x, y, height + 0.18];
+}

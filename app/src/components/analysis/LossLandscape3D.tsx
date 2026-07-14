@@ -5,19 +5,26 @@ import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { analyzeLossMinima, lossToColor, normalizeGrid } from "../../utils/lossLandscape";
+import {
+  analyzeLossMinima,
+  gridCellToTerrainPosition,
+  lossToColor,
+  normalizeGrid,
+  type LandscapeMarker,
+} from "../../utils/lossLandscape";
 
 interface TerrainProps {
   values: number[][];
   minimaRow?: number;
   minimaCol?: number;
+  markers?: LandscapeMarker[];
 }
 
-function TerrainMesh({ values, minimaRow, minimaCol }: TerrainProps) {
+function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProps) {
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
 
-  const { geometry, minimaPos } = useMemo(() => {
+  const { geometry, minimaPos, markerPositions } = useMemo(() => {
     const { norm, min, max } = normalizeGrid(values);
     const geo = new THREE.PlaneGeometry(cols - 1, rows - 1, cols - 1, rows - 1);
     const pos = geo.attributes.position;
@@ -40,16 +47,24 @@ function TerrainMesh({ values, minimaRow, minimaCol }: TerrainProps) {
 
     const mr = minimaRow ?? 0;
     const mc = minimaCol ?? 0;
-    const x = mc - (cols - 1) / 2;
-    const y = -(mr - (rows - 1) / 2);
-    const z = ((norm[mr]?.[mc] ?? 0) * 2.5) + 0.15;
+    const minZ = (norm[mr]?.[mc] ?? 0) * 2.5;
+    const minimaPos = gridCellToTerrainPosition(mr, mc, rows, cols, minZ);
+
+    const markerPositions = markers.map((m) => {
+      const h = (norm[m.row]?.[m.col] ?? 0) * 2.5;
+      return {
+        marker: m,
+        pos: gridCellToTerrainPosition(m.row, m.col, rows, cols, h),
+      };
+    });
 
     return {
       geometry: geo,
-      minimaPos: [x, y, z] as [number, number, number],
+      minimaPos,
+      markerPositions,
       range: { min, max },
     };
-  }, [values, rows, cols, minimaRow, minimaCol]);
+  }, [values, rows, cols, minimaRow, minimaCol, markers]);
 
   return (
     <group>
@@ -62,17 +77,28 @@ function TerrainMesh({ values, minimaRow, minimaCol }: TerrainProps) {
           <meshStandardMaterial color="#22d3ee" emissive="#0891b2" emissiveIntensity={0.6} />
         </mesh>
       )}
+      {markerPositions.map(({ marker, pos }) => (
+        <mesh key={marker.label} position={pos}>
+          <octahedronGeometry args={[0.14, 0]} />
+          <meshStandardMaterial
+            color={marker.color ?? "#f59e0b"}
+            emissive="#b45309"
+            emissiveIntensity={0.55}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
 
 interface LossLandscape3DProps {
   values: number[][];
+  markers?: LandscapeMarker[];
   height?: number;
   className?: string;
 }
 
-export function LossLandscape3D({ values, height = 280, className }: LossLandscape3DProps) {
+export function LossLandscape3D({ values, markers = [], height = 280, className }: LossLandscape3DProps) {
   const minima = useMemo(() => analyzeLossMinima(values), [values]);
 
   if (!values.length || !values[0]?.length) {
@@ -96,13 +122,28 @@ export function LossLandscape3D({ values, height = 280, className }: LossLandsca
           values={values}
           minimaRow={minima?.row}
           minimaCol={minima?.col}
+          markers={markers}
         />
         <OrbitControls enableDamping dampingFactor={0.08} minDistance={2} maxDistance={12} />
       </Canvas>
-      {minima && (
+      {(minima || markers.length > 0) && (
         <p className="text-[10px] text-canvas-muted px-2 py-1 border-t border-canvas-border">
-          Global min {minima.value.toFixed(4)} at ({minima.row}, {minima.col}) · sharpness{" "}
-          {minima.sharpness.toFixed(3)} ({minima.label} basin)
+          {minima && (
+            <>
+              Global min {minima.value.toFixed(4)} at ({minima.row}, {minima.col}) · sharpness{" "}
+              {minima.sharpness.toFixed(3)} ({minima.label} basin)
+            </>
+          )}
+          {markers.map((m) => (
+            <span key={m.label}>
+              {minima ? " · " : ""}
+              {m.label}
+              {m.theta1 != null && m.theta2 != null
+                ? ` θ=(${m.theta1.toFixed(3)}, ${m.theta2.toFixed(3)})`
+                : ` at (${m.row}, ${m.col})`}
+              {m.loss != null ? ` loss=${m.loss.toFixed(4)}` : ""}
+            </span>
+          ))}
         </p>
       )}
     </div>

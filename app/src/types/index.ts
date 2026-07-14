@@ -244,6 +244,11 @@ export interface TensorSlicePreview {
   rust_ms: number;
 }
 
+export interface NpzVectorData {
+  key: string;
+  values: number[];
+}
+
 // ── App navigation ───────────────────────────────────────────────────────────
 
 /** Ephemeral map compare intent from Algorithm Comparison → Simulation Monitor. */

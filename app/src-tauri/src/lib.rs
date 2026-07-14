@@ -32,6 +32,7 @@ pub fn run() {
             // TensorDict / NumPy archives (§G.5.1)
             tensor::inspect_npz_archive,
             tensor::load_tensor_slice,
+            tensor::load_npz_vectors,
             tensor::tensor_slice_to_arrow_ipc,
             tensor::probe_npy_mmap,
             // Simulation file watcher
