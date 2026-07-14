@@ -41,7 +41,7 @@ loop-grok prompt="Continue implementing the studio, updating the ROADMAP and CHA
     while true; do
         CURRENT_TASK=$(cat "$FEED_FILE")
         echo -e "\n[Loop Monitor] Injecting iterative task context down stream..."
-        grok --always-approve "$CURRENT_TASK"
+        grok --always-approve -p "$CURRENT_TASK"
         echo -e "\n[Loop Monitor] Iteration complete. Re-seeding context step..."
         echo "Review the updates you just made to the studio, ROADMAP, and CHANGELOG in the previous step. Continue implementing the studio, updating the ROADMAP and CHANGELOG, and committing your work based on your current state." > "$FEED_FILE"
         sleep 5

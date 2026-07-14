@@ -31,6 +31,12 @@ pub struct NpzArchiveInfo {
 }
 
 #[derive(Debug, Serialize)]
+pub struct NpzVectorData {
+    pub key: String,
+    pub values: Vec<f64>,
+}
+
+#[derive(Debug, Serialize)]
 pub struct TensorSlicePreview {
     pub key: String,
     pub full_shape: Vec<usize>,
@@ -375,6 +381,30 @@ pub fn tensor_slice_to_arrow_ipc(
     .map_err(|e| e.to_string())?;
 
     export_batch(&batch, "tensor", start)
+}
+
+/// Load 1-D (or scalar) arrays from an NPZ archive — used for θ axes and BPC markers (§G.5.2).
+#[tauri::command]
+pub fn load_npz_vectors(path: String, keys: Vec<String>) -> Result<Vec<NpzVectorData>, String> {
+    let mut out = Vec::new();
+    for key in keys {
+        let (shape, arr) = open_npz_array(&path, &key)?;
+        let flat: Vec<f64> = arr.iter().copied().collect();
+        if flat.is_empty() {
+            return Err(format!("Key '{key}' is empty"));
+        }
+        if shape.len() > 1 {
+            return Err(format!(
+                "Key '{key}' has rank {} — expected 0-D or 1-D vector",
+                shape.len()
+            ));
+        }
+        out.push(NpzVectorData {
+            key,
+            values: flat,
+        });
+    }
+    Ok(out)
 }
 
 /// Memory-map probe: reports whether a standalone `.npy` is large enough for mmap handoff.

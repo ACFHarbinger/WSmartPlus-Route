@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-third pass (§G.5)
+
+Forty-third pass completes the remaining **§G.5 Machine Learning Introspection**
+checklist items: BPC exact-solver landscape marker and Empirical vs Gamma-3
+attention distribution compare.
+
+**Rust backend (`app/src-tauri/`)**
+- `commands/tensor.rs` — `load_npz_vectors` reads 0-D/1-D NPZ arrays (θ axes, BPC marker coords)
+
+**Python**
+- `logic/gen/export_loss_landscape.py` — bundles `bpc_theta1`, `bpc_theta2`, `bpc_loss`, and `distribution` metadata; `--bpc-theta1`/`--bpc-theta2`/`--distribution` CLI flags
+
+**React frontend**
+- `utils/lossLandscape.ts` — `resolveBpcMarker`, `thetaToGridCell`, `gridCellToTerrainPosition`
+- `utils/distributionCompare.ts` — `inferDistributionLabel`, Empirical/Gamma-3 path heuristics
+- `LossLandscape3D` — amber BPC octahedron marker on 3D topography
+- `MLIntrospectionPanel` — BPC `markPoint` on 2D contour; "Empirical vs Gamma-3" dual-archive attention compare (side-by-side + overlay Δ)
+
+**ROADMAP**
+- §G.5.2 BPC optimum landscape marker checked
+- §G.5.3 Empirical vs Gamma-3 attention compare checked (partial — Sigma.js, Q/K/V deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-second pass (§G.5)
 
 Forty-second pass completes remaining **§G.5 Machine Learning Introspection** items:

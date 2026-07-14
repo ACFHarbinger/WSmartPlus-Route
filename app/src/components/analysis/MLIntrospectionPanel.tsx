@@ -9,7 +9,11 @@ import { Download, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { exportChartPng } from "../../utils/chartExport";
-import { analyzeLossMinima } from "../../utils/lossLandscape";
+import {
+  distributionDisplayName,
+  inferDistributionLabel,
+} from "../../utils/distributionCompare";
+import { analyzeLossMinima, resolveBpcMarker, type LandscapeMarker } from "../../utils/lossLandscape";
 import {
   applySparseTopK,
   buildMatrixHeatmapOption,
@@ -19,14 +23,14 @@ import {
   leadingIndexCount,
   suggestAttentionKeys,
 } from "../../utils/tensorHeatmap";
-import type { NpzArchiveInfo, TensorSlicePreview } from "../../types";
+import type { NpzArchiveInfo, NpzVectorData, TensorSlicePreview } from "../../types";
 
 const LossLandscape3D = lazy(() =>
   import("./LossLandscape3D").then((m) => ({ default: m.LossLandscape3D }))
 );
 
 type IntrospectionTab = "tensor" | "attention" | "loss";
-type CompareMode = "single" | "side-by-side" | "overlay";
+type CompareMode = "single" | "side-by-side" | "overlay" | "distribution";
 
 function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
@@ -45,7 +49,10 @@ export function MLIntrospectionPanel() {
   const [compareStep, setCompareStep] = useState(0);
   const [preview, setPreview] = useState<TensorSlicePreview | null>(null);
   const [comparePreview, setComparePreview] = useState<TensorSlicePreview | null>(null);
+  const [distArchivePath, setDistArchivePath] = useState<string | null>(null);
+  const [distPreview, setDistPreview] = useState<TensorSlicePreview | null>(null);
   const [lossPreview, setLossPreview] = useState<TensorSlicePreview | null>(null);
+  const [lossMarkers, setLossMarkers] = useState<LandscapeMarker[]>([]);
   const [loading, setLoading] = useState(false);
   const [topK, setTopK] = useState(32);
   const [sparseK, setSparseK] = useState(0);
@@ -63,6 +70,28 @@ export function MLIntrospectionPanel() {
     if (!selected || typeof selected !== "string") return;
     setArchivePath(selected);
   }, []);
+
+  const pickDistArchive = useCallback(async () => {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: "NumPy archives", extensions: ["npz", "npy"] }],
+    });
+    if (!selected || typeof selected !== "string") return;
+    setDistArchivePath(selected);
+  }, []);
+
+  const primaryDistLabel = useMemo(
+    () => (archivePath ? distributionDisplayName(inferDistributionLabel(archivePath, archive?.arrays.map((a) => a.key))) : "Primary"),
+    [archivePath, archive]
+  );
+
+  const distCompareLabel = useMemo(
+    () =>
+      distArchivePath
+        ? distributionDisplayName(inferDistributionLabel(distArchivePath))
+        : "Compare",
+    [distArchivePath]
+  );
 
   const inspectArchive = useCallback(async (path: string) => {
     setLoading(true);
@@ -117,33 +146,59 @@ export function MLIntrospectionPanel() {
   }, [effectiveIndices, leading, compareStep, tab, compareMode]);
 
   const loadSlice = useCallback(
-    async (idx: number[]) => {
-      if (!archivePath || !selectedKey) return null;
+    async (path: string, idx: number[], key: string) => {
+      if (!path || !key) return null;
       return invoke<TensorSlicePreview>("load_tensor_slice", {
-        path: archivePath,
-        key: archivePath.endsWith(".npy") ? null : selectedKey,
+        path,
+        key: path.endsWith(".npy") ? null : key,
         indices: idx,
         maxDim: tab === "loss" ? 96 : topK,
       });
     },
-    [archivePath, selectedKey, tab, topK]
+    [tab, topK]
   );
+
+  const loadLossMarkers = useCallback(async (path: string, rows: number, cols: number) => {
+    if (!path.endsWith(".npz")) {
+      setLossMarkers([]);
+      return;
+    }
+    try {
+      const vectors = await invoke<NpzVectorData[]>("load_npz_vectors", {
+        path,
+        keys: ["theta1", "theta2", "bpc_theta1", "bpc_theta2", "bpc_loss"],
+      });
+      const bpc = resolveBpcMarker(vectors, rows, cols);
+      setLossMarkers(bpc ? [bpc] : []);
+    } catch {
+      setLossMarkers([]);
+    }
+  }, []);
 
   const loadPreview = useCallback(async () => {
     if (!archivePath || !selectedKey) return;
     setLoading(true);
     try {
-      const slice = await loadSlice(effectiveIndices);
+      const slice = await loadSlice(archivePath, effectiveIndices, selectedKey);
       if (!slice) return;
       if (tab === "loss") {
         setLossPreview(slice);
+        const rows = slice.values.length;
+        const cols = slice.values[0]?.length ?? 0;
+        await loadLossMarkers(archivePath, rows, cols);
       } else {
         setPreview(slice);
-        if (tab === "attention" && compareMode !== "single") {
-          const cmp = await loadSlice(compareIndices);
+        if (tab === "attention" && compareMode === "distribution" && distArchivePath) {
+          const dist = await loadSlice(distArchivePath, effectiveIndices, selectedKey);
+          setDistPreview(dist);
+          setComparePreview(null);
+        } else if (tab === "attention" && compareMode !== "single" && compareMode !== "distribution") {
+          const cmp = await loadSlice(archivePath, compareIndices, selectedKey);
           setComparePreview(cmp);
+          setDistPreview(null);
         } else {
           setComparePreview(null);
+          setDistPreview(null);
         }
       }
     } catch (err) {
@@ -151,11 +206,21 @@ export function MLIntrospectionPanel() {
     } finally {
       setLoading(false);
     }
-  }, [archivePath, selectedKey, effectiveIndices, compareIndices, tab, compareMode, loadSlice]);
+  }, [
+    archivePath,
+    selectedKey,
+    effectiveIndices,
+    compareIndices,
+    tab,
+    compareMode,
+    distArchivePath,
+    loadSlice,
+    loadLossMarkers,
+  ]);
 
   useEffect(() => {
     if (archivePath && selectedKey) void loadPreview();
-  }, [archivePath, selectedKey, effectiveIndices, compareIndices, tab, topK, compareMode, loadPreview]);
+  }, [archivePath, selectedKey, effectiveIndices, compareIndices, tab, topK, compareMode, distArchivePath, loadPreview]);
 
   useEffect(() => {
     if (!archive || tab !== "loss") return;
@@ -179,43 +244,109 @@ export function MLIntrospectionPanel() {
     return grid;
   }, [comparePreview, sparseK]);
 
+  const distValues = useMemo(() => {
+    if (!distPreview) return null;
+    let grid = distPreview.values;
+    if (sparseK > 0) grid = applySparseTopK(grid, sparseK);
+    return grid;
+  }, [distPreview, sparseK]);
+
   const heatmapOption = useMemo(() => {
     if (!processedValues) return null;
     const values =
       compareMode === "overlay" && compareValues
         ? diffMatrices(processedValues, compareValues)
-        : processedValues;
+        : compareMode === "distribution" && distValues
+          ? diffMatrices(processedValues, distValues)
+          : processedValues;
     const label =
       tab === "attention"
-        ? `Attention · ${preview?.key} [${effectiveIndices.join(",")}]${
-            compareMode === "overlay" && compareValues ? " Δ" : ""
-          }`
+        ? compareMode === "distribution"
+          ? `${primaryDistLabel} · ${preview?.key} [${effectiveIndices.join(",")}]${
+              distValues ? " Δ" : ""
+            }`
+          : `Attention · ${preview?.key} [${effectiveIndices.join(",")}]${
+              compareMode === "overlay" && compareValues ? " Δ" : ""
+            }`
         : `${preview?.key} [${preview?.full_shape.join("×")}]`;
     return buildMatrixHeatmapOption(values, {
       title: label,
-      min: compareMode === "overlay" ? undefined : preview?.min,
-      max: compareMode === "overlay" ? undefined : preview?.max,
+      min: compareMode === "overlay" || compareMode === "distribution" ? undefined : preview?.min,
+      max: compareMode === "overlay" || compareMode === "distribution" ? undefined : preview?.max,
       theme,
       xLabel: tab === "attention" ? "Key" : "X",
       yLabel: tab === "attention" ? "Query" : "Y",
     });
-  }, [processedValues, compareValues, compareMode, preview, tab, effectiveIndices, theme]);
+  }, [
+    processedValues,
+    compareValues,
+    distValues,
+    compareMode,
+    preview,
+    tab,
+    effectiveIndices,
+    theme,
+    primaryDistLabel,
+  ]);
 
   const compareHeatmapOption = useMemo(() => {
-    if (!compareValues || compareMode !== "side-by-side") return null;
-    return buildMatrixHeatmapOption(compareValues, {
-      title: `Compare step ${compareStep}`,
-      min: comparePreview?.min,
-      max: comparePreview?.max,
+    if (compareMode === "side-by-side" && compareValues) {
+      return buildMatrixHeatmapOption(compareValues, {
+        title: `Compare step ${compareStep}`,
+        min: comparePreview?.min,
+        max: comparePreview?.max,
+        theme,
+        xLabel: "Key",
+        yLabel: "Query",
+      });
+    }
+    if (compareMode === "distribution" && distValues) {
+      return buildMatrixHeatmapOption(distValues, {
+        title: `${distCompareLabel} · ${distPreview?.key ?? selectedKey}`,
+        min: distPreview?.min,
+        max: distPreview?.max,
+        theme,
+        xLabel: "Key",
+        yLabel: "Query",
+      });
+    }
+    return null;
+  }, [
+    compareValues,
+    distValues,
+    compareMode,
+    compareStep,
+    comparePreview,
+    distPreview,
+    distCompareLabel,
+    selectedKey,
+    theme,
+  ]);
+
+  const primaryHeatmapOption = useMemo(() => {
+    if (!processedValues || compareMode !== "distribution") return heatmapOption;
+    return buildMatrixHeatmapOption(processedValues, {
+      title: `${primaryDistLabel} · ${preview?.key ?? selectedKey} [${effectiveIndices.join(",")}]`,
+      min: preview?.min,
+      max: preview?.max,
       theme,
       xLabel: "Key",
       yLabel: "Query",
     });
-  }, [compareValues, compareMode, compareStep, comparePreview, theme]);
+  }, [
+    processedValues,
+    compareMode,
+    heatmapOption,
+    primaryDistLabel,
+    preview,
+    selectedKey,
+    effectiveIndices,
+    theme,
+  ]);
 
   const lossOption = useMemo(() => {
     if (!lossPreview) return null;
-    return buildMatrixHeatmapOption(lossPreview.values, {
+    const base = buildMatrixHeatmapOption(lossPreview.values, {
       title: `Loss landscape · ${lossPreview.key}`,
       min: lossPreview.min,
       max: lossPreview.max,
@@ -223,7 +354,21 @@ export function MLIntrospectionPanel() {
       xLabel: "θ₁",
       yLabel: "θ₂",
     });
-  }, [lossPreview, theme]);
+    if (!lossMarkers.length) return base;
+    const markPoint = {
+      data: lossMarkers.map((m) => ({
+        name: m.label,
+        coord: [m.col, m.row],
+        value: m.loss != null ? m.loss.toFixed(4) : "",
+        itemStyle: { color: m.color ?? "#f59e0b" },
+      })),
+      symbol: "diamond",
+      symbolSize: 14,
+    };
+    const series = (base.series as Record<string, unknown>[])?.[0];
+    if (!series) return base;
+    return { ...base, series: [{ ...series, markPoint }] };
+  }, [lossPreview, lossMarkers, theme]);
 
   const lossMinima = useMemo(
     () => (lossPreview ? analyzeLossMinima(lossPreview.values) : null),
@@ -430,9 +575,26 @@ export function MLIntrospectionPanel() {
                   <option value="single">Single</option>
                   <option value="side-by-side">Side-by-side</option>
                   <option value="overlay">Overlay Δ</option>
+                  <option value="distribution">Empirical vs Gamma-3</option>
                 </select>
               </label>
-              {compareMode !== "single" && (
+              {compareMode === "distribution" && (
+                <>
+                  <button
+                    onClick={() => void pickDistArchive()}
+                    className="btn-ghost text-xs flex items-center gap-1"
+                  >
+                    <FolderOpen size={12} />
+                    {distArchivePath ? "Change compare archive" : "Open compare .npz"}
+                  </button>
+                  {archivePath && (
+                    <span className="text-canvas-muted">
+                      {primaryDistLabel} vs {distCompareLabel}
+                    </span>
+                  )}
+                </>
+              )}
+              {compareMode !== "single" && compareMode !== "distribution" && (
                 <div className="flex items-center gap-2 min-w-[140px]">
                   <span className="text-canvas-muted">vs step</span>
                   <input
@@ -497,13 +659,18 @@ export function MLIntrospectionPanel() {
           </div>
           <div
             className={
-              compareMode === "side-by-side" && compareHeatmapOption
+              (compareMode === "side-by-side" || compareMode === "distribution") && compareHeatmapOption
                 ? "grid grid-cols-1 lg:grid-cols-2 gap-3"
                 : ""
             }
           >
-            <ReactECharts ref={chartRef} option={heatmapOption} style={{ height: 360 }} notMerge />
-            {compareMode === "side-by-side" && compareHeatmapOption && (
+            <ReactECharts
+              ref={chartRef}
+              option={compareMode === "distribution" ? (primaryHeatmapOption ?? heatmapOption) : heatmapOption}
+              style={{ height: 360 }}
+              notMerge
+            />
+            {(compareMode === "side-by-side" || compareMode === "distribution") && compareHeatmapOption && (
               <ReactECharts
                 ref={compareChartRef}
                 option={compareHeatmapOption}
@@ -513,8 +680,8 @@ export function MLIntrospectionPanel() {
             )}
           </div>
           <p className="text-[10px] text-canvas-muted">
-            Head selector · sparse top-k · decode-step compare (side-by-side / overlay Δ). Sigma.js
-            node overlay deferred (§G.5.3 partial).
+            Head selector · sparse top-k · decode-step compare · Empirical vs Gamma-3 distribution
+            compare (side-by-side / overlay Δ). Sigma.js node overlay deferred (§G.5.3 partial).
           </p>
         </div>
       )}
@@ -531,7 +698,7 @@ export function MLIntrospectionPanel() {
                     </div>
                   }
                 >
-                  <LossLandscape3D values={lossPreview.values} />
+                  <LossLandscape3D values={lossPreview.values} markers={lossMarkers} />
                 </Suspense>
                 <div className="space-y-2">
                   <div className="flex justify-end">
@@ -552,7 +719,9 @@ export function MLIntrospectionPanel() {
                 <p className="text-[10px] text-canvas-muted">
                   Minima annotation: {lossMinima.label} basin (sharpness {lossMinima.sharpness.toFixed(3)}).
                   Flatter minima often generalize better across Empirical vs Gamma-3 distributions.
-                  BPC optimum marker deferred until solver coordinates are bundled in NPZ.
+                  {lossMarkers.length > 0
+                    ? " Amber diamond = BPC exact-solver projection on the landscape."
+                    : " Bundle bpc_theta1/bpc_theta2 in the NPZ (see export_loss_landscape.py) for the BPC marker."}
                 </p>
               )}
             </>
