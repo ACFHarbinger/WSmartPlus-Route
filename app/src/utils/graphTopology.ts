@@ -387,6 +387,43 @@ export function tourIndicesToMatrixPairs(
   return pairs;
 }
 
+/** Count consecutive tour edge pairs for the given day entry. */
+export function countTourEdgeSteps(
+  entry: DayLogEntry | undefined,
+  nodeIds: number[]
+): number {
+  if (!entry) return 0;
+  return tourIndicesToMatrixPairs(entry.data.tour_indices, nodeIds).length;
+}
+
+/**
+ * Deposit synthetic ACO τ along tour edges up to `upToStep` (per-iteration stepping).
+ * Each ant step adds τ on the next consecutive tour edge; later steps deposit slightly more.
+ */
+export function accumulateTourPheromoneByStep(
+  entry: DayLogEntry,
+  nodeIds: number[],
+  upToStep: number,
+  opts: { depositScale?: number } = {}
+): Map<string, number> {
+  const pairs = tourIndicesToMatrixPairs(entry.data.tour_indices, nodeIds);
+  const weights = new Map<string, number>();
+  if (!pairs.length || upToStep <= 0) return weights;
+
+  const scale =
+    opts.depositScale ?? 1 + Math.max(0, (entry.data.profit ?? 0) / 500);
+  const limit = Math.min(upToStep, pairs.length);
+
+  for (let i = 0; i < limit; i++) {
+    const [a, b] = pairs[i];
+    const key = pheromoneEdgeKey(a, b);
+    const stepFactor = 1 + (i / Math.max(pairs.length, 1)) * 0.5;
+    weights.set(key, (weights.get(key) ?? 0) + scale * stepFactor);
+  }
+
+  return weights;
+}
+
 /**
  * Accumulate synthetic ACO pheromone from tour edges up to `upToDay`.
  * Older days decay exponentially; deposit scales with route profit when present.

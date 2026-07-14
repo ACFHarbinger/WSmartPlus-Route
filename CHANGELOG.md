@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — forty-ninth pass (§G.2 / §G.4)
+
+Forty-ninth pass closes remaining **§G.4** deferred timeline/brush items and adds
+**§G.2** treemap overflows colour mode.
+
+**React frontend**
+- `graphTopology.ts` — `accumulateTourPheromoneByStep`, `countTourEdgeSteps` for
+  per-tour-edge ACO τ stepping
+- `GraphTopologyPanel` — pheromone mode toggle (by day / by tour step); click node
+  → fill-% bidirectional brush across ECharts, Sigma.js, and Cosmograph views
+- `TopologySigmaView` / `TopologyCosmographView` — `clickNode` handler for fill brush
+- `policyHierarchy.ts` — `HierarchyColorMode` (`kgkm` | `overflows`); green→red
+  overflows gradient on treemap/sunburst segments
+- `PolicyHierarchyPanel` — kg/km vs overflows colour mode selector
+
+**ROADMAP**
+- §G.4 per-ACO-iteration stepping checked
+- §G.4 bidirectional chart brush checked
+- §G.2 overflows treemap colour mode checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — forty-eighth pass (§G.4 / §G.5)
 
 Forty-eighth pass closes the remaining **§G.4** deferred WebGL/layout items and adds
