@@ -209,7 +209,7 @@ def _build_seed_chromosomes(
         elif rng.random() < 0.3:
             extra = rng.integers(1, n_bins + 1)
             if extra not in sel_variant:
-                sel_variant.append(int(extra))
+                sel_variant.append(extra)
 
         routing = _seed_routing_order(sel_variant, distance_matrix)
         chrom = Chromosome.from_selection_and_order(
@@ -421,13 +421,13 @@ class Population:
         # Offspring via biased crossover
         n_offspring = pop_size - n_elite - n_mutants
         for _ in range(max(0, n_offspring)):
-            e_idx = int(rng.integers(0, len(elite_pool)))
+            e_idx = rng.integers(0, len(elite_pool))
             if non_elite_pool:
-                ne_idx = int(rng.integers(0, len(non_elite_pool)))
+                ne_idx = rng.integers(0, len(non_elite_pool))
                 child = biased_crossover(elite_pool[e_idx], non_elite_pool[ne_idx], bias_elite, rng)
             else:
                 # Fallback: two elite parents if no non-elite pool
-                e_idx2 = int(rng.integers(0, len(elite_pool)))
+                e_idx2 = rng.integers(0, len(elite_pool))
                 child = biased_crossover(elite_pool[e_idx], elite_pool[e_idx2], bias_elite, rng)
             new_generation.append(child)
 

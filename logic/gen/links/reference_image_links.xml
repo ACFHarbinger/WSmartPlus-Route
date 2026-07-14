@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Web-source references for the deck's conceptual diagrams.
+  Used by gen_presentation.py's --image-mode fetch (ensure_reference_images):
+  for each <image key="..."> whose key matches a NATIVE_DIAGRAM_BUILDERS entry
+  (the filename stem), the <url> is downloaded to that filename instead of
+  calling the native (in-house) builder. Any file under this repo that embeds
+  a web link should live in this logic/gen/links/ subdirectory.
+-->
+<reference_images>
+  <image key="bb_tree">
+    <url>https://optimization.cbe.cornell.edu/images/0/06/MINLP_Illustration.jpg</url>
+    <used_in>Exact Methods slide — Branch-and-Bound search tree</used_in>
+    <license_note>Third-party academic illustration (Cornell CTOM wiki). Native mode recreates an equivalent, on-brand diagram in-house instead of embedding it directly.</license_note>
+  </image>
+  <image key="ls_operators">
+    <url>https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFAbsxFQDIbb_qJG7VjtsdDDCfFPCqmCKUeRA3xRxunSa4aerFTWHJMU8&amp;s=10</url>
+    <used_in>Route Improvers slide — 2-opt edge-swap illustration (one of the three local-search operator panels)</used_in>
+    <license_note>Third-party cached thumbnail of unknown original source/license. Native mode recreates an equivalent, on-brand diagram in-house instead of embedding it directly.</license_note>
+  </image>
+  <image key="population_overview">
+    <url>https://www.mdpi.com/proceedings/proceedings-83-00051/article_deploy/html/images/proceedings-83-00051-g002-550.jpg</url>
+    <used_in>Meta-Heuristics slide — population-based (genetic-algorithm-style) panel</used_in>
+    <license_note>Third-party MDPI conference-proceedings figure. Native mode recreates an equivalent, on-brand diagram in-house instead of embedding it directly.</license_note>
+  </image>
+  <image key="vrpp_illustration">
+    <url>https://www.researchgate.net/publication/332492087/figure/fig2/AS:11431281388115849@1745157320976/The-problem-of -predicted-consumer-availability-according-to-general-rule-r-next-second.tif</url>
+    <used_in>VRPP slide — problem illustration (profit-based node selection: available / not-yet-available / available-after-rule bins)</used_in>
+    <license_note>Third-party ResearchGate figure. Native mode falls back to the locally stored copy under logic/gen/images/vrpp_illustration_source.png instead of re-fetching it.</license_note>
+  </image>
+</reference_images>

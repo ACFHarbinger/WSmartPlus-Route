@@ -14,109 +14,127 @@
     "² CEGIST, Instituto Superior Técnico, University of Lisbon"
   ],
   "agenda": [
-    "Introduction — VRPP, Simulator Philosophy & Objective",
+    "Introduction: Problem and Objective",
+    "Simulator Overview",
     "Mandatory Node Selection Strategies",
-    "Route Constructors & Route Improvers",
-    "Results",
-    "Conclusions, Limitations & Future Work"
+    "Route Constructors",
+    "Route Improvers",
+    "Experimental Methodology",
+    "Experimental Results",
+    "Conclusions & Limitations"
   ],
   "slides": {
     "vrpp": {
       "title": "The Problem: Vehicle Routing Problem with Profits (VRPP)",
       "equation": [
-        "\\max_{y,\\,x}\\ \\ \\sum_{i \\in V} p_i\\, y_i\\ -\\ c \\sum_{(i,j) \\in A} d_{ij}\\, x_{ij}",
-        "\\mathrm{s.t.}\\ \\ \\sum_{i \\in V} q_i\\, y_i \\leq Q,\\quad x\\ \\mathrm{routes\\ the\\ selected}\\ y"
+        "w_{i,d+1} = \\delta_{i,d+1} \\ \\text{if } v_i \\in \\mathcal{A}_d, \\quad \\text{else } \\min(w_{i,d}+\\delta_{i,d+1},\\ \\tau)",
+        "\\max\\ \\mathcal{P} = r_w \\sum_{v_i\\in\\mathcal{A}_d} w_{i,d} - c_{km}\\sum_{t=0}^{T_d} \\|\\vec{l}_{a_t}-\\vec{l}_{a_{t+1}}\\|_2",
+        "\\max_{\\pi}\\ \\mathbb{E}\\left[\\sum_{d=1}^{D} \\mathcal{P}(\\mathcal{A}_d, \\vec{w}_d)\\right]"
       ],
-      "caption": "Objective: maximise collected profit minus travel cost, choosing which nodes y to visit and how x routes them, subject to the vehicle capacity Q.",
+      "caption": "Bin fill w_i,d accumulates stochastically (rate δ) and resets on a visit. Daily profit P nets collected-waste revenue r_w against travel cost c_km along the chosen route A_d. The policy π must maximise the expected profit summed over the full D-day horizon.",
+      "figure": "vrpp_illustration.png",
+      "eq_size_pt": 19,
+      "eq_line_h": 0.95,
+      "show_bullets": false,
       "bullets": [
         "Unlike the classical VRP, only a profitable subset of nodes is visited: profit p_i (waste kg) vs travel cost c·d_ij",
         "In waste collection bins fill stochastically day by day — skipping a bin saves distance but risks overflow",
-        "Two conflicting KPIs: bin overflows (service quality, ↓) and kg/km route efficiency (cost, ↑)",
+        "Two conflicting KPIs: bin overflows (service quality, ↓) and KG / KM route efficiency (cost, ↑)",
         "Multi-day sequential decision problem over scenarios: RM-100, RM-170, FFZ-350 × {Empirical, Gamma-3} × {30, 90} days"
       ]
     },
     "objective": {
-      "title": "Objective of this Work",
+      "title": "Objective of this Work — Algorithm Glossary",
+      "diagram": "algo_taxonomy",
+      "figure": "framework_objective.png",
       "bullets": [
-        "Benchmark, under one simulation framework, the full space of daily routing policies for the multi-period VRPP in smart waste collection",
-        "Exact methods: Branch-Price-and-Cut (BPC) and SWC-TCF — optimality reference points at the daily-subproblem scale",
-        "Meta-heuristics: Hybrid Genetic Search (HGS), Adaptive Large Neighborhood Search (ALNS), Simulated Annealing Neighborhood Search (SANS), Policy-Gradient CLNS (PG-CLNS)",
-        "Hyper-heuristics: Particle Swarm Optimisation Memetic Algorithm (PSOMA) and Ant Colony Optimisation Hyper-Heuristic (ACO-HH)",
-        "Question: which combination of mandatory selection strategy, route constructor and route improver dominates the overflow vs kg/km trade-off, and how stable is that answer across scenarios and horizons?"
+        "BPC: Branch-Price-and-Cut",
+        "SWC-TCF: Smart Waste Collection – Two-Commodity Flow",
+        "HGS: Hybrid Genetic Search",
+        "ALNS: Adaptive Large Neighborhood Search",
+        "SANS: Simulated Annealing Neighborhood Search",
+        "PG-CLNS: Policy-Gradient Cooperative Large Neighborhood Search",
+        "PSOMA: Particle Swarm Optimisation Memetic Algorithm",
+        "ACO-HH: Ant Colony Optimisation Hyper-Heuristic"
       ]
     },
     "simulator": {
       "title": "Routing Simulator Philosophy — Modular Policy Pipeline",
       "diagram": "pipeline",
       "caption": "Every daily routing policy decomposes into a mandatory bin-selection strategy, a route constructor, an optional acceptance criterion and an optional route improver.",
+      "show_bullets": false,
       "bullets": [
         "Every daily routing policy is a composition of interchangeable stages, benchmarked under identical conditions",
-        "The simulator replays multi-day scenarios (region × graph size × waste distribution), logging overflows, kg, km, kg/km and profit for every policy combination"
-      ]
-    },
-    "strategies": {
-      "title": "Mandatory Node Selection Strategies",
-      "equation": [
-        "\\textbf{Look-Ahead (LA):}\\ \\ \\hat{f}_i(t + \\delta) \\geq 100\\%\\ \\Rightarrow\\ \\mathrm{collect\\ today\\ (proactive)}",
-        "\\textbf{Last-Minute (LM):}\\ \\ f_i(t) \\geq CF, \\quad CF \\in \\{70\\%,\\ 90\\%\\}\\ \\mathrm{(reactive)}",
-        "\\textbf{Service-Level (SL):}\\ \\ P\\left(f_i \\geq 100\\%\\right) \\leq 1 - \\alpha \\quad \\mathrm{(probabilistic\\ guarantee)}"
-      ],
-      "caption": "The three mandatory selection rules — Look-Ahead (LA) forecasts fill level f_i at t+δ, Last-Minute (LM) reacts once f_i crosses a critical fill threshold CF, and Service-Level (SL) bounds each bin's overflow probability by a target confidence α.",
-      "bullets": [
-        "Look-Ahead (LA) anticipates predicted overflows; Last-Minute (LM) waits for a critical fill threshold; Service-Level (SL) bounds each bin's overflow probability",
-        "Empirical trade-off: LM dominates efficiency (kg/km), SL dominates overflow prevention, LA sits in between",
-        "The choice spans the service-quality vs cost spectrum — an operational decision, not an algorithmic one"
+        "The simulator replays multi-day scenarios (region × graph size × waste distribution), logging overflows, kg, km, KG / KM and profit for every policy combination"
       ]
     },
     "policy_overview": {
       "title": "Big Picture: Policy Configuration Space",
       "diagram": "policy_grid",
       "caption": "Every simulated policy is one path through the three columns: a mandatory selection strategy, a route constructor (exact / meta-heuristic / hyper-heuristic) and an optional route improver.",
+      "show_bullets": false,
       "bullets": [
         "Mandatory selection × route constructor × route improver — every combination is run through the same multi-day simulator",
         "Exact methods and meta-/hyper-heuristics are interchangeable route constructors under the identical selection and improvement stages"
       ]
     },
+    "strategies": {
+      "title": "Mandatory Node Selection Strategies",
+      "equation": [
+        "\\textbf{Look-Ahead (LA), step 1:}\\ \\ \\mathcal{M}_0=\\{i : w_i(t)+\\delta_i \\geq \\tau\\}\\quad\\text{(bins overflowing tomorrow)}",
+        "\\textbf{Look-Ahead (LA), step 2:}\\ \\ \\text{bundle } i\\notin\\mathcal{M}_0 \\text{ too if it would overflow before } \\mathcal{M}_0\\text{'s next collection}",
+        "\\textbf{Service-Level (SL):}\\ \\ w_i(t) + \\bar{\\delta_i}\\,n + z_\\alpha\\,\\sigma_i\\,n \\ \\geq\\ \\tau\\ \\Rightarrow\\ \\text{collect}",
+        "\\textbf{Last-Minute (LM):}\\ \\ f_i(t) \\geq CF,\\quad CF\\in\\{70\\%,\\ 90\\%\\}"
+      ],
+      "caption": "Look-Ahead first flags bins that would overflow tomorrow, then simulates forward to also bundle in any bin that would overflow before that same group's next natural collection day — avoiding an extra near-term trip. Service-Level flags a bin once its n-day-ahead worst case (mean fill + z_α standard deviations) crosses capacity τ. Last-Minute simply reacts once the fill ratio f_i crosses a fixed critical threshold CF. Choosing which bins to collect today is itself a knapsack-style decision (right): pick the subset of items that best fits the day's capacity/urgency budget.",
+      "figure": "knapsack_illustration.png",
+      "show_bullets": false,
+      "bullets": [
+        "Look-Ahead (LA) anticipates predicted overflows by bundling nearby future collections; Last-Minute (LM) waits for a critical fill threshold; Service-Level (SL) bounds each bin's overflow probability via a confidence factor",
+        "Empirical trade-off: LM dominates efficiency (KG / KM), SL dominates overflow prevention, LA sits in between",
+        "The choice spans the service-quality vs cost spectrum — an operational decision, not an algorithmic one"
+      ]
+    },
     "exact": {
       "title": "Exact Methods: BPC & SWC-TCF",
       "equation": [
-        "\\min \\sum_{r \\in \\Omega} c_r\\, \\lambda_r \\quad \\mathrm{s.t.} \\quad \\sum_{r \\in \\Omega} a_{ir}\\, \\lambda_r = 1\\ \\ \\forall i \\in V, \\quad \\lambda_r \\geq 0"
+        "\\sum_j f_{ij} - \\sum_j f_{ji} = S_i\\,g_i, \\qquad \\sum_j h_{ji} - \\sum_j h_{ij} = S_i\\,g_i",
+        "f_{ij} + h_{ij} = Q\\,x_{ij} \\qquad \\text{(waste + empty space = vehicle capacity, if arc used)}",
+        "\\max\\ R\\sum_i S_i g_i \\ -\\ 0.5\\,C\\sum_{ij} x_{ij}d_{ij}\\ -\\ \\Omega\\,k",
+        "\\textbf{BPC master:}\\ \\ \\min \\sum_{r \\in \\Omega} c_r\\, \\lambda_r \\quad \\text{s.t.} \\quad \\sum_{r \\in \\Omega} a_{ir}\\, \\lambda_r = 1\\ \\ \\forall i \\in V,\\ \\ \\lambda_r \\in \\{0,1\\}"
       ],
-      "caption": "Set-partitioning master problem: choose a minimum-cost combination of routes r ∈ Ω (weight λ_r) such that every node i is covered exactly once (a_ir = 1 iff route r visits i).",
-      "figure": "constructor_ranking.png",
+      "caption": "SWC-TCF's two-commodity flow (Ramos, Morais & Barbosa-Póvoa, 2018): g_i marks a visited bin and x_ij the routing arcs; the waste commodity f_ij and the empty-space commodity h_ij are coupled to the vehicle capacity Q along every used arc. BPC instead solves a column-generation master problem (Barnhart et al., 1998): pick a minimum-cost combination of priced routes r ∈ Ω (weight λ_r) covering every node i exactly once (a_ir = 1 iff route r visits i), pricing new columns and adding cuts at every Branch-and-Bound node.",
+      "figure": "bb_tree.png",
+      "show_bullets": false,
       "bullets": [
-        "Branch-Price-and-Cut (BPC): column generation over the route set Ω with cutting planes — proven optimality (BHV2000 lineage)",
-        "Pricing subproblem: elementary shortest path with resource constraints, accelerated by ng-route relaxation and limited-memory cuts",
-        "SWC-TCF: exact set-partitioning over Clarke-Wright-style savings columns with traffic-congestion-adjusted costs",
-        "Both provide optimality reference points; exponential worst-case runtime limits them to the daily subproblem sizes"
+        "Branch-Price-and-Cut (BPC): a Branch-and-Bound tree where, at every node, column generation prices new routes and valid cuts tighten the LP relaxation before branching on a fractional arc/route variable — proven optimality (BHV2000 lineage)",
+        "SWC-TCF: two-commodity network flow MILP (Ramos, Morais & Barbosa-Póvoa, 2018) — g_i marks a visited bin, x_ij the routing arcs, and two coupled flow commodities (f: waste, h: empty space) enforce capacity along each route",
+        "Both are exact: guaranteed-optimal for the daily subproblem, at the cost of exponential worst-case runtime — no results figures belong on this slide, only the methodology"
       ]
     },
     "metaheuristics": {
       "title": "Meta-Heuristics & Hyper-Heuristics — Overarching Philosophy",
-      "equation": [
-        "x_{t+1} = \\mathcal{A}\\left(x_t;\\ \\theta_t\\right), \\qquad \\theta_{t+1} = \\mathcal{U}\\left(\\theta_t,\\ \\mathrm{feedback}\\right)",
-        "\\mathbf{Hyper:}\\ \\ h^{*}_t = \\arg\\max_{h \\in H}\\ Q_t(h) \\quad \\mathrm{(search\\ over\\ heuristics)}"
-      ],
-      "caption": "A meta-heuristic maps the incumbent x_t to a new candidate via operator A parameterised by θ_t, updated from feedback; a hyper-heuristic instead searches over low-level heuristics h ∈ H, picking the one with highest estimated value Q_t(h) at each step.",
+      "diagram": "metaheuristic_families",
+      "figures": ["metaheuristic_overview.png", "hyperheuristic_overview.png", "trajectory_overview.png", "population_overview.png"],
+      "caption": "Meta-heuristics (HGS, PSOMA, SANS, PG-CLNS, ALNS) search the solution space directly; the hyper-heuristic (ACO-HH) instead searches the space of low-level heuristics. Within meta-heuristics, trajectory-based methods refine one incumbent solution while population-based methods evolve many candidates in parallel.",
+      "show_bullets": false,
       "bullets": [
         "Heuristic search trades a small optimality gap for polynomial runtime — essential beyond the exact methods' size limits",
-        "Evolutionary — HGS: population-based, ordered crossover + aggressive local search, biased fitness balances quality and diversity",
-        "Swarm intelligence — PSOMA: particle swarm + memetic refinement (best-overflow performer); ACO-HH: pheromones over low-level heuristics, most robust all-rounder",
-        "Trajectory-based — SANS: simulated annealing accepts worsening moves under a cooling schedule; PG-CLNS: destroy-and-repair LNS whose operator choice is learned via policy gradients",
-        "Three families, one shared interface: each plugs into the pipeline as an interchangeable route constructor"
+        "Meta-heuristics (HGS, ALNS, SANS, PG-CLNS, PSOMA) balance exploration (diversify, escape local optima) and exploitation (intensify, polish good solutions)",
+        "The hyper-heuristic (ACO-HH) instead learns which low-level heuristic to apply next, via pheromones over the heuristics themselves rather than over the solution",
+        "Trajectory-based (SANS, PG-CLNS): iteratively perturb one incumbent solution",
+        "Population-based (HGS, PSOMA): evolve a whole population of candidate solutions in parallel each generation",
+        "All families plug into the pipeline as interchangeable route constructors"
       ]
     },
     "improvers": {
       "title": "Route Improvers: Classical Local Search vs Fast-TSP",
-      "equation": [
-        "\\mathbf{2\\mathrm{-}opt:}\\ \\ \\Delta = d_{i,i+1} + d_{j,j+1} - d_{i,j} - d_{i+1,j+1} < 0\\ \\Rightarrow\\ \\mathrm{apply}",
-        "\\mathbf{FTSP:}\\ \\ \\min_{\\pi} \\sum_{k} d_{\\pi(k), \\pi(k+1)} \\quad \\mathrm{(SLS\\ for}\\ N > 20\\mathrm{)}"
-      ],
-      "caption": "2-opt accepts an edge swap whenever the resulting distance change Δ is negative. Fast-TSP reorders each route's visiting sequence π to minimise total distance — solved exactly for small routes and via Stochastic Local Search (SLS) once N exceeds 20 stops.",
-      "figure": "improver_delta.png",
+      "figure": "ls_operators.png",
+      "caption": "CLS explores several intra/inter-route neighbourhoods to a local optimum: 2-opt removes a crossing by reversing a segment, swap exchanges two nodes between routes, and relocate moves a single node to a better position. Fast-TSP applies the analogous exact/Stochastic-Local-Search reordering within each route.",
+      "show_bullets": false,
       "bullets": [
         "Optional, constructor-agnostic post-optimisation of each constructed route",
-        "CLS: exhaustive intra/inter-route neighbourhoods (2-opt, or-opt, swap, relocate) to a local optimum — best kg/km polish",
+        "CLS: exhaustive intra/inter-route neighbourhoods (2-opt, or-opt, swap, relocate) to a local optimum — best KG / KM polish",
         "Fast-TSP: reorders each route as a TSP — exact for small routes, Stochastic Local Search (SLS) under the hood for graphs with more than 20 nodes",
         "Improver choice is a second-order effect: selection strategy and constructor dominate the KPI outcomes"
       ]
@@ -125,6 +143,12 @@
       "title": "Design of Experiments",
       "diagram": "doe_tree",
       "caption": "Every scenario (region × graph size × waste distribution) is simulated for both the 30-day and the 90-day horizon; the 90-day runs are restricted to the 30-day Pareto-front policies.",
+      "figures": ["riomaior_map.png", "figueiradafoz_map.png"],
+      "figure_captions": [
+        "Rio Maior — every known bin location; the RM-100 / RM-170 scenarios sample this network.",
+        "Figueira da Foz — every known bin location; the FFZ-350 scenario samples this network."
+      ],
+      "show_bullets": false,
       "bullets": [
         "Regions/graph sizes: RM-100, RM-170 (Rio Maior), FFZ-350 (Figueira da Foz) — two waste distributions each: Empirical and Gamma-3",
         "5 mandatory selection variants × 8 route constructors × up to 2 improvers, replicated at 30 and 90 days"
@@ -132,12 +156,13 @@
     },
     "conclusion": {
       "title": "Conclusions, Limitations & Future Work",
-      "figure": "policy_radar.png",
-      "caption": "Overlaid radar chart comparing key route constructors across overflow, efficiency, distance and profit axes — outer position indicates better performance on that axis.",
+      "figures": ["policy_radar.png", "policy_radar_combined.png"],
+      "caption": "Overlaid radar charts comparing route constructors across overflow, efficiency, distance and profit axes (outer = better) — a curated subset (left) and every constructor (right).",
+      "show_bullets": false,
       "bullets": [
-        "The selection strategy dominates the overflow/efficiency trade-off: SL prevents overflows (SL2 + ACO_HH reached 0 at FFZ-350), LM (CF90) maximises kg/km (~12), LA balances",
+        "The selection strategy dominates the overflow/efficiency trade-off: SL prevents overflows (SL2 + ACO-HH reached 0 at FFZ-350), LM (CF90) maximises KG / KM (~12), LA balances",
         "BPC and PG-CLNS are the most frequent Pareto-front constructors; ACO-HH is the most robust across scenarios and horizons",
-        "Patterns are stable from 30 to 90 days; overflow pressure grows with the horizon while kg/km stays consistent",
+        "Patterns are stable from 30 to 90 days; overflow pressure grows with the horizon while KG / KM stays consistent",
         "Limitations: single vehicle type/depot per region; waste models calibrated on limited data; 90-day runs only cover the 30-day Pareto-front policies",
         "Future work: richer acceptance criteria, neural constructors (e.g. Attention Model) in the same pipeline, multi-vehicle fleets, intra-day re-routing, CO₂-aware objectives"
       ]
@@ -153,30 +178,27 @@
   },
   "figure_slides": {
     "pareto": {
-      "title": "Results — Pareto Front (Overflows vs kg/km)",
+      "title": "Results — Pareto Front (Overflows vs KG / KM)",
       "figure": "pareto_scatter_log.png",
       "note": "Symlog X axis (overflows). Colour = selection variant, shape = scenario, dashed lines = Pareto fronts (one colour per scenario)."
     },
     "kpi": {
       "title": "Results — Summary KPI Analysis by Selection Strategy",
-      "figures": ["overflow_by_config_log.png", "kgkm_by_config.png"],
-      "layout": "vertical",
+      "figure": "kpi_combined.png",
       "note": "Mean ± min/max range across route constructors; colours discriminate the mandatory selection strategies."
     },
     "strategy_bubble": {
-      "title": "Results — Strategy Trade-off (Overflows vs kg/km)",
+      "title": "Results — Strategy Trade-off (Overflows vs KG / KM)",
       "figure": "strategy_bubble_log.png",
       "note": "Each bubble = (selection strategy, scenario) averaged over constructors and improvers — coloured by mandatory selection strategy (LA/LM/SL)."
     },
     "scenario_heatmaps": {
       "title": "Results — Per-Scenario Heatmaps (Constructors × Strategy·Improver)",
       "figure": "scenario_constructor_heatmap.png",
-      "note": "30-day runs. One panel per scenario; route constructors on the rows, selection × improver combinations on the columns.",
-      "bottom_legend": true,
-      "side_legend_text": "Rows (all 12 panels): route constructor — ACO_HH, ALNS, BPC, HGS, PG-CLNS, PSOMA, SANS, SWC-TCF.\n\nColumns (all 12 panels): mandatory selection strategy × route improver — LA/LM/SL × FTSP/CLS.\n\nAxis tick labels are shown once here rather than repeated in tiny print on every one of the 6 scenario panels."
+      "note": "30-day runs. One panel per scenario; route constructors on the rows, selection × improver combinations on the columns."
     },
     "heatmaps": {
-      "title": "Results — Overflow & kg/km Heatmaps, 90 Days (Policies × Scenarios)",
+      "title": "Results — Overflow & KG / KM Heatmaps, 90 Days (Policies × Scenarios)",
       "figures": ["policy_scenario_heatmap_overflows.png", "policy_scenario_heatmap_kgkm.png"],
       "figures_dir": "public/figures/simulation/90d",
       "note": "90-day runs (Pareto-front policies only — fewer rows, easier to read). Rows = policy configurations; columns = scenarios."
