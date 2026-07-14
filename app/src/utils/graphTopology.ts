@@ -2,8 +2,13 @@
  * Topological graph analytics — distance matrix → edge list + force layout (§G.4).
  */
 import { invoke } from "@tauri-apps/api/core";
-import type { SimDayData } from "../types";
+import type { DayLogEntry, SimDayData } from "../types";
 import { parseLogPath } from "./simMetadata";
+
+export type TopologyLayoutMode = "force" | "radial";
+
+/** Auto-select radial layout for dense graphs (Cosmograph-style fallback). */
+export const DENSE_GRAPH_NODE_THRESHOLD = 200;
 
 export interface DistanceMatrixData {
   nodeIds: number[];
@@ -34,6 +39,10 @@ export interface TopologyBuildOptions {
   fillRange?: [number, number] | null;
   tourIndices?: number[];
   binIdByMatrixIndex?: Map<number, number>;
+  layoutMode?: TopologyLayoutMode | "auto";
+  pheromoneWeights?: Map<string, number>;
+  showPheromone?: boolean;
+  theme?: "dark" | "light";
 }
 
 function joinPath(root: string, rel: string): string {
@@ -222,6 +231,51 @@ export function forceDirectedLayout(
   return pos;
 }
 
+/** Radial dense layout — depot at centre, bins on concentric rings (§G.4 Cosmograph fallback). */
+export function radialDenseLayout(
+  nodeCount: number,
+  nodeIds: number[]
+): [number, number][] {
+  const area = Math.max(320, nodeCount * 10);
+  const pos: [number, number][] = Array.from({ length: nodeCount }, () => [0, 0]);
+
+  const depotIdx = nodeIds.indexOf(0);
+  if (depotIdx >= 0) pos[depotIdx] = [0, 0];
+
+  const ringNodes = nodeIds
+    .map((id, idx) => ({ id, idx }))
+    .filter(({ idx }) => idx !== depotIdx);
+  const rings = nodeCount >= DENSE_GRAPH_NODE_THRESHOLD ? 3 : 2;
+  const perRing = Math.ceil(ringNodes.length / rings);
+
+  ringNodes.forEach(({ idx }, order) => {
+    const ring = Math.floor(order / Math.max(perRing, 1));
+    const slot = order % Math.max(perRing, 1);
+    const ringCount = Math.min(perRing, ringNodes.length - ring * perRing);
+    const radius = area * (0.28 + (ring / Math.max(rings - 1, 1)) * 0.42);
+    const angle = (2 * Math.PI * slot) / Math.max(ringCount, 1);
+    pos[idx] = [Math.cos(angle) * radius, Math.sin(angle) * radius];
+  });
+
+  return pos;
+}
+
+export function resolveLayoutMode(
+  nodeCount: number,
+  mode: TopologyLayoutMode | "auto" = "auto"
+): TopologyLayoutMode {
+  if (mode === "auto") {
+    return nodeCount >= DENSE_GRAPH_NODE_THRESHOLD ? "radial" : "force";
+  }
+  return mode;
+}
+
+export function pheromoneEdgeKey(a: number, b: number): string {
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  return `${lo}-${hi}`;
+}
+
 function guiIdToMatrixIndex(guiId: number, nodeIds: number[]): number | null {
   if (guiId === -1) {
     const depotIdx = nodeIds.indexOf(0);
@@ -298,6 +352,86 @@ function nodeColor(
   return "#94a3b8";
 }
 
+/** Extract consecutive tour segments as undirected matrix-index pairs. */
+export function tourIndicesToMatrixPairs(
+  tourIndices: number[] | undefined,
+  nodeIds: number[]
+): Array<[number, number]> {
+  if (!tourIndices?.length) return [];
+  const indices = tourIndices
+    .map((guiId) => guiIdToMatrixIndex(guiId, nodeIds))
+    .filter((idx): idx is number => idx != null);
+  const pairs: Array<[number, number]> = [];
+  for (let i = 0; i < indices.length - 1; i++) {
+    const a = indices[i];
+    const b = indices[i + 1];
+    if (a !== b) pairs.push([a, b]);
+  }
+  return pairs;
+}
+
+/**
+ * Accumulate synthetic ACO pheromone from tour edges up to `upToDay`.
+ * Older days decay exponentially; deposit scales with route profit when present.
+ */
+export function accumulateTourPheromone(
+  entries: DayLogEntry[],
+  nodeIds: number[],
+  upToDay: number,
+  opts: { decay?: number; minDay?: number } = {}
+): Map<string, number> {
+  const { decay = 0.88, minDay = 1 } = opts;
+  const weights = new Map<string, number>();
+  const relevant = entries
+    .filter((e) => e.day >= minDay && e.day <= upToDay)
+    .sort((a, b) => a.day - b.day);
+
+  if (!relevant.length) return weights;
+
+  const maxDay = Math.max(...relevant.map((e) => e.day));
+  for (const entry of relevant) {
+    const age = maxDay - entry.day;
+    const depositScale = 1 + Math.max(0, (entry.data.profit ?? 0) / 500);
+    const dayFactor = Math.pow(decay, age) * depositScale;
+    for (const [a, b] of tourIndicesToMatrixPairs(entry.data.tour_indices, nodeIds)) {
+      const key = pheromoneEdgeKey(a, b);
+      weights.set(key, (weights.get(key) ?? 0) + dayFactor);
+    }
+  }
+
+  return weights;
+}
+
+function normalizePheromone(weights: Map<string, number>): Map<string, number> {
+  if (!weights.size) return weights;
+  let max = 0;
+  for (const v of weights.values()) max = Math.max(max, v);
+  if (max <= 0) return weights;
+  const out = new Map<string, number>();
+  for (const [k, v] of weights) out.set(k, v / max);
+  return out;
+}
+
+function pheromoneEdgeStyle(
+  weight: number,
+  baseWidth: number,
+  dimmed: boolean
+): { width: number; opacity: number; color: string } {
+  if (dimmed) {
+    return { width: baseWidth * 0.5, opacity: 0.06, color: "#374151" };
+  }
+  const t = Math.min(1, Math.max(0, weight));
+  const opacity = 0.12 + t * 0.78;
+  const r = Math.round(55 + t * 200);
+  const g = Math.round(65 + t * 120);
+  const b = Math.round(81 - t * 50);
+  return {
+    width: baseWidth + t * 2.5,
+    opacity,
+    color: `rgb(${r},${g},${b})`,
+  };
+}
+
 export function buildTopologyGraphOption(
   nodeMeta: TopologyNodeMeta[],
   edges: GraphEdge[],
@@ -306,14 +440,23 @@ export function buildTopologyGraphOption(
     fillRange?: [number, number] | null;
     title?: string;
     theme?: "dark" | "light";
+    pheromoneWeights?: Map<string, number>;
+    showPheromone?: boolean;
   } = {}
 ): Record<string, unknown> {
-  const { fillRange = null, title, theme = "dark" } = opts;
+  const {
+    fillRange = null,
+    title,
+    theme = "dark",
+    pheromoneWeights,
+    showPheromone = false,
+  } = opts;
   const hasFilter = fillRange != null && (fillRange[0] > 0 || fillRange[1] < 100);
+  const pheromone = showPheromone ? normalizePheromone(pheromoneWeights ?? new Map()) : null;
 
   const dists = edges.map((e) => e.distance);
-  const minD = Math.min(...dists);
-  const maxD = Math.max(...dists);
+  const minD = dists.length ? Math.min(...dists) : 0;
+  const maxD = dists.length ? Math.max(...dists) : 1;
 
   const nodes = nodeMeta.map((meta) => {
     const [x, y] = positions[meta.matrixIndex] ?? [0, 0];
@@ -349,14 +492,22 @@ export function buildTopologyGraphOption(
       tgtMeta.fillPct == null ||
       (tgtMeta.fillPct >= fillRange![0] && tgtMeta.fillPct <= fillRange![1]);
     const dimmed = hasFilter && !(srcHi && tgtHi);
+    const baseWidth = edgeWidth(e.distance, minD, maxD);
+    const phKey = pheromoneEdgeKey(e.source, e.target);
+    const ph = pheromone?.get(phKey) ?? 0;
+    const phStyle =
+      pheromone && ph > 0
+        ? pheromoneEdgeStyle(ph, baseWidth, dimmed)
+        : {
+            width: baseWidth,
+            opacity: dimmed ? 0.08 : 0.35,
+            color: dimmed ? "#374151" : "#64748b",
+          };
     return {
       source: String(e.source),
       target: String(e.target),
-      lineStyle: {
-        width: edgeWidth(e.distance, minD, maxD),
-        opacity: dimmed ? 0.08 : 0.35,
-        color: dimmed ? "#374151" : "#64748b",
-      },
+      pheromone: ph,
+      lineStyle: phStyle,
     };
   });
 
@@ -377,6 +528,10 @@ export function buildTopologyGraphOption(
             meta.mandatory ? "Mandatory" : null,
           ].filter(Boolean);
           return `${p.data.name}${bits.length ? `<br/>${bits.join(" · ")}` : ""}`;
+        }
+        if (p.dataType === "edge") {
+          const ph = (p.data as { pheromone?: number })?.pheromone ?? 0;
+          if (ph > 0) return `Pheromone τ = ${ph.toFixed(2)}`;
         }
         return "";
       },
@@ -414,7 +569,14 @@ export function buildTopologyFromMatrix(
     layoutIterations = 80,
     relayoutOnFilter = false,
     fillRange = null,
+    layoutMode = "auto",
+    pheromoneWeights,
+    showPheromone = false,
+    theme = "dark",
   } = options;
+
+  const nodeCount = matrix.nodeIds.length;
+  const resolvedLayout = resolveLayoutMode(nodeCount, layoutMode);
 
   const nodeMeta = buildNodeMetaFromSim(simData, matrix.nodeIds);
   let activeIndices = nodeMeta.map((_, i) => i);
@@ -427,18 +589,38 @@ export function buildTopologyFromMatrix(
   }
 
   const indexSet = new Set(activeIndices);
-  const edges = buildKnnEdgeList(matrix.distances, kNeighbors, maxEdges).filter(
+  let edges = buildKnnEdgeList(matrix.distances, kNeighbors, maxEdges).filter(
     (e) => indexSet.has(e.source) && indexSet.has(e.target)
   );
 
-  const positions = forceDirectedLayout(
-    matrix.nodeIds.length,
-    edges.length ? edges : buildKnnEdgeList(matrix.distances, kNeighbors, maxEdges),
-    seedPositions,
-    layoutIterations
-  );
+  if (showPheromone && pheromoneWeights?.size) {
+    const edgeKeys = new Set(edges.map((e) => pheromoneEdgeKey(e.source, e.target)));
+    for (const key of pheromoneWeights.keys()) {
+      if (edgeKeys.has(key)) continue;
+      const [a, b] = key.split("-").map(Number);
+      if (!indexSet.has(a) || !indexSet.has(b)) continue;
+      const distance = matrix.distances[a]?.[b];
+      if (!Number.isFinite(distance) || distance <= 0) continue;
+      edges.push({ source: a, target: b, distance });
+      edgeKeys.add(key);
+      if (edges.length >= maxEdges + 200) break;
+    }
+  }
 
-  const option = buildTopologyGraphOption(nodeMeta, edges, positions, { fillRange });
+  const layoutEdges =
+    edges.length > 0 ? edges : buildKnnEdgeList(matrix.distances, kNeighbors, maxEdges);
+
+  const positions =
+    resolvedLayout === "radial"
+      ? radialDenseLayout(nodeCount, matrix.nodeIds)
+      : forceDirectedLayout(nodeCount, layoutEdges, seedPositions, layoutIterations);
+
+  const option = buildTopologyGraphOption(nodeMeta, edges, positions, {
+    fillRange,
+    theme,
+    pheromoneWeights,
+    showPheromone,
+  });
 
   return { nodeMeta, edges, positions, option };
 }

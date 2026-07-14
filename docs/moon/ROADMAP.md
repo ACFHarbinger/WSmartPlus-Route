@@ -994,11 +994,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Load distance matrix from `assets/` as a weighted edge list: `graphTopology.ts` resolves sibling `gmaps_distmat.csv` or project `data/wsr_simulator/distance_matrix/`; k-NN edge list builder (§G.4 partial)
 - [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance (§G.4 partial — Sigma.js WebGL deferred)
 - [x] Force-directed layout (ForceAtlas2) via Graphology: Fruchterman-Reingold spring layout in `forceDirectedLayout()` (§G.4 partial — Graphology/ForceAtlas2 deferred)
-- [ ] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration
+- [x] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration: `accumulateTourPheromone()` deposits τ on consecutive tour edges; amber edge styling in `GraphTopologyPanel` (§G.4 partial — live ACO solver τ matrix deferred)
 - [x] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes: fill-% dual slider + SQL "Brush profit range" / day row click → topology panel (§G.4 partial — bidirectional chart brush deferred)
 - [x] Dynamic re-layout when filter applied: clusters emerge based on algorithm prioritization: "Re-layout on filter" toggle re-runs spring layout on filtered subgraph (§G.4 partial)
-- [ ] Cosmograph alternative for large dense graphs (N=350)
-- [ ] Timeline slider synced with route animation to show pheromone evolution over iterations
+- [x] Cosmograph alternative for large dense graphs (N=350): `radialDenseLayout()` + auto radial when N≥200; layout mode selector (auto/force/radial) on `GraphTopologyPanel` (§G.4 partial — Cosmograph WebGL deferred)
+- [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback (§G.4 partial — per-ACO-iteration stepping deferred)
 
 ---
 

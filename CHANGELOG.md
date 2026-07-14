@@ -11,6 +11,21 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fortieth pass (§G.4)
+
+Fortieth pass completes remaining **§G.4 topological graph analytics** items:
+ACO pheromone trails, radial dense layout for large graphs, and day-synced timeline.
+
+**React frontend**
+- `utils/graphTopology.ts` — `accumulateTourPheromone()`, `radialDenseLayout()`, `resolveLayoutMode()`; pheromone-aware edge styling; tour edges injected when τ overlay active
+- `GraphTopologyPanel` — ACO pheromone toggle + day timeline slider; layout mode (auto/force/radial dense); sync with day scrubber
+- `SimulationMonitor` — passes `filteredEntries`, `displayDay`, `dayRange`, `onDaySelect` into topology panel
+
+**ROADMAP**
+- §G.4 ACO pheromone trails, Cosmograph-style radial dense layout (N≥200), timeline slider checked (partial — Sigma.js/Cosmograph WebGL, live solver τ deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — thirty-ninth pass (§G.4)
 
 Thirty-ninth pass starts **§G.4 topological graph analytics** on Simulation Monitor.
