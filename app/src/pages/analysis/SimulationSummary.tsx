@@ -40,6 +40,7 @@ import {
   type HierarchyColorMode,
 } from "../../utils/policyHierarchy";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
+import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";
 
@@ -804,27 +805,30 @@ function PolicyParallelChart({
   stats,
   policies,
   policyMeta,
+  logMeta,
   brushed,
   onPolicyClick,
   onAxisBrush,
+  onOverflowCorridorBrush,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   policyMeta: Record<string, PolicyMeta>;
+  logMeta: LogPathMeta;
   brushed?: string[] | null;
   onPolicyClick?: (policy: string) => void;
   onAxisBrush?: (policies: string[] | null) => void;
+  /** Sync zero-overflow corridor slider when brushing the overflows axis (§G.1.4). */
+  onOverflowCorridorBrush?: (maxOverflow: number | null) => void;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
-  const option = useMemo(() => {
-    const schema = [
-      { dim: 0, name: "Profit", max: Math.max(...policies.map((p) => mean(stats[p].profit)), 1) * 1.1 },
-      { dim: 1, name: "kg/km", max: Math.max(...policies.map((p) => mean(stats[p]["kg/km"])), 0.01) * 1.1 },
-      { dim: 2, name: "Overflows", max: Math.max(...policies.map((p) => mean(stats[p].overflows)), 1) * 1.1 },
-      { dim: 3, name: "km", max: Math.max(...policies.map((p) => mean(stats[p].km)), 1) * 1.1 },
-    ];
+  const parallel = useMemo(
+    () => buildPolicyParallelAxes(policies, stats, policyMeta, logMeta),
+    [policies, stats, policyMeta, logMeta]
+  );
 
+  const option = useMemo(() => {
     return {
       backgroundColor: "transparent",
       brush: {
@@ -842,9 +846,12 @@ function PolicyParallelChart({
           brush: { type: ["parallelAxis", "clear"] },
         },
       },
-      parallelAxis: schema.map((s) => ({
+      parallelAxis: parallel.axes.map((s) => ({
         dim: s.dim,
         name: s.name,
+        type: s.type,
+        ...(s.data ? { data: s.data } : {}),
+        ...(s.max != null ? { max: s.max } : {}),
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLine: { lineStyle: { color: "#2d2d50" } },
         axisLabel: { color: "#9090b0", fontSize: 8 },
@@ -859,17 +866,12 @@ function PolicyParallelChart({
         {
           type: "parallel" as const,
           lineStyle: { width: 2 },
-          data: policies.map((p) => ({
-            name: p,
-            value: [
-              mean(stats[p].profit),
-              mean(stats[p]["kg/km"]),
-              mean(stats[p].overflows),
-              mean(stats[p].km),
-            ],
+          data: parallel.rows.map((row) => ({
+            name: row.name,
+            value: row.value,
             lineStyle: {
-              color: strategyColor(p, policyMeta),
-              opacity: barOpacity(p, brushed ?? null),
+              color: strategyColor(row.name, policyMeta),
+              opacity: barOpacity(row.name, brushed ?? null),
             },
           })),
         },
@@ -881,7 +883,7 @@ function PolicyParallelChart({
         },
       },
     };
-  }, [stats, policies, policyMeta, brushed]);
+  }, [parallel, policyMeta, brushed]);
 
   const events = useMemo(() => {
     const handlers: Record<string, (params: unknown) => void> = {};
@@ -903,17 +905,34 @@ function PolicyParallelChart({
         onAxisBrush(indices.map((i) => policies[i]).filter(Boolean));
       };
     }
+    if (onOverflowCorridorBrush) {
+      handlers.brushEnd = (params: unknown) => {
+        const areas = (params as { areas?: Array<{ parallelAxisIndex?: number; coordRange?: number[] }> })
+          .areas;
+        if (!areas?.length) {
+          onOverflowCorridorBrush(null);
+          return;
+        }
+        for (const area of areas) {
+          if (area.parallelAxisIndex !== parallel.overflowDim || !area.coordRange?.length) continue;
+          const range = area.coordRange;
+          const hi = Math.max(range[0], range[range.length - 1]);
+          onOverflowCorridorBrush(hi);
+          return;
+        }
+      };
+    }
     return Object.keys(handlers).length ? handlers : undefined;
-  }, [onPolicyClick, onAxisBrush, policies]);
+  }, [onPolicyClick, onAxisBrush, onOverflowCorridorBrush, policies, parallel.overflowDim]);
 
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold text-gray-300">Policy Parallel Coordinates</p>
-          {onAxisBrush && (
+          {(onAxisBrush || onOverflowCorridorBrush) && (
             <p className="text-[10px] text-canvas-muted">
-              Drag on any axis to brush · toolbox clear resets filter
+              Drag on any axis to brush · overflows axis syncs corridor slider · toolbox clear resets
             </p>
           )}
         </div>
@@ -1949,9 +1968,11 @@ export function SimulationSummary() {
                 stats={stats}
                 policies={policies}
                 policyMeta={policyMeta}
+                logMeta={logMeta}
                 brushed={effectiveBrushed}
                 onPolicyClick={handlePolicyClick}
                 onAxisBrush={handleBrushPolicies}
+                onOverflowCorridorBrush={(max) => setOverflowMax(max)}
               />
             </div>
           </div>
@@ -2050,6 +2071,7 @@ export function SimulationSummary() {
               values={metricValues("kg")}
               color="#34d399"
               logScale={logScale}
+              useSymlog={logScale}
               showErrorBars={showErrorBars}
               exportName="summary-kg"
               brushed={effectiveBrushed}
@@ -2097,6 +2119,19 @@ export function SimulationSummary() {
                   logScale
                   useSymlog
                   exportName="summary-overflows-log"
+                  brushed={effectiveBrushed}
+                  onPolicyClick={handlePolicyClick}
+                  policyMeta={policyMeta}
+                  stats={stats}
+                />
+                <MetricBarChart
+                  title="Avg Waste Collected by Policy (kg) — symlog scale"
+                  policies={policies}
+                  values={metricValues("kg")}
+                  color="#34d399"
+                  logScale
+                  useSymlog
+                  exportName="summary-kg-log"
                   brushed={effectiveBrushed}
                   onPolicyClick={handlePolicyClick}
                   policyMeta={policyMeta}

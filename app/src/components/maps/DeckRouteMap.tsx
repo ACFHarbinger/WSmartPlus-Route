@@ -39,6 +39,13 @@ interface VehicleGeometry {
   tripLength: number;
 }
 
+interface VehicleTourStop {
+  position: [number, number];
+  fill: number;
+  vehicleId: number;
+  color: [number, number, number];
+}
+
 function buildVehicleSegment(
   segment: number[],
   posById: Map<number, [number, number]>,
@@ -83,6 +90,7 @@ function buildRouteGeometry(data: SimDayData) {
       tripPath: [] as [number, number, number][],
       tripLength: 0,
       tourPoints: [] as Array<{ position: [number, number]; fill: number }>,
+      vehicleTourStops: [] as VehicleTourStop[],
       idlePoints: [] as Array<{ position: [number, number] }>,
       depotPoint: null as { position: [number, number] } | null,
       hasGeo: false,
@@ -119,6 +127,21 @@ function buildRouteGeometry(data: SimDayData) {
     })
     .filter(Boolean) as Array<{ position: [number, number]; fill: number }>;
 
+  const vehicleTourStops: VehicleTourStop[] = segments.flatMap((segment, vi) =>
+    segment
+      .map((id) => {
+        const position = posById.get(id);
+        if (!position) return null;
+        return {
+          position,
+          fill: (bin_state_c?.[id] ?? 0) * 100,
+          vehicleId: vi,
+          color: VEHICLE_COLORS_RGB[vi % VEHICLE_COLORS_RGB.length],
+        };
+      })
+      .filter(Boolean) as VehicleTourStop[]
+  );
+
   const idlePts = all_bin_coords
     .filter((b) => b.id >= 0 && !tourSet.has(b.id))
     .map((b) => {
@@ -137,6 +160,7 @@ function buildRouteGeometry(data: SimDayData) {
     tripPath: tripCoords,
     tripLength,
     tourPoints: tourPts,
+    vehicleTourStops,
     idlePoints: idlePts,
     depotPoint: depot ? { position: depot } : null,
     hasGeo,
@@ -319,7 +343,39 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
         }
       }
 
-      if (g.tourPoints.length) {
+      const multiVehicleStops = g.vehicles.length > 1 && g.vehicleTourStops.length > 0;
+      const stopGroups = multiVehicleStops
+        ? g.vehicleTourStops.reduce<Record<number, VehicleTourStop[]>>((acc, stop) => {
+            if (!acc[stop.vehicleId]) acc[stop.vehicleId] = [];
+            acc[stop.vehicleId].push(stop);
+            return acc;
+          }, {})
+        : null;
+
+      if (stopGroups) {
+        for (const [vehicleId, stops] of Object.entries(stopGroups)) {
+          result.push(
+            new ScatterplotLayer({
+              id: `stops-${id}-v${vehicleId}`,
+              data: stops,
+              coordinateSystem: cartesianSystem,
+              getPosition: (d: VehicleTourStop) =>
+                cartesianMode ? pos3d(d.position, d.fill * 0.003) : d.position,
+              getFillColor: (d: VehicleTourStop) =>
+                [...fillRgb(d.fill), 230] as [number, number, number, number],
+              getLineColor: (d: VehicleTourStop) => [...d.color, 255] as [number, number, number, number],
+              stroked: true,
+              getRadius: (d: VehicleTourStop) => {
+                const base = routes.length > 1 ? 40 : 50;
+                const scale = 0.5 + (Math.min(100, d.fill) / 100) * 0.5;
+                return base * scale;
+              },
+              radiusMinPixels: 4,
+              radiusMaxPixels: 14,
+            })
+          );
+        }
+      } else if (g.tourPoints.length) {
         result.push(
           new ScatterplotLayer({
             id: `stops-${id}`,

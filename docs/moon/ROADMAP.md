@@ -923,10 +923,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` on Simulation Summary — per-metric normalised score, indigo→green gradient (§G.1 partial — single-run policy×metric only)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
-- [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` with profit · kg/km · overflows · km axes per policy (§G.1 partial — full 10-axis + multi-log deferred)
+- [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary (§G.1 partial — multi-log deferred)
 - [x] Each of the 480 simulation logs rendered as a polyline: `BenchmarkPortfolioParallel` + `scanOutputPortfolio()` batch loader (up to 48 runs) on Benchmark Analysis (§G.1.4 partial — full 480-log scan deferred)
 - [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush` (§G.1 partial — DuckDB SQL deferred)
-- [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + `effectiveBrushed` cross-filter on Simulation Summary (§G.1 partial — axis drag brush deferred)
+- [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
 #### 1.5 Constructor Ranking Chart
@@ -936,7 +936,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 
 #### 1.6 Secondary Log-Scale Views
-- [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · symlog-overflows row when global log toggle off (§G.1 partial — kg symlog deferred)
+- [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
 - [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars (§G.1 partial — dedicated City Comparison page deferred)
 
 ---
@@ -972,7 +972,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.16 partial — multi-vehicle deferred)
 - [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
 - [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber (§G.16 partial — TripsLayer animation deferred)
-- [x] Multi-vehicle rendering with distinct color coding per vehicle: `vehicleTours.ts` splits depot-delimited `tour` sequences; `DeckRouteMap` + `RouteMapChart` render per-vehicle paths (§G.3.2 partial — per-vehicle stop scatter deferred)
+- [x] Multi-vehicle rendering with distinct color coding per vehicle: `vehicleTours.ts` splits depot-delimited `tour` sequences; `DeckRouteMap` + `RouteMapChart` render per-vehicle paths and per-vehicle tour-stop scatter layers (§G.3.2)
 
 #### 3.3 Algorithm Comparison Mode
 - [x] Side-by-side view: overlay/split toggle in SimulationMonitor when 2 policies visible; split renders dual `DeckRouteMap` or dual ECharts `RouteMapChart` panels (§G.16)
