@@ -16,9 +16,11 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
-import { paretoFront, paretoStepLine } from "../../utils/pareto";
-import { PARETO_PANELS, panelForRun } from "../../utils/paretoPanels";
-import { cityScaleLabel, parseLogPath, parsePolicyLabel, strategyColor } from "../../utils/simMetadata";
+import { PARETO_PANELS } from "../../utils/paretoPanels";
+import { buildParetoByPanel } from "../../utils/paretoPortfolio";
+import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
+import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
+import { cityScaleLabel, parseLogPath } from "../../utils/simMetadata";
 import {
   buildCityComparisonSeries,
   cityComparisonChartOption,
@@ -42,96 +44,6 @@ interface RunFile {
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
-
-function fmt(n: number, d = 1) {
-  return isFinite(n) ? n.toFixed(d) : "—";
-}
-
-function BenchmarkParetoPanel({
-  label,
-  points,
-  logScale,
-}: {
-  label: string;
-  points: Array<{ id: string; x: number; y: number; policy: string }>;
-  logScale: boolean;
-}) {
-  const chartRef = useRef<EChartsReact | null>(null);
-  const option = useMemo(() => {
-    const frontIds = new Set(paretoFront(points).map((p) => p.id));
-    const step = paretoStepLine(paretoFront(points));
-    const displayY = (y: number) => (logScale ? Math.max(y, 0.001) : y);
-
-    return {
-      backgroundColor: "transparent",
-      title: { text: label, left: "center", textStyle: { color: "#9090b0", fontSize: 10 } },
-      grid: { left: 44, right: 10, top: 36, bottom: 32 },
-      xAxis: {
-        type: "value",
-        name: "Profit",
-        nameTextStyle: { color: "#9090b0", fontSize: 8 },
-        axisLabel: { color: "#9090b0", fontSize: 8 },
-      },
-      yAxis: {
-        type: logScale ? "log" : "value",
-        logBase: 10,
-        name: "Ovfl",
-        nameTextStyle: { color: "#9090b0", fontSize: 8 },
-        axisLabel: { color: "#9090b0", fontSize: 8 },
-        minorSplitLine: { show: false },
-      },
-      series: [
-        {
-          type: "scatter",
-          data: points.map((pt) => ({
-            name: pt.policy,
-            value: [pt.x, displayY(pt.y)],
-            itemStyle: {
-              color: strategyColor(pt.policy, { [pt.policy]: parsePolicyLabel(pt.policy) }),
-            },
-            symbolSize: frontIds.has(pt.id) ? 9 : 6,
-          })),
-          tooltip: {
-            formatter: (p: { name: string; value: [number, number] }) =>
-              `${p.name}<br/>Profit: ${fmt(p.value[0])} €<br/>Overflows: ${fmt(points.find((x) => x.policy === p.name)?.y ?? p.value[1])}`,
-          },
-        },
-        ...(step.length > 1
-          ? [
-              {
-                type: "line",
-                data: step.map(([x, y]) => [x, displayY(y)]),
-                lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
-                symbol: "none",
-                tooltip: { show: false },
-                z: 1,
-              },
-            ]
-          : []),
-      ],
-    };
-  }, [label, points, logScale]);
-
-  if (points.length === 0) {
-    return (
-      <div className="card flex items-center justify-center h-[200px] text-xs text-canvas-muted">
-        {label} — no runs
-      </div>
-    );
-  }
-
-  return (
-    <div className="card">
-      <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
-    </div>
-  );
-}
-
-const GRAPH_HEAT_METRICS = [
-  { key: "profit", label: "Profit", higherBetter: true },
-  { key: "kg/km", label: "kg/km", higherBetter: true },
-  { key: "overflows", label: "Overflows", higherBetter: false },
-] as const;
 
 function BenchmarkPortfolioParallel({ runs }: { runs: RunFile[] }) {
   const lines = useMemo(
@@ -207,83 +119,6 @@ function BenchmarkPortfolioParallel({ runs }: { runs: RunFile[] }) {
         {runs.length} simulation log(s) — one polyline per loaded run
       </p>
       <ReactECharts option={option} style={{ height: Math.min(360, 120 + runs.length * 4) }} />
-    </div>
-  );
-}
-
-function BenchmarkGraphHeatmap({
-  graphLabel,
-  runs,
-  heatmapMode,
-}: {
-  graphLabel: string;
-  runs: RunFile[];
-  heatmapMode: "overflows" | "kg/km";
-}) {
-  const policies = useMemo(
-    () => [...new Set(runs.flatMap((r) => r.entries.map((e) => e.policy)))],
-    [runs]
-  );
-
-  const option = useMemo(() => {
-    const metricKey = heatmapMode;
-    const metric = GRAPH_HEAT_METRICS.find((m) => m.key === metricKey) ?? GRAPH_HEAT_METRICS[0];
-    const raw = policies.map((p) => {
-      const vals = runs.flatMap((r) =>
-        r.entries
-          .filter((e) => e.policy === p)
-          .map((e) => (e.data as Record<string, number>)[metricKey])
-          .filter((v): v is number => v != null)
-      );
-      return mean(vals);
-    });
-    const min = Math.min(...raw);
-    const max = Math.max(...raw);
-    const span = max - min || 1;
-    const cells: Array<[number, number, number]> = raw.map((v, pi) => {
-      let norm = (v - min) / span;
-      if (!metric.higherBetter) norm = 1 - norm;
-      return [pi, 0, norm];
-    });
-
-    return {
-      backgroundColor: "transparent",
-      grid: { left: 72, right: 16, top: 8, bottom: 40 },
-      xAxis: {
-        type: "category",
-        data: policies,
-        axisLabel: { color: "#9090b0", fontSize: 8, rotate: 25 },
-      },
-      yAxis: {
-        type: "category",
-        data: [metric.label],
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-      },
-      visualMap: {
-        min: 0,
-        max: 1,
-        calculable: false,
-        orient: "horizontal",
-        left: "center",
-        bottom: 0,
-        inRange: { color: ["#1e1b4b", "#6366f1", "#34d399"] },
-        textStyle: { color: "#9090b0", fontSize: 9 },
-        show: false,
-      },
-      series: [{ type: "heatmap", data: cells, label: { show: false } }],
-      tooltip: {
-        formatter: (p: { value: [number, number, number] }) => {
-          const pi = p.value[0];
-          return `${policies[pi]}<br/>${metric.label}: ${fmt(raw[pi], 2)}`;
-        },
-      },
-    };
-  }, [policies, runs, heatmapMode]);
-
-  return (
-    <div className="card space-y-1">
-      <p className="text-[10px] text-canvas-muted font-mono">{graphLabel}</p>
-      <ReactECharts option={option} style={{ height: 100 }} />
     </div>
   );
 }
@@ -531,30 +366,7 @@ export function BenchmarkAnalysis() {
       .sort((a, b) => b.value - a.value);
   }, [filteredRuns]);
 
-  const paretoByPanel = useMemo(() => {
-    const panels: Record<string, Array<{ id: string; x: number; y: number; policy: string }>> = {};
-    for (const panel of PARETO_PANELS) panels[panel.id] = [];
-
-    for (const run of filteredRuns) {
-      const panelId = panelForRun(parseLogPath(run.path));
-      if (!panelId) continue;
-      const policies = [...new Set(run.entries.map((e) => e.policy))];
-      for (const p of policies) {
-        const vals = run.entries.filter((e) => e.policy === p);
-        const profit = mean(vals.map((e) => e.data.profit).filter((v): v is number => v != null));
-        const overflows = mean(
-          vals.map((e) => e.data.overflows).filter((v): v is number => v != null)
-        );
-        panels[panelId].push({
-          id: `${run.path}::${p}`,
-          policy: p,
-          x: profit,
-          y: overflows,
-        });
-      }
-    }
-    return panels;
-  }, [filteredRuns]);
+  const paretoByPanel = useMemo(() => buildParetoByPanel(filteredRuns), [filteredRuns]);
 
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
 

@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — fifty-fourth pass (§G.1 / §G.2 / §G.7)
+
+Fifty-fourth pass closes deferred **§G.1** Simulation Summary portfolio analytics,
+**§G.2** multi-log hierarchy sunburst, and **§G.7** chart-render benchmark.
+
+**React frontend**
+- `SimulationSummary` — add comparison log + output portfolio load; 4-panel Pareto
+  grid on single- or multi-log; graph heatmap facets + city comparison when ≥2 runs;
+  kg/km grouped by city/scale in portfolio mode
+- `BenchmarkParetoPanel` / `BenchmarkGraphHeatmap` — shared components extracted
+  from Benchmark Analysis
+- `paretoPortfolio.ts` — `buildParetoByPanel()` shared Pareto point builder
+- `policyHierarchy.ts` — `buildPortfolioHierarchy()` multi-root sunburst per city/scale
+- `chartRenderBenchmark.ts` — off-screen ECharts render timing probe
+- `Settings` — "Run Chart Render Benchmark" button + 500 ms budget badge in About
+
+**ROADMAP**
+- §G.1.1 multi-city kg/km grouped bars on Simulation Summary checked
+- §G.1.2 single-log Simulation Summary 4-panel Pareto checked
+- §G.1.3 Simulation Summary graph heatmap facets checked
+- §G.2 multi-log portfolio hierarchy sunburst checked
+- §G.7 chart-render benchmark checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — fifty-third pass (§G.1.6 / §G.2 / §G.6)
 
 Fifty-third pass closes deferred **§G.1.6** dedicated City Comparison page,

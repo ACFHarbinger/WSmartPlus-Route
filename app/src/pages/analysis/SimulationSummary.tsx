@@ -12,7 +12,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, ChevronUp, ChevronDown, Download } from "lucide-react";
+import { FolderOpen, ChevronUp, ChevronDown, Download, X } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -34,11 +34,27 @@ import {
 } from "../../utils/simMetadata";
 import {
   buildPolicyHierarchy,
+  buildPortfolioHierarchy,
   childrenAtPath,
   enrichDrillChildren,
   policiesAtPath,
   type HierarchyColorMode,
+  type PortfolioHierarchyRun,
 } from "../../utils/policyHierarchy";
+import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
+import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
+import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/paretoPortfolio";
+import { PARETO_PANELS } from "../../utils/paretoPanels";
+import {
+  groupRunsByCity,
+  buildCityComparisonSeries,
+  cityComparisonChartOption,
+} from "../../utils/cityComparison";
+import {
+  loadPortfolioLogs,
+  PORTFOLIO_SCAN_DEFAULT,
+  scanOutputPortfolio,
+} from "../../utils/outputRunLogs";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
 import { runSimulationArrowPipeline } from "../../utils/arrowPipeline";
@@ -990,6 +1006,7 @@ function PolicyHierarchyPanel({
   policies,
   policyMeta,
   logMeta,
+  portfolioRuns,
   brushed,
   onBrushPolicies,
   showErrorBars = false,
@@ -998,6 +1015,7 @@ function PolicyHierarchyPanel({
   policies: string[];
   policyMeta: Record<string, PolicyMeta>;
   logMeta: LogPathMeta;
+  portfolioRuns?: PortfolioHierarchyRun[];
   brushed?: string[] | null;
   onBrushPolicies: (ps: string[]) => void;
   showErrorBars?: boolean;
@@ -1007,10 +1025,12 @@ function PolicyHierarchyPanel({
   const [colorMode, setColorMode] = useState<HierarchyColorMode>("kgkm");
   const [drillPath, setDrillPath] = useState<string[]>([]);
 
-  const tree = useMemo(
-    () => buildPolicyHierarchy(policies, stats, policyMeta, logMeta, colorMode),
-    [policies, stats, policyMeta, logMeta, colorMode]
-  );
+  const tree = useMemo(() => {
+    if (portfolioRuns && portfolioRuns.length >= 2) {
+      return buildPortfolioHierarchy(portfolioRuns, colorMode);
+    }
+    return buildPolicyHierarchy(policies, stats, policyMeta, logMeta, colorMode);
+  }, [portfolioRuns, colorMode, policies, stats, policyMeta, logMeta]);
 
   const drillChildren = useMemo(
     () => enrichDrillChildren(childrenAtPath(tree, drillPath), stats, policyMeta),
@@ -1706,6 +1726,8 @@ function MetricBarChart({
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+interface ComparisonRun extends PortfolioRunSlice {}
+
 export function SimulationSummary() {
   const { pendingLogPath, setPendingLogPath, projectRoot, theme } = useAppStore();
   const { ready: duckdbReady, setLastPipeline, setLoading: setDuckdbLoading } = useDuckDbStore();
@@ -1714,10 +1736,14 @@ export function SimulationSummary() {
   const [showErrorBars, setShowErrorBars] = useState(false);
   const [brushed, setBrushed] = useState<string[] | null>(null);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
+  const [graphHeatmapMode, setGraphHeatmapMode] = useState<"overflows" | "kg/km">("overflows");
   const [overflowMax, setOverflowMax] = useState<number | null>(null);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
+  const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
+  const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
@@ -1751,6 +1777,74 @@ export function SimulationSummary() {
     if (!path) return;
     loadLog(path);
   }, [loadLog]);
+
+  const addComparisonRun = useCallback(async () => {
+    const path = (await open({
+      filters: [{ name: "Logs", extensions: ["jsonl", "log", "txt"] }],
+    })) as string | null;
+    if (!path) return;
+    try {
+      const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
+      const label = path.split(/[/\\]/).pop() ?? path;
+      setComparisonRuns((prev) => [
+        ...prev.filter((r) => r.path !== path),
+        { path, label, entries: loaded },
+      ]);
+    } catch (err) {
+      toast.error("Failed to load comparison log", { description: String(err) });
+    }
+  }, []);
+
+  const loadOutputPortfolio = useCallback(async () => {
+    if (!projectRoot) {
+      toast.error("Set project root in Settings to scan output portfolio");
+      return;
+    }
+    setPortfolioLoading(true);
+    try {
+      const refs = await scanOutputPortfolio(
+        `${projectRoot}/assets/output`,
+        PORTFOLIO_SCAN_DEFAULT
+      );
+      if (!refs.length) {
+        toast.info("No simulation logs found under assets/output");
+        return;
+      }
+      const progressId = toast.loading(`Loading portfolio… 0 / ${refs.length}`);
+      const loaded = await loadPortfolioLogs(refs, {
+        batchSize: 24,
+        onProgress: (n, total) => {
+          toast.loading(`Loading portfolio… ${n} / ${total}`, { id: progressId });
+        },
+      });
+      if (loaded.length > 0) {
+        const [primary, ...rest] = loaded;
+        if (!logPath) {
+          await loadLog(primary.path);
+        }
+        setComparisonRuns((prev) => {
+          const seen = new Set(prev.map((r) => r.path));
+          if (logPath) seen.add(logPath);
+          return [
+            ...prev,
+            ...rest.filter((r) => !seen.has(r.path)),
+            ...(logPath && primary.path !== logPath && !seen.has(primary.path) ? [primary] : []),
+          ];
+        });
+      }
+      toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {
+        id: progressId,
+      });
+    } catch (err) {
+      toast.error("Portfolio load failed", { description: String(err) });
+    } finally {
+      setPortfolioLoading(false);
+    }
+  }, [projectRoot, logPath, loadLog]);
+
+  const removeComparisonRun = useCallback((path: string) => {
+    setComparisonRuns((prev) => prev.filter((r) => r.path !== path));
+  }, []);
 
   const filteredEntries = useMemo(
     () => filterEntries(entries, policy, sampleId),
@@ -1816,6 +1910,64 @@ export function SimulationSummary() {
     [policies, stats, policyMeta]
   );
 
+  const allRuns = useMemo((): ComparisonRun[] => {
+    const runs: ComparisonRun[] = [];
+    if (logPath && entries.length > 0) {
+      runs.push({
+        path: logPath,
+        label: logPath.split(/[/\\]/).pop() ?? logPath,
+        entries: filteredEntries,
+      });
+    }
+    for (const r of comparisonRuns) {
+      if (r.path === logPath) continue;
+      runs.push({
+        ...r,
+        entries: filterEntries(r.entries, policy, sampleId),
+      });
+    }
+    return runs;
+  }, [logPath, entries, filteredEntries, comparisonRuns, policy, sampleId]);
+
+  const portfolioMode = allRuns.length >= 2;
+
+  const portfolioHierarchyRuns = useMemo((): PortfolioHierarchyRun[] | undefined => {
+    if (!portfolioMode) return undefined;
+    return allRuns.map((run) => {
+      const runStats = aggregateByPolicy(run.entries);
+      const runPolicies = Object.keys(runStats);
+      const runMeta: Record<string, PolicyMeta> = {};
+      for (const p of runPolicies) runMeta[p] = parsePolicyLabel(p);
+      return {
+        path: run.path,
+        policies: runPolicies,
+        stats: runStats,
+        policyMeta: runMeta,
+      };
+    });
+  }, [allRuns, portfolioMode]);
+
+  const paretoByPanel = useMemo(() => buildParetoByPanel(allRuns), [allRuns]);
+
+  const cityGroups = useMemo(() => groupRunsByCity(allRuns), [allRuns]);
+
+  const cityComparisonOption = useMemo(
+    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
+    [cityGroups]
+  );
+
+  const cityScaleKgkmGroups = useMemo(() => {
+    if (!portfolioMode) return null;
+    return cityGroups.map(([label, runs]) => {
+      const vals = runs.flatMap((r) =>
+        r.entries
+          .map((e) => e.data["kg/km"])
+          .filter((v): v is number => v != null)
+      );
+      return { label, policies: [] as string[], mean: mean(vals), std: std(vals) };
+    });
+  }, [cityGroups, portfolioMode]);
+
   const rankingExportData = useCallback(() => {
     const cols: MetricKey[] = ["profit", "km", "overflows", "kg"];
     const headers = ["policy", ...cols.map((c) => `mean_${c}`), ...cols.map((c) => `std_${c}`), "days"];
@@ -1860,15 +2012,58 @@ export function SimulationSummary() {
     <div className="space-y-4">
       <GlobalFilterBar />
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <button onClick={openLog} className="btn-primary flex items-center gap-2">
           <FolderOpen size={14} />
           Open Log File
         </button>
         {logPath && (
+          <>
+            <button onClick={() => void addComparisonRun()} className="btn-ghost flex items-center gap-2 text-xs">
+              <FolderOpen size={14} />
+              Add comparison log
+            </button>
+            {projectRoot && (
+              <button
+                onClick={() => void loadOutputPortfolio()}
+                disabled={portfolioLoading}
+                className="btn-ghost flex items-center gap-2 text-xs"
+              >
+                <FolderOpen size={14} />
+                {portfolioLoading ? "Scanning output…" : "Load output portfolio"}
+              </button>
+            )}
+          </>
+        )}
+        {logPath && (
           <span className="text-xs text-canvas-muted font-mono truncate">{logPath.split("/").pop()}</span>
         )}
+        {allRuns.length > 1 && (
+          <span className="text-xs text-canvas-muted">{allRuns.length} runs loaded</span>
+        )}
       </div>
+
+      {comparisonRuns.length > 0 && (
+        <div className="card">
+          <p className="text-xs font-semibold text-canvas-muted uppercase tracking-wider mb-2">
+            Comparison Runs
+          </p>
+          <div className="space-y-1">
+            {comparisonRuns.map((r) => (
+              <div key={r.path} className="flex items-center gap-2 text-xs text-gray-300">
+                <button
+                  onClick={() => removeComparisonRun(r.path)}
+                  className="text-canvas-muted hover:text-accent-danger"
+                >
+                  <X size={12} />
+                </button>
+                <span className="font-mono truncate">{r.label}</span>
+                <span className="ml-auto text-canvas-muted">{r.entries.length} days</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {entries.length === 0 && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
@@ -1901,10 +2096,27 @@ export function SimulationSummary() {
             policies={policies}
             policyMeta={policyMeta}
             logMeta={logMeta}
+            portfolioRuns={portfolioHierarchyRuns}
             brushed={effectiveBrushed}
             onBrushPolicies={handleBrushPolicies}
             showErrorBars={showErrorBars}
           />
+
+          {allRuns.length >= 1 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
+              <div className="grid grid-cols-2 gap-4">
+                {PARETO_PANELS.map((panel) => (
+                  <BenchmarkParetoPanel
+                    key={panel.id}
+                    label={panel.label}
+                    points={paretoByPanel[panel.id] ?? []}
+                    logScale={logScale}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <GroupedMetricBarChart
@@ -1915,15 +2127,84 @@ export function SimulationSummary() {
               showErrorBars={showErrorBars}
               exportName="summary-overflows-grouped"
             />
-            <GroupedMetricBarChart
-              title="kg/km by Constructor"
-              subtitle="Mean ± std across selection strategies (§G.1.1)"
-              groups={kgkmGroups}
-              color="#34d399"
-              showErrorBars={showErrorBars}
-              exportName="summary-kgkm-grouped"
-            />
+            {cityScaleKgkmGroups ? (
+              <GroupedMetricBarChart
+                title="kg/km by City / Scale"
+                subtitle="Mean ± std across portfolio runs (§G.1.1 multi-city)"
+                groups={cityScaleKgkmGroups}
+                color="#34d399"
+                showErrorBars={showErrorBars}
+                exportName="summary-kgkm-city"
+              />
+            ) : (
+              <GroupedMetricBarChart
+                title="kg/km by Constructor"
+                subtitle="Mean ± std across selection strategies (§G.1.1)"
+                groups={kgkmGroups}
+                color="#34d399"
+                showErrorBars={showErrorBars}
+                exportName="summary-kgkm-grouped"
+              />
+            )}
           </div>
+
+          {portfolioMode && cityGroups.length > 1 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-xs font-semibold text-gray-300">Heatmaps by Graph (§G.1.3)</p>
+                <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
+                  {(["overflows", "kg/km"] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setGraphHeatmapMode(m)}
+                      className={`text-xs px-2.5 py-1 rounded-md ${
+                        graphHeatmapMode === m
+                          ? "bg-accent-primary text-white"
+                          : "text-canvas-muted hover:text-gray-200"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {cityGroups.map(([graph, graphRuns]) => (
+                  <BenchmarkGraphHeatmap
+                    key={graph}
+                    graphLabel={graph}
+                    runs={graphRuns}
+                    heatmapMode={graphHeatmapMode}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {portfolioMode && cityGroups.length >= 1 && (
+            <div className="card space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
+                  <p className="text-[10px] text-canvas-muted">Log scale only — preserves extreme values</p>
+                </div>
+                <button
+                  onClick={() =>
+                    exportChartPng({ current: cityCompareChartRef.current }, "summary-city-compare.png")
+                  }
+                  className="btn-ghost text-xs flex items-center gap-1"
+                >
+                  <Download size={12} />
+                  PNG
+                </button>
+              </div>
+              <ReactECharts
+                ref={cityCompareChartRef}
+                option={cityComparisonOption}
+                style={{ height: 240 }}
+              />
+            </div>
+          )}
 
           {/* Per-day trajectory */}
           <TrajectoryChart entries={filteredEntries} policies={policies} brushed={effectiveBrushed} />
