@@ -44,7 +44,9 @@ import {
 import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
 import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
 import { BenchmarkDistributionHeatmap } from "../../components/analysis/BenchmarkDistributionHeatmap";
+import { BenchmarkPortfolioHeatmap } from "../../components/analysis/BenchmarkPortfolioHeatmap";
 import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
+import type { HeatmapMode } from "../../utils/heatmapMetrics";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/paretoPortfolio";
 import { groupRunsByDistribution } from "../../utils/portfolioDistribution";
@@ -679,8 +681,6 @@ const HEATMAP_METRICS: Array<{ key: MetricKey | "kg/km"; label: string; higherBe
   { key: "km", label: "km", higherBetter: false },
 ];
 
-type HeatmapMode = "all" | "overflows" | "kg/km";
-
 function PolicyHeatmapChart({
   stats,
   policies,
@@ -990,9 +990,15 @@ function HierarchyBreadcrumb({
   if (path.length === 0) return null;
   return (
     <div className="flex flex-wrap items-center gap-1 text-xs">
+      <button
+        onClick={() => onNavigate(0)}
+        className="text-accent-primary hover:underline font-medium"
+      >
+        All
+      </button>
       {path.map((seg, i) => (
         <span key={`${seg}-${i}`} className="flex items-center gap-1">
-          {i > 0 && <span className="text-canvas-muted">›</span>}
+          <span className="text-canvas-muted">›</span>
           <button
             onClick={() => onNavigate(i + 1)}
             className="text-accent-secondary hover:underline font-mono"
@@ -1740,7 +1746,6 @@ export function SimulationSummary() {
   const [showErrorBars, setShowErrorBars] = useState(false);
   const [brushed, setBrushed] = useState<string[] | null>(null);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
-  const [graphHeatmapMode, setGraphHeatmapMode] = useState<"overflows" | "kg/km">("overflows");
   const [overflowMax, setOverflowMax] = useState<number | null>(null);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
@@ -2124,6 +2129,15 @@ export function SimulationSummary() {
             <BenchmarkPortfolioParallel runs={allRuns} />
           )}
 
+          {portfolioMode && (
+            <BenchmarkPortfolioHeatmap
+              runs={allRuns}
+              heatmapMode={heatmapMode}
+              onModeChange={setHeatmapMode}
+              brushed={effectiveBrushed}
+            />
+          )}
+
           {allRuns.length >= 1 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
@@ -2183,31 +2197,14 @@ export function SimulationSummary() {
 
           {portfolioMode && distributionGroups.length > 1 && (
             <div className="space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <p className="text-xs font-semibold text-gray-300">Heatmaps by Distribution (§G.1.3)</p>
-                <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
-                  {(["overflows", "kg/km"] as const).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setGraphHeatmapMode(m)}
-                      className={`text-xs px-2.5 py-1 rounded-md ${
-                        graphHeatmapMode === m
-                          ? "bg-accent-primary text-white"
-                          : "text-canvas-muted hover:text-gray-200"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs font-semibold text-gray-300">Heatmaps by Distribution (§G.1.3)</p>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {distributionGroups.map(([dist, distRuns]) => (
                   <BenchmarkDistributionHeatmap
                     key={dist}
                     distributionLabel={dist}
                     runs={distRuns}
-                    heatmapMode={graphHeatmapMode}
+                    heatmapMode={heatmapMode}
                   />
                 ))}
               </div>
@@ -2216,31 +2213,14 @@ export function SimulationSummary() {
 
           {portfolioMode && cityGroups.length > 1 && (
             <div className="space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <p className="text-xs font-semibold text-gray-300">Heatmaps by Graph (§G.1.3)</p>
-                <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
-                  {(["overflows", "kg/km"] as const).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setGraphHeatmapMode(m)}
-                      className={`text-xs px-2.5 py-1 rounded-md ${
-                        graphHeatmapMode === m
-                          ? "bg-accent-primary text-white"
-                          : "text-canvas-muted hover:text-gray-200"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs font-semibold text-gray-300">Heatmaps by Graph (§G.1.3)</p>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {cityGroups.map(([graph, graphRuns]) => (
                   <BenchmarkGraphHeatmap
                     key={graph}
                     graphLabel={graph}
                     runs={graphRuns}
-                    heatmapMode={graphHeatmapMode}
+                    heatmapMode={heatmapMode}
                   />
                 ))}
               </div>

@@ -20,6 +20,7 @@ import { PARETO_PANELS } from "../../utils/paretoPanels";
 import { buildParetoByPanel } from "../../utils/paretoPortfolio";
 import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
 import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
+import type { HeatmapMode } from "../../utils/heatmapMetrics";
 import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
 import {
   buildCityComparisonSeries,
@@ -171,7 +172,7 @@ export function BenchmarkAnalysis() {
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
-  const [graphHeatmapMode, setGraphHeatmapMode] = useState<"overflows" | "kg/km">("overflows");
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
   const { policy, sampleId } = useGlobalFiltersStore();
 
   const filteredRuns = useMemo(
@@ -465,17 +466,23 @@ export function BenchmarkAnalysis() {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-xs font-semibold text-gray-300">Heatmaps by Graph (§G.1.3)</p>
             <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
-              {(["overflows", "kg/km"] as const).map((m) => (
+              {(
+                [
+                  { key: "all", label: "All metrics" },
+                  { key: "overflows", label: "Overflows" },
+                  { key: "kg/km", label: "kg/km" },
+                ] as const
+              ).map((o) => (
                 <button
-                  key={m}
-                  onClick={() => setGraphHeatmapMode(m)}
+                  key={o.key}
+                  onClick={() => setHeatmapMode(o.key)}
                   className={`text-xs px-2.5 py-1 rounded-md ${
-                    graphHeatmapMode === m
+                    heatmapMode === o.key
                       ? "bg-accent-primary text-white"
                       : "text-canvas-muted hover:text-gray-200"
                   }`}
                 >
-                  {m}
+                  {o.label}
                 </button>
               ))}
             </div>
@@ -486,7 +493,7 @@ export function BenchmarkAnalysis() {
                 key={graph}
                 graphLabel={graph}
                 runs={graphRuns}
-                heatmapMode={graphHeatmapMode}
+                heatmapMode={heatmapMode}
               />
             ))}
           </div>
