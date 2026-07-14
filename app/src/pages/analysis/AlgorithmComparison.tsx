@@ -13,6 +13,7 @@ import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
 
 const ALGORITHM_SIM_TABLE = "algorithm_sim";
@@ -33,7 +34,8 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
   const { setMode, setPendingMapCompare, theme } = useAppStore();
-  const { policy, sampleId } = useGlobalFiltersStore();
+  const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
+  const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -91,14 +93,17 @@ export function AlgorithmComparison() {
           data: policies.map((p, i) => ({
             name: p,
             value: METRICS.map(({ key }) => metricMeans[p][key] ?? 0),
-            lineStyle: { color: COLORS[i % COLORS.length] },
+            lineStyle: {
+              color: COLORS[i % COLORS.length],
+              opacity: barOpacity(p, brushedPolicies),
+            },
             areaStyle: { color: `${COLORS[i % COLORS.length]}20` },
           })),
         },
       ],
       tooltip: {},
     };
-  }, [filtered, policies]);
+  }, [filtered, policies, brushedPolicies]);
 
   const openOnMap = useCallback(() => {
     setPendingMapCompare({
@@ -108,6 +113,21 @@ export function AlgorithmComparison() {
     });
     setMode("simulation");
   }, [policies, setMode, setPendingMapCompare]);
+
+  const handlePolicyClick = useCallback(
+    (name: string) => {
+      setPolicy(policy === name ? null : name);
+    },
+    [policy, setPolicy]
+  );
+
+  const onChartClick = useCallback(
+    (params: { name?: string; seriesName?: string }) => {
+      const name = params.name ?? params.seriesName;
+      if (name) handlePolicyClick(name);
+    },
+    [handlePolicyClick]
+  );
 
   if (entries.length === 0) {
     return (
@@ -153,7 +173,12 @@ export function AlgorithmComparison() {
             PNG
           </button>
         </div>
-        <ReactECharts ref={radarRef} option={radarOption} style={{ height: 340 }} />
+        <ReactECharts
+          ref={radarRef}
+          option={radarOption}
+          style={{ height: 340 }}
+          onEvents={{ click: onChartClick, legendselectchanged: onChartClick }}
+        />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -183,7 +208,10 @@ export function AlgorithmComparison() {
                   );
                   return {
                     value: logScale ? Math.max(raw, 0.001) : raw,
-                    itemStyle: { color: COLORS[i % COLORS.length] },
+                    itemStyle: {
+                      color: COLORS[i % COLORS.length],
+                      opacity: barOpacity(p, brushedPolicies),
+                    },
                   };
                 }),
               },
@@ -208,6 +236,7 @@ export function AlgorithmComparison() {
                 }}
                 option={option}
                 style={{ height: 140 }}
+                onEvents={{ click: onChartClick }}
               />
             </div>
           );
@@ -218,7 +247,10 @@ export function AlgorithmComparison() {
         <SqlQueryPanel
           tableName={ALGORITHM_SIM_TABLE}
           theme={theme}
-          highlightPolicies={policy ? [policy] : null}
+          highlightPolicies={brushedPolicies}
+          brushSqlSync
+          autoRunOnBrushSync
+          algorithmMode
         />
       )}
     </div>
