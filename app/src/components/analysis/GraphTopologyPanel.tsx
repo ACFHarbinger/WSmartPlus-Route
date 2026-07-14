@@ -19,8 +19,11 @@ import {
 const TopologySigmaView = lazy(() =>
   import("./TopologySigmaView").then((m) => ({ default: m.TopologySigmaView }))
 );
+const TopologyCosmographView = lazy(() =>
+  import("./TopologyCosmographView").then((m) => ({ default: m.TopologyCosmographView }))
+);
 
-type TopologyView = "echarts" | "sigma";
+type TopologyView = "echarts" | "sigma" | "cosmograph";
 
 interface Props {
   logPath: string | null;
@@ -250,12 +253,13 @@ export function GraphTopologyPanel({
                 <label className="flex items-center gap-1.5 text-canvas-muted">
                   View
                   <select
-                    className="select-base text-xs py-0.5 w-28"
+                    className="select-base text-xs py-0.5 w-36"
                     value={topologyView}
                     onChange={(e) => setTopologyView(e.target.value as TopologyView)}
                   >
                     <option value="echarts">ECharts</option>
                     <option value="sigma">Sigma.js WebGL</option>
+                    <option value="cosmograph">Cosmograph (WebGL)</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-1.5 text-canvas-muted">
@@ -388,6 +392,26 @@ export function GraphTopologyPanel({
                   }
                 >
                   <TopologySigmaView
+                    nodeMeta={graphPayload.nodeMeta}
+                    edges={graphPayload.edges}
+                    positions={graphPayload.positions}
+                    layoutMode={resolvedLayout}
+                    fillRange={fillRange}
+                    pheromoneWeights={pheromoneWeights}
+                    showPheromone={showPheromone}
+                    theme={theme}
+                  />
+                </Suspense>
+              )}
+              {graphPayload && topologyView === "cosmograph" && (
+                <Suspense
+                  fallback={
+                    <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
+                      Loading Cosmograph view…
+                    </div>
+                  }
+                >
+                  <TopologyCosmographView
                     nodeMeta={graphPayload.nodeMeta}
                     edges={graphPayload.edges}
                     positions={graphPayload.positions}

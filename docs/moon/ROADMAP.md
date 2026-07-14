@@ -992,12 +992,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Visualize the raw optimization graph structure, pheromone trails, and node-edge weights.
 
 - [x] Load distance matrix from `assets/` as a weighted edge list: `graphTopology.ts` resolves sibling `gmaps_distmat.csv` or project `data/wsr_simulator/distance_matrix/`; k-NN edge list builder (§G.4 partial)
-- [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance; View toggle adds `TopologySigmaView` Sigma.js WebGL with fill/pheromone styling (§G.4 partial — Cosmograph WebGL deferred)
-- [x] Force-directed layout (ForceAtlas2) via Graphology: Fruchterman-Reingold spring layout in `forceDirectedLayout()` (§G.4 partial — Graphology/ForceAtlas2 deferred)
+- [x] Render graph using Sigma.js (WebGL): node radius ∝ profit, edge thickness ∝ inverse distance: `GraphTopologyPanel` ECharts `graph` series — node size ∝ bin fill %, edge width ∝ inverse distance; View toggle adds `TopologySigmaView` Sigma.js WebGL with fill/pheromone styling + `TopologyCosmographView` dense point-mode WebGL (§G.4)
+- [x] Force-directed layout (ForceAtlas2) via Graphology: `TopologySigmaView` runs `graphology-layout-forceatlas2` on force layout; ECharts path keeps Fruchterman-Reingold in `forceDirectedLayout()` (§G.4)
 - [x] ACO pheromone trail visualization: edge opacity/color intensity ∝ accumulated pheromone weight after each iteration: `accumulateTourPheromone()` deposits τ on consecutive tour edges; amber edge styling in `GraphTopologyPanel` (§G.4 partial — live ACO solver τ matrix deferred)
 - [x] Cross-filter from DuckDB-Wasm: brushing a profit range highlights matching nodes: fill-% dual slider + SQL "Brush profit range" / day row click → topology panel (§G.4 partial — bidirectional chart brush deferred)
 - [x] Dynamic re-layout when filter applied: clusters emerge based on algorithm prioritization: "Re-layout on filter" toggle re-runs spring layout on filtered subgraph (§G.4 partial)
-- [x] Cosmograph alternative for large dense graphs (N=350): `radialDenseLayout()` + auto radial when N≥200; layout mode selector (auto/force/radial) on `GraphTopologyPanel` (§G.4 partial — Cosmograph WebGL deferred)
+- [x] Cosmograph alternative for large dense graphs (N=350): `radialDenseLayout()` + auto radial when N≥200; layout mode selector (auto/force/radial) on `GraphTopologyPanel`; `TopologyCosmographView` Sigma.js point renderer with ForceAtlas2 dense settings (§G.4)
 - [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback (§G.4 partial — per-ACO-iteration stepping deferred)
 
 ---
@@ -1009,7 +1009,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 5.1 TensorDict Data Pipeline
 - [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — full native `.td` parse deferred)
 - [x] TensorDict (`.td`) inspect + slice via Python subprocess (`torch.load` + key/shape listing; slice export matches NPZ path): `inspect_npz_archive` / `load_tensor_slice` accept `project_root` + `python_executable`; Archive tab opens `.td` files (§G.5.1)
-- [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `load_npz_plane_mmap` via `memmap2` reads only the trailing 2-D plane for standalone `.npy` or stored `.npz` entries > 8 MB; `TensorSlicePreview.used_memmap` surfaced in Archive/Attention tabs; `probe_npy_mmap` eligibility probe covers `.npz` stored arrays (§G.5.1 partial — compressed NPZ entries deferred)
+- [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `load_npz_plane_mmap` via `memmap2` reads only the trailing 2-D plane for standalone `.npy` or stored `.npz` entries > 8 MB; `load_npz_plane_decompress` slices deflated `.npz` entries after single-entry inflate; `TensorSlicePreview.used_memmap` / `used_decompress_slice` surfaced in Archive/Attention tabs; `probe_npy_mmap` covers large stored or compressed `.npz` arrays (§G.5.1)
 - [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab; `.td` slices supported via Python handoff (§G.5.1)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)

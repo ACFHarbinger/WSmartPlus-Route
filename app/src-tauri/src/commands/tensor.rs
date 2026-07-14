@@ -225,6 +225,8 @@ pub struct TensorSlicePreview {
     pub max: f64,
     pub rust_ms: u64,
     pub used_memmap: bool,
+    #[serde(default)]
+    pub used_decompress_slice: bool,
 }
 
 fn itemsize_from_descr(descr: &str) -> Result<usize, String> {
@@ -356,6 +358,49 @@ fn npz_entry_loc(entry: &ZipFile<'_>) -> NpzNpyEntryLoc {
         compression: entry.compression(),
         uncompressed_size: entry.size(),
     }
+}
+
+fn load_plane_from_npy_bytes(
+    raw: &[u8],
+    indices: &[usize],
+) -> Result<(Vec<usize>, Vec<usize>, Vec<f64>), String> {
+    let (shape, dtype, data_offset) = parse_npy_header(raw)?;
+    let itemsize = itemsize_from_descr(&dtype)?;
+    let rows = *shape.get(shape.len().saturating_sub(2)).unwrap_or(&0);
+    let cols = shape.last().copied().unwrap_or(0);
+    if rows == 0 || cols == 0 {
+        return Err("Cannot slice empty tensor plane".to_string());
+    }
+    let elem_offset = c_order_offset(&shape, indices)?;
+    let plane_elems = rows * cols;
+    let byte_start = data_offset + elem_offset * itemsize;
+    let byte_end = byte_start + plane_elems * itemsize;
+    if byte_end > raw.len() {
+        return Err("NPY plane slice exceeds buffer bounds".to_string());
+    }
+    let flat = read_f64_plane(&raw[byte_start..byte_end], itemsize)?;
+    Ok((shape, vec![rows, cols], flat))
+}
+
+fn load_npz_plane_decompress(
+    path: &Path,
+    key: &str,
+    indices: &[usize],
+) -> Result<(Vec<usize>, Vec<usize>, Vec<f64>, bool), String> {
+    let loc = resolve_npz_npy_entry(path, key)?;
+    if loc.uncompressed_size <= MMAP_THRESHOLD_BYTES {
+        return Err("NPZ entry below decompress-slice threshold".to_string());
+    }
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    let mut archive = ZipArchive::new(file).map_err(|e| format!("Invalid NPZ: {e}"))?;
+    let resolved = resolve_npz_npy_key(&mut archive, key)?;
+    let mut entry = archive
+        .by_name(&resolved)
+        .map_err(|e| format!("Key '{key}' not found in NPZ: {e}"))?;
+    let mut raw = Vec::new();
+    entry.read_to_end(&mut raw).map_err(|e| e.to_string())?;
+    let (shape, plane_shape, flat) = load_plane_from_npy_bytes(&raw, indices)?;
+    Ok((shape, plane_shape, flat, true))
 }
 
 fn load_npz_plane_mmap(
@@ -716,28 +761,35 @@ pub fn load_tensor_slice(
     let meta = std::fs::metadata(p).map_err(|e| e.to_string())?;
     let use_npy_mmap = ext == "npy" && meta.len() > MMAP_THRESHOLD_BYTES;
 
-    let (full_shape, plane_shape, flat, used_memmap) = if use_npy_mmap {
+    let (full_shape, plane_shape, flat, used_memmap, used_decompress_slice) = if use_npy_mmap {
         let (plane_shape, flat, mmap_used) = load_npy_plane_mmap(p, &indices)?;
         let mut header_buf = vec![0u8; 256];
         let mut file = File::open(p).map_err(|e| e.to_string())?;
         let n = file.read(&mut header_buf).map_err(|e| e.to_string())?;
         header_buf.truncate(n);
         let (shape, _, _) = parse_npy_header(&header_buf)?;
-        (shape, plane_shape, flat, mmap_used)
+        (shape, plane_shape, flat, mmap_used, false)
     } else if ext == "npz" {
         match load_npz_plane_mmap(p, &resolved_key, &indices) {
-            Ok((shape, plane_shape, flat, mmap_used)) => (shape, plane_shape, flat, mmap_used),
-            Err(_) => {
-                let (shape, arr) = open_npz_array(&path, &resolved_key)?;
-                let (plane_shape, flat) = select_2d_slice(&arr, &indices)?;
-                (shape, plane_shape, flat, false)
+            Ok((shape, plane_shape, flat, mmap_used)) => {
+                (shape, plane_shape, flat, mmap_used, false)
             }
+            Err(_) => match load_npz_plane_decompress(p, &resolved_key, &indices) {
+                Ok((shape, plane_shape, flat, decomp_used)) => {
+                    (shape, plane_shape, flat, false, decomp_used)
+                }
+                Err(_) => {
+                    let (shape, arr) = open_npz_array(&path, &resolved_key)?;
+                    let (plane_shape, flat) = select_2d_slice(&arr, &indices)?;
+                    (shape, plane_shape, flat, false, false)
+                }
+            },
         }
     } else {
         let arr = load_array_from_path(p)?;
         let shape = arr.shape().to_vec();
         let (plane_shape, flat) = select_2d_slice(&arr, &indices)?;
-        (shape, plane_shape, flat, false)
+        (shape, plane_shape, flat, false, false)
     };
 
     let rows = plane_shape[0];
@@ -755,6 +807,7 @@ pub fn load_tensor_slice(
         max,
         rust_ms: start.elapsed().as_millis() as u64,
         used_memmap,
+        used_decompress_slice,
     })
 }
 
@@ -856,9 +909,7 @@ pub fn probe_npy_mmap(path: String) -> Result<bool, String> {
                 continue;
             }
             let loc = npz_entry_loc(&entry);
-            if loc.compression == CompressionMethod::Stored
-                && loc.uncompressed_size > MMAP_THRESHOLD_BYTES
-            {
+            if loc.uncompressed_size > MMAP_THRESHOLD_BYTES {
                 return Ok(true);
             }
         }
@@ -958,6 +1009,46 @@ mod tests {
         assert_eq!(plane_shape, vec![3, 4]);
         assert_eq!(flat.len(), 12);
         assert!((flat[0] - 100.0).abs() < 1e-9);
+
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn npz_decompress_plane_reads_trailing_2d_slice() {
+        use std::io::Write;
+        use zip::write::SimpleFileOptions;
+        use zip::ZipWriter;
+
+        let dir =
+            std::env::temp_dir().join(format!("wsroute_npz_deflate_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let npy_path = dir.join("tensor.npy");
+        let mut vals = Vec::new();
+        for b in 0..2 {
+            for r in 0..3 {
+                for c in 0..4 {
+                    vals.push((b * 100 + r * 10 + c) as f64);
+                }
+            }
+        }
+        write_test_npy(&npy_path, &[2, 3, 4], &vals);
+
+        let npz_path = dir.join("tensor_deflate.npz");
+        let npy_bytes = std::fs::read(&npy_path).unwrap();
+        let file = File::create(&npz_path).unwrap();
+        let mut zip = ZipWriter::new(file);
+        let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
+        zip.start_file("tensor.npy", options).unwrap();
+        zip.write_all(&npy_bytes).unwrap();
+        zip.finish().unwrap();
+
+        let (shape, plane_shape, flat, used) =
+            load_npz_plane_decompress(&npz_path, "tensor", &[1]).unwrap();
+        assert!(used);
+        assert_eq!(shape, vec![2, 3, 4]);
+        assert_eq!(plane_shape, vec![3, 4]);
+        assert_eq!(flat.len(), 12);
+        assert!((flat[11] - 123.0).abs() < 1e-9);
 
         let _ = std::fs::remove_dir_all(dir);
     }

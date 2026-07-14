@@ -243,6 +243,7 @@ export interface TensorSlicePreview {
   max: number;
   rust_ms: number;
   used_memmap: boolean;
+  used_decompress_slice?: boolean;
 }
 
 export interface NpzVectorData {

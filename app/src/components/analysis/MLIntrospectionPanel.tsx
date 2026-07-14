@@ -609,7 +609,9 @@ export function MLIntrospectionPanel() {
           )}
           <p className="text-[10px] text-canvas-muted mt-2">
             Total payload {formatBytes(archive.total_bytes)}
-            {archive.used_memmap ? " · large .npy/.npz eligible for mmap slice" : ""}
+            {archive.used_memmap
+              ? " · large .npy/.npz eligible for mmap / decompress slice"
+              : ""}
           </p>
         </div>
       )}
@@ -855,7 +857,11 @@ export function MLIntrospectionPanel() {
           {preview && tab === "attention" && (
             <span className="text-canvas-muted">
               {preview.rust_ms} ms · downsampled
-              {preview.used_memmap ? " · mmap slice" : ""}
+              {preview.used_memmap
+                ? " · mmap slice"
+                : preview.used_decompress_slice
+                  ? " · decompress slice"
+                  : ""}
             </span>
           )}
         </div>
