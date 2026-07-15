@@ -24,6 +24,7 @@ interface AppState {
   pendingRunPath: string | null;
   pendingCsvPath: string | null;
   pendingTrainingRunPath: string | null;
+  pendingConfigPath: string | null;
   pendingMapCompare: PendingMapCompare | null;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: ThemePreference) => void;
@@ -37,6 +38,7 @@ interface AppState {
   setPendingRunPath: (path: string | null) => void;
   setPendingCsvPath: (path: string | null) => void;
   setPendingTrainingRunPath: (path: string | null) => void;
+  setPendingConfigPath: (path: string | null) => void;
   setPendingMapCompare: (compare: PendingMapCompare | null) => void;
 }
 
@@ -55,6 +57,7 @@ export const useAppStore = create<AppState>()(
       pendingRunPath: null,
       pendingCsvPath: null,
       pendingTrainingRunPath: null,
+      pendingConfigPath: null,
       pendingMapCompare: null,
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
@@ -74,6 +77,7 @@ export const useAppStore = create<AppState>()(
       setPendingRunPath: (pendingRunPath) => set({ pendingRunPath }),
       setPendingCsvPath: (pendingCsvPath) => set({ pendingCsvPath }),
       setPendingTrainingRunPath: (pendingTrainingRunPath) => set({ pendingTrainingRunPath }),
+      setPendingConfigPath: (pendingConfigPath) => set({ pendingConfigPath }),
       setPendingMapCompare: (pendingMapCompare) => set({ pendingMapCompare }),
     }),
     {

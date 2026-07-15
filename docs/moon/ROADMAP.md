@@ -1331,6 +1331,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette — open recent checkpoints via ``pendingCheckpoint`` + Evaluation Runner mode (§G.7 / §G.12 / §D.7)
 - [x] §G.12 / §G.7 eval checkpoint recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-eighth pass)**
+
+- [x] ``RecentFileKind`` — ``config`` kind for YAML / TOML / cfg / ini config files alongside log/run/csv/training/checkpoint (§G.13 / §G.7 / §D.7)
+- [x] ``pendingConfigPath`` — Config Editor deep-link from Output Browser and Command Palette (§G.13 / §G.14 / §G.7 / §D.7)
+- [x] Configuration Editor — file picker + ``pendingConfigPath`` consume ``pushRecent`` via ``portfolioRunLabel`` (§G.13 / §D.7)
+- [x] Output Browser — inline config open ``pushRecent`` + **Open in Config Editor →** handoff via ``pendingConfigPath`` (§G.14 / §G.13 / §D.7)
+- [x] Command Palette — open recent configs via ``pendingConfigPath`` + Config Editor mode (§G.7 / §G.13 / §D.7)
+- [x] §G.13 / §G.7 / §G.14 config recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1935,6 +1944,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor + Output Browser + ``LauncherNavMesh`` eval checkpoint handoff recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-seventh pass; §G.12 / §G.14 / §G.17 / §D.7)
 - [x] Evaluation Runner + Training Hub checkpoint pick / ``pendingCheckpoint`` consume recent-file push — ``portfolioRunLabel`` (two-hundred-and-seventh pass; §G.10 / §G.12 / §D.7)
 - [x] Command Palette checkpoint recent-file handoff — ``pendingCheckpoint`` + Evaluation Runner mode (two-hundred-and-seventh pass; §G.7 / §G.12 / §D.7)
+- [x] ``RecentFileKind`` ``config`` — YAML / TOML / cfg / ini config recent-file kind (two-hundred-and-eighth pass; §G.13 / §G.7 / §D.7)
+- [x] Configuration Editor open + ``pendingConfigPath`` consume recent-file push — ``portfolioRunLabel`` (two-hundred-and-eighth pass; §G.13 / §D.7)
+- [x] Output Browser config open + **Open in Config Editor →** handoff recent-file push — ``pendingConfigPath`` (two-hundred-and-eighth pass; §G.14 / §G.13 / §D.7)
+- [x] Command Palette config recent-file handoff — ``pendingConfigPath`` + Config Editor mode (two-hundred-and-eighth pass; §G.7 / §G.13 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

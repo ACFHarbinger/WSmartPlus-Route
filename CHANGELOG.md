@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eighth pass (§G.7 + §G.13 + §G.14 + §D.7)
+
+Two-hundred-and-eighth pass closes the Config Editor recent-file gaps left after
+pass 207 unified eval-checkpoint handoff labels. ``RecentFileKind`` gains
+``config`` for YAML / TOML / cfg / ini files. Configuration Editor file picker and
+``pendingConfigPath`` consume push recent files via ``portfolioRunLabel``. Output
+Browser pushes on inline config open and adds **Open in Config Editor →** via
+``pendingConfigPath``. Command Palette opens config recents into Config Editor.
+
+**React frontend**
+- ``recentFiles`` store — ``config`` kind for Hydra / YAML config files (§G.13 / §G.7 / §D.7)
+- App store — ``pendingConfigPath`` deep-link for Config Editor handoff (§G.13 / §G.14 / §D.7)
+- Configuration Editor — file picker + ``pendingConfigPath`` consume ``pushRecent`` via ``portfolioRunLabel`` (§G.13 / §D.7)
+- Output Browser — inline config open ``pushRecent`` + **Open in Config Editor →** handoff (§G.14 / §G.13 / §D.7)
+- Command Palette — recent config handoff via ``pendingConfigPath`` (§G.7 / §G.13 / §D.7)
+
+**ROADMAP**
+- §G.13 Configuration Editor recent-file ``portfolioRunLabel`` parity checked
+- §G.7 Command Palette config recent-file handoff checked
+- §G.14 Output Browser config open + Config Editor handoff recent-file parity checked
+- §D.7 Config relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-seventh pass (§G.7 + §G.10 + §G.12 + §G.14 + §G.17 + §D.7)
 
 Two-hundred-and-seventh pass closes the eval-checkpoint recent-file gaps left after

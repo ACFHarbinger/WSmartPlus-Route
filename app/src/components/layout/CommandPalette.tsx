@@ -29,6 +29,7 @@ export function CommandPalette() {
     setPendingCsvPath,
     setPendingTrainingRunPath,
     setPendingCheckpoint,
+    setPendingConfigPath,
   } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
@@ -193,6 +194,15 @@ export function CommandPalette() {
                         setPendingCheckpoint(file.path);
                         setMode("eval_runner");
                         setCommandPaletteOpen(false);
+                      } else if (file.kind === "config") {
+                        pushRecent({
+                          path: file.path,
+                          label: portfolioRunLabel(file.path, file.label, projectRoot),
+                          kind: "config",
+                        });
+                        setPendingConfigPath(file.path);
+                        setMode("config_editor");
+                        setCommandPaletteOpen(false);
                       } else {
                         setMode("data_explorer");
                         setCommandPaletteOpen(false);
@@ -204,7 +214,8 @@ export function CommandPalette() {
                     file.kind === "run" ||
                     file.kind === "csv" ||
                     file.kind === "training" ||
-                    file.kind === "checkpoint" ? (
+                    file.kind === "checkpoint" ||
+                    file.kind === "config" ? (
                       <PathRunLabelChip
                         path={file.path}
                         projectRoot={projectRoot}

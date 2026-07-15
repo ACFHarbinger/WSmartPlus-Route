@@ -7,6 +7,7 @@
  *   - Run metadata card: auto-loads pruned_config.yaml and shows key fields
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
  *   - "Open in Sim Summary" button for .jsonl log files
+ *   - "Open in Config Editor" button for YAML / TOML / cfg / ini files
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLayoutStore } from "../../store/layout";
@@ -56,6 +57,7 @@ function formatBytes(b: number) {
 const TEXT_EXTENSIONS = new Set(["yaml", "yml", "toml", "cfg", "ini", "txt", "log", "md", "json", "jsonl"]);
 const CSV_EXTENSIONS = new Set(["csv"]);
 const LOG_EXTENSIONS = new Set(["jsonl"]);
+const CONFIG_EXTENSIONS = new Set(["yaml", "yml", "toml", "cfg", "ini"]);
 
 function FileIcon({ entry }: { entry: DirEntry }) {
   if (entry.is_dir) return <Folder size={13} className="text-accent-warning" />;
@@ -119,6 +121,7 @@ export function OutputBrowser() {
     pendingRunPath,
     setPendingRunPath,
     setPendingCheckpoint,
+    setPendingConfigPath,
   } = useAppStore();
   const {
     policy: activePolicy,
@@ -359,6 +362,12 @@ export function OutputBrowser() {
             label: portfolioRunLabel(entry.path, undefined, projectRoot),
             kind: "log",
           });
+        } else if (CONFIG_EXTENSIONS.has(entry.extension)) {
+          pushRecent({
+            path: entry.path,
+            label: portfolioRunLabel(entry.path, undefined, projectRoot),
+            kind: "config",
+          });
         }
       }
     } catch (err) {
@@ -392,6 +401,19 @@ export function OutputBrowser() {
       setMode("eval_runner");
     },
     [pushRecent, projectRoot, setPendingCheckpoint, setMode]
+  );
+
+  const openInConfigEditor = useCallback(
+    (path: string) => {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "config",
+      });
+      setPendingConfigPath(path);
+      setMode("config_editor");
+    },
+    [pushRecent, projectRoot, setPendingConfigPath, setMode]
   );
 
   const toggleCompareRun = useCallback((runPath: string) => {
@@ -880,6 +902,15 @@ export function OutputBrowser() {
               >
                 <BarChart2 size={12} />
                 Open in Sim Summary
+              </button>
+            )}
+            {viewingPath && CONFIG_EXTENSIONS.has(viewingExt) && (
+              <button
+                onClick={() => openInConfigEditor(viewingPath)}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
+              >
+                <FileText size={12} />
+                Open in Config Editor →
               </button>
             )}
             {viewingCheckpoint && (
