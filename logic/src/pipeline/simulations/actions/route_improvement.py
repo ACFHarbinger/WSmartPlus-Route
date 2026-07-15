@@ -222,7 +222,20 @@ class RouteImprovementAction(SimulationAction):
         for processor in processors:
             try:
                 pf_params = {k: v for k, v in context.items() if k != "tour"}
-                refined_tour, metrics = processor.process(tour, **pf_params)
+                from logic.src.tracking.logging.modules.policy_viz_emit import PolicyVizStreamSession
+
+                viz_policy = str(
+                    context.get("display_name") or context.get("policy_name") or "unknown"
+                )
+                with PolicyVizStreamSession(
+                    processor,
+                    viz_policy,
+                    int(context.get("sample_id", 0)),
+                    int(context.get("day", 0)),
+                    context.get("realtime_log_path"),
+                    context.get("lock"),
+                ):
+                    refined_tour, metrics = processor.process(tour, **pf_params)
                 if refined_tour != tour:
                     dist_matrix = context.get("distance_matrix")
                     new_cost = get_route_cost(dist_matrix, refined_tour)
@@ -242,15 +255,5 @@ class RouteImprovementAction(SimulationAction):
                             improvement_metrics=metrics,
                         )
 
-                from logic.src.tracking.logging.modules.policy_viz_emit import maybe_emit_policy_viz
-
-                maybe_emit_policy_viz(
-                    processor,
-                    str(context.get("display_name") or context.get("policy_name") or "unknown"),
-                    int(context.get("sample_id", 0)),
-                    int(context.get("day", 0)),
-                    context.get("realtime_log_path"),
-                    context.get("lock"),
-                )
             except Exception as e:
                 logger.warning(f"Route improvement skipped due to error: {e}")

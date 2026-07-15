@@ -114,7 +114,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Studio ``PolicyTelemetryPanel`` — ECharts cost trajectories, operator histograms, and algorithm-specific charts (ALNS/HGS/ACO/ILS/selector/generic) on Simulation Monitor
 - [x] Live ingest via ``process:stdout`` parser + historical load on log open; PNG/SVG export via ``ChartExportButtons`` (§G.7)
 
-**Status**: §A.3 Option A complete — Option B (2 Hz WebSocket stream) and Option C (SQLite trending) deferred.
+**Delivered (§A.3 Option B — hundred-nineteenth pass)**
+
+- [x] ``PolicyVizStreamSession`` — daemon thread emits growing ring-buffer snapshots every 0.5 s (2 Hz) during route construction / improvement
+- [x] Route actions wrap ``adapter.execute`` and ``processor.process`` in stream sessions; final snapshot on context exit
+- [x] Studio sim store upserts policy-viz entries by policy/sample/day/type (replaces stale snapshots during live runs)
+- [x] ``PolicyTelemetryPanel`` — 2 Hz throttled ECharts refresh + **Live · 2 Hz** badge when file-watcher or ``test_sim`` process is active
+- [x] Live ingest via ``process:stdout`` (§G.15) + ``sim:policy_viz_update`` file-watcher events
+- [x] Unit tests in ``logic/test/unit/tracking/test_policy_viz_emit.py``
+
+**Status**: §A.3 Options A+B complete — Option C (SQLite trending) deferred.
 
 ---
 
@@ -230,6 +239,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | Item                                     | Effort    | Impact | Priority        |
 | ---------------------------------------- | --------- | ------ | --------------- |
 | §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
+| §A.3 Option B (2 Hz live telemetry stream) | Low    | High   | P1 ✅            |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
 | §A.4 Option D (HPO health prune metrics) | Low       | High   | P1 ✅            |
@@ -1516,7 +1526,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass; §A.4 HPO health prune metrics in hundred-eighteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass; §A.4 HPO health prune metrics in hundred-eighteenth pass; §A.3 live policy telemetry stream in hundred-nineteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

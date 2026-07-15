@@ -158,7 +158,18 @@ class RouteConstructionAction(SimulationAction):
 
             start_time = time.perf_counter()
             # 3. Unpack adapter results: tour represents global bin IDs
-            results = adapter.execute(**context)
+            from logic.src.tracking.logging.modules.policy_viz_emit import PolicyVizStreamSession
+
+            viz_policy = str(context.get("display_name") or context.get("policy_name") or full_policy)
+            viz_sample = int(context.get("sample_id", 0))
+            viz_day = int(context.get("day", 0))
+            viz_log = context.get("realtime_log_path")
+            viz_lock = context.get("lock")
+
+            with PolicyVizStreamSession(
+                adapter, viz_policy, viz_sample, viz_day, viz_log, viz_lock
+            ):
+                results = adapter.execute(**context)
             tour, _, _, extra_output, updated_multi_day = results
             elapsed_time = time.perf_counter() - start_time
 
@@ -178,17 +189,6 @@ class RouteConstructionAction(SimulationAction):
             context["time"] = elapsed_time
             # Preserve updated multi-day state for the next simulation day
             context["multi_day_context"] = updated_multi_day
-
-            from logic.src.tracking.logging.modules.policy_viz_emit import maybe_emit_policy_viz
-
-            maybe_emit_policy_viz(
-                adapter,
-                str(context.get("display_name") or context.get("policy_name") or full_policy),
-                int(context.get("sample_id", 0)),
-                int(context.get("day", 0)),
-                context.get("realtime_log_path"),
-                context.get("lock"),
-            )
 
             # Legacy caching for regular selection
             if "regular" in full_policy:
