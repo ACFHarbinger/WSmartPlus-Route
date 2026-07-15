@@ -19,7 +19,9 @@ import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 
 const YamlEditor = lazy(() => import("../../components/editors/YamlEditor"));
 
@@ -78,10 +80,11 @@ const LAUNCHER_TARGETS: Array<{ value: LauncherTarget; label: string; mode: "sim
 ];
 
 export function ConfigEditor() {
-  const { projectRoot, pythonPath, setMode } = useAppStore();
+  const { projectRoot, pythonPath, setMode, pendingConfigPath, setPendingConfigPath } = useAppStore();
   const simPatch = useSimLauncherStore((s) => s.patch);
   const trainPatch = useTrainHubStore((s) => s.patch);
   const dataPatch = useDataGenStore((s) => s.patch);
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const [content, setContent] = useState("");
   const [filePath, setFilePath] = useState<string | null>(null);
   const [diffContent, setDiffContent] = useState("");
@@ -97,29 +100,52 @@ export function ConfigEditor() {
   useLogPathRunLabelBrush(filePath);
   useLogPathRunLabelBrush(diffPath);
 
+  const loadConfigPath = useCallback(
+    async (path: string, target: "primary" | "diff" = "primary") => {
+      setLoading(true);
+      try {
+        const text = await invoke<string>("read_text_file", { path });
+        if (target === "primary") {
+          setContent(text);
+          setFilePath(path);
+          savedContentRef.current = text;
+          pushRecent({
+            path,
+            label: portfolioRunLabel(path, undefined, projectRoot),
+            kind: "config",
+          });
+        } else {
+          setDiffContent(text);
+          setDiffPath(path);
+          pushRecent({
+            path,
+            label: portfolioRunLabel(path, undefined, projectRoot),
+            kind: "config",
+          });
+        }
+      } catch (err) {
+        toast.error("Failed to read file", { description: String(err) });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [projectRoot, pushRecent]
+  );
+
+  // Consume pendingConfigPath set by Output Browser / Command Palette
+  useEffect(() => {
+    if (!pendingConfigPath) return;
+    void loadConfigPath(pendingConfigPath, "primary");
+    setPendingConfigPath(null);
+  }, [pendingConfigPath, loadConfigPath, setPendingConfigPath]);
+
   const openFile = useCallback(async (target: "primary" | "diff") => {
     const path = (await open({
       filters: [{ name: "YAML / Config", extensions: ["yaml", "yml", "toml", "cfg", "ini"] }],
     })) as string | null;
     if (!path) return;
-
-    setLoading(true);
-    try {
-      const text = await invoke<string>("read_text_file", { path });
-      if (target === "primary") {
-        setContent(text);
-        setFilePath(path);
-        savedContentRef.current = text;
-      } else {
-        setDiffContent(text);
-        setDiffPath(path);
-      }
-    } catch (err) {
-      toast.error("Failed to read file", { description: String(err) });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await loadConfigPath(path, target);
+  }, [loadConfigPath]);
 
   const saveFile = useCallback(async () => {
     if (!filePath || !content) return;
