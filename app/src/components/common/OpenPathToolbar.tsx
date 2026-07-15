@@ -4,13 +4,14 @@
  *
  * Collapses the repeated dual-control pattern on analytics open-log toolbars,
  * OLAP / Data Explorer ingest paths, Config Editor YAML paths, Output Browser
- * run headers / file viewers / checkpoint sidebars, Training Monitor logs
- * discovery + run panels + checkpoint browsers, HPO / Experiment tracker paths
- * (storage URI, reports, trial log dirs, MLflow run dirs), ML introspection
- * archives, Settings path previews, launcher selected-path previews (eval /
- * train / data-gen), eval / benchmark results-table checkpoints, Process
- * Monitor process rows, and residual open-path surfaces after pass 227 put
- * chip handoffs on ``PathRunLabelChip``.
+ * run headers / file viewers / checkpoint sidebars / ``.wsroute`` members,
+ * Training Monitor logs discovery + run panels + checkpoint browsers, HPO /
+ * Experiment tracker paths (storage URI, reports, trial log dirs, MLflow run
+ * dirs), ML introspection archives, Settings path previews, launcher
+ * selected-path previews (eval / train / data-gen), eval / benchmark
+ * results-table checkpoints, Process Monitor process rows, live-panel
+ * ``ProcessIdFooter`` chips, portfolio ``LoadedRunRow`` lists, and residual
+ * open-path surfaces after pass 227 put chip handoffs on ``PathRunLabelChip``.
  */
 import type { ReactNode } from "react";
 import type { RecentFileKind } from "../../store/recentFiles";

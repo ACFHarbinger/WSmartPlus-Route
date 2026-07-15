@@ -1546,6 +1546,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor process-row path chips migrate to ``OpenPathToolbar``; process id as ``children`` (§G.15 / §D.7)
 - [x] §G.1 / §G.12 / §G.15 / §G.18 residual table-row open-path toolbar parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-fourth pass)**
+
+- [x] ``ProcessIdFooter`` log-path chip migrates to ``OpenPathToolbar``; process id as ``children`` — live-panel footer parity across sim / train / HPO / eval / data-gen (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] ``LoadedRunRow`` migrates to ``OpenPathToolbar``; day-count / meta ``trailing`` as ``children`` — portfolio list handoff shell parity (§G.1 / §G.14 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest members migrate to ``OpenPathToolbar`` (auto-classify handoff) (§G.8 / §G.14 / §D.7)
+- [x] §G.1 / §G.8 / §G.9–§G.15 / §G.17 / §G.18 shared footer + portfolio open-path toolbar parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -2300,6 +2307,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Update check command: `system::check_for_updates` uses Tauri updater plugin when `WSMART_UPDATER_PUBKEY` + `WSMART_UPDATE_URL` are set; falls back to JSON manifest version compare; Settings "Check for Updates" + conditional "Download & Install" button (§G.8)
 - [x] Signed update install: `system::install_app_update` downloads/installs pending signed update via `tauri-plugin-updater`; `updater:default` capability; example manifest at `app/updater.example.json` (partial — release signing keys + CDN hosting deferred)
 - [x] Output Browser ``.wsroute`` manifest member paths — auto-classified ``PathRunLabelChip`` handoffs for JSONL / CSV / config / checkpoint members (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest members use shared ``OpenPathToolbar`` (two-hundred-and-thirty-fourth pass; §G.8 / §G.14 / §D.7)
 
 **Status**: §G.8 complete — updater plugin wired; code-signing keys and hosted signed releases deferred to release engineering.
 
@@ -2499,6 +2507,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser run header uses shared ``OpenPathToolbar``; labeled Summary / Monitor dual when run log is known (two-hundred-and-twenty-ninth pass; §G.14 / §G.1 / §D.7)
 - [x] Output Browser checkpoint sidebar rows use shared ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (two-hundred-and-thirty-second pass; §G.14 / §G.12 / §D.7)
 - [x] Output Browser ``.wsroute`` manifest member paths use ``PathRunLabelChip`` auto-classified handoffs (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest members use shared ``OpenPathToolbar`` (two-hundred-and-thirty-fourth pass; §G.8 / §G.14 / §D.7)
+- [x] ``LoadedRunRow`` portfolio lists use shared ``OpenPathToolbar``; meta ``trailing`` as ``children`` (two-hundred-and-thirty-fourth pass; §G.1 / §G.14 / §D.7)
 
 ---
 
@@ -2559,6 +2569,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor process-row + ``ProcessIdFooter`` chips + live-header suffix handoffs via ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.15 / §D.7)
 - [x] Process Monitor ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.15 / §G.12 / §D.7)
 - [x] Process Monitor process-row path chips use shared ``OpenPathToolbar``; process id as ``children`` (two-hundred-and-thirty-third pass; §G.15 / §D.7)
+- [x] ``ProcessIdFooter`` log-path chip uses shared ``OpenPathToolbar``; process id as ``children`` (two-hundred-and-thirty-fourth pass; §G.15 / §G.9–§G.12 / §G.17 / §G.18 / §D.7)
 
 ---
 

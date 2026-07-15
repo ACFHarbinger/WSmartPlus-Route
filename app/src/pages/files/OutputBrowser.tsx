@@ -29,7 +29,6 @@ import {
   Archive,
 } from "lucide-react";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -935,12 +934,12 @@ export function OutputBrowser() {
                 {wsrouteBundle.files.map((f) => (
                   <tr key={f.path} className="hover:bg-canvas-hover">
                     <td className="py-1.5 px-3 max-w-md">
-                      <PathRunLabelChip
+                      <OpenPathToolbar
                         path={f.path}
                         projectRoot={projectRoot}
                         brushLabel={sourceRunLabel ?? undefined}
-                        className="max-w-full"
-                        handoff
+                        chipClassName="max-w-full"
+                        className="max-w-full min-w-0"
                       />
                     </td>
                     <td className="py-1.5 px-3 text-right text-canvas-muted">{formatBytes(f.size_bytes)}</td>

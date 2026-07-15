@@ -1,9 +1,10 @@
 /**
- * Portfolio / comparison loaded-run row with ``PathRunLabelChip`` brush parity (§G.1 / §G.14 / §D.7).
+ * Portfolio / comparison loaded-run row with ``OpenPathToolbar`` brush + handoff parity
+ * (§G.1 / §G.14 / §D.7).
  */
 import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
-import { PathRunLabelChip } from "./PathRunLabelChip";
+import { OpenPathToolbar } from "./OpenPathToolbar";
 import { useAppStore } from "../../store/app";
 import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
@@ -19,9 +20,10 @@ interface Props {
   selected?: boolean;
   onRemove?: () => void;
   leading?: ReactNode;
+  /** Meta after the path cluster (day counts, sparklines, etc.). */
   trailing?: ReactNode;
   /**
-   * Show kind-aware path handoffs via ``PathHandoffButtons`` (``.jsonl`` dual Summary /
+   * Show kind-aware path handoffs via ``OpenPathToolbar`` (``.jsonl`` dual Summary /
    * Monitor; training / run / csv / checkpoint / config single-icon) (§G.1 / §G.7 / §D.7).
    */
   pathHandoffs?: boolean;
@@ -74,15 +76,18 @@ export function LoadedRunRow({
           <X size={12} />
         </button>
       )}
-      <PathRunLabelChip
+      <OpenPathToolbar
         path={path}
         projectRoot={effectiveProjectRoot}
+        kind={handoffKind}
         label={label}
+        storedLabel={label}
+        chipClassName="flex-1 min-w-0 max-w-none"
         className="flex-1 min-w-0"
         handoff={showPathHandoffs ? (handoffKind ?? true) : false}
-        handoffStoredLabel={label}
-        trailing={trailing}
-      />
+      >
+        {trailing}
+      </OpenPathToolbar>
     </div>
   );
 }
