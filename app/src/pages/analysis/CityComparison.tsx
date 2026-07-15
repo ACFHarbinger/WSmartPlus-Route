@@ -268,7 +268,7 @@ export function CityComparison() {
               label={r.label}
               activeRunLabel={activeRunLabel}
               onRemove={() => removeRun(r.path)}
-              logHandoffs
+              pathHandoffs
             />
           ))}
         </div>

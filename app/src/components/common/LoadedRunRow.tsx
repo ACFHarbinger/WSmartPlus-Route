@@ -3,11 +3,12 @@
  */
 import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
-import { LogHandoffButtons } from "./LogHandoffButtons";
+import { PathHandoffButtons } from "./PathHandoffButtons";
 import { PathRunLabelChip } from "./PathRunLabelChip";
 import { useAppStore } from "../../store/app";
 import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import type { RecentFileKind } from "../../store/recentFiles";
 
 interface Props {
   path: string;
@@ -21,10 +22,16 @@ interface Props {
   leading?: ReactNode;
   trailing?: ReactNode;
   /**
-   * Show Summary + Simulation Monitor handoff buttons for ``.jsonl`` portfolio rows
-   * using the shared mode override (§G.1 / §G.16 / §D.7).
+   * Show kind-aware path handoffs via ``PathHandoffButtons`` (``.jsonl`` dual Summary /
+   * Monitor; training / run / csv / checkpoint / config single-icon) (§G.1 / §G.7 / §D.7).
+   */
+  pathHandoffs?: boolean;
+  /**
+   * Alias for ``pathHandoffs`` kept for portfolio ``.jsonl`` call sites (§G.1 / §G.16).
    */
   logHandoffs?: boolean;
+  /** Explicit handoff kind when path classification is ambiguous. */
+  handoffKind?: RecentFileKind | null;
   className?: string;
 }
 
@@ -37,7 +44,9 @@ export function LoadedRunRow({
   onRemove,
   leading,
   trailing,
+  pathHandoffs = false,
   logHandoffs = false,
+  handoffKind = null,
   className = "",
 }: Props) {
   const storeProjectRoot = useAppStore((s) => s.projectRoot);
@@ -48,6 +57,7 @@ export function LoadedRunRow({
   );
   const runLabel = label ?? runLabelFromPath(resolvedPath);
   const portfolioActive = Boolean(activeRunLabel && activeRunLabel === runLabel);
+  const showPathHandoffs = pathHandoffs || logHandoffs;
 
   return (
     <div
@@ -71,9 +81,16 @@ export function LoadedRunRow({
         label={label}
         className="flex-1 min-w-0"
         trailing={
-          logHandoffs || trailing ? (
+          showPathHandoffs || trailing ? (
             <>
-              {logHandoffs && <LogHandoffButtons path={path} storedLabel={label} />}
+              {showPathHandoffs && (
+                <PathHandoffButtons
+                  path={path}
+                  kind={handoffKind}
+                  storedLabel={label}
+                  iconSize={11}
+                />
+              )}
               {trailing}
             </>
           ) : undefined

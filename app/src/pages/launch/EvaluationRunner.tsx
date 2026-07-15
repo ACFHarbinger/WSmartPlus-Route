@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
@@ -207,6 +208,13 @@ function ResultsGrid({
                         projectRoot
                       )}
                       className="max-w-full"
+                      trailing={
+                        <PathHandoffButtons
+                          path={r.checkpointPath}
+                          kind="checkpoint"
+                          iconSize={11}
+                        />
+                      }
                     />
                   ) : (
                     <span className="font-mono text-gray-300 truncate">{r.checkpointName}</span>
@@ -275,6 +283,9 @@ function CheckpointRow({
           projectRoot={projectRoot}
           brushLabel={parentRunBrushLabelFromCheckpointPath(trimmedPath, projectRoot)}
           className="max-w-full"
+          trailing={
+            <PathHandoffButtons path={trimmedPath} kind="checkpoint" iconSize={11} />
+          }
         />
       ) : null}
     </div>

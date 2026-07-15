@@ -11,6 +11,7 @@ import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, BarChart2 } from "lucide-react";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
@@ -308,6 +309,13 @@ export function DataGeneration() {
                 path={sensorCsvPath.trim()}
                 projectRoot={projectRoot}
                 className="max-w-full"
+                trailing={
+                  <PathHandoffButtons
+                    path={sensorCsvPath.trim()}
+                    kind="csv"
+                    iconSize={11}
+                  />
+                }
               />
             ) : null}
             <p className="text-[10px] text-canvas-muted">

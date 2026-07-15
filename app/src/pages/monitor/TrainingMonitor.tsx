@@ -871,6 +871,8 @@ export function TrainingMonitor() {
                     projectRoot={projectRoot}
                     label={run.name}
                     activeRunLabel={activeRunLabel}
+                    pathHandoffs
+                    handoffKind="training"
                     trailing={trailing}
                     className="flex-1 min-w-0"
                   />
