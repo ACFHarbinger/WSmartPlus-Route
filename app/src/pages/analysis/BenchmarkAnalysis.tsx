@@ -529,7 +529,7 @@ export function BenchmarkAnalysis() {
       )}
 
       {runs.length >= 2 && (
-        <BenchmarkPortfolioParallel runs={filteredRuns} />
+        <BenchmarkPortfolioParallel runs={filteredRuns} logScale={logScale} />
       )}
 
       {runs.length >= 1 && (

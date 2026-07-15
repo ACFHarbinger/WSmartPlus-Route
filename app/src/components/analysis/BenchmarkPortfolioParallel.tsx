@@ -3,10 +3,13 @@
  */
 import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
+import { parallelAxisValue } from "../../utils/chartLogScale";
 import { cityScaleLabel, parseLogPath } from "../../utils/simMetadata";
 import type { DayLogEntry } from "../../types";
 
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
+
+const AXIS_NAMES = ["N", "Profit", "kg/km", "Overflows", "km"] as const;
 
 export interface PortfolioParallelRun {
   path: string;
@@ -18,7 +21,13 @@ function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
 
-export function BenchmarkPortfolioParallel({ runs }: { runs: PortfolioParallelRun[] }) {
+export function BenchmarkPortfolioParallel({
+  runs,
+  logScale = false,
+}: {
+  runs: PortfolioParallelRun[];
+  logScale?: boolean;
+}) {
   const lines = useMemo(
     () =>
       runs.map((run, i) => {
@@ -28,23 +37,43 @@ export function BenchmarkPortfolioParallel({ runs }: { runs: PortfolioParallelRu
         const kgkm = mean(vals.map((d) => d["kg/km"]).filter((v): v is number => v != null));
         const overflows = mean(vals.map((d) => d.overflows).filter((v): v is number => v != null));
         const km = mean(vals.map((d) => d.km).filter((v): v is number => v != null));
+        const raw = [meta.scale ?? 100, profit, kgkm, overflows, km];
+        const value = raw.map((v, idx) =>
+          idx === 0 ? v : parallelAxisValue(v, AXIS_NAMES[idx], logScale)
+        );
         return {
           name: run.label,
           color: COLORS[i % COLORS.length],
-          value: [meta.scale ?? 100, profit, kgkm, overflows, km],
+          value,
           meta,
         };
       }),
-    [runs]
+    [runs, logScale]
   );
 
   const option = useMemo(() => {
     const schema = [
       { dim: 0, name: "N", max: Math.max(...lines.map((l) => l.value[0]), 1) * 1.1 },
-      { dim: 1, name: "Profit", max: Math.max(...lines.map((l) => l.value[1]), 1) * 1.1 },
-      { dim: 2, name: "kg/km", max: Math.max(...lines.map((l) => l.value[2]), 0.01) * 1.1 },
-      { dim: 3, name: "Overflows", max: Math.max(...lines.map((l) => l.value[3]), 1) * 1.1 },
-      { dim: 4, name: "km", max: Math.max(...lines.map((l) => l.value[4]), 1) * 1.1 },
+      {
+        dim: 1,
+        name: logScale ? "Profit (log-norm)" : "Profit",
+        max: Math.max(...lines.map((l) => l.value[1]), 1) * 1.1,
+      },
+      {
+        dim: 2,
+        name: logScale ? "kg/km (log-norm)" : "kg/km",
+        max: Math.max(...lines.map((l) => l.value[2]), 0.01) * 1.1,
+      },
+      {
+        dim: 3,
+        name: logScale ? "Overflows (symlog)" : "Overflows",
+        max: Math.max(...lines.map((l) => l.value[3]), 1) * 1.1,
+      },
+      {
+        dim: 4,
+        name: logScale ? "km (log-norm)" : "km",
+        max: Math.max(...lines.map((l) => l.value[4]), 1) * 1.1,
+      },
     ];
 
     return {
@@ -83,11 +112,14 @@ export function BenchmarkPortfolioParallel({ runs }: { runs: PortfolioParallelRu
         },
       },
     };
-  }, [lines]);
+  }, [lines, logScale]);
 
   return (
     <div className="card space-y-2">
-      <p className="text-xs font-semibold text-gray-300">Portfolio Parallel Coordinates (§G.1.4)</p>
+      <p className="text-xs font-semibold text-gray-300">
+        Portfolio Parallel Coordinates (§G.1.4)
+        {logScale ? " · log-normalised axes" : ""}
+      </p>
       <p className="text-[10px] text-canvas-muted">
         {runs.length} simulation log(s) — one polyline per loaded run
       </p>

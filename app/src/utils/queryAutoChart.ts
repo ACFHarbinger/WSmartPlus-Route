@@ -252,6 +252,8 @@ export function buildAutoChartOption(
     return Number.isFinite(n) ? n : 0;
   };
   const displayOverflow = (y: number) => (logScale ? Math.max(y, 0.001) : y);
+  const displayScatterX = (x: number) =>
+    logScale && isLogScaleMetric(spec.xKey) ? Math.max(x, 0.001) : x;
 
   if (spec.type === "bar") {
     const labels = rows.map((r) => String(r[spec.xKey] ?? ""));
@@ -405,7 +407,8 @@ export function buildAutoChartOption(
     };
   }
 
-  const scatterLogScale = logScale && isOverflowMetric(spec.yKey);
+  const scatterYLog = logScale && isOverflowMetric(spec.yKey);
+  const scatterXLog = logScale && isLogScaleMetric(spec.xKey) && !isOverflowMetric(spec.xKey);
   const paretoPoints = spec.labelKey
     ? rows.map((r) => ({
         id: String(r[spec.labelKey!] ?? ""),
@@ -425,7 +428,7 @@ export function buildAutoChartOption(
         const onFront = frontIds.has(name);
         return {
           name,
-          value: [toNum(r[spec.xKey]), displayOverflow(y)] as [number, number],
+          value: [displayScatterX(toNum(r[spec.xKey])), displayOverflow(y)] as [number, number],
           itemStyle: { color: onFront ? "#34d399" : "#6366f1" },
         };
       })
@@ -448,7 +451,7 @@ export function buildAutoChartOption(
     series.push({
       type: "line",
       name: "Pareto front",
-      data: step.map(([x, y]) => [x, displayOverflow(y)]),
+      data: step.map(([x, y]) => [displayScatterX(x), displayOverflow(y)]),
       lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
       symbol: "none",
       tooltip: { show: false },
@@ -463,9 +466,15 @@ export function buildAutoChartOption(
       step.length > 1
         ? { data: ["Policies", "Pareto front"], textStyle: { color: "#9090b0", fontSize: 9 } }
         : undefined,
-    xAxis: { type: "value", name: spec.xKey, axisLabel: { color: "#9090b0", fontSize: 9 } },
+    xAxis: {
+      type: scatterXLog ? "log" : "value",
+      logBase: 10,
+      name: spec.xKey,
+      axisLabel: { color: "#9090b0", fontSize: 9 },
+      minorSplitLine: { show: false },
+    },
     yAxis: {
-      type: scatterLogScale ? "log" : "value",
+      type: scatterYLog ? "log" : "value",
       logBase: 10,
       name: spec.yKey,
       axisLabel: { color: "#9090b0", fontSize: 9 },
