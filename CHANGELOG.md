@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-first pass (§A.4 + §A.2)
+
+Hundred-thirty-first pass closes the HPO live-analytics gap: Training Monitor and HPO
+Tracker now ingest health alerts and runtime attention for ``hpo_*`` processes, matching
+Training Hub and Process Monitor from the prior pass.
+
+**React frontend**
+- ``trainingProcess.ts`` — ``isTrainOrHpoProcess``, ``findActiveLiveTrainProcessId``,
+  ``findActiveHpoProcessId``, ``liveTrainProcessLabel`` shared helpers
+- Training Monitor — live stdout ingest for ``hpo_*`` processes; ``Live HPO`` overlay
+  label when HPO active (§G.17 / §A.4 / §A.2)
+- HPO Tracker — ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` during live HPO runs;
+  ``Process Monitor →`` navigation shortcut (§G.18 / §A.4 / §A.2)
+- Process Monitor — ``isTrainOrHpoProcess`` shared matcher (no behaviour change)
+
+**ROADMAP**
+- §A.4 Training Monitor + HPO Tracker live health panels checked
+- §A.2 Training Monitor + HPO Tracker runtime attention panels checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirtieth pass (§A.4 + §A.2)
 
 Hundred-thirtieth pass extends training health alerts and runtime attention heatmaps

@@ -94,6 +94,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Training Hub — ``RuntimeAttentionPanel`` during live train/hpo runs; stdout ingest alongside metrics (§G.10 / §A.2)
 - [x] Process Monitor — ``RuntimeAttentionPanel`` for selected ``train_`` / ``hpo_`` processes (§G.15 / §A.2)
 
+**Delivered (§A.2 Option A — hundred-thirty-first pass)**
+
+- [x] ``findActiveLiveTrainProcessId`` / ``findActiveHpoProcessId`` — shared train/HPO process detection for live analytics
+- [x] Training Monitor — live stdout ingest for ``hpo_*`` processes; ``Live HPO`` label when HPO active (§G.17 / §A.2)
+- [x] HPO Tracker — ``RuntimeAttentionPanel`` during live ``hpo_*`` runs; ``Process Monitor →`` navigation shortcut (§G.18 / §A.2)
+
 **Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
@@ -243,6 +249,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] ``collectTrainingHealthFromLogLines`` — shared ``TRAINING_HEALTH_START:`` parser for process stdout
 - [x] Training Hub — ``TrainingHealthPanel`` during live train/hpo runs; stdout ingest alongside metrics (§G.10 / §A.4)
 - [x] Process Monitor — ``TrainingHealthPanel`` for selected ``train_`` / ``hpo_`` processes (§G.15 / §A.4)
+
+**Delivered (§A.4 Option A — hundred-thirty-first pass)**
+
+- [x] ``isTrainOrHpoProcess`` — shared train/HPO command matcher (Process Monitor parity)
+- [x] Training Monitor — live health alerts for ``hpo_*`` processes alongside ``train_*`` (§G.17 / §A.4)
+- [x] HPO Tracker — ``TrainingHealthPanel`` during live ``hpo_*`` runs; bridges §A.4 Option D trial health table (§G.18 / §A.4)
 
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
@@ -1567,7 +1579,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
 - [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode
 - [x] **Learning rate schedule chart**: `lr` column rendered as a compact `LrSparkline` (step-level, amber `#fbbf24`) using the shared `MetricSparkline` base component; shown per selected run below the gradient norm sparkline
-- [x] **Live training mode**: `LIVE_KEY = "__live__"` virtual entry in `metricsMap`; `activeTrainId` from `useProcessStore` (first running `train_*` process); `process:stdout` listener appends parsed metric rows to `metricsMap[LIVE_KEY]` without touching the CSV; live entry auto-selected in run list with `Radio` icon + pulse animation; live `RunPanel` shows `GradNormSparkline` + `LrSparkline`; auto-deselected when process exits
+- [x] **Live training mode**: `LIVE_KEY = "__live__"` virtual entry in `metricsMap`; `activeTrainId` from `useProcessStore` (newest running `train_*` or `hpo_*` process via ``findActiveLiveTrainProcessId``); `process:stdout` listener appends parsed metric rows to `metricsMap[LIVE_KEY]` without touching the CSV; live entry auto-selected in run list with `Radio` icon + pulse animation; ``Live HPO`` label when an ``hpo_*`` process is active; live `RunPanel` shows `GradNormSparkline` + `LrSparkline`; auto-deselected when process exits (hundred-thirty-first pass extends HPO coverage)
 - [x] **Column normalization**: `normalizeMetricRow()` maps Lightning CSV aliases (`train/rl_loss` → `train_loss`, `val/cost` → `val_loss`, `lr-Adam` → `lr`) applied at both CSV load time and live stdout parse time; same normalization applied to `TrainingHub.tsx`
 - [x] **Streamlit parity check**: Lightning CSV columns `train_loss`, `val_loss`, `reward`, `grad_norm`, `lr`, `epoch`, `step` all rendered; aliased column variants covered by `normalizeMetricRow`
 
@@ -1591,6 +1603,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
 - [x] **MLflow dashboard embed fallback**: Runs/Dashboard tab toggle in ExperimentTracker; iframe embed of local MLflow UI (`http://localhost:5000` default) + open-in-browser via shell plugin (native WebView window deferred)
+- [x] **Live HPO analytics** (§A.4 / §A.2 hundred-thirty-first pass): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` when an ``hpo_*`` process is running; ``Process Monitor →`` navigation shortcut
 
 ---
 
