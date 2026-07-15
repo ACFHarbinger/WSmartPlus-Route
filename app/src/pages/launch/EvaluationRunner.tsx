@@ -38,26 +38,19 @@ import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { ProcessStatus, StdoutLine, StatusUpdate } from "../../types";
+import {
+  type EvalResult,
+  parseEvalResultLine,
+  toEvalAnalyticsRows,
+} from "../../utils/evalResults";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
 const DEVICES = ["cpu", "cuda:0", "cuda:1"] as const;
 
-// Keys that identify a line as a structured eval result
-const EVAL_RESULT_KEYS = ["cost", "gap", "tour_cost", "obj", "time", "policy", "checkpoint"];
-
 interface CheckpointEntry {
   id: string;
   path: string;
-}
-
-interface EvalResult {
-  checkpointName: string;
-  cost?: number;
-  gap?: number;
-  time?: number;
-  policy?: string;
-  [key: string]: number | string | undefined;
 }
 
 const EVAL_CHART_METRICS = [
@@ -315,28 +308,22 @@ export function EvaluationRunner() {
       const { id, line } = event.payload;
       const checkpointName = processToCheckpoint.current[id];
       if (!checkpointName) return;
-      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-      try {
-        const obj = JSON.parse(text) as Record<string, unknown>;
-        if (EVAL_RESULT_KEYS.some((k) => obj[k] != null)) {
-          const result: EvalResult = { checkpointName };
-          for (const [k, v] of Object.entries(obj)) {
-            if (typeof v === "number" || typeof v === "string") {
-              result[k] = v;
-            }
-          }
-          setResults((prev) => {
-            // Update existing row for this checkpoint or append new
-            const idx = prev.findIndex((r) => r.checkpointName === checkpointName);
-            if (idx >= 0) {
-              const updated = [...prev];
-              updated[idx] = { ...updated[idx], ...result };
-              return updated;
-            }
-            return [...prev, result];
-          });
+      const partial = parseEvalResultLine(line);
+      if (partial) {
+        const result: EvalResult = { checkpointName, ...partial };
+        if (typeof partial.checkpoint === "string" && partial.checkpoint.trim() !== "") {
+          result.checkpointName = partial.checkpoint;
         }
-      } catch {}
+        setResults((prev) => {
+          const idx = prev.findIndex((r) => r.checkpointName === result.checkpointName);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = { ...updated[idx], ...result };
+            return updated;
+          }
+          return [...prev, result];
+        });
+      }
     }).then((fn) => { unlistenOut = fn; });
 
     // Also listen for status — remove process from tracking when done
@@ -424,14 +411,7 @@ export function EvaluationRunner() {
       : `python main.py eval \\\n  ${previewArgs.join(" \\\n  ")}`;
 
   const openInAnalytics = useCallback(() => {
-    const rows = results.map((r) => ({
-      checkpoint: r.checkpointName,
-      cost: r.cost,
-      gap: r.gap,
-      time: r.time,
-      policy: r.policy,
-    }));
-    setPendingEvalResults(rows);
+    setPendingEvalResults(toEvalAnalyticsRows(results));
     setMode("benchmark");
   }, [results, setPendingEvalResults, setMode]);
 

@@ -10,7 +10,15 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  Square,
+  Terminal,
+  Trash2,
+} from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -35,6 +43,12 @@ import {
   isSimProcess,
   launcherKindFromProcess,
 } from "../../utils/launcherProcess";
+import {
+  checkpointLabelFromEvalProcess,
+  collectEvalResultFromLogLines,
+  hasEvalMetrics,
+  toEvalAnalyticsRows,
+} from "../../utils/evalResults";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -247,7 +261,7 @@ function isTrainProcess(command: string, id: string): boolean {
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
-  const { effectiveTheme: theme } = useAppStore();
+  const { effectiveTheme: theme, setMode, setPendingEvalResults } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -276,6 +290,7 @@ export function ProcessMonitor() {
     ? launcherKindFromProcess(selectedProc.id, selectedProc.command)
     : null;
   const selectedIsSim = selectedLauncherKind === "sim";
+  const selectedIsEval = selectedLauncherKind === "eval";
   const selectedIsTrain = selectedProc
     ? isTrainProcess(selectedProc.command, selectedProc.id)
     : false;
@@ -329,6 +344,18 @@ export function ProcessMonitor() {
     () => (selectedProc ? collectAttentionVizFromLogLines(selectedProc.logLines) : []),
     [selectedProc]
   );
+
+  const evalResult = useMemo(() => {
+    if (!selectedProc || !selectedIsEval) return null;
+    const label = checkpointLabelFromEvalProcess(selectedProc.id, selectedProc.command);
+    return collectEvalResultFromLogLines(selectedProc.logLines, label);
+  }, [selectedProc, selectedIsEval]);
+
+  const openEvalInAnalytics = useCallback(() => {
+    if (!evalResult || !hasEvalMetrics(evalResult)) return;
+    setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
+    setMode("benchmark");
+  }, [evalResult, setMode, setPendingEvalResults]);
 
   if (ids.length === 0) {
     return (
@@ -434,7 +461,75 @@ export function ProcessMonitor() {
         </div>
       )}
 
-      {selectedLauncherKind && selectedProc && !selectedIsTrain && !selectedIsSim && (
+      {selectedIsEval && selectedProc && (
+        <div className="space-y-3 pt-2 border-t border-canvas-border">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-canvas-muted flex-1 min-w-0">
+              Eval results for{" "}
+              <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              {selectedProc.status === "running" && (
+                <span className="ml-2 text-accent-success">· live</span>
+              )}
+            </p>
+            <LauncherNavMesh
+              kind="eval"
+              showPostRun={selectedProc.status === "completed"}
+              onOpenAnalytics={
+                evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined
+              }
+            />
+          </div>
+
+          {evalResult && hasEvalMetrics(evalResult) ? (
+            <div className="card space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-gray-200">
+                  {evalResult.checkpointName}
+                </h3>
+                <button
+                  onClick={openEvalInAnalytics}
+                  className="btn-ghost text-xs flex items-center gap-1"
+                >
+                  <BarChart3 size={12} />
+                  Open in Analytics →
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-4 text-xs">
+                {evalResult.cost != null && (
+                  <div>
+                    <span className="text-canvas-muted">Cost </span>
+                    <span className="font-mono text-gray-200">{evalResult.cost.toFixed(4)}</span>
+                  </div>
+                )}
+                {evalResult.gap != null && (
+                  <div>
+                    <span className="text-canvas-muted">Gap </span>
+                    <span className="font-mono text-gray-200">{evalResult.gap.toFixed(4)}%</span>
+                  </div>
+                )}
+                {evalResult.time != null && (
+                  <div>
+                    <span className="text-canvas-muted">Time </span>
+                    <span className="font-mono text-gray-200">{evalResult.time.toFixed(3)}s</span>
+                  </div>
+                )}
+                {evalResult.policy != null && (
+                  <div>
+                    <span className="text-canvas-muted">Policy </span>
+                    <span className="font-mono text-gray-200">{evalResult.policy}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-canvas-muted">
+              Waiting for structured eval JSON in process output…
+            </p>
+          )}
+        </div>
+      )}
+
+      {selectedLauncherKind === "data_gen" && selectedProc && (
         <div className="space-y-3 pt-2 border-t border-canvas-border">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-xs text-canvas-muted flex-1 min-w-0">
@@ -445,7 +540,7 @@ export function ProcessMonitor() {
               )}
             </p>
             <LauncherNavMesh
-              kind={selectedLauncherKind}
+              kind="data_gen"
               showPostRun={selectedProc.status === "completed"}
             />
           </div>
@@ -464,6 +559,7 @@ export function ProcessMonitor() {
             </p>
             <TrainHpoNavMesh
               showHpoLinks={isHpoProcess(selectedProc.id, selectedProc.command)}
+              showOutputBrowser={selectedProc.status === "completed"}
             />
           </div>
           <TrainingHealthPanel entries={trainingHealthEntries} />

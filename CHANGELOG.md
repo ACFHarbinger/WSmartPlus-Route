@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fortieth pass (§G.12 + §G.15 + §G.10 + §D.7)
+
+Hundred-fortieth pass closes the Process Monitor eval analytics gap by sharing eval
+stdout parsing with the Evaluation Runner and wiring Benchmark Analysis navigation
+from completed eval and train processes.
+
+**React frontend**
+- ``evalResults.ts`` — shared eval JSON line parsing, checkpoint label extraction, and
+  ``toEvalAnalyticsRows`` for Benchmark Analysis handoff (§G.12 / §G.15)
+- Process Monitor — eval results KPI panel for selected ``eval`` processes; live +
+  completed cost / gap / time / policy metrics parsed from stdout (§G.12 / §G.15)
+- Process Monitor — ``Open in Analytics →`` + ``LauncherNavMesh`` ``Benchmark Analysis →``
+  when eval metrics are present (§D.7 / §G.12)
+- Process Monitor — ``TrainHpoNavMesh`` ``Output Browser →`` on completed train/HPO
+  processes (§G.10 / §D.7)
+- Evaluation Runner — imports shared ``evalResults.ts`` helpers (§G.12)
+
+**ROADMAP**
+- §G.12 ``evalResults.ts`` shared parsing checked
+- §G.15 Process Monitor eval results panel + analytics shortcut checked
+- §G.10 Process Monitor train Output Browser shortcut checked
+- §D.7 eval analytics navigation mesh checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-ninth pass (§D.7 + §G.9 + §G.11 + §G.12 + §G.15)
 
 Hundred-thirty-ninth pass consolidates the sim / data-gen / eval launcher navigation mesh

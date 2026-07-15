@@ -1539,6 +1539,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] EvaluationRunner inline checkpoint charts follow global ``logScale``: log y-axis on cost/gap/time when on; ``GlobalFilterBar`` toggle above results grid (§G.12 / §G.7)
 - [x] Live progress + ETA (hundred-thirty-eighth pass): per-checkpoint ``LiveTrainProgressBar`` in live progress panel during ``eval`` runs; multi-checkpoint aggregate status + stdout tail (§D.2 / §G.12)
 - [x] ``LauncherNavMesh`` + ``Benchmark Analysis →`` post-run shortcut in live eval panel (hundred-thirty-ninth pass; §D.7)
+- [x] ``evalResults.ts`` shared stdout JSON parsing + ``toEvalAnalyticsRows`` helpers (hundred-fortieth pass; §G.12 / §G.15)
 
 ---
 
@@ -1602,6 +1603,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Cancel any running process (§D.5): button in the process list row; sends SIGTERM (`cancel_process` command already wired in `ProcessRow`)
 - [x] Toast notification on process completion / failure (§D.8): `useProcessMonitor` fires `toast.success/error/info` on terminal status transitions; label derived from `id.split("_")[0]`
 - [x] Training analytics for ``train_`` / ``hpo_`` processes: ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` parsed from process stdout (§A.4 / §A.2 hundred-thirtieth pass)
+- [x] Eval results panel (hundred-fortieth pass): selected ``eval`` processes parse structured JSON from stdout; KPI row (cost / gap / time / policy) + ``Open in Analytics →`` via ``pendingEvalResults`` (§G.12 / §G.15 / §D.7)
+- [x] ``LauncherNavMesh`` ``Benchmark Analysis →`` on completed eval processes when metrics are present (hundred-fortieth pass; §D.7 / §G.12)
+- [x] ``TrainHpoNavMesh`` ``Output Browser →`` on completed ``train_`` / ``hpo_`` processes (hundred-fortieth pass; §G.10 / §D.7)
 
 ---
 
