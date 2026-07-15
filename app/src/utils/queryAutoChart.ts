@@ -52,6 +52,55 @@ function findPreferredMetric(numericCols: string[], xKey: string): string {
   return numericCols.find((c) => c !== xKey) ?? numericCols[0];
 }
 
+/** All applicable chart specs for a result set (primary suggestion first). */
+export function suggestChartAlternatives(
+  columns: string[],
+  rows: Record<string, unknown>[]
+): AutoChartSpec[] {
+  const primary = suggestChart(columns, rows);
+  if (!primary) return [];
+
+  const alternatives: AutoChartSpec[] = [primary];
+  const lower = new Map(columns.map((c) => [c.toLowerCase(), c]));
+  const numericCols = columns.filter((c) => isNumericCol(c, rows));
+  const stringCols = columns.filter((c) => !numericCols.includes(c));
+
+  if (stringCols.length >= 2 && numericCols.length >= 1) {
+    const rowDim = lower.get("city_scale") ?? lower.get("run_label");
+    const colDim = lower.get("policy");
+    const yKey = findPreferredMetric(numericCols, rowDim ?? stringCols[0]);
+
+    if (rowDim && colDim && rowDim !== colDim) {
+      const heatmap: AutoChartSpec = {
+        type: "heatmap",
+        label: `${yKey} matrix (${rowDim} × ${colDim})`,
+        xKey: colDim,
+        seriesKey: rowDim,
+        yKey,
+      };
+      const grouped: AutoChartSpec = {
+        type: "grouped-bar",
+        label: `${yKey} by ${rowDim} × ${colDim}`,
+        xKey: rowDim,
+        seriesKey: colDim,
+        yKey,
+      };
+      for (const spec of [heatmap, grouped]) {
+        if (!alternatives.some((a) => a.type === spec.type)) alternatives.push(spec);
+      }
+    }
+  }
+
+  if (stringCols.length >= 1 && numericCols.length >= 1) {
+    const xKey = findPreferredDim(columns, stringCols) ?? stringCols[0];
+    const yKey = findPreferredMetric(numericCols, xKey);
+    const bar: AutoChartSpec = { type: "bar", label: `${yKey} by ${xKey}`, xKey, yKey };
+    if (!alternatives.some((a) => a.type === "bar")) alternatives.push(bar);
+  }
+
+  return alternatives;
+}
+
 export function suggestChart(
   columns: string[],
   rows: Record<string, unknown>[]
@@ -117,6 +166,22 @@ export function suggestChart(
   }
 
   return null;
+}
+
+/** Resolve heatmap cell indices to dimension labels for cross-filter clicks. */
+export function heatmapCellLabels(
+  spec: AutoChartSpec,
+  rows: Record<string, unknown>[],
+  xIndex: number,
+  yIndex: number
+): { colLabel?: string; rowLabel?: string } {
+  if (!spec.seriesKey) return {};
+  const colLabels = [...new Set(rows.map((r) => String(r[spec.xKey] ?? "")))];
+  const rowLabels = [...new Set(rows.map((r) => String(r[spec.seriesKey!] ?? "")))];
+  return {
+    colLabel: colLabels[xIndex],
+    rowLabel: rowLabels[yIndex],
+  };
 }
 
 export function buildAutoChartOption(

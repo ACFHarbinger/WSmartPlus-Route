@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-third pass (§G.6)
+
+Seventy-third pass closes remaining §G.6 auto-chart polish: click-to-cross-filter on
+suggested charts, PNG export, chart-type override chips, and a run×policy matrix SQL
+template.
+
+**React frontend**
+- `queryAutoChart` — ``suggestChartAlternatives()`` + ``heatmapCellLabels()`` for
+  multi-type suggestions and heatmap brush resolution
+- `SqlQueryPanel` — auto-chart click cross-filter (bar / grouped-bar / heatmap);
+  type override chips; PNG export via ``exportChartPng()``
+- `duckdbTemplates` — ``Run×policy matrix (kg/km)`` portfolio template
+
+**ROADMAP**
+- §G.6 Auto-chart click cross-filter checked
+- §G.6 Auto-chart PNG export checked
+- §G.6 Auto-chart type override selector checked
+- §G.6 Run×policy matrix SQL template checked
+- §G.6 Auto-chart suggestions marked complete (heatmap included)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-second pass (§G.6)
 
 Seventy-second pass closes partial §G.6 OLAP/Data Explorer polish: DuckDB-derived

@@ -1,9 +1,9 @@
 /**
  * DuckDB-Wasm SQL query editor panel (§G.6).
  */
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, ImageDown, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PivotTablePanel } from "./PivotTablePanel";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -14,7 +14,14 @@ import {
   sqlTemplates,
   type PortfolioBrushFilter,
 } from "../../utils/duckdbTemplates";
-import { buildAutoChartOption, suggestChart } from "../../utils/queryAutoChart";
+import { exportChartPng } from "../../utils/chartExport";
+import {
+  buildAutoChartOption,
+  heatmapCellLabels,
+  suggestChartAlternatives,
+  type AutoChartSpec,
+  type AutoChartType,
+} from "../../utils/queryAutoChart";
 import { downloadCsv } from "../../utils/tableExport";
 
 const MonacoEditor = lazy(() => import("@monaco-editor/react"));
@@ -70,6 +77,8 @@ export function SqlQueryPanel({
   const [sortCol, setSortCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [filterText, setFilterText] = useState("");
+  const [chartTypeOverride, setChartTypeOverride] = useState<AutoChartType | null>(null);
+  const autoChartRef = useRef<ReactECharts>(null);
 
   const templates = useMemo(
     () => sqlTemplates(tableName, { portfolio: portfolioMode, algorithm: algorithmMode }),
@@ -144,10 +153,22 @@ export function SqlQueryPanel({
     return Object.keys(rows[0]);
   }, [rows]);
 
-  const chartSpec = useMemo(
-    () => (columns.length ? suggestChart(columns, rows) : null),
+  const chartAlternatives = useMemo(
+    () => (columns.length ? suggestChartAlternatives(columns, rows) : []),
     [columns, rows]
   );
+
+  const chartSpec = useMemo((): AutoChartSpec | null => {
+    if (!chartAlternatives.length) return null;
+    if (chartTypeOverride) {
+      return chartAlternatives.find((s) => s.type === chartTypeOverride) ?? chartAlternatives[0];
+    }
+    return chartAlternatives[0];
+  }, [chartAlternatives, chartTypeOverride]);
+
+  useEffect(() => {
+    setChartTypeOverride(null);
+  }, [rows]);
 
   const chartOption = useMemo(
     () => (chartSpec ? buildAutoChartOption(chartSpec, rows) : null),
@@ -309,6 +330,57 @@ export function SqlQueryPanel({
     applyCrossFilter(rowKey, label);
   };
 
+  const onAutoChartClick = useCallback(
+    (params: {
+      componentType?: string;
+      name?: string;
+      seriesName?: string;
+      value?: unknown;
+    }) => {
+      if (!chartSpec || params.componentType !== "series") return;
+
+      if (chartSpec.type === "bar") {
+        applyCrossFilter(chartSpec.xKey, String(params.name ?? ""));
+        return;
+      }
+
+      if (chartSpec.type === "grouped-bar" && chartSpec.seriesKey) {
+        if (params.seriesName) {
+          applyCrossFilter(chartSpec.seriesKey, String(params.seriesName));
+        }
+        if (params.name) {
+          applyCrossFilter(chartSpec.xKey, String(params.name));
+        }
+        return;
+      }
+
+      if (chartSpec.type === "heatmap" && chartSpec.seriesKey) {
+        const val = params.value as [number, number, number] | undefined;
+        if (!val) return;
+        const { colLabel, rowLabel } = heatmapCellLabels(
+          chartSpec,
+          rows,
+          val[0],
+          val[1]
+        );
+        if (colLabel) applyCrossFilter(chartSpec.xKey, colLabel);
+        if (rowLabel) applyCrossFilter(chartSpec.seriesKey, rowLabel);
+      }
+    },
+    [chartSpec, rows, applyCrossFilter]
+  );
+
+  const autoChartCrossFilterHint = useMemo(() => {
+    if (!chartSpec) return false;
+    if (chartSpec.type === "bar") {
+      return /^(policy|run_label|city_scale)$/i.test(chartSpec.xKey);
+    }
+    if (chartSpec.type === "grouped-bar" || chartSpec.type === "heatmap") {
+      return Boolean(chartSpec.seriesKey);
+    }
+    return false;
+  }, [chartSpec]);
+
   return (
     <div className="card space-y-3">
       <button
@@ -390,11 +462,55 @@ export function SqlQueryPanel({
           {error && <p className="text-xs text-accent-danger font-mono">{error}</p>}
 
           {chartSpec && chartOption && (
-            <div className="space-y-1">
-              <p className="text-xs text-canvas-muted">
-                Auto-chart (§G.6): <span className="text-gray-300">{chartSpec.label}</span>
-              </p>
-              <ReactECharts option={chartOption} style={{ height: 200 }} />
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs text-canvas-muted">
+                  Auto-chart (§G.6): <span className="text-gray-300">{chartSpec.label}</span>
+                </p>
+                {chartAlternatives.length > 1 && (
+                  <div className="flex flex-wrap gap-1">
+                    {chartAlternatives.map((alt) => (
+                      <button
+                        key={alt.type}
+                        type="button"
+                        onClick={() => setChartTypeOverride(alt.type)}
+                        className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                          chartSpec.type === alt.type
+                            ? "border-accent-primary bg-accent-primary/15 text-accent-secondary"
+                            : "border-canvas-border text-canvas-muted hover:text-gray-200"
+                        }`}
+                      >
+                        {alt.type}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (exportChartPng(autoChartRef, "auto-chart.png")) {
+                      toast.success("Chart exported", { description: "auto-chart.png" });
+                    }
+                  }}
+                  className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
+                >
+                  <ImageDown size={11} />
+                  PNG
+                </button>
+              </div>
+              <ReactECharts
+                ref={autoChartRef}
+                option={chartOption}
+                style={{ height: 200 }}
+                onEvents={
+                  autoChartCrossFilterHint ? { click: onAutoChartClick } : undefined
+                }
+              />
+              {autoChartCrossFilterHint && (
+                <p className="text-[10px] text-canvas-muted">
+                  Click a bar or heatmap cell to cross-filter linked panels.
+                </p>
+              )}
             </div>
           )}
 
