@@ -5,12 +5,30 @@ import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 import { useRecentFilesStore } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
-import { makeRecentEntry } from "../utils/recentHandoff";
+import { applyRecentHandoff, type RecentPendingSetters } from "../utils/recentHandoff";
 
 /** Pick a `.wsroute` bundle, extract it, and open the log in Simulation Summary. */
 export function useWsrouteImport() {
-  const { projectRoot, setPendingLogPath, setMode } = useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    setPendingLogPath,
+    setPendingRunPath,
+    setPendingCsvPath,
+    setPendingTrainingRunPath,
+    setPendingCheckpoint,
+    setPendingConfigPath,
+  } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
+  const pendingSetters: RecentPendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
 
   return useCallback(async () => {
     const bundlePath = (await open({
@@ -32,9 +50,14 @@ export function useWsrouteImport() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
-        pushRecent(makeRecentEntry(result.log_path, "log", projectRoot));
-        setPendingLogPath(result.log_path);
-        setMode("simulation_summary");
+        applyRecentHandoff({
+          path: result.log_path,
+          kind: "log",
+          projectRoot,
+          pushRecent,
+          setMode,
+          pendingSetters,
+        });
       } else {
         setMode("output_browser");
         toast.info("No .jsonl log found — browse extracted files in Output Browser");
@@ -42,5 +65,7 @@ export function useWsrouteImport() {
     } catch (err) {
       toast.error("Failed to import bundle", { description: String(err) });
     }
-  }, [projectRoot, pushRecent, setPendingLogPath, setMode]);
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectRoot, pushRecent, setMode]);
 }

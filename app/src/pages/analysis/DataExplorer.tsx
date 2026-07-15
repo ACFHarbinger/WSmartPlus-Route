@@ -24,6 +24,7 @@ import {
   runCsvArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/cityComparison";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {
@@ -74,11 +75,7 @@ export function DataExplorer() {
       setSortCol(null);
       setSortDir("asc");
       setFilterText("");
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
-        kind: "csv",
-      });
+      pushRecent(makeRecentEntry(path, "csv", projectRoot));
 
       if (duckdbReady) {
         setLoading(true);

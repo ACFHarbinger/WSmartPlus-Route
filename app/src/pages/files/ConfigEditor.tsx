@@ -21,7 +21,7 @@ import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 
 const YamlEditor = lazy(() => import("../../components/editors/YamlEditor"));
 
@@ -109,19 +109,11 @@ export function ConfigEditor() {
           setContent(text);
           setFilePath(path);
           savedContentRef.current = text;
-          pushRecent({
-            path,
-            label: portfolioRunLabel(path, undefined, projectRoot),
-            kind: "config",
-          });
+          pushRecent(makeRecentEntry(path, "config", projectRoot));
         } else {
           setDiffContent(text);
           setDiffPath(path);
-          pushRecent({
-            path,
-            label: portfolioRunLabel(path, undefined, projectRoot),
-            kind: "config",
-          });
+          pushRecent(makeRecentEntry(path, "config", projectRoot));
         }
       } catch (err) {
         toast.error("Failed to read file", { description: String(err) });

@@ -49,6 +49,7 @@ import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
@@ -291,7 +292,7 @@ export function BenchmarkAnalysis() {
       for (const ref of pendingBenchmarkLogs) {
         const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
         const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
-        pushRecent({ path: ref.path, label, kind: "log" });
+        pushRecent(makeRecentEntry(ref.path, "log", projectRoot, label));
         loaded.push({
           path: ref.path,
           label,
@@ -311,7 +312,7 @@ export function BenchmarkAnalysis() {
     if (!path) return;
     const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     const label = portfolioRunLabel(path, undefined, projectRoot);
-    pushRecent({ path, label, kind: "log" });
+    pushRecent(makeRecentEntry(path, "log", projectRoot, label));
     setRuns((r) => [...r, { path, label, entries }]);
   }, [projectRoot, pushRecent]);
 
@@ -344,7 +345,7 @@ export function BenchmarkAnalysis() {
         label: portfolioRunLabel(r.path, r.label, projectRoot),
       }));
       for (const r of normalized) {
-        pushRecent({ path: r.path, label: r.label, kind: "log" });
+        pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
       }
       setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {

@@ -50,6 +50,11 @@ import {
 import { useRecentFilesStore } from "../../store/recentFiles";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
+  applyRecentHandoff,
+  makeRecentEntry,
+  type RecentPendingSetters,
+} from "../../utils/recentHandoff";
+import {
   findActiveLiveTrainProcessId,
   findRecentTrainOrHpoProcessId,
   isHpoProcess,
@@ -377,9 +382,22 @@ export function TrainingMonitor() {
     effectiveTheme,
     pendingTrainingRunPath,
     setPendingTrainingRunPath,
+    setPendingLogPath,
+    setPendingRunPath,
+    setPendingCsvPath,
+    setPendingConfigPath,
   } = useAppStore();
   const { logScale, runLabel: activeRunLabel } = useGlobalFiltersStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
+  const pendingSetters: RecentPendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
@@ -603,11 +621,7 @@ export function TrainingMonitor() {
     if (!pendingTrainingRunPath) return;
     const run = runs.find((r) => r.path === pendingTrainingRunPath);
     if (run) {
-      pushRecent({
-        path: run.path,
-        label: portfolioRunLabel(run.path, run.name, projectRoot),
-        kind: "training",
-      });
+      pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -636,11 +650,7 @@ export function TrainingMonitor() {
     if (!recentTrainCompleted || !recentTrainingRunPath) return;
     const run = runs.find((r) => r.path === recentTrainingRunPath);
     if (run) {
-      pushRecent({
-        path: run.path,
-        label: portfolioRunLabel(run.path, run.name, projectRoot),
-        kind: "training",
-      });
+      pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -671,11 +681,7 @@ export function TrainingMonitor() {
         return [...s, run.name];
       });
       if (!selected.includes(run.name)) {
-        pushRecent({
-          path: run.path,
-          label: portfolioRunLabel(run.path, run.name, projectRoot),
-          kind: "training",
-        });
+        pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
       }
       loadMetrics(run);
       loadHealth(run);
@@ -736,15 +742,18 @@ export function TrainingMonitor() {
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
-      pushRecent({
+      applyRecentHandoff({
         path: checkpointPath,
-        label: portfolioRunLabel(checkpointPath, undefined, projectRoot),
         kind: "checkpoint",
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
       });
-      setPendingCheckpoint(checkpointPath);
-      setMode("eval_runner");
     },
-    [pushRecent, projectRoot, setPendingCheckpoint, setMode]
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pushRecent, projectRoot, setMode]
   );
 
   if (!projectRoot) {

@@ -3,7 +3,7 @@
  */
 import { useAppStore } from "../../store/app";
 import { useRecentFilesStore } from "../../store/recentFiles";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
+import { applyRecentHandoff, type RecentPendingSetters } from "../../utils/recentHandoff";
 
 export interface TrainHpoNavMeshProps {
   /** Hide Training Hub shortcut (on the hub page itself). */
@@ -30,8 +30,26 @@ export function TrainHpoNavMesh({
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const { projectRoot, setMode, setPendingRunPath, setPendingTrainingRunPath } = useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    setPendingLogPath,
+    setPendingRunPath,
+    setPendingCsvPath,
+    setPendingTrainingRunPath,
+    setPendingCheckpoint,
+    setPendingConfigPath,
+  } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
+  const pendingSetters: RecentPendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -39,14 +57,17 @@ export function TrainHpoNavMesh({
         <button
           onClick={() => {
             if (outputRunPath) {
-              pushRecent({
+              applyRecentHandoff({
                 path: outputRunPath,
-                label: portfolioRunLabel(outputRunPath, undefined, projectRoot),
                 kind: "run",
+                projectRoot,
+                pushRecent,
+                setMode,
+                pendingSetters,
               });
-              setPendingRunPath(outputRunPath);
+            } else {
+              setMode("output_browser");
             }
-            setMode("output_browser");
           }}
           className="btn-ghost text-xs text-accent-success"
         >
@@ -66,14 +87,17 @@ export function TrainHpoNavMesh({
           <button
             onClick={() => {
               if (trainingRunPath) {
-                pushRecent({
+                applyRecentHandoff({
                   path: trainingRunPath,
-                  label: portfolioRunLabel(trainingRunPath, undefined, projectRoot),
                   kind: "training",
+                  projectRoot,
+                  pushRecent,
+                  setMode,
+                  pendingSetters,
                 });
-                setPendingTrainingRunPath(trainingRunPath);
+              } else {
+                setMode("training");
               }
-              setMode("training");
             }}
             className="btn-ghost text-xs text-canvas-muted"
           >

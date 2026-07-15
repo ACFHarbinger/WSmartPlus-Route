@@ -19,6 +19,8 @@ export interface RecentHandoffSpec {
   successLabel: string;
 }
 
+export type RecentPendingSetters = Record<RecentPendingKey, (path: string | null) => void>;
+
 const HANDOFF: Record<RecentFileKind, RecentHandoffSpec> = {
   log: {
     mode: "simulation_summary",
@@ -69,6 +71,46 @@ export function makeRecentEntry(
     kind,
     label: portfolioRunLabel(path, storedLabel, projectRoot),
   };
+}
+
+export interface ApplyRecentHandoffArgs {
+  path: string;
+  kind: RecentFileKind;
+  projectRoot?: string | null;
+  /** Prefer stored/run name when re-pushing an existing recent entry. */
+  storedLabel?: string;
+  pushRecent: (file: Omit<RecentFile, "openedAt">) => void;
+  setMode: (mode: AppMode) => void;
+  pendingSetters: RecentPendingSetters;
+  /**
+   * When false, only push the recent entry (no mode/pending navigation).
+   * Useful when the caller already has local open logic (file pickers, etc.).
+   */
+  navigate?: boolean;
+}
+
+/**
+ * Push a recent-file entry and optionally navigate via pending-path handoff.
+ * Returns the handoff spec for toast/label reuse at call sites.
+ */
+export function applyRecentHandoff(args: ApplyRecentHandoffArgs): RecentHandoffSpec {
+  const {
+    path,
+    kind,
+    projectRoot,
+    storedLabel,
+    pushRecent,
+    setMode,
+    pendingSetters,
+    navigate = true,
+  } = args;
+  pushRecent(makeRecentEntry(path, kind, projectRoot, storedLabel));
+  const spec = recentHandoffSpec(kind);
+  if (navigate) {
+    pendingSetters[spec.pendingKey](path);
+    setMode(spec.mode);
+  }
+  return spec;
 }
 
 /**
